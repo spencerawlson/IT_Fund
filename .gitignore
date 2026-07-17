@@ -42,3 +42,4 @@ venv/
 # any local virtualenv (backend/.verify_venv etc)
 *venv/
 .verify_venv/
+.env*
