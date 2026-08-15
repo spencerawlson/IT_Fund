@@ -28,6 +28,7 @@ import LinuxTerminalLab from '@/components/tools/LinuxTerminalLab';
 import PythonAutomationLab from '@/components/tools/PythonAutomationLab';
 import SqlLab from '@/components/tools/SqlLab';
 import KubernetesAnimation from '@/components/viz/KubernetesAnimation';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import TlsAnimation from '@/components/viz/TlsAnimation';
 import RoutingAnimation from '@/components/viz/RoutingAnimation';
 import SecurityIncidentAnimation from '@/components/viz/SecurityIncidentAnimation';
@@ -133,6 +134,8 @@ export default function Lab() {
               </div>
             )}
 
+            {/* Keyed on `active` so switching labs clears a previous failure. */}
+            <ErrorBoundary key={active} label="This visualization">
             {is3D ? (
               <div className="h-[460px] w-full sm:h-[560px]">
                 {active === 'motherboard' && <Motherboard3D />}
@@ -241,6 +244,7 @@ export default function Lab() {
                 )}
               </div>
             )}
+            </ErrorBoundary>
           </div>
         </div>
 

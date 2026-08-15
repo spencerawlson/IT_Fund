@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, HelpCircle, AlertTriangle } from 'lucide-react';
+import { Play, Pause, RotateCcw, HelpCircle, AlertTriangle, Terminal, Cpu, MemoryStick, Activity } from 'lucide-react';
 import BreakItControls from '@/components/lab/BreakItControls';
 
 const STEPS = [

@@ -35,6 +35,11 @@ export default [
       "unused-imports": pluginUnusedImports,
     },
     rules: {
+      // The `rules` key below replaces the spread recommended configs above, so
+      // no-undef has to be re-stated explicitly. Without it, a JSX reference to
+      // an un-imported component (e.g. an icon) compiles and builds cleanly and
+      // only throws at render time, blanking the page.
+      "no-undef": "error",
       "no-unused-vars": "off",
       "react/jsx-uses-vars": "error",
       "react/jsx-uses-react": "error",
