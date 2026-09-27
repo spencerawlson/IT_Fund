@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FlaskConical, Search, X } from 'lucide-react';
+import { FlaskConical, Gamepad2, Search, X } from 'lucide-react';
 
 export default function Navbar({ onSearch }) {
   const [q, setQ] = useState('');
@@ -26,6 +26,9 @@ export default function Navbar({ onSearch }) {
               <span className="hidden sm:inline">NetOS Study Hub</span>
             </Link>
             <nav className="hidden items-center gap-1 md:flex">
+              <Link to="/academy" className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-white/[0.04] hover:text-amber-200">
+                <Gamepad2 size={13} /> Academy
+              </Link>
               <Link to="/tracks" className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white hover:bg-white/[0.04]">
                 Tracks
               </Link>

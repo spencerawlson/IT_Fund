@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen, Sparkles, Gamepad2, ArrowRight } from 'lucide-react';
 import { modules, levelOrder } from '@/data/modules';
 import { getOverallProgress } from '@/lib/progress';
 import ModuleCard from '@/components/ModuleCard';
@@ -59,6 +60,19 @@ export default function Home() {
           <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-slate-400">
             A structured path through IT fundamentals: concepts, flashcards, quizzes, and Visual Labs. Start anywhere, track progress, and build durable intuition.
           </p>
+          <Link
+            to="/academy"
+            className="mt-6 flex max-w-2xl items-center justify-between gap-4 rounded-2xl border border-amber-400/30 bg-gradient-to-r from-amber-500/[0.12] to-rose-500/[0.08] p-4 transition hover:border-amber-400/60"
+          >
+            <div className="flex items-center gap-3">
+              <Gamepad2 size={26} className="shrink-0 text-amber-300" />
+              <div>
+                <p className="text-sm font-bold text-white">New: The Academy, a flashcard game on the road to CISSP</p>
+                <p className="text-[12px] text-slate-400">Python, Network+, Security+, Cybersecurity, Cloud, and AI Engineering, from beginner to advanced.</p>
+              </div>
+            </div>
+            <ArrowRight size={18} className="shrink-0 text-amber-300" />
+          </Link>
         </header>
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -115,7 +115,8 @@ export default function Lab() {
         </header>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr]">
-          <div className="sticky top-6 self-start">
+          {/* z-20: the blurred panel below forms its own stacking context and would cover the open list. */}
+          <div className="sticky top-6 z-20 self-start">
             <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Subject</label>
             <SubjectDropdown items={ITEMS} active={active} onChange={setActive} />
           </div>

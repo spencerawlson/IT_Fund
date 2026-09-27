@@ -16,6 +16,10 @@ import Challenge from './pages/Challenge';
 import Tracks from './pages/Tracks';
 import LearningPath from './pages/LearningPath';
 import RegistryEditor from './pages/RegistryEditor';
+import Academy from './pages/Academy';
+import AcademyTrack from './pages/AcademyTrack';
+import AcademyPlay from './pages/AcademyPlay';
+import CisspRoadmap from './pages/CisspRoadmap';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +56,12 @@ const AuthenticatedApp = () => {
       <Route path="/challenge" element={<Challenge />} />
       <Route path="/learning-path" element={<LearningPath />} />
       <Route path="/registry" element={<RegistryEditor />} />
+      <Route path="/academy" element={<Academy />} />
+      <Route path="/academy/roadmap" element={<CisspRoadmap />} />
+      <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
+      <Route path="/academy/:trackId" element={<AcademyTrack />} />
+      <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />
+      <Route path="/academy/:trackId/boss/:tierId" element={<AcademyPlay kind="boss" />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

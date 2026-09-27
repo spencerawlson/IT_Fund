@@ -30,3 +30,10 @@ node ./node_modules/vite/bin/vite.js build
 ## Status
 
 Base44 has been removed. Auth is standalone/local unless a backend is provided via `VITE_API_BASE_URL`.
+
+## Academy (flashcard game)
+
+- Routes `/academy`, `/academy/roadmap`, `/academy/review`, `/academy/:trackId`, `/academy/:trackId/deck/:deckId?mode=learn|quiz`, `/academy/:trackId/boss/:tierId`.
+- Content lives in `src/data/academy/<track>.js` (cards are `[question, answer, explanation?, wrongOptions?]`); tiers, CISSP domains, roadmap steps, and free resources are in `meta.js`.
+- Card ids are position-based (`<deckId>-<index>`): append new cards, don't reorder, or learners lose progress on them.
+- Game state (XP, streak, Leitner boxes, bosses, badges) is in `src/lib/academy.js`, stored in localStorage key `itfund-academy-v1`.
