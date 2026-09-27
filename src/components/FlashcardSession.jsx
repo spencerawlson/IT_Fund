@@ -9,7 +9,7 @@ export default function FlashcardSession({ module, onComplete }) {
     (!!window.SpeechRecognition || !!window.webkitSpeechRecognition);
 
   const [cards, setCards] = useState(() => {
-    const conceptCards = (module.concepts || []).map((c) => ({ id: c.id, type: 'concept', front: c.term, back: c.detail, category: c.category || module.category }));
+    const conceptCards = (module.concepts || []).map((c) => ({ id: c.id, type: 'concept', front: c.term, back: c.summary, category: c.category || module.category }));
     const sessionCards = (module.sessions || []).map((s) => ({ id: s.id, type: 'session', front: s.q, back: s.a, category: module.category, opts: s.opts }));
     return [...conceptCards, ...sessionCards];
   });

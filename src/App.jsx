@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import LiquidBackground from '@/components/academy/LiquidBackground';
+import GlobalTutorChat from '@/components/academy/tutor/GlobalTutorChat';
 // Add page imports here
 import Home from './pages/Home';
 import Module from './pages/Module';
@@ -84,6 +85,9 @@ function App() {
             {/* Last line of defence: a crash below here shows a message, not a blank page. */}
             <ErrorBoundary label="Page">
               <AuthenticatedApp />
+            </ErrorBoundary>
+            <ErrorBoundary label="Tutor">
+              <GlobalTutorChat />
             </ErrorBoundary>
           </div>
         </Router>

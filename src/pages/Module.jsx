@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useBgTint } from '@/components/academy/LiquidBackground';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Layers, HelpCircle, Cpu, HardDrive, Network, Share2, Cloud, Boxes, Database, ShieldCheck, Workflow, Terminal, Lock, GitBranch, Trophy } from 'lucide-react';
-import { modules, categoryColors } from '@/data/modules';
+import { modules, categoryColors, resolveModuleId } from '@/data/modules';
 import { getLabForModule } from '@/data/labLinks';
 import { getProgress, saveFlashcardProgress, saveQuizScore } from '@/lib/progress';
 import ConceptCard from '@/components/ConceptCard';
+import StudySheet from '@/components/StudySheet';
 import FlashcardSession from '@/components/FlashcardSession';
 import QuizSession from '@/components/QuizSession';
 import ProgressRing from '@/components/ProgressRing';
@@ -22,15 +23,20 @@ const TABS = [
 ];
 
 export default function Module() {
-  const { moduleId } = useParams();
+  const { moduleId: rawId } = useParams();
+  // Merged duplicate modules keep their old URLs working.
+  const moduleId = resolveModuleId(rawId);
   const module = modules.find((m) => m.id === moduleId);
   const [tab, setTab] = useState('browse');
+  const [reading, setReading] = useState(null);
   const [progress, setProgress] = useState(() => getProgress(moduleId));
   useBgTint(categoryColors[module?.category]?.dot);
 
   useEffect(() => {
     setProgress(getProgress(moduleId));
   }, [moduleId]);
+
+  if (rawId !== moduleId) return <Navigate to={`/module/${moduleId}`} replace />;
 
   if (!module) {
     return (
@@ -162,10 +168,20 @@ export default function Module() {
         <div className="mt-8">
           {tab === 'browse' && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {module.concepts.map((c) => (
-                <ConceptCard key={c.id} concept={c} />
+              {module.concepts.map((c, i) => (
+                <ConceptCard key={c.id} concept={c} onOpen={() => setReading(i)} />
               ))}
             </div>
+          )}
+          {reading !== null && (
+            <StudySheet
+              concepts={module.concepts}
+              index={reading}
+              moduleTitle={module.title}
+              color={cat.dot}
+              onClose={() => setReading(null)}
+              onNavigate={setReading}
+            />
           )}
           {tab === 'flashcards' && (
             <FlashcardSession module={module} onComplete={handleFlashcardComplete} />

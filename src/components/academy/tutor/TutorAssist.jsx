@@ -4,9 +4,19 @@ import ReactMarkdown from 'react-markdown';
 import { Sparkles, Square } from 'lucide-react';
 import { fetchTutorStatus, streamTutor } from '@/api/tutor';
 
-/** True only when the backend reports a configured tutor; any failure hides AI buttons. */
+/**
+ * True only when the backend reports a configured tutor; any failure hides AI buttons.
+ * While off, it re-checks every 20s (and on focus) so starting the backend later just works.
+ */
 export function useTutorEnabled() {
-  const { data } = useQuery({ queryKey: ['tutor-status'], queryFn: fetchTutorStatus, staleTime: 5 * 60 * 1000, retry: false });
+  const { data } = useQuery({
+    queryKey: ['tutor-status'],
+    queryFn: fetchTutorStatus,
+    staleTime: 60 * 1000,
+    retry: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: (query) => (query.state.data?.enabled ? false : 20 * 1000),
+  });
   return data?.enabled === true;
 }
 
