@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw } from 'lucide-react';
-import BreakItControls from '@/components/lab/BreakItControls';
+import { Play, Pause, RotateCcw, CalendarX, UserX, KeyRound, TrendingDown } from 'lucide-react';
+import BreakItControls, { useBreakScenarios } from '@/components/lab/BreakItControls';
 
 const STEPS = [
   { label: 'Client Handshake', badge: 'TLS', note: 'The client opens a TCP connection and sends a ClientHello with supported cipher suites.', from: 'client', to: 'server', scenarioNote: { 'cert-expired': 'Client receives an expired certificate and aborts trust validation.', 'mitm': 'Intercepted handshake; client cannot verify server identity.', 'key-compromise': 'Session key material is exposed before derivation completes.', 'downgrade': 'Attacker forces fallback to TLS 1.0 or weak ciphers.' } },
@@ -25,6 +25,12 @@ export default function TlsAnimation() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [scenario, setScenario] = useState('none');
+  const scenarios = useBreakScenarios([
+    { id: 'cert-expired', label: 'Expired cert', icon: CalendarX, description: 'The server presents a certificate past its validity window' },
+    { id: 'mitm', label: 'MITM', icon: UserX, description: 'An attacker intercepts the handshake with a forged certificate' },
+    { id: 'key-compromise', label: 'Key leak', icon: KeyRound, description: 'Private or session key material is exposed' },
+    { id: 'downgrade', label: 'Downgrade', icon: TrendingDown, description: 'An attacker forces a legacy protocol or weak cipher' },
+  ]);
   useEffect(() => {
     if (!playing || step >= STEPS.length - 1) return;
     const t = setTimeout(() => setStep((s) => s + 1), 2600);
@@ -97,7 +103,7 @@ export default function TlsAnimation() {
         <p className="text-slate-400">{current.note}</p>
       </div>
 
-      <BreakItControls scenario={scenario} onScenarioChange={(id) => { setScenario(id); setStep(0); setPlaying(true); }} />
+      <BreakItControls scenarios={scenarios} scenario={scenario} onScenarioChange={(id) => { setScenario(id); setStep(0); setPlaying(true); }} />
 
       <div className="mt-4 flex items-center gap-3">
         <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
@@ -109,7 +115,7 @@ export default function TlsAnimation() {
         </button>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <button key={i} onClick={() => setStep(i)} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-purple-400' : 'w-1.5 bg-white/20'}`} />
+            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-purple-400' : 'w-1.5 bg-white/20'}`} /></button>
           ))}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { FlaskConical, Gamepad2, Search, X } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 const LINKS = [
   { to: '/academy', label: 'Academy', icon: Gamepad2, accent: true },
@@ -47,11 +48,8 @@ export default function Navbar({ onSearch }) {
       <div className="glass-strong mx-auto max-w-6xl rounded-3xl px-3 sm:px-4">
         <div className="flex h-14 items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-4">
-            <Link to="/" className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-blue-500 to-teal-400 text-xs font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
-                N
-              </span>
-              <span className="hidden sm:inline">NetOS Study Hub</span>
+            <Link to="/" aria-label="IT Fund Study Hub home" className="shrink-0">
+              <Logo />
             </Link>
             <nav className="hidden items-center gap-1 lg:flex">{links}</nav>
           </div>

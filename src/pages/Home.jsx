@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
-import { BookOpen, Sparkles, Gamepad2, ArrowRight } from 'lucide-react';
+import { BookOpen, Gamepad2, ArrowRight } from 'lucide-react';
 import { modules, levelOrder } from '@/data/modules';
 import { getOverallProgress } from '@/lib/progress';
 import ModuleCard from '@/components/ModuleCard';
 import Navbar from '@/components/Navbar';
+import { LogoMark } from '@/components/Logo';
 
 const LEVELS = ['All', ...levelOrder];
 
@@ -52,7 +53,7 @@ export default function Home() {
       <div className="relative mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
         <header className="mb-10">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-400">
-            <Sparkles size={16} className="text-blue-400" /> NetOS Study Hub
+            <LogoMark size={18} /> IT Fund Study Hub
           </div>
           <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             Networking & Operating System

@@ -42,7 +42,7 @@ export default class ErrorBoundary extends React.Component {
           The rest of the page still works. This panel hit an error while rendering.
         </p>
 
-        <pre className="mt-3 overflow-x-auto rounded-lg bg-black/40 px-3 py-2 text-[11px] leading-5 text-rose-200/80">
+        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-black/40 px-3 py-2 text-[11px] leading-5 text-rose-200/80">
           {error?.message ?? String(error)}
         </pre>
 

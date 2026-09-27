@@ -17,7 +17,7 @@ export function useBreakScenarios(overrides = []) {
   return [...BREAK_SCENARIOS, ...overrides];
 }
 
-export default function BreakItControls({ scenarios, scenario, onScenarioChange, accent = 'rose' }) {
+export default function BreakItControls({ scenarios = BREAK_SCENARIOS, scenario, onScenarioChange, accent = 'rose' }) {
   const cls = ACCENT_CLS[accent] ?? ACCENT_CLS.rose;
 
   return (
@@ -35,7 +35,7 @@ export default function BreakItControls({ scenarios, scenario, onScenarioChange,
               key={s.id}
               type="button"
               onClick={() => onScenarioChange(s.id)}
-              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition ${
+              className={`flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition ${
                 active ? 'border-white/20 bg-white/10 text-white' : 'border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/5'
               }`}
               title={s.description}

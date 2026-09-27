@@ -65,7 +65,7 @@ export default function AzureAnimation() {
         </button>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <button key={i} onClick={() => setStep(i)} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-sky-400' : 'w-1.5 bg-white/20'}`} />
+            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-sky-400' : 'w-1.5 bg-white/20'}`} /></button>
           ))}
         </div>
       </div>

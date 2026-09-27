@@ -126,8 +126,11 @@ export default function AutoScalingAnimation() {
             <button
               key={i}
               onClick={() => setStep(i)}
-              className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-white/20'}`}
-            />
+              aria-label={`Go to step ${i + 1}`}
+              className="flex h-8 items-center px-0.5"
+            >
+              <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-white/20'}`} />
+            </button>
           ))}
         </div>
       </div>
