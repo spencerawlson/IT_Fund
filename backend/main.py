@@ -5,6 +5,8 @@ from typing import Optional
 import secrets
 import time
 
+import ai_tutor
+
 app = FastAPI(title="ITFund Auth API", version="0.1.0")
 
 app.add_middleware(
@@ -14,6 +16,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# The AI tutor answers on both /ai/* and /api/ai/*, so it works whether or not the
+# hosting layer strips the /api prefix before forwarding.
+app.include_router(ai_tutor.router)
+app.include_router(ai_tutor.router, prefix="/api")
 
 # ---- in-memory stores for teaching/demo ----
 USERS: dict[str, dict] = {}

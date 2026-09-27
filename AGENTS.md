@@ -39,3 +39,10 @@ Base44 has been removed. Auth is standalone/local unless a backend is provided v
 - Guided lessons (`/academy/:trackId/lesson/:deckId`, Brilliant style) mix each deck's questions with hands-on puzzles from `src/data/academy/interactive.js` (order / numeric / widget: bits, cidr, hash).
 - Styling: liquid glass utilities (`.glass`, `.glass-strong`, `.glass-btn` with `--tint`) and `LiquidBackground` in `src/index.css` / `components/academy/`. Pages using it need a `relative isolate` root.
 - Game state (XP, streak, Leitner boxes, bosses, badges) is in `src/lib/academy.js`, stored in localStorage key `itfund-academy-v1`.
+
+## AI tutor (OpenAI)
+
+- Backend only: `backend/ai_tutor.py` (routes `GET /ai/status`, `POST /ai/tutor`, also mounted under `/api`). Streams Server-Sent Events. Prompts are built server-side; clients send study context + a `mode` (`hint`, `explain`, `simplify`, `example`, `weakspots`, `chat`).
+- Key: `OPENAI_API_KEY` in `backend/.env` locally (see `backend/.env.example`) or the host's env vars. Never in `VITE_*` vars or frontend code. Optional: `OPENAI_MODEL` (default `gpt-4o-mini`), `AI_RATE_LIMIT` / `AI_RATE_WINDOW` (per-IP, in-memory).
+- Local dev: `cd backend && .venv/Scripts/python -m uvicorn main:app --port 8000`; Vite proxies `/api` to it. Tests: `.venv/Scripts/python -m pytest test_ai_tutor.py` (fake client, no API calls).
+- Frontend: `src/api/tutor.js`, `src/components/academy/tutor/` (`TutorAssist` pills + answer, `TutorChat`). Tutor UI hides itself when `/ai/status` isn't enabled.

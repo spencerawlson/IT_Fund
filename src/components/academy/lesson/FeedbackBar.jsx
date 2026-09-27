@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { CheckCircle2, XCircle, Lightbulb } from 'lucide-react';
 import RichText from '../RichText';
+import TutorAssist from '../tutor/TutorAssist';
 
 /**
  * Attempt tracking shared by every step: `check(isRight)` moves idle -> correct | wrong,
@@ -23,8 +24,11 @@ export function useAttempts(maxTries = 2) {
 
 const PRAISE = ['Nice!', 'Correct!', 'Spot on!', 'Exactly!', 'You got it!'];
 
-/** Bottom sheet with the primary action; Enter triggers it. */
-export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReveal, onContinue, answer, explanation, color }) {
+/**
+ * Bottom sheet with the primary action; Enter triggers it. `tutor` is the study context for
+ * the AI tutor: a Hint before checking, an explanation after.
+ */
+export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReveal, onContinue, answer, explanation, color, tutor }) {
   const [praise] = useState(() => PRAISE[Math.floor(Math.random() * PRAISE.length)]);
 
   const primary = useCallback(() => {
@@ -72,6 +76,15 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
               </p>
             )}
           </div>
+        )}
+        {tutor && (
+          <TutorAssist
+            key={status === 'idle' ? 'before' : 'after'}
+            actions={status === 'idle' ? [{ mode: 'hint', label: 'Hint' }] : [{ mode: 'explain', label: status === 'correct' ? 'Explain more' : 'Help me understand' }]}
+            context={tutor}
+            className="mb-3"
+            answerClassName="max-h-[26vh] overflow-y-auto"
+          />
         )}
         <div className="flex gap-2">
           {status === 'wrong' && onReveal && (

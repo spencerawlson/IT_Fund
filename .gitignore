@@ -43,3 +43,4 @@ venv/
 *venv/
 .verify_venv/
 .env*
+!.env.example

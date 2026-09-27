@@ -97,7 +97,7 @@ export default function LessonPlayer({ track, deck }) {
           <Intro deck={deck} track={track} steps={steps} color={color} onStart={() => setIndex(0)} />
         ) : (
           <div key={step.id} className="animate-rise">
-            <StepComponent step={step} color={color} onComplete={onComplete} />
+            <StepComponent step={step} color={color} onComplete={onComplete} meta={{ track: track.title, topic: deck.title }} />
           </div>
         )}
       </main>

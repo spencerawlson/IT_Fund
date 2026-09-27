@@ -1,21 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Heart, Zap, ArrowRight, CheckCircle2, XCircle } from 'lucide-react';
 import { gradeCard, recordCombo, XP } from '@/lib/academy';
 import RichText from './RichText';
+import TutorAssist from './tutor/TutorAssist';
 
 const multiplier = (combo) => (combo >= 6 ? 2 : combo >= 3 ? 1.5 : 1);
 
 /**
  * Multiple-choice run used by both Quiz and Boss modes.
- * lives = null means unlimited. Calls onFinish({ correct, total, livesLost, maxCombo, answered }).
+ * lives = null means unlimited. Calls onFinish({ correct, total, livesLost, maxCombo, answered, missed }).
+ * `meta` ({ track, topic }) gives the AI tutor context.
  */
-export default function QuizRun({ questions, lives = null, color = '#3B82F6', onFinish }) {
+export default function QuizRun({ questions, lives = null, color = '#3B82F6', onFinish, meta }) {
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState(null);
   const [correct, setCorrect] = useState(0);
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [hearts, setHearts] = useState(lives);
+  const missed = useRef([]);
   const q = questions[index];
 
   const choose = useCallback(
@@ -27,6 +30,7 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
       gradeCard(q.card.id, right, right ? Math.round(XP.quizCorrect * multiplier(nextCombo)) : 0);
       setCombo(nextCombo);
       if (right) setCorrect((c) => c + 1);
+      else missed.current.push(q.card);
       if (nextCombo > maxCombo) {
         setMaxCombo(nextCombo);
         recordCombo(nextCombo);
@@ -46,6 +50,7 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
         answered: index + 1,
         livesLost: lives === null ? 0 : lives - hearts,
         maxCombo,
+        missed: missed.current,
       });
       return;
     }
@@ -143,6 +148,14 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
               </p>
             )}
           </div>
+        )}
+        {picked !== null && !answeredRight && (
+          <TutorAssist
+            key={q.card.id}
+            actions={[{ mode: 'explain', label: 'Help me understand' }]}
+            context={{ ...meta, question: q.card.q, answer: q.card.a, explanation: q.card.x, options: q.options, user_answer: q.options[picked] }}
+            className="mt-4"
+          />
         )}
       </div>
 

@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import { useBgTint } from '@/components/academy/LiquidBackground';
 import FlashDeck from '@/components/academy/FlashDeck';
 import QuizRun from '@/components/academy/QuizRun';
+import TutorAssist from '@/components/academy/tutor/TutorAssist';
 import { getTrack, getDeck, allCards } from '@/data/academy';
 import {
   useAcademy, buildQuestions, dueCards, cardState, isTierUnlocked, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
@@ -93,6 +94,8 @@ export default function AcademyPlay({ kind }) {
   );
 
   const backTo = track ? `/academy/${track.id}` : '/academy';
+  // Context for the AI tutor.
+  const meta = { track: track?.title, topic: deck?.title || (tier ? `${tier.label} boss` : 'Daily review') };
   const title =
     kind === 'review' ? 'Daily Review' : kind === 'boss' ? `${tier?.label} Boss: ${track?.title}` : deck?.title;
 
@@ -108,7 +111,7 @@ export default function AcademyPlay({ kind }) {
       </div>
     );
   } else if (result) {
-    body = <Results result={result} kind={kind} mode={mode} xp={state.xp - xpStart.current} color={color} onRestart={restart} backTo={backTo} />;
+    body = <Results result={result} kind={kind} mode={mode} xp={state.xp - xpStart.current} color={color} onRestart={restart} backTo={backTo} meta={meta} />;
   } else if (session.cards && !session.cards.length) {
     body = (
       <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
@@ -119,9 +122,9 @@ export default function AcademyPlay({ kind }) {
       </div>
     );
   } else if (session.cards) {
-    body = <FlashDeck key={round} cards={session.cards} color={color} onDone={onFlashDone} />;
+    body = <FlashDeck key={round} cards={session.cards} color={color} onDone={onFlashDone} meta={meta} />;
   } else {
-    body = <QuizRun key={round} questions={session.questions} lives={kind === 'boss' ? BOSS_LIVES : null} color={color} onFinish={onQuizDone} />;
+    body = <QuizRun key={round} questions={session.questions} lives={kind === 'boss' ? BOSS_LIVES : null} color={color} onFinish={onQuizDone} meta={meta} />;
   }
 
   return (
@@ -149,7 +152,7 @@ export default function AcademyPlay({ kind }) {
   );
 }
 
-function Results({ result, kind, mode, xp, color, onRestart, backTo }) {
+function Results({ result, kind, mode, xp, color, onRestart, backTo, meta }) {
   const pct = result.pct ?? Math.round((result.correct / result.total) * 100);
   const isBoss = kind === 'boss';
   const Icon = isBoss && !result.passed ? Skull : Trophy;
@@ -175,6 +178,13 @@ function Results({ result, kind, mode, xp, color, onRestart, backTo }) {
         <span className="rounded-full bg-amber-400/15 px-3 py-1 font-semibold text-amber-300">+{xp} XP</span>
         {result.maxCombo > 1 && <span className="rounded-full bg-white/10 px-3 py-1 font-semibold text-slate-200">Best combo {result.maxCombo}</span>}
       </div>
+      {result.missed?.length > 0 && (
+        <TutorAssist
+          actions={[{ mode: 'weakspots', label: 'Analyze my weak spots' }]}
+          context={{ ...meta, missed: result.missed.slice(0, 15).map((c) => ({ q: c.q.slice(0, 500), a: c.a.slice(0, 300) })) }}
+          className="mt-5 text-left [&>div:first-child]:justify-center"
+        />
+      )}
       <div className="mt-6 flex justify-center gap-2">
         <button onClick={onRestart} className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15">
           <RotateCcw size={15} /> {isBoss && !result.passed ? 'Try again' : 'Play again'}

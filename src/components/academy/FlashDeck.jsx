@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Check, X, RotateCw } from 'lucide-react';
 import { gradeCard, cardState, useAcademy, MAX_BOX } from '@/lib/academy';
 import RichText from './RichText';
+import TutorAssist from './tutor/TutorAssist';
 
 // Cards answered "Again" come back this many cards later in the same session.
 const REQUEUE_GAP = 3;
 
 /** Spaced-repetition flashcards. Calls onDone({ known, total }) when the queue is empty. */
-export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone }) {
+export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone, meta }) {
   const state = useAcademy();
   const [queue, setQueue] = useState(cards);
   const [flipped, setFlipped] = useState(false);
@@ -100,6 +101,15 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone })
           </div>
         </div>
       </button>
+
+      {flipped && (
+        <TutorAssist
+          key={current.id}
+          actions={[{ mode: 'simplify', label: 'Explain simply' }, { mode: 'example', label: 'Real example' }]}
+          context={{ ...meta, question: current.q, answer: current.a, explanation: current.x }}
+          className="mt-4"
+        />
+      )}
 
       <div className="mt-5 grid grid-cols-2 gap-3">
         <button

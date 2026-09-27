@@ -4,6 +4,7 @@ import { Gamepad2, Repeat, Map, ArrowRight, Lock, Play } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useBgTint } from '@/components/academy/LiquidBackground';
 import PlayerHud from '@/components/academy/PlayerHud';
+import TutorChat from '@/components/academy/tutor/TutorChat';
 import { iconFor } from '@/components/academy/icons';
 import { tracks, allCards, ROADMAP } from '@/data/academy';
 import { useAcademy, mastery, dueCards, isTierUnlocked, BADGES } from '@/lib/academy';
@@ -189,6 +190,7 @@ export default function Academy() {
           </div>
         </section>
       </div>
+      <TutorChat trackTitle="the Road to CISSP curriculum" color={next?.track.color || '#F59E0B'} />
     </div>
   );
 }

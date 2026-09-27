@@ -14,7 +14,7 @@ function Prompt({ kicker, children }) {
 }
 
 /** Multiple choice built from a flashcard. Wrong picks are eliminated; two misses reveal the answer. */
-export function ChoiceStep({ step, color, onComplete }) {
+export function ChoiceStep({ step, color, onComplete, meta }) {
   const { card, options, correct } = step;
   const { status, check, retry, reveal, firstTry } = useAttempts(2);
   const [picked, setPicked] = useState(null);
@@ -89,13 +89,14 @@ export function ChoiceStep({ step, color, onComplete }) {
         answer={card.a}
         explanation={card.x}
         color={color}
+        tutor={{ ...meta, question: card.q, answer: card.a, explanation: card.x, options, user_answer: options[picked ?? eliminated[eliminated.length - 1]] }}
       />
     </>
   );
 }
 
 /** Tap items from the bank to build a sequence. Misplaced items bounce back on retry. */
-export function OrderStep({ step, color, onComplete }) {
+export function OrderStep({ step, color, onComplete, meta }) {
   const { status, check, retry, reveal, firstTry } = useAttempts(3);
   const initialBank = useMemo(() => {
     let s = shuffle(step.items);
@@ -181,6 +182,7 @@ export function OrderStep({ step, color, onComplete }) {
         onContinue={() => onComplete(firstTry)}
         explanation={step.x}
         color={color}
+        tutor={{ ...meta, question: step.prompt, answer: step.items.map((x) => x.trim()).join(' → '), explanation: step.x, user_answer: placed.length ? placed.map((x) => x.trim()).join(' → ') : undefined }}
       />
     </>
   );
@@ -189,7 +191,7 @@ export function OrderStep({ step, color, onComplete }) {
 const parseNumber = (s) => Number(String(s).replace(/[$,%\s]|min/gi, ''));
 
 /** Type a number; tolerance allows rounding. */
-export function NumericStep({ step, color, onComplete }) {
+export function NumericStep({ step, color, onComplete, meta }) {
   const { status, check, retry, reveal, firstTry } = useAttempts(3);
   const [value, setValue] = useState('');
   const n = parseNumber(value);
@@ -228,13 +230,14 @@ export function NumericStep({ step, color, onComplete }) {
         answer={`${step.unit === '$' ? '$' : ''}${step.answer.toLocaleString()}${step.unit && step.unit !== '$' ? ` ${step.unit}` : ''}`}
         explanation={step.x}
         color={color}
+        tutor={{ ...meta, question: step.prompt, answer: `${step.answer}${step.unit ? ` ${step.unit}` : ''}`, explanation: step.x, user_answer: value || undefined }}
       />
     </>
   );
 }
 
 /** Explore an interactive widget until its goal is met. */
-export function WidgetStep({ step, color, onComplete }) {
+export function WidgetStep({ step, color, onComplete, meta }) {
   const { status, check, retry, reveal, firstTry } = useAttempts(3);
   const [value, setValue] = useState(null);
   const Widget = WIDGETS[step.widget];
@@ -256,6 +259,7 @@ export function WidgetStep({ step, color, onComplete }) {
         answer={step.goal.value !== undefined ? `Target: ${step.goal.value}` : step.goal.prefix !== undefined ? `Target: /${step.goal.prefix}` : 'Change any character in the message.'}
         explanation={step.x}
         color={color}
+        tutor={{ ...meta, question: step.prompt, answer: step.goal.value !== undefined ? String(step.goal.value) : step.goal.prefix !== undefined ? `/${step.goal.prefix}` : 'Change any character', explanation: step.x, user_answer: value === null ? undefined : String(value) }}
       />
     </>
   );

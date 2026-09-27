@@ -4,6 +4,7 @@ import { ArrowLeft, Lock, Layers, HelpCircle, Swords, ExternalLink, Check, Play,
 import Navbar from '@/components/Navbar';
 import { useBgTint } from '@/components/academy/LiquidBackground';
 import PlayerHud from '@/components/academy/PlayerHud';
+import TutorChat from '@/components/academy/tutor/TutorChat';
 import ProgressRing from '@/components/ProgressRing';
 import { iconFor } from '@/components/academy/icons';
 import { getTrack, trackResources, CISSP_DOMAINS } from '@/data/academy';
@@ -166,6 +167,7 @@ export default function AcademyTrack() {
           </ul>
         </section>
       </div>
+      <TutorChat trackId={track.id} trackTitle={track.title} color={track.color} />
     </div>
   );
 }
