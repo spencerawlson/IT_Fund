@@ -20,6 +20,7 @@ import Academy from './pages/Academy';
 import AcademyTrack from './pages/AcademyTrack';
 import AcademyPlay from './pages/AcademyPlay';
 import CisspRoadmap from './pages/CisspRoadmap';
+import AcademyLesson from './pages/AcademyLesson';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
       <Route path="/academy/roadmap" element={<CisspRoadmap />} />
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
       <Route path="/academy/:trackId" element={<AcademyTrack />} />
+      <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />
       <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />
       <Route path="/academy/:trackId/boss/:tierId" element={<AcademyPlay kind="boss" />} />
       <Route path="*" element={<PageNotFound />} />

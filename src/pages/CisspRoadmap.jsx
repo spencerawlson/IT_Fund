@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Map, Award, Clock, ShieldCheck, ExternalLink } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import LiquidBackground from '@/components/academy/LiquidBackground';
 import { tracks, ROADMAP, CISSP_DOMAINS, decksForDomain, RESOURCES } from '@/data/academy';
 import { useAcademy, mastery, grantBadge } from '@/lib/academy';
 
@@ -31,15 +32,12 @@ export default function CisspRoadmap() {
   }, [allReady]);
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white">
+    <div className="relative isolate min-h-screen text-white">
+      <LiquidBackground />
       <Navbar />
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]" />
-        <div className="absolute -right-40 top-80 h-96 w-96 rounded-full bg-blue-500/10 blur-[120px]" />
-      </div>
 
-      <div className="relative mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-10">
-        <Link to="/academy" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
+      <div className="relative mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-10">
+        <Link to="/academy" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-300 transition hover:text-white">
           <ArrowLeft size={15} /> Academy
         </Link>
 
@@ -51,7 +49,7 @@ export default function CisspRoadmap() {
             Zero to{' '}
             <span className="bg-gradient-to-r from-amber-300 to-rose-400 bg-clip-text text-transparent">CISSP</span>
           </h1>
-          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-slate-400">
+          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-slate-300">
             Seven steps that follow the path most successful candidates take: technical foundations first, then the CompTIA core,
             hands-on defence, cloud, and AI, and finally the managerial view the CISSP tests. Every deck is tagged with the CISSP
             domains it builds toward, so early study counts toward your final readiness.
@@ -69,11 +67,11 @@ export default function CisspRoadmap() {
                   <div className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold ${pct >= READY_PCT ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300' : 'border-white/15 bg-[#0D1117] text-amber-300'}`}>
                     {step.step}
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                  <div className="glass rounded-2xl p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h2 className="text-base font-bold text-white">{step.title}</h2>
-                        <p className="mt-1 text-[13px] leading-relaxed text-slate-400">{step.desc}</p>
+                        <p className="mt-1 text-[13px] leading-relaxed text-slate-300">{step.desc}</p>
                       </div>
                       <p className="shrink-0 text-lg font-bold text-amber-300">{pct}%</p>
                     </div>
@@ -89,7 +87,7 @@ export default function CisspRoadmap() {
                           <Link key={`${t}-${tier}`} to={`/academy/${t}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs transition hover:border-white/25 hover:bg-white/[0.07]">
                             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: track.color }} />
                             <span className="font-semibold text-white">{track.title}</span>
-                            <span className="text-slate-400">{tierMeta.label}</span>
+                            <span className="text-slate-300">{tierMeta.label}</span>
                             <span className="text-slate-500">· {mastery(state, tierCards(t, tier))}%</span>
                           </Link>
                         );
@@ -107,18 +105,18 @@ export default function CisspRoadmap() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-lg font-bold"><ShieldCheck size={18} className="text-amber-300" /> CISSP domain readiness</h2>
-              <p className="mt-1 text-[13px] text-slate-400">
+              <p className="mt-1 text-[13px] text-slate-300">
                 Half from each domain's capstone deck, half from every earlier deck tagged with it. Reach {READY_PCT}% in all eight to earn CISSP-Ready.
               </p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-center">
+            <div className="glass rounded-xl px-4 py-2.5 text-center">
               <p className="text-[10px] uppercase tracking-wider text-slate-500">Exam-weighted</p>
               <p className="text-2xl font-bold text-amber-300">{weighted}%</p>
             </div>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {domains.map((d) => (
-              <div key={d.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+              <div key={d.id} className="glass rounded-2xl p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: d.color }}>Domain {d.id} · {d.weight}% of exam</p>
@@ -146,7 +144,7 @@ export default function CisspRoadmap() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-[13px] leading-relaxed text-slate-400">
+        <section className="mt-10 glass rounded-2xl p-5 text-[13px] leading-relaxed text-slate-300">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300">Exam facts (ISC2 outline effective 15 April 2024)</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>English exam is CAT (adaptive): 100-150 items, 3 hours, 700/1000 to pass.</li>

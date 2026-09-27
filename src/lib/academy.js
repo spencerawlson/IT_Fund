@@ -19,6 +19,8 @@ export const XP = {
   quizCorrect: 15,
   bossWin: 200,
   deckMastered: 100,
+  puzzleSolved: 20,
+  lessonComplete: 30,
 };
 
 const RANKS = [
@@ -46,7 +48,7 @@ export const BADGES = {
   'cissp-ready': { title: 'CISSP-Ready', desc: 'Reach 80% readiness in all 8 CISSP domains.', icon: 'ShieldCheck' },
 };
 
-const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {} };
+const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {} };
 
 let cache = null;
 
@@ -158,6 +160,15 @@ export function recordBoss(key, pct, livesLost) {
   }
   write(withBadges(next, extra));
   return passed;
+}
+
+/** Records a finished guided lesson (best accuracy kept); first completion earns a bonus. */
+export function completeLesson(deckId, pct) {
+  const state = read();
+  const prev = state.lessons?.[deckId];
+  let next = { ...state, lessons: { ...state.lessons, [deckId]: { best: Math.max(prev?.best || 0, pct), at: Date.now() } } };
+  if (!prev) next = withXp(next, XP.lessonComplete);
+  write(withBadges(next));
 }
 
 /** Awards the one-time bonus the first time every card in a deck reaches the top box. */

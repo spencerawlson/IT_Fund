@@ -33,7 +33,9 @@ Base44 has been removed. Auth is standalone/local unless a backend is provided v
 
 ## Academy (flashcard game)
 
-- Routes `/academy`, `/academy/roadmap`, `/academy/review`, `/academy/:trackId`, `/academy/:trackId/deck/:deckId?mode=learn|quiz`, `/academy/:trackId/boss/:tierId`.
+- Routes `/academy`, `/academy/roadmap`, `/academy/review`, `/academy/:trackId`, `/academy/:trackId/deck/:deckId?mode=learn|quiz`, `/academy/:trackId/boss/:tierId`, `/academy/:trackId/lesson/:deckId`.
 - Content lives in `src/data/academy/<track>.js` (cards are `[question, answer, explanation?, wrongOptions?]`); tiers, CISSP domains, roadmap steps, and free resources are in `meta.js`.
 - Card ids are position-based (`<deckId>-<index>`): append new cards, don't reorder, or learners lose progress on them.
+- Guided lessons (`/academy/:trackId/lesson/:deckId`, Brilliant style) mix each deck's questions with hands-on puzzles from `src/data/academy/interactive.js` (order / numeric / widget: bits, cidr, hash).
+- Styling: liquid glass utilities (`.glass`, `.glass-strong`, `.glass-btn` with `--tint`) and `LiquidBackground` in `src/index.css` / `components/academy/`. Pages using it need a `relative isolate` root.
 - Game state (XP, streak, Leitner boxes, bosses, badges) is in `src/lib/academy.js`, stored in localStorage key `itfund-academy-v1`.

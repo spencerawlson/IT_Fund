@@ -71,11 +71,11 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone })
       <button
         type="button"
         onClick={() => setFlipped((f) => !f)}
-        className="flip-card block h-80 w-full text-left"
+        className="flip-card block h-[22rem] w-full text-left sm:h-80"
         aria-label={flipped ? 'Show question' : 'Reveal answer'}
       >
         <div className={`flip-inner relative h-full w-full ${flipped ? 'flipped' : ''}`}>
-          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center">
+          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-4 glass rounded-2xl p-7 text-center">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Question</p>
             <h3 className="text-xl font-bold leading-snug text-white sm:text-2xl">
               <RichText text={current.q} />
@@ -105,7 +105,7 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone })
         <button
           onClick={() => answer(false)}
           disabled={!flipped}
-          className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-slate-200 transition hover:bg-rose-500/10 hover:text-rose-200 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex items-center justify-center gap-2 glass rounded-xl py-3 text-sm font-semibold text-slate-200 transition hover:bg-rose-500/10 hover:text-rose-200 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <X size={16} /> Again <kbd className="ml-1 text-[10px] text-slate-500">1</kbd>
         </button>

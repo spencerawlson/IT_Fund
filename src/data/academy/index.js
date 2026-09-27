@@ -6,6 +6,7 @@ import cyber from './cyber';
 import cloud from './cloud';
 import ai from './ai';
 import cissp from './cissp';
+import interactive from './interactive';
 import { TIERS, RESOURCES } from './meta';
 
 export { TIERS, CISSP_DOMAINS, ROADMAP, RESOURCES } from './meta';
@@ -18,6 +19,7 @@ function normaliseTrack(raw) {
       trackId: raw.id,
       tierId: tier.id,
       resources: (deck.sources || []).map((id) => ({ id, ...RESOURCES[id] })).filter((r) => r.url),
+      puzzles: (interactive[deck.id] || []).map((p, i) => ({ ...p, id: `${deck.id}-p${i}` })),
       cards: deck.cards.map(([q, a, x, wrong], i) => ({
         id: `${deck.id}-${i}`,
         deckId: deck.id,

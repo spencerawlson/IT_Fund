@@ -98,13 +98,13 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
         <div className="h-full rounded-full transition-all" style={{ width: `${(index / questions.length) * 100}%`, backgroundColor: color }} />
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+      <div className="glass rounded-2xl p-6">
         <h3 className="text-lg font-bold leading-snug text-white sm:text-xl">
           <RichText text={q.card.q} />
         </h3>
         <div className="mt-5 space-y-2.5">
           {q.options.map((opt, i) => {
-            let style = 'border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.06]';
+            let style = 'glass hover:border-white/30';
             if (picked !== null) {
               if (i === q.correct) style = 'border-emerald-500/60 bg-emerald-500/10';
               else if (i === picked) style = 'border-rose-500/60 bg-rose-500/10';

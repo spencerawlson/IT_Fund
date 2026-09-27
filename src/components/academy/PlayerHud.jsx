@@ -25,9 +25,9 @@ export default function PlayerHud({ compact = false }) {
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:col-span-1">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Level {lvl.level}</p>
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="glass col-span-2 rounded-2xl p-4 sm:col-span-1">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">Level {lvl.level}</p>
         <p className="mt-0.5 text-lg font-bold text-white">{lvl.rank}</p>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
           <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400 transition-all" style={{ width: `${lvl.pct}%` }} />
@@ -36,26 +36,26 @@ export default function PlayerHud({ compact = false }) {
           {lvl.into.toLocaleString()} / {lvl.needed.toLocaleString()} XP to level {lvl.level + 1} · {state.xp.toLocaleString()} total
         </p>
       </div>
-      <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <div className={`flex h-14 w-14 items-center justify-center rounded-full ${streak ? 'bg-orange-500/15 text-orange-400' : 'bg-white/5 text-slate-500'}`}>
+      <div className="flex items-center gap-4 glass rounded-2xl p-4">
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${streak ? 'bg-orange-500/15 text-orange-400' : 'bg-white/5 text-slate-300'}`}>
           <Flame size={28} />
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Streak</p>
-          <p className="text-2xl font-bold text-white">{streak} day{streak === 1 ? '' : 's'}</p>
-          <p className="text-[11px] text-slate-400">{today > 0 ? 'Studied today. Keep it going.' : 'Study today to keep your streak.'}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">Streak</p>
+          <p className="text-xl font-bold text-white sm:text-2xl">{streak} day{streak === 1 ? '' : 's'}</p>
+          <p className="hidden text-[11px] text-slate-400 sm:block">{today > 0 ? 'Studied today. Keep it going.' : 'Study today to keep your streak.'}</p>
         </div>
       </div>
-      <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <ProgressRing percent={goalPct} size={56} stroke={5} color="#22C55E" />
+      <div className="flex items-center gap-4 glass rounded-2xl p-4">
+        <ProgressRing percent={goalPct} size={48} stroke={5} color="#22C55E" />
         <div>
-          <p className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+          <p className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
             <Target size={12} /> Daily goal
           </p>
-          <p className="text-2xl font-bold text-white">
-            {today} <span className="text-sm font-medium text-slate-500">/ {DAILY_GOAL_XP} XP</span>
+          <p className="text-xl font-bold text-white sm:text-2xl">
+            {today} <span className="text-sm font-medium text-slate-300">/ {DAILY_GOAL_XP} XP</span>
           </p>
-          <p className="text-[11px] text-slate-400">{goalPct >= 100 ? 'Goal complete!' : 'About one deck a day.'}</p>
+          <p className="hidden text-[11px] text-slate-400 sm:block">{goalPct >= 100 ? 'Goal complete!' : 'About one deck a day.'}</p>
         </div>
       </div>
     </div>

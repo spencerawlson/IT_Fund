@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { ArrowLeft, RotateCcw, Trophy, Skull, Sparkles, Lock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import LiquidBackground from '@/components/academy/LiquidBackground';
 import FlashDeck from '@/components/academy/FlashDeck';
 import QuizRun from '@/components/academy/QuizRun';
 import { getTrack, getDeck, allCards } from '@/data/academy';
@@ -96,23 +97,23 @@ export default function AcademyPlay({ kind }) {
 
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {
-    body = <p className="text-center text-slate-400">Not found.</p>;
+    body = <p className="text-center text-slate-300">Not found.</p>;
   } else if (kind !== 'review' && !isTierUnlocked(state, track, tierIndex) && !result) {
     body = (
-      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+      <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
         <Lock className="mx-auto text-slate-500" size={32} />
         <p className="mt-3 font-semibold text-white">This tier is locked</p>
-        <p className="mt-1 text-sm text-slate-400">Master the previous tier or beat its boss first.</p>
+        <p className="mt-1 text-sm text-slate-300">Master the previous tier or beat its boss first.</p>
       </div>
     );
   } else if (result) {
     body = <Results result={result} kind={kind} mode={mode} xp={state.xp - xpStart.current} color={color} onRestart={restart} backTo={backTo} />;
   } else if (session.cards && !session.cards.length) {
     body = (
-      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+      <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
         <Sparkles className="mx-auto text-amber-300" size={32} />
         <p className="mt-3 font-semibold text-white">Nothing due. You’re all caught up!</p>
-        <p className="mt-1 text-sm text-slate-400">Learn new decks to add cards to your review queue.</p>
+        <p className="mt-1 text-sm text-slate-300">Learn new decks to add cards to your review queue.</p>
         <Link to="/academy" className="mt-4 inline-block text-sm font-semibold text-amber-300 hover:underline">Back to Academy</Link>
       </div>
     );
@@ -123,10 +124,11 @@ export default function AcademyPlay({ kind }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white">
+    <div className="relative isolate min-h-screen text-white">
+      <LiquidBackground />
       <Navbar />
-      <div className="relative mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
-        <Link to={backTo} className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
+      <div className="relative mx-auto max-w-4xl px-4 py-6 sm:px-8 sm:py-10">
+        <Link to={backTo} className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-300 transition hover:text-white">
           <ArrowLeft size={15} /> {track ? track.title : 'Academy'}
         </Link>
         <div className="mb-6">
@@ -136,8 +138,8 @@ export default function AcademyPlay({ kind }) {
           <h1 className="mt-0.5 text-2xl font-bold">{title}</h1>
           {deck && (
             <div className="mt-2 flex gap-2 text-xs">
-              <Link to={`?mode=learn`} onClick={restart} className={`rounded-full px-3 py-1 font-semibold ${mode === 'learn' ? 'bg-white/15 text-white' : 'bg-white/[0.03] text-slate-400 hover:text-white'}`}>Learn</Link>
-              <Link to={`?mode=quiz`} onClick={restart} className={`rounded-full px-3 py-1 font-semibold ${mode === 'quiz' ? 'bg-white/15 text-white' : 'bg-white/[0.03] text-slate-400 hover:text-white'}`}>Quiz</Link>
+              <Link to={`?mode=learn`} onClick={restart} className={`rounded-full px-3 py-1 font-semibold ${mode === 'learn' ? 'bg-white/15 text-white' : 'bg-white/[0.03] text-slate-300 hover:text-white'}`}>Learn</Link>
+              <Link to={`?mode=quiz`} onClick={restart} className={`rounded-full px-3 py-1 font-semibold ${mode === 'quiz' ? 'bg-white/15 text-white' : 'bg-white/[0.03] text-slate-300 hover:text-white'}`}>Quiz</Link>
             </div>
           )}
         </div>
@@ -162,11 +164,11 @@ function Results({ result, kind, mode, xp, color, onRestart, backTo }) {
       : 'Session complete';
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center">
+    <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
       <Icon size={40} className={`mx-auto ${isBoss && !result.passed ? 'text-rose-400' : 'text-amber-300'}`} />
       <h2 className="mt-3 text-xl font-bold text-white">{headline}</h2>
       <p className="mt-4 text-5xl font-bold" style={{ color }}>{pct}%</p>
-      <p className="mt-1 text-sm text-slate-400">
+      <p className="mt-1 text-sm text-slate-300">
         {result.correct} / {result.total} {mode === 'quiz' || isBoss ? 'correct' : 'known on first try'}
       </p>
       <div className="mt-4 flex justify-center gap-2 text-xs">
