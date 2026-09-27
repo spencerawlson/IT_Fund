@@ -1,4 +1,4 @@
-# IT_Fund
+# Road to CISSP
 
 Standalone Vite React learning platform for IT fundamentals to advanced cloud expertise.
 
