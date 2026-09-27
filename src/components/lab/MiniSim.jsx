@@ -1,8 +1,8 @@
 import React from 'react';
 
-const chipBase = 'rounded-md border border-white/10 bg-white/[0.03] px-2 py-1';
+const chipBase = 'rounded-md border border-white/10 bg-white/[0.06] px-2 py-1';
 const accentMap = {
-  white: { border: 'border-white/10', bg: 'bg-white/[0.03]', text: 'text-slate-300', title: 'text-white' },
+  white: { border: 'border-white/10', bg: 'bg-white/[0.06]', text: 'text-slate-300', title: 'text-white' },
   blue: { border: 'border-blue-500/30', bg: 'bg-blue-500/10', text: 'text-blue-200', title: 'text-blue-200' },
   rose: { border: 'border-rose-500/30', bg: 'bg-rose-500/10', text: 'text-rose-100', title: 'text-rose-200' },
   amber: { border: 'border-amber-500/30', bg: 'bg-amber-500/10', text: 'text-amber-100', title: 'text-amber-200' },
@@ -13,7 +13,7 @@ export default function MiniSim({ title, steps, tags, accent }) {
   const titleAccent = accentMap[accent] ?? accentMap.white;
   const colKey = steps.length === 4 ? 'sm:grid-cols-4' : steps.length >= 5 ? 'sm:grid-cols-2' : 'sm:grid-cols-2';
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+    <div className="rounded-xl glass p-6">
       {title ? <div className={`mb-3 text-xs font-bold ${titleAccent.title}`}>{title}</div> : null}
       <div className={`grid grid-cols-1 gap-3 ${colKey}`}>
         {steps.map((step) => {

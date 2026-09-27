@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Timer, Play, RotateCcw, CheckCircle2, XCircle, Trophy, Terminal, Calculator, Shield, Zap } from 'lucide-react';
 import { CHALLENGES, TYPE_META } from '@/data/challenges';
@@ -13,6 +15,7 @@ function normalize(s) {
 }
 
 export default function Challenge() {
+  useBgTint('#F43F5E');
   const [phase, setPhase] = useState('intro');
   const [category, setCategory] = useState('All');
   const [queue, setQueue] = useState([]);
@@ -95,11 +98,8 @@ export default function Challenge() {
   const TypeIcon = meta ? ICONS[meta.icon] : Terminal;
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-96 w-96 rounded-full bg-rose-600/10 blur-[120px]" />
-        <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]" />
-      </div>
+    <div className="min-h-screen text-white">
+      <Navbar />
 
       <div className="relative mx-auto max-w-3xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
@@ -122,8 +122,8 @@ export default function Challenge() {
 
         {/* INTRO */}
         {phase === 'intro' && (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Choose a track</p>
+          <div className="rounded-2xl glass p-6">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Choose a track</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {CATEGORIES.map((cat) => {
                 const key = TYPE_KEY[cat];
@@ -134,19 +134,19 @@ export default function Challenge() {
                     key={cat}
                     onClick={() => setCategory(cat)}
                     className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
-                      category === cat ? 'border-rose-500/50 bg-rose-500/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'
+                      category === cat ? 'border-rose-500/50 bg-rose-500/10' : 'border-white/10 bg-white/[0.06] hover:bg-white/[0.12]'
                     }`}
                   >
                     <Icon size={18} className={category === cat ? 'text-rose-400' : 'text-slate-400'} />
                     <div>
                       <p className="text-sm font-bold text-white">{cat}</p>
-                      <p className="text-[11px] text-slate-500">{count} challenges · 45s each</p>
+                      <p className="text-[11px] text-slate-400">{count} challenges · 45s each</p>
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-slate-400">
+            <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-xs text-slate-400">
               <p>• CLI Fix: type the exact command (case-insensitive, quotes ignored).</p>
               <p>• Subnetting &amp; Firewall: pick the correct option.</p>
               <p>• Score = 100 + 2 × seconds remaining. Timeout = 0 points.</p>
@@ -176,19 +176,19 @@ export default function Challenge() {
             </div>
 
             {/* challenge card */}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm">
+            <div className="rounded-2xl glass p-6">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.08] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-300">
                   <TypeIcon size={12} /> {meta.label}
                 </span>
-                <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${timeLeft <= 10 ? 'text-rose-400' : 'text-slate-500'}`}>
+                <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${timeLeft <= 10 ? 'text-rose-400' : 'text-slate-400'}`}>
                   <Timer size={12} /> {timeLeft}s
                 </span>
               </div>
 
               <p className="mt-4 text-base font-bold leading-relaxed text-white">{current.prompt}</p>
               {current.context && (
-                <p className="mt-2 font-mono text-xs text-slate-500">{current.context}</p>
+                <p className="mt-2 font-mono text-xs text-slate-400">{current.context}</p>
               )}
 
               {/* input */}
@@ -205,7 +205,7 @@ export default function Challenge() {
                     spellCheck={false}
                     autoComplete="off"
                     placeholder="Type the command…"
-                    className="w-full rounded-lg border border-white/10 bg-[#0a0e14] px-3 py-2.5 font-mono text-sm text-white outline-none focus:border-rose-500/50"
+                    className="w-full rounded-lg border border-white/10 bg-black/55 backdrop-blur-xl px-3 py-2.5 font-mono text-sm text-white outline-none focus:border-rose-500/50"
                   />
                   <button
                     type="submit"
@@ -224,7 +224,7 @@ export default function Challenge() {
                       key={i}
                       onClick={() => setSelected(i)}
                       className={`rounded-lg border px-3 py-2.5 text-left text-sm transition ${
-                        selected === i ? 'border-rose-500/60 bg-rose-500/10 text-white' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]'
+                        selected === i ? 'border-rose-500/60 bg-rose-500/10 text-white' : 'border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/[0.12]'
                       }`}
                     >
                       {opt}
@@ -282,7 +282,7 @@ export default function Challenge() {
 
         {/* DONE */}
         {phase === 'done' && (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center backdrop-blur-sm">
+          <div className="rounded-2xl glass p-6 text-center">
             <Trophy size={32} className="mx-auto text-amber-400" />
             <h2 className="mt-3 text-2xl font-bold text-white">{totalScore} pts</h2>
             <p className="mt-1 text-sm text-slate-400">
@@ -292,7 +292,7 @@ export default function Challenge() {
               {results.map((r, i) => {
                 const ch = CHALLENGES.find((c) => c.id === r.id);
                 return (
-                  <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs">
+                  <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-xs">
                     {r.correct ? <CheckCircle2 size={14} className="text-green-400" /> : <XCircle size={14} className="text-rose-400" />}
                     <span className="flex-1 truncate text-slate-300">{ch.prompt}</span>
                     <span className="font-semibold text-slate-400">{r.points}</span>
@@ -309,7 +309,7 @@ export default function Challenge() {
               </button>
               <button
                 onClick={() => setPhase('intro')}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.08]"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.12]"
               >
                 Change track
               </button>

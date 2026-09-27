@@ -1,4 +1,6 @@
 import React from 'react';
+import Navbar from '@/components/Navbar';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Map, Trophy, CheckCircle2 } from 'lucide-react';
 import { modules, levelColors } from '@/data/modules';
@@ -29,14 +31,12 @@ const CERTS = [
 ];
 
 export default function Roadmap() {
+  useBgTint('#10B981');
   const overallPct = Math.round(modules.reduce((s, m) => s + getOverallProgress(m.id), 0) / modules.length);
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-96 w-96 rounded-full bg-emerald-600/10 blur-[120px]" />
-        <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-blue-500/10 blur-[120px]" />
-      </div>
+    <div className="min-h-screen text-white">
+      <Navbar />
 
       <div className="relative mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
@@ -55,8 +55,8 @@ export default function Roadmap() {
             A guided route through every layer of the IT, networking, cloud, and security curriculum — from first
             principles to expert system design.
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5">
-            <span className="text-[11px] uppercase tracking-wider text-slate-500">Overall Progress</span>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-4 py-2.5">
+            <span className="text-[11px] uppercase tracking-wider text-slate-400">Overall Progress</span>
             <span className="text-lg font-bold text-emerald-400">{overallPct}%</span>
           </div>
         </header>
@@ -74,7 +74,7 @@ export default function Roadmap() {
               return (
                 <div key={phase.n} className="relative pl-12">
                   <div
-                    className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 ${done ? 'border-emerald-500/50 bg-emerald-500/15' : 'border-white/15 bg-[#0D1117]'}`}
+                    className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 ${done ? 'border-emerald-500/50 bg-emerald-500/15' : 'border-white/15 bg-black/40 backdrop-blur-md'}`}
                   >
                     {done ? (
                       <CheckCircle2 size={18} className="text-emerald-400" />
@@ -82,7 +82,7 @@ export default function Roadmap() {
                       <span className="text-xs font-bold" style={{ color: phase.color }}>{phase.n}</span>
                     )}
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-sm">
+                  <div className="rounded-2xl glass p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h2 className="text-base font-bold text-white">{phase.title}</h2>
@@ -101,11 +101,11 @@ export default function Roadmap() {
                           <Link
                             key={m.id}
                             to={`/module/${m.id}`}
-                            className="group flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs transition hover:border-white/25 hover:bg-white/[0.07]"
+                            className="group flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs transition hover:border-white/25 hover:bg-white/[0.12]"
                           >
                             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: lvl.dot }} />
                             <span className="font-semibold text-white">{m.title}</span>
-                            <span className="text-slate-500">· {pct}%</span>
+                            <span className="text-slate-400">· {pct}%</span>
                           </Link>
                         );
                       })}
@@ -118,7 +118,7 @@ export default function Roadmap() {
         </div>
 
         {/* Certification milestones */}
-        <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-sm">
+        <div className="mt-12 rounded-2xl glass p-5">
           <div className="flex items-center gap-2">
             <Trophy size={16} className="text-amber-400" />
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Certification Milestones</h2>
@@ -128,17 +128,17 @@ export default function Roadmap() {
               const lvl = levelColors[c.level] || levelColors.Beginner;
               return (
                 <div key={c.name} className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5">
+                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: lvl.dot }} />
                     <span className="text-xs font-semibold text-white">{c.name}</span>
-                    <span className="text-[10px] text-slate-500">{c.level}</span>
+                    <span className="text-[10px] text-slate-400">{c.level}</span>
                   </div>
-                  {i < CERTS.length - 1 && <span className="text-slate-600">→</span>}
+                  {i < CERTS.length - 1 && <span className="text-slate-500">→</span>}
                 </div>
               );
             })}
           </div>
-          <p className="mt-3 text-[11px] text-slate-500">
+          <p className="mt-3 text-[11px] text-slate-400">
             Open the Certifications module for details on each exam, prerequisites, and the roles they unlock.
           </p>
         </div>

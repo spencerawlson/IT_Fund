@@ -42,12 +42,12 @@ export default function DnsAnimation() {
     return (
       <div
         className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border px-3 py-2 text-center transition-colors ${
-          active ? 'border-blue-500/60 bg-blue-500/15 shadow-lg shadow-blue-500/20' : 'border-white/15 bg-white/[0.04]'
+          active ? 'border-blue-500/60 bg-blue-500/15 shadow-lg shadow-blue-500/20' : 'border-white/15 bg-white/[0.08]'
         }`}
         style={{ left: `${NODES[id].x}%`, top: `${NODES[id].y}%` }}
       >
         <p className={`text-[11px] font-bold ${active ? 'text-blue-300' : 'text-slate-300'}`}>{label}</p>
-        <p className="text-[9px] text-slate-500">{sub}</p>
+        <p className="text-[9px] text-slate-400">{sub}</p>
       </div>
     );
   };
@@ -85,7 +85,7 @@ export default function DnsAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
         <p className="text-slate-400">{current.note}</p>
       </div>

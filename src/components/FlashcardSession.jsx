@@ -106,7 +106,7 @@ export default function FlashcardSession({ module, onComplete }) {
     const known = results.filter((r) => r.known).length;
     const pct = cards.length ? Math.round((known / cards.length) * 100) : 0;
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center backdrop-blur-sm">
+      <div className="mx-auto max-w-md rounded-2xl glass p-8 text-center">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/15 text-3xl font-bold text-blue-400">
           {pct}%
         </div>
@@ -124,7 +124,7 @@ export default function FlashcardSession({ module, onComplete }) {
           {useSpeak && (
             <button
               onClick={() => speak(`You scored ${pct} percent, ${known} out of ${cards.length}`)}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.08]"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.08] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.12]"
             >
               <Volume2 size={15} /> {speaking ? 'Speaking…' : 'Read Result'}
             </button>
@@ -160,10 +160,10 @@ export default function FlashcardSession({ module, onComplete }) {
         onClick={() => setFlipped((f) => !f)}
       >
         <div className={`flip-inner relative h-full w-full ${flipped ? 'flipped' : ''}`}>
-          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center backdrop-blur-sm">
+          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl glass p-6 text-center">
             <CategoryBadge category={current.category} />
             <h3 className="text-2xl font-bold text-white">{current.front}</h3>
-            <p className="text-xs text-slate-500">Tap to reveal {voiceResult ? `· voice: ${voiceResult}` : ''}</p>
+            <p className="text-xs text-slate-400">Tap to reveal {voiceResult ? `· voice: ${voiceResult}` : ''}</p>
           </div>
           <div className="flip-back absolute inset-0 flex flex-col gap-3 overflow-y-auto rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/[0.08] to-teal-500/[0.05] p-6">
             <div className="flex items-center justify-between gap-2">
@@ -171,7 +171,7 @@ export default function FlashcardSession({ module, onComplete }) {
               {useSpeak && (
                 <button
                   onClick={(e) => { e.stopPropagation(); speak(current.back); }}
-                  className={`inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-200 transition hover:bg-white/[0.08] ${speaking ? 'animate-pulse text-blue-300' : ''}`}
+                  className={`inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-xs text-slate-200 transition hover:bg-white/[0.12] ${speaking ? 'animate-pulse text-blue-300' : ''}`}
                 >
                   <Volume2 size={14} /> {speaking ? 'Playing' : 'Read'}
                 </button>
@@ -182,7 +182,7 @@ export default function FlashcardSession({ module, onComplete }) {
                 <p className="text-xs text-slate-400">Answer options:</p>
                 <ul className="space-y-1 text-sm text-slate-200">
                   {current.opts.map((o, i) => (
-                    <li key={i} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">{o}</li>
+                    <li key={i} className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2">{o}</li>
                   ))}
                 </ul>
                 <p className="text-xs text-slate-400">Answer: <span className="font-semibold text-blue-300">{current.back}</span></p>
@@ -197,14 +197,14 @@ export default function FlashcardSession({ module, onComplete }) {
       <div className="mt-5 flex gap-3">
         <button
           onClick={() => handleAnswer(false)}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.08]"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.12]"
         >
           <X size={16} /> Review Again
         </button>
         {useListen && (
           <button
             onClick={(e) => { e.stopPropagation(); toggleListen(); }}
-            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${listening ? 'border-rose-500/50 bg-rose-500/15 text-rose-300' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.08]'}`}
+            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${listening ? 'border-rose-500/50 bg-rose-500/15 text-rose-300' : 'border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/[0.12]'}`}
           >
             <Mic size={16} /> {listening ? 'Listening…' : 'Speak Answer'}
           </button>
@@ -216,7 +216,7 @@ export default function FlashcardSession({ module, onComplete }) {
           <Check size={16} /> Got It
         </button>
       </div>
-      <p className="mt-3 text-center text-xs text-slate-500">Flip the card first, then mark your confidence.</p>
+      <p className="mt-3 text-center text-xs text-slate-400">Flip the card first, then mark your confidence.</p>
     </div>
   );
 }

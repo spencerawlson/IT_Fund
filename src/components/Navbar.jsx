@@ -1,6 +1,24 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { FlaskConical, Gamepad2, Search, X } from 'lucide-react';
+
+const LINKS = [
+  { to: '/academy', label: 'Academy', icon: Gamepad2, accent: true },
+  { to: '/tracks', label: 'Tracks' },
+  { to: '/lab', label: 'Visual Lab' },
+  { to: '/challenge', label: 'Challenges' },
+  { to: '/learning-path', label: 'Learning Path' },
+  { to: '/registry', label: 'Config' },
+];
+
+const linkClass = (accent) => ({ isActive }) =>
+  `inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+    isActive
+      ? 'border border-white/25 bg-white/15 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]'
+      : accent
+        ? 'border border-transparent text-amber-300 hover:bg-white/10 hover:text-amber-200'
+        : 'border border-transparent text-slate-300 hover:bg-white/10 hover:text-white'
+  }`;
 
 export default function Navbar({ onSearch }) {
   const [q, setQ] = useState('');
@@ -14,72 +32,58 @@ export default function Navbar({ onSearch }) {
     if (value) navigate('/');
   };
 
+  const links = (
+    <>
+      {LINKS.map(({ to, label, icon: Icon, accent }) => (
+        <NavLink key={to} to={to} className={linkClass(accent)}>
+          {Icon && <Icon size={13} />} {label}
+        </NavLink>
+      ))}
+    </>
+  );
+
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0D1117]/80 backdrop-blur-md">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="flex h-14 items-center justify-between gap-4">
-          <div className="flex items-center gap-5">
-            <Link to="/" className="flex items-center gap-2 text-sm font-semibold text-white">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-teal-400 text-xs text-white shadow-sm">
+    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-6">
+      <div className="glass-strong mx-auto max-w-6xl rounded-3xl px-3 sm:px-4">
+        <div className="flex h-14 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-4">
+            <Link to="/" className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/30 bg-gradient-to-br from-blue-500 to-teal-400 text-xs font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
                 N
               </span>
               <span className="hidden sm:inline">NetOS Study Hub</span>
             </Link>
-            <nav className="hidden items-center gap-1 md:flex">
-              <Link to="/academy" className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-white/[0.04] hover:text-amber-200">
-                <Gamepad2 size={13} /> Academy
-              </Link>
-              <Link to="/tracks" className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white hover:bg-white/[0.04]">
-                Tracks
-              </Link>
-              <Link to="/lab" className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white hover:bg-white/[0.04]">
-                Visual Lab
-              </Link>
-              <Link to="/challenge" className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white hover:bg-white/[0.04]">
-                Challenges
-              </Link>
-              <Link to="/learning-path" className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white hover:bg-white/[0.04]">
-                Learning Path
-              </Link>
-              <Link to="/registry" className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white hover:bg-white/[0.04]">
-                Config
-              </Link>
-            </nav>
+            <nav className="hidden items-center gap-1 lg:flex">{links}</nav>
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/academy"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-200 md:hidden"
-            >
-              <Gamepad2 size={14} /> Academy
-            </Link>
             <form onSubmit={submit} className="relative hidden sm:block">
-              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search concepts..."
-                className="h-9 w-56 rounded-lg border border-white/10 bg-white/[0.04] pl-9 pr-8 text-xs text-white placeholder-slate-500 outline-none backdrop-blur-sm transition focus:border-blue-500/50 focus:w-72"
+                aria-label="Search concepts"
+                className="h-9 w-48 rounded-full border border-white/15 bg-white/[0.08] pl-9 pr-8 text-xs text-white placeholder-slate-400 outline-none transition focus:w-64 focus:border-white/40"
               />
               {q && (
                 <button
                   type="button"
                   onClick={() => setQ('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-500 hover:text-white"
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 hover:text-white"
                 >
                   <X size={14} />
                 </button>
               )}
             </form>
-            <Link
-              to="/lab"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-blue-500/20 transition hover:opacity-90"
-            >
-              <FlaskConical size={14} /> Open Lab
+            <Link to="/lab" className="glass-btn inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold" style={{ '--tint': '#0EA5E9' }}>
+              <FlaskConical size={14} /> <span className="hidden sm:inline">Open Lab</span>
             </Link>
           </div>
         </div>
+        {/* Phones and tablets: swipeable link row. */}
+        <nav className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-2.5 [scrollbar-width:none] lg:hidden">{links}</nav>
       </div>
     </header>
   );

@@ -43,12 +43,12 @@ export default function CICDAnimation() {
                   ? 'border-green-500/60 bg-green-500/15 shadow-lg shadow-green-500/20'
                   : isDone
                     ? 'border-blue-500/30 bg-blue-500/10'
-                    : 'border-white/10 bg-white/[0.03]'
+                    : 'border-white/10 bg-white/[0.06]'
               }`}
               style={{ left: `${s.left}%` }}
             >
               <p className={`text-[11px] font-bold ${isActive ? 'text-green-300' : isDone ? 'text-blue-300' : 'text-slate-400'}`}>{s.label}</p>
-              <p className="text-[9px] text-slate-500">{s.sub}</p>
+              <p className="text-[9px] text-slate-400">{s.sub}</p>
             </div>
           );
         })}
@@ -71,7 +71,7 @@ export default function CICDAnimation() {
       </div>
 
       {/* Note */}
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}: {current.sub}</p>
         <p className="text-slate-400">{current.note}</p>
       </div>

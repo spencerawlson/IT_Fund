@@ -37,7 +37,7 @@ export default function LinuxTerminalLab() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="rounded-xl border border-white/10 bg-[#0a0e14] p-4 font-mono text-sm shadow-lg">
+      <div className="rounded-xl border border-white/10 bg-black/55 backdrop-blur-xl p-4 font-mono text-sm shadow-lg">
         <div className="mb-3 flex items-center gap-2 border-b border-white/10 pb-3">
           <span className="h-2 w-2 rounded-full bg-red-500/80" />
           <span className="h-2 w-2 rounded-full bg-amber-500/80" />
@@ -46,7 +46,7 @@ export default function LinuxTerminalLab() {
         </div>
         <div className="h-72 space-y-2 overflow-y-auto pr-2">
           {history.map((row, i) => (
-            <div key={i} className={row.type === 'cmd' ? 'text-emerald-300' : row.type === 'out' ? 'whitespace-pre text-slate-300' : 'text-slate-500'}>
+            <div key={i} className={row.type === 'cmd' ? 'text-emerald-300' : row.type === 'out' ? 'whitespace-pre text-slate-300' : 'text-slate-400'}>
               {row.type === 'cmd' && <span>{'user@linux:~$ ' + row.text}</span>}
               {row.type === 'out' && <span>{row.text}</span>}
               {row.type === 'info' && <span>{row.text}</span>}
@@ -68,7 +68,7 @@ export default function LinuxTerminalLab() {
 
       <div className="mt-3 flex flex-wrap gap-2">
         {COMMANDS.map((c) => (
-          <button key={c.cmd} onClick={() => run(c.cmd)} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-300 transition hover:border-white/25 hover:bg-white/[0.07]">
+          <button key={c.cmd} onClick={() => run(c.cmd)} className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-slate-300 transition hover:border-white/25 hover:bg-white/[0.12]">
             {c.cmd}
           </button>
         ))}

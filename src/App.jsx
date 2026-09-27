@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
+import LiquidBackground from '@/components/academy/LiquidBackground';
 // Add page imports here
 import Home from './pages/Home';
 import Module from './pages/Module';
@@ -77,10 +78,14 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
-          {/* Last line of defence: a crash below here shows a message, not a blank page. */}
-          <ErrorBoundary label="Page">
-            <AuthenticatedApp />
-          </ErrorBoundary>
+          {/* isolate: keeps the -z-10 background above the body but below every page. */}
+          <div className="relative isolate min-h-screen text-white">
+            <LiquidBackground />
+            {/* Last line of defence: a crash below here shows a message, not a blank page. */}
+            <ErrorBoundary label="Page">
+              <AuthenticatedApp />
+            </ErrorBoundary>
+          </div>
         </Router>
         <Toaster />
       </QueryClientProvider>

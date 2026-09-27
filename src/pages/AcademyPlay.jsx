@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { ArrowLeft, RotateCcw, Trophy, Skull, Sparkles, Lock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import LiquidBackground from '@/components/academy/LiquidBackground';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import FlashDeck from '@/components/academy/FlashDeck';
 import QuizRun from '@/components/academy/QuizRun';
 import { getTrack, getDeck, allCards } from '@/data/academy';
@@ -48,6 +48,7 @@ export default function AcademyPlay({ kind }) {
   const tierIndex = track ? track.tiers.findIndex((t) => t.id === (deck ? deck.tierId : tierId)) : -1;
   const tier = tierIndex >= 0 ? track.tiers[tierIndex] : null;
   const color = track?.color || '#F59E0B';
+  useBgTint(color);
 
   // Build the session once per round; progress updates must not reshuffle it mid-play.
   const session = useMemo(() => {
@@ -125,7 +126,6 @@ export default function AcademyPlay({ kind }) {
 
   return (
     <div className="relative isolate min-h-screen text-white">
-      <LiquidBackground />
       <Navbar />
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:px-8 sm:py-10">
         <Link to={backTo} className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-300 transition hover:text-white">

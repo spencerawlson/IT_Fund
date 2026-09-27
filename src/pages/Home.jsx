@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { BookOpen, Sparkles, Gamepad2, ArrowRight } from 'lucide-react';
 import { modules, levelOrder } from '@/data/modules';
@@ -11,6 +12,7 @@ const LEVELS = ['All', ...levelOrder];
 export default function Home() {
   const [query, setQuery] = useState('');
   const [level, setLevel] = useState('All');
+  useBgTint('#3B82F6');
 
   const filteredModules = useMemo(() => {
     if (level === 'All') return modules;
@@ -44,7 +46,7 @@ export default function Home() {
   const handleSearch = (value) => setQuery(value);
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white">
+    <div className="min-h-screen text-white">
       <Navbar onSearch={handleSearch} />
 
       <div className="relative mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
@@ -77,8 +79,8 @@ export default function Home() {
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen size={16} className="text-slate-500" />
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">All Modules</h2>
+            <BookOpen size={16} className="text-slate-400" />
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">All Modules</h2>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {LEVELS.map((lvl) => (
@@ -86,7 +88,7 @@ export default function Home() {
                 key={lvl}
                 onClick={() => setLevel(lvl)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                  level === lvl ? 'bg-white/15 text-white' : 'bg-white/[0.03] text-slate-400 hover:text-white'
+                  level === lvl ? 'bg-white/15 text-white' : 'bg-white/[0.06] text-slate-400 hover:text-white'
                 }`}
               >
                 {lvl}
@@ -101,7 +103,7 @@ export default function Home() {
           ))}
         </div>
 
-        <footer className="mt-12 border-t border-white/5 pt-6 text-center text-xs text-slate-600">
+        <footer className="mt-12 border-t border-white/5 pt-6 text-center text-xs text-slate-500">
           Course 420-ZX6-UM · {modules.length} modules available · More coming soon
         </footer>
       </div>

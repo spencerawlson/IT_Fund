@@ -139,7 +139,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     <div className="relative h-full w-full overflow-hidden rounded-xl">
       <div ref={mountRef} className="h-full w-full" />
       {rendererFailed && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] p-6">
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] p-6">
           <div className="text-center text-sm text-slate-400">
             <p className="font-semibold text-white">Visual preview unavailable</p>
             <p className="mt-2">This lab requires hardware acceleration or WebGL support.</p>
@@ -148,7 +148,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
       )}
       {info && !rendererFailed && (
         <div
-          className="pointer-events-none absolute z-10 max-w-[220px] rounded-lg border border-blue-500/40 bg-[#0a0e14]/95 px-3 py-2 text-xs shadow-xl"
+          className="pointer-events-none absolute z-10 max-w-[220px] rounded-lg border border-blue-500/40 bg-black/55 backdrop-blur-xl px-3 py-2 text-xs shadow-xl"
           style={{
             left: Math.min(info.x + 14, info.cw - 230),
             top: Math.min(info.y + 14, info.ch - 70),

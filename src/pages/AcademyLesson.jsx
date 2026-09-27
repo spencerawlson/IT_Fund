@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Lock } from 'lucide-react';
-import LiquidBackground from '@/components/academy/LiquidBackground';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import LessonPlayer from '@/components/academy/lesson/LessonPlayer';
 import { getTrack, getDeck } from '@/data/academy';
 import { useAcademy, isTierUnlocked } from '@/lib/academy';
@@ -11,6 +11,7 @@ export default function AcademyLesson() {
   const state = useAcademy();
   const track = getTrack(trackId);
   const deck = getDeck(deckId);
+  useBgTint(track?.color);
   const tierIndex = track && deck ? track.tiers.findIndex((t) => t.id === deck.tierId) : -1;
 
   let body;
@@ -25,7 +26,6 @@ export default function AcademyLesson() {
 
   return (
     <div className="relative isolate min-h-[100dvh] text-white">
-      <LiquidBackground tint={track?.color} />
       {body}
     </div>
   );

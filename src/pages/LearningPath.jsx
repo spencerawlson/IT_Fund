@@ -1,4 +1,5 @@
 import React from 'react';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { Shield, GitBranch, Activity, Lock, Container, DollarSign, Map, ArrowLeft, BookOpen } from 'lucide-react';
 import { modules } from '@/data/modules';
@@ -16,6 +17,7 @@ const accentCls = {
 };
 
 export default function LearningPath() {
+  useBgTint('#14B8A6');
   const moduleById = React.useMemo(() => {
     const m = {};
     for (const item of modules) m[item.id] = item;
@@ -23,12 +25,8 @@ export default function LearningPath() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white">
+    <div className="min-h-screen text-white">
       <Navbar />
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -right-40 top-0 h-96 w-96 rounded-full bg-indigo-500/10 blur-[120px]" />
-        <div className="absolute -left-40 top-40 h-96 w-96 rounded-full bg-teal-500/10 blur-[120px]" />
-      </div>
 
       <div className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
@@ -62,14 +60,14 @@ export default function LearningPath() {
                 </div>
 
                 <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Modules</p>
+                  <div className="rounded-xl glass p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Modules</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {p.moduleIds.map((mid) => {
                         const m = moduleById[mid];
                         if (!m) return null;
                         return (
-                          <Link key={mid} to={`/module/${m.id}`} className="rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-200 transition hover:bg-white/[0.08]">
+                          <Link key={mid} to={`/module/${m.id}`} className="rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-xs text-slate-200 transition hover:bg-white/[0.12]">
                             {m.number}. {m.title}
                           </Link>
                         );
@@ -77,19 +75,19 @@ export default function LearningPath() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Labs</p>
+                  <div className="rounded-xl glass p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Labs</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {p.labIds.map((lab) => (
-                        <Link key={lab} to={`/lab?item=${lab}`} className="rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-200 capitalize transition hover:bg-white/[0.08]">
+                        <Link key={lab} to={`/lab?item=${lab}`} className="rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-xs text-slate-200 capitalize transition hover:bg-white/[0.12]">
                           {lab.replace('-', ' ')}
                         </Link>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Concepts from PDFs</p>
+                  <div className="rounded-xl glass p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Concepts from PDFs</p>
                     <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-300">
                       {p.concepts.map((c) => (
                         <li key={c}>{c}</li>
@@ -100,23 +98,23 @@ export default function LearningPath() {
 
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Backing Sources</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Backing Sources</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {p.sourcePdfs.map((pdf) => (
-                        <span key={pdf} className="rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-300">
+                        <span key={pdf} className="rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-xs text-slate-300">
                           {pdf}
                         </span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Module Evidence</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Module Evidence</p>
                     <div className="mt-2 space-y-2">
                       {p.moduleIds.map((mid) => {
                         const m = moduleById[mid];
                         if (!m) return null;
                         return (
-                          <Link key={mid} to={`/module/${m.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 transition hover:bg-white/[0.05]">
+                          <Link key={mid} to={`/module/${m.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 transition hover:bg-white/[0.12]">
                             <span className="text-xs text-slate-300">{m.number}. {m.title}</span>
                             <BookOpen size={12} className="text-indigo-300" />
                           </Link>

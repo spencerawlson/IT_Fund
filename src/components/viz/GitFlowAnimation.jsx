@@ -36,7 +36,7 @@ export default function GitFlowAnimation() {
     <div>
       <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] sm:h-72">
         <div className="absolute inset-x-0 top-3 flex justify-center">
-          <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold text-white/80">
+          <span className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1 text-xs font-semibold text-white/80">
             {current.badge}
           </span>
         </div>
@@ -69,9 +69,9 @@ export default function GitFlowAnimation() {
             return (
               <div key={s.label} className="absolute -translate-x-1/2 -translate-y-1/2 text-center" style={{ left: `${s.x}%`, top: '50%' }}>
                 <div className={`mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-full border ${isCurrent ? 'border-indigo-300 bg-indigo-500/20 shadow-lg shadow-indigo-500/20' : active ? 'border-white/25 bg-white/10' : 'border-white/10 bg-white/5'}`}>
-                  <current.icon size={12} className={isCurrent ? 'text-indigo-200' : active ? 'text-slate-200' : 'text-slate-500'} />
+                  <current.icon size={12} className={isCurrent ? 'text-indigo-200' : active ? 'text-slate-200' : 'text-slate-400'} />
                 </div>
-                <div className={`text-[9px] ${isCurrent ? 'text-indigo-200' : active ? 'text-slate-200' : 'text-slate-500'}`}>{s.label}</div>
+                <div className={`text-[9px] ${isCurrent ? 'text-indigo-200' : active ? 'text-slate-200' : 'text-slate-400'}`}>{s.label}</div>
               </div>
             );
           })}
@@ -82,7 +82,7 @@ export default function GitFlowAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
         <p className="text-slate-400">{current.note}</p>
       </div>
@@ -103,9 +103,9 @@ export default function GitFlowAnimation() {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1"><HelpCircle size={10}/> Workspace → branch → commit</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">PR/merge/release workflow</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1"><Tag size={10}/> Versioned releases</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Workspace → branch → commit</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">PR/merge/release workflow</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><Tag size={10}/> Versioned releases</span>
       </div>
     </div>
   );

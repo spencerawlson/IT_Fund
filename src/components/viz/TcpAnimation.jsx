@@ -48,11 +48,11 @@ export default function TcpAnimation() {
         {/* Endpoints */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 rounded-xl border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-center">
           <p className="text-[11px] font-bold text-blue-300">CLIENT</p>
-          <p className="mt-0.5 text-[10px] text-slate-500">192.168.1.10</p>
+          <p className="mt-0.5 text-[10px] text-slate-400">192.168.1.10</p>
         </div>
         <div className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-teal-500/40 bg-teal-500/10 px-3 py-2 text-center">
           <p className="text-[11px] font-bold text-teal-300">SERVER</p>
-          <p className="mt-0.5 text-[10px] text-slate-500">93.184.216.34</p>
+          <p className="mt-0.5 text-[10px] text-slate-400">93.184.216.34</p>
         </div>
 
         {/* Line */}
@@ -97,7 +97,7 @@ export default function TcpAnimation() {
 
       {/* Concept + controls */}
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+        <div className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
           <p className="font-semibold text-white">{current.label}</p>
           <p className="text-slate-400">{current.note}</p>
           <p className="mt-1.5 text-slate-300">{current.explain}</p>
@@ -115,11 +115,11 @@ export default function TcpAnimation() {
 
       {/* Quick legend */}
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1"><HelpCircle size={10}/> SYN = request connection</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">ACK = acknowledgement</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">PSH = send data now</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">FIN = close connection</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">seq/ack = ordering numbers</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> SYN = request connection</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">ACK = acknowledgement</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">PSH = send data now</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">FIN = close connection</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">seq/ack = ordering numbers</span>
       </div>
 
       {/* Scrubber */}

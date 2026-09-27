@@ -28,8 +28,8 @@ export default function NumberSystemConverter() {
   return (
     <div>
       {/* Byte explorer */}
-      <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Byte Explorer</p>
+      <div className="rounded-lg border border-white/10 bg-white/[0.06] p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Byte Explorer</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {BITS.map((bit) => {
             const on = (byte >> bit) & 1;
@@ -38,10 +38,10 @@ export default function NumberSystemConverter() {
                 key={bit}
                 onClick={() => toggleBit(bit)}
                 className={`flex h-12 w-12 flex-col items-center justify-center rounded-lg border font-mono transition ${
-                  on ? 'border-blue-500/60 bg-blue-500/15 text-blue-300' : 'border-white/10 bg-white/[0.02] text-slate-600'
+                  on ? 'border-blue-500/60 bg-blue-500/15 text-blue-300' : 'border-white/10 bg-white/[0.06] text-slate-500'
                 }`}
               >
-                <span className="text-[9px] text-slate-500">b{bit}</span>
+                <span className="text-[9px] text-slate-400">b{bit}</span>
                 <span className="text-lg font-bold">{on ? 1 : 0}</span>
               </button>
             );
@@ -50,7 +50,7 @@ export default function NumberSystemConverter() {
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Decimal</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Decimal</label>
             <input
               type="number"
               min={0}
@@ -60,40 +60,40 @@ export default function NumberSystemConverter() {
                 const v = parseInt(e.target.value, 10);
                 if (!isNaN(v)) setByte(Math.max(0, Math.min(255, v)));
               }}
-              className="mt-1.5 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 font-mono text-sm text-white outline-none focus:border-blue-500/50"
+              className="mt-1.5 w-full rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2 font-mono text-sm text-white outline-none focus:border-blue-500/50"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Binary</label>
-              <div className="mt-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 font-mono text-sm text-blue-300">{binary}</div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Binary</label>
+              <div className="mt-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 font-mono text-sm text-blue-300">{binary}</div>
             </div>
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Hex</label>
-              <div className="mt-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 font-mono text-sm text-amber-300">{hex}</div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Hex</label>
+              <div className="mt-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 font-mono text-sm text-amber-300">{hex}</div>
             </div>
           </div>
         </div>
         <div className="mt-3 flex items-center gap-2 text-xs">
-          <span className="text-slate-500">ASCII:</span>
-          <span className="rounded border border-white/10 bg-white/[0.03] px-2 py-0.5 font-mono text-teal-300">{char}</span>
+          <span className="text-slate-400">ASCII:</span>
+          <span className="rounded border border-white/10 bg-white/[0.06] px-2 py-0.5 font-mono text-teal-300">{char}</span>
         </div>
       </div>
 
       {/* Text encoder */}
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Text → Binary / Hex</p>
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Text → Binary / Hex</p>
         <input
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={16}
           placeholder="Type text…"
-          className="mt-2 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-blue-500/50"
+          className="mt-2 w-full rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2 text-sm text-white outline-none focus:border-blue-500/50"
         />
         <div className="mt-3 overflow-hidden rounded-lg border border-white/10">
           <table className="w-full text-left font-mono text-xs">
-            <thead className="bg-white/[0.04] text-slate-500">
+            <thead className="bg-white/[0.08] text-slate-400">
               <tr>
                 <th className="px-3 py-1.5 font-semibold">Char</th>
                 <th className="px-3 py-1.5 font-semibold">Dec</th>
@@ -103,7 +103,7 @@ export default function NumberSystemConverter() {
             </thead>
             <tbody>
               {textRows.length === 0 ? (
-                <tr><td colSpan={4} className="px-3 py-3 text-center text-slate-600">Type text above to see its encoding</td></tr>
+                <tr><td colSpan={4} className="px-3 py-3 text-center text-slate-500">Type text above to see its encoding</td></tr>
               ) : textRows.map((r, i) => (
                 <tr key={i} className="border-t border-white/5">
                   <td className="px-3 py-1.5 font-bold text-white">{r.ch === ' ' ? '␣' : r.ch}</td>

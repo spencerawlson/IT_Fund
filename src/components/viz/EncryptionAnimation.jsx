@@ -38,7 +38,7 @@ export default function EncryptionAnimation() {
       <div className="relative h-72 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14]">
         {/* sender */}
         <div className="absolute left-[12%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <p className="text-[10px] font-bold text-slate-500">SENDER</p>
+          <p className="text-[10px] font-bold text-slate-400">SENDER</p>
           <div className={`mt-1 rounded-lg border px-3 py-2 font-mono text-sm font-bold ${senderEncrypted ? 'border-amber-500/50 bg-amber-500/10 text-amber-300' : 'border-blue-500/40 bg-blue-500/10 text-blue-300'}`}>
             {senderText}
           </div>
@@ -51,15 +51,15 @@ export default function EncryptionAnimation() {
 
         {/* eavesdropper */}
         <div className="absolute left-[50%] top-[16%] -translate-x-1/2 text-center">
-          <Eye size={16} className="mx-auto text-slate-600" />
-          <p className="text-[9px] text-slate-600">eavesdropper</p>
+          <Eye size={16} className="mx-auto text-slate-500" />
+          <p className="text-[9px] text-slate-500">eavesdropper</p>
           <p className="font-mono text-[9px] text-slate-700">{onWire ? CIPHER : '···'}</p>
         </div>
 
         {/* receiver */}
         <div className="absolute left-[88%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <p className="text-[10px] font-bold text-slate-500">RECEIVER</p>
-          <div className={`mt-1 rounded-lg border px-3 py-2 font-mono text-sm font-bold ${receiverDecrypted ? 'border-teal-500/50 bg-teal-500/10 text-teal-300' : 'border-slate-600/40 bg-white/[0.03] text-slate-400'}`}>
+          <p className="text-[10px] font-bold text-slate-400">RECEIVER</p>
+          <div className={`mt-1 rounded-lg border px-3 py-2 font-mono text-sm font-bold ${receiverDecrypted ? 'border-teal-500/50 bg-teal-500/10 text-teal-300' : 'border-slate-600/40 bg-white/[0.06] text-slate-400'}`}>
             {step >= 3 ? receiverText : '—'}
           </div>
           {step === 4 && (
@@ -92,7 +92,7 @@ export default function EncryptionAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.phase}</p>
         <p className="text-slate-400">{current.note}</p>
       </div>

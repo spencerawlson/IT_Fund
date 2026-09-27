@@ -122,20 +122,20 @@ export default function FirewallAnimation() {
       )}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Rules (top-down)</p>
+        <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rules (top-down)</p>
           <div className="mt-2 space-y-1 font-mono text-xs">
             {RULES.map((r, i) => (
               <div key={i} className="flex items-center gap-2">
                 <span className={`w-14 text-[11px] font-bold ${r.action === 'ALLOW' ? 'text-emerald-400' : 'text-rose-400'}`}>{r.action}</span>
                 <span className="text-slate-300">tcp/{r.port}</span>
-                <span className="text-slate-500">— {r.desc}</span>
+                <span className="text-slate-400">— {r.desc}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm sm:max-w-sm">
+        <div className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm sm:max-w-sm">
           <p className="font-semibold text-white">
             {current.proto}/{current.port} → {current.verdict === 'allow' ? 'ALLOWED' : 'DROPPED'}
           </p>
@@ -154,8 +154,8 @@ export default function FirewallAnimation() {
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto hidden items-center gap-2 sm:flex">
-          <span className="text-[11px] text-slate-500">Mode: stateful</span>
-          <span className="text-[11px] text-slate-500">Policy: default-deny</span>
+          <span className="text-[11px] text-slate-400">Mode: stateful</span>
+          <span className="text-[11px] text-slate-400">Policy: default-deny</span>
         </div>
       </div>
     </div>

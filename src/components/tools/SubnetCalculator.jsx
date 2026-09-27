@@ -37,8 +37,8 @@ export default function SubnetCalculator() {
   }, [ip, prefix]);
 
   const Row = ({ label, value, accent }) => (
-    <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</span>
+    <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</span>
       <span className={`font-mono text-sm font-semibold ${accent || 'text-white'}`}>{value}</span>
     </div>
   );
@@ -48,17 +48,17 @@ export default function SubnetCalculator() {
       {/* Inputs */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">IP Address</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">IP Address</label>
           <input
             type="text"
             value={ip}
             onChange={(e) => setIp(e.target.value)}
             placeholder="192.168.1.150"
-            className="mt-1.5 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5 font-mono text-sm text-white outline-none focus:border-blue-500/50"
+            className="mt-1.5 w-full rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2.5 font-mono text-sm text-white outline-none focus:border-blue-500/50"
           />
         </div>
         <div>
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">CIDR Prefix — /{prefix}</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">CIDR Prefix — /{prefix}</label>
           <input
             type="range"
             min={0}
@@ -98,15 +98,15 @@ export default function SubnetCalculator() {
             <Row label="Usable Hosts" value={result.usableHosts.toLocaleString()} accent="text-amber-300" />
           </div>
 
-          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Binary Breakdown</p>
+          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.06] p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Binary Breakdown</p>
             <div className="mt-3 space-y-1.5 font-mono text-[11px] leading-relaxed">
-              <p><span className="text-slate-500">IP        </span><span className="text-white">{toBinary(result.ipInt)}</span></p>
-              <p><span className="text-slate-500">Mask      </span><span className="text-blue-300">{toBinary(result.mask)}</span></p>
-              <p><span className="text-slate-500">Network   </span><span className="text-teal-300">{toBinary(result.network)}</span></p>
-              <p><span className="text-slate-500">Broadcast </span><span className="text-rose-300">{toBinary(result.broadcast)}</span></p>
+              <p><span className="text-slate-400">IP        </span><span className="text-white">{toBinary(result.ipInt)}</span></p>
+              <p><span className="text-slate-400">Mask      </span><span className="text-blue-300">{toBinary(result.mask)}</span></p>
+              <p><span className="text-slate-400">Network   </span><span className="text-teal-300">{toBinary(result.network)}</span></p>
+              <p><span className="text-slate-400">Broadcast </span><span className="text-rose-300">{toBinary(result.broadcast)}</span></p>
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
+            <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
               The first <span className="text-blue-300">{prefix}</span> bits define the network portion; the remaining <span className="text-amber-300">{32 - prefix}</span> bits identify individual hosts within it.
             </p>
           </div>

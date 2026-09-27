@@ -19,16 +19,16 @@ export default function SubjectDropdown({ items, active, onChange }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white outline-none transition hover:border-white/20 focus:border-blue-500/60"
+        className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition hover:border-white/20 focus:border-blue-500/60"
       >
-        <span className={selected ? '' : 'text-slate-500'}>{selected ? selected.label : 'Select a subject'}</span>
+        <span className={selected ? '' : 'text-slate-400'}>{selected ? selected.label : 'Select a subject'}</span>
         <svg className={`h-4 w-4 text-slate-400 transition ${open ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M6 8l4 4 4-4" />
         </svg>
       </button>
 
       {open && (
-        <div className="absolute inset-x-0 z-50 mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-[#0B0F15] shadow-xl">
+        <div className="absolute inset-x-0 z-50 mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-white/10 glass-strong shadow-xl">
           {items.map((it) => (
             <button
               key={it.id}

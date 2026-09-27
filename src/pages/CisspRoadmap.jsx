@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Map, Award, Clock, ShieldCheck, ExternalLink } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import LiquidBackground from '@/components/academy/LiquidBackground';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import { tracks, ROADMAP, CISSP_DOMAINS, decksForDomain, RESOURCES } from '@/data/academy';
 import { useAcademy, mastery, grantBadge } from '@/lib/academy';
 
@@ -23,6 +23,7 @@ const tierCards = (trackId, tierId) =>
 
 export default function CisspRoadmap() {
   const state = useAcademy();
+  useBgTint('#F59E0B');
   const domains = CISSP_DOMAINS.map((d) => ({ ...d, ...domainReadiness(state, d.id) }));
   const weighted = Math.round(domains.reduce((s, d) => s + d.pct * d.weight, 0) / 100);
   const allReady = domains.every((d) => d.pct >= READY_PCT);
@@ -33,7 +34,6 @@ export default function CisspRoadmap() {
 
   return (
     <div className="relative isolate min-h-screen text-white">
-      <LiquidBackground />
       <Navbar />
 
       <div className="relative mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-10">
@@ -64,7 +64,7 @@ export default function CisspRoadmap() {
               const pct = mastery(state, step.tiers.flatMap(([t, tier]) => tierCards(t, tier)));
               return (
                 <div key={step.step} className="relative pl-12">
-                  <div className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold ${pct >= READY_PCT ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300' : 'border-white/15 bg-[#0D1117] text-amber-300'}`}>
+                  <div className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold ${pct >= READY_PCT ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300' : 'border-white/15 bg-black/40 backdrop-blur-md text-amber-300'}`}>
                     {step.step}
                   </div>
                   <div className="glass rounded-2xl p-5">

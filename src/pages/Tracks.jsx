@@ -1,4 +1,6 @@
 import React from 'react';
+import Navbar from '@/components/Navbar';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { modules } from '@/data/modules';
@@ -54,12 +56,10 @@ function resolveTitle(id) {
 }
 
 export default function Tracks() {
+  useBgTint('#A855F7');
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-96 w-96 rounded-full bg-purple-600/10 blur-[120px]" />
-        <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-teal-500/10 blur-[120px]" />
-      </div>
+    <div className="min-h-screen text-white">
+      <Navbar />
 
       <div className="relative mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
@@ -78,26 +78,26 @@ export default function Tracks() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {TRACKS.map((t) => (
-            <div key={t.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <div key={t.id} className="rounded-2xl glass p-5">
               <h2 className="text-base font-bold text-white">{t.title}</h2>
               <p className="mt-1 text-[13px] text-slate-400">{t.description}</p>
 
               <div className="mt-3 space-y-2 text-[11px] text-slate-300">
                 <div>
-                  <p className="text-slate-500">Modules</p>
+                  <p className="text-slate-400">Modules</p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {t.modules.map((id) => (
-                      <Link key={id} to={`/module/${id}`} className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.07]">
+                      <Link key={id} to={`/module/${id}`} className="rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.12]">
                         {resolveTitle(id)}
                       </Link>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <p className="text-slate-500">Labs</p>
+                  <p className="text-slate-400">Labs</p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {t.labs.map((id) => (
-                      <Link key={id} to={`/lab?item=${id}`} className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.07]">
+                      <Link key={id} to={`/lab?item=${id}`} className="rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.12]">
                         {id}
                       </Link>
                     ))}

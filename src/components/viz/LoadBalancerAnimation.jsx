@@ -47,7 +47,7 @@ export default function LoadBalancerAnimation() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(99,102,241,0.06)_1px,transparent_0)] bg-[length:22px_22px]" />
 
         {/* Availability zone labels */}
-        <div className="absolute inset-x-0 top-2 flex justify-between px-4 text-[10px] font-medium uppercase tracking-wider text-slate-500">
+        <div className="absolute inset-x-0 top-2 flex justify-between px-4 text-[10px] font-medium uppercase tracking-wider text-slate-400">
           <span>AZ-1a</span>
           <span>AZ-1b</span>
         </div>
@@ -55,7 +55,7 @@ export default function LoadBalancerAnimation() {
         {/* Client */}
         <div className="absolute left-[3%] top-1/2 -translate-y-1/2 rounded-xl border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-center backdrop-blur">
           <p className="text-xs font-bold text-sky-300">CLIENT</p>
-          <p className="mt-0.5 text-[10px] text-slate-500">internet / app</p>
+          <p className="mt-0.5 text-[10px] text-slate-400">internet / app</p>
         </div>
 
         {/* Load Balancer */}
@@ -76,7 +76,7 @@ export default function LoadBalancerAnimation() {
                   ? 'border-red-500/50 bg-red-500/10 shadow-[0_0_25px_rgba(239,68,68,0.15)]'
                   : isTarget
                     ? 'border-emerald-500/50 bg-emerald-500/10 shadow-[0_0_25px_rgba(16,185,129,0.15)]'
-                    : 'border-white/10 bg-white/[0.03]'
+                    : 'border-white/10 bg-white/[0.06]'
               }`}
               style={{ top: `${top}%` }}
             >
@@ -84,7 +84,7 @@ export default function LoadBalancerAnimation() {
                 <div className={`h-2 w-2 rounded-full ${isFailed ? 'bg-red-500 animate-pulse' : isTarget ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-white/30'}`} />
                 <p className={`text-[11px] font-bold ${isFailed ? 'text-red-300' : 'text-slate-200'}`}>{SERVER_NAMES[i]}</p>
               </div>
-              <p className={`mt-0.5 text-[10px] ${isFailed ? 'text-red-400/80' : 'text-slate-500'}`}>
+              <p className={`mt-0.5 text-[10px] ${isFailed ? 'text-red-400/80' : 'text-slate-400'}`}>
                 {isFailed ? 'unhealthy' : isTarget ? 'handling' : 'idle'}
               </p>
             </div>
@@ -123,10 +123,10 @@ export default function LoadBalancerAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.06] p-4">
         <p className="font-semibold text-white">{current.label}</p>
         <p className="mt-1 text-sm text-slate-400">{current.note}</p>
-        <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
+        <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
           <span>Servers: {SERVER_NAMES.filter((_, i) => failed !== i).length}/{SERVER_NAMES.length} healthy</span>
           <span>Strategy: Round Robin</span>
           <span>Health interval: 10s</span>

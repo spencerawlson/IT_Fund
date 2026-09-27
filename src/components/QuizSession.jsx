@@ -42,7 +42,7 @@ export default function QuizSession({ module, onComplete }) {
     const score = answers.filter((a, i) => a === questions[i].correct).length;
     const pct = Math.round((score / questions.length) * 100);
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center backdrop-blur-sm">
+      <div className="mx-auto max-w-md rounded-2xl glass p-8 text-center">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/15">
           <Trophy size={32} className="text-amber-400" />
         </div>
@@ -78,17 +78,17 @@ export default function QuizSession({ module, onComplete }) {
         />
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm">
+      <div className="rounded-2xl glass p-6">
         <h3 className="text-lg font-bold leading-snug text-white">{current.question}</h3>
         <div className="mt-5 space-y-2.5">
           {current.options.map((opt, i) => {
             const isSel = selected === i;
             const isAnswer = i === current.correct;
-            let cls = 'border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-slate-200';
+            let cls = 'border-white/10 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200';
             if (showFeedback) {
               if (isAnswer) cls = 'border-green-500/40 bg-green-500/10 text-green-300';
               else if (isSel) cls = 'border-red-500/40 bg-red-500/10 text-red-300';
-              else cls = 'border-white/5 bg-white/[0.02] text-slate-500';
+              else cls = 'border-white/5 bg-white/[0.06] text-slate-400';
             }
             return (
               <button

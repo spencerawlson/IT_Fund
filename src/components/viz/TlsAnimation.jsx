@@ -92,7 +92,7 @@ export default function TlsAnimation() {
         </div>
       )}
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
         <p className="text-slate-400">{current.note}</p>
       </div>
@@ -115,8 +115,8 @@ export default function TlsAnimation() {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1"><span className="text-purple-400">⟵</span> Handshake + cert validation</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">Session keys + encrypted records</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><span className="text-purple-400">⟵</span> Handshake + cert validation</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">Session keys + encrypted records</span>
       </div>
     </div>
   );

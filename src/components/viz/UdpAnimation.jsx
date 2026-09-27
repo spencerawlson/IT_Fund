@@ -13,7 +13,7 @@ const colorMap = {
   amber: 'border-amber-500/50 bg-amber-500/15 text-amber-300',
   purple: 'border-purple-500/50 bg-purple-500/15 text-purple-300',
   red: 'border-red-500/50 bg-red-500/15 text-red-300',
-  slate: 'border-white/10 bg-white/[0.05] text-slate-300',
+  slate: 'border-white/10 bg-white/[0.08] text-slate-300',
 };
 
 export default function UdpAnimation() {
@@ -39,11 +39,11 @@ export default function UdpAnimation() {
       <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] sm:h-72">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-center">
           <p className="text-[11px] font-bold text-amber-300">SENDER</p>
-          <p className="mt-0.5 text-[10px] text-slate-500">10.0.0.5</p>
+          <p className="mt-0.5 text-[10px] text-slate-400">10.0.0.5</p>
         </div>
         <div className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-purple-500/40 bg-purple-500/10 px-3 py-2 text-center">
           <p className="text-[11px] font-bold text-purple-300">RECEIVER</p>
-          <p className="mt-0.5 text-[10px] text-slate-500">10.0.0.9</p>
+          <p className="mt-0.5 text-[10px] text-slate-400">10.0.0.9</p>
         </div>
 
         <div className="absolute left-[18%] right-[18%] top-1/2 h-px -translate-y-1/2 bg-white/10" />
@@ -74,7 +74,7 @@ export default function UdpAnimation() {
             key={step}
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-white/[0.04] px-5 py-2 text-center"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-white/[0.08] px-5 py-2 text-center"
           >
             <p className="text-sm font-bold text-slate-200">{current.label}</p>
             <p className="text-[10px] text-slate-400">{current.sub}</p>
@@ -87,7 +87,7 @@ export default function UdpAnimation() {
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+        <div className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
           <p className="font-semibold text-white">{current.label}</p>
           <p className="text-slate-400">{current.note}</p>
           <p className="mt-1.5 text-slate-300">{current.explain}</p>
@@ -104,9 +104,9 @@ export default function UdpAnimation() {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1"><HelpCircle size={10}/> No handshake before sending</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">Minimal header = low overhead</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">Loss is acceptable for some apps</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> No handshake before sending</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">Minimal header = low overhead</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">Loss is acceptable for some apps</span>
       </div>
 
       <div className="mt-4 flex items-center gap-1.5">

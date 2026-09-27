@@ -37,14 +37,14 @@ export default function SqlLab() {
           <h3 className="font-semibold text-white">{task.title}</h3>
           <p className="text-sm text-slate-400">{task.prompt}</p>
         </div>
-        <select value={taskId} onChange={(e) => setTaskId(e.target.value)} className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white">
+        <select value={taskId} onChange={(e) => setTaskId(e.target.value)} className="rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2 text-sm text-white">
           {TASKS.map((t) => (
             <option key={t.id} value={t.id}>{t.id}. {t.title}</option>
           ))}
         </select>
       </div>
 
-      <div className="mt-4 rounded-xl border border-white/10 bg-[#060a10] p-4 font-mono text-sm shadow-lg">
+      <div className="mt-4 rounded-xl border border-white/10 bg-black/55 backdrop-blur-xl p-4 font-mono text-sm shadow-lg">
         <textarea value={code} onChange={(e) => setCode(e.target.value)} className="h-64 w-full bg-transparent text-slate-100 outline-none" spellCheck={false} />
         <div className="mt-3 flex items-center gap-2 border-t border-white/10 pt-3">
           <button onClick={run} className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/15">Run</button>

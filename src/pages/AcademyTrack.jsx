@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Lock, Layers, HelpCircle, Swords, ExternalLink, Check, Play, Star } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import LiquidBackground from '@/components/academy/LiquidBackground';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import PlayerHud from '@/components/academy/PlayerHud';
 import ProgressRing from '@/components/ProgressRing';
 import { iconFor } from '@/components/academy/icons';
@@ -18,11 +18,11 @@ export default function AcademyTrack() {
   const track = getTrack(trackId);
   const state = useAcademy();
   const [open, setOpen] = useState(null);
+  useBgTint(track?.color);
 
   if (!track) {
     return (
       <div className="relative isolate flex min-h-screen items-center justify-center text-slate-300">
-        <LiquidBackground />
         <Link to="/academy" className="glass rounded-2xl px-5 py-3 hover:text-white">← Track not found. Back to Academy</Link>
       </div>
     );
@@ -35,7 +35,6 @@ export default function AcademyTrack() {
 
   return (
     <div className="relative isolate min-h-screen text-white">
-      <LiquidBackground tint={track.color} />
       <Navbar />
 
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">

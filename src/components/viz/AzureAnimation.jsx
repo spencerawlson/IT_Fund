@@ -34,9 +34,9 @@ export default function AzureAnimation() {
         <div className="absolute inset-y-0 left-0 right-0 flex items-center">
           {LANES.map((lane, idx) => (
             <div key={lane.label} className="relative h-full w-1/5 border-r border-white/5 last:border-none">
-              <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-500">{lane.label}</div>
+              <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-400">{lane.label}</div>
               {idx < visibleCount && (
-                <div className="absolute bottom-3 inset-x-2 rounded-lg border border-white/15 bg-white/[0.03] px-2 py-2">
+                <div className="absolute bottom-3 inset-x-2 rounded-lg border border-white/15 bg-white/[0.06] px-2 py-2">
                   <p className="text-[10px] font-bold text-white">{current.badge}</p>
                   <p className="text-[9px] text-slate-400">{current.label}</p>
                 </div>
@@ -50,7 +50,7 @@ export default function AzureAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
         <p className="text-slate-400">{current.note}</p>
       </div>
@@ -71,8 +71,8 @@ export default function AzureAnimation() {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1"><HelpCircle size={10}/> Front Door → gateway → compute</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1">Entra ID + RBAC + Policy</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Front Door → gateway → compute</span>
+        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">Entra ID + RBAC + Policy</span>
       </div>
     </div>
   );

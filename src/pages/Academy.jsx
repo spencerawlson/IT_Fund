@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Gamepad2, Repeat, Map, ArrowRight, Lock, Play } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import LiquidBackground from '@/components/academy/LiquidBackground';
+import { useBgTint } from '@/components/academy/LiquidBackground';
 import PlayerHud from '@/components/academy/PlayerHud';
 import { iconFor } from '@/components/academy/icons';
 import { tracks, allCards, ROADMAP } from '@/data/academy';
@@ -13,10 +13,10 @@ export default function Academy() {
   const state = useAcademy();
   const due = dueCards(state, allCards).length;
   const next = nextLessonOverall(state);
+  useBgTint(next?.track.color || '#F59E0B');
 
   return (
     <div className="relative isolate min-h-screen text-white">
-      <LiquidBackground tint={next?.track.color || '#F59E0B'} />
       <Navbar />
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">

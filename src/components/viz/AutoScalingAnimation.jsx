@@ -53,7 +53,7 @@ export default function AutoScalingAnimation() {
             <div className="absolute top-0 h-full w-px bg-amber-400/60" style={{ left: '30%' }} />
             <div className="absolute top-0 h-full w-px bg-red-400/60" style={{ left: '70%' }} />
           </div>
-          <div className="mt-1 flex justify-between text-[9px] text-slate-500">
+          <div className="mt-1 flex justify-between text-[9px] text-slate-400">
             <span>scale-in 30%</span>
             <span>scale-out 70%</span>
           </div>
@@ -88,7 +88,7 @@ export default function AutoScalingAnimation() {
                 key={`empty-${i}`}
                 className="flex h-24 w-20 items-center justify-center rounded-xl border border-dashed border-white/10"
               >
-                <span className="text-[10px] text-slate-600">idle</span>
+                <span className="text-[10px] text-slate-500">idle</span>
               </div>
             ))}
           </div>
@@ -101,7 +101,7 @@ export default function AutoScalingAnimation() {
       </div>
 
       {/* Note */}
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
         <p className="text-slate-400">{current.note}</p>
       </div>
