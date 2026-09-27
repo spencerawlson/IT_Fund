@@ -48,7 +48,7 @@ export default function Navbar({ onSearch }) {
       <div className="glass-strong mx-auto max-w-6xl rounded-3xl px-3 sm:px-4">
         <div className="flex h-14 items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-4">
-            <Link to="/" aria-label="IT Fund Study Hub home" className="shrink-0">
+            <Link to="/" aria-label="Road to CISSP home" className="shrink-0">
               <Logo />
             </Link>
             <nav className="hidden items-center gap-1 lg:flex">{links}</nav>

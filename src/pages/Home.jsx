@@ -53,7 +53,7 @@ export default function Home() {
       <div className="relative mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
         <header className="mb-10">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-400">
-            <LogoMark size={18} /> IT Fund Study Hub
+            <LogoMark size={18} /> Road to CISSP
           </div>
           <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             Networking & Operating System

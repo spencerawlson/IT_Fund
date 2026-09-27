@@ -1,6 +1,6 @@
 {
-  "name": "IT Fund Study Hub",
-  "short_name": "IT Fund",
+  "name": "Road to CISSP",
+  "short_name": "Road to CISSP",
   "description": "Learning platform for IT fundamentals through advanced cloud expertise.",
   "start_url": "/",
   "display": "standalone",

@@ -36,14 +36,14 @@ export function LogoMark({ size = 32, className = '' }) {
   );
 }
 
-/** Mark plus wordmark; "Study Hub" only shows from `sm` up. */
+/** Mark plus the "Road to CISSP" wordmark. */
 export default function Logo({ size = 34 }) {
   return (
     <span className="flex items-center gap-2">
       <LogoMark size={size} className="drop-shadow-[0_4px_12px_rgba(20,184,166,0.45)]" />
       <span className="text-sm font-bold tracking-tight text-white">
-        IT Fund
-        <span className="ml-1 hidden font-medium text-slate-300 sm:inline">Study Hub</span>
+        Road to{' '}
+        <span className="bg-gradient-to-r from-sky-300 to-teal-300 bg-clip-text text-transparent">CISSP</span>
       </span>
     </span>
   );
