@@ -9,9 +9,8 @@ import QuizRun from '@/components/academy/QuizRun';
 import TutorAssist from '@/components/academy/tutor/TutorAssist';
 import { getTrack, getDeck, allCards } from '@/data/academy';
 import {
-  useAcademy, buildQuestions, dueCards, cardState, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
+  useAcademy, buildQuestions, dueCards, cardState, isTierUnlocked, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
 } from '@/lib/academy';
-import { isLessonUnlocked, isTierComplete, pastLessonCards } from '@/lib/progress/engine';
 
 const LEARN_BATCH = 15;
 const QUIZ_LENGTH = 10;
@@ -54,11 +53,7 @@ export default function AcademyPlay({ kind }) {
 
   // Build the session once per round; progress updates must not reshuffle it mid-play.
   const session = useMemo(() => {
-    if (kind === 'review') {
-      const due = shuffle(dueCards(state, allCards)).slice(0, REVIEW_BATCH);
-      // Nothing due yet: keep practising earlier lessons, weakest cards first.
-      return due.length ? { cards: due } : { cards: shuffle(pastLessonCards(state, null, LEARN_BATCH)), extra: true };
-    }
+    if (kind === 'review') return { cards: shuffle(dueCards(state, allCards)).slice(0, REVIEW_BATCH) };
     if (kind === 'boss' && tier) {
       const pool = tier.decks.flatMap((d) => d.cards);
       return { questions: buildQuestions(pool, pool, BOSS_LENGTH) };
@@ -98,24 +93,21 @@ export default function AcademyPlay({ kind }) {
     [session, kind, track, tier]
   );
 
-  const backTo = kind === 'review' || !track ? '/academy' : `/academy/${track.id}`;
+  const backTo = track ? `/academy/${track.id}` : '/academy';
   // Context for the AI tutor.
   const meta = { track: track?.title, topic: deck?.title || (tier ? `${tier.label} boss` : 'Daily review') };
   const title =
-    kind === 'review' ? (session?.extra ? 'Extra practice: earlier lessons' : 'Review: earlier lessons') : kind === 'boss' ? `${tier?.label} Boss: ${track?.title}` : deck?.title;
+    kind === 'review' ? 'Daily Review' : kind === 'boss' ? `${tier?.label} Boss: ${track?.title}` : deck?.title;
 
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {
     body = <p className="text-center text-slate-300">Not found.</p>;
-  } else if (!result && ((kind === 'deck' && !isLessonUnlocked(state, deck.id)) || (kind === 'boss' && !isTierComplete(state, track, tierIndex)))) {
+  } else if (kind !== 'review' && !isTierUnlocked(state, track, tierIndex) && !result) {
     body = (
       <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
         <Lock className="mx-auto text-slate-500" size={32} />
-        <p className="mt-3 font-semibold text-white">Not yet: one step at a time</p>
-        <p className="mt-1 text-sm text-slate-300">
-          {kind === 'boss' ? 'The boss is this tier’s final exam: pass every lesson in the tier first.' : 'Reach this lesson on your path first.'}
-        </p>
-        <Link to="/academy" className="mt-4 inline-block text-sm font-semibold text-amber-300 hover:underline">Back to your path</Link>
+        <p className="mt-3 font-semibold text-white">This tier is locked</p>
+        <p className="mt-1 text-sm text-slate-300">Master the previous tier or beat its boss first.</p>
       </div>
     );
   } else if (result) {
@@ -124,9 +116,9 @@ export default function AcademyPlay({ kind }) {
     body = (
       <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
         <Sparkles className="mx-auto text-amber-300" size={32} />
-        <p className="mt-3 font-semibold text-white">Nothing to review yet</p>
-        <p className="mt-1 text-sm text-slate-300">Finish your first lesson and its questions will start coming back here.</p>
-        <Link to="/academy" className="mt-4 inline-block text-sm font-semibold text-amber-300 hover:underline">Back to your path</Link>
+        <p className="mt-3 font-semibold text-white">Nothing due. You’re all caught up!</p>
+        <p className="mt-1 text-sm text-slate-300">Learn new decks to add cards to your review queue.</p>
+        <Link to="/academy" className="mt-4 inline-block text-sm font-semibold text-amber-300 hover:underline">Back to Academy</Link>
       </div>
     );
   } else if (session.cards) {
