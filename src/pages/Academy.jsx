@@ -1,59 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Repeat, Map, ArrowRight, Lock, Play, FlaskConical, ExternalLink } from 'lucide-react';
+import { Gamepad2, Repeat, Map, ArrowRight, Lock, Play } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useBgTint } from '@/components/academy/LiquidBackground';
 import PlayerHud from '@/components/academy/PlayerHud';
 import { iconFor } from '@/components/academy/icons';
-import { tracks, allCards, ROADMAP, RESOURCES, getTrack } from '@/data/academy';
+import { tracks, allCards, ROADMAP } from '@/data/academy';
 import { useAcademy, mastery, dueCards, isTierUnlocked, BADGES } from '@/lib/academy';
 import { nextLessonOverall, lessonsDone, lessonsTotal } from '@/lib/academyPath';
-
-/** Feature card for the CyberSecurity_Lab repo and its matching "Detection Lab Drills" deck. */
-function HandsOnLabs({ state }) {
-  const track = getTrack('cyber');
-  const tierIndex = track ? track.tiers.findIndex((t) => t.decks.some((d) => d.id === 'cy-detection-labs')) : -1;
-  if (tierIndex < 0) return null;
-  const tier = track.tiers[tierIndex];
-  const unlocked = isTierUnlocked(state, track, tierIndex);
-  return (
-    <section className="glass relative mt-3 overflow-hidden rounded-[2rem] p-5 sm:p-6">
-      <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full opacity-40 blur-3xl" style={{ background: track.color }} />
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/25" style={{ background: `${track.color}40` }}>
-            <FlaskConical size={26} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-300">Hands-on labs · CyberSecurity_Lab</p>
-            <p className="mt-1 text-lg font-bold text-white sm:text-xl">Run the attack, then hunt the traces</p>
-            <p className="mt-0.5 text-sm text-slate-300">
-              4 safe blue-team labs: web attacks, DDoS, amplification and a gift-card scam chain. Then drill what you found.
-            </p>
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-wrap gap-2">
-          <a
-            href={RESOURCES.cyberlab.url}
-            target="_blank"
-            rel="noreferrer"
-            className="glass-btn inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold"
-            style={{ '--tint': track.color }}
-          >
-            Open the labs <ExternalLink size={15} />
-          </a>
-          <Link
-            to={unlocked ? `/academy/${track.id}/lesson/cy-detection-labs` : `/academy/${track.id}`}
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
-          >
-            {unlocked ? <FlaskConical size={15} /> : <Lock size={15} />} Detection Lab Drills
-            {!unlocked && <span className="text-xs font-normal text-slate-400">({tier.label})</span>}
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 export default function Academy() {
   const state = useAcademy();
@@ -137,8 +91,6 @@ export default function Academy() {
             </div>
           </div>
         </div>
-
-        <HandsOnLabs state={state} />
 
         <div className="mt-6">
           <PlayerHud />
