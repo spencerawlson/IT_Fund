@@ -111,6 +111,8 @@ export const RESOURCES = {
   'overthewire': { title: 'OverTheWire: Bandit wargame', url: 'https://overthewire.org/wargames/bandit/' },
   'cisa-kev': { title: 'CISA Known Exploited Vulnerabilities catalog', url: 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
   'nist-ir': { title: 'NIST SP 800-61 Incident Response', url: 'https://csrc.nist.gov/pubs/sp/800/61/r3/final' },
+  'cyberlab': { title: 'CyberSecurity_Lab — blue-team detection training labs (GitHub)', url: 'https://github.com/spencerawlson/CyberSecurity_Lab' },
+  'spencerlab': { title: 'SpencerLab — security write-ups & lab guides', url: 'https://spencerlab.tech' },
   // Cloud
   'aws-ccp': { title: 'AWS Skill Builder: Cloud Practitioner Essentials', url: 'https://skillbuilder.aws/' },
   'az-900': { title: 'Microsoft Learn: Azure Fundamentals (AZ-900)', url: 'https://learn.microsoft.com/en-us/training/courses/az-900t00' },
