@@ -7,8 +7,9 @@ import PlayerHud from '@/components/academy/PlayerHud';
 import ProgressRing from '@/components/ProgressRing';
 import { iconFor } from '@/components/academy/icons';
 import { getTrack, trackResources, CISSP_DOMAINS } from '@/data/academy';
-import { useAcademy, mastery, dueCards, isTierUnlocked, bossKey, BOSS_PASS_PCT, TIER_UNLOCK_MASTERY } from '@/lib/academy';
-import { nextLessonInTrack } from '@/lib/academyPath';
+import { useAcademy, mastery, dueCards, bossKey, BOSS_PASS_PCT } from '@/lib/academy';
+import { continueLearning, isLessonUnlocked, isPassed, isTierOpen, isTierComplete } from '@/lib/progress/engine';
+import { playerHref } from '@/data/catalog';
 
 // Horizontal offsets (in node widths) that make the path wind like a river.
 const WIND = [0, 0.9, 1.3, 0.9, 0, -0.9, -1.3, -0.9];
@@ -30,7 +31,9 @@ export default function AcademyTrack() {
 
   const Icon = iconFor(track.icon);
   const allTrackCards = track.tiers.flatMap((t) => t.decks.flatMap((d) => d.cards));
-  const next = nextLessonInTrack(state, track);
+  const next = continueLearning(state)?.lesson || null;
+  const nextHere = next?.trackId === track.id;
+  const nextTrack = next ? getTrack(next.trackId) : null;
   let nodeIndex = 0;
 
   return (
@@ -58,15 +61,16 @@ export default function AcademyTrack() {
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <PlayerHud compact />
             {next && (
-              <Link to={`/academy/${track.id}/lesson/${next.id}`} className="glass-btn inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold" style={{ '--tint': track.color }}>
-                <Play size={15} className="fill-current" /> Continue: {next.title}
+              <Link to={playerHref(next)} className="glass-btn inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold" style={{ '--tint': nextTrack.color }}>
+                <Play size={15} className="fill-current" /> {nextHere ? `Continue: ${next.title}` : `Your next lesson is in ${nextTrack.title}`}
               </Link>
             )}
           </div>
         </header>
 
         {track.tiers.map((tier, ti) => {
-          const unlocked = isTierUnlocked(state, track, ti);
+          const unlocked = isTierOpen(state, track, ti);
+          const tierDone = isTierComplete(state, track, ti);
           const tierCards = tier.decks.flatMap((d) => d.cards);
           const bestBoss = state.bosses[bossKey(track.id, tier.id)] || 0;
           const beaten = bestBoss >= BOSS_PASS_PCT;
@@ -83,15 +87,16 @@ export default function AcademyTrack() {
               </div>
               {!unlocked && (
                 <p className="mx-auto mt-3 max-w-md text-center text-xs text-slate-400">
-                  Reach {TIER_UNLOCK_MASTERY}% mastery in {track.tiers[ti - 1].label}, or beat its boss to skip ahead.
+                  Opens when you reach it on your path. Lessons unlock one at a time, in order.
                 </p>
               )}
 
               <div className="mt-10 flex flex-col items-center gap-10">
                 {tier.decks.map((deck) => {
                   const wind = WIND[nodeIndex++ % WIND.length];
-                  const done = !!state.lessons?.[deck.id];
+                  const done = isPassed(state, deck.id);
                   const current = next?.id === deck.id;
+                  const deckOpen = isLessonUnlocked(state, deck.id);
                   const isOpen = open === deck.id;
                   return (
                     <div key={deck.id} className="flex w-full flex-col items-center">
@@ -103,7 +108,7 @@ export default function AcademyTrack() {
                         )}
                         <button
                           type="button"
-                          disabled={!unlocked}
+                          disabled={!deckOpen}
                           onClick={() => setOpen(isOpen ? null : deck.id)}
                           aria-label={`${deck.title}${done ? ' (completed)' : ''}`}
                           aria-expanded={isOpen}
@@ -111,15 +116,15 @@ export default function AcademyTrack() {
                           style={
                             done
                               ? { background: `radial-gradient(circle at 30% 25%, #ffffff66, ${track.color} 55%)`, borderColor: 'rgba(255,255,255,0.45)', boxShadow: `0 10px 30px -8px ${track.color}` }
-                              : unlocked
+                              : deckOpen
                                 ? { background: 'rgba(255,255,255,0.08)', borderColor: current ? track.color : 'rgba(255,255,255,0.25)', backdropFilter: 'blur(16px)', '--tw-ring-color': `${track.color}44` }
                                 : { background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)' }
                           }
                         >
-                          {done ? <Check size={30} strokeWidth={3} /> : unlocked ? <Star size={26} style={{ color: current ? track.color : '#cbd5e1' }} /> : <Lock size={22} className="text-slate-600" />}
+                          {done ? <Check size={30} strokeWidth={3} /> : deckOpen ? <Star size={26} style={{ color: current ? track.color : '#cbd5e1' }} /> : <Lock size={22} className="text-slate-600" />}
                         </button>
                       </div>
-                      <p className={`mt-2 max-w-[220px] text-center text-xs font-semibold ${unlocked ? 'text-slate-200' : 'text-slate-600'}`} style={{ transform: `translateX(calc(${wind} * min(18vw, 88px)))` }}>
+                      <p className={`mt-2 max-w-[220px] text-center text-xs font-semibold ${deckOpen ? 'text-slate-200' : 'text-slate-600'}`} style={{ transform: `translateX(calc(${wind} * min(18vw, 88px)))` }}>
                         {deck.title}
                       </p>
                       {isOpen && <DeckPanel deck={deck} track={track} state={state} done={done} />}
@@ -127,7 +132,7 @@ export default function AcademyTrack() {
                   );
                 })}
 
-                {unlocked && (
+                {tierDone && (
                   <Link
                     to={`/academy/${track.id}/boss/${tier.id}`}
                     className="flex flex-col items-center"

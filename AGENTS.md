@@ -31,6 +31,12 @@ node ./node_modules/vite/bin/vite.js build
 
 Base44 has been removed. Auth is standalone/local unless a backend is provided via `VITE_API_BASE_URL`.
 
+## Academy platform (paths → courses → modules → lessons)
+
+- Full architecture, content model, locking rules and "how to add a course": `docs/ACADEMY.md`.
+- Catalogue: `src/data/catalog/`; progress rules: `src/lib/progress/engine.js` (pure, tested); persistence adapter: `src/lib/progress/storage.js`.
+- Tests: `node ./node_modules/vitest/vitest.mjs run`.
+
 ## Academy (flashcard game)
 
 - Routes `/academy`, `/academy/roadmap`, `/academy/review`, `/academy/:trackId`, `/academy/:trackId/deck/:deckId?mode=learn|quiz`, `/academy/:trackId/boss/:tierId`, `/academy/:trackId/lesson/:deckId`.

@@ -23,6 +23,9 @@ import AcademyTrack from './pages/AcademyTrack';
 import AcademyPlay from './pages/AcademyPlay';
 import CisspRoadmap from './pages/CisspRoadmap';
 import AcademyLesson from './pages/AcademyLesson';
+import { PathsIndex, PathDetail } from './pages/academy/Paths';
+import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Courses';
+import LessonView from './pages/academy/LessonView';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -61,6 +64,12 @@ const AuthenticatedApp = () => {
       <Route path="/registry" element={<RegistryEditor />} />
       <Route path="/academy" element={<Academy />} />
       <Route path="/academy/roadmap" element={<CisspRoadmap />} />
+      <Route path="/academy/paths" element={<PathsIndex />} />
+      <Route path="/academy/paths/:slug" element={<PathDetail />} />
+      <Route path="/academy/courses" element={<CoursesIndex />} />
+      <Route path="/academy/courses/:courseSlug" element={<CourseDetail />} />
+      <Route path="/academy/courses/:courseSlug/:moduleSlug" element={<ModuleDetail />} />
+      <Route path="/academy/lessons/:lessonId" element={<LessonView />} />
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
       <Route path="/academy/:trackId" element={<AcademyTrack />} />
       <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />

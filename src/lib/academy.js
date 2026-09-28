@@ -1,6 +1,7 @@
 // Academy game engine: XP, levels, streaks, badges, and Leitner spaced repetition.
 // All state is local to the browser (localStorage), matching src/lib/progress.js.
 import { useSyncExternalStore } from 'react';
+import { localStorageAdapter } from './progress/storage';
 
 const KEY = 'itfund-academy-v1';
 const EVENT = 'itfund-academy-change';
@@ -11,7 +12,6 @@ export const BOX_INTERVAL_DAYS = [0, 0, 1, 3, 7, 16];
 export const MAX_BOX = 5;
 export const DAILY_GOAL_XP = 100;
 export const BOSS_PASS_PCT = 80;
-export const TIER_UNLOCK_MASTERY = 60;
 
 export const XP = {
   flashKnown: 10,
@@ -48,42 +48,39 @@ export const BADGES = {
   'cissp-ready': { title: 'CISSP-Ready', desc: 'Reach 80% readiness in all 8 CISSP domains.', icon: 'ShieldCheck' },
 };
 
-const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {} };
+const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null };
 
 let cache = null;
+// Persistence goes through an adapter (src/lib/progress/storage.js) so a server-backed store
+// can replace localStorage without touching any page.
+let adapter = localStorageAdapter(KEY);
+
+/** Swap the persistence backend (tests, or a future server adapter). */
+export function setProgressAdapter(next) {
+  adapter = next;
+  cache = null;
+}
 
 function read() {
-  if (cache) return cache;
-  try {
-    cache = { ...EMPTY, ...(JSON.parse(localStorage.getItem(KEY)) || {}) };
-  } catch {
-    cache = { ...EMPTY };
-  }
+  if (!cache) cache = { ...EMPTY, ...(adapter.load() || {}) };
   return cache;
 }
 
 function write(next) {
   cache = next;
-  try {
-    localStorage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    // Storage full or blocked: keep the in-memory state for this session.
-  }
-  window.dispatchEvent(new Event(EVENT));
+  adapter.save(next);
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(EVENT));
 }
 
 function subscribe(cb) {
-  const onStorage = (e) => {
-    if (e.key === KEY) {
-      cache = null;
-      cb();
-    }
-  };
+  const offExternal = adapter.onExternalChange(() => {
+    cache = null;
+    cb();
+  });
   window.addEventListener(EVENT, cb);
-  window.addEventListener('storage', onStorage);
   return () => {
     window.removeEventListener(EVENT, cb);
-    window.removeEventListener('storage', onStorage);
+    offExternal();
   };
 }
 
@@ -218,13 +215,17 @@ export function dueCards(state, cards, now = Date.now()) {
 
 export const bossKey = (trackId, tier) => `${trackId}:${tier}`;
 
-export function isTierUnlocked(state, track, tierIndex) {
-  if (tierIndex === 0) return true;
-  // Sticky: once you've studied a tier, a later drop in the previous tier's mastery won't re-lock it.
-  if (track.tiers[tierIndex].decks.some((d) => d.cards.some((c) => state.cards[c.id]))) return true;
-  const prevTier = track.tiers[tierIndex - 1];
-  if ((state.bosses[bossKey(track.id, prevTier.id)] || 0) >= BOSS_PASS_PCT) return true;
-  return mastery(state, prevTier.decks.flatMap((d) => d.cards)) >= TIER_UNLOCK_MASTERY;
+/**
+ * Remembers where you are inside a lesson (step order, position, first-try results) so
+ * closing the tab and coming back resumes on the same question. One lesson at a time.
+ */
+export function saveLessonProgress(progress) {
+  write({ ...read(), resume: { ...progress, at: Date.now() } });
+}
+
+export function clearLessonProgress(deckId) {
+  const state = read();
+  if (state.resume?.deckId === deckId) write({ ...state, resume: null });
 }
 
 export function xpToday(state) {
