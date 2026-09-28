@@ -46,3 +46,9 @@ Base44 has been removed. Auth is standalone/local unless a backend is provided v
 - Key: `OPENAI_API_KEY` in `backend/.env` locally (see `backend/.env.example`) or the host's env vars. Never in `VITE_*` vars or frontend code. Optional: `OPENAI_MODEL` (default `gpt-4o-mini`), `AI_RATE_LIMIT` / `AI_RATE_WINDOW` (per-IP, in-memory).
 - Local dev: `cd backend && .venv/Scripts/python -m uvicorn main:app --port 8000`; Vite proxies `/api` to it. Tests: `.venv/Scripts/python -m pytest test_ai_tutor.py` (fake client, no API calls).
 - Frontend: `src/api/tutor.js`, `src/components/academy/tutor/` (`TutorAssist` pills + answer, `TutorChat`). Tutor UI hides itself when `/ai/status` isn't enabled.
+
+## Module study notes
+
+- Every module concept has detailed notes in `src/data/moduleNotes/<group>.js` (`{ body, example, tip }`, keyed by concept id, or `"term:<Term>"` to share one write-up across modules). `getNote()` in `src/data/moduleNotes/index.js` merges them; the Browse tab opens them in `StudySheet`.
+- Module flashcards show the concept `summary` (short); the full notes live in the study sheet.
+- Duplicate modules were merged; old ids redirect via `MODULE_ALIASES` / `resolveModuleId` in `src/data/modules.js`. Keep concept ids unique.
