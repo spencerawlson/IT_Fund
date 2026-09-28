@@ -43,7 +43,7 @@ export function ChoiceStep({ step, color, onComplete, meta }) {
 
   return (
     <>
-      <Prompt kicker={step.review ? 'Let’s try that again' : 'Question'}>
+      <Prompt kicker={step.review ? 'Let’s try that again' : step.warmup ? `Review · ${step.fromDeck}` : 'Question'}>
         <RichText text={card.q} />
       </Prompt>
       <div className="space-y-2.5 sm:space-y-3">
