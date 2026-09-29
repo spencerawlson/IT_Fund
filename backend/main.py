@@ -22,6 +22,13 @@ app.add_middleware(
 app.include_router(ai_tutor.router)
 app.include_router(ai_tutor.router, prefix="/api")
 
+# Interactive labs (Phase 1: simulation-only mock provider). Mounted on both prefixes like the
+# tutor, so it works whether or not the hosting layer strips /api.
+from labs.api import router as labs_router  # noqa: E402  (after app is created)
+
+app.include_router(labs_router)
+app.include_router(labs_router, prefix="/api")
+
 # ---- in-memory stores for teaching/demo ----
 USERS: dict[str, dict] = {}
 TOKENS: dict[str, dict] = {}
