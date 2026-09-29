@@ -7,15 +7,18 @@ import { ACTION } from '@/lib/design/tokens';
 import FlashDeck from '@/components/academy/FlashDeck';
 import QuizRun from '@/components/academy/QuizRun';
 import TutorAssist from '@/components/academy/tutor/TutorAssist';
-import { getTrack, getDeck, allCards } from '@/data/academy';
+import { getTrack, getDeck } from '@/data/academy';
 import {
-  useAcademy, buildQuestions, dueCards, cardState, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
+  useAcademy, buildQuestions, cardState, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
 } from '@/lib/academy';
-import { isLessonUnlocked, isTierComplete, pastLessonCards } from '@/lib/progress/engine';
+import { isLessonUnlocked, isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
+import { getModule } from '@/data/catalog';
 
 const LEARN_BATCH = 15;
 const QUIZ_LENGTH = 10;
 const BOSS_LENGTH = 15;
+// Of those, up to this many are the learner's weakest cards from earlier modules (cumulative).
+const BOSS_EARLIER = 3;
 const BOSS_LIVES = 3;
 const REVIEW_BATCH = 30;
 
@@ -54,13 +57,19 @@ export default function AcademyPlay({ kind }) {
   // Build the session once per round; progress updates must not reshuffle it mid-play.
   const session = useMemo(() => {
     if (kind === 'review') {
-      const due = shuffle(dueCards(state, allCards)).slice(0, REVIEW_BATCH);
+      // Most urgent first (then shuffled for play), only from lessons the learner can open.
+      const due = shuffle(reviewQueue(state, REVIEW_BATCH));
       // Nothing due yet: keep practising earlier lessons, weakest cards first.
       return due.length ? { cards: due } : { cards: shuffle(pastLessonCards(state, null, LEARN_BATCH)), extra: true };
     }
     if (kind === 'boss' && tier) {
       const pool = tier.decks.flatMap((d) => d.cards);
-      return { questions: buildQuestions(pool, pool, BOSS_LENGTH) };
+      const earlierCards = assessmentReviewCards(state, getModule(`${track.id}:${tier.id}`), BOSS_EARLIER);
+      const earlier = earlierCards.map((card) => {
+        const source = getDeck(card.deckId);
+        return { ...buildQuestions([card], source.cards, 1)[0], earlier: source.title };
+      });
+      return { questions: shuffle([...buildQuestions(pool, pool, BOSS_LENGTH - earlier.length), ...earlier]) };
     }
     if (deck) {
       return mode === 'quiz' ? { questions: buildQuestions(deck.cards, deck.cards, QUIZ_LENGTH) } : { cards: learnOrder(state, deck.cards) };

@@ -99,6 +99,7 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
       </div>
 
       <div className="glass-2 rounded-control p-6">
+        {q.earlier && <p className="mb-2 text-caption font-semibold uppercase tracking-wider text-ink-2">From an earlier module · {q.earlier}</p>}
         <h2 className="text-lg font-bold leading-snug text-ink-1 sm:text-xl">
           <RichText text={q.card.q} />
         </h2>

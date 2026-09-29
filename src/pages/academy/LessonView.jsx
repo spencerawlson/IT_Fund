@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, RotateCcw, Lock, Copy, Check, ArrowLeft, ArrowRight, SearchX } from 'lucide-react';
+import { Play, RotateCcw, Lock, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap } from 'lucide-react';
 import RichText from '@/components/academy/RichText';
 import { Prerequisites } from '@/components/academy/ui/bits';
 import {
@@ -173,7 +173,17 @@ export default function LessonView() {
           {puzzles ? ` and ${puzzles} hands-on ${puzzles === 1 ? 'puzzle' : 'puzzles'}` : ''}. Score {PASS_PCT}% on first tries to
           pass and open the next lesson.
         </p>
-        <Button to={playerHref(lesson)} size="lg" icon={resume ? RotateCcw : Play} className="mt-6">{practiceLabel}</Button>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button to={playerHref(lesson)} size="lg" icon={resume ? RotateCcw : Play}>{practiceLabel}</Button>
+          {status === 'completed' && (
+            <Button to={`/academy/${lesson.trackId}/deck/${lesson.id}?mode=quiz`} size="lg" variant="secondary" icon={Zap}>
+              Quick quiz (10 questions)
+            </Button>
+          )}
+        </div>
+        {status === 'completed' && (
+          <p className="mt-3 text-small text-ink-2">A quick quiz refreshes this lesson without replaying it; your results feed your review schedule.</p>
+        )}
       </Card>
 
       {lesson.resources.length > 0 && (

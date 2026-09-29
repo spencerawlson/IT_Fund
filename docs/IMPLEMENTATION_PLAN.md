@@ -322,3 +322,19 @@ one product at 390px and at 1440px.
   - **Rendering.** Example explanations render inline code. Code blocks have a "Copy code"
     toolbar instead of a floating button, which overlapped code on phones.
 - **Next:** C2, stronger cross-module review, then C3, accounts and server-side progress.
+- **C2: stronger review done (2026-09-29).** The rules live in `src/lib/progress/engine.js`
+  and are covered by `engine.test.js`.
+  - **Locked lessons never enter review.** Review only draws from lessons you can open, so
+    progress saved by older versions of the app (which allowed skipping ahead) cannot surface
+    locked material. The home page's due count uses the same rule (`dueReviewCount`).
+  - **Interleaving.** Warm-ups, the review queue and extra practice cap picks per lesson
+    (`max(2, ceil(n/4))`), so practice mixes topics. They fall back to one lesson when there
+    are no others.
+  - **Review queue.** `reviewQueue` takes the most urgent cards first (overdue, then weakest,
+    then longest overdue) and only then shuffles; it used to shuffle before trimming to 30.
+  - **Cumulative assessments.** 12 questions from the module plus up to 3 of your weakest
+    from earlier modules (`assessmentReviewCards`), labelled "From an earlier module".
+  - **Quick quiz.** Completed lessons offer a 10-question quiz alongside "Practise again".
+- **Next:** C3, accounts (Google/GitHub OAuth) and server-side progress behind the existing
+  `ProgressAdapter`.
+- **C3 plan drafted:** see `docs/ACCOUNTS_PLAN.md` (awaiting decisions D1–D4 and OAuth app set-up).

@@ -160,22 +160,80 @@ export function continueLearning(state) {
   return first ? { lesson: first, resume: null } : null;
 }
 
-/** Cards from earlier, already-studied lessons: overdue first, then the weakest and oldest. */
-export function pastLessonCards(state, excludeLessonId, count, now = Date.now()) {
+// ---------- review ----------
+// Review only ever draws from lessons the learner can open (saved state from older versions of
+// the app, which allowed skipping ahead, must not surface locked material). Picks are
+// interleaved across lessons, because mixing topics beats drilling one at a time.
+
+/** Studied cards the learner may review: { c: card, s: saved state, lessonId }. */
+function reviewableCards(state, excludeLessonIds = []) {
+  const exclude = new Set([].concat(excludeLessonIds).filter(Boolean));
   return allLessons
-    .filter((l) => l.id !== excludeLessonId && state.lessons?.[l.id])
-    .flatMap((l) => l.deck.cards)
-    .filter((c) => state.cards?.[c.id])
-    .map((c) => ({ c, s: state.cards[c.id] }))
-    .sort((a, b) => {
-      const aDue = a.s.due <= now;
-      const bDue = b.s.due <= now;
-      if (aDue !== bDue) return aDue ? -1 : 1;
-      return a.s.box - b.s.box || a.s.due - b.s.due;
-    })
-    .slice(0, count)
-    .map(({ c }) => c);
+    .filter((l) => !exclude.has(l.id) && isLessonUnlocked(state, l.id))
+    .flatMap((l) => l.deck.cards.filter((c) => state.cards?.[c.id]).map((c) => ({ c, s: state.cards[c.id], lessonId: l.id })));
 }
+
+/** Overdue before not-yet-due; then the weakest box; then the longest overdue. */
+const byReviewPriority = (now) => (a, b) => {
+  const aDue = a.s.due <= now;
+  const bDue = b.s.due <= now;
+  if (aDue !== bDue) return aDue ? -1 : 1;
+  return a.s.box - b.s.box || a.s.due - b.s.due;
+};
+
+/**
+ * Takes `count` items in priority order, at most `perLesson` from any one lesson, then tops up
+ * from the remainder if there were not enough lessons to spread across.
+ */
+function interleave(ranked, count, perLesson) {
+  const picked = [];
+  const skipped = [];
+  const perLessonCount = {};
+  for (const item of ranked) {
+    if (picked.length >= count) break;
+    if ((perLessonCount[item.lessonId] || 0) < perLesson) {
+      picked.push(item);
+      perLessonCount[item.lessonId] = (perLessonCount[item.lessonId] || 0) + 1;
+    } else {
+      skipped.push(item);
+    }
+  }
+  for (const item of skipped) {
+    if (picked.length >= count) break;
+    picked.push(item);
+  }
+  return picked;
+}
+
+const perLessonCap = (count) => Math.max(2, Math.ceil(count / 4));
+
+/**
+ * Cards from other open, studied lessons: overdue first, then the weakest and oldest, spread
+ * across lessons. `excludeLessonIds` is one id or a list (e.g. every lesson of a module).
+ */
+export function pastLessonCards(state, excludeLessonIds, count, now = Date.now()) {
+  const ranked = reviewableCards(state, excludeLessonIds).sort(byReviewPriority(now));
+  return interleave(ranked, count, perLessonCap(count)).map(({ c }) => c);
+}
+
+/** Cards due for spaced-repetition review now, most urgent first, spread across lessons. */
+export function reviewQueue(state, count, now = Date.now()) {
+  const ranked = reviewableCards(state)
+    .filter(({ s }) => s.box > 0 && s.due <= now)
+    .sort(byReviewPriority(now));
+  return interleave(ranked, count, perLessonCap(count)).map(({ c }) => c);
+}
+
+/** How many cards are due for review now (open lessons only). */
+export const dueReviewCount = (state, now = Date.now()) =>
+  reviewableCards(state).filter(({ s }) => s.box > 0 && s.due <= now).length;
+
+/**
+ * Cumulative part of a module assessment: the learner's weakest cards from earlier modules
+ * (never this module, never locked lessons).
+ */
+export const assessmentReviewCards = (state, module, count, now = Date.now()) =>
+  pastLessonCards(state, module.lessons.map((l) => l.id), count, now);
 
 // ---------- compatibility helpers for the original track pages ----------
 

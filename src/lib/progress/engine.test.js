@@ -3,6 +3,7 @@ import { COURSES, PATHS, ROADMAP_ORDER, allLessons, getCourse, getModule, getPat
 import {
   PASS_PCT, isLessonUnlocked, lessonStatus, moduleLock, courseProgress, courseStatus, courseMinutesLeft,
   pathStatus, pathPrerequisites, continueLearning, pastLessonCards, overallProgress,
+  reviewQueue, dueReviewCount, assessmentReviewCards,
 } from './engine';
 
 const empty = () => ({ xp: 0, cards: {}, lessons: {}, bosses: {}, resume: null });
@@ -144,5 +145,70 @@ describe('review of past lessons', () => {
     };
     const picked = pastLessonCards(state, b.id, 5, now).map((c) => c.id);
     expect(picked).toEqual([a.deck.cards[1].id, a.deck.cards[0].id]);
+  });
+
+  // Learner passed the first two Python lessons; everything else is still locked.
+  const [py1, py2, py3] = getModule('python:beginner').lessons;
+  const lockedLesson = getModule('python:intermediate').lessons[0];
+  const now = 1_000_000;
+  const card = (lesson, i, box, due) => ({ [lesson.deck.cards[i].id]: { box, due } });
+
+  it('never reviews cards from a lesson the learner cannot open', () => {
+    const state = {
+      ...withLessons([py1.id, py2.id]),
+      // e.g. progress saved by an older version of the app that allowed skipping ahead
+      cards: { ...card(py1, 0, 2, now - 5), ...card(lockedLesson, 0, 1, now - 50), ...card(lockedLesson, 1, 1, now - 50) },
+    };
+    const locked = new Set(lockedLesson.deck.cards.map((c) => c.id));
+    expect(lessonStatus(state, lockedLesson)).toBe('locked');
+    expect(pastLessonCards(state, null, 10, now).some((c) => locked.has(c.id))).toBe(false);
+    expect(reviewQueue(state, 10, now).some((c) => locked.has(c.id))).toBe(false);
+    expect(dueReviewCount(state, now)).toBe(1);
+  });
+
+  it('spreads picks across lessons instead of drilling one', () => {
+    const state = {
+      ...withLessons([py1.id, py2.id]),
+      cards: {
+        // py1's cards are all weaker, so pure priority order would take only py1
+        ...card(py1, 0, 1, now - 9), ...card(py1, 1, 1, now - 8), ...card(py1, 2, 1, now - 7),
+        ...card(py2, 0, 3, now - 9), ...card(py2, 1, 3, now - 8),
+      },
+    };
+    const picked = pastLessonCards(state, null, 4, now);
+    const fromPy1 = picked.filter((c) => c.deckId === py1.id).length;
+    expect(picked).toHaveLength(4);
+    expect(fromPy1).toBe(2);
+  });
+
+  it('tops up from one lesson when there are no others to spread across', () => {
+    const state = {
+      ...withLessons([py1.id]),
+      cards: { ...card(py1, 0, 1, now - 3), ...card(py1, 1, 1, now - 2), ...card(py1, 2, 1, now - 1) },
+    };
+    expect(pastLessonCards(state, null, 3, now)).toHaveLength(3);
+  });
+
+  it('queues only due cards, weakest and longest overdue first', () => {
+    const state = {
+      ...withLessons([py1.id, py2.id, py3.id]),
+      cards: {
+        ...card(py1, 0, 3, now - 100), // due, strong
+        ...card(py2, 0, 1, now - 10), //  due, weakest
+        ...card(py3, 0, 1, now + 10), //  weak but not due yet
+      },
+    };
+    expect(reviewQueue(state, 10, now).map((c) => c.id)).toEqual([py2.deck.cards[0].id, py1.deck.cards[0].id]);
+  });
+
+  it('assessment review cards come only from earlier modules', () => {
+    const intermediate = getModule('python:intermediate');
+    const beginnerIds = getModule('python:beginner').lessons.map((l) => l.id);
+    const state = {
+      ...withLessons([...beginnerIds, intermediate.lessons[0].id]),
+      cards: { ...card(py1, 0, 1, now - 5), ...card(intermediate.lessons[0], 0, 1, now - 5) },
+    };
+    const picked = assessmentReviewCards(state, intermediate, 3, now).map((c) => c.deckId);
+    expect(picked).toEqual([py1.id]);
   });
 });

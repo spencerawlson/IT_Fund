@@ -3,16 +3,15 @@ import { Link } from 'react-router-dom';
 import { Repeat, Crown, ArrowRight } from 'lucide-react';
 import { Card, IconTile, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { ContinueLearning, LearningPathCard } from '@/components/academy/ui/cards';
-import { allCards } from '@/data/academy';
 import { PATHS, pathsForCourse } from '@/data/catalog';
-import { useAcademy, dueCards } from '@/lib/academy';
-import { continueLearning, lessonsDone, lessonsTotal, overallProgress, pathStatus } from '@/lib/progress/engine';
+import { useAcademy } from '@/lib/academy';
+import { continueLearning, dueReviewCount, lessonsDone, lessonsTotal, overallProgress, pathStatus } from '@/lib/progress/engine';
 
 /** Home: the one next lesson, then review, then where you are on your path. */
 export default function Academy() {
   const state = useAcademy();
   const next = continueLearning(state);
-  const due = dueCards(state, allCards).length;
+  const due = dueReviewCount(state);
   const studied = Object.keys(state.lessons || {}).length > 0;
   // The path you're on: the first one that contains your next lesson's course.
   const currentPath =

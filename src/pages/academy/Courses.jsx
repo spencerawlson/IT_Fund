@@ -210,7 +210,8 @@ export function ModuleDetail() {
       <Card as="section" aria-labelledby="assessment-heading" className="mt-6">
         <h2 id="assessment-heading" className="text-heading text-ink-1">Module assessment</h2>
         <p className="mt-1 max-w-reading text-body text-ink-2">
-          15 questions from every lesson in this module, 3 lives. Score {BOSS_PASS_PCT}% to pass.
+          15 questions with 3 lives: 12 from this module, plus up to 3 of your weakest from earlier modules so
+          nothing fades. Score {BOSS_PASS_PCT}% to pass.
           {bestBoss ? ` Best so far: ${bestBoss}%.` : ''}
         </p>
         {complete ? (
