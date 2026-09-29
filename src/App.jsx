@@ -1,3 +1,4 @@
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -26,6 +27,9 @@ import AcademyLesson from './pages/AcademyLesson';
 import { PathsIndex, PathDetail } from './pages/academy/Paths';
 import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Courses';
 import LessonView from './pages/academy/LessonView';
+
+// Dev-only design system preview; not bundled into production builds.
+const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -75,6 +79,9 @@ const AuthenticatedApp = () => {
       <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />
       <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />
       <Route path="/academy/:trackId/boss/:tierId" element={<AcademyPlay kind="boss" />} />
+      {DesignSystem && (
+        <Route path="/design" element={<React.Suspense fallback={null}><DesignSystem /></React.Suspense>} />
+      )}
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

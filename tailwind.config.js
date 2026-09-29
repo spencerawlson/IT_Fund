@@ -5,11 +5,41 @@ module.exports = {
   theme: {
   	extend: {
   		borderRadius: {
+  			// Design system: controls (buttons, inputs, rows) and cards. Pills use rounded-full.
+  			control: '12px',
+  			card: '20px',
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+  		// Design system type scale. Nothing smaller than caption (12px).
+  		fontSize: {
+  			caption: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.01em' }],
+  			small: ['0.875rem', { lineHeight: '1.25rem' }],
+  			body: ['1rem', { lineHeight: '1.6rem' }],
+  			lesson: ['1.0625rem', { lineHeight: '1.8rem' }],
+  			heading: ['1.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em', fontWeight: '600' }],
+  			title: ['clamp(1.75rem, 1.45rem + 1vw, 2rem)', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
+  		},
+  		maxWidth: {
+  			reading: '70ch',
+  		},
   		colors: {
+  			ink: {
+  				1: 'rgb(var(--ink-1-rgb) / <alpha-value>)',
+  				2: 'rgb(var(--ink-2-rgb) / <alpha-value>)',
+  				3: 'rgb(var(--ink-3-rgb) / <alpha-value>)',
+  			},
+  			action: {
+  				DEFAULT: 'rgb(var(--action-rgb) / <alpha-value>)',
+  				hover: 'rgb(var(--action-hover-rgb) / <alpha-value>)',
+  				ink: 'rgb(var(--action-ink-rgb) / <alpha-value>)',
+  			},
+  			focus: 'rgb(var(--focus-rgb) / <alpha-value>)',
+  			success: 'rgb(var(--success-rgb) / <alpha-value>)',
+  			warning: 'rgb(var(--warning-rgb) / <alpha-value>)',
+  			danger: 'rgb(var(--danger-rgb) / <alpha-value>)',
+  			info: 'rgb(var(--info-rgb) / <alpha-value>)',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
