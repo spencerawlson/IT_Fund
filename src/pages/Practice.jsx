@@ -1,7 +1,13 @@
 import React from 'react';
-import { ArrowRight, Box, Timer, Library, Route as RouteIcon, Map, ShieldCheck, ExternalLink } from 'lucide-react';
-import { Card, IconTile, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
+import { ArrowRight, Box, Timer, Library, Route as RouteIcon, Map, ShieldCheck, ExternalLink, Radar, Network } from 'lucide-react';
+import { Badge, Card, IconTile, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
 import { RESOURCES } from '@/data/academy';
+
+// Interactive labs (backend/labs). Phase 1 is simulation-only and needs a signed-in user.
+const RANGES = [
+  { to: '/labs/cyber-nmap-001', icon: Radar, title: 'Service Enumeration with Nmap', text: 'Discover ports and identify services on an isolated target, then validate your findings.' },
+  { to: '/labs/net-vlan-001', icon: Network, title: 'VLANs & Inter-VLAN Routing', text: 'Build two VLANs across a trunk, route between them, and prove connectivity.' },
+];
 
 // Hands-on and reference material that sits beside the lesson path. Nothing here unlocks
 // or skips lessons; the path stays strictly sequential.
@@ -51,6 +57,18 @@ export default function Practice() {
             title="Blue-team detection labs"
             text="Four safe labs on GitHub: run a simulated attack, then hunt its traces. Pairs with the Detection Lab Drills lesson."
           />
+        </div>
+      </section>
+
+      <section aria-labelledby="practice-ranges" className="mt-12">
+        <SectionHeader
+          id="practice-ranges"
+          title="Interactive labs"
+          description="Launch a hands-on environment from a lesson, complete the objectives, and validate the result."
+          action={<Badge>beta · sign-in required</Badge>}
+        />
+        <div className="grid gap-4 md:grid-cols-2">
+          {RANGES.map((t) => <Tile key={t.to} {...t} />)}
         </div>
       </section>
 

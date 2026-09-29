@@ -9,13 +9,25 @@ import ai_tutor
 
 app = FastAPI(title="ITFund Auth API", version="0.1.0")
 
+# Allowed browser origins come from APP_ORIGINS (comma-separated); defaults cover local dev.
+# In production the frontend is same-origin via the /api rewrite, so this mainly covers dev and any
+# explicitly trusted origins. Credentials require an explicit list, never "*".
+import os
+
+_origins = [o.strip() for o in os.environ.get("APP_ORIGINS", "http://localhost:5173,http://localhost:5188").split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Create database tables on startup (idempotent). Replaced by Alembic migrations before real data.
+import db  # noqa: E402
+
+db.init_db()
 
 # The AI tutor answers on both /ai/* and /api/ai/*, so it works whether or not the
 # hosting layer strips the /api prefix before forwarding.
@@ -95,6 +107,14 @@ def _current_user(token: Optional[str] = None) -> dict:
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/health/db")
+def health_db():
+    try:
+        db.ping()
+        return {"db": "ok"}
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="database unavailable")
 
 @app.post("/auth/register", response_model=TokenRes)
 def register(body: RegisterReq):
@@ -176,8 +196,3 @@ def logout(authorization: Optional[str] = Header(None)):
 @app.get("/api/auth/{provider}")
 def auth_provider_redirect(provider: str, redirectTo: str = "/"):
     return HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=f"{provider} redirect not implemented")
-
-# dev-only: inspect users
-@app.get("/api/dev/users")
-def dev_users():
-    return [{"id": u["id"], "email": u["email"]} for u in USERS.values()]

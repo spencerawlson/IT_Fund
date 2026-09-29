@@ -44,3 +44,6 @@ venv/
 .verify_venv/
 .env*
 !.env.example
+
+# Local SQLite dev databases (Postgres is used in production)
+backend/*.db

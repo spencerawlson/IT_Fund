@@ -30,6 +30,7 @@ import { PathsIndex, PathDetail } from './pages/academy/Paths';
 import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Courses';
 import LessonView from './pages/academy/LessonView';
 import Practice from './pages/Practice';
+import LabWorkspace from './pages/LabWorkspace';
 
 // Dev-only design system preview; not bundled into production builds.
 const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
@@ -84,7 +85,8 @@ const AuthenticatedApp = () => {
         <Route path="*" element={<PageNotFound />} />
       </Route>
 
-      {/* Focus mode: lessons, quizzes, assessments and review run full-screen, no navigation. */}
+      {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
+      <Route path="/labs/:labId" element={<LabWorkspace />} />
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
       <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />
       <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />

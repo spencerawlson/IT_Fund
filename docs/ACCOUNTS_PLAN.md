@@ -177,3 +177,39 @@ cannot read or write user B's progress by construction. Tests prove it (Phase C3
 | Serverless database connection limits (D1a) | Use the provider's pooled connection string. |
 | Home-lab downtime (D1b) | The app keeps working offline and syncs when the server returns. |
 | Tampered client scores | Accepted for now: no leaderboards or payments depend on them. Revisit before subscriptions (move scoring server-side). |
+
+---
+
+## Decisions locked (2026-09-29) — supersede §2
+
+- **D1 hosting:** self-host on the UbuntuServ VM (Postgres + FastAPI). Code is DB-agnostic;
+  `DATABASE_URL` selects Postgres in prod, SQLite for local dev/tests.
+- **D2:** sign-in is optional; the app stays fully usable signed-out.
+- **D3 + D4:** store the provider-**verified** email, and auto-merge a Google and GitHub login
+  when **both** emails are verified and match. (The draft's no-email option was dropped to make
+  auto-merge possible; merging only on verified emails keeps it safe.)
+
+## C3.1 status — done
+
+Security cleanup + database foundation (no OAuth yet):
+- **Removed** the public `/api/dev/users` endpoint (it listed registered emails).
+- **CORS** locked to `APP_ORIGINS` (comma-separated env; dev defaults) instead of `*`.
+- **Database layer:** `backend/db.py` (engine/session, `configure`/`init_db`/`ping`) and
+  `backend/db_models.py` (`users`, `identities`, `auth_sessions`, `progress`). Session ids are
+  stored only as a hash. Tables auto-create on startup; Alembic replaces `create_all` before real
+  data ships.
+- **Health:** `GET /health/db` runs `SELECT 1`.
+- **Deps:** `sqlalchemy>=2.0`, `psycopg[binary]` (Postgres, prod only). `.env.example` documents
+  `DATABASE_URL`, `APP_ORIGINS`, and the OAuth vars for C3.2. `backend/*.db` is gitignored.
+- **Tests:** `backend/test_db.py` (persistence, unique identity, health, dev-endpoint removed).
+- **Deliberately kept for now:** the plaintext demo auth (`/auth/*`) still mints the tokens the
+  labs and frontend use. It is removed in C3.2 when OAuth + session cookies replace it, so the app
+  is never left with no auth mid-way. The 4 pre-existing `test_main.py` failures (the `/api/auth`
+  prefix mismatch) are part of that demo auth and are resolved by the C3.2 rewrite.
+
+## Next: C3.2 — OAuth sign-in
+
+Authlib-based Google + GitHub sign-in, `HttpOnly` session cookie, `GET /api/me`, sign-out; the
+identity upsert implements verified-email auto-merge; then remove the demo auth and point the labs'
+`current_user` at the new session. **Needs your OAuth apps first** (section 3): the Google and
+GitHub client IDs/secrets, set as env vars on the VM.

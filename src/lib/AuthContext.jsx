@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       setIsLoadingAuth(true);
-      const currentUser = await api.get('/auth/me');
+      const currentUser = await api.get('/auth/me', token);
       localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
       setUser(currentUser);
       setIsAuthenticated(true);
