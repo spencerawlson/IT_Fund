@@ -7,7 +7,7 @@ export default function RichText({ text, className = '' }) {
     <span className={className}>
       {parts.map((part, i) =>
         part.startsWith('`') && part.endsWith('`') && part.length > 1 ? (
-          <code key={i} className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[0.9em] text-amber-200">
+          <code key={i} className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 font-mono text-[0.9em] text-ink-1">
             {part.slice(1, -1)}
           </code>
         ) : (

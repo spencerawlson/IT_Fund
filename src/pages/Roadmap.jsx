@@ -1,6 +1,4 @@
 import React from 'react';
-import Navbar from '@/components/Navbar';
-import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Map, Trophy, CheckCircle2 } from 'lucide-react';
 import { modules, levelColors } from '@/data/modules';
@@ -31,33 +29,31 @@ const CERTS = [
 ];
 
 export default function Roadmap() {
-  useBgTint('#10B981');
   const overallPct = Math.round(modules.reduce((s, m) => s + getOverallProgress(m.id), 0) / modules.length);
 
   return (
-    <div className="min-h-screen text-white">
-      <Navbar />
+    <div className="min-h-screen text-ink-1">
 
       <div className="relative mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
-        <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
-          <ArrowLeft size={15} /> Study Hub
+        <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
+          <ArrowLeft size={15} /> Practice
         </Link>
 
         <header className="mb-10">
-          <div className="flex items-center gap-2 text-sm font-semibold text-emerald-400">
+          <div className="flex items-center gap-2 text-sm font-semibold text-success">
             <Map size={16} /> Your Path
           </div>
           <h1 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
             Learning{' '}
-            <span className="bg-gradient-to-r from-emerald-400 to-blue-300 bg-clip-text text-transparent">Roadmap</span>
+            Roadmap
           </h1>
-          <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-slate-400">
+          <p className="mt-2 max-w-xl text-body leading-relaxed text-ink-2">
             A guided route through every layer of the IT, networking, cloud, and security curriculum — from first
             principles to expert system design.
           </p>
           <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-4 py-2.5">
-            <span className="text-[11px] uppercase tracking-wider text-slate-400">Overall Progress</span>
-            <span className="text-lg font-bold text-emerald-400">{overallPct}%</span>
+            <span className="text-caption uppercase tracking-wider text-ink-2">Overall Progress</span>
+            <span className="text-lg font-bold text-success">{overallPct}%</span>
           </div>
         </header>
 
@@ -77,16 +73,16 @@ export default function Roadmap() {
                     className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 ${done ? 'border-emerald-500/50 bg-emerald-500/15' : 'border-white/15 bg-black/40 backdrop-blur-md'}`}
                   >
                     {done ? (
-                      <CheckCircle2 size={18} className="text-emerald-400" />
+                      <CheckCircle2 size={18} className="text-success" />
                     ) : (
-                      <span className="text-xs font-bold" style={{ color: phase.color }}>{phase.n}</span>
+                      <span className="text-caption font-bold" style={{ color: phase.color }}>{phase.n}</span>
                     )}
                   </div>
-                  <div className="rounded-2xl glass p-5">
+                  <div className="rounded-control glass-1 p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h2 className="text-base font-bold text-white">{phase.title}</h2>
-                        <p className="mt-1 text-[13px] leading-relaxed text-slate-400">{phase.desc}</p>
+                        <h2 className="text-base font-bold text-ink-1">{phase.title}</h2>
+                        <p className="mt-1 text-small leading-relaxed text-ink-2">{phase.desc}</p>
                       </div>
                       <p className="shrink-0 text-lg font-bold" style={{ color: phase.color }}>{phasePct}%</p>
                     </div>
@@ -101,11 +97,11 @@ export default function Roadmap() {
                           <Link
                             key={m.id}
                             to={`/module/${m.id}`}
-                            className="group flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs transition hover:border-white/25 hover:bg-white/[0.12]"
+                            className="group flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-caption transition hover:border-white/25 hover:bg-white/[0.12]"
                           >
                             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: lvl.dot }} />
-                            <span className="font-semibold text-white">{m.title}</span>
-                            <span className="text-slate-400">· {pct}%</span>
+                            <span className="font-semibold text-ink-1">{m.title}</span>
+                            <span className="text-ink-2">· {pct}%</span>
                           </Link>
                         );
                       })}
@@ -118,10 +114,10 @@ export default function Roadmap() {
         </div>
 
         {/* Certification milestones */}
-        <div className="mt-12 rounded-2xl glass p-5">
+        <div className="mt-12 rounded-control glass-1 p-5">
           <div className="flex items-center gap-2">
             <Trophy size={16} className="text-amber-400" />
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">Certification Milestones</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-ink-2">Certification Milestones</h2>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {CERTS.map((c, i) => {
@@ -130,15 +126,15 @@ export default function Roadmap() {
                 <div key={c.name} className="flex items-center gap-2">
                   <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: lvl.dot }} />
-                    <span className="text-xs font-semibold text-white">{c.name}</span>
-                    <span className="text-[10px] text-slate-400">{c.level}</span>
+                    <span className="text-caption font-semibold text-ink-1">{c.name}</span>
+                    <span className="text-caption text-ink-2">{c.level}</span>
                   </div>
-                  {i < CERTS.length - 1 && <span className="text-slate-500">→</span>}
+                  {i < CERTS.length - 1 && <span className="text-ink-2">→</span>}
                 </div>
               );
             })}
           </div>
-          <p className="mt-3 text-[11px] text-slate-400">
+          <p className="mt-3 text-caption text-ink-2">
             Open the Certifications module for details on each exam, prerequisites, and the roles they unlock.
           </p>
         </div>

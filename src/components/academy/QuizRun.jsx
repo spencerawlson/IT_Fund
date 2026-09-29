@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, Zap, ArrowRight, CheckCircle2, XCircle } from 'lucide-react';
+import { Heart, ArrowRight, CheckCircle2, XCircle } from 'lucide-react';
 import { gradeCard, recordCombo, XP } from '@/lib/academy';
 import RichText from './RichText';
 import TutorAssist from './tutor/TutorAssist';
@@ -80,36 +80,31 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-3 flex items-center justify-between text-xs text-slate-400">
+      <div className="mb-3 flex items-center justify-between text-caption text-ink-2">
         <span>
           Question {index + 1} / {questions.length}
         </span>
         <div className="flex items-center gap-3">
-          {combo >= 2 && (
-            <span className="inline-flex items-center gap-1 font-bold text-amber-300">
-              <Zap size={13} /> {combo} combo · x{multiplier(combo)}
-            </span>
-          )}
           {hearts !== null && (
-            <span className="inline-flex items-center gap-0.5" aria-label={`${hearts} lives left`}>
+            <span className="inline-flex items-center gap-1" aria-label={`${hearts} of ${lives} lives left`} title="Lives: a wrong answer costs one">
               {Array.from({ length: lives }, (_, i) => (
-                <Heart key={i} size={15} className={i < hearts ? 'fill-rose-500 text-rose-500' : 'text-slate-600'} />
+                <Heart key={i} size={15} aria-hidden="true" className={i < hearts ? 'fill-current text-ink-1' : 'text-ink-3'} />
               ))}
             </span>
           )}
         </div>
       </div>
       <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full rounded-full transition-all" style={{ width: `${(index / questions.length) * 100}%`, backgroundColor: color }} />
+        <div className="h-full rounded-full bg-action transition-all" style={{ width: `${(index / questions.length) * 100}%` }} />
       </div>
 
-      <div className="glass rounded-2xl p-6">
-        <h3 className="text-lg font-bold leading-snug text-white sm:text-xl">
+      <div className="glass-2 rounded-control p-6">
+        <h2 className="text-lg font-bold leading-snug text-ink-1 sm:text-xl">
           <RichText text={q.card.q} />
-        </h3>
+        </h2>
         <div className="mt-5 space-y-2.5">
           {q.options.map((opt, i) => {
-            let style = 'glass hover:border-white/30';
+            let style = 'glass-2 hover:border-white/30';
             if (picked !== null) {
               if (i === q.correct) style = 'border-emerald-500/60 bg-emerald-500/10';
               else if (i === picked) style = 'border-rose-500/60 bg-rose-500/10';
@@ -120,9 +115,9 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
                 key={i}
                 onClick={() => choose(i)}
                 disabled={picked !== null}
-                className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm text-slate-100 transition ${style}`}
+                className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm text-ink-1 transition ${style}`}
               >
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white/10 text-[11px] font-bold text-slate-300">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white/10 text-caption font-bold text-ink-2">
                   {i + 1}
                 </span>
                 <RichText text={opt} />
@@ -132,18 +127,18 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
         </div>
 
         {picked !== null && (
-          <div className={`mt-5 rounded-xl border p-4 text-sm ${answeredRight ? 'border-emerald-500/30 bg-emerald-500/[0.06]' : 'border-rose-500/30 bg-rose-500/[0.06]'}`}>
-            <p className={`flex items-center gap-2 font-semibold ${answeredRight ? 'text-emerald-300' : 'text-rose-300'}`}>
+          <div className={`mt-5 rounded-xl border p-4 text-sm ${answeredRight ? 'border-success/30 bg-success/5' : 'border-danger/30 bg-danger/5'}`}>
+            <p className={`flex items-center gap-2 font-semibold ${answeredRight ? 'text-success' : 'text-danger'}`}>
               {answeredRight ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-              {answeredRight ? `Correct! +${Math.round(XP.quizCorrect * multiplier(combo))} XP` : 'Not quite.'}
+              {answeredRight ? 'Correct' : 'Not quite'}
             </p>
             {!answeredRight && (
-              <p className="mt-1 text-slate-200">
+              <p className="mt-1 text-ink-2">
                 Answer: <RichText text={q.card.a} className="font-semibold" />
               </p>
             )}
             {q.card.x && (
-              <p className="mt-1.5 leading-relaxed text-slate-300">
+              <p className="mt-1.5 leading-relaxed text-ink-2">
                 <RichText text={q.card.x} />
               </p>
             )}
@@ -163,13 +158,12 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
         <button
           onClick={next}
           disabled={picked === null}
-          className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30"
-          style={{ backgroundColor: color }}
+          className="glass-btn inline-flex min-h-11 items-center gap-2 rounded-control px-5 text-body font-semibold"
         >
           {index + 1 >= questions.length || (hearts !== null && hearts <= 0) ? 'See results' : 'Next'} <ArrowRight size={15} />
         </button>
       </div>
-      <p className="mt-2 text-right text-[11px] text-slate-500">Keys: 1-4 to answer, Enter for next</p>
+      <p className="mt-2 text-right text-caption text-ink-2">Keys: 1-4 to answer, Enter for next</p>
     </div>
   );
 }

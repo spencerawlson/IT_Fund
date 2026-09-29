@@ -54,7 +54,7 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone, m
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="mb-3 flex items-center justify-between text-xs text-slate-400">
+      <div className="mb-3 flex items-center justify-between text-caption text-ink-2">
         <span>
           {done} / {cards.length} cleared
         </span>
@@ -66,7 +66,7 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone, m
         </span>
       </div>
       <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full rounded-full transition-all" style={{ width: `${(done / cards.length) * 100}%`, backgroundColor: color }} />
+        <div className="h-full rounded-full bg-action transition-all" style={{ width: `${(done / cards.length) * 100}%` }} />
       </div>
 
       <button
@@ -76,25 +76,25 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone, m
         aria-label={flipped ? 'Show question' : 'Reveal answer'}
       >
         <div className={`flip-inner relative h-full w-full ${flipped ? 'flipped' : ''}`}>
-          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-4 glass rounded-2xl p-7 text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Question</p>
-            <h3 className="text-xl font-bold leading-snug text-white sm:text-2xl">
+          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-4 glass-2 rounded-control p-7 text-center">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Question</p>
+            <h2 className="text-xl font-bold leading-snug text-ink-1 sm:text-2xl">
               <RichText text={current.q} />
-            </h3>
-            <p className="inline-flex items-center gap-1 text-xs text-slate-500">
+            </h2>
+            <p className="inline-flex items-center gap-1 text-caption text-ink-2">
               <RotateCw size={12} /> Tap or press Space to flip
             </p>
           </div>
           <div
-            className="flip-back absolute inset-0 flex flex-col justify-center gap-3 overflow-y-auto rounded-2xl border p-7"
+            className="flip-back absolute inset-0 flex flex-col justify-center gap-3 overflow-y-auto rounded-control border p-7"
             style={{ borderColor: `${color}55`, background: `linear-gradient(135deg, ${color}1f, transparent)` }}
           >
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Answer</p>
-            <p className="text-xl font-bold leading-snug text-white">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Answer</p>
+            <p className="text-xl font-bold leading-snug text-ink-1">
               <RichText text={current.a} />
             </p>
             {current.x && (
-              <p className="text-sm leading-relaxed text-slate-300">
+              <p className="text-sm leading-relaxed text-ink-2">
                 <RichText text={current.x} />
               </p>
             )}
@@ -115,20 +115,19 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone, m
         <button
           onClick={() => answer(false)}
           disabled={!flipped}
-          className="flex items-center justify-center gap-2 glass rounded-xl py-3 text-sm font-semibold text-slate-200 transition hover:bg-rose-500/10 hover:text-rose-200 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex items-center justify-center gap-2 glass-2 rounded-xl py-3 text-sm font-semibold text-ink-2 transition hover:bg-rose-500/10 hover:text-danger disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <X size={16} /> Again <kbd className="ml-1 text-[10px] text-slate-500">1</kbd>
+          <X size={16} /> Again <kbd className="ml-1 text-caption text-ink-2">1</kbd>
         </button>
         <button
           onClick={() => answer(true)}
           disabled={!flipped}
-          className="flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-          style={{ backgroundColor: color }}
+          className="glass-btn flex min-h-11 items-center justify-center gap-2 rounded-control text-body font-semibold"
         >
-          <Check size={16} /> Got it <kbd className="ml-1 text-[10px] text-white/60">2</kbd>
+          <Check size={16} /> Got it <kbd className="ml-1 text-caption opacity-70">2</kbd>
         </button>
       </div>
-      <p className="mt-3 text-center text-xs text-slate-500">
+      <p className="mt-3 text-center text-caption text-ink-2">
         Be honest: "Again" brings the card back soon; "Got it" pushes it to a later review day.
       </p>
     </div>

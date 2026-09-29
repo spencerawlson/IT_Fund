@@ -1,15 +1,16 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { X, Flame, Sparkles, Trophy, Layers, ArrowRight, Puzzle, BookOpen, History, RotateCcw } from 'lucide-react';
+import { X, Check, Layers, ArrowRight, History, RotateCcw } from 'lucide-react';
 import {
-  useAcademy, gradeCard, awardXp, completeLesson, checkDeckMastered, buildQuestions, liveStreak, XP,
+  useAcademy, gradeCard, awardXp, completeLesson, checkDeckMastered, buildQuestions, XP,
   saveLessonProgress, clearLessonProgress,
 } from '@/lib/academy';
 import { allCards, getDeck } from '@/data/academy';
 import { continueLearning, pastLessonCards, PASS_PCT } from '@/lib/progress/engine';
 import { playerHref } from '@/data/catalog';
 import RichText from '../RichText';
+import { Button, Card, ProgressBar } from '@/components/ui-glass';
+import { ACTION } from '@/lib/design/tokens';
 import { ChoiceStep, OrderStep, NumericStep, WidgetStep } from './steps';
 
 const STEP_COMPONENTS = { choice: ChoiceStep, order: OrderStep, numeric: NumericStep, widget: WidgetStep };
@@ -66,8 +67,8 @@ export default function LessonPlayer({ track, deck }) {
   const state = useAcademy();
   const [session, setSession] = useState(() => savedSession(state, deck) || freshSession(state, deck));
   const [done, setDone] = useState(false);
-  const xpStart = useRef(state.xp);
-  const color = track.color;
+  // One accent everywhere: selections, highlights and buttons use the action colour, not the course colour.
+  const color = ACTION.action;
   const { steps, index, tries } = session;
 
   const step = steps[index];
@@ -115,36 +116,28 @@ export default function LessonPlayer({ track, deck }) {
     clearLessonProgress(deck.id);
     setSession({ ...freshSession(state, deck), index: 0 });
     setDone(false);
-    xpStart.current = state.xp;
   };
 
   const progress = done ? 100 : index < 0 ? 0 : Math.round((index / steps.length) * 100);
 
   return (
     <div className="flex min-h-[100dvh] flex-col">
-      {/* Top bar */}
-      <div className="sticky top-0 z-30 px-3 pt-3 sm:px-6 sm:pt-5">
-        <div className="glass mx-auto flex max-w-2xl items-center gap-3 rounded-full px-3 py-2 sm:px-4">
-          <Link to="/academy" aria-label="Exit lesson" title="Your place is saved" className="rounded-full p-1.5 text-slate-300 transition hover:bg-white/10 hover:text-white">
-            <X size={20} />
-          </Link>
-          <div className="h-3 flex-1 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${color}, #ffffffcc)`, boxShadow: `0 0 12px ${color}` }}
-            />
-          </div>
-          <span className="inline-flex items-center gap-1 text-sm font-bold text-orange-300">
-            <Flame size={16} /> {liveStreak(state)}
+      {/* Top bar: exit, progress, position. No site navigation in a lesson. */}
+      <header className="sticky top-0 z-30 px-3 pt-3 sm:px-6 sm:pt-5">
+        <div className="glass-1 mx-auto flex max-w-2xl items-center gap-3 rounded-card px-2 py-2 sm:px-3">
+          <Button to="/" variant="ghost" icon={X} aria-label="Exit lesson (your place is saved)" title="Your place is saved" className="w-10 shrink-0 px-0" />
+          <ProgressBar value={progress} label="Lesson progress" showValue={false} className="flex-1" />
+          <span className="w-16 shrink-0 text-right text-small tabular-nums text-ink-2">
+            {done ? 'Done' : index < 0 ? `${steps.length} steps` : `${index + 1} / ${steps.length}`}
           </span>
         </div>
-      </div>
+      </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-72 pt-6 sm:px-6 sm:pt-10">
         {done ? (
-          <Complete deck={deck} state={state} tries={tries} xp={state.xp - xpStart.current} color={color} onRetry={restart} />
+          <Complete deck={deck} state={state} tries={tries} onRetry={restart} />
         ) : index < 0 ? (
-          <Intro deck={deck} track={track} steps={steps} color={color} resumeAt={session.resumeAt} onStart={start} onRestart={restart} />
+          <Intro deck={deck} track={track} steps={steps} resumeAt={session.resumeAt} onStart={start} onRestart={restart} />
         ) : (
           <div key={step.id} className="animate-rise">
             <StepComponent step={step} color={color} onComplete={onComplete} meta={{ track: track.title, topic: deck.title }} />
@@ -155,103 +148,106 @@ export default function LessonPlayer({ track, deck }) {
   );
 }
 
-function Intro({ deck, track, steps, color, resumeAt, onStart, onRestart }) {
+/** Fixed bottom action bar, above the safe area. */
+function ActionBar({ children }) {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe sm:px-6">
+      <div className="mx-auto flex max-w-2xl gap-2">{children}</div>
+    </div>
+  );
+}
+
+function Intro({ deck, track, steps, resumeAt, onStart, onRestart }) {
   const puzzles = steps.filter((s) => s.type !== 'choice').length;
   const warmups = steps.filter((s) => s.warmup).length;
   const resuming = resumeAt > 0;
   return (
     <div className="animate-rise">
-      <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color }}>{track.title} · {deck.tierId}</p>
-      <h1 className="mt-2 text-3xl font-bold leading-tight text-white sm:text-4xl">{deck.title}</h1>
-      <p className="mt-3 text-base leading-relaxed text-slate-300 sm:text-lg">{deck.summary}</p>
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="glass rounded-2xl p-4">
-          <BookOpen size={18} style={{ color }} />
-          <p className="mt-2 text-2xl font-bold text-white">{deck.cards.length}</p>
-          <p className="text-xs text-slate-400">questions</p>
-        </div>
-        <div className="glass rounded-2xl p-4">
-          <Puzzle size={18} style={{ color }} />
-          <p className="mt-2 text-2xl font-bold text-white">{puzzles}</p>
-          <p className="text-xs text-slate-400">hands-on puzzles</p>
-        </div>
-      </div>
-      {warmups > 0 && (
-        <p className="mt-5 flex items-start gap-2 text-sm leading-relaxed text-slate-300">
-          <History size={16} className="mt-0.5 shrink-0" style={{ color }} />
-          Opens with {warmups} review {warmups === 1 ? 'question' : 'questions'} from your earlier lessons, so nothing fades.
-        </p>
-      )}
-      <p className="mt-4 text-sm leading-relaxed text-slate-400">
-        Learn by doing: answer first, then see why. Missed questions come back at the end. Score {PASS_PCT}% on first tries to
-        unlock the next lesson. You can leave at any time; your place is saved.
-      </p>
-      {deck.resources.length > 0 && (
-        <p className="mt-3 text-xs text-slate-500">Based on: {deck.resources.map((r) => r.title).join(' · ')}</p>
-      )}
-      <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe sm:px-6">
-        <div className="mx-auto flex max-w-2xl gap-2">
-          {resuming && (
-            <button type="button" onClick={onRestart} className="glass inline-flex items-center gap-2 rounded-2xl px-4 py-4 text-sm font-semibold text-white">
-              <RotateCcw size={16} /> <span className="hidden sm:inline">Start over</span>
-            </button>
+      <p className="text-small font-semibold text-ink-2">{track.title} · {track.tiers.find((t) => t.id === deck.tierId)?.label || deck.tierId}</p>
+      <h1 className="mt-1 text-title text-ink-1">{deck.title}</h1>
+      <p className="mt-3 text-lesson text-ink-2">{deck.summary}</p>
+
+      <Card level={2} className="mt-6">
+        <ul className="space-y-3 text-body text-ink-1">
+          <li className="flex gap-3">
+            <Check size={18} className="mt-1 shrink-0 text-ink-2" aria-hidden="true" />
+            <span>
+              {deck.cards.length} questions{puzzles ? ` and ${puzzles} hands-on ${puzzles === 1 ? 'puzzle' : 'puzzles'}` : ''}. Answer
+              first, then see why.
+            </span>
+          </li>
+          {warmups > 0 && (
+            <li className="flex gap-3">
+              <History size={18} className="mt-1 shrink-0 text-ink-2" aria-hidden="true" />
+              <span>Opens with {warmups} review {warmups === 1 ? 'question' : 'questions'} from earlier lessons, so nothing fades.</span>
+            </li>
           )}
-          <button type="button" onClick={onStart} autoFocus className="glass-btn flex-1 rounded-2xl py-4 text-base font-bold" style={{ '--tint': color }}>
-            {resuming ? `Resume at step ${resumeAt + 1} of ${steps.length}` : 'Start lesson'}
-          </button>
-        </div>
-      </div>
+          <li className="flex gap-3">
+            <RotateCcw size={18} className="mt-1 shrink-0 text-ink-2" aria-hidden="true" />
+            <span>Missed questions come back at the end. Score {PASS_PCT}% on first tries to open the next lesson.</span>
+          </li>
+        </ul>
+        <p className="mt-4 text-small text-ink-2">You can leave at any time; your place is saved.</p>
+      </Card>
+      {deck.resources.length > 0 && (
+        <p className="mt-4 text-small text-ink-2">Based on: {deck.resources.map((r) => r.title).join(' · ')}</p>
+      )}
+
+      <ActionBar>
+        {resuming && (
+          <Button variant="secondary" size="lg" icon={RotateCcw} onClick={onRestart} aria-label="Start over">
+            <span className="hidden sm:inline">Start over</span>
+          </Button>
+        )}
+        <Button size="lg" onClick={onStart} autoFocus className="flex-1">
+          {resuming ? `Resume at step ${resumeAt + 1} of ${steps.length}` : 'Start lesson'}
+        </Button>
+      </ActionBar>
     </div>
   );
 }
 
-function Complete({ deck, state, tries, xp, color, onRetry }) {
+function Complete({ deck, state, tries, onRetry }) {
   const vals = Object.values(tries);
   const pct = vals.length ? Math.round((vals.filter(Boolean).length / vals.length) * 100) : 0;
   const passed = pct >= PASS_PCT;
   const next = useMemo(() => continueLearning(state)?.lesson || null, [state]);
-  const nextHref = next ? playerHref(next) : '/academy';
+  const nextHref = next ? playerHref(next) : '/';
 
   return (
     <div className="animate-pop text-center">
-      <div className="glass mx-auto flex h-24 w-24 items-center justify-center rounded-full" style={{ boxShadow: `0 0 60px -10px ${color}` }}>
-        <Trophy size={44} className="text-amber-300" />
-      </div>
-      <h1 className="mt-5 text-3xl font-bold text-white">{passed ? 'Lesson complete!' : 'Almost there'}</h1>
-      <p className="mt-1 text-slate-300">{deck.title}</p>
-      <div className="mx-auto mt-6 grid max-w-sm grid-cols-2 gap-3">
-        <div className="glass rounded-2xl p-4">
-          <p className="text-3xl font-bold" style={{ color }}>{pct}%</p>
-          <p className="text-xs text-slate-400">first-try accuracy</p>
-        </div>
-        <div className="glass rounded-2xl p-4">
-          <p className="inline-flex items-center gap-1 text-3xl font-bold text-amber-300"><Sparkles size={20} />{xp}</p>
-          <p className="text-xs text-slate-400">XP earned</p>
-        </div>
-      </div>
-      <p className="mx-auto mt-5 max-w-sm text-sm text-slate-400">
+      <span
+        className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full border ${
+          passed ? 'border-success/40 bg-success/15 text-success' : 'border-white/15 bg-white/10 text-ink-1'
+        }`}
+      >
+        {passed ? <Check size={40} aria-hidden="true" /> : <RotateCcw size={34} aria-hidden="true" />}
+      </span>
+      <h1 className="mt-5 text-title text-ink-1">{passed ? 'Lesson complete' : 'Almost there'}</h1>
+      <p className="mt-1 text-body text-ink-2">{deck.title}</p>
+      <Card level={2} className="mx-auto mt-6 max-w-sm">
+        <p className="text-title tabular-nums text-ink-1">{pct}%</p>
+        <p className="text-small text-ink-2">first-try accuracy · {PASS_PCT}% to pass</p>
+      </Card>
+      <p className="mx-auto mt-5 max-w-sm text-body text-ink-2">
         {!passed
-          ? `You need ${PASS_PCT}% to unlock the next lesson. Study the flashcards or go again. Your answers so far already count towards review.`
+          ? `You need ${PASS_PCT}% to open the next lesson. Study the flashcards or go again. Your answers so far already count towards review.`
           : pct >= 80
-            ? 'Excellent. These cards will come back on a later review day.'
-            : 'Good work. The cards you missed will come back soon in your reviews.'}
+            ? 'Excellent. These questions will come back on a later review day.'
+            : 'Good work. The questions you missed will come back soon in your reviews.'}
       </p>
-      <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe sm:px-6">
-        <div className="mx-auto flex max-w-2xl gap-2">
-          <Link to={`/academy/${deck.trackId}/deck/${deck.id}?mode=learn`} className="glass inline-flex items-center gap-2 rounded-2xl px-4 py-4 text-sm font-semibold text-white">
-            <Layers size={16} /> <span className="hidden sm:inline">Flashcards</span>
-          </Link>
-          {passed ? (
-            <Link to={nextHref} className="glass-btn inline-flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-base font-bold" style={{ '--tint': color }}>
-              {next ? <>Next: <RichText text={next.title} className="max-w-[55vw] truncate" /></> : 'Back to your path'} <ArrowRight size={18} />
-            </Link>
-          ) : (
-            <button type="button" onClick={onRetry} className="glass-btn inline-flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-base font-bold" style={{ '--tint': color }}>
-              <RotateCcw size={18} /> Try the lesson again
-            </button>
-          )}
-        </div>
-      </div>
+      <ActionBar>
+        <Button variant="secondary" size="lg" icon={Layers} to={`/academy/${deck.trackId}/deck/${deck.id}?mode=learn`} aria-label="Flashcards">
+          <span className="hidden sm:inline">Flashcards</span>
+        </Button>
+        {passed ? (
+          <Button size="lg" to={nextHref} iconAfter={ArrowRight} className="min-w-0 flex-1">
+            {next ? <span className="truncate">Next: <RichText text={next.title} /></span> : 'Back to Home'}
+          </Button>
+        ) : (
+          <Button size="lg" icon={RotateCcw} onClick={onRetry} className="flex-1">Try the lesson again</Button>
+        )}
+      </ActionBar>
     </div>
   );
 }

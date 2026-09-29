@@ -28,7 +28,7 @@ const PRAISE = ['Nice!', 'Correct!', 'Spot on!', 'Exactly!', 'You got it!'];
  * Bottom sheet with the primary action; Enter triggers it. `tutor` is the study context for
  * the AI tutor: a Hint before checking, an explanation after.
  */
-export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReveal, onContinue, answer, explanation, color, tutor }) {
+export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReveal, onContinue, answer, explanation, tutor }) {
   const [praise] = useState(() => PRAISE[Math.floor(Math.random() * PRAISE.length)]);
 
   const primary = useCallback(() => {
@@ -48,30 +48,29 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
   }, [primary]);
 
   const tone =
-    status === 'correct' ? 'border-emerald-400/40' : status === 'wrong' ? 'border-rose-400/40' : status === 'revealed' ? 'border-amber-300/40' : 'border-white/10';
+    status === 'correct' ? 'border-success/40' : status === 'wrong' ? 'border-danger/40' : status === 'revealed' ? 'border-warning/40' : 'border-white/10';
   const label = status === 'idle' ? 'Check' : status === 'wrong' ? 'Try again' : 'Continue';
-  const tint = status === 'correct' ? '#10B981' : status === 'wrong' ? '#F43F5E' : color;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe sm:px-6">
-      <div className={`glass-strong mx-auto max-w-2xl rounded-3xl border p-4 sm:p-5 ${tone} ${status !== 'idle' ? 'animate-rise' : ''}`}>
+      <div className={`glass-3 mx-auto max-w-2xl rounded-card border p-4 sm:p-5 ${tone} ${status !== 'idle' ? 'animate-rise' : ''}`}>
         {status !== 'idle' && (
           <div className="mb-3 max-h-[34vh] overflow-y-auto">
             {status === 'correct' && (
-              <p className="flex items-center gap-2 text-base font-bold text-emerald-300"><CheckCircle2 size={20} /> {praise}</p>
+              <p className="flex items-center gap-2 text-base font-bold text-success"><CheckCircle2 size={20} /> {praise}</p>
             )}
             {status === 'wrong' && (
-              <p className="flex items-center gap-2 text-base font-bold text-rose-300"><XCircle size={20} /> Not quite. Give it another go.</p>
+              <p className="flex items-center gap-2 text-base font-bold text-danger"><XCircle size={20} /> Not quite. Give it another go.</p>
             )}
             {status === 'revealed' && (
               <>
-                <p className="flex items-center gap-2 text-base font-bold text-amber-200"><Lightbulb size={20} /> Here’s the answer</p>
-                {answer && <p className="mt-1 text-sm font-semibold text-white"><RichText text={answer} /></p>}
+                <p className="flex items-center gap-2 text-base font-bold text-warning"><Lightbulb size={20} /> Here’s the answer</p>
+                {answer && <p className="mt-1 text-sm font-semibold text-ink-1"><RichText text={answer} /></p>}
               </>
             )}
             {explanation && status !== 'wrong' && (
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-200">
-                <span className="font-semibold text-white">Why: </span>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-2">
+                <span className="font-semibold text-ink-1">Why: </span>
                 <RichText text={explanation} />
               </p>
             )}
@@ -88,7 +87,7 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
         )}
         <div className="flex gap-2">
           {status === 'wrong' && onReveal && (
-            <button type="button" onClick={onReveal} className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10">
+            <button type="button" onClick={onReveal} className="rounded-control border border-white/15 bg-white/5 px-4 py-3.5 text-sm font-semibold text-ink-2 transition hover:bg-white/10">
               Show answer
             </button>
           )}
@@ -96,8 +95,7 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
             type="button"
             onClick={primary}
             disabled={status === 'idle' && !canCheck}
-            className="glass-btn flex-1 rounded-2xl py-3.5 text-base font-bold"
-            style={{ '--tint': tint }}
+            className="glass-btn flex-1 rounded-control py-3.5 text-base font-bold"
           >
             {label}
           </button>

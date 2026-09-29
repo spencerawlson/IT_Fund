@@ -1,13 +1,5 @@
 import React from 'react';
 
-/**
- * No-op kept so existing pages compile. The background used to change colour on every page,
- * which made the app feel inconsistent; it is now one fixed palette. Calls are removed as
- * pages move to the design system (docs/IMPLEMENTATION_PLAN.md, Phase 4).
- */
-// eslint-disable-next-line no-unused-vars
-export function useBgTint(_color) {}
-
 const blob = (n) => ({ background: `var(--blob-${n})`, opacity: `var(--blob-${n}-opacity)` });
 
 /**

@@ -32,26 +32,26 @@ export default function StudySheet({ concepts, index, moduleTitle, color, onClos
         aria-modal="true"
         aria-label={concept.term}
         onClick={(e) => e.stopPropagation()}
-        className="glass-strong animate-rise flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-3xl sm:rounded-3xl"
+        className="glass-3 animate-rise flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-3xl sm:rounded-card"
       >
         <header className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-7">
           <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+            <p className="text-caption font-bold uppercase tracking-[0.14em] text-ink-2">
               {moduleTitle} · {index + 1} / {concepts.length}
             </p>
-            <h2 className="mt-1 text-xl font-bold leading-snug text-white sm:text-2xl">{concept.term}</h2>
+            <h2 className="mt-1 text-xl font-bold leading-snug text-ink-1 sm:text-2xl">{concept.term}</h2>
             <div className="mt-2">
               <CategoryBadge category={concept.category} />
             </div>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 text-slate-300 transition hover:bg-white/10 hover:text-white">
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 text-ink-2 transition hover:bg-white/10 hover:text-ink-1">
             <X size={20} />
           </button>
         </header>
 
         <div key={concept.id} className="animate-rise flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-          <p className="text-base font-semibold leading-relaxed text-white">{concept.summary}</p>
-          <div className="mt-4 space-y-3 text-[15px] leading-relaxed text-slate-200">
+          <p className="text-base font-semibold leading-relaxed text-ink-1">{concept.summary}</p>
+          <div className="mt-4 space-y-3 text-body leading-relaxed text-ink-2">
             {note.body.split(/\n\s*\n/).map((para, i) => (
               <p key={i}>
                 <RichText text={para} />
@@ -59,21 +59,21 @@ export default function StudySheet({ concepts, index, moduleTitle, color, onClos
             ))}
           </div>
           {note.example && (
-            <div className="mt-5 rounded-2xl border p-4" style={{ borderColor: `${color}55`, background: `${color}14` }}>
-              <p className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color }}>
+            <div className="mt-5 rounded-control border p-4" style={{ borderColor: `${color}55`, background: `${color}14` }}>
+              <p className="mb-1 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em]" style={{ color }}>
                 <Target size={13} /> Real-world example
               </p>
-              <p className="text-sm leading-relaxed text-slate-100">
+              <p className="text-sm leading-relaxed text-ink-1">
                 <RichText text={note.example} />
               </p>
             </div>
           )}
           {note.tip && (
-            <div className="mt-3 rounded-2xl border border-amber-300/30 bg-amber-300/[0.07] p-4">
-              <p className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-200">
+            <div className="mt-3 rounded-control border border-amber-300/30 bg-amber-300/[0.07] p-4">
+              <p className="mb-1 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em] text-amber-200">
                 <Lightbulb size={13} /> Exam tip
               </p>
-              <p className="text-sm leading-relaxed text-slate-100">
+              <p className="text-sm leading-relaxed text-ink-1">
                 <RichText text={note.tip} />
               </p>
             </div>
@@ -91,14 +91,14 @@ export default function StudySheet({ concepts, index, moduleTitle, color, onClos
             type="button"
             onClick={() => onNavigate(index - 1)}
             disabled={index === 0}
-            className="inline-flex items-center gap-1 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:opacity-35"
+            className="inline-flex items-center gap-1 rounded-control border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-ink-2 transition hover:bg-white/10 disabled:opacity-35"
           >
             <ChevronLeft size={16} /> Previous
           </button>
           <button
             type="button"
             onClick={() => (index < concepts.length - 1 ? onNavigate(index + 1) : onClose())}
-            className="glass-btn inline-flex flex-1 items-center justify-center gap-1 rounded-2xl py-3 text-sm font-bold"
+            className="glass-btn inline-flex flex-1 items-center justify-center gap-1 rounded-control py-3 text-sm font-bold"
             style={{ '--tint': color }}
           >
             {index < concepts.length - 1 ? (

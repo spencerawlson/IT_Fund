@@ -10,11 +10,11 @@ export function BitsWidget({ color, onValue }) {
   useEffect(() => onValue(value), [value, onValue]);
 
   return (
-    <div className="glass rounded-3xl p-4 sm:p-6">
+    <div className="glass-2 rounded-card p-4 sm:p-6">
       <div className="grid grid-cols-8 gap-1.5 sm:gap-2">
         {PLACES.map((place, i) => (
           <div key={place} className="flex flex-col items-center gap-1.5">
-            <span className="text-[10px] font-medium text-slate-400 sm:text-xs">{place}</span>
+            <span className="text-caption font-medium text-ink-2 sm:text-caption">{place}</span>
             <button
               type="button"
               aria-label={`Bit worth ${place}: ${bits[i] ? 'on' : 'off'}`}
@@ -53,10 +53,10 @@ export function CidrWidget({ color, onValue }) {
   useEffect(() => onValue(prefix), [prefix, onValue]);
 
   return (
-    <div className="glass rounded-3xl p-4 sm:p-6">
+    <div className="glass-2 rounded-card p-4 sm:p-6">
       <div className="flex items-baseline justify-between">
-        <span className="text-4xl font-bold text-white sm:text-5xl">/{prefix}</span>
-        <span className="font-mono text-sm text-slate-300 sm:text-base">{mask}</span>
+        <span className="text-4xl font-bold text-ink-1 sm:text-5xl">/{prefix}</span>
+        <span className="font-mono text-sm text-ink-2 sm:text-base">{mask}</span>
       </div>
       <div className="mt-4 flex gap-[2px]" aria-hidden>
         {Array.from({ length: 32 }, (_, i) => (
@@ -67,7 +67,7 @@ export function CidrWidget({ color, onValue }) {
           />
         ))}
       </div>
-      <div className="mt-1.5 flex justify-between text-[11px] text-slate-400">
+      <div className="mt-1.5 flex justify-between text-caption text-ink-2">
         <span style={{ color }}>{prefix} network bits</span>
         <span>{hostBits} host bits</span>
       </div>
@@ -117,21 +117,21 @@ export function HashWidget({ color, onValue }) {
   const changed = hash && original ? [...hash].filter((c, i) => c !== original[i]).length : 0;
 
   return (
-    <div className="glass rounded-3xl p-4 sm:p-6">
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400" htmlFor="hash-input">Message</label>
+    <div className="glass-2 rounded-card p-4 sm:p-6">
+      <label className="text-caption font-semibold uppercase tracking-wider text-ink-2" htmlFor="hash-input">Message</label>
       <input
         id="hash-input"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        className="mt-1.5 w-full rounded-xl border border-white/15 bg-black/30 px-3 py-3 font-mono text-base text-white outline-none focus:border-white/40"
+        className="mt-1.5 w-full rounded-xl border border-white/15 bg-black/30 px-3 py-3 font-mono text-base text-ink-1 outline-none focus:border-white/40"
       />
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">SHA-256</p>
-      <p className="mt-1.5 break-all rounded-xl bg-black/30 p-3 font-mono text-[13px] leading-relaxed sm:text-sm">
+      <p className="mt-4 text-caption font-semibold uppercase tracking-wider text-ink-2">SHA-256</p>
+      <p className="mt-1.5 break-all rounded-xl bg-black/30 p-3 font-mono text-small leading-relaxed sm:text-sm">
         {[...hash].map((c, i) => (
           <span key={i} style={{ color: original && c !== original[i] ? color : 'rgb(148 163 184)' }}>{c}</span>
         ))}
       </p>
-      <p className="mt-2 text-xs text-slate-400">
+      <p className="mt-2 text-caption text-ink-2">
         {text === HASH_SEED ? 'Original message.' : `${changed} of 64 hex digits changed.`}
       </p>
     </div>
@@ -140,9 +140,9 @@ export function HashWidget({ color, onValue }) {
 
 function Readout({ label, value, big = false, mono = false }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/20 px-2 py-2.5">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className={`mt-0.5 truncate font-bold text-white ${big ? 'text-xl sm:text-2xl' : 'text-sm sm:text-base'} ${mono ? 'font-mono' : ''}`}>{value}</p>
+    <div className="rounded-control border border-white/10 bg-black/20 px-2 py-2.5">
+      <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">{label}</p>
+      <p className={`mt-0.5 truncate font-bold text-ink-1 ${big ? 'text-xl sm:text-2xl' : 'text-sm sm:text-base'} ${mono ? 'font-mono' : ''}`}>{value}</p>
     </div>
   );
 }

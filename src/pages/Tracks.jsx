@@ -1,6 +1,4 @@
 import React from 'react';
-import Navbar from '@/components/Navbar';
-import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { modules } from '@/data/modules';
@@ -56,35 +54,33 @@ function resolveTitle(id) {
 }
 
 export default function Tracks() {
-  useBgTint('#A855F7');
   return (
-    <div className="min-h-screen text-white">
-      <Navbar />
+    <div className="min-h-screen text-ink-1">
 
       <div className="relative mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-10">
-        <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
-          <ArrowLeft size={15} /> Study Hub
+        <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
+          <ArrowLeft size={15} /> Practice
         </Link>
 
         <header className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Career{' '}
-            <span className="bg-gradient-to-r from-purple-400 to-teal-300 bg-clip-text text-transparent">Tracks</span>
+            Tracks
           </h1>
-          <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-slate-400">
+          <p className="mt-2 max-w-xl text-body leading-relaxed text-ink-2">
             Pick a track. Each path chains modules and visual labs into a practical learning route.
           </p>
         </header>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {TRACKS.map((t) => (
-            <div key={t.id} className="rounded-2xl glass p-5">
-              <h2 className="text-base font-bold text-white">{t.title}</h2>
-              <p className="mt-1 text-[13px] text-slate-400">{t.description}</p>
+            <div key={t.id} className="rounded-control glass-1 p-5">
+              <h2 className="text-base font-bold text-ink-1">{t.title}</h2>
+              <p className="mt-1 text-small text-ink-2">{t.description}</p>
 
-              <div className="mt-3 space-y-2 text-[11px] text-slate-300">
+              <div className="mt-3 space-y-2 text-caption text-ink-2">
                 <div>
-                  <p className="text-slate-400">Modules</p>
+                  <p className="text-ink-2">Modules</p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {t.modules.map((id) => (
                       <Link key={id} to={`/module/${id}`} className="rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.12]">
@@ -94,7 +90,7 @@ export default function Tracks() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-slate-400">Labs</p>
+                  <p className="text-ink-2">Labs</p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {t.labs.map((id) => (
                       <Link key={id} to={`/lab?item=${id}`} className="rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.12]">

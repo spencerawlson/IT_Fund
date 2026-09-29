@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
-import { ArrowLeft, RotateCcw, Trophy, Skull, Sparkles, Lock } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import { useBgTint } from '@/components/academy/LiquidBackground';
+import { ArrowLeft, ArrowRight, RotateCcw, Check, X, Sparkles, Lock, SearchX } from 'lucide-react';
+import { Button, Card, EmptyState } from '@/components/ui-glass';
+import { ACTION } from '@/lib/design/tokens';
 import FlashDeck from '@/components/academy/FlashDeck';
 import QuizRun from '@/components/academy/QuizRun';
 import TutorAssist from '@/components/academy/tutor/TutorAssist';
@@ -43,14 +43,13 @@ export default function AcademyPlay({ kind }) {
   const state = useAcademy();
   const [round, setRound] = useState(0);
   const [result, setResult] = useState(null);
-  const xpStart = useRef(state.xp);
 
   const track = trackId ? getTrack(trackId) : null;
   const deck = kind === 'deck' ? getDeck(deckId) : null;
   const tierIndex = track ? track.tiers.findIndex((t) => t.id === (deck ? deck.tierId : tierId)) : -1;
   const tier = tierIndex >= 0 ? track.tiers[tierIndex] : null;
-  const color = track?.color || '#F59E0B';
-  useBgTint(color);
+  // One accent everywhere, not the course colour.
+  const color = ACTION.action;
 
   // Build the session once per round; progress updates must not reshuffle it mid-play.
   const session = useMemo(() => {
@@ -71,7 +70,6 @@ export default function AcademyPlay({ kind }) {
   }, [kind, deckId, tierId, mode, round]);
 
   const restart = () => {
-    xpStart.current = state.xp;
     setResult(null);
     setRound((r) => r + 1);
   };
@@ -98,36 +96,36 @@ export default function AcademyPlay({ kind }) {
     [session, kind, track, tier]
   );
 
-  const backTo = kind === 'review' || !track ? '/academy' : `/academy/${track.id}`;
+  const backTo = kind === 'review' || !track ? '/' : `/academy/${track.id}`;
   // Context for the AI tutor.
   const meta = { track: track?.title, topic: deck?.title || (tier ? `${tier.label} boss` : 'Daily review') };
   const title =
-    kind === 'review' ? (session?.extra ? 'Extra practice: earlier lessons' : 'Review: earlier lessons') : kind === 'boss' ? `${tier?.label} Boss: ${track?.title}` : deck?.title;
+    kind === 'review' ? (session?.extra ? 'Extra practice: earlier lessons' : 'Review: earlier lessons') : kind === 'boss' ? `${track?.title}: ${tier?.label} assessment` : deck?.title;
 
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {
-    body = <p className="text-center text-slate-300">Not found.</p>;
+    body = <EmptyState icon={SearchX} title="Not found" text="This quiz may have moved." to="/" action="Back to Home" />;
   } else if (!result && ((kind === 'deck' && !isLessonUnlocked(state, deck.id)) || (kind === 'boss' && !isTierComplete(state, track, tierIndex)))) {
     body = (
-      <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
-        <Lock className="mx-auto text-slate-500" size={32} />
-        <p className="mt-3 font-semibold text-white">Not yet: one step at a time</p>
-        <p className="mt-1 text-sm text-slate-300">
-          {kind === 'boss' ? 'The boss is this tier’s final exam: pass every lesson in the tier first.' : 'Reach this lesson on your path first.'}
-        </p>
-        <Link to="/academy" className="mt-4 inline-block text-sm font-semibold text-amber-300 hover:underline">Back to your path</Link>
-      </div>
+      <EmptyState
+        icon={Lock}
+        title="Not open yet"
+        text={kind === 'boss' ? 'The assessment is this module’s final check: pass every lesson in the module first.' : 'Reach this lesson on your path first.'}
+        to="/"
+        action="Back to Home"
+      />
     );
   } else if (result) {
-    body = <Results result={result} kind={kind} mode={mode} xp={state.xp - xpStart.current} color={color} onRestart={restart} backTo={backTo} meta={meta} />;
+    body = <Results result={result} kind={kind} mode={mode} onRestart={restart} backTo={backTo} meta={meta} />;
   } else if (session.cards && !session.cards.length) {
     body = (
-      <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
-        <Sparkles className="mx-auto text-amber-300" size={32} />
-        <p className="mt-3 font-semibold text-white">Nothing to review yet</p>
-        <p className="mt-1 text-sm text-slate-300">Finish your first lesson and its questions will start coming back here.</p>
-        <Link to="/academy" className="mt-4 inline-block text-sm font-semibold text-amber-300 hover:underline">Back to your path</Link>
-      </div>
+      <EmptyState
+        icon={Sparkles}
+        title="Nothing to review yet"
+        text="Finish your first lesson and its questions will start coming back here."
+        to="/"
+        action="Back to Home"
+      />
     );
   } else if (session.cards) {
     body = <FlashDeck key={round} cards={session.cards} color={color} onDone={onFlashDone} meta={meta} />;
@@ -135,57 +133,60 @@ export default function AcademyPlay({ kind }) {
     body = <QuizRun key={round} questions={session.questions} lives={kind === 'boss' ? BOSS_LIVES : null} color={color} onFinish={onQuizDone} meta={meta} />;
   }
 
+  const kicker = kind === 'boss' ? 'Module assessment' : kind === 'review' ? 'Review' : mode === 'quiz' ? 'Quiz' : 'Flashcards';
+  const toggle = (active) =>
+    `rounded-control px-3 py-1.5 text-small font-semibold transition-colors ${active ? 'bg-white/10 text-ink-1' : 'text-ink-2 hover:text-ink-1'}`;
+
   return (
-    <div className="relative isolate min-h-screen text-white">
-      <Navbar />
-      <div className="relative mx-auto max-w-4xl px-4 py-6 sm:px-8 sm:py-10">
-        <Link to={backTo} className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-300 transition hover:text-white">
-          <ArrowLeft size={15} /> {track ? track.title : 'Academy'}
-        </Link>
+    <main className="min-h-screen text-ink-1">
+      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
+        <Button to={backTo} variant="ghost" size="sm" icon={ArrowLeft} className="-ml-3 mb-6">
+          {track ? track.title : 'Home'}
+        </Button>
         <div className="mb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-            {kind === 'boss' ? 'Boss battle' : kind === 'review' ? 'Spaced repetition' : mode === 'quiz' ? 'Quiz' : 'Learn'}
-          </p>
-          <h1 className="mt-0.5 text-2xl font-bold">{title}</h1>
+          <p className="text-small font-semibold text-ink-2">{kicker}</p>
+          <h1 className="mt-1 text-title text-ink-1">{title}</h1>
           {deck && (
-            <div className="mt-2 flex gap-2 text-xs">
-              <Link to={`?mode=learn`} onClick={restart} className={`rounded-full px-3 py-1 font-semibold ${mode === 'learn' ? 'bg-white/15 text-white' : 'bg-white/[0.03] text-slate-300 hover:text-white'}`}>Learn</Link>
-              <Link to={`?mode=quiz`} onClick={restart} className={`rounded-full px-3 py-1 font-semibold ${mode === 'quiz' ? 'bg-white/15 text-white' : 'bg-white/[0.03] text-slate-300 hover:text-white'}`}>Quiz</Link>
+            <div className="mt-4 inline-flex gap-1 rounded-control border border-white/10 p-1" role="group" aria-label="Mode">
+              <Link to="?mode=learn" onClick={restart} aria-current={mode === 'learn' ? 'page' : undefined} className={toggle(mode === 'learn')}>Flashcards</Link>
+              <Link to="?mode=quiz" onClick={restart} aria-current={mode === 'quiz' ? 'page' : undefined} className={toggle(mode === 'quiz')}>Quiz</Link>
             </div>
           )}
         </div>
         {body}
       </div>
-    </div>
+    </main>
   );
 }
 
-function Results({ result, kind, mode, xp, color, onRestart, backTo, meta }) {
+function Results({ result, kind, mode, onRestart, backTo, meta }) {
   const pct = result.pct ?? Math.round((result.correct / result.total) * 100);
   const isBoss = kind === 'boss';
-  const Icon = isBoss && !result.passed ? Skull : Trophy;
+  const failed = isBoss && !result.passed;
   const headline = isBoss
     ? result.passed
-      ? 'Boss defeated!'
+      ? 'Assessment passed'
       : result.answered < result.total
-        ? 'Out of hearts!'
-        : `Not quite: ${BOSS_PASS_PCT}% needed`
+        ? 'Out of lives'
+        : `Not yet: ${BOSS_PASS_PCT}% needed`
     : mode === 'quiz'
       ? 'Quiz complete'
       : 'Session complete';
 
   return (
-    <div className="mx-auto max-w-md glass rounded-2xl p-8 text-center">
-      <Icon size={40} className={`mx-auto ${isBoss && !result.passed ? 'text-rose-400' : 'text-amber-300'}`} />
-      <h2 className="mt-3 text-xl font-bold text-white">{headline}</h2>
-      <p className="mt-4 text-5xl font-bold" style={{ color }}>{pct}%</p>
-      <p className="mt-1 text-sm text-slate-300">
+    <Card level={2} padding="lg" className="mx-auto max-w-md text-center">
+      <span
+        className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full border ${
+          failed ? 'border-white/15 bg-white/10 text-ink-1' : 'border-success/40 bg-success/15 text-success'
+        }`}
+      >
+        {failed ? <X size={30} aria-hidden="true" /> : <Check size={32} aria-hidden="true" />}
+      </span>
+      <h2 className="mt-4 text-heading text-ink-1">{headline}</h2>
+      <p className="mt-3 text-title tabular-nums text-ink-1">{pct}%</p>
+      <p className="mt-1 text-small text-ink-2">
         {result.correct} / {result.total} {mode === 'quiz' || isBoss ? 'correct' : 'known on first try'}
       </p>
-      <div className="mt-4 flex justify-center gap-2 text-xs">
-        <span className="rounded-full bg-amber-400/15 px-3 py-1 font-semibold text-amber-300">+{xp} XP</span>
-        {result.maxCombo > 1 && <span className="rounded-full bg-white/10 px-3 py-1 font-semibold text-slate-200">Best combo {result.maxCombo}</span>}
-      </div>
       {result.missed?.length > 0 && (
         <TutorAssist
           actions={[{ mode: 'weakspots', label: 'Analyze my weak spots' }]}
@@ -193,14 +194,10 @@ function Results({ result, kind, mode, xp, color, onRestart, backTo, meta }) {
           className="mt-5 text-left [&>div:first-child]:justify-center"
         />
       )}
-      <div className="mt-6 flex justify-center gap-2">
-        <button onClick={onRestart} className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15">
-          <RotateCcw size={15} /> {isBoss && !result.passed ? 'Try again' : 'Play again'}
-        </button>
-        <Link to={backTo} className="rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: color }}>
-          Continue
-        </Link>
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <Button variant="secondary" icon={RotateCcw} onClick={onRestart}>{failed ? 'Try again' : 'Go again'}</Button>
+        <Button to={backTo} iconAfter={ArrowRight}>Continue</Button>
       </div>
-    </div>
+    </Card>
   );
 }

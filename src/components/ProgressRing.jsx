@@ -21,7 +21,7 @@ export default function ProgressRing({ percent, size = 56, stroke = 5, color = '
           style={{ transition: 'stroke-dashoffset 0.8s ease' }}
         />
       </svg>
-      <span className="absolute text-xs font-bold text-white">{percent}%</span>
+      <span className="absolute text-caption font-bold text-ink-1">{percent}%</span>
     </div>
   );
 }

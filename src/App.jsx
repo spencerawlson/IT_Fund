@@ -2,7 +2,7 @@ import React from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -10,6 +10,8 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import LiquidBackground from '@/components/academy/LiquidBackground';
 import GlobalTutorChat from '@/components/academy/tutor/GlobalTutorChat';
+import AppShell from '@/components/shell/AppShell';
+import { TutorProvider } from '@/components/shell/TutorContext';
 // Add page imports here
 import Home from './pages/Home';
 import Module from './pages/Module';
@@ -27,6 +29,7 @@ import AcademyLesson from './pages/AcademyLesson';
 import { PathsIndex, PathDetail } from './pages/academy/Paths';
 import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Courses';
 import LessonView from './pages/academy/LessonView';
+import Practice from './pages/Practice';
 
 // Dev-only design system preview; not bundled into production builds.
 const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
@@ -57,32 +60,38 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
-      <Route path="/" element={<Home />} />
-      <Route path="/module/:moduleId" element={<Module />} />
-      <Route path="/lab" element={<Lab />} />
-      <Route path="/tracks" element={<Tracks />} />
-      <Route path="/roadmap" element={<Roadmap />} />
-      <Route path="/challenge" element={<Challenge />} />
-      <Route path="/learning-path" element={<LearningPath />} />
-      <Route path="/registry" element={<RegistryEditor />} />
-      <Route path="/academy" element={<Academy />} />
-      <Route path="/academy/roadmap" element={<CisspRoadmap />} />
-      <Route path="/academy/paths" element={<PathsIndex />} />
-      <Route path="/academy/paths/:slug" element={<PathDetail />} />
-      <Route path="/academy/courses" element={<CoursesIndex />} />
-      <Route path="/academy/courses/:courseSlug" element={<CourseDetail />} />
-      <Route path="/academy/courses/:courseSlug/:moduleSlug" element={<ModuleDetail />} />
-      <Route path="/academy/lessons/:lessonId" element={<LessonView />} />
+      {/* Pages inside the app shell: one sidebar (desktop) / tab bar (mobile) navigation. */}
+      <Route element={<AppShell />}>
+        <Route path="/" element={<Academy />} />
+        <Route path="/academy" element={<Navigate to="/" replace />} />
+        <Route path="/academy/roadmap" element={<CisspRoadmap />} />
+        <Route path="/academy/paths" element={<PathsIndex />} />
+        <Route path="/academy/paths/:slug" element={<PathDetail />} />
+        <Route path="/academy/courses" element={<CoursesIndex />} />
+        <Route path="/academy/courses/:courseSlug" element={<CourseDetail />} />
+        <Route path="/academy/courses/:courseSlug/:moduleSlug" element={<ModuleDetail />} />
+        <Route path="/academy/lessons/:lessonId" element={<LessonView />} />
+        <Route path="/academy/:trackId" element={<AcademyTrack />} />
+        <Route path="/practice" element={<Practice />} />
+        <Route path="/library" element={<Home />} />
+        <Route path="/module/:moduleId" element={<Module />} />
+        <Route path="/lab" element={<Lab />} />
+        <Route path="/tracks" element={<Tracks />} />
+        <Route path="/roadmap" element={<Roadmap />} />
+        <Route path="/challenge" element={<Challenge />} />
+        <Route path="/learning-path" element={<LearningPath />} />
+        <Route path="/registry" element={<RegistryEditor />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Route>
+
+      {/* Focus mode: lessons, quizzes, assessments and review run full-screen, no navigation. */}
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
-      <Route path="/academy/:trackId" element={<AcademyTrack />} />
       <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />
       <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />
       <Route path="/academy/:trackId/boss/:tierId" element={<AcademyPlay kind="boss" />} />
       {DesignSystem && (
         <Route path="/design" element={<React.Suspense fallback={null}><DesignSystem /></React.Suspense>} />
       )}
-      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
@@ -98,13 +107,15 @@ function App() {
           {/* isolate: keeps the -z-10 background above the body but below every page. */}
           <div className="relative isolate min-h-screen text-white">
             <LiquidBackground />
-            {/* Last line of defence: a crash below here shows a message, not a blank page. */}
-            <ErrorBoundary label="Page">
-              <AuthenticatedApp />
-            </ErrorBoundary>
-            <ErrorBoundary label="Tutor">
-              <GlobalTutorChat />
-            </ErrorBoundary>
+            <TutorProvider>
+              {/* Last line of defence: a crash below here shows a message, not a blank page. */}
+              <ErrorBoundary label="Page">
+                <AuthenticatedApp />
+              </ErrorBoundary>
+              <ErrorBoundary label="Tutor">
+                <GlobalTutorChat />
+              </ErrorBoundary>
+            </TutorProvider>
           </div>
         </Router>
         <Toaster />

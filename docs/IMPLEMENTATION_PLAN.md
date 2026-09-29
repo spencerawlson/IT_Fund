@@ -111,7 +111,7 @@ Build the pieces once in `src/components/ui-glass/` (or extend `src/components/a
 - `Tabs`, `PageHeader` (title, description, actions), `SectionHeader`, `EmptyState`, `Stat`
 - `LessonRow`
 
-Existing shared components (`bits.jsx`, `cards.jsx`) are rebuilt on these. A lint check or test
+Existing shared components (`bits.jsx`, `cards.jsx`) are rebuilt on these in Phase 4. A test
 flags new hand-rolled `bg-white/[0.0x]` panels.
 
 **Exit:** the `/design` page shows every component in all its states. No page changes yet.
@@ -197,7 +197,7 @@ one product at 390px and at 1440px.
 
 ## Status
 
-- **Phase 1: built, awaiting your approval.** Run the dev server and open `/design`
+- **Phase 1: done.** Run the dev server and open `/design`
   (dev only; left out of production builds).
   - **Tokens:** CSS variables in `src/index.css`, Tailwind keys `ink-*`, `action`, the status
     colours, `text-title/heading/lesson/body/small/caption`, `rounded-control/card` and
@@ -210,3 +210,100 @@ one product at 390px and at 1440px.
     contrast. Rule: dim text (`ink-3`) only on glass-2 and glass-3, not on glass-1 (3.5:1 there).
   - **Already visible app-wide:** the calmer background, Inter, and amber for shadcn `primary`
     and focus.
+- **Phase 2: done.** The kit is in `src/components/ui-glass/`:
+  - `Button`: primary, secondary and ghost; sm, md and lg; loading and disabled; `to` for
+    in-app links and `href` for external ones.
+  - `Card`, `CardHeader`, `CardFooter`.
+  - `Badge` and `StatusBadge`.
+  - `ProgressBar` and `ProgressRing`.
+  - `Tabs`, built on Radix, so keyboard navigation comes built in.
+  - `PageHeader`, `SectionHeader`, `Breadcrumbs`, `EmptyState`, `Stat`, `LessonRow`.
+
+  All of them, in every state, are on `/design`.
+
+  Also done:
+  - `cn()` in `src/lib/utils.js` now knows the custom text sizes. Before, tailwind-merge dropped
+    `text-heading` next to a text colour. Test: `src/lib/design/cn.test.js`.
+  - Ratchet test `src/lib/design/legacyGlass.test.js`: files may not add hand-rolled
+    `bg-white/[0.0x]` panels (baseline: 50 files, 153 uses). Lower a file's count in
+    `legacy-glass-baseline.json` after migrating it.
+  - Rebuilding `bits.jsx` and `cards.jsx` on the kit moved to Phase 4, so Phase 2 changes no pages.
+- **Phase 3: done.** There is now one app shell: `src/components/shell/AppShell.jsx`.
+  - **Navigation.** A desktop sidebar and a mobile top bar plus bottom tab bar, with five
+    items: Home, Learn, Review, Practice, Road to CISSP. "Learn" opens the course of your next
+    lesson.
+  - **Home.** `/` is now the Academy dashboard; `/academy` redirects there.
+  - **Library.** The old module grid is `/library`, with working search:
+    `/library?q=` lists the matching concepts, and each result opens its notes on the
+    module page (`?concept=`). Before, search never displayed any results.
+  - **Practice.** A new `/practice` hub links the Visual Lab, Challenges, the detection labs
+    on GitHub, and the Library pages.
+  - **Focus mode.** Lessons, quizzes, the module assessment and review run full-screen with no
+    navigation.
+  - **Removed.** The old top `Navbar` is deleted (also from 11 pages), and Config is no longer
+    in the navigation (still at `/registry`).
+  - **Tutor.** Opens from "Ask the tutor" in the sidebar, or the ✦ button on mobile. There is
+    no floating button any more. The panel closes with Esc or on page change. It isn't
+    offered inside full-screen quizzes.
+  - **Accessibility.** A "Skip to content" link is the first Tab stop, and the current section
+    is marked `aria-current`.
+  - **Fixes.** Back links that pointed to `/` now go to Practice or the Library. The Visual Lab
+    no longer scrolls past its title when it opens.
+  - **Kit additions.** `PageContainer`, `IconTile`, `ListLink`, and `Card href`.
+- **Phase 4: done.** Every page now uses the tokens and the kit.
+  - **Shared Academy pieces.** `bits.jsx` is now thin adapters over the kit. `cards.jsx` is
+    rebuilt: the Continue Learning hero has no course-colour glow and no XP, level or streak,
+    and syllabus rows use `LessonRow` with your next lesson highlighted.
+  - **Home.** The next lesson (one amber action), then review, then your current path and your
+    overall Road to CISSP progress. The 11 path cards, `PlayerHud` (deleted) and the labs card
+    (now on Practice) are gone.
+  - **Lesson page.** Reading on a glass-2 surface at 17px, with an "On this page" menu only for
+    long lessons. Lessons with no written notes show sample questions from their deck instead
+    of one lone sentence. One "Start practice" button, and a resources list.
+  - **Lesson player and quizzes.**
+    - Everything uses the accent instead of the course colour.
+    - The top bar shows "step x of y" instead of the daily streak.
+    - The intro is a checklist, and results show accuracy without XP.
+    - Assessments are worded professionally ("Module assessment", "Assessment passed"; no
+      "Boss" or skull).
+    - The combo and "+XP" labels are removed; XP is still recorded internally.
+  - **Course page.** Two columns: syllabus plus a sticky progress card with the next action.
+    Skills and certifications are plain text, and the course's free resources moved here.
+  - **Module page.** Tokens and kit: lesson list, assessment card.
+  - **Paths and Courses indexes.** Ordered by status, with "Coming soon" paths reduced to one
+    line.
+  - **Road to CISSP.** A seven-step stepper with the current step marked, eight domain rows
+    with "What counts toward this" folded away, and exam facts with links.
+  - **`/academy/:trackId`** now redirects to its course page. The old winding track map
+    duplicated the course page.
+  - **Legacy pages** (Library grid, Module, Lab, Challenges, Tracks, Learning Path, Roadmap,
+    Config, 404): tokens only.
+    - Per-page background tints are gone, and so is `useBgTint`.
+    - Gradient headlines and buttons are removed.
+    - Module cards and difficulty badges are neutral.
+  - **Global.** `.glass-btn` is now the amber primary with dark text (the per-course `--tint`
+    is ignored). Inline code is neutral, not amber.
+  - **Ratchet.** The baseline is down to 43 files and 140 uses.
+- **Next: Phase 5.** An accessibility audit (contrast sampling on the real pages, keyboard pass,
+  screen-reader labels) and a check on low-end phones.
+- **Phase 5: done.** The visual overhaul (Part B) is complete.
+  - **axe-core WCAG 2.1 AA checks** on 15 pages at desktop and phone widths: 0 violations,
+    including 0 colour-contrast failures. Fixed along the way:
+    - `aria-pressed` on links (now `aria-current`).
+    - Duplicate and missing landmarks: the sidebar is a `<header>`, the course aside is
+      labelled, and quizzes and review sit in `<main>`.
+    - Heading order: questions are h2, and index-page cards take `headingAs="h2"`.
+  - **Keyboard.** "Skip to content" comes first, and every tab stop on 9 pages shows a visible
+    focus ring at both widths. Text fields always show the amber ring (it overrides
+    `outline-none`). The tutor panel moves focus into its input, and returns it to the opener
+    on Esc or close.
+  - **Accessibility settings.** `prefers-reduced-transparency` switches glass to solid surfaces
+    (verified by emulation). `prefers-reduced-motion` already stops the background.
+  - **Performance at phone size, CPU slowed 4x.**
+    - With a GPU (Intel UHD integrated): 45–57 fps with full glass, 55–60 fps without blur.
+    - Software rendering (no GPU): about 11 fps, but real phones always composite on the GPU.
+    - Transform-only blob animation was tried and measured no faster on the GPU, so it was
+      reverted to keep the original liquid look.
+    - Solid fallbacks exist for browsers without `backdrop-filter`.
+- **Next (Part C, not started).** Fill lesson reading content, stronger cross-module review,
+  then accounts and server-side progress.

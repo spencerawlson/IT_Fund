@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Map, Award, Clock, ShieldCheck, ExternalLink } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import { useBgTint } from '@/components/academy/LiquidBackground';
+import { Check, ChevronDown } from 'lucide-react';
+import { Card, ListLink, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { tracks, ROADMAP, CISSP_DOMAINS, decksForDomain, RESOURCES } from '@/data/academy';
+import { COURSES, courseHref } from '@/data/catalog';
 import { useAcademy, mastery, grantBadge } from '@/lib/academy';
+import { cn } from '@/lib/utils';
 
 const READY_PCT = 80;
 
@@ -21,146 +22,145 @@ function domainReadiness(state, domainId) {
 const tierCards = (trackId, tierId) =>
   tracks.find((t) => t.id === trackId).tiers.find((t) => t.id === tierId).decks.flatMap((d) => d.cards);
 
+function StepMarker({ n, done, current }) {
+  return (
+    <span
+      className={cn(
+        'relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-small font-semibold',
+        done ? 'border-success/40 bg-[#0b1f1a] text-success' : current ? 'border-action bg-[#1f1706] text-action' : 'border-white/15 bg-[var(--bg-base)] text-ink-2',
+      )}
+    >
+      {done ? <Check size={16} aria-hidden="true" /> : n}
+    </span>
+  );
+}
+
 export default function CisspRoadmap() {
   const state = useAcademy();
-  useBgTint('#F59E0B');
   const domains = CISSP_DOMAINS.map((d) => ({ ...d, ...domainReadiness(state, d.id) }));
   const weighted = Math.round(domains.reduce((s, d) => s + d.pct * d.weight, 0) / 100);
   const allReady = domains.every((d) => d.pct >= READY_PCT);
+  const steps = ROADMAP.map((step) => ({ ...step, pct: mastery(state, step.tiers.flatMap(([t, tier]) => tierCards(t, tier))) }));
+  const currentStep = steps.find((s) => s.pct < READY_PCT)?.step;
 
   useEffect(() => {
     if (allReady) grantBadge('cissp-ready');
   }, [allReady]);
 
   return (
-    <div className="relative isolate min-h-screen text-white">
-      <Navbar />
+    <PageContainer>
+      <PageHeader
+        breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Road to CISSP' }]}
+        title="Road to CISSP"
+        description="Seven steps that follow the path most successful candidates take: technical foundations, the CompTIA core, hands-on defence, cloud and AI, then the managerial view the CISSP tests. Every lesson is tagged with the domains it builds toward, so early study counts."
+      />
 
-      <div className="relative mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-10">
-        <Link to="/academy" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-300 transition hover:text-white">
-          <ArrowLeft size={15} /> Academy
-        </Link>
-
-        <header className="mb-8">
-          <div className="flex items-center gap-2 text-sm font-semibold text-amber-300">
-            <Map size={16} /> Best-of roadmap
-          </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            Zero to{' '}
-            <span className="bg-gradient-to-r from-amber-300 to-rose-400 bg-clip-text text-transparent">CISSP</span>
-          </h1>
-          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-slate-300">
-            Seven steps that follow the path most successful candidates take: technical foundations first, then the CompTIA core,
-            hands-on defence, cloud, and AI, and finally the managerial view the CISSP tests. Every deck is tagged with the CISSP
-            domains it builds toward, so early study counts toward your final readiness.
-          </p>
-        </header>
-
-        {/* Steps */}
-        <div className="relative">
-          <div className="absolute bottom-2 left-[18px] top-2 w-px bg-white/10" />
-          <div className="space-y-5">
-            {ROADMAP.map((step) => {
-              const pct = mastery(state, step.tiers.flatMap(([t, tier]) => tierCards(t, tier)));
-              return (
-                <div key={step.step} className="relative pl-12">
-                  <div className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold ${pct >= READY_PCT ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300' : 'border-white/15 bg-black/40 backdrop-blur-md text-amber-300'}`}>
-                    {step.step}
-                  </div>
-                  <div className="glass rounded-2xl p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h2 className="text-base font-bold text-white">{step.title}</h2>
-                        <p className="mt-1 text-[13px] leading-relaxed text-slate-300">{step.desc}</p>
-                      </div>
-                      <p className="shrink-0 text-lg font-bold text-amber-300">{pct}%</p>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-3 text-[12px]">
-                      <span className="inline-flex items-center gap-1.5 text-slate-300"><Award size={13} className="text-amber-300" /> {step.milestone}</span>
-                      <span className="inline-flex items-center gap-1.5 text-slate-500"><Clock size={13} /> ~{step.months} months</span>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {step.tiers.map(([t, tier]) => {
-                        const track = tracks.find((x) => x.id === t);
-                        const tierMeta = track.tiers.find((x) => x.id === tier);
-                        return (
-                          <Link key={`${t}-${tier}`} to={`/academy/${t}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs transition hover:border-white/25 hover:bg-white/[0.07]">
-                            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: track.color }} />
-                            <span className="font-semibold text-white">{track.title}</span>
-                            <span className="text-slate-300">{tierMeta.label}</span>
-                            <span className="text-slate-500">· {mastery(state, tierCards(t, tier))}%</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Domain readiness */}
-        <section className="mt-12">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="flex items-center gap-2 text-lg font-bold"><ShieldCheck size={18} className="text-amber-300" /> CISSP domain readiness</h2>
-              <p className="mt-1 text-[13px] text-slate-300">
-                Half from each domain's capstone deck, half from every earlier deck tagged with it. Reach {READY_PCT}% in all eight to earn CISSP-Ready.
-              </p>
-            </div>
-            <div className="glass rounded-xl px-4 py-2.5 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">Exam-weighted</p>
-              <p className="text-2xl font-bold text-amber-300">{weighted}%</p>
-            </div>
-          </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {domains.map((d) => (
-              <div key={d.id} className="glass rounded-2xl p-4">
+      <section aria-labelledby="steps-heading">
+        <SectionHeader id="steps-heading" title="The seven steps" description={`A step counts as done at ${READY_PCT}% mastery of its lessons.`} />
+        <ol className="relative space-y-4">
+          <span aria-hidden="true" className="absolute bottom-4 left-[17px] top-4 w-px bg-white/10" />
+          {steps.map((step) => (
+            <li key={step.step} className="flex gap-4">
+              <StepMarker n={step.step} done={step.pct >= READY_PCT} current={step.step === currentStep} />
+              <Card level={2} padding="md" className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: d.color }}>Domain {d.id} · {d.weight}% of exam</p>
-                    <h3 className="mt-0.5 text-sm font-bold text-white">{d.title}</h3>
+                  <div className="min-w-0">
+                    <h3 className="text-heading text-ink-1">{step.title}</h3>
+                    <p className="mt-1 text-small text-ink-2">{step.desc}</p>
                   </div>
-                  <span className="text-lg font-bold" style={{ color: d.color }}>{d.pct}%</span>
+                  {step.step === currentStep && <span className="shrink-0 text-caption font-semibold uppercase tracking-wider text-action">Current</span>}
                 </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full rounded-full" style={{ width: `${d.pct}%`, backgroundColor: d.color }} />
-                </div>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {d.capstone && (
-                    <Link to={`/academy/cissp/deck/${d.capstone.id}?mode=learn`} className="rounded-md border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[11px] font-semibold text-amber-200 hover:bg-amber-400/20">
-                      Capstone deck
-                    </Link>
-                  )}
-                  {d.decks.map((deck) => (
-                    <Link key={deck.id} to={`/academy/${deck.trackId}/deck/${deck.id}?mode=learn`} className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-slate-300 hover:border-white/25 hover:text-white">
-                      {deck.title}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+                <ProgressBar className="mt-4" value={step.pct} label={`Step ${step.step} mastery`} />
+                <p className="mt-3 text-small text-ink-2">
+                  Milestone: <span className="text-ink-1">{step.milestone}</span> · about {step.months} months
+                </p>
+                <p className="mt-2 text-small text-ink-2">
+                  Covers{' '}
+                  {step.tiers.map(([t, tier], i) => {
+                    const track = tracks.find((x) => x.id === t);
+                    const label = track.tiers.find((x) => x.id === tier).label;
+                    return (
+                      <React.Fragment key={`${t}-${tier}`}>
+                        {i > 0 && ', '}
+                        <Link to={courseHref(COURSES.find((c) => c.trackId === t))} className="text-ink-1 underline decoration-white/20 underline-offset-4 hover:decoration-white/60">
+                          {track.title} {label}
+                        </Link>
+                      </React.Fragment>
+                    );
+                  })}
+                </p>
+              </Card>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-        <section className="mt-10 glass rounded-2xl p-5 text-[13px] leading-relaxed text-slate-300">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300">Exam facts (ISC2 outline effective 15 April 2024)</h2>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>English exam is CAT (adaptive): 100-150 items, 3 hours, 700/1000 to pass.</li>
+      <section aria-labelledby="domains-heading" className="mt-14">
+        <SectionHeader
+          id="domains-heading"
+          title="CISSP domain readiness"
+          description={`Half from each domain’s capstone lesson, half from every earlier lesson tagged with it. Reach ${READY_PCT}% in all eight to be exam-ready.`}
+          action={
+            <div className="text-right">
+              <p className="text-title tabular-nums text-ink-1">{weighted}%</p>
+              <p className="text-caption text-ink-2">exam-weighted</p>
+            </div>
+          }
+        />
+        <Card level={2} padding="sm">
+          <ul className="divide-y divide-white/[0.06]">
+            {domains.map((d) => (
+              <li key={d.id} className="px-3 py-4">
+                <div className="flex items-baseline justify-between gap-4">
+                  <p className="min-w-0 text-body font-semibold text-ink-1">
+                    <span className="tabular-nums text-ink-2">{d.id}.</span> {d.title}
+                  </p>
+                  <p className="shrink-0 text-small text-ink-2">{d.weight}% of exam</p>
+                </div>
+                <ProgressBar className="mt-2" value={d.pct} label={`Domain ${d.id} readiness`} />
+                <details className="group mt-2">
+                  <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-small font-semibold text-ink-2 hover:text-ink-1">
+                    What counts toward this <ChevronDown size={14} className="transition-transform group-open:rotate-180" aria-hidden="true" />
+                  </summary>
+                  <ul className="mt-2 space-y-1 text-small">
+                    {d.capstone && (
+                      <li>
+                        <Link to={`/academy/cissp/deck/${d.capstone.id}?mode=learn`} className="font-semibold text-ink-1 underline decoration-white/20 underline-offset-4 hover:decoration-white/60">
+                          Capstone: {d.capstone.title}
+                        </Link>
+                      </li>
+                    )}
+                    {d.decks.map((deck) => (
+                      <li key={deck.id}>
+                        <Link to={`/academy/${deck.trackId}/deck/${deck.id}?mode=learn`} className="text-ink-2 hover:text-ink-1">
+                          {deck.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </section>
+
+      <section aria-labelledby="facts-heading" className="mt-14">
+        <SectionHeader id="facts-heading" title="Exam facts" description="ISC2 outline effective 15 April 2024." />
+        <Card level={2} padding="lg">
+          <ul className="max-w-reading list-disc space-y-2 pl-5 text-body text-ink-1 marker:text-ink-3">
+            <li>The English exam is adaptive (CAT): 100–150 items, 3 hours, 700/1000 to pass.</li>
             <li>Full certification needs 5 years of paid work in 2 or more of the 8 domains. A degree or approved cert waives 1 year.</li>
-            <li>Pass without the experience and you become an Associate of ISC2 with 6 years to earn it.</li>
+            <li>Pass without the experience and you become an Associate of ISC2, with 6 years to earn it.</li>
             <li>Start with ISC2 Certified in Cybersecurity (CC): its official training and first exam attempt are free.</li>
           </ul>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <ul className="-mx-3 mt-5 divide-y divide-white/[0.06] border-t border-white/[0.06]">
             {['cissp-outline', 'isc2-cc', 'isc2-ethics'].map((id) => (
-              <a key={id} href={RESOURCES[id].url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-200 hover:border-white/25">
-                {RESOURCES[id].title} <ExternalLink size={12} />
-              </a>
+              <li key={id}><ListLink href={RESOURCES[id].url} title={RESOURCES[id].title} /></li>
             ))}
-          </div>
-        </section>
-      </div>
-    </div>
+          </ul>
+        </Card>
+      </section>
+    </PageContainer>
   );
 }

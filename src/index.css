@@ -83,6 +83,12 @@
     outline: 2px solid rgb(var(--focus-rgb));
     outline-offset: 2px;
   }
+  /* Text fields often carry `outline-none` (with only a faint border change on focus). Keyboard
+     and mouse users both need to see which field is active, so the focus ring always wins here. */
+  :is(input, textarea, select):focus-visible {
+    outline: 2px solid rgb(var(--focus-rgb)) !important;
+    outline-offset: 1px !important;
+  }
 }
 
 @layer utilities {
@@ -141,21 +147,21 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.35),
       0 16px 50px -12px rgba(0, 0, 0, 0.6);
   }
-  /* Tinted glass button; set --tint to the accent colour. */
+  /* Legacy primary button class: now the design-system primary (amber, dark text). The old
+     per-course --tint is ignored on purpose: one accent for every primary action. New UI uses
+     <Button> from @/components/ui-glass. */
   .glass-btn {
-    background:
-      radial-gradient(120% 120% at 20% 0%, rgba(255, 255, 255, 0.35), transparent 50%),
-      var(--tint, #3b82f6);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgb(var(--action-rgb));
+    border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.45),
-      0 8px 24px -6px color-mix(in srgb, var(--tint, #3b82f6) 70%, transparent);
-    color: white;
-    transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 6px 20px -8px rgb(var(--action-rgb) / 0.6);
+    color: rgb(var(--action-ink-rgb));
+    transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
   }
-  .glass-btn:hover:not(:disabled) { filter: brightness(1.08); }
-  .glass-btn:active:not(:disabled) { transform: scale(0.97); }
-  .glass-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+  .glass-btn:hover:not(:disabled) { background: rgb(var(--action-hover-rgb)); }
+  .glass-btn:active:not(:disabled) { transform: scale(0.98); }
+  .glass-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
   /* ---- Glass levels (design system). New UI uses these; .glass/.glass-strong are legacy. ---- */
   /* 1: cards and navigation. Light frost, content behind stays visible. */
@@ -212,6 +218,17 @@
 @keyframes pop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes rise { 0% { transform: translateY(16px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+/* People who ask their OS for less transparency get solid panels instead of frosted glass. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-strong, .glass-1, .glass-2, .glass-3 {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass, .glass-1 { background: #121725; }
+  .glass-strong, .glass-2 { background: #0B0F18; }
+  .glass-3 { background: #111521; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .liquid-blob, .animate-pop, .animate-shake, .animate-rise { animation: none; }

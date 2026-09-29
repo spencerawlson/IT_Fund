@@ -24,32 +24,32 @@ export default function PageNotFound({}) {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 text-white">
-      <div className="max-w-md w-full glass rounded-3xl p-8">
+    <div className="min-h-screen flex items-center justify-center p-6 text-ink-1">
+      <div className="max-w-md w-full glass-1 rounded-card p-8">
         <div className="text-center space-y-6">
           <div className="space-y-2">
-            <h1 className="text-7xl font-light text-white/80">404</h1>
+            <h1 className="text-7xl font-light text-ink-1/80">404</h1>
             <div className="h-0.5 w-16 bg-white/20 mx-auto"></div>
           </div>
 
           <div className="space-y-3">
-            <h2 className="text-2xl font-medium text-white">
+            <h2 className="text-2xl font-medium text-ink-1">
               Page Not Found
             </h2>
-            <p className="text-slate-300 leading-relaxed">
-              The page <span className="font-medium text-slate-200">"{pageName}"</span> could not be found in this application.
+            <p className="text-ink-2 leading-relaxed">
+              The page <span className="font-medium text-ink-2">"{pageName}"</span> could not be found in this application.
             </p>
           </div>
 
           {isFetched && authData.isAuthenticated && authData.user?.role === 'admin' && (
-            <div className="mt-8 p-4 glass rounded-2xl">
+            <div className="mt-8 p-4 glass-1 rounded-control">
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-400/20 flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 rounded-full bg-orange-400"></div>
                 </div>
                 <div className="text-left space-y-1">
-                  <p className="text-sm font-medium text-slate-200">Admin Note</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">
+                  <p className="text-sm font-medium text-ink-2">Admin Note</p>
+                  <p className="text-sm text-ink-2 leading-relaxed">
                     This could mean that the AI hasn't implemented this page yet. Ask it to implement it in the chat.
                   </p>
                 </div>

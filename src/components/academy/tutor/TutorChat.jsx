@@ -17,10 +17,13 @@ const STARTERS = {
   cissp: ['How do I "think like a manager"?', 'Which CISSP domain is hardest?', 'Explain due care vs due diligence'],
 };
 
-/** Floating "Ask the tutor" button that opens a glass chat panel. Hidden when the tutor is off. */
-export default function TutorChat({ trackId, trackTitle, color = '#F59E0B' }) {
+/**
+ * Glass chat panel for the AI tutor. Opened from the app navigation (see AppShell), so it never
+ * floats over page content. Renders nothing when the tutor is off or the panel is closed.
+ */
+export default function TutorChat({ trackId, trackTitle, open, onOpenChange, color = '#F59E0B' }) {
   const enabled = useTutorEnabled();
-  const [open, setOpen] = useState(false);
+  const setOpen = onOpenChange;
   const [turns, setTurns] = useState([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
@@ -32,6 +35,12 @@ export default function TutorChat({ trackId, trackTitle, color = '#F59E0B' }) {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [turns, streaming]);
   useEffect(() => () => abortRef.current?.abort(), []);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, setOpen]);
 
   if (!enabled) return null;
 
@@ -68,29 +77,19 @@ export default function TutorChat({ trackId, trackTitle, color = '#F59E0B' }) {
 
   return (
     <>
-      {!open && (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="glass-btn fixed bottom-5 right-4 z-40 inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-sm font-bold sm:bottom-6 sm:right-6"
-          style={{ '--tint': color, marginBottom: 'env(safe-area-inset-bottom)' }}
-        >
-          <Sparkles size={17} /> Ask the tutor
-        </button>
-      )}
       {open && (
         <div
           role="dialog"
           aria-label="AI tutor chat"
-          className="glass-strong animate-rise fixed inset-x-3 bottom-3 z-50 flex max-h-[78dvh] flex-col rounded-3xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[400px]"
+          className="glass-3 animate-rise fixed inset-x-3 bottom-3 z-50 flex max-h-[78dvh] flex-col rounded-card sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[400px]"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
         >
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-            <p className="flex items-center gap-2 text-sm font-bold text-white">
+            <p className="flex items-center gap-2 text-sm font-bold text-ink-1">
               <Sparkles size={16} className="text-amber-300" /> AI tutor
-              {trackTitle && <span className="font-medium text-slate-400">· {trackTitle}</span>}
+              {trackTitle && <span className="font-medium text-ink-2">· {trackTitle}</span>}
             </p>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close tutor" className="rounded-full p-1.5 text-slate-300 transition hover:bg-white/10 hover:text-white">
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close tutor" className="rounded-full p-1.5 text-ink-2 transition hover:bg-white/10 hover:text-ink-1">
               <X size={18} />
             </button>
           </div>
@@ -98,10 +97,10 @@ export default function TutorChat({ trackId, trackTitle, color = '#F59E0B' }) {
           <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-sm leading-relaxed">
             {turns.length === 0 && (
               <div>
-                <p className="text-slate-300">Ask anything about what you’re studying. Try:</p>
+                <p className="text-ink-2">Ask anything about what you’re studying. Try:</p>
                 <div className="mt-3 flex flex-col gap-2">
                   {starters.map((s) => (
-                    <button key={s} type="button" onClick={() => send(s)} className="rounded-2xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-left text-sm text-slate-100 transition hover:bg-white/10">
+                    <button key={s} type="button" onClick={() => send(s)} className="rounded-control border border-white/15 bg-white/5 px-3.5 py-2.5 text-left text-sm text-ink-1 transition hover:bg-white/10">
                       {s}
                     </button>
                   ))}
@@ -110,16 +109,16 @@ export default function TutorChat({ trackId, trackTitle, color = '#F59E0B' }) {
             )}
             {turns.map((t, i) =>
               t.role === 'user' ? (
-                <div key={i} className="ml-8 rounded-2xl rounded-br-md border border-white/15 px-3.5 py-2.5 text-white" style={{ background: `${color}33` }}>
+                <div key={i} className="ml-8 rounded-control rounded-br-md border border-white/15 px-3.5 py-2.5 text-ink-1" style={{ background: `${color}33` }}>
                   {t.content}
                 </div>
               ) : (
-                <div key={i} className="mr-4 rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.06] px-3.5 py-2.5 text-slate-100">
+                <div key={i} className="mr-4 rounded-control rounded-bl-md border border-white/10 bg-white/[0.06] px-3.5 py-2.5 text-ink-1">
                   {t.content ? <TutorText text={t.content} /> : <Thinking />}
                 </div>
               )
             )}
-            {error && <p className="text-rose-300">{error}</p>}
+            {error && <p className="text-danger">{error}</p>}
           </div>
 
           <form
@@ -130,24 +129,25 @@ export default function TutorChat({ trackId, trackTitle, color = '#F59E0B' }) {
             className="flex items-center gap-2 border-t border-white/10 p-3"
           >
             <input
+              autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
               maxLength={1500}
               placeholder="Ask a question…"
               aria-label="Ask the tutor a question"
-              className="min-w-0 flex-1 rounded-2xl border border-white/15 bg-black/30 px-3.5 py-3 text-base text-white outline-none placeholder:text-slate-500 focus:border-white/40 sm:text-sm"
+              className="min-w-0 flex-1 rounded-control border border-white/15 bg-black/30 px-3.5 py-3 text-base text-ink-1 outline-none placeholder:text-ink-2 focus:border-white/40 sm:text-sm"
             />
             {streaming ? (
-              <button type="button" onClick={() => abortRef.current?.abort()} aria-label="Stop" className="glass-btn rounded-2xl p-3" style={{ '--tint': '#64748B' }}>
+              <button type="button" onClick={() => abortRef.current?.abort()} aria-label="Stop" className="glass-btn rounded-control p-3" style={{ '--tint': '#64748B' }}>
                 <Square size={16} className="fill-current" />
               </button>
             ) : (
-              <button type="submit" disabled={!input.trim()} aria-label="Send" className="glass-btn rounded-2xl p-3" style={{ '--tint': color }}>
+              <button type="submit" disabled={!input.trim()} aria-label="Send" className="glass-btn rounded-control p-3" style={{ '--tint': color }}>
                 <Send size={16} />
               </button>
             )}
           </form>
-          <p className="px-4 pb-3 text-[10px] text-slate-500">AI can make mistakes. Check important facts against the official exam objectives.</p>
+          <p className="px-4 pb-3 text-caption text-ink-3">AI can make mistakes. Check important facts against the official exam objectives.</p>
         </div>
       )}
     </>

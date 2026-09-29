@@ -1,87 +1,73 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Repeat, ArrowRight, FlaskConical, ExternalLink } from 'lucide-react';
-import { useBgTint } from '@/components/academy/LiquidBackground';
-import PlayerHud from '@/components/academy/PlayerHud';
-import AcademyShell from '@/components/academy/ui/AcademyShell';
-import { SectionHeading } from '@/components/academy/ui/bits';
+import { Repeat, Crown, ArrowRight } from 'lucide-react';
+import { Card, IconTile, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { ContinueLearning, LearningPathCard } from '@/components/academy/ui/cards';
-import { allCards, RESOURCES } from '@/data/academy';
-import { PATHS, getCourse } from '@/data/catalog';
+import { allCards } from '@/data/academy';
+import { PATHS, pathsForCourse } from '@/data/catalog';
 import { useAcademy, dueCards } from '@/lib/academy';
-import { continueLearning, courseStatus } from '@/lib/progress/engine';
+import { continueLearning, lessonsDone, lessonsTotal, overallProgress, pathStatus } from '@/lib/progress/engine';
 
-/** Academy dashboard: one clear next step, then reviews, then the career paths. */
+/** Home: the one next lesson, then review, then where you are on your path. */
 export default function Academy() {
   const state = useAcademy();
   const next = continueLearning(state);
   const due = dueCards(state, allCards).length;
   const studied = Object.keys(state.lessons || {}).length > 0;
-  useBgTint(next ? getCourse(next.lesson.courseSlug).color : '#F59E0B');
-  const cyberStarted = courseStatus(state, getCourse('cybersecurity-operations')) !== 'locked';
+  // The path you're on: the first one that contains your next lesson's course.
+  const currentPath =
+    (next && pathsForCourse(next.lesson.courseSlug)[0]) ||
+    PATHS.find((p) => ['in-progress', 'not-started'].includes(pathStatus(state, p)));
 
   return (
-    <AcademyShell>
-      <header className="mb-10">
-        <p className="text-sm font-semibold text-amber-300">Academy</p>
-        <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">{studied ? 'Welcome back.' : 'Start here.'}</h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300">
-          Lessons open in order: pass one to unlock the next. Every lesson starts by quizzing you on earlier ones, and
-          your place is saved as you go.
-        </p>
-      </header>
+    <PageContainer>
+      <PageHeader
+        title={studied ? 'Welcome back' : 'Welcome to Road to CISSP'}
+        description={
+          studied
+            ? 'Your next lesson is ready. Each lesson starts with a few questions from earlier ones, so what you learn sticks.'
+            : 'One lesson at a time, from IT foundations to the CISSP. Lessons open in order, and your place is saved as you go.'
+        }
+      />
 
       <ContinueLearning state={state} next={next} />
 
       {studied && (
-        <Link to="/academy/review" className="glass glass-hover mt-5 flex items-center justify-between gap-4 rounded-3xl p-6">
-          <span className="flex items-center gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/5">
-              <Repeat size={22} className={due ? 'text-rose-300' : 'text-slate-300'} aria-hidden="true" />
-            </span>
-            <span>
-              <span className="block text-base font-bold">Review earlier lessons</span>
-              <span className="mt-0.5 block text-sm text-slate-400">
-                {due ? `${due} ${due === 1 ? 'question is' : 'questions are'} due` : 'Nothing due. Practise your weakest questions anyway.'}
-              </span>
-            </span>
-          </span>
-          <ArrowRight size={18} className="shrink-0 text-slate-300" aria-hidden="true" />
-        </Link>
+        <Card to="/academy/review" className="mt-4">
+          <div className="flex items-center gap-4">
+            <IconTile icon={Repeat} />
+            <div className="min-w-0 flex-1">
+              <p className="text-heading text-ink-1">Review earlier lessons</p>
+              <p className="mt-0.5 text-small text-ink-2">
+                {due ? `${due} ${due === 1 ? 'question is' : 'questions are'} due for review` : 'Nothing due. Practise your weakest questions.'}
+              </p>
+            </div>
+            <ArrowRight size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
+          </div>
+        </Card>
       )}
 
-      <section className="mt-16" aria-labelledby="paths-heading">
-        <SectionHeading
-          action={<Link to="/academy/paths" className="text-sm font-semibold text-slate-300 hover:text-white">All paths</Link>}
-        >
-          <span id="paths-heading">Career paths</span>
-        </SectionHeading>
-        <div className="grid gap-5 md:grid-cols-2">
-          {PATHS.map((path) => (
-            <LearningPathCard key={path.slug} state={state} path={path} />
-          ))}
+      <section aria-labelledby="progress-heading" className="mt-12">
+        <SectionHeader
+          id="progress-heading"
+          title="Your progress"
+          action={
+            <Link to="/academy/paths" className="text-small font-semibold text-ink-2 hover:text-ink-1">
+              All career paths
+            </Link>
+          }
+        />
+        <div className="grid gap-4 md:grid-cols-2">
+          {currentPath && <LearningPathCard state={state} path={currentPath} />}
+          <Card to="/academy/roadmap">
+            <IconTile icon={Crown} />
+            <h3 className="mt-4 text-heading text-ink-1">Road to CISSP</h3>
+            <p className="mt-1 text-small text-ink-2">The full journey: seven steps and all eight CISSP domains.</p>
+            <p className="mt-3 text-small text-ink-2">{lessonsDone(state)} of {lessonsTotal} lessons complete</p>
+            <ProgressBar className="mt-4" value={overallProgress(state)} label="Overall progress" />
+          </Card>
         </div>
       </section>
-
-      {cyberStarted && (
-        <section className="glass mt-16 rounded-3xl p-6 sm:p-7">
-          <p className="flex items-center gap-3 text-base font-bold">
-            <FlaskConical size={20} className="text-rose-300" aria-hidden="true" /> Hands-on labs · CyberSecurity_Lab
-          </p>
-          <p className="mt-3 text-[15px] leading-relaxed text-slate-300">
-            Four safe blue-team labs: web attacks, DDoS, amplification and a gift-card scam chain. Run the attack, then hunt the
-            traces. They pair with the Detection Lab Drills lesson in Cybersecurity Operations.
-          </p>
-          <a href={RESOURCES.cyberlab.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-rose-200 hover:text-white">
-            Open the labs on GitHub <ExternalLink size={14} aria-hidden="true" /><span className="sr-only">(opens an external site)</span>
-          </a>
-        </section>
-      )}
-
-      <section className="mt-16">
-        <SectionHeading>Your progress</SectionHeading>
-        <PlayerHud />
-      </section>
-    </AcademyShell>
+    </PageContainer>
   );
 }

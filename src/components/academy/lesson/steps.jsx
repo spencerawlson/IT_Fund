@@ -7,8 +7,8 @@ import { WIDGETS, goalMet } from './widgets';
 function Prompt({ kicker, children }) {
   return (
     <div className="mb-5 sm:mb-7">
-      {kicker && <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">{kicker}</p>}
-      <h2 className="text-[1.35rem] font-bold leading-snug text-white sm:text-3xl">{children}</h2>
+      {kicker && <p className="mb-2 text-caption font-bold uppercase tracking-[0.14em] text-ink-2">{kicker}</p>}
+      <h2 className="text-[1.35rem] font-bold leading-snug text-ink-1 sm:text-3xl">{children}</h2>
     </div>
   );
 }
@@ -58,7 +58,7 @@ export function ChoiceStep({ step, color, onComplete, meta }) {
               type="button"
               onClick={() => pick(i)}
               disabled={locked || isOut}
-              className={`glass flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[15px] text-white transition sm:py-4 sm:text-base ${
+              className={`glass-2 flex w-full items-center gap-3 rounded-control px-4 py-3.5 text-left text-body text-ink-1 transition sm:py-4 sm:text-base ${
                 showRight ? 'animate-pop' : ''
               } ${showWrong ? 'animate-shake' : ''} ${isOut && !showWrong ? 'opacity-35 line-through decoration-rose-400/60' : ''} ${!locked && !isOut ? 'active:scale-[0.99]' : ''}`}
               style={
@@ -71,7 +71,7 @@ export function ChoiceStep({ step, color, onComplete, meta }) {
                       : undefined
               }
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-xs font-bold text-slate-300">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-caption font-bold text-ink-2">
                 {i + 1}
               </span>
               <RichText text={opt} />
@@ -139,18 +139,18 @@ export function OrderStep({ step, color, onComplete, meta }) {
           const wrong = status === 'wrong' && item && item !== step.items[i];
           return (
             <li key={i} className="flex items-center gap-2.5">
-              <span className="w-6 shrink-0 text-right text-sm font-bold text-slate-500">{i + 1}</span>
+              <span className="w-6 shrink-0 text-right text-sm font-bold text-ink-2">{i + 1}</span>
               {item ? (
                 <button
                   type="button"
                   onClick={() => unplace(item)}
-                  className={`glass flex-1 rounded-2xl px-4 py-3 text-left text-[15px] text-white ${wrong ? 'animate-shake' : 'animate-pop'}`}
+                  className={`glass-2 flex-1 rounded-control px-4 py-3 text-left text-body text-ink-1 ${wrong ? 'animate-shake' : 'animate-pop'}`}
                   style={right ? { borderColor: 'rgba(52,211,153,0.8)', background: 'rgba(16,185,129,0.16)' } : wrong ? { borderColor: 'rgba(251,113,133,0.8)', background: 'rgba(244,63,94,0.14)' } : { borderColor: `${color}88` }}
                 >
                   <RichText text={item} className={codeClass} />
                 </button>
               ) : (
-                <div className="h-[50px] flex-1 rounded-2xl border border-dashed border-white/15 bg-white/[0.02]" />
+                <div className="h-[50px] flex-1 rounded-control border border-dashed border-white/15 bg-white/[0.02]" />
               )}
             </li>
           );
@@ -158,14 +158,14 @@ export function OrderStep({ step, color, onComplete, meta }) {
       </ol>
       {!locked && bank.length > 0 && (
         <div className="mt-6">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Tap to place</p>
+          <p className="mb-2 text-caption font-semibold uppercase tracking-wider text-ink-2">Tap to place</p>
           <div className="flex flex-wrap gap-2">
             {bank.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => place(item)}
-                className="glass glass-hover rounded-2xl px-4 py-2.5 text-left text-sm text-white active:scale-95"
+                className="glass-2 glass-hover rounded-control px-4 py-2.5 text-left text-sm text-ink-1 active:scale-95"
               >
                 <RichText text={codeClass ? item.trim() : item} className={codeClass} />
               </button>
@@ -202,9 +202,9 @@ export function NumericStep({ step, color, onComplete, meta }) {
       <Prompt kicker="Work it out">
         <RichText text={step.prompt} />
       </Prompt>
-      <div className={`glass flex items-center gap-2 rounded-3xl px-5 py-4 ${status === 'wrong' ? 'animate-shake' : ''}`}
+      <div className={`glass-2 flex items-center gap-2 rounded-card px-5 py-4 ${status === 'wrong' ? 'animate-shake' : ''}`}
         style={status === 'correct' ? { borderColor: 'rgba(52,211,153,0.8)' } : status === 'wrong' ? { borderColor: 'rgba(251,113,133,0.8)' } : undefined}>
-        {step.unit === '$' && <span className="text-2xl font-bold text-slate-400">$</span>}
+        {step.unit === '$' && <span className="text-2xl font-bold text-ink-2">$</span>}
         <input
           autoFocus
           inputMode="decimal"
@@ -216,9 +216,9 @@ export function NumericStep({ step, color, onComplete, meta }) {
           }}
           placeholder="Your answer"
           aria-label="Your answer"
-          className="w-full min-w-0 bg-transparent text-3xl font-bold text-white outline-none placeholder:text-slate-600"
+          className="w-full min-w-0 bg-transparent text-3xl font-bold text-ink-1 outline-none placeholder:text-ink-3"
         />
-        {step.unit && step.unit !== '$' && <span className="text-xl font-bold text-slate-400">{step.unit}</span>}
+        {step.unit && step.unit !== '$' && <span className="text-xl font-bold text-ink-2">{step.unit}</span>}
       </div>
       <FeedbackBar
         status={status}

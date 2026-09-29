@@ -106,25 +106,25 @@ export default function FlashcardSession({ module, onComplete }) {
     const known = results.filter((r) => r.known).length;
     const pct = cards.length ? Math.round((known / cards.length) * 100) : 0;
     return (
-      <div className="mx-auto max-w-md rounded-2xl glass p-8 text-center">
+      <div className="mx-auto max-w-md rounded-control glass-1 p-8 text-center">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/15 text-3xl font-bold text-blue-400">
           {pct}%
         </div>
-        <h3 className="mt-4 text-xl font-bold text-white">Session Complete</h3>
-        <p className="mt-1 text-slate-400">
-          You marked <span className="font-semibold text-white">{known}</span> of {cards.length} cards as known.
+        <h3 className="mt-4 text-xl font-bold text-ink-1">Session Complete</h3>
+        <p className="mt-1 text-ink-2">
+          You marked <span className="font-semibold text-ink-1">{known}</span> of {cards.length} cards as known.
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           <button
             onClick={restart}
-            className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"
+            className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-white/15"
           >
             <RotateCcw size={15} /> Run Again
           </button>
           {useSpeak && (
             <button
               onClick={() => speak(`You scored ${pct} percent, ${known} out of ${cards.length}`)}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.08] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/[0.12]"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.08] px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-white/[0.12]"
             >
               <Volume2 size={15} /> {speaking ? 'Speaking…' : 'Read Result'}
             </button>
@@ -135,14 +135,14 @@ export default function FlashcardSession({ module, onComplete }) {
   }
 
   if (!current) {
-    return <div className="text-center text-sm text-slate-400">No cards found.</div>;
+    return <div className="text-center text-sm text-ink-2">No cards found.</div>;
   }
 
   const hasOptions = current.type === 'session' && (current.opts || []).length;
 
   return (
     <div className="mx-auto max-w-lg">
-      <div className="mb-4 flex items-center justify-between text-sm text-slate-400">
+      <div className="mb-4 flex items-center justify-between text-sm text-ink-2">
         <span>
           Card {index + 1} of {cards.length}
         </span>
@@ -150,7 +150,7 @@ export default function FlashcardSession({ module, onComplete }) {
       </div>
       <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-white/10">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-blue-500 to-teal-400 transition-all"
+          className="h-full rounded-full bg-action transition-all"
           style={{ width: `${((index) / cards.length) * 100}%` }}
         />
       </div>
@@ -160,18 +160,18 @@ export default function FlashcardSession({ module, onComplete }) {
         onClick={() => setFlipped((f) => !f)}
       >
         <div className={`flip-inner relative h-full w-full ${flipped ? 'flipped' : ''}`}>
-          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl glass p-6 text-center">
+          <div className="flip-front absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-control glass-1 p-6 text-center">
             <CategoryBadge category={current.category} />
-            <h3 className="text-2xl font-bold text-white">{current.front}</h3>
-            <p className="text-xs text-slate-400">Tap to reveal {voiceResult ? `· voice: ${voiceResult}` : ''}</p>
+            <h3 className="text-2xl font-bold text-ink-1">{current.front}</h3>
+            <p className="text-caption text-ink-2">Tap to reveal {voiceResult ? `· voice: ${voiceResult}` : ''}</p>
           </div>
-          <div className="flip-back absolute inset-0 flex flex-col gap-3 overflow-y-auto rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/[0.08] to-teal-500/[0.05] p-6">
+          <div className="flip-back absolute inset-0 flex flex-col gap-3 overflow-y-auto rounded-control border border-blue-500/30 bg-gradient-to-br from-blue-500/[0.08] to-teal-500/[0.05] p-6">
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-lg font-bold text-blue-300">{current.front}</h3>
               {useSpeak && (
                 <button
                   onClick={(e) => { e.stopPropagation(); speak(current.back); }}
-                  className={`inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-xs text-slate-200 transition hover:bg-white/[0.12] ${speaking ? 'animate-pulse text-blue-300' : ''}`}
+                  className={`inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-caption text-ink-2 transition hover:bg-white/[0.12] ${speaking ? 'animate-pulse text-blue-300' : ''}`}
                 >
                   <Volume2 size={14} /> {speaking ? 'Playing' : 'Read'}
                 </button>
@@ -179,16 +179,16 @@ export default function FlashcardSession({ module, onComplete }) {
             </div>
             {hasOptions ? (
               <div className="space-y-2">
-                <p className="text-xs text-slate-400">Answer options:</p>
-                <ul className="space-y-1 text-sm text-slate-200">
+                <p className="text-caption text-ink-2">Answer options:</p>
+                <ul className="space-y-1 text-sm text-ink-2">
                   {current.opts.map((o, i) => (
                     <li key={i} className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2">{o}</li>
                   ))}
                 </ul>
-                <p className="text-xs text-slate-400">Answer: <span className="font-semibold text-blue-300">{current.back}</span></p>
+                <p className="text-caption text-ink-2">Answer: <span className="font-semibold text-blue-300">{current.back}</span></p>
               </div>
             ) : (
-              <p className="text-sm leading-relaxed text-slate-200">{current.back}</p>
+              <p className="text-sm leading-relaxed text-ink-2">{current.back}</p>
             )}
           </div>
         </div>
@@ -197,26 +197,26 @@ export default function FlashcardSession({ module, onComplete }) {
       <div className="mt-5 flex gap-3">
         <button
           onClick={() => handleAnswer(false)}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.12]"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] py-3 text-sm font-semibold text-ink-2 transition hover:bg-white/[0.12]"
         >
           <X size={16} /> Review Again
         </button>
         {useListen && (
           <button
             onClick={(e) => { e.stopPropagation(); toggleListen(); }}
-            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${listening ? 'border-rose-500/50 bg-rose-500/15 text-rose-300' : 'border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/[0.12]'}`}
+            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${listening ? 'border-rose-500/50 bg-rose-500/15 text-danger' : 'border-white/10 bg-white/[0.06] text-ink-2 hover:bg-white/[0.12]'}`}
           >
             <Mic size={16} /> {listening ? 'Listening…' : 'Speak Answer'}
           </button>
         )}
         <button
           onClick={() => handleAnswer(true)}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 text-sm font-semibold text-white transition hover:bg-blue-600"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 text-sm font-semibold text-ink-1 transition hover:bg-blue-600"
         >
           <Check size={16} /> Got It
         </button>
       </div>
-      <p className="mt-3 text-center text-xs text-slate-400">Flip the card first, then mark your confidence.</p>
+      <p className="mt-3 text-center text-caption text-ink-2">Flip the card first, then mark your confidence.</p>
     </div>
   );
 }

@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import { useBgTint } from '@/components/academy/LiquidBackground';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Cpu, Network, ArrowRightLeft, Radio, Server, Shuffle, Gauge, Cloud, Layers, GitBranch, Calculator, TerminalSquare, Globe, Shield, KeyRound, Binary, Zap, CloudCog, Database, FileCode, Container, Lock, Route, ShieldAlert, Search } from 'lucide-react';
 import Motherboard3D from '@/components/three/Motherboard3D';
@@ -78,14 +76,20 @@ const ITEMS = [
 ];
 
 export default function Lab() {
-  useBgTint('#8B5CF6');
   const [active, setActive] = useState(() => new URLSearchParams(window.location.search).get('item') || 'system-architecture');
   const item = ITEMS.find((i) => i.id === active);
   const is3D = item?.type === '3d';
   const panelRef = useRef(null);
+  const firstRender = useRef(true);
 
+  // Bring the panel into view when the learner picks another subject, not on arrival
+  // (that would hide the page title).
   useEffect(() => {
-    if (!panelRef.current) return;
+    if (firstRender.current) {
+      firstRender.current = false;
+      return undefined;
+    }
+    if (!panelRef.current) return undefined;
     const id = requestAnimationFrame(() => {
       panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -93,23 +97,22 @@ export default function Lab() {
   }, [active]);
 
   return (
-    <div className="min-h-screen text-white">
-      <Navbar />
+    <div className="min-h-screen text-ink-1">
 
       <div className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
-        <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-white">
-          <ArrowLeft size={15} /> Study Hub
+        <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
+          <ArrowLeft size={15} /> Practice
         </Link>
 
         <header className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Visual{' '}
-            <span className="bg-gradient-to-r from-purple-400 to-teal-300 bg-clip-text text-transparent">Lab</span>
+            Lab
           </h1>
-          <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-slate-400">
+          <p className="mt-2 max-w-xl text-body leading-relaxed text-ink-2">
             Interact with hardware in 3D and watch network protocols come to life. Rotate models, click components, and press play on the animations.
           </p>
-          <Link to="/challenge" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:opacity-90">
+          <Link to="/challenge" className="mt-4 inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
             <Zap size={16} /> Challenge Mode
           </Link>
         </header>
@@ -118,20 +121,20 @@ export default function Lab() {
           {/* z-20: the blurred panel below forms its own stacking context and would cover the open list.
               Sticky only on desktop; on phones it would float over the single-column content. */}
           <div className="relative z-20 self-start lg:sticky lg:top-24">
-            <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Subject</label>
+            <label className="mb-2 block text-caption font-semibold uppercase tracking-wider text-ink-2">Subject</label>
             <SubjectDropdown items={ITEMS} active={active} onChange={setActive} />
           </div>
 
-          <div ref={panelRef} className="rounded-2xl glass p-4 sm:p-6">
+          <div ref={panelRef} className="rounded-control glass-1 p-4 sm:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-white">{item.label}</h2>
-                <p className="text-sm text-slate-400">{item.desc}</p>
+                <h2 className="text-lg font-bold text-ink-1">{item.label}</h2>
+                <p className="text-sm text-ink-2">{item.desc}</p>
               </div>
             </div>
 
             {NOTES[active] && (
-              <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2.5 text-xs text-slate-300">
+              <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2.5 text-caption text-ink-2">
                 {NOTES[active]}
               </div>
             )}
@@ -254,13 +257,13 @@ export default function Lab() {
           const refs = getModulesForLab(active);
           if (!refs.length) return null;
           return (
-            <div className="mt-6 rounded-xl glass p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Related flashcards</p>
+            <div className="mt-6 rounded-xl glass-1 p-4">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Related flashcards</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {refs.map((r) => (
-                  <Link key={r.moduleId + r.concept} to={`/module/${r.moduleId}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs transition hover:border-white/25 hover:bg-white/[0.12]">
-                    <span className="font-semibold text-white">{r.moduleTitle}</span>
-                    <span className="text-slate-400">· {r.concept}</span>
+                  <Link key={r.moduleId + r.concept} to={`/module/${r.moduleId}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-caption transition hover:border-white/25 hover:bg-white/[0.12]">
+                    <span className="font-semibold text-ink-1">{r.moduleTitle}</span>
+                    <span className="text-ink-2">· {r.concept}</span>
                     <span className="text-blue-400">→</span>
                   </Link>
                 ))}
@@ -273,22 +276,22 @@ export default function Lab() {
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border border-blue-500/20 bg-blue-500/[0.04] p-5">
               <h3 className="font-bold text-blue-300">TCP</h3>
-              <ul className="mt-2 space-y-1.5 text-sm text-slate-300">
+              <ul className="mt-2 space-y-1.5 text-sm text-ink-2">
                 <li className="flex items-center gap-2"><span className="text-blue-300">↔</span> Connection-oriented (3-way handshake)</li>
                 <li className="flex items-center gap-2"><span className="text-blue-300">↔</span> Reliable — retransmits lost data</li>
                 <li className="flex items-center gap-2"><span className="text-blue-300">↔</span> Ordered delivery</li>
-                <li className="flex items-center gap-2 text-slate-400"><span>↔</span> Slower due to overhead</li>
-                <li className="pt-1 text-xs text-slate-400">Used for: web, email, file transfer</li>
+                <li className="flex items-center gap-2 text-ink-2"><span>↔</span> Slower due to overhead</li>
+                <li className="pt-1 text-caption text-ink-2">Used for: web, email, file transfer</li>
               </ul>
             </div>
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-5">
               <h3 className="font-bold text-amber-300">UDP</h3>
-              <ul className="mt-2 space-y-1.5 text-sm text-slate-300">
+              <ul className="mt-2 space-y-1.5 text-sm text-ink-2">
                 <li className="flex items-center gap-2"><span className="text-amber-300">⇢</span> Connectionless — sends immediately</li>
                 <li className="flex items-center gap-2"><span className="text-amber-300">⇢</span> Fast and lightweight</li>
-                <li className="flex items-center gap-2 text-slate-400"><span>⇢</span> No delivery guarantee</li>
-                <li className="flex items-center gap-2 text-slate-400"><span>⇢</span> No ordering or retransmission</li>
-                <li className="pt-1 text-xs text-slate-400">Used for: DNS, video, VoIP, gaming</li>
+                <li className="flex items-center gap-2 text-ink-2"><span>⇢</span> No delivery guarantee</li>
+                <li className="flex items-center gap-2 text-ink-2"><span>⇢</span> No ordering or retransmission</li>
+                <li className="pt-1 text-caption text-ink-2">Used for: DNS, video, VoIP, gaming</li>
               </ul>
             </div>
           </div>

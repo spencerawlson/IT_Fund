@@ -63,7 +63,7 @@ const MD = {
   p: (props) => <p className="mb-2 last:mb-0" {...props} />,
   ul: (props) => <ul className="mb-2 list-disc space-y-1 pl-5 last:mb-0" {...props} />,
   ol: (props) => <ol className="mb-2 list-decimal space-y-1 pl-5 last:mb-0" {...props} />,
-  strong: (props) => <strong className="font-semibold text-white" {...props} />,
+  strong: (props) => <strong className="font-semibold text-ink-1" {...props} />,
   code: (props) => <code className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[0.9em] text-amber-200" {...props} />,
   a: ({ children }) => <span className="underline">{children}</span>,
 };
@@ -87,7 +87,7 @@ export function Thinking() {
 }
 
 export const pillClass =
-  'inline-flex items-center justify-center gap-1.5 rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:opacity-50';
+  'inline-flex items-center justify-center gap-1.5 rounded-control border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-ink-2 transition hover:bg-white/10 disabled:opacity-50';
 
 /**
  * Tutor buttons plus the streamed answer. `actions` = [{ mode, label }]; `context` is sent
@@ -129,11 +129,11 @@ export default function TutorAssist({ actions, context, className = '', answerCl
         )}
       </div>
       {active && (
-        <div className={`animate-rise mt-3 rounded-2xl border border-amber-300/25 bg-amber-300/[0.06] p-3.5 text-sm leading-relaxed text-slate-100 ${answerClassName}`} aria-live="polite">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-200">
+        <div className={`animate-rise mt-3 rounded-control border border-amber-300/25 bg-amber-300/[0.06] p-3.5 text-sm leading-relaxed text-ink-1 ${answerClassName}`} aria-live="polite">
+          <p className="mb-1.5 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em] text-amber-200">
             <Sparkles size={12} /> AI tutor
           </p>
-          {error ? <p className="text-rose-300">{error}</p> : text ? <TutorText text={text} /> : <Thinking />}
+          {error ? <p className="text-danger">{error}</p> : text ? <TutorText text={text} /> : <Thinking />}
         </div>
       )}
     </div>
