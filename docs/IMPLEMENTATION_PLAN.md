@@ -307,3 +307,18 @@ one product at 390px and at 1440px.
     - Solid fallbacks exist for browsers without `backdrop-filter`.
 - **Next (Part C, not started).** Fill lesson reading content, stronger cross-module review,
   then accounts and server-side progress.
+
+## Part C status
+
+- **C1: lesson content done (2026-09-29).**
+  - **Coverage.** All 64 lessons across 7 courses have reading content: an overview, 3–5
+    learn sections, a cheat sheet, and worked examples or ASCII diagrams where they help.
+    That's about 450–700 words per lesson, each aligned with the lesson's own quiz questions.
+  - **Files.** Content lives in `src/data/catalog/lessons/<course>.js`, merged by
+    `lessonContent.js`.
+  - **Tests.** `src/data/catalog/lessonContent.test.js` enforces an overview, at least 2 learn
+    sections and at least 5 cheat-sheet rows for every lesson. `PENDING` is now empty, so a new
+    lesson fails CI until it has content.
+  - **Rendering.** Example explanations render inline code. Code blocks have a "Copy code"
+    toolbar instead of a floating button, which overlapped code on phones.
+- **Next:** C2, stronger cross-module review, then C3, accounts and server-side progress.

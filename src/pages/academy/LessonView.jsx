@@ -141,7 +141,7 @@ export default function LessonView() {
               <div key={ex.title}>
                 <h3 className="text-heading text-ink-1">{ex.title}</h3>
                 <CodeBlock code={ex.code} />
-                {ex.explanation && <p className="mt-3 max-w-reading text-body text-ink-2">{ex.explanation}</p>}
+                {ex.explanation && <p className="mt-3 max-w-reading text-body text-ink-2"><RichText text={ex.explanation} /></p>}
               </div>
             ))}
           </Section>
@@ -233,11 +233,13 @@ function CodeBlock({ code }) {
     }
   };
   return (
-    <div className="relative mt-3">
-      <pre className="overflow-x-auto rounded-control border border-white/10 bg-black/30 p-4 pr-24 font-mono text-small leading-relaxed text-ink-1">{code}</pre>
-      <Button variant="secondary" size="sm" icon={copied ? Check : Copy} onClick={copy} className="absolute right-3 top-3">
-        {copied ? 'Copied' : 'Copy'}
-      </Button>
+    <div className="mt-3 overflow-hidden rounded-control border border-white/10 bg-black/30">
+      <div className="flex justify-end border-b border-white/[0.06] px-2 py-1.5">
+        <Button variant="ghost" size="sm" icon={copied ? Check : Copy} onClick={copy} aria-live="polite">
+          {copied ? 'Copied' : 'Copy code'}
+        </Button>
+      </div>
+      <pre className="overflow-x-auto p-4 font-mono text-small leading-relaxed text-ink-1">{code}</pre>
     </div>
   );
 }
