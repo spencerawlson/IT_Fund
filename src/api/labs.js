@@ -38,6 +38,7 @@ export const labsApi = {
   start: (labId) => labRequest(`/${labId}/start`, { method: 'POST' }),
   getSession: (id) => labRequest(`/sessions/${id}`),
   recordFindings: (id, findings) => labRequest(`/sessions/${id}/findings`, { method: 'POST', body: { findings } }),
+  exec: (id, command) => labRequest(`/sessions/${id}/exec`, { method: 'POST', body: { command } }),
   validate: (id) => labRequest(`/sessions/${id}/validate`, { method: 'POST' }),
   reset: (id) => labRequest(`/sessions/${id}/reset`, { method: 'POST' }),
   destroy: (id) => labRequest(`/sessions/${id}`, { method: 'DELETE' }),

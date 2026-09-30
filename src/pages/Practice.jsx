@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Box, Timer, ShieldCheck, ExternalLink, Radar, Network } from 'lucide-react';
+import { ArrowRight, Box, Timer, ShieldCheck, ExternalLink, Radar, Network, Route as RouteIcon, Globe } from 'lucide-react';
 import { Badge, Card, IconTile, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
 import { RESOURCES } from '@/data/academy';
 
@@ -10,10 +10,13 @@ const PRACTICE = [
   { to: '/challenge', icon: Timer, title: 'Timed challenges', text: 'Type the right command, pick the subnet mask, build the firewall rules, against the clock.' },
 ];
 
-// Interactive labs (backend/labs). Phase 1 is simulation-only and needs a signed-in user.
+// Interactive labs (backend/labs). Phase 1 is simulation-only and open to everyone (guest or
+// signed in); signing in keeps your lab sessions across devices.
 const RANGES = [
-  { to: '/labs/cyber-nmap-001', icon: Radar, title: 'Service Enumeration with Nmap', text: 'Discover ports and identify services on an isolated target, then validate your findings.' },
-  { to: '/labs/net-vlan-001', icon: Network, title: 'VLANs & Inter-VLAN Routing', text: 'Build two VLANs across a trunk, route between them, and prove connectivity.' },
+  { to: '/labs/cyber-nmap-001', icon: Radar, title: 'Service Enumeration with Nmap', text: 'Discover ports and identify services on an isolated target from a simulated shell, then validate your findings.' },
+  { to: '/labs/net-vlan-001', icon: Network, title: 'VLANs & Inter-VLAN Routing', text: 'Configure a real Cisco IOS switch and router-on-a-stick, then ping across the VLANs to prove it.' },
+  { to: '/labs/net-static-routing-001', icon: RouteIcon, title: 'Static Routing Between Two Sites', text: 'Address two routers over a WAN link, add the static routes, and confirm end-to-end connectivity.' },
+  { to: '/labs/net-dns-connectivity-001', icon: Globe, title: 'DNS & Connectivity Troubleshooting', text: 'Work the layers on a Linux shell — addressing, DNS, gateway, path, and HTTP — to find why an app is unreachable.' },
 ];
 
 function Tile({ to, href, icon, title, text }) {
@@ -59,7 +62,7 @@ export default function Practice() {
           id="practice-ranges"
           title="Interactive labs"
           description="Launch a hands-on environment from a lesson, complete the objectives, and validate the result."
-          action={<Badge>beta · sign-in required</Badge>}
+          action={<Badge>beta</Badge>}
         />
         <div className="grid gap-4 md:grid-cols-2">
           {RANGES.map((t) => <Tile key={t.to} {...t} />)}

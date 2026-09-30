@@ -1,6 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Cpu, Network, ArrowRightLeft, Radio, Server, Shuffle, Gauge, Cloud, Layers, GitBranch, Calculator, TerminalSquare, Globe, Shield, KeyRound, Binary, Zap, CloudCog, Database, FileCode, Container, Lock, Route, ShieldAlert, Search } from 'lucide-react';
+import {
+  ArrowLeft, Cpu, Network, ArrowRightLeft, Radio, Server, Shuffle, Gauge, Cloud, Layers,
+  GitBranch, Calculator, TerminalSquare, Globe, Shield, KeyRound, Zap, CloudCog, Database,
+  Container, Lock, Route as RouteIcon, ShieldAlert, Search, Boxes,
+} from 'lucide-react';
 import Motherboard3D from '@/components/three/Motherboard3D';
 import Switch3D from '@/components/three/Switch3D';
 import ServerRack3D from '@/components/three/ServerRack3D';
@@ -28,302 +32,198 @@ import LinuxTerminalLab from '@/components/tools/LinuxTerminalLab';
 import PythonAutomationLab from '@/components/tools/PythonAutomationLab';
 import SqlLab from '@/components/tools/SqlLab';
 import KubernetesAnimation from '@/components/viz/KubernetesAnimation';
-import ErrorBoundary from '@/components/ErrorBoundary';
 import TlsAnimation from '@/components/viz/TlsAnimation';
 import RoutingAnimation from '@/components/viz/RoutingAnimation';
 import SecurityIncidentAnimation from '@/components/viz/SecurityIncidentAnimation';
-import { getModulesForLab, NOTES } from '@/data/labLinks';
-import MiniSim from '@/components/lab/MiniSim';
-import SubjectDropdown from '@/components/lab/SubjectDropdown';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import FlowDiagram from '@/components/lab/FlowDiagram';
+import LabGallery, { KINDS } from '@/components/lab/LabGallery';
+import { LAB_FLOWS } from '@/data/labFlows';
+import { getModulesForLab, NOTES, LAB_LABELS } from '@/data/labLinks';
 
-const ITEMS = [
-  { id: 'system-architecture', label: 'System Architecture', group: 'Practices', type: 'anim', icon: Server, desc: 'Design resilient blueprints, e.g., avoiding a single point of failure during a production latency spike.' },
-  { id: 'cloud-migration', label: 'Cloud Migration', group: 'Cloud', type: 'anim', icon: CloudCog, desc: 'Plan a phased cutover from datacenter to cloud, minimizing downtime for a compromised instance.' },
-  { id: 'incident-response', label: 'Incident Response', group: 'Security', type: 'anim', icon: ShieldAlert, desc: 'Run a playbook for a production latency spike or compromised instance.' },
-  { id: 'git-workflow', label: 'Git Workflow', group: 'Practices', type: 'anim', icon: GitBranch, desc: 'Simulate trunk-based development vs. GitFlow when releasing during a production latency spike.' },
-  { id: 'network-troubleshooting', label: 'Network Troubleshooting', group: 'Networking', type: 'anim', icon: Search, desc: 'Diagnose a production latency spike or compromised instance using layered isolation.' },
-  { id: 'capacity-planning', label: 'Capacity Planning', group: 'Practices', type: 'anim', icon: Gauge, desc: 'Forecast load for holiday traffic or post-incident surge after a compromised instance.' },
-  { id: 'motherboard', label: '3D Motherboard', group: '3D Models', type: '3d', icon: Cpu, desc: 'Drag to rotate, click parts to identify them.' },
-  { id: 'switch', label: '3D Network Switch', group: '3D Models', type: '3d', icon: Network, desc: 'Explore ports, LEDs, and the chassis in 3D.' },
-  { id: 'server-rack', label: '3D Server Rack', group: '3D Models', type: '3d', icon: Server, desc: 'Inspect servers, switch, PDU & UPS in a cloud rack.' },
-  { id: 'tcp', label: 'TCP Animation', group: 'Protocols', type: 'anim', icon: ArrowRightLeft, desc: 'Watch the 3-way handshake & reliable delivery.' },
-  { id: 'udp', label: 'UDP Animation', group: 'Protocols', type: 'anim', icon: Radio, desc: 'See fire-and-forget datagrams & packet loss.' },
-  { id: 'osi', label: '3D OSI Model', group: 'Protocols', type: '3d', icon: Layers, desc: 'Explore the 7 network layers as a 3D stack.' },
-  { id: 'vpc', label: '3D Virtual Network', group: 'Cloud', type: '3d', icon: Cloud, desc: 'Explore a VPC: subnets, gateways, LB & instances.' },
-  { id: 'lb-3d', label: '3D Load Balancer', group: 'Cloud', type: '3d', icon: Shuffle, desc: 'See a load balancer fan out to its target group.' },
-  { id: 'load-balancer', label: 'Load Balancer', group: 'Cloud', type: 'anim', icon: Shuffle, desc: 'Watch traffic distribute & health checks in action.' },
-  { id: 'auto-scaling', label: 'Auto-Scaling', group: 'Cloud', type: 'anim', icon: Gauge, desc: 'See instances scale out & in with demand.' },
-  { id: 'cicd', label: 'CI/CD Pipeline', group: 'Cloud', type: 'anim', icon: GitBranch, desc: 'Watch code flow from commit to production.' },
-  { id: 'subnet', label: 'Subnet Calculator', group: 'Tools', type: 'tool', icon: Calculator, desc: 'Enter IP + CIDR to see network, broadcast, host range & counts.' },
-  { id: 'terminal', label: 'CLI Terminal', group: 'Tools', type: 'tool', icon: TerminalSquare, desc: 'Practice Bash & PowerShell commands in a safe shell.' },
-  { id: 'dns', label: 'DNS Resolution', group: 'Protocols', type: 'anim', icon: Globe, desc: 'Watch a URL resolve through root, TLD & authoritative servers.' },
-  { id: 'firewall', label: 'Firewall', group: 'Security', type: 'anim', icon: Shield, desc: 'See packets allowed or dropped by firewall rules.' },
-  { id: 'encryption', label: 'Encryption', group: 'Security', type: 'anim', icon: KeyRound, desc: 'Watch plaintext become ciphertext and back.' },
-  { id: 'number-system', label: 'Number Converter', group: 'Tools', type: 'tool', icon: Binary, desc: 'Convert binary ↔ hex ↔ decimal ↔ ASCII with bit toggles.' },
-  { id: 'aws', label: 'AWS Architecture', group: 'Cloud Providers', type: 'anim', icon: CloudCog, desc: 'Walk through a complete AWS request path: edge, ALB, compute, data, and observability.' },
-  { id: 'azure', label: 'Azure Architecture', group: 'Cloud Providers', type: 'anim', icon: CloudCog, desc: 'Explore Azure Front Door, App Gateway, compute, and Entra identity in one flow.' },
-  { id: 'gcp', label: 'GCP Architecture', group: 'Cloud Providers', type: 'anim', icon: CloudCog, desc: 'See global load balancing, GKE, managed data services, and IAM.' },
-  { id: 'database', label: 'Database Flow', group: 'Storage', type: 'anim', icon: Database, desc: 'Follow a request through schema, query, indexing, transactions, replication, and sharding.' },
-  { id: 'troubleshooting', label: 'Troubleshooting', group: 'Practices', type: 'anim', icon: Search, desc: 'Learn structured incident handling: reproduce, isolate, mitigate, then find root cause.' },
-  { id: 'git-flow', label: 'Git Flow', group: 'Practices', type: 'anim', icon: GitBranch, desc: 'Follow a change from workspace commit through branch, PR, merge, and release.' },
-  { id: 'linux-lab', label: 'Linux Terminal', group: 'Tools', type: 'tool', icon: TerminalSquare, desc: 'Practice common Bash commands with simulated output.' },
-  { id: 'python-lab', label: 'Python Automation', group: 'Automation', type: 'tool', icon: FileCode, desc: 'Read files, call APIs, and parse CSV with guided tasks.' },
-  { id: 'sql-lab', label: 'SQL Lab', group: 'Data', type: 'tool', icon: Database, desc: 'Run small SQL tasks: select, join, group, create, insert, update.' },
-  { id: 'kubernetes', label: 'Kubernetes Animation', group: 'Cloud Runtime', type: 'anim', icon: Container, desc: 'Follow deploy→pods→service→health→autoscale→config.' },
-  { id: 'tls', label: 'TLS Handshake', group: 'Security', type: 'anim', icon: Lock, desc: 'Visualize certificate validation, key exchange, and encrypted records.' },
-  { id: 'routing', label: 'Routing & NAT', group: 'Networking', type: 'anim', icon: Route, desc: 'Follow route lookup, forwarding, NAT, and VPN behavior.' },
-  { id: 'security-incident', label: 'Security Incident', group: 'Security', type: 'anim', icon: ShieldAlert, desc: 'Trace a breach from phishing through detection and response.' },
+// Ordered categories for the gallery.
+const CATEGORIES = ['Hardware', 'Networking', 'Cloud & Scale', 'Security', 'Data & Systems', 'DevOps'];
+
+// The curated core, shown in the gallery. Every entry is genuinely visual or interactive.
+const SUBJECTS = [
+  // Hardware
+  { id: 'motherboard', category: 'Hardware', kind: '3d', icon: Cpu, label: '3D Motherboard', blurb: 'Rotate a real board — CPU socket, RAM, PCIe, chipset, and power paths.' },
+  { id: 'switch', category: 'Hardware', kind: '3d', icon: Network, label: '3D Network Switch', blurb: 'Explore ports, uplinks, and status LEDs on a managed switch.' },
+  { id: 'server-rack', category: 'Hardware', kind: '3d', icon: Server, label: '3D Server Rack', blurb: 'Inspect servers, top-of-rack switch, PDU, and UPS in a data-center rack.' },
+  // Networking
+  { id: 'osi', category: 'Networking', kind: '3d', icon: Layers, label: 'OSI Model', blurb: 'Climb the seven layers as a 3D stack, from cabling to application.' },
+  { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
+  { id: 'udp', category: 'Networking', kind: 'anim', icon: Radio, label: 'UDP Datagrams', blurb: 'See fire-and-forget delivery — fast, connectionless, and lossy.' },
+  { id: 'dns', category: 'Networking', kind: 'anim', icon: Globe, label: 'DNS Resolution', blurb: 'Follow a name through root, TLD, and authoritative servers.' },
+  { id: 'routing', category: 'Networking', kind: 'anim', icon: RouteIcon, label: 'Routing & NAT', blurb: 'Trace route lookup, forwarding, NAT, and VPN behavior.' },
+  { id: 'subnet', category: 'Networking', kind: 'tool', icon: Calculator, label: 'Subnet Calculator', blurb: 'Enter an IP and CIDR to see network, broadcast, and host range.' },
+  // Cloud & Scale
+  { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
+  { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'See traffic fan out with health checks and fast failover.' },
+  { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
+  { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
+  { id: 'cicd', category: 'Cloud & Scale', kind: 'anim', icon: GitBranch, label: 'CI/CD Pipeline', blurb: 'Follow code from commit through build, test, and deploy.' },
+  { id: 'aws', category: 'Cloud & Scale', kind: 'anim', icon: CloudCog, label: 'Cloud Architecture', blurb: 'Trace a request across edge, load balancer, compute, and data.' },
+  // Security
+  { id: 'tls', category: 'Security', kind: 'anim', icon: Lock, label: 'TLS Handshake', blurb: 'Certificate validation, key exchange, and encrypted records.' },
+  { id: 'encryption', category: 'Security', kind: 'anim', icon: KeyRound, label: 'Encryption', blurb: 'Watch plaintext become ciphertext, and back again.' },
+  { id: 'firewall', category: 'Security', kind: 'anim', icon: Shield, label: 'Firewall Rules', blurb: 'See packets allowed or dropped as rule order is evaluated.' },
+  { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
+  // Data & Systems
+  { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
+  { id: 'system-architecture', category: 'Data & Systems', kind: 'flow', icon: Boxes, label: 'System Architecture', blurb: 'A resilient request path with caching, failover, and observability.' },
+  { id: 'cloud-migration', category: 'Data & Systems', kind: 'flow', icon: CloudCog, label: 'Cloud Migration', blurb: 'Assess, lift-and-shift, refactor, then optimize.' },
+  { id: 'capacity-planning', category: 'Data & Systems', kind: 'flow', icon: Gauge, label: 'Capacity Planning', blurb: 'From workload inputs to a validated, cost-aware plan.' },
+  // DevOps
+  { id: 'git-flow', category: 'DevOps', kind: 'anim', icon: GitBranch, label: 'Git Flow', blurb: 'Follow a change from commit through branch, PR, merge, and release.' },
+  { id: 'troubleshooting', category: 'DevOps', kind: 'anim', icon: Search, label: 'Troubleshooting', blurb: 'Structured incident handling: reproduce, isolate, mitigate, fix.' },
+  { id: 'terminal', category: 'DevOps', kind: 'tool', icon: TerminalSquare, label: 'CLI Terminal', blurb: 'Practice Bash and PowerShell in a safe, simulated shell.' },
 ];
 
-export default function Lab() {
-  const [active, setActive] = useState(() => new URLSearchParams(window.location.search).get('item') || 'system-architecture');
-  const item = ITEMS.find((i) => i.id === active);
-  const is3D = item?.type === '3d';
-  const panelRef = useRef(null);
-  const firstRender = useRef(true);
+const SUBJECT_BY_ID = Object.fromEntries(SUBJECTS.map((s) => [s.id, s]));
 
-  // Bring the panel into view when the learner picks another subject, not on arrival
-  // (that would hide the page title).
+// Dropped-from-gallery subjects still resolve (older lessons deep-link to them): text-only ones
+// redirect to their animated equivalent; the rest just render via the registry below.
+const ALIASES = {
+  'git-workflow': 'git-flow',
+  'network-troubleshooting': 'troubleshooting',
+  'incident-response': 'security-incident',
+};
+
+// Every renderable subject id -> how to render it. Superset of the gallery, so deep-links survive
+// curation. Flow subjects are data-driven via FlowDiagram.
+const RENDERERS = {
+  motherboard: () => <Motherboard3D />, switch: () => <Switch3D />, 'server-rack': () => <ServerRack3D />,
+  vpc: () => <Vpc3D />, 'lb-3d': () => <LoadBalancer3D />, osi: () => <Osi3D />,
+  tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
+  routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
+  'auto-scaling': () => <AutoScalingAnimation />, cicd: () => <CICDAnimation />, kubernetes: () => <KubernetesAnimation />,
+  aws: () => <AwsAnimation />, azure: () => <AzureAnimation />, gcp: () => <GcpAnimation />,
+  tls: () => <TlsAnimation />, encryption: () => <EncryptionAnimation />, firewall: () => <FirewallAnimation />,
+  'security-incident': () => <SecurityIncidentAnimation />, database: () => <DatabaseAnimation />,
+  troubleshooting: () => <TroubleshootingAnimation />, 'git-flow': () => <GitFlowAnimation />,
+  subnet: () => <SubnetCalculator />, terminal: () => <TerminalSimulator />, 'number-system': () => <NumberSystemConverter />,
+  'linux-lab': () => <LinuxTerminalLab />, 'python-lab': () => <PythonAutomationLab />, 'sql-lab': () => <SqlLab />,
+  'system-architecture': () => <FlowDiagram {...LAB_FLOWS['system-architecture']} />,
+  'cloud-migration': () => <FlowDiagram {...LAB_FLOWS['cloud-migration']} />,
+  'capacity-planning': () => <FlowDiagram {...LAB_FLOWS['capacity-planning']} />,
+};
+
+const resolveId = (id) => (RENDERERS[ALIASES[id]] ? ALIASES[id] : id);
+
+const is3D = (id) => (SUBJECT_BY_ID[id]?.kind || '') === '3d';
+
+// Metadata for the stage header for any id, including non-featured deep-links.
+function metaFor(id) {
+  if (SUBJECT_BY_ID[id]) return SUBJECT_BY_ID[id];
+  return { id, label: LAB_LABELS[id] || id, kind: id.endsWith('-lab') || id === 'number-system' ? 'tool' : 'anim', icon: Boxes, blurb: '' };
+}
+
+function Stage({ id, onBack }) {
+  const meta = metaFor(id);
+  const k = KINDS[meta.kind] || KINDS.anim;
+  const Icon = meta.icon;
+  const refs = getModulesForLab(id);
+
+  return (
+    <div>
+      <div className="mb-5 flex items-start gap-4">
+        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br ${k.grad}`}>
+          {Icon ? <Icon size={22} className={k.icon} aria-hidden="true" /> : null}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-bold text-ink-1">{meta.label}</h2>
+            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${k.pill}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${k.dot}`} /> {k.label}
+            </span>
+          </div>
+          {meta.blurb && <p className="mt-1 text-small text-ink-2">{meta.blurb}</p>}
+        </div>
+      </div>
+
+      {NOTES[id] && (
+        <div className="mb-4 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2.5 text-caption text-ink-2">
+          {NOTES[id]}
+        </div>
+      )}
+
+      <div className="rounded-2xl glass-1 p-4 sm:p-6">
+        <ErrorBoundary key={id} label="This visualization">
+          {is3D(id) ? (
+            <div className="h-[440px] w-full sm:h-[560px]">{RENDERERS[id]?.()}</div>
+          ) : (
+            <div className="mx-auto max-w-3xl">{RENDERERS[id]?.()}</div>
+          )}
+        </ErrorBoundary>
+      </div>
+
+      {refs.length > 0 && (
+        <div className="mt-6 rounded-xl glass-1 p-4">
+          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Related flashcards</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {refs.map((r) => (
+              <Link key={r.moduleId + r.concept} to={`/module/${r.moduleId}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-caption transition hover:border-white/25 hover:bg-white/[0.12]">
+                <span className="font-semibold text-ink-1">{r.moduleTitle}</span>
+                <span className="text-ink-2">· {r.concept}</span>
+                <span className="text-blue-400">→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6">
+        <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
+          <ArrowLeft size={15} /> All subjects
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function Lab() {
+  const [active, setActive] = useState(() => {
+    const item = new URLSearchParams(window.location.search).get('item');
+    return item && RENDERERS[resolveId(item)] ? resolveId(item) : null;
+  });
+  const topRef = useRef(null);
+
+  // Keep the URL in sync so a subject can be shared/deep-linked and the back button works.
   useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return undefined;
-    }
-    if (!panelRef.current) return undefined;
-    const id = requestAnimationFrame(() => {
-      panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    return () => cancelAnimationFrame(id);
+    const url = new URL(window.location.href);
+    if (active) url.searchParams.set('item', active);
+    else url.searchParams.delete('item');
+    window.history.replaceState(null, '', url);
+    if (topRef.current) topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [active]);
+
+  const open = useCallback((id) => setActive(resolveId(id)), []);
+  const back = useCallback(() => setActive(null), []);
 
   return (
     <div className="min-h-screen text-ink-1">
-
-      <div className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
+      <div ref={topRef} className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
           <ArrowLeft size={15} /> Practice
         </Link>
 
         <header className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Visual{' '}
-            Lab
-          </h1>
-          <p className="mt-2 max-w-xl text-body leading-relaxed text-ink-2">
-            Interact with hardware in 3D and watch network protocols come to life. Rotate models, click components, and press play on the animations.
-          </p>
-          <Link to="/challenge" className="mt-4 inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
-            <Zap size={16} /> Challenge Mode
-          </Link>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Visual Lab</h1>
+              <p className="mt-2 max-w-xl text-body leading-relaxed text-ink-2">
+                Interactive 3D models, animated protocols, and hands-on tools. Pick a subject to explore
+                — rotate, play, and step through how each one works.
+              </p>
+            </div>
+            <Link to="/challenge" className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
+              <Zap size={16} /> Challenge Mode
+            </Link>
+          </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr]">
-          {/* z-20: the blurred panel below forms its own stacking context and would cover the open list.
-              Sticky only on desktop; on phones it would float over the single-column content. */}
-          <div className="relative z-20 self-start lg:sticky lg:top-24">
-            <label className="mb-2 block text-caption font-semibold uppercase tracking-wider text-ink-2">Subject</label>
-            <SubjectDropdown items={ITEMS} active={active} onChange={setActive} />
-          </div>
-
-          <div ref={panelRef} className="rounded-control glass-1 p-4 sm:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-ink-1">{item.label}</h2>
-                <p className="text-sm text-ink-2">{item.desc}</p>
-              </div>
-            </div>
-
-            {NOTES[active] && (
-              <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2.5 text-caption text-ink-2">
-                {NOTES[active]}
-              </div>
-            )}
-
-            {/* Keyed on `active` so switching labs clears a previous failure. */}
-            <ErrorBoundary key={active} label="This visualization">
-            {is3D ? (
-              <div className="h-[460px] w-full sm:h-[560px]">
-                {active === 'motherboard' && <Motherboard3D />}
-                {active === 'switch' && <Switch3D />}
-                {active === 'server-rack' && <ServerRack3D />}
-                {active === 'vpc' && <Vpc3D />}
-                {active === 'lb-3d' && <LoadBalancer3D />}
-                {active === 'osi' && <Osi3D />}
-              </div>
-            ) : (
-              <div className="mx-auto max-w-3xl">
-                {active === 'tcp' && <TcpAnimation />}
-                {active === 'udp' && <UdpAnimation />}
-                {active === 'load-balancer' && <LoadBalancerAnimation />}
-                {active === 'auto-scaling' && <AutoScalingAnimation />}
-                {active === 'cicd' && <CICDAnimation />}
-                {active === 'subnet' && <SubnetCalculator />}
-                {active === 'terminal' && <TerminalSimulator />}
-                {active === 'dns' && <DnsAnimation />}
-                {active === 'firewall' && <FirewallAnimation />}
-                {active === 'encryption' && <EncryptionAnimation />}
-                {active === 'number-system' && <NumberSystemConverter />}
-                {active === 'aws' && <AwsAnimation />}
-                {active === 'azure' && <AzureAnimation />}
-                {active === 'gcp' && <GcpAnimation />}
-                {active === 'database' && <DatabaseAnimation />}
-                {active === 'troubleshooting' && <TroubleshootingAnimation />}
-                {active === 'git-flow' && <GitFlowAnimation />}
-                {active === 'linux-lab' && <LinuxTerminalLab />}
-                {active === 'python-lab' && <PythonAutomationLab />}
-                {active === 'sql-lab' && <SqlLab />}
-                {active === 'kubernetes' && <KubernetesAnimation />}
-                {active === 'tls' && <TlsAnimation />}
-                {active === 'routing' && <RoutingAnimation />}
-                {active === 'security-incident' && <SecurityIncidentAnimation />}
-                {active === 'system-architecture' && (
-                  <MiniSim
-                    steps={[
-                      { title: 'Client', body: 'Sends request to LB over HTTPS with retries and timeout.', accent: 'white' },
-                      { title: 'Load Balancer', body: 'Routes by path, checks health, fails over fast.', accent: 'blue' },
-                      { title: 'App Pool', body: 'Stateless instances in two availability zones with rolling updates.', accent: 'white' },
-                      { title: 'Cache', body: 'Redis cluster for hot reads, fallback to database on miss.', accent: 'white' },
-                      { title: 'Database', body: 'Primary with async replica, automated failover, point-in-time recovery enabled.', accent: 'white' },
-                      { title: 'Observability', body: 'Metrics, logs, and traces cover every hop with P90 latency SLO.', accent: 'teal' },
-                    ]}
-                    tags={['Multi-AZ', 'Graceful failover', 'Circuit breaker', 'Health checks']}
-                  />
-                )}
-                {active === 'cloud-migration' && (
-                  <MiniSim
-                    steps={[
-                      { title: 'Assess', body: 'Inventory apps, dependencies, data gravity, and compliance requirements.', accent: 'white' },
-                      { title: 'Lift & Shift', body: 'Rehost with minimal change using infrastructure exports and image replication.', accent: 'blue' },
-                      { title: 'Refactor', body: 'Replace monoliths with managed services, queues, and containers where it pays.', accent: 'white' },
-                      { title: 'Optimize', body: 'Rightsize instances, autoscale, use savings plans, and remove idle resources.', accent: 'teal' },
-                    ]}
-                    tags={['Wave planning', 'Cutover window', 'Rollback plan', 'DNS switch']}
-                  />
-                )}
-                {active === 'incident-response' && (
-                  <MiniSim
-                    steps={[
-                      { title: 'Detect', body: 'Alert fires from latency spike; page on-call; preserve logs and timeline.', accent: 'rose' },
-                      { title: 'Contain', body: 'Isolate dependency, enable circuit breaker, throttle traffic, and freeze risky changes.', accent: 'amber' },
-                      { title: 'Recover', body: 'Restore from last healthy state, validate SLOs, then investigate root cause in parallel.', accent: 'teal' },
-                    ]}
-                    tags={['Timeline', 'Impact radius', 'Communication', 'Postmortem']}
-                  />
-                )}
-                {active === 'git-workflow' && (
-                  <MiniSim
-                    steps={[
-                      { title: 'Branch', body: 'Create short-lived feature branch from trunk with issue key prefix.', accent: 'white' },
-                      { title: 'Commit', body: 'Small, reviewable commits with message convention and linked ticket.', accent: 'blue' },
-                      { title: 'PR & CI', body: 'Automated lint, test, security scan, and preview environment validation.', accent: 'white' },
-                      { title: 'Merge', body: 'Fast-forward or squash-merge after approval; release tag triggers deploy.', accent: 'teal' },
-                    ]}
-                    tags={['Trunk-based', 'Protected branches', 'Semantic versioning']}
-                  />
-                )}
-                {active === 'network-troubleshooting' && (
-                  <MiniSim
-                    steps={[
-                      { title: 'L1/L2', body: 'Check cable, duplex, VLAN assignment, port status, and ARP table consistency.', accent: 'white' },
-                      { title: 'L3', body: 'Run traceroute, check route tables, MTU, ACLs, and firewall hits.', accent: 'blue' },
-                      { title: 'L4/L7', body: 'Inspect TCP handshake, packet capture, TLS settings, and app response behavior.', accent: 'white' },
-                      { title: 'DNS', body: 'Test resolution path, TTL effects, and compare recursive vs authoritative answers.', accent: 'white' },
-                      { title: 'Cloud', body: 'Verify VPC routes, NAT gateway, endpoint policies, and provider status page.', accent: 'amber' },
-                      { title: 'Traffic', body: 'Use synthetic probes, flow logs, and sampled packets to confirm exact loss path.', accent: 'teal' },
-                    ]}
-                    tags={['Layered isolation', 'Baselines', 'One variable']}
-                  />
-                )}
-                {active === 'capacity-planning' && (
-                  <MiniSim
-                    steps={[
-                      { title: 'Workload Inputs', body: 'Baseline QPS, peak multiplier, session length, and request payload size.', accent: 'white' },
-                      { title: 'Headroom Model', body: 'Target 60–70% CPU utilization at peak with buffer for instance failures.', accent: 'blue' },
-                      { title: 'Burst Plan', body: 'Reserve surge capacity via scheduled scaling or warm standby pools.', accent: 'white' },
-                      { title: 'Load Test', body: 'Run synthetic peak traffic in staging; validate autoscaling rules and cold-start latency.', accent: 'teal' },
-                      { title: 'Cost Profile', body: 'On-demand baseline, spot/preemptible batch, savings plans, and idle right-sizing.', accent: 'white' },
-                      { title: 'Review Cycle', body: 'Monthly forecast review, traffic anomaly checks, and zone health audits.', accent: 'white' },
-                    ]}
-                    tags={['Utilization target', 'Burst budget', 'Multi-region', 'Chaos validation']}
-                  />
-                )}
-              </div>
-            )}
-            </ErrorBoundary>
-          </div>
-        </div>
-
-        {(() => {
-          const refs = getModulesForLab(active);
-          if (!refs.length) return null;
-          return (
-            <div className="mt-6 rounded-xl glass-1 p-4">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Related flashcards</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {refs.map((r) => (
-                  <Link key={r.moduleId + r.concept} to={`/module/${r.moduleId}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-caption transition hover:border-white/25 hover:bg-white/[0.12]">
-                    <span className="font-semibold text-ink-1">{r.moduleTitle}</span>
-                    <span className="text-ink-2">· {r.concept}</span>
-                    <span className="text-blue-400">→</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-
-        {active === 'tcp' && (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-blue-500/20 bg-blue-500/[0.04] p-5">
-              <h3 className="font-bold text-blue-300">TCP</h3>
-              <ul className="mt-2 space-y-1.5 text-sm text-ink-2">
-                <li className="flex items-center gap-2"><span className="text-blue-300">↔</span> Connection-oriented (3-way handshake)</li>
-                <li className="flex items-center gap-2"><span className="text-blue-300">↔</span> Reliable — retransmits lost data</li>
-                <li className="flex items-center gap-2"><span className="text-blue-300">↔</span> Ordered delivery</li>
-                <li className="flex items-center gap-2 text-ink-2"><span>↔</span> Slower due to overhead</li>
-                <li className="pt-1 text-caption text-ink-2">Used for: web, email, file transfer</li>
-              </ul>
-            </div>
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-5">
-              <h3 className="font-bold text-amber-300">UDP</h3>
-              <ul className="mt-2 space-y-1.5 text-sm text-ink-2">
-                <li className="flex items-center gap-2"><span className="text-amber-300">⇢</span> Connectionless — sends immediately</li>
-                <li className="flex items-center gap-2"><span className="text-amber-300">⇢</span> Fast and lightweight</li>
-                <li className="flex items-center gap-2 text-ink-2"><span>⇢</span> No delivery guarantee</li>
-                <li className="flex items-center gap-2 text-ink-2"><span>⇢</span> No ordering or retransmission</li>
-                <li className="pt-1 text-caption text-ink-2">Used for: DNS, video, VoIP, gaming</li>
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {active === 'load-balancer' && (
-          <MiniSim
-            title="Load Balancer"
-            accent="indigo"
-            tags={['Layer 4/7', 'Health checks', 'Failover']}
-            steps={[
-              { title: 'Round-Robin', body: 'Spreads requests evenly across servers in rotation.', accent: 'indigo' },
-              { title: 'Least-Connections', body: 'Routes traffic to the server with the fewest active connections.', accent: 'indigo' },
-              { title: 'Health Checks', body: 'Pings each server on a schedule; removes unhealthy targets automatically.', accent: 'teal' },
-              { title: 'Failover', body: 'When a server fails, LB stops sending traffic and another server takes over.', accent: 'rose' },
-            ]}
-          />
-        )}
-
-        {active === 'auto-scaling' && (
-          <MiniSim
-            title="Auto-Scaling"
-            accent="blue"
-            tags={['Cloud', 'Elastic', 'Cost-aware']}
-            steps={[
-              { title: 'Scale Out', body: 'Adds instances when load rises beyond target utilization.', accent: 'blue' },
-              { title: 'Scale In', body: 'Removes idle instances when load drops back below threshold.', accent: 'amber' },
-              { title: 'Cooldown', body: 'After scaling, waits for metrics to stabilize before triggering again.', accent: 'white' },
-              { title: 'Scheduled Scaling', body: 'Pre-scales capacity for known traffic patterns like product launches.', accent: 'teal' },
-            ]}
-          />
-        )}
+        {active ? <Stage id={active} onBack={back} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} />}
       </div>
     </div>
   );

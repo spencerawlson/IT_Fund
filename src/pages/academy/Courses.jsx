@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, Swords, Check, SearchX, ArrowRight, Library, Route as RouteIcon, Map } from 'lucide-react';
+import { Play, Swords, Check, SearchX, ArrowRight, Library, Route as RouteIcon, Map as MapIcon } from 'lucide-react';
 import { IconTile, PrereqNotice, Prerequisites } from '@/components/academy/ui/bits';
 import { CourseCard, LessonList, ModuleList, externalModulePrereqs, modulePrereqItems } from '@/components/academy/ui/cards';
 import {
@@ -24,7 +24,7 @@ const passed = (state, lessons) => lessons.filter((l) => lessonStatus(state, l) 
 const LIBRARY = [
   { to: '/library', icon: Library, title: 'All modules', text: 'Every module and concept, with detailed study notes and search.' },
   { to: '/tracks', icon: RouteIcon, title: 'Career tracks', text: 'The original track view: modules and labs chained into practical routes.' },
-  { to: '/learning-path', icon: Map, title: 'Learning principles', text: 'The six mental models every module and lab is tagged to.' },
+  { to: '/learning-path', icon: MapIcon, title: 'Learning principles', text: 'The six mental models every module and lab is tagged to.' },
 ];
 
 function LibraryTile({ to, icon: Icon, title, text }) {

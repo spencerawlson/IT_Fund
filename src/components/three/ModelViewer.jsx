@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], target = [0, 0.5, 0] }) {
   const mountRef = useRef(null);
@@ -28,6 +29,11 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     try {
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     } catch (err) {
       setRendererFailed(true);
       return () => {};
@@ -35,22 +41,48 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
 
     mount.appendChild(renderer.domElement);
 
-    // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
-    const key = new THREE.DirectionalLight(0xffffff, 1.1);
-    key.position.set(12, 20, 10);
+    // Image-based lighting: soft environment reflections make the PBR materials read as real metal
+    // and plastic instead of flat blocks. A tiny generated room — cheap, big fidelity gain.
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = envTexture;
+    scene.fog = new THREE.Fog(0x0a0e14, 40, 82);
+
+    // Lights — the environment handles soft ambient, so direct lights shape and rim the model.
+    scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+    scene.add(new THREE.HemisphereLight(0xbcd0ff, 0x0a0e14, 0.35));
+    const key = new THREE.DirectionalLight(0xffffff, 1.35);
+    key.position.set(14, 22, 12);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.near = 1;
+    key.shadow.camera.far = 70;
+    key.shadow.camera.left = -24;
+    key.shadow.camera.right = 24;
+    key.shadow.camera.top = 24;
+    key.shadow.camera.bottom = -24;
+    key.shadow.bias = -0.0004;
+    key.shadow.normalBias = 0.02;
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0x3b82f6, 0.5);
+    const fill = new THREE.DirectionalLight(0x3b82f6, 0.45);
     fill.position.set(-12, 6, -8);
     scene.add(fill);
-    const rim = new THREE.DirectionalLight(0x06b6d4, 0.3);
+    const rim = new THREE.DirectionalLight(0x06b6d4, 0.35);
     rim.position.set(0, 4, -15);
     scene.add(rim);
 
-    // Grid floor
-    const grid = new THREE.GridHelper(60, 60, 0x1e2a3a, 0x141a24);
+    // Grid floor + a shadow-catching plane so models drop soft contact shadows.
+    const grid = new THREE.GridHelper(60, 60, 0x223247, 0x141a24);
     grid.position.y = -2;
     scene.add(grid);
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(140, 140),
+      new THREE.ShadowMaterial({ opacity: 0.4 }),
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -1.98;
+    ground.receiveShadow = true;
+    scene.add(ground);
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -60,9 +92,20 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     controls.minDistance = 6;
     controls.maxDistance = 45;
     controls.maxPolarAngle = Math.PI * 0.85;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.6;
+    const stopAuto = () => { controls.autoRotate = false; };
+    renderer.domElement.addEventListener('pointerdown', stopAuto);
 
     // Build scene
     const interactives = buildRef.current(scene) || [];
+    // Every built mesh casts and receives shadows; the ground plane only receives.
+    scene.traverse((obj) => {
+      if (obj.isMesh && obj !== ground) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      }
+    });
 
     // Raycaster
     const raycaster = new THREE.Raycaster();
@@ -121,6 +164,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
       cancelAnimationFrame(frameId);
       ro.disconnect();
       renderer.domElement.removeEventListener('click', onClick);
+      renderer.domElement.removeEventListener('pointerdown', stopAuto);
       controls.dispose();
       scene.traverse((obj) => {
         if (obj.geometry) obj.geometry.dispose();
@@ -129,6 +173,8 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
           else obj.material.dispose();
         }
       });
+      envTexture.dispose();
+      pmrem.dispose();
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };

@@ -30,8 +30,9 @@ export default function UdpAnimation() {
   const reset = () => { setStep(0); setPlaying(true); };
   const toggle = () => setPlaying((p) => !p);
 
-  const startLeft = '8%';
-  const endLeft = '92%';
+  // Centered packet (-translate-x-1/2) with travel kept inside the stage padding, so it never clips.
+  const startLeft = '20%';
+  const endLeft = '80%';
   const accent = step === 2 ? 'red' : step === 3 ? 'slate' : 'amber';
 
   return (
@@ -51,7 +52,7 @@ export default function UdpAnimation() {
         {current.dir !== 'none' && (
           <motion.div
             key={step}
-            className="absolute"
+            className="absolute -translate-x-1/2"
             style={{ top: 'calc(50% - 30px)', left: startLeft }}
             animate={{ left: endLeft, opacity: [0, 1, 1] }}
             transition={{ duration: 1.4, times: [0, 0.15, 1], ease: 'easeInOut' }}

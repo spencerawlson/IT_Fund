@@ -37,8 +37,10 @@ export default function TcpAnimation() {
   const reset = () => { setStep(0); setPlaying(true); };
   const toggle = () => setPlaying((p) => !p);
 
-  const startLeft = current.dir === 'right' ? '8%' : '92%';
-  const endLeft = current.dir === 'right' ? '92%' : '8%';
+  // Packet is centered on its position (-translate-x-1/2), so keep travel within the stage padding
+  // to avoid clipping the packet (and the endpoint cards) against the overflow-hidden edges.
+  const startLeft = current.dir === 'right' ? '20%' : '80%';
+  const endLeft = current.dir === 'right' ? '80%' : '20%';
   const accent = current.badge.includes('SYN') && current.badge.includes('ACK') ? 'teal' : current.badge === 'FIN' ? 'red' : current.badge === 'ACK' ? 'teal' : 'blue';
 
   return (
@@ -62,7 +64,7 @@ export default function TcpAnimation() {
         {current.dir !== 'none' && (
           <motion.div
             key={step}
-            className="absolute"
+            className="absolute -translate-x-1/2"
             style={{ top: 'calc(50% - 30px)' }}
             initial={{ left: startLeft, opacity: 0 }}
             animate={{ left: endLeft, opacity: [0, 1, 1, 1] }}

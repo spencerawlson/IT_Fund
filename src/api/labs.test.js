@@ -33,6 +33,13 @@ describe('labsApi', () => {
     expect(JSON.parse(calls[0].opts.body)).toEqual({ findings: { ports: [{ port: 22 }] } });
   });
 
+  it('posts a command to the session exec endpoint', async () => {
+    await labsApi.exec('sess-1', 'nmap -sV target.lab');
+    expect(calls[0].url).toBe('/api/labs/sessions/sess-1/exec');
+    expect(calls[0].opts.method).toBe('POST');
+    expect(JSON.parse(calls[0].opts.body)).toEqual({ command: 'nmap -sV target.lab' });
+  });
+
   it('returns null on 204 (delete)', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, status: 204, text: async () => '' }));
     expect(await labsApi.destroy('sess-1')).toBeNull();

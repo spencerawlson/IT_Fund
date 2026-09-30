@@ -1,10 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Check, X, Lock, RotateCcw, Clock, FlaskConical, Plus, Trash2, ShieldCheck, SearchX } from 'lucide-react';
+import { Check, X, Lock, RotateCcw, Clock, FlaskConical, ShieldCheck, SearchX, TerminalSquare } from 'lucide-react';
 import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-glass';
+import LabTerminal from '@/components/labs/LabTerminal';
 import { labsApi } from '@/api/labs';
 
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+
+// The device name a prompt belongs to, e.g. "R1(config-if)# " -> "R1", "student@workstation:~$ " ->
+// "student@workstation:~$" (single-device labs don't show console tabs, so it doesn't matter).
+const deviceFromPrompt = (p) => ((p || '').split(/[>#(\s]/)[0] || null);
 
 /** Countdown to the session's expiry. */
 function LabTimer({ expiresAt }) {
@@ -50,83 +55,6 @@ function LabObjectives({ objectives, results }) {
   );
 }
 
-/** Cyber/PortBlast findings recorder: what the student discovered, which the validators check. */
-function CyberWorkbench({ target, draft, setDraft, isPortblast }) {
-  const [port, setPort] = useState('');
-  const [service, setService] = useState('');
-  const [version, setVersion] = useState('');
-  const ports = draft.ports || [];
-
-  const addPort = () => {
-    const num = parseInt(port, 10);
-    if (!num) return;
-    setDraft({ ...draft, ports: [...ports, { target, port: num, service: service.trim(), version: version.trim() }] });
-    setPort(''); setService(''); setVersion('');
-  };
-  const removePort = (i) => setDraft({ ...draft, ports: ports.filter((_, idx) => idx !== i) });
-  const toggle = (key, value) => setDraft({ ...draft, [key]: draft[key] ? undefined : value });
-
-  return (
-    <div className="space-y-5">
-      <label className="flex items-center gap-3 text-body text-ink-1">
-        <input
-          type="checkbox"
-          className="h-4 w-4 accent-[rgb(var(--action-rgb))]"
-          checked={!!draft.hosts?.[target]?.up}
-          onChange={(e) => setDraft({ ...draft, hosts: { ...draft.hosts, [target]: { up: e.target.checked } } })}
-        />
-        {target} is reachable
-      </label>
-
-      <div>
-        <p className="mb-2 text-small font-semibold text-ink-1">Discovered ports</p>
-        <div className="flex flex-wrap items-end gap-2">
-          <input aria-label="Port" inputMode="numeric" placeholder="Port" value={port} onChange={(e) => setPort(e.target.value)}
-            className="h-10 w-20 rounded-control border border-white/10 bg-white/5 px-3 text-small text-ink-1 placeholder:text-ink-3" />
-          <input aria-label="Service" placeholder="Service" value={service} onChange={(e) => setService(e.target.value)}
-            className="h-10 w-28 rounded-control border border-white/10 bg-white/5 px-3 text-small text-ink-1 placeholder:text-ink-3" />
-          <input aria-label="Version" placeholder="Version" value={version} onChange={(e) => setVersion(e.target.value)}
-            className="h-10 w-36 rounded-control border border-white/10 bg-white/5 px-3 text-small text-ink-1 placeholder:text-ink-3" />
-          <Button size="sm" variant="secondary" icon={Plus} onClick={addPort}>Add</Button>
-        </div>
-        {ports.length > 0 && (
-          <ul className="mt-3 divide-y divide-white/[0.06]">
-            {ports.map((p, i) => (
-              <li key={`${p.port}-${i}`} className="flex items-center gap-3 py-2 text-small text-ink-1">
-                <span className="tabular-nums">{p.port}/tcp</span>
-                <span className="text-ink-2">{p.service || '—'}{p.version ? ` · ${p.version}` : ''}</span>
-                <button type="button" onClick={() => removePort(i)} aria-label={`Remove port ${p.port}`} className="ml-auto text-ink-2 hover:text-danger">
-                  <Trash2 size={15} aria-hidden="true" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {isPortblast && (
-        <div className="space-y-3 border-t border-white/[0.06] pt-4">
-          <label className="flex items-center gap-3 text-body text-ink-1">
-            <input type="checkbox" className="h-4 w-4 accent-[rgb(var(--action-rgb))]" checked={!!draft.research}
-              onChange={() => toggle('research', [{ note: 'Researched discovered software' }])} />
-            I researched the discovered software (SearchSploit / Metasploit modules)
-          </label>
-          <label className="flex items-center gap-3 text-body text-ink-1">
-            <input type="checkbox" className="h-4 w-4 accent-[rgb(var(--action-rgb))]" checked={!!draft.portblast}
-              onChange={() => toggle('portblast', { simulated: true, ports })} />
-            I ran PortBlast against the target <span className="text-ink-2">(simulated)</span>
-          </label>
-          <label className="flex items-center gap-3 text-body text-ink-1">
-            <input type="checkbox" className="h-4 w-4 accent-[rgb(var(--action-rgb))]" checked={!!draft.comparison}
-              onChange={() => toggle('comparison', { done: true })} />
-            I compared my manual findings with PortBlast
-          </label>
-        </div>
-      )}
-    </div>
-  );
-}
-
 const NET_FLAGS = [
   ['vlan10_exists', 'VLAN 10 created'], ['vlan20_exists', 'VLAN 20 created'],
   ['sw1_trunk_configured', 'SW1 trunk configured'], ['sw2_trunk_configured', 'SW2 trunk configured'],
@@ -151,7 +79,8 @@ function NetworkWorkbench({ draft, setDraft }) {
   );
 }
 
-/** Full-screen lab workspace: instructions and objectives, a findings workbench, and validation. */
+/** Full-screen lab workspace: instructions and objectives, a workbench (simulated shell for
+ * cyber labs, config recorder for networking), and live validation. */
 export default function LabWorkspace() {
   const { labId } = useParams();
   const [lab, setLab] = useState(null);
@@ -159,7 +88,10 @@ export default function LabWorkspace() {
   const [draft, setDraft] = useState({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [epoch, setEpoch] = useState(0); // bumped on reset to remount the terminal (clear its buffer)
+  const [activeDevice, setActiveDevice] = useState(null); // which device console is active (multi-device labs)
   const destroyed = useRef(false);
+  const termRef = useRef(null);
 
   useEffect(() => {
     let live = true;
@@ -178,6 +110,7 @@ export default function LabWorkspace() {
         setLab(def);
         setSession(s);
         setDraft(s.findings || {});
+        setActiveDevice(deviceFromPrompt(def.terminal?.prompt));
       } catch (e) {
         if (live) setError(e.message);
       }
@@ -187,15 +120,22 @@ export default function LabWorkspace() {
     };
   }, [labId]);
 
-  // Best-effort cleanup when leaving the page.
+  // Track the live session for the unmount cleanup without re-running that effect. Depending on
+  // `session` there would destroy the session every time a command updates it (onSession), which
+  // made every command after the first return "Lab session not found".
+  const sessionRef = useRef(null);
+  sessionRef.current = session;
+
+  // Best-effort cleanup ONLY when leaving the page.
   useEffect(() => {
     return () => {
-      if (session && !destroyed.current) {
+      const s = sessionRef.current;
+      if (s && !destroyed.current) {
         destroyed.current = true;
-        labsApi.destroy(session.id).catch(() => {});
+        labsApi.destroy(s.id).catch(() => {});
       }
     };
-  }, [session]);
+  }, []);
 
   const check = useCallback(async () => {
     if (!session) return;
@@ -214,16 +154,30 @@ export default function LabWorkspace() {
   const reset = useCallback(async () => {
     if (!session) return;
     setBusy(true);
+    setError('');
     try {
       const s = await labsApi.reset(session.id);
       setSession(s);
       setDraft({});
+      setEpoch((n) => n + 1);
+      setActiveDevice(deviceFromPrompt(lab.terminal?.prompt));
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [session]);
+  }, [session, lab]);
+
+  // Device-console tabs (multi-device IOS labs): switch which device the shell is driving.
+  const connectTo = useCallback((host) => {
+    termRef.current?.send(`connect ${host}`);
+    setActiveDevice(host);
+    termRef.current?.focus();
+  }, []);
+  const onPrompt = useCallback((p) => {
+    const host = deviceFromPrompt(p);
+    if (host) setActiveDevice(host);
+  }, []);
 
   const results = session?.validation_results || [];
   const passedCount = useMemo(() => Object.values(session?.progress || {}).filter(Boolean).length, [session]);
@@ -246,11 +200,13 @@ export default function LabWorkspace() {
     return <div className="flex min-h-[100dvh] items-center justify-center text-ink-2">Starting lab environment…</div>;
   }
 
-  const target = lab.targets?.[0]?.hostname || 'target.lab';
-  const isNetworking = lab.category === 'networking';
-  const isPortblast = lab.category === 'portblast';
+  const usesTerminal = !!lab.terminal;
   const done = session.status === 'COMPLETED';
   const expired = session.status === 'EXPIRED';
+
+  const banner = lab.terminal?.banner || [];
+  const prompt = lab.terminal?.prompt || 'student@lab:~$ ';
+  const devices = lab.targets || []; // multi-device labs (SW1/R1/PC1/PC2) get console tabs
 
   return (
     <div className="min-h-[100dvh] text-ink-1">
@@ -288,19 +244,60 @@ export default function LabWorkspace() {
         </div>
 
         <div className="space-y-4">
-          <Card level={2}>
-            <h2 className="text-heading text-ink-1">Record your findings</h2>
-            <p className="mt-1 text-small text-ink-2">
-              {isNetworking
-                ? 'Mark the configuration state you achieved. "Check my work" validates the result.'
-                : 'Record what you discovered on the target. Objectives check your findings, not the exact commands you ran.'}
-            </p>
-            <div className="mt-4">
-              {isNetworking
-                ? <NetworkWorkbench draft={draft} setDraft={setDraft} />
-                : <CyberWorkbench target={target} draft={draft} setDraft={setDraft} isPortblast={isPortblast} />}
-            </div>
-          </Card>
+          {usesTerminal ? (
+            <Card level={2}>
+              <div className="mb-3 flex items-center gap-2">
+                <TerminalSquare size={18} className="text-ink-2" aria-hidden="true" />
+                <h2 className="text-heading text-ink-1">Terminal</h2>
+                <span className="ml-auto text-caption text-ink-3">simulated — nothing is really executed</span>
+              </div>
+              {devices.length > 1 && (
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className="text-caption text-ink-3">Consoles:</span>
+                  {devices.map((d) => (
+                    <button
+                      key={d.hostname}
+                      type="button"
+                      onClick={() => connectTo(d.hostname)}
+                      title={d.role}
+                      disabled={expired}
+                      className={`rounded-control border px-2.5 py-1 text-caption font-semibold transition disabled:opacity-50 ${
+                        activeDevice === d.hostname
+                          ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300'
+                          : 'border-white/10 text-ink-2 hover:border-white/25 hover:text-ink-1'
+                      }`}
+                    >
+                      {d.hostname}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <LabTerminal
+                key={`${session.id}:${epoch}`}
+                ref={termRef}
+                sessionId={session.id}
+                banner={banner}
+                prompt={prompt}
+                disabled={expired}
+                onSession={setSession}
+                onError={setError}
+                onPrompt={onPrompt}
+              />
+              <p className="mt-3 text-caption text-ink-3">
+                Objectives check automatically as you run commands. Type <code className="font-mono text-ink-2">help</code> for the command list.
+              </p>
+            </Card>
+          ) : (
+            <Card level={2}>
+              <h2 className="text-heading text-ink-1">Record your findings</h2>
+              <p className="mt-1 text-small text-ink-2">
+                Mark the configuration state you achieved. &ldquo;Check my work&rdquo; validates the result.
+              </p>
+              <div className="mt-4">
+                <NetworkWorkbench draft={draft} setDraft={setDraft} />
+              </div>
+            </Card>
+          )}
 
           {(done || expired || error) && (
             <Card level={2} className={done ? 'border-success/30' : ''}>
@@ -310,9 +307,11 @@ export default function LabWorkspace() {
             </Card>
           )}
 
-          <div className="sticky bottom-3 flex items-center gap-3">
-            <Button size="lg" icon={ShieldCheck} onClick={check} loading={busy} disabled={expired} className="flex-1">Check my work</Button>
-          </div>
+          {!usesTerminal && (
+            <div className="sticky bottom-3 flex items-center gap-3">
+              <Button size="lg" icon={ShieldCheck} onClick={check} loading={busy} disabled={expired} className="flex-1">Check my work</Button>
+            </div>
+          )}
         </div>
       </main>
     </div>
