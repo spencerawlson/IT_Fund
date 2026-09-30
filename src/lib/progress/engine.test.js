@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { COURSES, PATHS, ROADMAP_ORDER, allLessons, getCourse, getModule, getPath } from '@/data/catalog';
 import {
-  PASS_PCT, isLessonUnlocked, lessonStatus, moduleLock, courseProgress, courseStatus, courseMinutesLeft,
-  pathStatus, pathPrerequisites, continueLearning, pastLessonCards, overallProgress,
-  reviewQueue, dueReviewCount, assessmentReviewCards,
+  PASS_PCT, lessonStatus, lessonPrerequisites, modulePrerequisites, moduleStatus, courseProgress,
+  courseStatus, courseMinutesLeft, pathStatus, pathPrerequisites, continueLearning, pastLessonCards,
+  overallProgress, reviewQueue, dueReviewCount, assessmentReviewCards,
 } from './engine';
 
 const empty = () => ({ xp: 0, cards: {}, lessons: {}, bosses: {}, resume: null });
@@ -28,42 +28,61 @@ describe('catalogue', () => {
   });
 });
 
-describe('lesson locking', () => {
-  const [first, second] = getModule('python:beginner').lessons;
-
-  it('opens only the first lesson of a first-step module on a fresh start', () => {
-    expect(isLessonUnlocked(empty(), first.id)).toBe(true);
-    expect(isLessonUnlocked(empty(), second.id)).toBe(false);
-    expect(lessonStatus(empty(), second)).toBe('locked');
+describe('open access', () => {
+  it('opens every lesson of every module on a fresh start', () => {
+    const fresh = empty();
+    allLessons.forEach((l) => expect(lessonStatus(fresh, l), l.id).toBe('available'));
   });
 
-  it('opens the next lesson only after a passing score', () => {
-    expect(isLessonUnlocked(withLessons([first.id], PASS_PCT - 1), second.id)).toBe(false);
-    expect(isLessonUnlocked(withLessons([first.id], PASS_PCT), second.id)).toBe(true);
+  it('opens courses at every difficulty, without finishing the ones before', () => {
+    COURSES.forEach((c) => expect(courseStatus(empty(), c), c.slug).toBe('not-started'));
+    expect(COURSES.map((c) => c.difficulty)).toContain('Expert');
   });
 
-  it('runs first-step modules of different courses in parallel', () => {
-    const networkFirst = getModule('network:beginner').lessons[0];
-    expect(isLessonUnlocked(empty(), networkFirst.id)).toBe(true);
+  it('never reports a module or path as locked', () => {
+    const fresh = empty();
+    COURSES.flatMap((c) => c.modules).forEach((m) => expect(moduleStatus(fresh, m), m.key).not.toBe('locked'));
+    PATHS.forEach((p) => expect(pathStatus(fresh, p), p.slug).not.toBe('locked'));
+  });
+
+  it('tracks progress on a lesson taken out of the recommended order', () => {
+    const advanced = getModule('cissp:advanced').lessons[0];
+    const state = withLessons([advanced.id]);
+    expect(lessonStatus(state, advanced)).toBe('completed');
+    expect(courseProgress(state, getCourse('cissp-domains'))).toBeGreaterThan(0);
   });
 });
 
-describe('module prerequisites', () => {
-  it('locks a module until the previous roadmap step is complete', () => {
+describe('prerequisites are guidance', () => {
+  it('reports the modules a module builds on, and keeps it open anyway', () => {
     const intermediate = getModule('network:intermediate');
     const onlyPython = withLessons(moduleLessons('python:beginner'));
-    const lock = moduleLock(onlyPython, intermediate);
-    expect(lock.unlocked).toBe(false);
-    expect(lock.blockers.map((m) => m.key)).toContain('network:beginner');
-
-    const stepOne = withLessons([...moduleLessons('python:beginner'), ...moduleLessons('network:beginner')]);
-    expect(moduleLock(stepOne, intermediate).unlocked).toBe(true);
+    const report = modulePrerequisites(onlyPython, intermediate);
+    expect(report.met).toBe(false);
+    expect(report.modules.map((m) => m.key)).toContain('network:beginner');
+    expect(moduleStatus(onlyPython, intermediate)).toBe('not-started');
+    expect(lessonStatus(onlyPython, intermediate.lessons[0])).toBe('available');
   });
 
-  it('keeps a module open once one of its lessons is passed', () => {
+  it('drops recommendations as they are completed', () => {
     const intermediate = getModule('network:intermediate');
-    const state = withLessons([intermediate.lessons[0].id]);
-    expect(moduleLock(state, intermediate).unlocked).toBe(true);
+    const stepOne = withLessons([...moduleLessons('python:beginner'), ...moduleLessons('network:beginner')]);
+    expect(modulePrerequisites(stepOne, intermediate)).toEqual({ met: true, modules: [] });
+  });
+
+  it('recommends the previous lesson until it is passed', () => {
+    const [first, second] = getModule('python:beginner').lessons;
+    expect(lessonPrerequisites(empty(), first).met).toBe(true);
+    expect(lessonPrerequisites(empty(), second).previous.id).toBe(first.id);
+    expect(lessonPrerequisites(withLessons([first.id], PASS_PCT - 1), second).previous.id).toBe(first.id);
+    expect(lessonPrerequisites(withLessons([first.id], PASS_PCT), second)).toMatchObject({ met: true, previous: null });
+  });
+
+  it('recommends the module a lesson sits in when that module has unmet background', () => {
+    const intermediate = getModule('network:intermediate');
+    const report = lessonPrerequisites(empty(), intermediate.lessons[0]);
+    expect(report.met).toBe(false);
+    expect(report.modules.map((m) => m.key)).toContain('network:beginner');
   });
 });
 
@@ -98,17 +117,21 @@ describe('career path prerequisites', () => {
     expect(pathStatus(empty(), getPath('it-foundations'))).toBe('coming-soon');
   });
 
-  it('does not lock on recommended prerequisites', () => {
-    const networking = getPath('networking');
-    expect(pathPrerequisites(empty(), networking).unlocked).toBe(true);
-    expect(pathStatus(empty(), networking)).toBe('not-started');
+  it('reports unmet required paths without closing the path', () => {
+    const cloud = getPath('cloud-computing');
+    expect(pathStatus(empty(), cloud)).toBe('not-started');
+    const report = pathPrerequisites(empty(), cloud);
+    expect(report.met).toBe(false);
+    expect(report.required.map((r) => r.path.slug)).toContain('networking');
+
+    const networkDone = withLessons(getCourse('network-engineering').lessons.map((l) => l.id));
+    expect(pathPrerequisites(networkDone, cloud).met).toBe(true);
   });
 
-  it('locks on required prerequisites until they are complete', () => {
-    const cloud = getPath('cloud-computing');
-    expect(pathStatus(empty(), cloud)).toBe('locked');
-    const networkDone = withLessons(getCourse('network-engineering').lessons.map((l) => l.id));
-    expect(pathPrerequisites(networkDone, cloud).unlocked).toBe(true);
+  it('counts recommended prerequisites separately from required ones', () => {
+    const report = pathPrerequisites(empty(), getPath('networking'));
+    expect(report.met).toBe(true);
+    expect(report.recommended.map((r) => r.path.slug)).toContain('it-foundations');
   });
 });
 
@@ -129,6 +152,12 @@ describe('continue learning', () => {
     const state = withLessons([net[0].id], 100, Date.now());
     expect(continueLearning(state).lesson.id).toBe(net[1].id);
   });
+
+  it('resumes a lesson the learner chose out of order', () => {
+    const advanced = getModule('cissp:advanced').lessons[2];
+    const state = { ...empty(), resume: { deckId: advanced.id, plan: [], index: 1 } };
+    expect(continueLearning(state).lesson.id).toBe(advanced.id);
+  });
 });
 
 describe('review of past lessons', () => {
@@ -147,23 +176,24 @@ describe('review of past lessons', () => {
     expect(picked).toEqual([a.deck.cards[1].id, a.deck.cards[0].id]);
   });
 
-  // Learner passed the first two Python lessons; everything else is still locked.
   const [py1, py2, py3] = getModule('python:beginner').lessons;
-  const lockedLesson = getModule('python:intermediate').lessons[0];
+  const ahead = getModule('python:intermediate').lessons[0];
   const now = 1_000_000;
   const card = (lesson, i, box, due) => ({ [lesson.deck.cards[i].id]: { box, due } });
 
-  it('never reviews cards from a lesson the learner cannot open', () => {
+  it('reviews studied cards from anywhere, including lessons taken ahead of the path', () => {
     const state = {
-      ...withLessons([py1.id, py2.id]),
-      // e.g. progress saved by an older version of the app that allowed skipping ahead
-      cards: { ...card(py1, 0, 2, now - 5), ...card(lockedLesson, 0, 1, now - 50), ...card(lockedLesson, 1, 1, now - 50) },
+      ...withLessons([py1.id, py2.id, ahead.id]),
+      cards: { ...card(py1, 0, 2, now - 5), ...card(ahead, 0, 1, now - 50) },
     };
-    const locked = new Set(lockedLesson.deck.cards.map((c) => c.id));
-    expect(lessonStatus(state, lockedLesson)).toBe('locked');
-    expect(pastLessonCards(state, null, 10, now).some((c) => locked.has(c.id))).toBe(false);
-    expect(reviewQueue(state, 10, now).some((c) => locked.has(c.id))).toBe(false);
+    expect(reviewQueue(state, 10, now).map((c) => c.deckId)).toEqual([ahead.id, py1.id]);
+    expect(dueReviewCount(state, now)).toBe(2);
+  });
+
+  it('never reviews a card the learner has not studied', () => {
+    const state = { ...withLessons([py1.id]), cards: { ...card(py1, 0, 1, now - 5) } };
     expect(dueReviewCount(state, now)).toBe(1);
+    expect(pastLessonCards(state, null, 10, now)).toHaveLength(1);
   });
 
   it('spreads picks across lessons instead of drilling one', () => {
@@ -201,7 +231,7 @@ describe('review of past lessons', () => {
     expect(reviewQueue(state, 10, now).map((c) => c.id)).toEqual([py2.deck.cards[0].id, py1.deck.cards[0].id]);
   });
 
-  it('assessment review cards come only from earlier modules', () => {
+  it('assessment review cards come from outside the module being assessed', () => {
     const intermediate = getModule('python:intermediate');
     const beginnerIds = getModule('python:beginner').lessons.map((l) => l.id);
     const state = {

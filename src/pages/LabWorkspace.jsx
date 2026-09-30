@@ -169,7 +169,12 @@ export default function LabWorkspace() {
         const def = labs.find((l) => l.id === labId);
         if (!def) throw new Error('Lab not found.');
         const s = await labsApi.start(labId);
-        if (!live) return;
+        if (!live) {
+          // Left the page while it was starting: end the session rather than leave it holding one
+          // of the visitor's slots until it expires.
+          labsApi.destroy(s.id).catch(() => {});
+          return;
+        }
         setLab(def);
         setSession(s);
         setDraft(s.findings || {});

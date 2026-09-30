@@ -90,10 +90,7 @@ export default function Module() {
               <Icon size={28} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Module {module.number}</p>
-                <LevelBadge level={module.level} />
-              </div>
+              <LevelBadge level={module.level} />
               <h1 className="mt-0.5 text-2xl font-bold leading-tight sm:text-3xl">{module.title}</h1>
               <p className="mt-1 text-sm text-ink-2">{module.subtitle}</p>
             </div>

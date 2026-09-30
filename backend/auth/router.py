@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 import db
 from auth import oauth as oauth_mod
 from auth.deps import require_user_id
-from auth.identity import upsert_identity
+from auth.identity import OAuthIdentity, upsert_identity
 from auth.sessions import COOKIE_NAME, cookie_kwargs, create_session, delete_session
 from db_models import User
 
@@ -26,6 +26,23 @@ APP_ORIGIN = os.environ.get("APP_ORIGIN", "http://localhost:5188")
 def _check_provider(provider: str) -> None:
     if provider not in PROVIDERS or not oauth_mod.provider_configured(provider):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown or unconfigured provider.")
+
+
+@router.api_route("/dev-login", methods=["GET", "POST"])
+def dev_login():
+    """Local-only owner sign-in for testing before the OAuth apps exist. Disabled unless
+    ALLOW_DEV_LOGIN=1 (never set in production), so it 404s everywhere by default."""
+    if os.environ.get("ALLOW_DEV_LOGIN") != "1":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found.")
+    with db.SessionLocal() as s:
+        user = upsert_identity(s, OAuthIdentity("dev", "owner", "owner@local.dev", True, "Owner"))
+        raw = create_session(s, user.id)
+        s.commit()
+    # Relative redirect on purpose: the browser resolves it against whichever dev origin it used
+    # (Vite picks 5173, 5174, 5188...), so this works without matching APP_ORIGIN to the port.
+    resp = RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+    resp.set_cookie(COOKIE_NAME, raw, **cookie_kwargs())
+    return resp
 
 
 @router.get("/{provider}/login")

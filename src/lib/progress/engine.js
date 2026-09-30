@@ -1,12 +1,12 @@
 // Progress engine: pure functions over the learner's saved state (see src/lib/academy.js).
 // No React and no storage here, so every rule is unit-testable and could run server-side.
 //
-// Locking rules (hard locks are "required" only; everything else is guidance):
-//   - Lessons inside a module go strictly in order: pass one to open the next.
-//   - Modules inside a course go strictly in order.
-//   - A module also requires every module of the previous Road to CISSP roadmap step.
-//   - A career path is locked until its `required` paths are complete; `recommended` and
-//     `optional` paths only produce labelled warnings.
+// Nothing is locked. Every lesson, module, course and career path is open from the first visit,
+// at every level. The ordering below is the *recommended* path, and prerequisites are guidance the
+// UI shows as a short notice ("this builds on..."), never access control:
+//   - Recommended order inside a module is lesson by lesson; inside a course, module by module.
+//   - A module also recommends every module of the previous Road to CISSP roadmap step.
+//   - A career path's `required`, `recommended` and `optional` prerequisites are all advice.
 import {
   COURSES, PATHS, ROADMAP_ORDER, allLessons, getCourse, getLesson, getModule, getPath,
 } from '@/data/catalog';
@@ -19,7 +19,6 @@ export const STATUS = {
   'in-progress': 'In Progress',
   'not-started': 'Not Started',
   available: 'Available',
-  locked: 'Locked',
   'coming-soon': 'Coming soon',
 };
 
@@ -33,20 +32,9 @@ export function isStarted(state, lesson) {
   return !!state.lessons?.[lesson.id] || state.resume?.deckId === lesson.id || lesson.deck.cards.some((c) => state.cards?.[c.id]);
 }
 
-export function isLessonUnlocked(state, lessonId) {
-  const lesson = getLesson(lessonId);
-  if (!lesson) return false;
-  if (isPassed(state, lessonId)) return true;
-  const module = getModule(lesson.moduleKey);
-  if (!moduleLock(state, module).unlocked) return false;
-  const i = module.lessons.findIndex((l) => l.id === lessonId);
-  return i === 0 || isPassed(state, module.lessons[i - 1].id);
-}
-
-/** 'completed' | 'in-progress' | 'available' | 'locked' */
+/** 'completed' | 'in-progress' | 'available' -- every lesson that exists is open. */
 export function lessonStatus(state, lesson) {
   if (isPassed(state, lesson.id)) return 'completed';
-  if (!isLessonUnlocked(state, lesson.id)) return 'locked';
   return isStarted(state, lesson) ? 'in-progress' : 'available';
 }
 
@@ -55,25 +43,41 @@ export function lessonStatus(state, lesson) {
 export const isModuleComplete = (state, module) => module.lessons.every((l) => isPassed(state, l.id));
 export const moduleProgress = (state, module) => pct(module.lessons.filter((l) => isPassed(state, l.id)).length, module.lessons.length);
 
-/** { unlocked, blockers: modules that must be completed first } */
-export function moduleLock(state, module) {
+/**
+ * Background recommended before a module, and whether the learner has it: the previous module of
+ * the same course, plus every module of the previous Road to CISSP roadmap step. Advice only --
+ * the module is open either way.
+ * @returns {{ met: boolean, modules: object[] }} `modules`: recommended ones not yet complete.
+ */
+export function modulePrerequisites(state, module) {
   const course = getCourse(module.courseSlug);
-  const blockers = [];
-  const prev = course.modules[module.number - 2];
-  if (prev && !isModuleComplete(state, prev)) blockers.push(prev);
-  module.requiredModules.forEach((key) => {
-    const m = getModule(key);
-    if (m && !isModuleComplete(state, m) && !blockers.includes(m)) blockers.push(m);
-  });
-  // Once any lesson in a module is passed, keep it open even if prerequisites change later.
-  const sticky = module.lessons.some((l) => isPassed(state, l.id));
-  return { unlocked: sticky || blockers.length === 0, blockers: sticky ? [] : blockers };
+  const modules = [];
+  const add = (m) => {
+    if (m && !isModuleComplete(state, m) && !modules.includes(m)) modules.push(m);
+  };
+  add(course.modules[module.number - 2]);
+  module.requiredModules.forEach((key) => add(getModule(key)));
+  return { met: modules.length === 0, modules };
 }
 
+/** 'completed' | 'in-progress' | 'not-started' */
 export function moduleStatus(state, module) {
   if (isModuleComplete(state, module)) return 'completed';
-  if (!moduleLock(state, module).unlocked) return 'locked';
   return module.lessons.some((l) => isStarted(state, l)) ? 'in-progress' : 'not-started';
+}
+
+/**
+ * Background recommended before a lesson: the lesson before it in the same module, plus its
+ * module's own recommendations.
+ * @returns {{ met: boolean, previous: object|null, modules: object[] }}
+ */
+export function lessonPrerequisites(state, lesson) {
+  const module = getModule(lesson.moduleKey);
+  const i = module.lessons.findIndex((l) => l.id === lesson.id);
+  const before = module.lessons[i - 1];
+  const previous = before && !isPassed(state, before.id) ? before : null;
+  const { modules } = modulePrerequisites(state, module);
+  return { met: !previous && modules.length === 0, previous, modules };
 }
 
 // ---------- courses ----------
@@ -82,15 +86,17 @@ export const courseLessonsDone = (state, course) => course.lessons.filter((l) =>
 export const courseProgress = (state, course) => pct(courseLessonsDone(state, course), course.lessons.length);
 export const courseMinutesLeft = (state, course) => course.lessons.filter((l) => !isPassed(state, l.id)).reduce((s, l) => s + l.minutes, 0);
 
+/** 'completed' | 'in-progress' | 'not-started' -- courses are open at every level. */
 export function courseStatus(state, course) {
   if (course.lessons.every((l) => isPassed(state, l.id))) return 'completed';
-  if (!moduleLock(state, course.modules[0]).unlocked) return 'locked';
   return course.lessons.some((l) => isStarted(state, l)) ? 'in-progress' : 'not-started';
 }
 
-/** The next lesson to take in a course: first unpassed lesson that is open, or null. */
-export const nextLessonInCourse = (state, course) =>
-  course.lessons.find((l) => !isPassed(state, l.id) && isLessonUnlocked(state, l.id)) || null;
+/** Background recommended before a course: what its first module builds on. */
+export const coursePrerequisites = (state, course) => modulePrerequisites(state, course.modules[0]);
+
+/** The recommended next lesson in a course: the first one not yet passed, in course order. */
+export const nextLessonInCourse = (state, course) => course.lessons.find((l) => !isPassed(state, l.id)) || null;
 
 // ---------- paths ----------
 
@@ -102,15 +108,17 @@ export function isPathComplete(state, path) {
 }
 
 /**
- * Prerequisite report for a path. A "coming soon" path (no courses yet) can never block anyone.
- * @returns {{ unlocked: boolean, required: {path, met}[], recommended: {path, met}[], optional: {path, met}[] }}
+ * Prerequisite report for a path, for display only: no kind of prerequisite blocks access. A
+ * "coming soon" path (no courses yet) counts as met, since there is nothing to study in it.
+ * @returns {{ met: boolean, required: {path, met}[], recommended: {path, met}[], optional: {path, met}[] }}
+ *   `met` is true when every `required` path is complete.
  */
 export function pathPrerequisites(state, path) {
   const check = (slugs = []) =>
     slugs.map(getPath).filter(Boolean).map((p) => ({ path: p, met: p.courses.length === 0 || isPathComplete(state, p) }));
   const required = check(path.prerequisites?.required);
   return {
-    unlocked: required.every((r) => r.met),
+    met: required.every((r) => r.met),
     required,
     recommended: check(path.prerequisites?.recommended),
     optional: check(path.prerequisites?.optional),
@@ -122,14 +130,12 @@ export function pathProgress(state, path) {
   return pct(lessons.filter((l) => isPassed(state, l.id)).length, lessons.length);
 }
 
-/** 'coming-soon' | 'completed' | 'in-progress' | 'locked' | 'not-started' */
+/** 'coming-soon' | 'completed' | 'in-progress' | 'not-started' -- paths are never locked. */
 export function pathStatus(state, path) {
   const courses = pathCourses(path);
   if (!courses.length) return 'coming-soon';
   if (isPathComplete(state, path)) return 'completed';
-  const started = courses.some((c) => c.lessons.some((l) => isStarted(state, l)));
-  if (started) return 'in-progress';
-  return pathPrerequisites(state, path).unlocked ? 'not-started' : 'locked';
+  return courses.some((c) => c.lessons.some((l) => isStarted(state, l))) ? 'in-progress' : 'not-started';
 }
 
 // ---------- overall ----------
@@ -139,45 +145,66 @@ export const lessonsDone = (state) => allLessons.filter((l) => isPassed(state, l
 export const overallProgress = (state) => pct(lessonsDone(state), lessonsTotal);
 
 /**
- * What "Continue Learning" should open:
- *   1. a half-finished lesson (saved mid-lesson),
- *   2. else the next lesson in the course you studied most recently,
- *   3. else the first open lesson in Road to CISSP roadmap order.
- * @returns {{ lesson, resume: object|null } | null}
+ * Where the recommended path points next: the next unpassed lesson of the course studied most
+ * recently, else the first unpassed lesson in Road to CISSP roadmap order.
+ * @returns {object|null}
  */
-export function continueLearning(state) {
-  const saved = state.resume?.deckId && getLesson(state.resume.deckId);
-  if (saved && isLessonUnlocked(state, saved.id)) return { lesson: saved, resume: state.resume };
-
+export function recommendedNext(state) {
   const recent = Object.entries(state.lessons || {})
     .filter(([id]) => getLesson(id))
     .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))[0];
   if (recent) {
     const next = nextLessonInCourse(state, getCourse(getLesson(recent[0]).courseSlug));
-    if (next) return { lesson: next, resume: null };
+    if (next) return next;
   }
-  const first = ROADMAP_ORDER.find((l) => !isPassed(state, l.id) && isLessonUnlocked(state, l.id));
-  return first ? { lesson: first, resume: null } : null;
+  return ROADMAP_ORDER.find((l) => !isPassed(state, l.id)) || null;
+}
+
+/**
+ * What "Continue Learning" should open: a half-finished lesson (saved mid-lesson) if there is one,
+ * else `recommendedNext`. Since any lesson can be opened, a saved lesson may be a detour, so
+ * `onPath` carries the recommendation whenever it is somewhere else — the dashboard offers both
+ * rather than silently retargeting the path to wherever the learner last wandered.
+ * @returns {{ lesson, resume: object|null, onPath: object|null } | null}
+ */
+export function continueLearning(state) {
+  const recommended = recommendedNext(state);
+  const saved = state.resume?.deckId && getLesson(state.resume.deckId);
+  if (saved) {
+    const onPath = recommended && recommended.id !== saved.id ? recommended : null;
+    return { lesson: saved, resume: state.resume, onPath };
+  }
+  return recommended ? { lesson: recommended, resume: null, onPath: null } : null;
 }
 
 // ---------- review ----------
-// Review only ever draws from lessons the learner can open (saved state from older versions of
-// the app, which allowed skipping ahead, must not surface locked material). Picks are
-// interleaved across lessons, because mixing topics beats drilling one at a time.
+// Review draws from every lesson the learner has actually studied, wherever they studied it: a
+// card is reviewable once it has been seen. Picks are interleaved across lessons, because mixing
+// topics beats drilling one at a time.
 
-/** Studied cards the learner may review: { c: card, s: saved state, lessonId }. */
+/** Studied cards the learner may review: { c: card, s: saved state, lessonId, passed }. */
 function reviewableCards(state, excludeLessonIds = []) {
   const exclude = new Set([].concat(excludeLessonIds).filter(Boolean));
   return allLessons
-    .filter((l) => !exclude.has(l.id) && isLessonUnlocked(state, l.id))
-    .flatMap((l) => l.deck.cards.filter((c) => state.cards?.[c.id]).map((c) => ({ c, s: state.cards[c.id], lessonId: l.id })));
+    .filter((l) => !exclude.has(l.id))
+    .flatMap((l) => {
+      const passed = isPassed(state, l.id);
+      return l.deck.cards
+        .filter((c) => state.cards?.[c.id])
+        .map((c) => ({ c, s: state.cards[c.id], lessonId: l.id, passed }));
+    });
 }
 
-/** Overdue before not-yet-due; then the weakest box; then the longest overdue. */
+/**
+ * Overdue before not-yet-due; then lessons the learner passed before ones they only sampled (they
+ * can open anything, so browsing an advanced lesson must not crowd out learnt material); then the
+ * weakest box; then the longest overdue.
+ */
 const byReviewPriority = (now) => (a, b) => {
   const aDue = a.s.due <= now;
   const bDue = b.s.due <= now;
   if (aDue !== bDue) return aDue ? -1 : 1;
+  if (a.passed !== b.passed) return a.passed ? -1 : 1;
   return a.s.box - b.s.box || a.s.due - b.s.due;
 };
 
@@ -208,8 +235,8 @@ function interleave(ranked, count, perLesson) {
 const perLessonCap = (count) => Math.max(2, Math.ceil(count / 4));
 
 /**
- * Cards from other open, studied lessons: overdue first, then the weakest and oldest, spread
- * across lessons. `excludeLessonIds` is one id or a list (e.g. every lesson of a module).
+ * Cards from other studied lessons: overdue first, then the weakest and oldest, spread across
+ * lessons. `excludeLessonIds` is one id or a list (e.g. every lesson of a module).
  */
 export function pastLessonCards(state, excludeLessonIds, count, now = Date.now()) {
   const ranked = reviewableCards(state, excludeLessonIds).sort(byReviewPriority(now));
@@ -224,13 +251,13 @@ export function reviewQueue(state, count, now = Date.now()) {
   return interleave(ranked, count, perLessonCap(count)).map(({ c }) => c);
 }
 
-/** How many cards are due for review now (open lessons only). */
+/** How many cards are due for review now. */
 export const dueReviewCount = (state, now = Date.now()) =>
   reviewableCards(state).filter(({ s }) => s.box > 0 && s.due <= now).length;
 
 /**
- * Cumulative part of a module assessment: the learner's weakest cards from earlier modules
- * (never this module, never locked lessons).
+ * Cumulative part of a module assessment: the learner's weakest cards from lessons outside this
+ * module.
  */
 export const assessmentReviewCards = (state, module, count, now = Date.now()) =>
   pastLessonCards(state, module.lessons.map((l) => l.id), count, now);
@@ -238,7 +265,6 @@ export const assessmentReviewCards = (state, module, count, now = Date.now()) =>
 // ---------- compatibility helpers for the original track pages ----------
 
 const tierModule = (track, tierIndex) => getModule(`${track.id}:${track.tiers[tierIndex].id}`);
-export const isTierOpen = (state, track, tierIndex) => moduleLock(state, tierModule(track, tierIndex)).unlocked;
 export const isTierComplete = (state, track, tierIndex) => isModuleComplete(state, tierModule(track, tierIndex));
 
 export { COURSES, PATHS };

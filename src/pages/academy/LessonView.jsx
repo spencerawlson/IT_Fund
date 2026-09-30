@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, RotateCcw, Lock, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap } from 'lucide-react';
+import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap } from 'lucide-react';
 import RichText from '@/components/academy/RichText';
-import { Prerequisites } from '@/components/academy/ui/bits';
+import { PrereqNotice } from '@/components/academy/ui/bits';
 import {
   Button, Card, EmptyState, ListLink, PageContainer, PageHeader, StatusBadge,
 } from '@/components/ui-glass';
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
 import { useAcademy } from '@/lib/academy';
-import { lessonStatus, moduleLock, isLessonUnlocked, PASS_PCT } from '@/lib/progress/engine';
+import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 
 const SAMPLE_QUESTIONS = 4;
 
@@ -37,36 +37,19 @@ export default function LessonView() {
   ];
   const title = <>Lesson {lesson.number}: <RichText text={lesson.title} /></>;
 
-  if (status === 'locked') {
-    const lock = moduleLock(state, module);
-    const i = module.lessons.findIndex((l) => l.id === lesson.id);
-    const previous = i > 0 ? module.lessons[i - 1] : null;
-    return (
-      <PageContainer>
-        <PageHeader breadcrumbs={crumbs} eyebrow={`${course.title} · Module ${module.number}`} title={title} />
-        <Card level={2} padding="lg" className="max-w-reading">
-          <p className="flex items-center gap-2 text-heading text-ink-1"><Lock size={18} aria-hidden="true" /> Not open yet</p>
-          <p className="mt-2 text-body text-ink-2">Lessons open one at a time, in order, so each builds on the last. Complete this first:</p>
-          <div className="mt-5">
-            <Prerequisites
-              items={{
-                required: lock.unlocked
-                  ? [{ label: `Lesson ${previous.number}: ${previous.title}`, to: lessonHref(previous), met: false }]
-                  : lock.blockers.map((m) => ({ label: `${getCourse(m.courseSlug).title} · Module ${m.number}`, to: moduleHref(m), met: false })),
-              }}
-            />
-          </div>
-        </Card>
-      </PageContainer>
-    );
-  }
-
   const c = lesson.content || {};
   const resume = state.resume?.deckId === lesson.id ? state.resume : null;
   const best = state.lessons?.[lesson.id]?.best;
   const i = module.lessons.findIndex((l) => l.id === lesson.id);
   const prev = module.lessons[i - 1];
   const next = module.lessons[i + 1];
+  // Recommended background. Nothing blocks the lesson, so this is a short note at the top: the
+  // lesson before it, and the module it assumes. Two items at most, and none once it is passed.
+  const prereq = lessonPrerequisites(state, lesson);
+  const prereqItems = (status === 'completed' ? [] : [
+    ...(prereq.previous ? [{ label: `Lesson ${prereq.previous.number}: ${prereq.previous.title}`, to: lessonHref(prereq.previous) }] : []),
+    ...prereq.modules.map((m) => ({ label: `${getCourse(m.courseSlug).title} · Module ${m.number}`, to: moduleHref(m) })),
+  ]).slice(0, 2);
   const puzzles = lesson.deck.puzzles.length;
   const practiceLabel = resume ? 'Resume practice' : status === 'completed' ? 'Practise again' : 'Start practice';
 
@@ -88,6 +71,8 @@ export default function LessonView() {
         <span>{lesson.deck.cards.length} questions{puzzles ? ` · ${puzzles} hands-on ${puzzles === 1 ? 'puzzle' : 'puzzles'}` : ''}</span>
         {best !== undefined && <span>Best score {best}%</span>}
       </div>
+
+      <PrereqNotice className="mb-8 max-w-reading" items={prereqItems} />
 
       {sections.length > 2 && (
         <nav aria-label="On this page" className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-small">
@@ -203,14 +188,7 @@ export default function LessonView() {
         {prev ? (
           <Button to={lessonHref(prev)} variant="ghost" icon={ArrowLeft}>Lesson {prev.number}</Button>
         ) : <span />}
-        {next &&
-          (isLessonUnlocked(state, next.id) ? (
-            <Button to={lessonHref(next)} variant="ghost" iconAfter={ArrowRight}>Lesson {next.number}</Button>
-          ) : (
-            <span className="inline-flex items-center gap-2 text-small text-ink-2">
-              <Lock size={14} aria-hidden="true" /> Lesson {next.number} opens when you pass this one
-            </span>
-          ))}
+        {next && <Button to={lessonHref(next)} variant="ghost" iconAfter={ArrowRight}>Lesson {next.number}</Button>}
       </nav>
     </PageContainer>
   );

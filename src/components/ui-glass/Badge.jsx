@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, CircleDot, Circle, Lock, Clock } from 'lucide-react';
+import { Check, CircleDot, Circle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STATUS } from '@/lib/progress/engine';
 
@@ -28,11 +28,10 @@ const STATUS_BADGE = {
   'in-progress': { tone: 'current', icon: CircleDot },
   'not-started': { tone: 'neutral', icon: Circle },
   available: { tone: 'neutral', icon: Circle },
-  locked: { tone: 'neutral', icon: Lock },
   'coming-soon': { tone: 'neutral', icon: Clock },
 };
 
-/** Progress status (completed, in-progress, locked...): icon + word, never colour alone. */
+/** Progress status (completed, in-progress, available...): icon + word, never colour alone. */
 export function StatusBadge({ status, className }) {
   const { tone, icon } = STATUS_BADGE[status] || STATUS_BADGE['not-started'];
   return (

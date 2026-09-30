@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Repeat, FlaskConical, Crown, Search, Sparkles, X } from 'lucide-react';
+import { Home, BookOpen, Repeat, FlaskConical, Crown, Search, Sparkles, X, LogIn, User } from 'lucide-react';
 import Logo from '@/components/Logo';
+import { useAuth } from '@/lib/AuthContext';
 import { useTutorEnabled } from '@/components/academy/tutor/TutorAssist';
 import { getCourse, courseHref } from '@/data/catalog';
 import { useAcademy } from '@/lib/academy';
@@ -76,6 +77,25 @@ function TutorButton({ compact = false }) {
   );
 }
 
+/** Account entry: avatar + name when signed in, "Sign in to sync" otherwise. Links to /signin. */
+function AccountMenu({ compact = false }) {
+  const { isAuthenticated, user } = useAuth();
+  const avatar = isAuthenticated && user?.avatar_url;
+  if (compact) {
+    return (
+      <Link to="/signin" aria-label={isAuthenticated ? 'Your account' : 'Sign in'} className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-white/[0.06]">
+        {avatar ? <img src={user.avatar_url} alt="" className="h-7 w-7 rounded-full border border-white/10" /> : <LogIn size={20} aria-hidden="true" />}
+      </Link>
+    );
+  }
+  return (
+    <Link to="/signin" className="flex items-center gap-3 rounded-control px-3 py-2.5 text-small font-semibold text-ink-2 transition-colors hover:bg-white/[0.06] hover:text-ink-1">
+      {avatar ? <img src={user.avatar_url} alt="" className="h-6 w-6 shrink-0 rounded-full border border-white/10" /> : <User size={18} aria-hidden="true" />}
+      <span className="min-w-0 truncate">{isAuthenticated ? user.display_name || 'Your account' : 'Sign in to sync'}</span>
+    </Link>
+  );
+}
+
 /**
  * The one navigation for the app: a sidebar from lg up, a top bar plus bottom tab bar below.
  * Lessons, quizzes and sign-in pages render outside it (full-screen focus mode).
@@ -117,8 +137,9 @@ export default function AppShell() {
               );
             })}
           </nav>
-          <div className="mt-auto border-t border-white/[0.08] pt-3">
+          <div className="mt-auto space-y-1 border-t border-white/[0.08] pt-3">
             <TutorButton />
+            <AccountMenu />
           </div>
         </div>
       </header>
@@ -143,6 +164,7 @@ export default function AppShell() {
                   <Search size={20} aria-hidden="true" />
                 </button>
                 <TutorButton compact />
+                <AccountMenu compact />
               </div>
             </>
           )}

@@ -32,7 +32,11 @@ cd backend
 .venv/Scripts/python -m pytest labs/            # lab tests
 ```
 
-Endpoints (bearer token from the existing auth; the user is taken from the token, never the body):
+Endpoints. Labs are **open to everyone during development** — no account needed. The owner of a
+session is `resolve_visitor_id` (`auth/deps.py`): the signed-in user, else a random per-browser
+guest id in the `rtc_guest` cookie. It always comes from a cookie, never from the body or path.
+When labs become a paid feature, implement `_check_lab_entitlement` in `api.py`: the first
+`TRIAL_LAB_STARTS` (10) starts are the free trial, then a subscription is required.
 
 ```
 GET    /api/labs/definitions
@@ -66,8 +70,10 @@ only ever sees the normalized result via `public_dict()`.
 
 ## Security controls implemented (Phase 1)
 
-- User taken from the token, never the request body/path; one user cannot read/write another's
-  session (same 404 as "not found", so existence isn't leaked). Tested.
+- Owner taken from a cookie (account session, else guest id), never the request body/path; no
+  visitor can read or write another's session, guest or signed-in (same 404 as "not found", so
+  existence isn't leaked). A malformed guest cookie is discarded and replaced, never trusted as an
+  id. Tested.
 - Client cannot choose image, target or provider — only a `lab_id`; everything else is server-side.
   Tested.
 - Providers are allow-listed; a lab requesting a non-implemented provider fails closed.

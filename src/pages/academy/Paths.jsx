@@ -8,8 +8,9 @@ import { PATHS, getPath, getCourse, formatMinutes, pathMinutes } from '@/data/ca
 import { useAcademy } from '@/lib/academy';
 import { pathProgress, pathStatus } from '@/lib/progress/engine';
 
-// Paths you're on come first; locked ones last. Paths without courses yet are not listed.
-const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2, locked: 3 };
+// Paths you're on come first, then untouched ones, then finished ones. Paths without courses yet
+// are not listed.
+const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
 
 export function PathsIndex() {
   const state = useAcademy();
@@ -22,7 +23,7 @@ export function PathsIndex() {
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Career paths' }]}
         title="Career paths"
-        description="Each path is a set of courses toward a role. Required prerequisites keep a path locked until you’re ready; recommended ones are advice."
+        description="Each path is a set of courses toward a role. Every path is open from the start; its prerequisites tell you which background makes it easier."
       />
       <div className="grid gap-4 md:grid-cols-2">
         {paths.map((path) => (
@@ -53,6 +54,8 @@ export function PathDetail() {
   }
   const courses = path.courses.map(getCourse).filter(Boolean);
   const status = pathStatus(state, path);
+  const prereqs = pathPrereqItems(state, path);
+  const someUnmet = ['required', 'recommended'].some((kind) => prereqs[kind].some((p) => !p.met));
   const crumbs = [{ label: 'Home', to: '/' }, { label: 'Career paths', to: '/academy/paths' }, { label: path.title }];
 
   if (!courses.length) {
@@ -90,10 +93,10 @@ export function PathDetail() {
 
       <section aria-labelledby="path-prereqs" className="mt-12">
         <SectionHeader id="path-prereqs" title="Before you start" />
-        <Prerequisites items={pathPrereqItems(state, path)} />
-        {status === 'locked' && (
+        <Prerequisites items={prereqs} />
+        {someUnmet && (
           <p className="mt-4 max-w-reading text-body text-ink-2">
-            This path is locked until its required paths are complete. You can look around; lessons open as you reach them.
+            None of this is locked. These are the paths that make this one easier — start here whenever you want.
           </p>
         )}
       </section>

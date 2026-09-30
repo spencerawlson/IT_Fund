@@ -1,6 +1,7 @@
 // Career paths: ordered lists of course slugs plus prerequisite paths.
-// `required` prerequisites lock a path until they are complete; `recommended` and `optional`
-// are shown as guidance only. A path with no courses yet renders as "Coming soon".
+// Every path is open from the start. `required` names the background the path assumes and is shown
+// as "recommended first"; `recommended` and `optional` are softer advice. None of them gate access.
+// A path with no courses yet renders as "Coming soon".
 
 /** @type {import('./schema').LearningPath[]} */
 export const PATHS = [

@@ -1,7 +1,7 @@
 // Data-driven cards and lists for paths, courses, modules and lessons, built on the kit.
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Play, RotateCcw, Lock, BookOpen } from 'lucide-react';
+import { Play, RotateCcw, BookOpen } from 'lucide-react';
 import RichText from '@/components/academy/RichText';
 import { Button, Card, LessonRow } from '@/components/ui-glass';
 import {
@@ -9,7 +9,7 @@ import {
 } from '@/data/catalog';
 import {
   pathStatus, pathProgress, pathPrerequisites, courseStatus, courseProgress, courseMinutesLeft,
-  moduleStatus, moduleProgress, moduleLock, lessonStatus,
+  moduleStatus, moduleProgress, modulePrerequisites, lessonStatus,
 } from '@/lib/progress/engine';
 import { ProgressBar, StatusBadge, IconTile } from './bits';
 
@@ -27,6 +27,18 @@ export const externalModulePrereqs = (state, module) =>
     .filter((m) => m && m.courseSlug !== module.courseSlug)
     .map((m) => ({ label: `${getCourse(m.courseSlug).title} · Module ${m.number}`, to: moduleHref(m), met: moduleStatus(state, m) === 'completed' }));
 
+/**
+ * A module's recommended background, as <PrereqNotice> items. `externalOnly` drops modules of the
+ * same course, whose order a syllabus already makes obvious.
+ */
+export const modulePrereqItems = (state, module, { externalOnly = false } = {}) =>
+  modulePrerequisites(state, module).modules
+    .filter((m) => !externalOnly || m.courseSlug !== module.courseSlug)
+    .map((m) => ({
+      label: m.courseSlug === module.courseSlug ? `Module ${m.number}: ${m.title}` : `${getCourse(m.courseSlug).title} · Module ${m.number}`,
+      to: moduleHref(m),
+    }));
+
 const passedIn = (state, lessons) => lessons.filter((l) => lessonStatus(state, l) === 'completed').length;
 const meta = (...parts) => parts.filter(Boolean).join(' · ');
 
@@ -35,7 +47,7 @@ export function ContinueLearning({ state, next }) {
   if (!next) {
     return (
       <Card level={2} padding="lg">
-        <h2 className="text-heading text-ink-1">Every open lesson is complete.</h2>
+        <h2 className="text-heading text-ink-1">Every lesson is complete.</h2>
         <p className="mt-2 text-body text-ink-2">Keep your reviews going, or take a module’s knowledge assessment.</p>
       </Card>
     );
@@ -106,8 +118,8 @@ export function LearningPathCard({ state, path, headingAs }) {
       </p>
       {!comingSoon && <ProgressBar className="mt-4" value={pathProgress(state, path)} label={`${path.title} progress`} />}
       {missing.length > 0 && (
-        <p className="mt-3 flex items-start gap-1.5 text-small text-ink-2">
-          <Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> Requires {missing.map((m) => m.path.title).join(' and ')}
+        <p className="mt-3 text-small text-ink-2">
+          Recommended first: {missing.map((m) => m.path.title).join(' and ')}
         </p>
       )}
     </>
@@ -127,7 +139,7 @@ export function CourseCard({ state, course, headingAs }) {
   );
 }
 
-/** Lessons of one module, with status, number and time. Locked lessons are not links. */
+/** Lessons of one module, with status, number and time. Every lesson is open, so every row links. */
 export function LessonList({ state, module }) {
   const statuses = module.lessons.map((l) => lessonStatus(state, l));
   const currentIndex = statuses.findIndex((s) => s === 'in-progress' || s === 'available');
@@ -149,40 +161,33 @@ export function LessonList({ state, module }) {
   );
 }
 
-/** Module sections for a course page: header, progress, then its lessons (or why it's locked). */
+/**
+ * Module sections for a course page: header, progress, then its lessons. Every module is open, so
+ * the order is the recommended one, not a sequence of gates.
+ */
 export function ModuleList({ state, course }) {
   return (
     <ol className="space-y-4">
-      {course.modules.map((module) => {
-        const lock = moduleLock(state, module);
-        return (
-          <li key={module.key}>
-            <Card level={2} padding="md">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Module {module.number} · {module.level}</p>
-                  <h3 className="mt-1 text-heading text-ink-1">
-                    <Link to={moduleHref(module)} className="hover:underline hover:decoration-white/40 hover:underline-offset-4">{module.title}</Link>
-                  </h3>
-                  <p className="mt-1 text-small text-ink-2">{meta(module.summary, `${module.lessons.length} lessons`, formatMinutes(module.minutes))}</p>
-                </div>
-                <StatusBadge status={moduleStatus(state, module)} />
+      {course.modules.map((module) => (
+        <li key={module.key}>
+          <Card level={2} padding="md">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Module {module.number} · {module.level}</p>
+                <h3 className="mt-1 text-heading text-ink-1">
+                  <Link to={moduleHref(module)} className="hover:underline hover:decoration-white/40 hover:underline-offset-4">{module.title}</Link>
+                </h3>
+                <p className="mt-1 text-small text-ink-2">{meta(module.summary, `${module.lessons.length} lessons`, formatMinutes(module.minutes))}</p>
               </div>
-              <ProgressBar className="mt-4" value={moduleProgress(state, module)} label={`Module ${module.number} progress`} />
-              {lock.unlocked ? (
-                <div className="-mx-2 mt-4">
-                  <LessonList state={state} module={module} />
-                </div>
-              ) : (
-                <p className="mt-4 flex items-start gap-2 text-small text-ink-2">
-                  <Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
-                  Opens after {lock.blockers.map((m) => `${getCourse(m.courseSlug).title} · Module ${m.number}`).join(', ')}
-                </p>
-              )}
-            </Card>
-          </li>
-        );
-      })}
+              <StatusBadge status={moduleStatus(state, module)} />
+            </div>
+            <ProgressBar className="mt-4" value={moduleProgress(state, module)} label={`Module ${module.number} progress`} />
+            <div className="-mx-2 mt-4">
+              <LessonList state={state} module={module} />
+            </div>
+          </Card>
+        </li>
+      ))}
     </ol>
   );
 }

@@ -9,8 +9,9 @@
  * @typedef {'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'} Difficulty
  *
  * @typedef {object} Prerequisites
- * @property {string[]} [required]     Must be complete first; the item is locked until then.
- * @property {string[]} [recommended]  Shown as a warning; never locks.
+ * Nothing here locks anything: all three kinds are shown as recommendations.
+ * @property {string[]} [required]     The background the item assumes; shown as "recommended first".
+ * @property {string[]} [recommended]  Strongly advised, but not needed to start.
  * @property {string[]} [optional]     Nice to have; shown as a hint.
  *
  * @typedef {object} LearningPath

@@ -11,8 +11,8 @@ export { PATHS, CERTIFICATIONS, SKILLS };
 /** Rough study time: ~45 s per question, ~2 min per hands-on puzzle, 5-minute floor. */
 export const lessonMinutes = (deck) => Math.max(5, Math.round(deck.cards.length * 0.75 + (deck.puzzles?.length || 0) * 2));
 
-// Module prerequisites follow the Road to CISSP roadmap: every module in step N requires
-// all modules in step N-1. Within a course, modules and lessons also go strictly in order.
+// Module prerequisites follow the Road to CISSP roadmap: every module in step N recommends all
+// modules in step N-1. They are guidance for the UI to show, not gates: see lib/progress/engine.js.
 const moduleKey = (trackId, tierId) => `${trackId}:${tierId}`;
 const ROADMAP_REQUIRES = new Map();
 ROADMAP.forEach((step, i) => {

@@ -31,6 +31,7 @@ import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Course
 import LessonView from './pages/academy/LessonView';
 import Practice from './pages/Practice';
 import LabWorkspace from './pages/LabWorkspace';
+import SignIn from './pages/SignIn';
 
 // Dev-only design system preview; not bundled into production builds.
 const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
@@ -73,6 +74,7 @@ const AuthenticatedApp = () => {
         <Route path="/academy/courses/:courseSlug/:moduleSlug" element={<ModuleDetail />} />
         <Route path="/academy/lessons/:lessonId" element={<LessonView />} />
         <Route path="/academy/:trackId" element={<AcademyTrack />} />
+        <Route path="/signin" element={<SignIn />} />
         <Route path="/practice" element={<Practice />} />
         <Route path="/library" element={<Home />} />
         <Route path="/module/:moduleId" element={<Module />} />

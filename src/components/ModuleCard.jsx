@@ -16,8 +16,7 @@ export default function ModuleCard({ module, percent }) {
         <IconTile icon={Icon} color={cat.dot} />
         <ProgressRing value={percent} label={`${module.title} progress`} size={44} />
       </div>
-      <div className="mt-4 flex items-center gap-2">
-        <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Module {module.number}</p>
+      <div className="mt-4">
         <LevelBadge level={module.level} />
       </div>
       <h3 className="mt-1 text-heading text-ink-1">{module.title}</h3>

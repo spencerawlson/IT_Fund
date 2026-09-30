@@ -19,7 +19,7 @@ const TYPE = [
   { cls: 'text-title', label: 'Title', size: '28–32px', sample: 'Lesson 2.2: Switching & Routing' },
   { cls: 'text-heading', label: 'Heading', size: '20px', sample: 'How a router chooses a path' },
   { cls: 'text-lesson', label: 'Lesson body', size: '17px', sample: 'A router matches each packet’s destination against its routing table and uses the longest prefix match.' },
-  { cls: 'text-body', label: 'Body', size: '16px', sample: 'Lessons open in order, so each one builds on the last.' },
+  { cls: 'text-body', label: 'Body', size: '16px', sample: 'Each lesson opens with a few questions from the ones before it.' },
   { cls: 'text-small', label: 'Small', size: '14px', sample: '3 lessons · 39 min' },
   { cls: 'text-caption', label: 'Caption', size: '12px (minimum)', sample: 'Module 2 · Intermediate' },
 ];
@@ -175,7 +175,7 @@ export default function DesignSystem() {
             <Badge icon={Clock}>1 h 50 min</Badge>
           </div>
           <div className="flex flex-wrap gap-2">
-            {['completed', 'in-progress', 'not-started', 'available', 'locked', 'coming-soon'].map((s) => <StatusBadge key={s} status={s} />)}
+            {['completed', 'in-progress', 'not-started', 'available', 'coming-soon'].map((s) => <StatusBadge key={s} status={s} />)}
           </div>
         </Card>
       </Section>
@@ -217,12 +217,12 @@ export default function DesignSystem() {
         </div>
       </Section>
 
-      <Section title="Lesson row" description="The syllabus unit. The learner’s next lesson is highlighted; locked lessons are not links.">
+      <Section title="Lesson row" description="The syllabus unit. Every lesson is open; the learner’s recommended next lesson is highlighted.">
         <Card level={2} padding="sm" className="space-y-1">
           <LessonRow number="1.1" title="OSI & TCP/IP Models" status="completed" minutes={13} to="/design" />
           <LessonRow number="1.2" title="Ports & Protocols" status="in-progress" minutes={15} to="/design" current />
           <LessonRow number="1.3" title="Devices, Media & Topologies" status="available" minutes={11} to="/design" />
-          <LessonRow number="2.1" title="IPv4, IPv6 & Subnetting" status="locked" minutes={14} />
+          <LessonRow number="2.1" title="IPv4, IPv6 & Subnetting" status="available" minutes={14} to="/design" />
         </Card>
       </Section>
 

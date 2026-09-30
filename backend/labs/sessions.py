@@ -23,6 +23,11 @@ CREATING, READY, RUNNING, VALIDATING, COMPLETED, FAILED, EXPIRED, DESTROYING, DE
 )
 
 
+#: Live sessions one owner (account or guest) may hold at once. A guard, not a product limit: lab
+#: starts are open to anonymous visitors, and session storage is in-memory.
+MAX_LIVE_SESSIONS_PER_OWNER = 5
+
+
 class LabError(Exception):
     """Carries a code the API maps to an HTTP status: not_found, unavailable, invalid."""
 
@@ -99,6 +104,14 @@ class SessionService:
         lab = get_lab(lab_id)
         if lab is None:
             raise LabError("not_found", "Lab not found.")
+        # Starting a lab is open to anonymous visitors, so every start sweeps finished sessions and
+        # caps how many one owner may hold live. Without this, `_sessions` grows for as long as
+        # anyone keeps calling start.
+        await self.cleanup_expired()
+        live = sum(1 for s in self._sessions.values()
+                   if s.user_id == user_id and s.status in (CREATING, READY, RUNNING, VALIDATING))
+        if live >= MAX_LIVE_SESSIONS_PER_OWNER:
+            raise LabError("invalid", f"You already have {MAX_LIVE_SESSIONS_PER_OWNER} labs open. Exit one first.")
         provider = self._provider_for(lab.environment.provider)
         env = await provider.create_session(lab, user_id)
         now = _now()
@@ -172,10 +185,16 @@ class SessionService:
         self._sessions.pop(session_id, None)
 
     async def cleanup_expired(self) -> int:
-        """Destroy the environments of expired/finished sessions. Safe to call repeatedly."""
+        """Destroy the environments of expired/finished sessions and forget them.
+
+        Safe to call repeatedly. A COMPLETED or FAILED session is kept until its window is over, so
+        a learner can still read their results; after that the environment is gone anyway.
+        """
         removed = 0
         for session in list(self._sessions.values()):
             self._expire_if_due(session)
+            if session.status in (COMPLETED, FAILED) and _now() >= session.expires_at:
+                session.status = EXPIRED
             if session.status in (EXPIRED, DESTROYED):
                 lab = get_lab(session.lab_id)
                 if lab is not None:

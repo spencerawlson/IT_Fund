@@ -39,9 +39,9 @@ export default function Home() {
   return (
     <PageContainer wide>
       <PageHeader
-        breadcrumbs={[{ label: 'Practice', to: '/practice' }, { label: 'Library' }]}
+        breadcrumbs={[{ label: 'Courses', to: '/academy/courses' }, { label: 'Concept library' }]}
         title="Concept library"
-        description="Every concept from the original modules, with study notes, flashcards and quizzes. Use it for reference alongside your lessons."
+        description="Every module and concept, with study notes, flashcards and quizzes. Use it for reference alongside your lessons."
       />
 
       {query && (

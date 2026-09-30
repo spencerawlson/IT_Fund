@@ -8,6 +8,7 @@ if str(backend_dir) not in sys.path:
 
 from fastapi.testclient import TestClient
 import main
+from auth.deps import GUEST_COOKIE, _GUEST_TOKEN
 from labs import sessions as sessions_mod
 from labs.registry import LABS
 from labs.sessions import _now
@@ -18,6 +19,7 @@ client = TestClient(main.app)
 def setup_function():
     main.USERS.clear()
     main.TOKENS.clear()
+    client.cookies.clear()  # a guest cookie from a previous test must not leak into the next
     sessions_mod.service._sessions.clear()
     sessions_mod.service._providers["mock"]._envs.clear()
 
@@ -25,6 +27,11 @@ def setup_function():
 def _user(uid: str):
     main.USERS[uid] = {"id": uid, "email": f"{uid}@example.com", "role": "user"}
     return {"Authorization": f"Bearer {main._issue_token(uid)}"}
+
+
+def _guest():
+    """A fresh anonymous browser: its own cookie jar, so guest ids differ between clients."""
+    return TestClient(main.app)
 
 
 PORTS = {"findings": {"hosts": {"target.lab": {"up": True}},
@@ -47,8 +54,40 @@ def test_definitions_load_and_hide_internals():
 
 # ---- auth + lifecycle ----
 
-def test_start_requires_auth():
-    assert client.post("/api/labs/cyber-nmap-001/start").status_code == 401
+def test_start_is_open_to_anonymous_visitors():
+    # Labs are open during development: no account needed, just a guest cookie to own the session.
+    r = client.post("/api/labs/cyber-nmap-001/start")
+    assert r.status_code == 200 and r.json()["status"] == "RUNNING"
+    assert GUEST_COOKIE in r.cookies
+    sid = r.json()["id"]
+    assert client.get(f"/api/labs/sessions/{sid}").status_code == 200  # same jar, same guest
+
+
+def test_one_guest_cannot_touch_another_guests_session():
+    a, b = _guest(), _guest()
+    sid = a.post("/api/labs/cyber-nmap-001/start").json()["id"]
+    assert b.get(f"/api/labs/sessions/{sid}").status_code == 404
+    assert b.post(f"/api/labs/sessions/{sid}/validate").status_code == 404
+    assert b.delete(f"/api/labs/sessions/{sid}").status_code == 204  # idempotent, deletes nothing
+    assert a.get(f"/api/labs/sessions/{sid}").status_code == 200
+
+
+def test_a_forged_guest_cookie_is_replaced_not_trusted():
+    c = _guest()
+    c.cookies.set(GUEST_COOKIE, "../../etc/passwd")
+    r = c.post("/api/labs/cyber-nmap-001/start")
+    assert r.status_code == 200
+    issued = r.cookies[GUEST_COOKIE]
+    assert issued != "../../etc/passwd" and _GUEST_TOKEN.match(issued)
+
+
+def test_signing_in_separates_a_users_sessions_from_guest_ones():
+    guest_sid = client.post("/api/labs/cyber-nmap-001/start").json()["id"]
+    h = _user("u1")
+    assert client.get(f"/api/labs/sessions/{guest_sid}", headers=h).status_code == 404
+    user_sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
+    assert user_sid != guest_sid
+    assert client.get(f"/api/labs/sessions/{user_sid}").status_code == 404  # back to the guest id
 
 
 def test_start_unknown_lab_is_404():

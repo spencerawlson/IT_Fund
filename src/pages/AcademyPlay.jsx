@@ -11,7 +11,7 @@ import { getTrack, getDeck } from '@/data/academy';
 import {
   useAcademy, buildQuestions, cardState, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
 } from '@/lib/academy';
-import { isLessonUnlocked, isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
+import { isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
 import { getModule } from '@/data/catalog';
 
 const LEARN_BATCH = 15;
@@ -114,12 +114,14 @@ export default function AcademyPlay({ kind }) {
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {
     body = <EmptyState icon={SearchX} title="Not found" text="This quiz may have moved." to="/" action="Back to Home" />;
-  } else if (!result && ((kind === 'deck' && !isLessonUnlocked(state, deck.id)) || (kind === 'boss' && !isTierComplete(state, track, tierIndex)))) {
+    // Lessons are all open; a module's assessment still waits until its lessons are passed, since
+    // it is that module's final check and draws its questions from them.
+  } else if (!result && kind === 'boss' && !isTierComplete(state, track, tierIndex)) {
     body = (
       <EmptyState
         icon={Lock}
         title="Not open yet"
-        text={kind === 'boss' ? 'The assessment is this module’s final check: pass every lesson in the module first.' : 'Reach this lesson on your path first.'}
+        text="The assessment is this module’s final check: pass every lesson in the module first."
         to="/"
         action="Back to Home"
       />

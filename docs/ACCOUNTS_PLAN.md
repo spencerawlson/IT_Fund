@@ -284,3 +284,27 @@ sign-in. Decision-independent; does not need the OAuth apps.
 out), wire the serverAdapter on sign-in and flush on hide, then remove the demo auth (`/auth/*`
 register/login/OTP/reset), the bearer fallback in `auth/deps.py`, and the obsolete `test_main.py`
 cases. **Needs the OAuth apps registered** for a real end-to-end sign-in test.
+
+## C3.5 status — in progress
+
+Done: OAuth sign-in UI (`/signin`, also the account view with sign-out + link-other-provider),
+account entry in the shell (sidebar + mobile), `AuthContext` switched to the session-cookie model
+(anonymous is a normal state, no redirect), server-sync wiring (`src/lib/progress/sync.js`:
+serverAdapter enabled on sign-in, reverted on sign-out, flush on tab-hide), and a **local-only
+owner login** (`/api/auth/dev-login`, gated by `ALLOW_DEV_LOGIN=1`; a "Developer sign-in" button
+shows only in `import.meta.env.DEV`) so labs are reachable before the OAuth apps exist. Demo-auth
+pages deleted. Verified live: dev sign-in -> account shows "Owner" -> an interactive lab starts.
+
+To use dev login locally: run the backend with `ALLOW_DEV_LOGIN=1 COOKIE_INSECURE=1`, run
+`vite` (its /api proxy points at the backend), open `/signin`, click **Developer sign-in**.
+
+Still to do (finishes C3.5): remove the plaintext demo auth (`/auth/register|login|otp|reset`,
+in-memory stores) and the bearer fallback in `auth/deps.py`, migrate `labs/test_labs.py` to cookie
+auth, and drop the 4 obsolete `test_main.py` cases.
+
+## Unrelated UI change (same session)
+
+Moved the **Concept library** (the original modules: All modules, Career tracks, Learning
+principles) out of Practice into **Learn** (a section on the Courses page), per user request, and
+removed the "Module N" number tags from the module cards and the module page. Practice now holds
+only hands-on labs. Frontend 116 passing.

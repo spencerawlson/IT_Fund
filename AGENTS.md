@@ -33,7 +33,9 @@ Base44 has been removed. Auth is standalone/local unless a backend is provided v
 
 ## Academy platform (paths → courses → modules → lessons)
 
-- Full architecture, content model, locking rules and "how to add a course": `docs/ACADEMY.md`.
+- Full architecture, content model, prerequisite rules and "how to add a course": `docs/ACADEMY.md`.
+- Nothing is locked: any course, module or lesson can be opened at any time. Prerequisites are
+  shown as recommendations (`PrereqNotice`), never enforced.
 - Catalogue: `src/data/catalog/`; progress rules: `src/lib/progress/engine.js` (pure, tested); persistence adapter: `src/lib/progress/storage.js`.
 - Tests: `node ./node_modules/vitest/vitest.mjs run`.
 

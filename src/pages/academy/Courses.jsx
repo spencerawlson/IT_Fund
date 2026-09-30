@@ -1,10 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, Swords, Lock, Check, SearchX } from 'lucide-react';
-import { IconTile, Prerequisites } from '@/components/academy/ui/bits';
-import { CourseCard, LessonList, ModuleList, externalModulePrereqs } from '@/components/academy/ui/cards';
+import { Play, Swords, Check, SearchX, ArrowRight, Library, Route as RouteIcon, Map } from 'lucide-react';
+import { IconTile, PrereqNotice, Prerequisites } from '@/components/academy/ui/bits';
+import { CourseCard, LessonList, ModuleList, externalModulePrereqs, modulePrereqItems } from '@/components/academy/ui/cards';
 import {
-  Button, Card, EmptyState, ListLink, PageContainer, PageHeader, ProgressBar, SectionHeader, StatusBadge,
+  Button, Card, EmptyState, IconTile as KitIconTile, ListLink, PageContainer, PageHeader, ProgressBar, SectionHeader, StatusBadge,
 } from '@/components/ui-glass';
 import { getTrack, trackResources } from '@/data/academy';
 import {
@@ -12,13 +12,35 @@ import {
 } from '@/data/catalog';
 import { useAcademy, bossKey, BOSS_PASS_PCT } from '@/lib/academy';
 import {
-  courseProgress, courseStatus, courseMinutesLeft, nextLessonInCourse, moduleLock, moduleProgress, moduleStatus, isModuleComplete,
+  courseProgress, courseStatus, courseMinutesLeft, nextLessonInCourse, moduleProgress, moduleStatus, isModuleComplete,
   pathPrerequisites, lessonStatus,
 } from '@/lib/progress/engine';
 
-// Courses you're working on come first; locked ones last.
-const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2, locked: 3 };
+// Courses you're working on come first, then ones you haven't opened, then the ones you finished.
+const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
 const passed = (state, lessons) => lessons.filter((l) => lessonStatus(state, l) === 'completed').length;
+
+// Reference material: the original modules, kept alongside the courses under Learn.
+const LIBRARY = [
+  { to: '/library', icon: Library, title: 'All modules', text: 'Every module and concept, with detailed study notes and search.' },
+  { to: '/tracks', icon: RouteIcon, title: 'Career tracks', text: 'The original track view: modules and labs chained into practical routes.' },
+  { to: '/learning-path', icon: Map, title: 'Learning principles', text: 'The six mental models every module and lab is tagged to.' },
+];
+
+function LibraryTile({ to, icon: Icon, title, text }) {
+  return (
+    <Card to={to}>
+      <div className="flex items-start gap-4">
+        <KitIconTile icon={Icon} />
+        <span className="min-w-0 flex-1">
+          <span className="block text-heading text-ink-1">{title}</span>
+          <span className="mt-1 block text-small text-ink-2">{text}</span>
+        </span>
+        <ArrowRight size={18} className="mt-1 shrink-0 text-ink-2" aria-hidden="true" />
+      </div>
+    </Card>
+  );
+}
 
 export function CoursesIndex() {
   const state = useAcademy();
@@ -28,13 +50,20 @@ export function CoursesIndex() {
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Courses' }]}
         title="Courses"
-        description="Each course is a sequence of modules, and each module a sequence of lessons. Courses open as you finish the ones before them."
+        description="Each course is a sequence of modules, and each module a sequence of lessons. Every course is open at every level: follow the recommended order, or start where you need to."
       />
       <div className="grid gap-4 md:grid-cols-2">
         {courses.map((course) => (
           <CourseCard key={course.slug} state={state} course={course} headingAs="h2" />
         ))}
       </div>
+
+      <section aria-labelledby="course-library" className="mt-12">
+        <SectionHeader id="course-library" title="Concept library" description="The original module material, kept for reference." />
+        <div className="grid gap-4 md:grid-cols-2">
+          {LIBRARY.map((t) => <LibraryTile key={t.to} {...t} />)}
+        </div>
+      </section>
     </PageContainer>
   );
 }
@@ -55,7 +84,8 @@ export function CourseDetail() {
 
   const next = nextLessonInCourse(state, course);
   const status = courseStatus(state, course);
-  const required = externalModulePrereqs(state, course.modules[0]);
+  // Prerequisites are advice here, not gates: the course is open whether or not they are met.
+  const recommendedFirst = externalModulePrereqs(state, course.modules[0]);
   // Recommended background comes from the career paths this course belongs to.
   const recommended = new Map();
   pathsForCourse(course.slug).forEach((p) =>
@@ -72,6 +102,12 @@ export function CourseDetail() {
         eyebrow={`${course.difficulty} course`}
         title={course.title}
         description={course.description}
+      />
+
+      <PrereqNotice
+        className="-mt-4 mb-8"
+        subject="This course"
+        items={recommendedFirst.filter((p) => !p.met).map(({ label, to }) => ({ label, to }))}
       />
 
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -91,16 +127,10 @@ export function CourseDetail() {
                 <div className="flex justify-between gap-3"><dt className="text-ink-2">Time left</dt><dd className="text-ink-1">{formatMinutes(courseMinutesLeft(state, course))}</dd></div>
               )}
             </dl>
-            {next ? (
+            {next && (
               <Button to={playerHref(next)} icon={Play} className="mt-5 w-full">
                 {status === 'not-started' ? 'Start' : 'Continue'}: Lesson {next.number}
               </Button>
-            ) : (
-              status === 'locked' && (
-                <p className="mt-5 flex items-start gap-2 text-small text-ink-2">
-                  <Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> Opens after the prerequisites below.
-                </p>
-              )
             )}
           </Card>
         </aside>
@@ -124,7 +154,7 @@ export function CourseDetail() {
 
           <section aria-labelledby="prereq-heading">
             <SectionHeader id="prereq-heading" title="Before you start" />
-            <Prerequisites items={{ required, recommended: [...recommended.values()] }} />
+            <Prerequisites items={{ required: recommendedFirst, recommended: [...recommended.values()] }} />
           </section>
 
           <section aria-labelledby="outcomes-heading" className="grid gap-8 sm:grid-cols-2">
@@ -171,7 +201,7 @@ export function ModuleDetail() {
       </PageContainer>
     );
   }
-  const lock = moduleLock(state, module);
+  const prereqs = modulePrereqItems(state, module);
   const complete = isModuleComplete(state, module);
   const bestBoss = state.bosses?.[bossKey(course.trackId, module.slug)] || 0;
 
@@ -191,20 +221,10 @@ export function ModuleDetail() {
 
       <Card level={2} padding="md">
         <ProgressBar value={moduleProgress(state, module)} label={`Module ${module.number} progress`} />
-        {lock.unlocked ? (
-          <div className="-mx-2 mt-4">
-            <LessonList state={state} module={module} />
-          </div>
-        ) : (
-          <div className="mt-5">
-            <p className="mb-4 flex items-center gap-2 text-body text-ink-1"><Lock size={16} aria-hidden="true" /> This module opens after:</p>
-            <Prerequisites
-              items={{
-                required: lock.blockers.map((m) => ({ label: `${getCourse(m.courseSlug).title} · Module ${m.number}: ${m.title}`, to: `/academy/courses/${m.courseSlug}/${m.slug}`, met: false })),
-              }}
-            />
-          </div>
-        )}
+        <PrereqNotice className="mt-4" subject="This module" items={prereqs} />
+        <div className="-mx-2 mt-4">
+          <LessonList state={state} module={module} />
+        </div>
       </Card>
 
       <Card as="section" aria-labelledby="assessment-heading" className="mt-6">

@@ -111,6 +111,22 @@ def test_unconfigured_provider_login_is_404():
     assert client.get("/api/auth/google/login", follow_redirects=False).status_code == 404
 
 
+def test_dev_login_is_disabled_by_default(monkeypatch):
+    # delenv, because a developer's backend/.env may enable it locally (that is the point of it).
+    monkeypatch.delenv("ALLOW_DEV_LOGIN", raising=False)
+    client.cookies.clear()
+    assert client.post("/api/auth/dev-login", follow_redirects=False).status_code == 404
+
+
+def test_dev_login_works_when_explicitly_enabled(monkeypatch):
+    monkeypatch.setenv("ALLOW_DEV_LOGIN", "1")
+    client.cookies.clear()
+    r = client.post("/api/auth/dev-login", follow_redirects=False)
+    assert r.status_code == 302 and COOKIE_NAME in r.cookies
+    me = client.get("/api/auth/me")
+    assert me.status_code == 200 and me.json()["display_name"] == "Owner"
+
+
 def test_labs_work_with_session_cookie(monkeypatch):
     monkeypatch.setattr(oauth_mod, "fetch_identity", _fake_fetch)
     client.cookies.clear()

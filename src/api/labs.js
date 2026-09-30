@@ -1,6 +1,9 @@
 // Client for the interactive-lab backend (backend/labs). Uses relative /api paths so the Vite dev
-// proxy (-> :8000) and the Vercel rewrite (-> backend service) both work. The bearer token comes
-// from the same place AuthContext stores it; labs require a signed-in user.
+// proxy (-> :8000) and the Vercel rewrite (-> backend service) both work, which also means the
+// cookies are sent automatically. Labs are open during development, with no sign-in: the backend
+// owns a lab session by account session cookie if there is one, else by a guest cookie it sets
+// itself (`resolve_visitor_id`). Nothing here needs to know which.
+// TOKEN_KEY is the legacy demo bearer token, still accepted by the backend as a fallback.
 const TOKEN_KEY = 'it_fund_access_token';
 
 async function labRequest(path, { method = 'GET', body } = {}) {

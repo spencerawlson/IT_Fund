@@ -57,29 +57,44 @@ Phase 3) certification tracks will reference existing modules and lessons.
 > **Card ids are positional** (`<deckId>-<index>`). Append new cards; never reorder or delete, or
 > learners lose progress on them. The same applies to deck ids.
 
-## Progress and locking
+## Progress and prerequisites
 
 State (in `src/lib/academy.js`): `lessons[lessonId] = { best, at }`, `cards[cardId] = { box, due }`
 (Leitner spaced repetition), `bosses`, `xp`, `streak`, `badges`, and `resume` (mid-lesson position).
 
-Rules (`src/lib/progress/engine.js`), all hard locks being **required** prerequisites:
+**Nothing is locked.** Every course, module and lesson is open from the first visit, at every
+difficulty (Beginner through Expert). The order below is the *recommended* path, and prerequisites
+are guidance the UI displays — never access control. Rules (`src/lib/progress/engine.js`):
 
 1. A lesson is **passed** at `PASS_PCT` (70%) first-try accuracy.
-2. Lessons in a module open strictly in order.
-3. Modules in a course open strictly in order.
-4. A module also requires every module in the previous Road to CISSP roadmap step (`ROADMAP` in
-   `meta.js`). Once any lesson in a module is passed, the module stays open.
-5. A path is **Locked** until its `required` paths are complete. `recommended`/`optional` only
-   show labelled guidance. A path with no courses is **Coming soon** and never blocks others.
+2. Lessons have a recommended order inside a module, and modules inside a course. The next unpassed
+   lesson is highlighted as "current", but any lesson can be opened at any time.
+3. `modulePrerequisites()` reports the background a module assumes: the previous module of its own
+   course, plus every module of the previous Road to CISSP roadmap step (`ROADMAP` in `meta.js`).
+   `lessonPrerequisites()` adds the lesson before it. Both list only what is not yet complete.
+4. A path's `required`, `recommended` and `optional` prerequisites are all advice;
+   `pathPrerequisites().met` reports whether the required ones are done. A path with no courses is
+   **Coming soon**.
+5. Statuses are `completed` / `in-progress` / `not-started` (`available` for a lesson) plus
+   `coming-soon`. There is no `locked` status.
+
+The one thing still gated is a module's **knowledge assessment** (its tier boss): it is that
+module's final check and draws its questions from the module, so it waits until every lesson in the
+module is passed.
+
+Prerequisites reach the UI two ways: the short `<PrereqNotice>` ("This course builds on X — you can
+carry on anyway") on the course, module and lesson pages, and the labelled `<Prerequisites>` list
+under "Before you start".
 
 Progress percentages are passed lessons ÷ total lessons (module, course, path, overall). Time left
 sums `lessonMinutes` (≈45 s per question + 2 min per puzzle) of unpassed lessons.
 
-**Continue Learning** picks: a half-finished lesson → the next lesson in the most recently studied
-course → the first open lesson in roadmap order.
+**Continue Learning** recommends: a half-finished lesson → the next lesson in the most recently
+studied course → the first unpassed lesson in roadmap order. It is a suggestion, not a restriction.
 
 **Review**: every lesson opens with up to 4 questions from earlier lessons (overdue first, then the
-weakest). `/academy/review` serves due cards, or the weakest past cards when nothing is due.
+weakest). `/academy/review` serves due cards, or the weakest past cards when nothing is due. A card
+becomes reviewable as soon as it has been studied, wherever in the catalogue that was.
 
 ## Persistence
 
@@ -127,7 +142,7 @@ module, 3 lives, 80% to pass (`AcademyPlay` with `kind="boss"`).
 ## Tests
 
 `npm test` (or `node node_modules/vitest/vitest.mjs run` when npm's shim fails on this path) runs
-`src/**/*.test.js`: catalogue integrity, locking and prerequisites, progress maths, continue-learning
+`src/**/*.test.js`: catalogue integrity, open access and prerequisite reporting, progress maths, continue-learning
 selection, review picking, and the store/adapter.
 
 ## Roadmap of remaining phases

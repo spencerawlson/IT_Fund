@@ -25,7 +25,7 @@ export default function Academy() {
         description={
           studied
             ? 'Your next lesson is ready. Each lesson starts with a few questions from earlier ones, so what you learn sticks.'
-            : 'One lesson at a time, from IT foundations to the CISSP. Lessons open in order, and your place is saved as you go.'
+            : 'From IT foundations to the CISSP. Follow the recommended path or pick any course at any level, and your place is saved as you go.'
         }
       />
 
