@@ -79,6 +79,28 @@ def record_findings(session_id: str, body: dict = Body(default_factory=dict), ow
         raise _http(err)
 
 
+@router.post("/sessions/{session_id}/exec")
+async def exec_in_session(
+    session_id: str,
+    body: dict = Body(default_factory=dict),
+    owner_id: str = Depends(resolve_visitor_id),
+) -> dict[str, Any]:
+    # The command is untrusted input; the (mock) provider only pattern-matches it, never runs it.
+    command = body.get("command", "") if isinstance(body, dict) else ""
+    if not isinstance(command, str):
+        raise HTTPException(status_code=400, detail="command must be a string.")
+    try:
+        session, result = await service.exec_command(session_id, owner_id, command)
+    except LabError as err:
+        raise _http(err)
+    return {
+        "output": result.output,
+        "exit_code": result.exit_code,
+        "clear": result.clear,
+        "session": session.public_dict(),
+    }
+
+
 @router.post("/sessions/{session_id}/validate")
 async def validate_session(session_id: str, owner_id: str = Depends(resolve_visitor_id)) -> dict[str, Any]:
     try:

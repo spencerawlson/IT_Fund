@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from labs.providers.base import LabProvider
+from labs.providers.base import CommandResult, LabProvider
 from labs.providers.mock import MockLabProvider
 from labs.registry import get_lab
 
@@ -39,6 +39,35 @@ class LabError(Exception):
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _merge_findings(dst: dict[str, Any], delta: dict[str, Any]) -> dict[str, Any]:
+    """Accumulate outcome findings from a command into the session's findings.
+
+    Unlike the shallow update used by manual recording, this unions ports by (target, port) so a
+    later `-sV` scan upgrades earlier entries with versions instead of replacing them, and appends
+    research notes. Everything a learner discovers is kept."""
+    for key, val in delta.items():
+        if key == "ports" and isinstance(val, list):
+            index = {(p.get("target"), p.get("port")): p for p in dst.get("ports", [])}
+            for p in val:
+                k = (p.get("target"), p.get("port"))
+                if k in index:
+                    for field_name in ("service", "version"):
+                        if p.get(field_name):
+                            index[k][field_name] = p[field_name]
+                else:
+                    index[k] = dict(p)
+            dst["ports"] = list(index.values())
+        elif key == "hosts" and isinstance(val, dict):
+            hosts = dst.setdefault("hosts", {})
+            for host, state in val.items():
+                hosts.setdefault(host, {}).update(state if isinstance(state, dict) else {})
+        elif key == "research" and isinstance(val, list):
+            dst["research"] = (dst.get("research") or []) + val
+        else:
+            dst[key] = val
+    return dst
 
 
 @dataclass
@@ -147,6 +176,14 @@ class SessionService:
         session = self._owned(session_id, user_id)
         if session.status == EXPIRED:
             raise LabError("invalid", "This session has expired. Reset or start a new one.")
+        await self._run_validation(session)
+        return session
+
+    async def _run_validation(self, session: LabSession) -> LabSession:
+        """Re-validate every objective against the current findings and mark completion.
+
+        Shared by `validate` (explicit "Check my work") and `exec_command` (so the terminal ticks
+        objectives off live as the learner discovers things). Never un-completes a session."""
         lab = get_lab(session.lab_id)
         provider = self._provider_for(lab.environment.provider)
         results = []
@@ -155,10 +192,26 @@ class SessionService:
             session.progress[objective.id] = result.passed
             results.append({"objective_id": result.objective_id, "passed": result.passed, "message": result.message, "evidence": result.evidence})
         session.validation_results = results
-        if all(session.progress.values()):
+        if all(session.progress.values()) and session.status != COMPLETED:
             session.status = COMPLETED
             session.completed_at = _now()
         return session
+
+    async def exec_command(self, session_id: str, user_id: str, command: str) -> tuple[LabSession, CommandResult]:
+        """Run one command in the lab's (simulated) shell, merge any findings it established, then
+        re-validate so objectives update live. Returns the session and the command result."""
+        session = self._owned(session_id, user_id)
+        if session.status not in (READY, RUNNING, COMPLETED):
+            raise LabError("invalid", f"Cannot run commands while the session is {session.status}.")
+        if not isinstance(command, str):
+            raise LabError("invalid", "Command must be a string.")
+        lab = get_lab(session.lab_id)
+        provider = self._provider_for(lab.environment.provider)
+        result = await provider.exec_command(session.environment_id, lab, command, session.findings)
+        if result.findings:
+            _merge_findings(session.findings, result.findings)
+            await self._run_validation(session)
+        return session, result
 
     async def reset(self, session_id: str, user_id: str) -> LabSession:
         session = self._owned(session_id, user_id)

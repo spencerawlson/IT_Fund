@@ -13,7 +13,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from labs.models import LabDefinition
-from labs.providers.base import LabEnvironment, LabProvider, ValidationResult
+from labs.providers.base import CommandResult, LabEnvironment, LabProvider, ValidationResult
+from labs.scenarios import simulate_command
 from labs.validators import VALIDATORS
 
 
@@ -58,3 +59,9 @@ class MockLabProvider(LabProvider):
             return ValidationResult(objective_id, False, "No validator configured.", None)
         passed, message, evidence = fn(objective.args, findings)
         return ValidationResult(objective_id, passed, message, evidence)
+
+    async def exec_command(
+        self, environment_id: str, lab: LabDefinition, command: str, findings: dict[str, Any]
+    ) -> CommandResult:
+        # Pure interpretation of the scenario: matches the command string, executes nothing.
+        return simulate_command(lab, command, findings)
