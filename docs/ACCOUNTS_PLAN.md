@@ -213,3 +213,74 @@ Authlib-based Google + GitHub sign-in, `HttpOnly` session cookie, `GET /api/me`,
 identity upsert implements verified-email auto-merge; then remove the demo auth and point the labs'
 `current_user` at the new session. **Needs your OAuth apps first** (section 3): the Google and
 GitHub client IDs/secrets, set as env vars on the VM.
+
+## C3.2 status — done (backend)
+
+OAuth sign-in, built against injectable providers so it's fully unit-tested without live credentials:
+- **`backend/auth/`**: `identity.py` (verified-email auto-merge), `sessions.py` (HttpOnly cookie;
+  only the SHA-256 of the id is stored; sliding 30-day expiry), `oauth.py` (Authlib Google + GitHub,
+  normalising each provider incl. GitHub's `/user/emails` for the verified primary), `deps.py`
+  (shared `require_user_id`: session cookie, then legacy bearer), `router.py`.
+- **Routes** (at `/api/auth/*`): `GET /{provider}/login`, `GET /{provider}/callback`,
+  `POST /logout`, `GET /me`.
+- **Wiring**: Starlette `SessionMiddleware` for OAuth state; labs now authenticate via the shared
+  dependency, so a session cookie alone starts a lab (verified in a test).
+- **Tests** (`backend/test_auth.py`, 9): returning identity, auto-merge on matching **verified**
+  emails (case-insensitive), NO merge when unverified, account email set only from a verified claim,
+  session round-trip/expiry, and the full callback -> cookie -> `/me` -> logout flow with an
+  injected identity, plus a lab started with only the cookie. Backend suite: 36 passing (the 4
+  pre-existing demo-auth failures remain).
+- **Deps**: authlib, httpx, itsdangerous (+ cryptography pulled in). `.env.example` documents
+  `APP_ORIGIN`, `SESSION_SECRET`, `COOKIE_INSECURE`.
+
+**Revised sequencing note:** the plaintext demo auth (`/auth/*`) and the bearer fallback are kept
+until **C3.5**, when the frontend switches to OAuth sign-in — removing them now would break the
+(still-wired) demo login with no replacement UI. That's also when the 4 `test_main.py` failures go.
+
+**Needs you before a live sign-in:** register the Google and GitHub OAuth apps (section 3), set
+`GOOGLE_/GITHUB_CLIENT_ID/SECRET`, `SESSION_SECRET`, `APP_ORIGIN`, `DATABASE_URL` and `APP_ORIGINS`
+on the VM. Callback URL: `https://<domain>/api/auth/<provider>/callback`.
+
+## Next: C3.3 — progress API
+
+`GET/PUT /api/academy/progress` (user from the session; optimistic `version`; size + schema limits;
+rate-limited), then C3.4 client `serverAdapter` + merge, C3.5 sign-in UI (and demo-auth removal).
+
+## C3.3 status — done
+
+`backend/progress_api.py` — one JSON document per user, in the Academy's existing state shape:
+- `GET /api/academy/progress` -> `{state, version}` (new users: `{}`, 0).
+- `PUT /api/academy/progress` — user from the session; requires `If-Match: <version>` (428 if
+  missing); a stale version returns **409 with the server's current copy** so the client merges;
+  `state` must be an object (400); payload capped at 256 KB (413); writes rate-limited to
+  30/min/user (429).
+- Tests (`backend/test_progress.py`, 9): roundtrip, conflict, 428/400/413/429, and per-user
+  isolation. Backend suite: 45 passing (4 pre-existing demo-auth failures remain).
+
+## Next: C3.4 — client sync
+
+`serverAdapter` implementing the existing `ProgressAdapter` (offline-first: localStorage stays the
+working copy, writes debounced + flushed on hide, 409 -> fetch/merge/retry) and a pure, tested
+`mergeProgress(a, b)` (best score / most-recent card / highest XP / latest resume) used on first
+sign-in. Decision-independent; does not need the OAuth apps.
+
+## C3.4 status — done (building blocks; wiring deferred to C3.5)
+
+- **`src/lib/progress/merge.js`** — `mergeProgress(a, b)`: XP/combo max, per-lesson best (tie ->
+  later attempt), per-card more-advanced box (tie -> later due) with right/wrong maxed, per-boss max,
+  badges + mastered union, per-day XP max, streak by count (tie -> later date), most-recent resume.
+- **`src/api/progress.js`** — same-origin client; a 409 carries the server copy for merging.
+- **`src/lib/progress/serverAdapter.js`** — offline-first `ProgressAdapter`: localStorage is the
+  working copy; `save()` is debounced then pushed; `sync()` (call once on sign-in) pulls + merges +
+  uploads; a 409 triggers merge + retry (capped); `flush()` for tab-hide.
+- **Tests**: `merge.test.js` (8) and `serverAdapter.test.js` (5, fake timers + mock client) incl.
+  the conflict-retry path. Frontend suite: 116 passing.
+- **Not wired yet:** `setProgressAdapter(serverAdapter(...))` + `sync()` on sign-in, revert on
+  sign-out, and a visibilitychange `flush()`. That lands in C3.5 with the sign-in UI.
+
+## Next: C3.5 — sign-in UI + integration (final accounts phase)
+
+`/signin` page (Continue with Google/GitHub), account menu in the shell (avatar, sync status, sign
+out), wire the serverAdapter on sign-in and flush on hide, then remove the demo auth (`/auth/*`
+register/login/OTP/reset), the bearer fallback in `auth/deps.py`, and the obsolete `test_main.py`
+cases. **Needs the OAuth apps registered** for a real end-to-end sign-in test.

@@ -7,3 +7,6 @@ openai>=1.40
 sqlalchemy>=2.0
 # Postgres driver for production (self-hosted); local dev/tests use bundled SQLite.
 psycopg[binary]>=3.2
+authlib>=1.6
+httpx>=0.27
+itsdangerous>=2.2

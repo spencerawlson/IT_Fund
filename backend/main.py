@@ -24,6 +24,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Authlib stores the OAuth state/nonce in a signed session cookie during the login round-trip.
+from starlette.middleware.sessions import SessionMiddleware  # noqa: E402
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get("SESSION_SECRET", "dev-insecure-session-secret-change-me"),
+    same_site="lax",
+    https_only=os.environ.get("COOKIE_INSECURE") != "1",
+)
+
 # Create database tables on startup (idempotent). Replaced by Alembic migrations before real data.
 import db  # noqa: E402
 
@@ -40,6 +50,18 @@ from labs.api import router as labs_router  # noqa: E402  (after app is created)
 
 app.include_router(labs_router)
 app.include_router(labs_router, prefix="/api")
+
+# OAuth accounts (C3.2). Both prefixes, so /api/auth/* works behind the /api rewrite.
+from auth.router import router as auth_router  # noqa: E402
+
+app.include_router(auth_router)
+app.include_router(auth_router, prefix="/api")
+
+# Server-side progress (C3.3).
+from progress_api import router as progress_router  # noqa: E402
+
+app.include_router(progress_router)
+app.include_router(progress_router, prefix="/api")
 
 # ---- in-memory stores for teaching/demo ----
 USERS: dict[str, dict] = {}
