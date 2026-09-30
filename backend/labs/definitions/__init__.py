@@ -4,6 +4,12 @@ To add a lab: define a LabDefinition in a module here and add it to ALL_LABS. re
 at import time that every objective references a known validator, so a typo fails fast.
 """
 from labs.definitions.cybersecurity import NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB
-from labs.definitions.networking import VLAN_ROUTING_LAB
+from labs.definitions.networking import DNS_CONNECTIVITY_LAB, STATIC_ROUTING_LAB, VLAN_ROUTING_LAB
 
-ALL_LABS = [NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB, VLAN_ROUTING_LAB]
+ALL_LABS = [
+    NMAP_ENUMERATION_LAB,
+    PORTBLAST_COMPARISON_LAB,
+    VLAN_ROUTING_LAB,
+    STATIC_ROUTING_LAB,
+    DNS_CONNECTIVITY_LAB,
+]

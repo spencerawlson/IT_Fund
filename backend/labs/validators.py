@@ -122,5 +122,36 @@ for _key, _ok, _todo in [
     ("pc1_reaches_gateway", "PC1 reaches its gateway.", "PC1 cannot reach its gateway yet."),
     ("pc2_reaches_gateway", "PC2 reaches its gateway.", "PC2 cannot reach its gateway yet."),
     ("pc1_reaches_pc2", "PC1 reaches PC2 across VLANs.", "PC1 cannot reach PC2 yet."),
+    # VLANs & Inter-VLAN Routing (Cisco IOS shell; flags derived in labs/topologies.py)
+    ("vlans_created", "VLAN 10 and VLAN 20 exist on SW1.", "Create VLAN 10 and VLAN 20 on SW1."),
+    ("access_ports_configured", "Access ports are in the right VLANs.", "Put Gi0/1 in VLAN 10 and Gi0/2 in VLAN 20 as access ports."),
+    ("trunk_configured", "The trunk to the router is up.", "Set SW1 Gi0/24 to trunk mode."),
+    ("router_subinterfaces_configured", "R1 subinterfaces route both VLANs.", "Enable Gi0/0 and add dot1Q subinterfaces .10 and .20 with gateway IPs."),
+    ("intervlan_connectivity", "PC1 and PC2 can reach each other across VLANs.", "Finish the switch and router config, then ping across the VLANs."),
+    # Static Routing (Cisco IOS shell)
+    ("r1_interfaces_configured", "R1's LAN and WAN interfaces are up.", "Address and enable R1 Gi0/0 (192.168.1.1) and Gi0/1 (10.0.0.1)."),
+    ("r2_interfaces_configured", "R2's LAN and WAN interfaces are up.", "Address and enable R2 Gi0/0 (192.168.2.1) and Gi0/1 (10.0.0.2)."),
+    ("r1_static_route", "R1 has a route to LAN2.", "On R1: ip route 192.168.2.0 255.255.255.0 10.0.0.2."),
+    ("r2_static_route", "R2 has a route to LAN1.", "On R2: ip route 192.168.1.0 255.255.255.0 10.0.0.1."),
+    ("end_to_end_connectivity", "PC1 can reach PC2 across both routers.", "Finish both routers' interfaces and static routes, then ping end to end."),
 ]:
     VALIDATORS[_key] = _network_validator(_key, _ok, _todo)
+
+
+# ---- diagnostics: a top-level finding key simply being present (Linux troubleshooting shell) ----
+
+def _finding_present(key: str, ok: str, todo: str) -> Validator:
+    def fn(args, findings):
+        return (True, ok, findings.get(key)) if findings.get(key) else (False, todo, None)
+
+    return fn
+
+
+for _key, _ok, _todo in [
+    ("local_ip", "You inspected the workstation's IP configuration.", "Check the local addressing (ip addr)."),
+    ("dns", "You resolved the app's name to an address.", "Resolve the app hostname (dig or nslookup)."),
+    ("gateway", "You confirmed the default gateway is reachable.", "Ping the default gateway."),
+    ("trace", "You traced the path to the app.", "Run a traceroute to the app."),
+    ("service", "You confirmed the web service responds.", "Request the app over HTTP (curl)."),
+]:
+    VALIDATORS[_key] = _finding_present(_key, _ok, _todo)

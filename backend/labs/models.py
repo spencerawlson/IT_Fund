@@ -53,6 +53,9 @@ class LabDefinition:
     environment: LabEnvironmentConfig
     targets: list[LabTarget] = field(default_factory=list)
     objectives: list[LabObjective] = field(default_factory=list)
+    #: Which simulated shell drives this lab's terminal (see labs/shells). None = no terminal
+    #: (the lab uses another workbench). E.g. "linux_recon", "cisco_ios", "linux_net".
+    shell: str | None = None
 
     def public_dict(self) -> dict[str, Any]:
         """Serialisable view safe to send to the browser: no image, no provider internals."""

@@ -19,6 +19,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from auth.deps import resolve_visitor_id
 from labs.registry import get_lab, list_labs
 from labs.sessions import LabError, service
+from labs.shells import meta as shell_meta
 
 router = APIRouter(prefix="/labs", tags=["labs"])
 
@@ -45,8 +46,16 @@ def _http(err: LabError) -> HTTPException:
 
 @router.get("/definitions")
 def get_definitions() -> dict[str, Any]:
-    # Public catalogue view: no images or provider internals.
-    return {"labs": [lab.public_dict() for lab in list_labs()]}
+    # Public catalogue view: no images or provider internals. Terminal labs also advertise their
+    # shell's initial prompt + welcome banner so the client can seed the terminal.
+    labs = []
+    for lab in list_labs():
+        view = lab.public_dict()
+        terminal = shell_meta(lab)
+        if terminal:
+            view["terminal"] = terminal
+        labs.append(view)
+    return {"labs": labs}
 
 
 @router.post("/{lab_id}/start")
@@ -97,6 +106,7 @@ async def exec_in_session(
         "output": result.output,
         "exit_code": result.exit_code,
         "clear": result.clear,
+        "prompt": result.prompt,
         "session": session.public_dict(),
     }
 

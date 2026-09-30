@@ -11,6 +11,7 @@ NMAP_ENUMERATION_LAB = LabDefinition(
         "interpretation."
     ),
     category="cybersecurity",
+    shell="linux_recon",
     difficulty="beginner",
     estimated_minutes=25,
     environment=LabEnvironmentConfig(
@@ -65,6 +66,7 @@ PORTBLAST_COMPARISON_LAB = LabDefinition(
         "PortBlast is an automation/orchestration tool, not a replacement for the native tools."
     ),
     category="portblast",
+    shell="linux_recon",
     difficulty="intermediate",
     estimated_minutes=45,
     environment=LabEnvironmentConfig(

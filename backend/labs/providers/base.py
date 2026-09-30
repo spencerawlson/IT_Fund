@@ -50,6 +50,9 @@ class CommandResult:
     findings: dict[str, Any] = field(default_factory=dict)
     exit_code: int = 0
     clear: bool = False
+    # Prompt for the NEXT input line. Shells whose prompt changes (e.g. Cisco IOS modes) return it;
+    # None keeps the current prompt.
+    prompt: str | None = None
 
 
 class LabProvider(ABC):

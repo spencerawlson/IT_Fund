@@ -14,7 +14,7 @@ from typing import Any
 
 from labs.models import LabDefinition
 from labs.providers.base import CommandResult, LabEnvironment, LabProvider, ValidationResult
-from labs.scenarios import simulate_command
+from labs.shells import run as run_shell
 from labs.validators import VALIDATORS
 
 
@@ -63,5 +63,5 @@ class MockLabProvider(LabProvider):
     async def exec_command(
         self, environment_id: str, lab: LabDefinition, command: str, findings: dict[str, Any]
     ) -> CommandResult:
-        # Pure interpretation of the scenario: matches the command string, executes nothing.
-        return simulate_command(lab, command, findings)
+        # Route to the lab's simulated shell (labs/shells). Matches the command string, runs nothing.
+        return run_shell(lab, command, findings)
