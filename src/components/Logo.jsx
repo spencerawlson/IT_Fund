@@ -41,9 +41,9 @@ export default function Logo({ size = 34 }) {
   return (
     <span className="flex items-center gap-2">
       <LogoMark size={size} className="drop-shadow-[0_4px_12px_rgba(20,184,166,0.45)]" />
-      <span className="text-sm font-bold tracking-tight text-white">
+      <span className="text-sm font-bold tracking-tight text-ink-1">
         Road to{' '}
-        <span className="bg-gradient-to-r from-sky-300 to-teal-300 bg-clip-text text-transparent">CISSP</span>
+        <span className="bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent">CISSP</span>
       </span>
     </span>
   );

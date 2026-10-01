@@ -48,7 +48,7 @@ function SearchForm({ onDone, autoFocus = false, className }) {
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search concepts"
         aria-label="Search concepts"
-        className="h-10 w-full rounded-control border border-white/10 bg-white/[0.05] pl-9 pr-3 text-small text-ink-1 outline-none placeholder:text-ink-2 focus:border-white/25"
+        className="h-10 w-full rounded-control border border-black/10 bg-black/[0.04] pl-9 pr-3 text-small text-ink-1 outline-none placeholder:text-ink-2 focus:border-black/20"
       />
     </form>
   );
@@ -60,7 +60,7 @@ function TutorButton({ compact = false }) {
   if (!enabled) return null;
   if (compact) {
     return (
-      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="Ask the tutor" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-white/[0.06]">
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label="Ask the tutor" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-black/[0.04]">
         <Sparkles size={20} aria-hidden="true" />
       </button>
     );
@@ -70,7 +70,7 @@ function TutorButton({ compact = false }) {
       type="button"
       onClick={() => setOpen(!open)}
       aria-expanded={open}
-      className="flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-small font-semibold text-ink-2 transition-colors hover:bg-white/[0.06] hover:text-ink-1"
+      className="flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-small font-semibold text-ink-2 transition-colors hover:bg-black/[0.04] hover:text-ink-1"
     >
       <Sparkles size={18} aria-hidden="true" /> Ask the tutor
     </button>
@@ -83,14 +83,14 @@ function AccountMenu({ compact = false }) {
   const avatar = isAuthenticated && user?.avatar_url;
   if (compact) {
     return (
-      <Link to="/signin" aria-label={isAuthenticated ? 'Your account' : 'Sign in'} className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-white/[0.06]">
-        {avatar ? <img src={user.avatar_url} alt="" className="h-7 w-7 rounded-full border border-white/10" /> : <LogIn size={20} aria-hidden="true" />}
+      <Link to="/signin" aria-label={isAuthenticated ? 'Your account' : 'Sign in'} className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-black/[0.04]">
+        {avatar ? <img src={user.avatar_url} alt="" className="h-7 w-7 rounded-full border border-black/10" /> : <LogIn size={20} aria-hidden="true" />}
       </Link>
     );
   }
   return (
-    <Link to="/signin" className="flex items-center gap-3 rounded-control px-3 py-2.5 text-small font-semibold text-ink-2 transition-colors hover:bg-white/[0.06] hover:text-ink-1">
-      {avatar ? <img src={user.avatar_url} alt="" className="h-6 w-6 shrink-0 rounded-full border border-white/10" /> : <User size={18} aria-hidden="true" />}
+    <Link to="/signin" className="flex items-center gap-3 rounded-control px-3 py-2.5 text-small font-semibold text-ink-2 transition-colors hover:bg-black/[0.04] hover:text-ink-1">
+      {avatar ? <img src={user.avatar_url} alt="" className="h-6 w-6 shrink-0 rounded-full border border-black/10" /> : <User size={18} aria-hidden="true" />}
       <span className="min-w-0 truncate">{isAuthenticated ? user.display_name || 'Your account' : 'Sign in to sync'}</span>
     </Link>
   );
@@ -128,7 +128,7 @@ export default function AppShell() {
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'flex items-center gap-3 rounded-control px-3 py-2.5 text-small font-semibold transition-colors',
-                    active ? 'bg-white/10 text-ink-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'text-ink-2 hover:bg-white/[0.06] hover:text-ink-1',
+                    active ? 'bg-action/10 text-ink-1' : 'text-ink-2 hover:bg-black/[0.04] hover:text-ink-1',
                   )}
                 >
                   <Icon size={18} className={active ? 'text-action' : undefined} aria-hidden="true" />
@@ -137,7 +137,7 @@ export default function AppShell() {
               );
             })}
           </nav>
-          <div className="mt-auto space-y-1 border-t border-white/[0.08] pt-3">
+          <div className="mt-auto space-y-1 border-t border-black/[0.07] pt-3">
             <TutorButton />
             <AccountMenu />
           </div>
@@ -150,7 +150,7 @@ export default function AppShell() {
           {searchOpen ? (
             <>
               <SearchForm autoFocus onDone={() => setSearchOpen(false)} className="flex-1" />
-              <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-white/[0.06]">
+              <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-black/[0.04]">
                 <X size={20} aria-hidden="true" />
               </button>
             </>
@@ -160,7 +160,7 @@ export default function AppShell() {
                 <Logo size={28} />
               </Link>
               <div className="flex items-center">
-                <button type="button" onClick={() => setSearchOpen(true)} aria-label="Search concepts" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-white/[0.06]">
+                <button type="button" onClick={() => setSearchOpen(true)} aria-label="Search concepts" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-black/[0.04]">
                   <Search size={20} aria-hidden="true" />
                 </button>
                 <TutorButton compact />
@@ -187,7 +187,7 @@ export default function AppShell() {
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex min-h-14 flex-col items-center justify-center gap-1 rounded-control text-caption font-semibold transition-colors',
-                  active ? 'bg-white/10 text-ink-1' : 'text-ink-2 hover:text-ink-1',
+                  active ? 'bg-black/[0.05] text-ink-1' : 'text-ink-2 hover:text-ink-1',
                 )}
               >
                 <Icon size={20} className={active ? 'text-action' : undefined} aria-hidden="true" />

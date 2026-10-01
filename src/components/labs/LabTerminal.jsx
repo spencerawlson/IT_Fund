@@ -109,7 +109,7 @@ const LabTerminal = forwardRef(function LabTerminal(
 
   return (
     <div
-      className="h-[26rem] overflow-y-auto rounded-xl border border-white/10 bg-black/60 p-4 font-mono text-[13px] leading-relaxed backdrop-blur-xl sm:h-[30rem]"
+      className="h-[26rem] overflow-y-auto rounded-xl border border-black/20 bg-[#0a0e14] p-4 font-mono text-[13px] leading-relaxed shadow-inner sm:h-[30rem]"
       onClick={() => inputRef.current?.focus()}
       role="log"
       aria-live="polite"
