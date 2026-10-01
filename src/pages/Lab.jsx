@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, Cpu, Network, ArrowRightLeft, Radio, Server, Shuffle, Gauge, Cloud, Layers,
+  ArrowLeft, ArrowRight, Cpu, Network, ArrowRightLeft, Radio, Server, Shuffle, Gauge, Cloud, Layers,
   GitBranch, Calculator, TerminalSquare, Globe, Shield, KeyRound, Zap, CloudCog, Database,
   Container, Lock, Route as RouteIcon, ShieldAlert, Search, Boxes,
 } from 'lucide-react';
@@ -59,6 +59,10 @@ const SUBJECTS = [
   { id: 'dns', category: 'Networking', kind: 'anim', icon: Globe, label: 'DNS Resolution', blurb: 'Follow a name through root, TLD, and authoritative servers.' },
   { id: 'routing', category: 'Networking', kind: 'anim', icon: RouteIcon, label: 'Routing & NAT', blurb: 'Trace route lookup, forwarding, NAT, and VPN behavior.' },
   { id: 'subnet', category: 'Networking', kind: 'tool', icon: Calculator, label: 'Subnet Calculator', blurb: 'Enter an IP and CIDR to see network, broadcast, and host range.' },
+  // Routing
+  { id: 'rt-ospf-neighbor', category: 'Routing', kind: 'anim', icon: Network, label: 'OSPF Neighbor Formation', blurb: 'Watch R1 and R2 progress through the OSPF states to a full adjacency.' },
+  { id: 'rt-bgp-path', category: 'Routing', kind: 'anim', icon: Globe, label: 'BGP Path Selection', blurb: 'See two paths advertised and why BGP prefers the shorter AS_PATH.' },
+  { id: 'rt-link-failure', category: 'Routing', kind: 'anim', icon: Zap, label: 'Link Failure & Reconvergence', blurb: 'A link fails; watch the network recompute paths and reroute.' },
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
   { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'See traffic fan out with health checks and fast failover.' },
@@ -109,9 +113,19 @@ const RENDERERS = {
   'system-architecture': () => <FlowDiagram {...LAB_FLOWS['system-architecture']} />,
   'cloud-migration': () => <FlowDiagram {...LAB_FLOWS['cloud-migration']} />,
   'capacity-planning': () => <FlowDiagram {...LAB_FLOWS['capacity-planning']} />,
+  'rt-ospf-neighbor': () => <RoutingScenario scenario={ROUTING_SCENARIOS['rt-ospf-neighbor']} />,
+  'rt-bgp-path': () => <RoutingScenario scenario={ROUTING_SCENARIOS['rt-bgp-path']} />,
+  'rt-link-failure': () => <RoutingScenario scenario={ROUTING_SCENARIOS['rt-link-failure']} />,
 };
 
 const resolveId = (id) => (RENDERERS[ALIASES[id]] ? ALIASES[id] : id);
+
+// Visual Lab scenario -> the Interactive Lab where you build/configure it ("See → Build").
+const BUILD_IN_LAB = {
+  'rt-ospf-neighbor': 'net-ospf-001',
+  'rt-bgp-path': 'net-bgp-001',
+  'rt-link-failure': 'net-ospf-tshoot-001',
+};
 
 const is3D = (id) => (SUBJECT_BY_ID[id]?.kind || '') === '3d';
 
@@ -162,6 +176,15 @@ function Stage({ id, onBack }) {
           )}
         </ErrorBoundary>
       </div>
+
+      {BUILD_IN_LAB[id] && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl glass-1 p-4">
+          <p className="text-small text-ink-2">Now make it happen yourself — configure this topology in the terminal.</p>
+          <Link to={`/labs/${BUILD_IN_LAB[id]}`} className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
+            Build this in the Interactive Lab <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
+      )}
 
       {refs.length > 0 && (
         <div className="mt-6 rounded-xl glass-1 p-4">

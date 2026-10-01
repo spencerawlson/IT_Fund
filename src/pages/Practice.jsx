@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Box, Timer, ExternalLink, Radar, Network, Route as RouteIcon, Globe, ShieldX, FileSearch, Cloud, Boxes, Container, Activity, Siren, FileWarning } from 'lucide-react';
+import { ArrowRight, Box, Timer, ExternalLink, Radar, Network, Route as RouteIcon, Globe, ShieldX, FileSearch, Cloud, Boxes, Container, Activity, Siren, FileWarning, Waypoints, Wrench, Spline } from 'lucide-react';
 import { Badge, Card, IconTile, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
 
 // Hands-on practice beside the lesson path. Nothing here changes lesson progress.
@@ -16,6 +16,9 @@ const RANGES = [
   { to: '/labs/net-vlan-001', icon: Network, title: 'VLANs & Inter-VLAN Routing', text: 'Configure a real Cisco IOS switch and router-on-a-stick, then ping across the VLANs to prove it.' },
   { to: '/labs/net-static-routing-001', icon: RouteIcon, title: 'Static Routing Between Two Sites', text: 'Address two routers over a WAN link, add the static routes, and confirm end-to-end connectivity.' },
   { to: '/labs/net-acl-001', icon: ShieldX, title: 'Filtering Traffic with ACLs', text: 'Write a standard access list to block one untrusted host from a server, then prove the rest still get through.' },
+  { to: '/labs/net-ospf-001', icon: Waypoints, title: 'OSPF Single-Area Configuration', text: 'Configure OSPF area 0 on three routers, bring up the adjacencies, and prove PC-A reaches Server-A.' },
+  { to: '/labs/net-ospf-tshoot-001', icon: Wrench, title: 'OSPF Troubleshooting', text: 'OSPF is configured but connectivity is broken — find the wrong-area link with show commands and fix it.' },
+  { to: '/labs/net-bgp-001', icon: Spline, title: 'eBGP Configuration', text: 'Peer two autonomous systems with external BGP, advertise each LAN, and prove PC1 reaches PC2.' },
   { to: '/labs/net-dns-connectivity-001', icon: Globe, title: 'DNS & Connectivity Troubleshooting', text: 'Work the layers on a Linux shell — addressing, DNS, gateway, path, and HTTP — to find why an app is unreachable.' },
   { to: '/labs/sec-logtriage-001', icon: FileSearch, title: 'Log Triage: Brute-Force Investigation', text: 'Hunt an SSH brute-force in /var/log/auth.log with real grep: find the attacker, the breach, and the compromised account.' },
   { to: '/labs/cloud-aws-audit-001', icon: Cloud, title: 'Cloud Security Audit with the AWS CLI', text: 'Audit a dev AWS account: find the public S3 bucket, SSH open to the world, an admin IAM user, and a stale access key.' },

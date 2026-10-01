@@ -236,6 +236,193 @@ def ping_acl(state: dict[str, Any], from_dev: str, ip: str) -> tuple[bool, bool,
 
 
 # --------------------------------------------------------------------------------------------------
+# OSPF single-area: PC-A - R1 =10.0.12.0/24= R2 =10.0.23.0/24= R3 - Server-A. Interfaces pre-addressed
+# and up; the learner configures OSPF area 0 so the two LANs can reach each other.
+# --------------------------------------------------------------------------------------------------
+
+def _r(host, ifs, **extra):
+    return {'kind': 'router', 'host': host, 'if': ifs, 'subif': {}, 'routes': [], 'acls': {}, **extra}
+
+
+def _ospf_devices(preset=None):
+    preset = preset or {}
+    devs = {
+        'R1': _r('R1', {'Gi0/0': {'ip': '192.168.1.1', 'mask': '255.255.255.0', 'up': True},
+                        'Gi0/1': {'ip': '10.0.12.1', 'mask': '255.255.255.0', 'up': True}}),
+        'R2': _r('R2', {'Gi0/0': {'ip': '10.0.12.2', 'mask': '255.255.255.0', 'up': True},
+                        'Gi0/1': {'ip': '10.0.23.2', 'mask': '255.255.255.0', 'up': True}}),
+        'R3': _r('R3', {'Gi0/0': {'ip': '10.0.23.3', 'mask': '255.255.255.0', 'up': True},
+                        'Gi0/1': {'ip': '192.168.3.1', 'mask': '255.255.255.0', 'up': True}}),
+        'PC-A': {'kind': 'pc', 'host': 'PC-A', 'ip': '192.168.1.10', 'mask': '255.255.255.0', 'gw': '192.168.1.1', 'vlan': 0},
+        'Server-A': {'kind': 'pc', 'host': 'Server-A', 'ip': '192.168.3.10', 'mask': '255.255.255.0', 'gw': '192.168.3.1', 'vlan': 0},
+    }
+    for dev_id, ospf in preset.items():
+        devs[dev_id]['ospf'] = ospf
+    return devs
+
+
+def _ospf_covers(dev, subnet_ip) -> bool:
+    o = dev.get('ospf')
+    return bool(o) and any(str(area) == '0' and _wc_match(subnet_ip, ip, wc) for (ip, wc, area) in o['networks'])
+
+
+def derive_ospf(state) -> dict[str, bool]:
+    d = state['dev']
+    r1 = _ospf_covers(d['R1'], '192.168.1.0') and _ospf_covers(d['R1'], '10.0.12.0')
+    r2 = _ospf_covers(d['R2'], '10.0.12.0') and _ospf_covers(d['R2'], '10.0.23.0')
+    r3 = _ospf_covers(d['R3'], '10.0.23.0') and _ospf_covers(d['R3'], '192.168.3.0')
+    adj12 = _ospf_covers(d['R1'], '10.0.12.0') and _ospf_covers(d['R2'], '10.0.12.0')
+    adj23 = _ospf_covers(d['R2'], '10.0.23.0') and _ospf_covers(d['R3'], '10.0.23.0')
+    adjacencies = adj12 and adj23
+    connectivity = adjacencies and _ospf_covers(d['R1'], '192.168.1.0') and _ospf_covers(d['R3'], '192.168.3.0')
+    return {'r1_ospf': r1, 'r2_ospf': r2, 'r3_ospf': r3, 'ospf_adjacencies': adjacencies, 'ospf_connectivity': connectivity}
+
+
+_OSPF_IPS = {'192.168.1.1': 'R1 (PC-A gateway)', '192.168.3.1': 'R3 (Server-A gateway)',
+             '10.0.12.1': 'R1', '10.0.12.2': 'R2', '10.0.23.2': 'R2', '10.0.23.3': 'R3',
+             '192.168.1.10': 'PC-A', '192.168.3.10': 'Server-A'}
+
+
+def _subnet(ip):
+    return '.'.join(ip.split('.')[:3]) if ip else ''
+
+
+def ping_ospf(state, from_dev, ip) -> tuple[bool, bool, str]:
+    if ip not in _OSPF_IPS:
+        return (False, False, ip)
+    src = state['dev'][from_dev].get('ip')
+    conn = derive_ospf(state)['ospf_connectivity']
+    ok = True if (src and _subnet(src) == _subnet(ip)) else conn
+    return (True, ok, _OSPF_IPS[ip])
+
+
+def _ospf_adj_for(state, dev_id):
+    d = state['dev']
+    adj12 = _ospf_covers(d['R1'], '10.0.12.0') and _ospf_covers(d['R2'], '10.0.12.0')
+    adj23 = _ospf_covers(d['R2'], '10.0.23.0') and _ospf_covers(d['R3'], '10.0.23.0')
+    nb = []
+    if dev_id == 'R1' and adj12:
+        nb.append(('2.2.2.2', '10.0.12.2', 'GigabitEthernet0/1'))
+    if dev_id == 'R2':
+        if adj12:
+            nb.append(('1.1.1.1', '10.0.12.1', 'GigabitEthernet0/0'))
+        if adj23:
+            nb.append(('3.3.3.3', '10.0.23.3', 'GigabitEthernet0/1'))
+    if dev_id == 'R3' and adj23:
+        nb.append(('2.2.2.2', '10.0.23.2', 'GigabitEthernet0/0'))
+    return nb
+
+
+def show_ospf(state, dev_id, rest):
+    dev = state['dev'].get(dev_id, {})
+    if dev.get('kind') != 'router':
+        return None
+    if rest.startswith('ip ospf neighbor'):
+        nb = _ospf_adj_for(state, dev_id)
+        if not nb:
+            return ''
+        lines = ['Neighbor ID     Pri   State      Address         Interface']
+        for rid, addr, iface in nb:
+            lines.append(f'{rid:<15} 1     FULL/DR    {addr:<15} {iface}')
+        return '\n'.join(lines)
+    if rest.startswith('ip protocols'):
+        o = dev.get('ospf')
+        if not o:
+            return 'no routing protocol configured'
+        nets = '\n'.join(f'    {ip} {wc} area {area}' for (ip, wc, area) in o['networks'])
+        return f'Routing Protocol is "ospf {o.get("pid", 1)}"\n  Routing for Networks:\n{nets}'
+    if rest.startswith('ip route'):
+        lines = ['Codes: C - connected, O - OSPF', '']
+        for n, i in dev['if'].items():
+            if i.get('ip') and i.get('up'):
+                lines.append(f'C    {_subnet(i["ip"])}.0/24 is directly connected, {n}')
+        if derive_ospf(state)['ospf_connectivity']:
+            far = {'R1': ['10.0.23.0/24', '192.168.3.0/24'], 'R2': ['192.168.1.0/24', '192.168.3.0/24'],
+                   'R3': ['10.0.12.0/24', '192.168.1.0/24']}.get(dev_id, [])
+            for route in far:
+                lines.append(f'O    {route} [110/2] via OSPF')
+        return '\n'.join(lines)
+    return None
+
+
+# --------------------------------------------------------------------------------------------------
+# eBGP: LAN1(PC1) - R1 (AS 65001) =10.0.0.0/30= R2 (AS 65002) - LAN2(PC2). Interfaces pre-addressed;
+# the learner configures eBGP so the two LANs can reach each other.
+# --------------------------------------------------------------------------------------------------
+
+_BGP_DEVICES = {
+    'R1': _r('R1', {'Gi0/0': {'ip': '192.168.1.1', 'mask': '255.255.255.0', 'up': True},
+                    'Gi0/1': {'ip': '10.0.0.1', 'mask': '255.255.255.252', 'up': True}}),
+    'R2': _r('R2', {'Gi0/0': {'ip': '192.168.2.1', 'mask': '255.255.255.0', 'up': True},
+                    'Gi0/1': {'ip': '10.0.0.2', 'mask': '255.255.255.252', 'up': True}}),
+    'PC1': {'kind': 'pc', 'host': 'PC1', 'ip': '192.168.1.10', 'mask': '255.255.255.0', 'gw': '192.168.1.1', 'vlan': 0},
+    'PC2': {'kind': 'pc', 'host': 'PC2', 'ip': '192.168.2.10', 'mask': '255.255.255.0', 'gw': '192.168.2.1', 'vlan': 0},
+}
+
+_BGP_IPS = {'192.168.1.1': 'R1 (PC1 gateway)', '192.168.2.1': 'R2 (PC2 gateway)',
+            '10.0.0.1': 'R1', '10.0.0.2': 'R2', '192.168.1.10': 'PC1', '192.168.2.10': 'PC2'}
+
+
+def _bgp_neighbor_ok(dev, peer_ip, peer_as) -> bool:
+    b = dev.get('bgp')
+    return bool(b) and any(n['ip'] == peer_ip and n['remote_as'] == peer_as for n in b['neighbors'])
+
+
+def _bgp_advertises(dev, net) -> bool:
+    b = dev.get('bgp')
+    return bool(b) and any(n[0] == net for n in b['networks'])
+
+
+def derive_bgp(state) -> dict[str, bool]:
+    d = state['dev']
+    r1 = bool(d['R1'].get('bgp')) and d['R1']['bgp']['asn'] == 65001 and _bgp_neighbor_ok(d['R1'], '10.0.0.2', 65002)
+    r2 = bool(d['R2'].get('bgp')) and d['R2']['bgp']['asn'] == 65002 and _bgp_neighbor_ok(d['R2'], '10.0.0.1', 65001)
+    peering = r1 and r2
+    advertised = _bgp_advertises(d['R1'], '192.168.1.0') and _bgp_advertises(d['R2'], '192.168.2.0')
+    connectivity = peering and advertised
+    return {'r1_bgp': r1, 'r2_bgp': r2, 'bgp_peering': peering, 'bgp_advertised': advertised, 'bgp_connectivity': connectivity}
+
+
+def ping_bgp(state, from_dev, ip) -> tuple[bool, bool, str]:
+    if ip not in _BGP_IPS:
+        return (False, False, ip)
+    src = state['dev'][from_dev].get('ip')
+    conn = derive_bgp(state)['bgp_connectivity']
+    ok = True if (src and _subnet(src) == _subnet(ip)) else conn
+    return (True, ok, _BGP_IPS[ip])
+
+
+def show_bgp(state, dev_id, rest):
+    dev = state['dev'].get(dev_id, {})
+    if dev.get('kind') != 'router':
+        return None
+    der = derive_bgp(state)
+    if rest.startswith('ip bgp summary') or rest.startswith('bgp summary') or rest == 'ip bgp':
+        b = dev.get('bgp')
+        if not b:
+            return '% BGP not active'
+        lines = [f'BGP router identifier {dev["if"].get("Gi0/1", {}).get("ip", "0.0.0.0")}, local AS number {b["asn"]}',
+                 'Neighbor        V   AS   State/PfxRcd']
+        for n in b['neighbors']:
+            state_str = '1' if der['bgp_peering'] else 'Active'  # PfxRcd when Established, else not up
+            lines.append(f'{n["ip"]:<15} 4 {n["remote_as"]:<5} {state_str}')
+        return '\n'.join(lines)
+    if rest.startswith('ip protocols'):
+        b = dev.get('bgp')
+        return f'Routing Protocol is "bgp {b["asn"]}"' if b else 'no routing protocol configured'
+    if rest.startswith('ip route'):
+        lines = ['Codes: C - connected, B - BGP', '']
+        for n, i in dev['if'].items():
+            if i.get('ip') and i.get('up'):
+                lines.append(f'C    {_subnet(i["ip"])}.0/24 is directly connected, {n}')
+        if der['bgp_connectivity']:
+            far = '192.168.2.0/24' if dev_id == 'R1' else '192.168.1.0/24'
+            lines.append(f'B    {far} [20/0] via BGP')
+        return '\n'.join(lines)
+    return None
+
+
+# --------------------------------------------------------------------------------------------------
 
 TOPOLOGIES: dict[str, dict[str, Any]] = {
     'net-vlan-001': {
@@ -258,6 +445,35 @@ TOPOLOGIES: dict[str, dict[str, Any]] = {
         'derive': derive_acl,
         'ping': ping_acl,
         'summary': 'R1 routes LAN1 (PC1 .10, GUEST .20) to the Server LAN (SRV 192.168.2.10). Already connected — now filter the GUEST.',
+    },
+    'net-ospf-001': {
+        'devices': _ospf_devices(),
+        'initial': 'R1',
+        'derive': derive_ospf,
+        'ping': ping_ospf,
+        'show': show_ospf,
+        'summary': 'PC-A - R1 =10.0.12.0= R2 =10.0.23.0= R3 - Server-A. Interfaces are up; configure OSPF area 0 so PC-A reaches Server-A.',
+    },
+    'net-ospf-tshoot-001': {
+        'devices': _ospf_devices(preset={
+            'R1': {'pid': 1, 'networks': [('192.168.1.0', '0.0.0.255', '0'), ('10.0.12.0', '0.0.0.255', '0')], 'passive': []},
+            # BUG: the R2-R3 link is advertised in the wrong area (1), so that adjacency never forms.
+            'R2': {'pid': 1, 'networks': [('10.0.12.0', '0.0.0.255', '0'), ('10.0.23.0', '0.0.0.255', '1')], 'passive': []},
+            'R3': {'pid': 1, 'networks': [('10.0.23.0', '0.0.0.255', '0'), ('192.168.3.0', '0.0.0.255', '0')], 'passive': []},
+        }),
+        'initial': 'R1',
+        'derive': derive_ospf,
+        'ping': ping_ospf,
+        'show': show_ospf,
+        'summary': 'OSPF is configured but PC-A cannot reach Server-A. One router advertises a link in the wrong area — find it and fix it.',
+    },
+    'net-bgp-001': {
+        'devices': _BGP_DEVICES,
+        'initial': 'R1',
+        'derive': derive_bgp,
+        'ping': ping_bgp,
+        'show': show_bgp,
+        'summary': 'LAN1(PC1) - R1 (AS 65001) =10.0.0.0/30= R2 (AS 65002) - LAN2(PC2). Configure eBGP so the LANs reach each other.',
     },
 }
 

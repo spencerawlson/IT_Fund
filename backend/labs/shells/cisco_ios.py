@@ -35,6 +35,7 @@ def _prompt(state: dict[str, Any]) -> str:
     return {
         'user': f'{host}> ', 'priv': f'{host}# ', 'config': f'{host}(config)# ',
         'vlan': f'{host}(config-vlan)# ', 'if': f'{host}(config-if)# ', 'subif': f'{host}(config-subif)# ',
+        'router': f'{host}(config-router)# ',
     }.get(state['mode'], f'{host}> ')
 
 
@@ -160,6 +161,13 @@ def _ping(lab, state, ip, pc=False) -> CommandResult:
 def _show(lab, state, tokens) -> CommandResult:
     dev = _dev(state)
     rest = ' '.join(t.lower() for t in tokens[1:])
+    # The topology may answer dynamic-routing shows (ospf/eigrp/bgp neighbors, ip protocols) and even
+    # override `ip route` with learned routes, since adjacency state lives in its derive logic.
+    topo = topology_for(lab.id)
+    if topo and topo.get('show'):
+        out = topo['show'](state, state['current'], rest)
+        if out is not None:
+            return _emit(lab, state, out)
     if rest.startswith('vlan'):
         if dev['kind'] != 'switch':
             return _emit(lab, state, INVALID)
@@ -296,6 +304,9 @@ def _ios_command(lab, state, tokens) -> CommandResult:
     if mode in ('if', 'subif'):
         return _if_command(lab, state, dev, tokens, low)
 
+    if mode == 'router':
+        return _router_command(lab, state, dev, tokens, low)
+
     return _emit(lab, state, INVALID)
 
 
@@ -342,8 +353,60 @@ def _config_command(lab, state, dev, tokens, low) -> CommandResult:
             return _emit(lab, state, INVALID)
         dev.setdefault('acls', {}).setdefault(int(tokens[1]), []).append(rule)
         return _emit(lab, state, '')
+    if cmd == 'router' and len(tokens) >= 3 and tokens[2].isdigit():
+        if dev['kind'] != 'router':
+            return _emit(lab, state, INVALID)
+        proto, num = low[1], int(tokens[2])
+        if proto == 'ospf':
+            dev.setdefault('ospf', {'pid': num, 'networks': [], 'passive': []})
+        elif proto == 'eigrp':
+            dev.setdefault('eigrp', {'asn': num, 'networks': [], 'passive': []})
+        elif proto == 'bgp':
+            dev.setdefault('bgp', {'asn': num, 'neighbors': [], 'networks': []})
+        else:
+            return _emit(lab, state, INVALID)
+        state['mode'] = 'router'
+        state['ctx'] = {'proto': proto}
+        return _emit(lab, state, '')
     if cmd == 'exit':
         state['mode'] = 'priv'
+        return _emit(lab, state, '')
+    return _emit(lab, state, INVALID)
+
+
+def _router_command(lab, state, dev, tokens, low) -> CommandResult:
+    proto = state['ctx'].get('proto')
+    cmd = low[0]
+    if cmd == 'network' and len(tokens) >= 2:
+        if proto == 'ospf':
+            if len(tokens) >= 5 and low[3] == 'area':
+                dev['ospf']['networks'].append((tokens[1], tokens[2], tokens[4]))
+                return _emit(lab, state, '')
+            return _emit(lab, state, INCOMPLETE)
+        if proto == 'eigrp':
+            wc = tokens[2] if len(tokens) >= 3 and not tokens[2].startswith('a') else None
+            dev['eigrp']['networks'].append((tokens[1], wc))
+            return _emit(lab, state, '')
+        if proto == 'bgp':
+            mask = tokens[3] if len(tokens) >= 4 and low[2] == 'mask' else None
+            dev['bgp']['networks'].append((tokens[1], mask))
+            return _emit(lab, state, '')
+    if proto == 'bgp' and cmd == 'neighbor' and len(tokens) >= 4 and low[2] == 'remote-as' and tokens[3].isdigit():
+        dev['bgp']['neighbors'].append({'ip': tokens[1], 'remote_as': int(tokens[3])})
+        return _emit(lab, state, '')
+    if proto == 'ospf' and _match(low, 'router-id') and len(tokens) >= 2:
+        dev['ospf']['router_id'] = tokens[1]
+        return _emit(lab, state, '')
+    if _match(low, 'passive-interface') and len(tokens) >= 2 and proto in ('ospf', 'eigrp'):
+        nm = _norm_if(tokens[1])
+        if nm:
+            dev[proto].setdefault('passive', []).append(nm)
+        return _emit(lab, state, '')
+    if low[:2] == ['no', 'auto-summary'] or _match(low, 'auto-summary'):
+        return _emit(lab, state, '')
+    if cmd == 'exit':
+        state['mode'] = 'config'
+        state['ctx'] = {}
         return _emit(lab, state, '')
     return _emit(lab, state, INVALID)
 

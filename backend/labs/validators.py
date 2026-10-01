@@ -140,6 +140,18 @@ for _key, _ok, _todo in [
     ("acl_applied", "The ACL is applied to the traffic path.", "Apply it near the destination: interface Gi0/1 → ip access-group 10 out."),
     ("guest_blocked", "The guest can no longer reach the server.", "From GUEST, ping 192.168.2.10 — it should now fail."),
     ("trusted_allowed", "Trusted hosts still reach the server.", "From PC1, ping 192.168.2.10 — it should still succeed."),
+    # OSPF single-area / troubleshooting (Cisco IOS)
+    ("r1_ospf", "R1 advertises its networks in OSPF area 0.", "On R1: router ospf 1, then network statements for its LAN and link in area 0."),
+    ("r2_ospf", "R2 advertises its networks in OSPF area 0.", "On R2: advertise both link networks (10.0.12.0 and 10.0.23.0) in area 0."),
+    ("r3_ospf", "R3 advertises its networks in OSPF area 0.", "On R3: advertise the link and the Server LAN in area 0."),
+    ("ospf_adjacencies", "All required OSPF adjacencies are up.", "Check show ip ospf neighbor — R1-R2 and R2-R3 should be FULL."),
+    ("ospf_connectivity", "PC-A can reach Server-A across the OSPF network.", "From PC-A, ping 192.168.3.10 once OSPF has converged."),
+    # eBGP (Cisco IOS)
+    ("r1_bgp", "R1's eBGP neighbor to R2 is configured.", "On R1: router bgp 65001, then neighbor 10.0.0.2 remote-as 65002."),
+    ("r2_bgp", "R2's eBGP neighbor to R1 is configured.", "On R2: router bgp 65002, then neighbor 10.0.0.1 remote-as 65001."),
+    ("bgp_peering", "The eBGP session is established.", "Both routers must point at each other with the correct remote-as; check show ip bgp summary."),
+    ("bgp_advertised", "Both LANs are advertised into BGP.", "network 192.168.1.0 mask 255.255.255.0 on R1, and 192.168.2.0 on R2."),
+    ("bgp_connectivity", "PC1 can reach PC2 across the eBGP peering.", "From PC1, ping 192.168.2.10 once the session is up and routes are advertised."),
 ]:
     VALIDATORS[_key] = _network_validator(_key, _ok, _todo)
 

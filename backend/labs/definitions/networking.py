@@ -109,6 +109,96 @@ ACL_LAB = LabDefinition(
     ],
 )
 
+_RT_ENV = LabEnvironmentConfig(provider="mock", idle_timeout_minutes=20, max_runtime_minutes=60, deny_internet_egress=True)
+
+OSPF_LAB = LabDefinition(
+    id="net-ospf-001",
+    slug="ospf-single-area",
+    title="OSPF Single-Area Configuration",
+    description=(
+        "Configure OSPF process 1 in area 0 across R1, R2 and R3 so the two LANs can talk. The links "
+        "are already addressed and up — your job is the routing. Topology: PC-A - R1 = R2 = R3 - Server-A. "
+        "Establish both adjacencies, advertise every network, and prove PC-A can reach Server-A."
+    ),
+    category="networking", difficulty="intermediate", estimated_minutes=35, shell="cisco_ios", environment=_RT_ENV,
+    targets=[
+        LabTarget(hostname="R1", role="Edge router (PC-A LAN)"),
+        LabTarget(hostname="R2", role="Transit router"),
+        LabTarget(hostname="R3", role="Edge router (Server-A LAN)"),
+        LabTarget(hostname="PC-A", role="Host on R1's LAN"),
+        LabTarget(hostname="Server-A", role="Host on R3's LAN"),
+    ],
+    objectives=[
+        LabObjective(id="r1", label="Configure OSPF on R1 (area 0)", validator="r1_ospf",
+                     hints=["connect R1 → enable → conf t → router ospf 1 → network 192.168.1.0 0.0.0.255 area 0 → network 10.0.12.0 0.0.0.255 area 0"]),
+        LabObjective(id="r2", label="Configure OSPF on R2 (area 0)", validator="r2_ospf",
+                     hints=["connect R2: advertise both link networks (10.0.12.0 and 10.0.23.0) in area 0."]),
+        LabObjective(id="r3", label="Configure OSPF on R3 (area 0)", validator="r3_ospf",
+                     hints=["connect R3: advertise 10.0.23.0 and the Server LAN 192.168.3.0 in area 0."]),
+        LabObjective(id="adj", label="Bring up all OSPF adjacencies", validator="ospf_adjacencies",
+                     hints=["Verify with show ip ospf neighbor — R1-R2 and R2-R3 should reach FULL."]),
+        LabObjective(id="conn", label="Prove PC-A reaches Server-A", validator="ospf_connectivity",
+                     hints=["connect PC-A → ping 192.168.3.10"]),
+    ],
+)
+
+OSPF_TSHOOT_LAB = LabDefinition(
+    id="net-ospf-tshoot-001",
+    slug="ospf-troubleshooting",
+    title="OSPF Troubleshooting",
+    description=(
+        "OSPF is already configured on R1, R2 and R3, but PC-A cannot reach Server-A. One router "
+        "advertises a link in the wrong area, so an adjacency never forms. Use show commands to find "
+        "the fault, fix it, and restore end-to-end connectivity."
+    ),
+    category="networking", difficulty="advanced", estimated_minutes=30, shell="cisco_ios", environment=_RT_ENV,
+    targets=[
+        LabTarget(hostname="R1", role="Edge router (PC-A LAN)"),
+        LabTarget(hostname="R2", role="Transit router"),
+        LabTarget(hostname="R3", role="Edge router (Server-A LAN)"),
+        LabTarget(hostname="PC-A", role="Host on R1's LAN"),
+        LabTarget(hostname="Server-A", role="Host on R3's LAN"),
+    ],
+    objectives=[
+        LabObjective(id="fix", label="Fix the mis-configured router", validator="r2_ospf",
+                     hints=["Check show ip ospf neighbor on R2 and R3 — the R2-R3 link has no neighbour. Look at show ip protocols / show run on R2: the 10.0.23.0 network is in the wrong area. Re-add it in area 0."]),
+        LabObjective(id="adj", label="Restore all OSPF adjacencies", validator="ospf_adjacencies",
+                     hints=["After the fix, show ip ospf neighbor on R2 should list both R1 and R3 as FULL."]),
+        LabObjective(id="conn", label="Restore PC-A → Server-A connectivity", validator="ospf_connectivity",
+                     hints=["connect PC-A → ping 192.168.3.10"]),
+    ],
+)
+
+BGP_LAB = LabDefinition(
+    id="net-bgp-001",
+    slug="ebgp-configuration",
+    title="eBGP Configuration",
+    description=(
+        "Peer two autonomous systems with external BGP. R1 is in AS 65001 and R2 in AS 65002, joined by "
+        "a /30 link. Configure the neighbors, advertise each site's LAN, bring the session up, and prove "
+        "PC1 can reach PC2. Topology: LAN1(PC1) - R1 = R2 - LAN2(PC2)."
+    ),
+    category="networking", difficulty="advanced", estimated_minutes=35, shell="cisco_ios", environment=_RT_ENV,
+    targets=[
+        LabTarget(hostname="R1", role="AS 65001 edge router"),
+        LabTarget(hostname="R2", role="AS 65002 edge router"),
+        LabTarget(hostname="PC1", role="Host in LAN1"),
+        LabTarget(hostname="PC2", role="Host in LAN2"),
+    ],
+    objectives=[
+        LabObjective(id="r1", label="Configure R1's eBGP neighbor", validator="r1_bgp",
+                     hints=["connect R1 → conf t → router bgp 65001 → neighbor 10.0.0.2 remote-as 65002"]),
+        LabObjective(id="r2", label="Configure R2's eBGP neighbor", validator="r2_bgp",
+                     hints=["connect R2 → router bgp 65002 → neighbor 10.0.0.1 remote-as 65001"]),
+        LabObjective(id="peer", label="Establish the eBGP session", validator="bgp_peering",
+                     hints=["Both sides must point at each other with the right remote-as; verify with show ip bgp summary."]),
+        LabObjective(id="adv", label="Advertise both LANs into BGP", validator="bgp_advertised",
+                     hints=["network 192.168.1.0 mask 255.255.255.0 on R1, and 192.168.2.0 mask 255.255.255.0 on R2."]),
+        LabObjective(id="conn", label="Prove PC1 reaches PC2", validator="bgp_connectivity",
+                     hints=["connect PC1 → ping 192.168.2.10"]),
+    ],
+)
+
 DNS_CONNECTIVITY_LAB = LabDefinition(
     id="net-dns-connectivity-001",
     slug="dns-and-connectivity",

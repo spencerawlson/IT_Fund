@@ -9,7 +9,10 @@ from labs.definitions.container_security import DOCKER_SIEM_LAB
 from labs.definitions.cybersecurity import LOG_TRIAGE_LAB, NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB
 from labs.definitions.networking import (
     ACL_LAB,
+    BGP_LAB,
     DNS_CONNECTIVITY_LAB,
+    OSPF_LAB,
+    OSPF_TSHOOT_LAB,
     STATIC_ROUTING_LAB,
     VLAN_ROUTING_LAB,
 )
@@ -21,6 +24,9 @@ ALL_LABS = [
     VLAN_ROUTING_LAB,
     STATIC_ROUTING_LAB,
     ACL_LAB,
+    OSPF_LAB,
+    OSPF_TSHOOT_LAB,
+    BGP_LAB,
     DNS_CONNECTIVITY_LAB,
     CLOUD_AUDIT_LAB,
     TERRAFORM_LAB,

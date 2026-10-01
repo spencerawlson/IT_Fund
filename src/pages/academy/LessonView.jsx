@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap } from 'lucide-react';
+import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap, Eye } from 'lucide-react';
 import RichText from '@/components/academy/RichText';
 import { PrereqNotice } from '@/components/academy/ui/bits';
 import {
@@ -11,6 +11,14 @@ import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 
 const SAMPLE_QUESTIONS = 4;
+
+// Lessons that have a matching Visual Lab scenario ("Learn → See"). Deep-links straight to it.
+const VISUAL_LAB_FOR = {
+  'rt-ospf': 'rt-ospf-neighbor',
+  'rt-bgp': 'rt-bgp-path',
+  'rt-fundamentals': 'rt-link-failure',
+  'rt-routing-troubleshooting': 'rt-link-failure',
+};
 
 /** One lesson: reading on a glass-2 surface, then practice (the interactive lesson). */
 export default function LessonView() {
@@ -73,6 +81,17 @@ export default function LessonView() {
       </div>
 
       <PrereqNotice className="mb-8 max-w-reading" items={prereqItems} />
+
+      {VISUAL_LAB_FOR[lesson.id] && (
+        <Card level={2} padding="sm" className="mb-8 max-w-reading">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-small text-ink-2">See this concept animated, then configure it yourself.</p>
+            <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm" icon={Eye}>
+              Open in Visual Lab
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {sections.length > 2 && (
         <nav aria-label="On this page" className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-small">
