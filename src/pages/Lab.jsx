@@ -148,7 +148,10 @@ function Stage({ id, onBack }) {
         </div>
       )}
 
-      <div className="rounded-2xl glass-1 p-4 sm:p-6">
+      {/* The visualization renders on a dark "screen": the 3D models, animations and terminals are
+          dark by design, and the hands-on tools were authored for a dark surface. The page around it
+          stays light. */}
+      <div className="rounded-2xl border border-black/10 bg-[#0b1020] p-4 text-slate-200 shadow-[0_18px_50px_-18px_rgba(76,29,149,0.35)] sm:p-6">
         <ErrorBoundary key={id} label="This visualization">
           {is3D(id) ? (
             <div className="h-[440px] w-full sm:h-[560px]">{RENDERERS[id]?.()}</div>

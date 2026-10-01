@@ -10,13 +10,16 @@ from __future__ import annotations
 from typing import Any
 
 from labs.providers.base import CommandResult
-from labs.shells import cisco_ios, linux_logs, linux_net, linux_recon
+from labs.shells import aws_audit, cisco_ios, docker_siem, linux_logs, linux_net, linux_recon, terraform
 
 _SHELLS = {
     'linux_recon': linux_recon,   # nmap / rustscan / recon labs
     'cisco_ios': cisco_ios,       # switching / routing / ACL labs
     'linux_net': linux_net,       # DNS & connectivity troubleshooting
     'linux_logs': linux_logs,     # log triage / brute-force investigation
+    'aws_audit': aws_audit,       # cloud security audit (AWS CLI)
+    'terraform': terraform,       # IaC provisioning + cloud security
+    'docker_siem': docker_siem,   # container security monitoring + SIEM investigation
 }
 
 
@@ -29,7 +32,12 @@ def meta(lab) -> dict[str, Any] | None:
     if not has_shell(lab):
         return None
     shell = _SHELLS[lab.shell]
-    return {'prompt': shell.initial_prompt(lab), 'banner': shell.banner(lab)}
+    return {
+        'prompt': shell.initial_prompt(lab),
+        'banner': shell.banner(lab),
+        # Only shells that support `connect <device>` get the workspace's console tabs.
+        'multi_device': getattr(shell, 'multi_device', False),
+    }
 
 
 def run(lab, command: str, findings: dict[str, Any]) -> CommandResult:

@@ -206,7 +206,8 @@ export default function LabWorkspace() {
 
   const banner = lab.terminal?.banner || [];
   const prompt = lab.terminal?.prompt || 'student@lab:~$ ';
-  const devices = lab.targets || []; // multi-device labs (SW1/R1/PC1/PC2) get console tabs
+  // Console tabs only for shells that support `connect <device>` (e.g. Cisco IOS labs).
+  const devices = lab.terminal?.multi_device ? (lab.targets || []) : [];
 
   return (
     <div className="min-h-[100dvh] text-ink-1">
@@ -237,7 +238,8 @@ export default function LabWorkspace() {
               <span className="text-small text-ink-2">{passedCount}/{total}</span>
             </div>
             <ProgressBar value={total ? Math.round((passedCount / total) * 100) : 0} label="Objectives complete" showValue={false} />
-            <div className="mt-4">
+            {/* Scrollable so a long mission (e.g. the 9-step Docker+SIEM lab) never overflows the card. */}
+            <div className="mt-4 max-h-[22rem] overflow-y-auto pr-1 [scrollbar-width:thin]">
               <LabObjectives objectives={lab.objectives} results={results} />
             </div>
           </Card>

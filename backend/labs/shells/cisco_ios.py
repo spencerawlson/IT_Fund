@@ -19,6 +19,9 @@ from labs.topologies import fresh_state, topology_for
 INVALID = "% Invalid input detected"
 INCOMPLETE = "% Incomplete command"
 
+#: This shell lets the learner `connect` between devices, so the workspace shows console tabs.
+multi_device = True
+
 
 def _dev(state: dict[str, Any]) -> dict[str, Any]:
     return state['dev'][state['current']]

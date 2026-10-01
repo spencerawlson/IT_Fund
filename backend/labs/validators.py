@@ -165,5 +165,27 @@ for _key, _ok, _todo in [
     ("attacker_ip", "You identified the attacker's IP.", "The brute-force comes from one IP — grep for 203.0.113.66."),
     ("breach_found", "You found the successful login.", "Find the login that succeeded (grep \"Accepted password\" auth.log)."),
     ("account_identified", "You identified the compromised account.", "Which account did the attacker get into? grep for that username."),
+    # Cloud security audit (AWS CLI shell)
+    ("bucket_list", "You listed the account's S3 buckets.", "List the buckets (aws s3 ls)."),
+    ("public_bucket", "You found the publicly-exposed bucket.", "Check each bucket's ACL/public-access-block — one is open to AllUsers."),
+    ("open_ssh", "You found the security group with SSH open to the world.", "Inspect the firewall rules (aws ec2 describe-security-groups) for 0.0.0.0/0 on port 22."),
+    ("admin_user", "You found the over-privileged IAM user.", "Check users' attached policies (aws iam list-attached-user-policies) for AdministratorAccess."),
+    ("stale_key", "You found the stale, never-rotated access key.", "List access keys per user (aws iam list-access-keys) and check their age."),
+    # Terraform / IaC lab
+    ("config_viewed", "You reviewed the infrastructure definition.", "Read the config (cat main.tf)."),
+    ("init_done", "You initialized the Terraform working directory.", "Run terraform init."),
+    ("security_issue", "You found the insecure default before applying.", "Scan the config (tfsec) — it flags a HIGH issue."),
+    ("plan_done", "You previewed the execution plan.", "Run terraform plan (after init)."),
+    ("applied", "You provisioned the resources.", "Run terraform apply (after init)."),
+    # Docker + SIEM container security monitoring lab
+    ("docker_verified", "You verified the Docker Engine is running.", "Check the engine: docker info (or systemctl status docker)."),
+    ("nginx_running", "You deployed the Nginx container with its port published.", "docker run -d --name lab-nginx -p 8080:80 nginx."),
+    ("container_investigated", "You investigated the running container.", "Inspect it: docker inspect lab-nginx (or docker logs lab-nginx)."),
+    ("network_created", "You created a custom Docker network.", "docker network create security-lab."),
+    ("volume_created", "You created a Docker volume for persistence.", "docker volume create <name> (databases need persistent storage)."),
+    ("compose_up", "You brought up the stack with Compose.", "docker compose up -d."),
+    ("siem_searched", "You searched the centralized events in the SIEM.", "siem search (optionally field=value, e.g. event_type=auth_failure)."),
+    ("bruteforce_found", "You found the brute-force detection alert.", "See which detection rules fired: siem alerts."),
+    ("attacker_identified", "You pinned down the attacker and their kill chain.", "Pivot on the source: siem search src_ip=<the IP that appears on every malicious event>."),
 ]:
     VALIDATORS[_key] = _finding_present(_key, _ok, _todo)

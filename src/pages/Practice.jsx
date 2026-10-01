@@ -1,7 +1,6 @@
 import React from 'react';
-import { ArrowRight, Box, Timer, ShieldCheck, ExternalLink, Radar, Network, Route as RouteIcon, Globe, ShieldX, FileSearch } from 'lucide-react';
+import { ArrowRight, Box, Timer, ExternalLink, Radar, Network, Route as RouteIcon, Globe, ShieldX, FileSearch, Cloud, Boxes, Container } from 'lucide-react';
 import { Badge, Card, IconTile, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
-import { RESOURCES } from '@/data/academy';
 
 // Hands-on practice beside the lesson path. Nothing here changes lesson progress.
 // Reference material (the modules) lives under Learn -> Concept library.
@@ -19,6 +18,9 @@ const RANGES = [
   { to: '/labs/net-acl-001', icon: ShieldX, title: 'Filtering Traffic with ACLs', text: 'Write a standard access list to block one untrusted host from a server, then prove the rest still get through.' },
   { to: '/labs/net-dns-connectivity-001', icon: Globe, title: 'DNS & Connectivity Troubleshooting', text: 'Work the layers on a Linux shell — addressing, DNS, gateway, path, and HTTP — to find why an app is unreachable.' },
   { to: '/labs/sec-logtriage-001', icon: FileSearch, title: 'Log Triage: Brute-Force Investigation', text: 'Hunt an SSH brute-force in /var/log/auth.log with real grep: find the attacker, the breach, and the compromised account.' },
+  { to: '/labs/cloud-aws-audit-001', icon: Cloud, title: 'Cloud Security Audit with the AWS CLI', text: 'Audit a dev AWS account: find the public S3 bucket, SSH open to the world, an admin IAM user, and a stale access key.' },
+  { to: '/labs/cloud-terraform-001', icon: Boxes, title: 'Terraform: Provision & Secure Infrastructure', text: 'Run the init → plan → apply workflow and catch an insecure default with a tfsec scan before you apply.' },
+  { to: '/labs/sec-docker-siem-001', icon: Container, title: 'Docker + SIEM: Container Security Monitoring', text: 'Build a container stack, centralize its telemetry, then hunt a simulated attack in a SIEM — from brute-force alert to full kill chain.' },
 ];
 
 function Tile({ to, href, icon, title, text }) {
@@ -50,12 +52,6 @@ export default function Practice() {
         <SectionHeader id="practice-hands-on" title="Hands-on" />
         <div className="grid gap-4 md:grid-cols-2">
           {PRACTICE.map((t) => <Tile key={t.to} {...t} />)}
-          <Tile
-            href={RESOURCES.cyberlab.url}
-            icon={ShieldCheck}
-            title="Blue-team detection labs"
-            text="Four safe labs on GitHub: run a simulated attack, then hunt its traces. Pairs with the Detection Lab Drills lesson."
-          />
         </div>
       </section>
 

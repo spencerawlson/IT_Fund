@@ -101,11 +101,12 @@ const LabTerminal = forwardRef(function LabTerminal(
     }
   };
 
+  // Classic green-on-black terminal: commands bright green, output green, banner dim green, errors red.
   const colour = (kind) =>
-    kind === 'cmd' ? 'text-white'
+    kind === 'cmd' ? 'text-emerald-200'
       : kind === 'err' ? 'text-red-400'
-        : kind === 'sys' ? 'text-slate-500'
-          : 'text-slate-300';
+        : kind === 'sys' ? 'text-emerald-300/60'
+          : 'text-emerald-400';
 
   return (
     <div
@@ -135,7 +136,7 @@ const LabTerminal = forwardRef(function LabTerminal(
             autoCapitalize="off"
             autoCorrect="off"
             aria-label="Terminal command"
-            className="ml-1 min-w-0 flex-1 bg-transparent text-white caret-emerald-400 outline-none disabled:opacity-60"
+            className="ml-1 min-w-0 flex-1 bg-transparent text-emerald-200 caret-emerald-400 outline-none disabled:opacity-60"
           />
         </form>
       ) : (

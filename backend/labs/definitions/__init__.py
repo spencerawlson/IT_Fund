@@ -3,6 +3,8 @@
 To add a lab: define a LabDefinition in a module here and add it to ALL_LABS. registry.py validates
 at import time that every objective references a known validator, so a typo fails fast.
 """
+from labs.definitions.cloud import CLOUD_AUDIT_LAB, TERRAFORM_LAB
+from labs.definitions.container_security import DOCKER_SIEM_LAB
 from labs.definitions.cybersecurity import LOG_TRIAGE_LAB, NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB
 from labs.definitions.networking import (
     ACL_LAB,
@@ -19,4 +21,7 @@ ALL_LABS = [
     STATIC_ROUTING_LAB,
     ACL_LAB,
     DNS_CONNECTIVITY_LAB,
+    CLOUD_AUDIT_LAB,
+    TERRAFORM_LAB,
+    DOCKER_SIEM_LAB,
 ]

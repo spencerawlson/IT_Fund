@@ -47,9 +47,12 @@ def test_definitions_load_and_hide_internals():
     assert r.status_code == 200
     labs = r.json()["labs"]
     assert any(l["id"] == "cyber-nmap-001" for l in labs)
-    # No image or provider is ever exposed to the client.
+    # The internal image and provider FIELDS are never exposed to the client. (Educational text may
+    # legitimately mention e.g. "the AWS provider", so check the JSON keys/values, not the bare word.)
     blob = r.text
-    assert "security-tools:latest" not in blob and "provider" not in blob
+    assert "security-tools:latest" not in blob
+    assert '"provider"' not in blob and '"image"' not in blob
+    assert '"mock"' not in blob
 
 
 # ---- auth + lifecycle ----
