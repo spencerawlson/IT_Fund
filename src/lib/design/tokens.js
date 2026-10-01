@@ -6,40 +6,40 @@
  * on glass-1 (cards over the bright background) use ink1 or ink2.
  */
 export const INK = {
-  ink1: '#F1F5F9',
-  ink2: '#CBD5E1',
-  ink3: '#94A3B8',
+  ink1: '#1E1B2E',
+  ink2: '#475569',
+  ink3: '#5B6472',
 };
 
-/** The one accent: every primary action and focus ring uses it, nothing else does. */
+/** The one accent (violet): every primary action and focus ring uses it, nothing else does. */
 export const ACTION = {
-  action: '#F59E0B',
-  actionHover: '#FBBF24',
-  actionInk: '#1C1206',
-  focus: '#FCD34D',
+  action: '#7C3AED',
+  actionHover: '#6D28D9',
+  actionInk: '#FFFFFF',
+  focus: '#7C3AED',
 };
 
 /** Status colours. Used for meaning (passed, warning, error, note), never decoration. */
 export const SEMANTIC = {
-  success: '#34D399',
-  warning: '#FDBA74',
-  danger: '#FB7185',
-  info: '#7DD3FC',
+  success: '#047857',
+  warning: '#B45309',
+  danger: '#B91C1C',
+  info: '#2563EB',
 };
 
-/** Page base and the three glass fills ([r, g, b, alpha]). */
-export const BASE = '#070A12';
+/** Page base and the three glass fills ([r, g, b, alpha]). White-dominant light theme. */
+export const BASE = '#F5F3FB';
 export const SURFACES = {
-  'glass-1': [255, 255, 255, 0.055],
-  'glass-2': [11, 15, 24, 0.82],
-  'glass-3': [17, 21, 33, 0.92],
+  'glass-1': [255, 255, 255, 0.55],
+  'glass-2': [255, 255, 255, 0.82],
+  'glass-3': [255, 255, 255, 0.92],
 };
 
 /** Liquid background blobs: colour and opacity, as rendered by LiquidBackground. */
 export const BLOBS = [
-  { color: '#6366F1', opacity: 0.3 },
-  { color: '#7C3AED', opacity: 0.3 },
-  { color: '#0891B2', opacity: 0.24 },
+  { color: '#8B5CF6', opacity: 0.2 },
+  { color: '#A78BFA', opacity: 0.18 },
+  { color: '#C4B5FD', opacity: 0.16 },
 ];
 
 // ---- contrast maths (WCAG 2.x) ----

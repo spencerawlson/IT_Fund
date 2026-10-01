@@ -4,70 +4,71 @@
 
 @layer base {
   :root {
-    --background: 215 28% 7%;
-    --foreground: 208 35% 93%;
-    --card: 215 21% 11%;
-    --card-foreground: 208 35% 93%;
-    --popover: 215 21% 11%;
-    --popover-foreground: 208 35% 93%;
-    --primary: 38 92% 50%;
-    --primary-foreground: 30 67% 7%;
-    --secondary: 215 20% 16%;
-    --secondary-foreground: 208 35% 93%;
-    --muted: 215 20% 16%;
-    --muted-foreground: 215 8% 55%;
-    --accent: 215 20% 16%;
-    --accent-foreground: 208 35% 93%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 215 15% 20%;
-    --input: 215 15% 20%;
-    --ring: 45 96% 64%;
-    --chart-1: 217 91% 60%;
-    --chart-2: 189 94% 43%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 265 89% 65%;
+    /* Light, white-dominant theme with a violet accent. */
+    --background: 258 60% 99%;
+    --foreground: 258 30% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 258 30% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 258 30% 14%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 258 40% 96%;
+    --secondary-foreground: 258 30% 18%;
+    --muted: 258 40% 96%;
+    --muted-foreground: 258 8% 42%;
+    --accent: 262 70% 95%;
+    --accent-foreground: 262 60% 32%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 258 30% 90%;
+    --input: 258 30% 90%;
+    --ring: 262 83% 58%;
+    --chart-1: 262 83% 58%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 160 84% 32%;
+    --chart-4: 291 64% 52%;
     --chart-5: 0 72% 51%;
     --radius: 0.75rem;
     --font-heading: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-body: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --sidebar-background: 215 28% 7%;
-    --sidebar-foreground: 208 35% 93%;
-    --sidebar-primary: 38 92% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 215 20% 16%;
-    --sidebar-accent-foreground: 208 35% 93%;
-    --sidebar-border: 215 15% 20%;
-    --sidebar-ring: 45 96% 64%;
+    --sidebar-background: 258 55% 99%;
+    --sidebar-foreground: 258 30% 14%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 70% 95%;
+    --sidebar-accent-foreground: 262 60% 32%;
+    --sidebar-border: 258 30% 90%;
+    --sidebar-ring: 262 83% 58%;
 
     /* ---- Liquid-glass design tokens (values mirrored in src/lib/design/tokens.js) ---- */
-    /* Text: ink-1 headings/body, ink-2 secondary, ink-3 the dimmest text allowed. */
-    --ink-1-rgb: 241 245 249;
-    --ink-2-rgb: 203 213 225;
-    --ink-3-rgb: 148 163 184;
-    /* The one accent, for primary actions and focus only. */
-    --action-rgb: 245 158 11;
-    --action-hover-rgb: 251 191 36;
-    --action-ink-rgb: 28 18 6;
-    --focus-rgb: 252 211 77;
-    /* Status colours: meaning only, never decoration. */
-    --success-rgb: 52 211 153;
-    --warning-rgb: 253 186 116;
-    --danger-rgb: 251 113 133;
-    --info-rgb: 125 211 252;
+    /* Text: ink-1 headings/body, ink-2 secondary, ink-3 the dimmest text allowed. Dark on light. */
+    --ink-1-rgb: 30 27 46;
+    --ink-2-rgb: 71 85 105;
+    --ink-3-rgb: 91 100 114;
+    /* The one accent (violet), for primary actions and focus only. White text sits on it. */
+    --action-rgb: 124 58 237;
+    --action-hover-rgb: 109 40 217;
+    --action-ink-rgb: 255 255 255;
+    --focus-rgb: 124 58 237;
+    /* Status colours: meaning only, never decoration. Darkened for contrast on light surfaces. */
+    --success-rgb: 4 120 87;
+    --warning-rgb: 180 83 9;
+    --danger-rgb: 185 28 28;
+    --info-rgb: 37 99 235;
     /* Page base, glass fills (1 cards/nav, 2 reading, 3 menus/dialogs) and background blobs. */
-    --bg-base: #070A12;
-    --surface-1: rgba(255, 255, 255, 0.055);
-    --surface-2: rgba(11, 15, 24, 0.82);
-    --surface-3: rgba(17, 21, 33, 0.92);
-    --blob-1: #6366F1;
-    --blob-1-opacity: 0.3;
-    --blob-2: #7C3AED;
-    --blob-2-opacity: 0.3;
-    --blob-3: #0891B2;
-    --blob-3-opacity: 0.24;
+    --bg-base: #F5F3FB;
+    --surface-1: rgba(255, 255, 255, 0.55);
+    --surface-2: rgba(255, 255, 255, 0.82);
+    --surface-3: rgba(255, 255, 255, 0.92);
+    --blob-1: #8B5CF6;
+    --blob-1-opacity: 0.2;
+    --blob-2: #A78BFA;
+    --blob-2-opacity: 0.18;
+    --blob-3: #C4B5FD;
+    --blob-3-opacity: 0.16;
   }
 }
 
@@ -113,86 +114,83 @@
 }
 /* ---------- Liquid glass (Academy) ---------- */
 @layer components {
-  /* Frosted, refractive panel: translucent fill, specular top edge, soft depth. */
+  /* Frosted, refractive panel: translucent white fill over the violet background, soft depth. */
   .glass {
     background:
-      radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.14), transparent 55%),
-      linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025));
-    -webkit-backdrop-filter: blur(22px) saturate(170%);
-    backdrop-filter: blur(22px) saturate(170%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+      radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.75), transparent 60%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.42));
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid rgba(124, 58, 237, 0.14);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.28),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-      0 10px 40px -10px rgba(0, 0, 0, 0.55);
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 10px 40px -14px rgba(76, 29, 149, 0.22);
   }
   .glass-strong {
     background:
-      radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.16), transparent 60%),
-      linear-gradient(145deg, rgba(30, 36, 52, 0.72), rgba(14, 18, 28, 0.62));
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+      radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.85), transparent 65%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 246, 253, 0.82));
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid rgba(124, 58, 237, 0.16);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      0 18px 50px -12px rgba(0, 0, 0, 0.6);
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 18px 50px -14px rgba(76, 29, 149, 0.28);
   }
   .glass-hover {
     transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
   .glass-hover:hover {
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.28);
+    border-color: rgba(124, 58, 237, 0.3);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.35),
-      0 16px 50px -12px rgba(0, 0, 0, 0.6);
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 16px 50px -14px rgba(76, 29, 149, 0.3);
   }
-  /* Legacy primary button class: now the design-system primary (amber, dark text). The old
-     per-course --tint is ignored on purpose: one accent for every primary action. New UI uses
-     <Button> from @/components/ui-glass. */
+  /* Primary button: the violet accent with white text. New UI uses <Button> from @/components/ui-glass. */
   .glass-btn {
     background: rgb(var(--action-rgb));
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.35),
-      0 6px 20px -8px rgb(var(--action-rgb) / 0.6);
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 8px 24px -8px rgb(var(--action-rgb) / 0.5);
     color: rgb(var(--action-ink-rgb));
     transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
   }
   .glass-btn:hover:not(:disabled) { background: rgb(var(--action-hover-rgb)); }
   .glass-btn:active:not(:disabled) { transform: scale(0.98); }
-  .glass-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .glass-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
   /* ---- Glass levels (design system). New UI uses these; .glass/.glass-strong are legacy. ---- */
-  /* 1: cards and navigation. Light frost, content behind stays visible. */
+  /* 1: cards and navigation. Light frost, the violet background glows through. */
   .glass-1 {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), var(--surface-1));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), var(--surface-1));
     -webkit-backdrop-filter: blur(20px) saturate(140%);
     backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 30px -12px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(124, 58, 237, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 30px -16px rgba(76, 29, 149, 0.2);
   }
-  /* 2: reading surfaces. Dark enough that text contrast never depends on the background. */
+  /* 2: reading surfaces. Opaque enough that text contrast never depends on the background. */
   .glass-2 {
     background: var(--surface-2);
-    -webkit-backdrop-filter: blur(24px) saturate(130%);
-    backdrop-filter: blur(24px) saturate(130%);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 40px -16px rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(24px) saturate(135%);
+    backdrop-filter: blur(24px) saturate(135%);
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 14px 40px -18px rgba(76, 29, 149, 0.2);
   }
   /* 3: menus, dialogs, the tutor panel. Floats above everything else. */
   .glass-3 {
     background: var(--surface-3);
     -webkit-backdrop-filter: blur(32px) saturate(140%);
     backdrop-filter: blur(32px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 24px 60px -16px rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(124, 58, 237, 0.14);
+    box-shadow: 0 24px 60px -16px rgba(76, 29, 149, 0.3);
   }
-  /* Without backdrop blur, fall back to solid surfaces so text stays readable. */
+  /* Without backdrop blur, fall back to solid light surfaces so text stays readable. */
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass-1 { background: #121725; }
-    .glass-2 { background: #0B0F18; }
-    .glass-3 { background: #111521; }
+    .glass, .glass-1 { background: #FFFFFF; }
+    .glass-2 { background: #FDFCFF; }
+    .glass-strong, .glass-3 { background: #FFFFFF; }
   }
 }
 
@@ -225,9 +223,9 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-  .glass, .glass-1 { background: #121725; }
-  .glass-strong, .glass-2 { background: #0B0F18; }
-  .glass-3 { background: #111521; }
+  .glass, .glass-1 { background: #FFFFFF; }
+  .glass-strong, .glass-2 { background: #FDFCFF; }
+  .glass-3 { background: #FFFFFF; }
 }
 
 @media (prefers-reduced-motion: reduce) {
