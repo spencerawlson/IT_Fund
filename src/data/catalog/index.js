@@ -80,10 +80,13 @@ export const allLessons = [...LESSON_BY_ID.values()];
 /** Paths that include a course (a course can serve several paths). */
 export const pathsForCourse = (courseSlug) => PATHS.filter((p) => p.courses.includes(courseSlug));
 
-/** Every lesson in Road to CISSP roadmap order: the default "what next" order. */
-export const ROADMAP_ORDER = ROADMAP.flatMap((step) =>
+/** Every lesson in Road to CISSP roadmap order: the default "what next" order. Lessons from courses
+ * outside the CISSP roadmap (e.g. Routing Protocols) are appended so every lesson appears exactly once. */
+const _roadmapLessons = ROADMAP.flatMap((step) =>
   step.tiers.flatMap(([trackId, tierId]) => getModule(moduleKey(trackId, tierId))?.lessons || [])
 );
+const _inRoadmap = new Set(_roadmapLessons.map((l) => l.id));
+export const ROADMAP_ORDER = [..._roadmapLessons, ...allLessons.filter((l) => !_inRoadmap.has(l.id))];
 
 export const pathMinutes = (path) => path.courses.reduce((s, slug) => s + (getCourse(slug)?.minutes || 0), 0);
 

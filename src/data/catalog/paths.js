@@ -22,7 +22,7 @@ export const PATHS = [
     color: '#3B82F6',
     difficulty: 'Beginner',
     summary: 'Addressing, switching, routing and troubleshooting: the ground everything else stands on.',
-    courses: ['network-engineering'],
+    courses: ['network-engineering', 'routing-protocols'],
     prerequisites: { recommended: ['it-foundations'] },
   },
   {

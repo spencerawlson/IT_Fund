@@ -187,5 +187,18 @@ for _key, _ok, _todo in [
     ("siem_searched", "You searched the centralized events in the SIEM.", "siem search (optionally field=value, e.g. event_type=auth_failure)."),
     ("bruteforce_found", "You found the brute-force detection alert.", "See which detection rules fired: siem alerts."),
     ("attacker_identified", "You pinned down the attacker and their kill chain.", "Pivot on the source: siem search src_ip=<the IP that appears on every malicious event>."),
+    # Blue-team log labs (generic logfile shell)
+    ("beacon_dst", "You found the suspicious destination.", "One external IP is contacted over and over — grep for it in conn.log."),
+    ("beacon_host", "You identified the beaconing internal host.", "Which internal host keeps talking to that destination? grep its IP."),
+    ("c2_http", "You found the C2 beacon URI.", "Check http.log for the repeated request path (e.g. /api/v1/beacon)."),
+    ("c2_ua", "You spotted the automated user-agent.", "Beacons rarely use a browser UA — grep http.log for the client (Go-http-client)."),
+    ("dns_txt", "You found the unusual TXT queries.", "DNS tunneling uses TXT records — grep TXT in dns.log."),
+    ("dns_typo", "You found the typosquatted domain.", "Look for a lookalike of globocorp.com (e.g. g1obocorp.com)."),
+    ("dns_tunnel", "You identified the exfiltration domain.", "A single odd domain gets many base64-looking subdomains — grep for it (dnsexfil.xyz)."),
+    ("dns_client", "You identified the exfiltrating client.", "Which internal host is sending the tunneling queries? grep its IP."),
+    ("rw_ext", "You found the ransomware file extensions.", "grep for .locked / .encrypted in smb.log."),
+    ("rw_host", "You identified the infected host.", "Which host is writing all those files? grep its name/IP."),
+    ("rw_note", "You found the ransom note.", "Ransomware drops a note — grep for DECRYPT / readme."),
+    ("rw_scope", "You assessed the scope of the damage.", "How many files were written/encrypted? grep the write operations."),
 ]:
     VALIDATORS[_key] = _finding_present(_key, _ok, _todo)

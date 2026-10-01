@@ -49,6 +49,27 @@ export const COURSE_META = [
     },
   },
   {
+    slug: 'routing-protocols',
+    trackId: 'routing',
+    title: 'Routing Protocols',
+    difficulty: 'Intermediate',
+    description:
+      'How routers learn and choose paths — from static routes and RIP through OSPF, EIGRP, IS-IS and BGP, plus redistribution, routing security and structured troubleshooting. Learn it, see it in the Visual Lab, then configure it in the Interactive Lab.',
+    objectives: [
+      'Explain forwarding, administrative distance, metrics and convergence',
+      'Configure and verify static, OSPF, EIGRP and BGP routing',
+      'Redistribute safely and troubleshoot routing methodically',
+      'Detect and defend against routing attacks (hijacks, rogue routers, leaks)',
+    ],
+    skills: ['networking', 'troubleshooting'],
+    certifications: ['ccna'],
+    modules: {
+      beginner: { title: 'Routing Foundations', summary: 'Forwarding decisions, static and default routing, and RIP.' },
+      intermediate: { title: 'Interior Gateway Protocols', summary: 'OSPF, EIGRP and IS-IS: how routers inside an AS find paths.' },
+      advanced: { title: 'Exterior Routing, Redistribution & Security', summary: 'BGP, route redistribution, routing security and troubleshooting.' },
+    },
+  },
+  {
     slug: 'security-fundamentals',
     trackId: 'security',
     title: 'Security Fundamentals',

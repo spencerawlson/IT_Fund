@@ -37,12 +37,14 @@ import RoutingAnimation from '@/components/viz/RoutingAnimation';
 import SecurityIncidentAnimation from '@/components/viz/SecurityIncidentAnimation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import FlowDiagram from '@/components/lab/FlowDiagram';
+import RoutingScenario from '@/components/viz/RoutingScenario';
 import LabGallery, { KINDS } from '@/components/lab/LabGallery';
 import { LAB_FLOWS } from '@/data/labFlows';
+import { ROUTING_SCENARIOS } from '@/data/routingScenarios';
 import { getModulesForLab, NOTES, LAB_LABELS } from '@/data/labLinks';
 
 // Ordered categories for the gallery.
-const CATEGORIES = ['Hardware', 'Networking', 'Cloud & Scale', 'Security', 'Data & Systems', 'DevOps'];
+const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Security', 'Data & Systems', 'DevOps'];
 
 // The curated core, shown in the gallery. Every entry is genuinely visual or interactive.
 const SUBJECTS = [

@@ -1,6 +1,7 @@
 // Normalises the raw track files into tracks -> tiers -> decks -> cards with stable ids.
 import python from './python';
 import network from './network';
+import routing from './routing';
 import security from './security';
 import cyber from './cyber';
 import cloud from './cloud';
@@ -34,7 +35,7 @@ function normaliseTrack(raw) {
   return { ...raw, tiers };
 }
 
-export const tracks = [python, network, security, cyber, cloud, ai, cissp].map(normaliseTrack);
+export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp].map(normaliseTrack);
 
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);

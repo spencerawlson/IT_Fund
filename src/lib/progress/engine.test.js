@@ -124,7 +124,8 @@ describe('career path prerequisites', () => {
     expect(report.met).toBe(false);
     expect(report.required.map((r) => r.path.slug)).toContain('networking');
 
-    const networkDone = withLessons(getCourse('network-engineering').lessons.map((l) => l.id));
+    // Completing every course in the networking path satisfies cloud's required prerequisite.
+    const networkDone = withLessons(getPath('networking').courses.flatMap((slug) => getCourse(slug).lessons.map((l) => l.id)));
     expect(pathPrerequisites(networkDone, cloud).met).toBe(true);
   });
 

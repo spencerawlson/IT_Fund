@@ -4,6 +4,7 @@
 // See the LessonContent typedef in ./schema.js.
 import python from './lessons/python';
 import network from './lessons/network';
+import routing from './lessons/routing';
 import security from './lessons/security';
 import cyber from './lessons/cyber';
 import cloud from './lessons/cloud';
@@ -11,4 +12,4 @@ import ai from './lessons/ai';
 import cissp from './lessons/cissp';
 
 /** @type {Record<string, import('./schema').LessonContent>} */
-export const LESSON_CONTENT = { ...python, ...network, ...security, ...cyber, ...cloud, ...ai, ...cissp };
+export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...cissp };
