@@ -11,9 +11,12 @@ import { labsApi } from '@/api/labs';
 // Exposes an imperative `send(command)` so the workspace's device-console tabs can `connect <device>`.
 
 const LabTerminal = forwardRef(function LabTerminal(
-  { sessionId, banner = [], prompt: initialPrompt = 'student@lab:~$ ', disabled = false, onSession, onError, onPrompt },
+  { sessionId, runner, banner = [], prompt: initialPrompt = 'student@lab:~$ ', disabled = false, onSession, onError, onPrompt },
   ref,
 ) {
+  // How a command is executed: a caller-supplied runner (e.g. the local lab launcher) or, by default,
+  // the backend lab session's exec endpoint. Both return { output, exit_code, clear, prompt, session? }.
+  const exec = runner || ((cmd) => labsApi.exec(sessionId, cmd));
   // lines: { kind: 'sys' | 'cmd' | 'out' | 'err', text, prompt? }
   const [lines, setLines] = useState(() => banner.map((text) => ({ kind: 'sys', text })));
   const [prompt, setPrompt] = useState(initialPrompt);
@@ -50,7 +53,7 @@ const LabTerminal = forwardRef(function LabTerminal(
     busyRef.current = true;
     setBusy(true);
     try {
-      const res = await labsApi.exec(sessionId, raw);
+      const res = await exec(raw);
       if (res.clear) {
         setLines([]);
       } else if (res.output) {

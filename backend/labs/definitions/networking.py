@@ -174,28 +174,29 @@ BGP_LAB = LabDefinition(
     slug="ebgp-configuration",
     title="eBGP Configuration",
     description=(
-        "Peer two autonomous systems with external BGP. R1 is in AS 65001 and R2 in AS 65002, joined by "
-        "a /30 link. Configure the neighbors, advertise each site's LAN, bring the session up, and prove "
-        "PC1 can reach PC2. Topology: LAN1(PC1) - R1 = R2 - LAN2(PC2)."
+        "Peer two ISPs with external BGP. AS 65001 (customer LAN 10.1.1.0/24, PC1) peers with AS 65002 "
+        "(customer LAN 10.2.2.0/24, PC2) over the 192.0.2.0/30 link. Configure the neighbors, advertise "
+        "each customer LAN, bring the session up, and prove PC1 can reach PC2. "
+        "Topology: PC1-10.1.1.0 - R1(AS65001) =192.0.2.0/30= R2(AS65002) - 10.2.2.0-PC2."
     ),
     category="networking", difficulty="advanced", estimated_minutes=35, shell="cisco_ios", environment=_RT_ENV,
     targets=[
         LabTarget(hostname="R1", role="AS 65001 edge router"),
         LabTarget(hostname="R2", role="AS 65002 edge router"),
-        LabTarget(hostname="PC1", role="Host in LAN1"),
-        LabTarget(hostname="PC2", role="Host in LAN2"),
+        LabTarget(hostname="PC1", role="Host in AS 65001's LAN"),
+        LabTarget(hostname="PC2", role="Host in AS 65002's LAN"),
     ],
     objectives=[
         LabObjective(id="r1", label="Configure R1's eBGP neighbor", validator="r1_bgp",
-                     hints=["connect R1 → conf t → router bgp 65001 → neighbor 10.0.0.2 remote-as 65002"]),
+                     hints=["connect R1 → conf t → router bgp 65001 → neighbor 192.0.2.2 remote-as 65002"]),
         LabObjective(id="r2", label="Configure R2's eBGP neighbor", validator="r2_bgp",
-                     hints=["connect R2 → router bgp 65002 → neighbor 10.0.0.1 remote-as 65001"]),
+                     hints=["connect R2 → router bgp 65002 → neighbor 192.0.2.1 remote-as 65001"]),
         LabObjective(id="peer", label="Establish the eBGP session", validator="bgp_peering",
                      hints=["Both sides must point at each other with the right remote-as; verify with show ip bgp summary."]),
-        LabObjective(id="adv", label="Advertise both LANs into BGP", validator="bgp_advertised",
-                     hints=["network 192.168.1.0 mask 255.255.255.0 on R1, and 192.168.2.0 mask 255.255.255.0 on R2."]),
+        LabObjective(id="adv", label="Advertise both customer LANs into BGP", validator="bgp_advertised",
+                     hints=["network 10.1.1.0 mask 255.255.255.0 on R1, and 10.2.2.0 mask 255.255.255.0 on R2."]),
         LabObjective(id="conn", label="Prove PC1 reaches PC2", validator="bgp_connectivity",
-                     hints=["connect PC1 → ping 192.168.2.10"]),
+                     hints=["connect PC1 → ping 10.2.2.10"]),
     ],
 )
 

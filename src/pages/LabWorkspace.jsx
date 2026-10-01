@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Check, X, Lock, RotateCcw, Clock, FlaskConical, ShieldCheck, SearchX, TerminalSquare } from 'lucide-react';
 import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
@@ -83,6 +83,7 @@ function NetworkWorkbench({ draft, setDraft }) {
  * cyber labs, config recorder for networking), and live validation. */
 export default function LabWorkspace() {
   const { labId } = useParams();
+  const navigate = useNavigate();
   const [lab, setLab] = useState(null);
   const [session, setSession] = useState(null);
   const [draft, setDraft] = useState({});
@@ -178,6 +179,65 @@ export default function LabWorkspace() {
     const host = deviceFromPrompt(p);
     if (host) setActiveDevice(host);
   }, []);
+
+  // Terminal command runner: meta-commands (help/objectives/hint/check/devices/progress/reset/exit)
+  // are handled in the browser; everything else is the lab's real tooling, sent to the backend shell.
+  const runner = useCallback(async (raw) => {
+    const trimmed = raw.trim();
+    const [cmd, ...args] = trimmed.split(/\s+/);
+    const c = cmd.toLowerCase();
+    const sub = (args[0] || '').toLowerCase();
+    const objList = () => (lab?.objectives || []).map((o) => {
+      const passed = session?.progress?.[o.id];
+      return `  [${passed ? 'x' : ' '}] ${o.label}`;
+    }).join('\n');
+    const count = () => `${Object.values(session?.progress || {}).filter(Boolean).length}/${lab?.objectives.length || 0} objectives complete`;
+
+    if (c === 'objectives') return { output: `Mission objectives (${count()}):\n${objList()}` };
+    if (c === 'progress' || (c === 'lab' && sub === 'status') || (c === 'status')) return { output: count() };
+    if (c === 'devices' && (lab?.targets?.length)) {
+      const rows = lab.targets.map((t) => `  ${t.hostname.padEnd(12)} ${t.role || ''}`).join('\n');
+      return { output: `Devices in this lab:\n${rows}\nUse  connect <device>  to access one.` };
+    }
+    if (c === 'hint') {
+      const open = (lab?.objectives || []).find((o) => !session?.progress?.[o.id]);
+      if (!open) return { output: 'Every objective is complete — nothing left to hint at.' };
+      return { output: `Hint for "${open.label}":\n  ${open.hints?.[0] || 'Work through the mission step by step.'}` };
+    }
+    if (c === 'check') {
+      try {
+        const s = await labsApi.validate(session.id);
+        return { output: `Checked. ${Object.values(s.progress).filter(Boolean).length}/${lab.objectives.length} objectives complete.`, session: s };
+      } catch (e) { return { output: e.message, exit_code: 1 }; }
+    }
+    if (c === 'lab' && sub === 'reset') { reset(); return { output: 'Resetting the lab environment...' }; }
+    // NB: bare `exit` is a real device command (e.g. Cisco IOS leaves a config mode), so only the
+    // explicit `lab exit` returns to the launcher.
+    if (c === 'lab' && sub === 'exit') {
+      setTimeout(() => navigate('/labs'), 300);
+      return { output: 'Leaving the lab. Back to the lab menu...' };
+    }
+    if (c === 'lab') return { output: 'Usage: lab reset | lab exit   (while in a lab)' };
+    if (c === 'help' || c === '?') {
+      const meta = [
+        'Lab commands:',
+        '  objectives        show the mission objectives and your progress',
+        '  hint              a hint for the next unfinished objective',
+        '  check             re-check your work now',
+        '  progress          how many objectives are complete',
+        (lab?.targets?.length > 1 ? '  devices           list the devices · connect <device> to access one' : null),
+        '  lab reset         start the lab over',
+        '  lab exit          leave to the lab menu',
+        '',
+        'This lab\'s tools:',
+      ].filter(Boolean).join('\n');
+      try {
+        const res = await labsApi.exec(session.id, 'help');
+        return { output: `${meta}\n${res.output || ''}`, session: res.session, prompt: res.prompt };
+      } catch { return { output: meta }; }
+    }
+    return labsApi.exec(session.id, raw);
+  }, [session, lab, reset, navigate]);
 
   const results = session?.validation_results || [];
   const passedCount = useMemo(() => Object.values(session?.progress || {}).filter(Boolean).length, [session]);

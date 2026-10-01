@@ -20,8 +20,8 @@ OSPF = [
     "connect R3", "enable", "conf t", "router ospf 1", "network 10.0.23.0 0.0.0.255 area 0", "network 192.168.3.0 0.0.0.255 area 0", "end",
 ]
 BGP = [
-    "enable", "conf t", "router bgp 65001", "neighbor 10.0.0.2 remote-as 65002", "network 192.168.1.0 mask 255.255.255.0", "end",
-    "connect R2", "enable", "conf t", "router bgp 65002", "neighbor 10.0.0.1 remote-as 65001", "network 192.168.2.0 mask 255.255.255.0", "end",
+    "enable", "conf t", "router bgp 65001", "neighbor 192.0.2.2 remote-as 65002", "network 10.1.1.0 mask 255.255.255.0", "end",
+    "connect R2", "enable", "conf t", "router bgp 65002", "neighbor 192.0.2.1 remote-as 65001", "network 10.2.2.0 mask 255.255.255.0", "end",
 ]
 
 
@@ -66,7 +66,7 @@ def test_ospf_troubleshoot_starts_broken_then_is_fixable():
 
 
 def test_bgp_lab_completes():
-    s, _ = _run("net-bgp-001", BGP + ["connect PC1", "ping 192.168.2.10"])
+    s, _ = _run("net-bgp-001", BGP + ["connect PC1", "ping 10.2.2.10"])
     assert s.status == "COMPLETED" and all(s.progress.values())
 
 

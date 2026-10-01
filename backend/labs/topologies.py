@@ -287,6 +287,30 @@ def _subnet(ip):
     return '.'.join(ip.split('.')[:3]) if ip else ''
 
 
+def _prefix_len(mask: str) -> int:
+    try:
+        return sum(bin(int(o)).count('1') for o in mask.split('.'))
+    except (ValueError, AttributeError):
+        return 24
+
+
+def _network_addr(ip: str, mask: str) -> str:
+    try:
+        return '.'.join(str(int(i) & int(m)) for i, m in zip(ip.split('.'), mask.split('.')))
+    except (ValueError, AttributeError):
+        return _subnet(ip) + '.0'
+
+
+def _connected_routes(dev) -> list[str]:
+    """`C  <net>/<len> is directly connected, <if>` rows from a router's up, addressed interfaces."""
+    rows = []
+    for n, i in dev.get('if', {}).items():
+        if i.get('ip') and i.get('up'):
+            mask = i.get('mask', '255.255.255.0')
+            rows.append(f'C    {_network_addr(i["ip"], mask)}/{_prefix_len(mask)} is directly connected, {n}')
+    return rows
+
+
 def ping_ospf(state, from_dev, ip) -> tuple[bool, bool, str]:
     if ip not in _OSPF_IPS:
         return (False, False, ip)
@@ -332,10 +356,7 @@ def show_ospf(state, dev_id, rest):
         nets = '\n'.join(f'    {ip} {wc} area {area}' for (ip, wc, area) in o['networks'])
         return f'Routing Protocol is "ospf {o.get("pid", 1)}"\n  Routing for Networks:\n{nets}'
     if rest.startswith('ip route'):
-        lines = ['Codes: C - connected, O - OSPF', '']
-        for n, i in dev['if'].items():
-            if i.get('ip') and i.get('up'):
-                lines.append(f'C    {_subnet(i["ip"])}.0/24 is directly connected, {n}')
+        lines = ['Codes: C - connected, O - OSPF', ''] + _connected_routes(dev)
         if derive_ospf(state)['ospf_connectivity']:
             far = {'R1': ['10.0.23.0/24', '192.168.3.0/24'], 'R2': ['192.168.1.0/24', '192.168.3.0/24'],
                    'R3': ['10.0.12.0/24', '192.168.1.0/24']}.get(dev_id, [])
@@ -346,21 +367,22 @@ def show_ospf(state, dev_id, rest):
 
 
 # --------------------------------------------------------------------------------------------------
-# eBGP: LAN1(PC1) - R1 (AS 65001) =10.0.0.0/30= R2 (AS 65002) - LAN2(PC2). Interfaces pre-addressed;
-# the learner configures eBGP so the two LANs can reach each other.
+# eBGP: two ISPs peer over a /30. AS 65001 (LAN 10.1.1.0/24, PC1) --192.0.2.0/30-- AS 65002
+# (LAN 10.2.2.0/24, PC2). Addressing is deliberately distinct from the Static Routing lab. The
+# learner configures eBGP so each AS can reach the other's customer LAN.
 # --------------------------------------------------------------------------------------------------
 
 _BGP_DEVICES = {
-    'R1': _r('R1', {'Gi0/0': {'ip': '192.168.1.1', 'mask': '255.255.255.0', 'up': True},
-                    'Gi0/1': {'ip': '10.0.0.1', 'mask': '255.255.255.252', 'up': True}}),
-    'R2': _r('R2', {'Gi0/0': {'ip': '192.168.2.1', 'mask': '255.255.255.0', 'up': True},
-                    'Gi0/1': {'ip': '10.0.0.2', 'mask': '255.255.255.252', 'up': True}}),
-    'PC1': {'kind': 'pc', 'host': 'PC1', 'ip': '192.168.1.10', 'mask': '255.255.255.0', 'gw': '192.168.1.1', 'vlan': 0},
-    'PC2': {'kind': 'pc', 'host': 'PC2', 'ip': '192.168.2.10', 'mask': '255.255.255.0', 'gw': '192.168.2.1', 'vlan': 0},
+    'R1': _r('R1', {'Gi0/0': {'ip': '10.1.1.1', 'mask': '255.255.255.0', 'up': True},
+                    'Gi0/1': {'ip': '192.0.2.1', 'mask': '255.255.255.252', 'up': True}}),
+    'R2': _r('R2', {'Gi0/0': {'ip': '10.2.2.1', 'mask': '255.255.255.0', 'up': True},
+                    'Gi0/1': {'ip': '192.0.2.2', 'mask': '255.255.255.252', 'up': True}}),
+    'PC1': {'kind': 'pc', 'host': 'PC1', 'ip': '10.1.1.10', 'mask': '255.255.255.0', 'gw': '10.1.1.1', 'vlan': 0},
+    'PC2': {'kind': 'pc', 'host': 'PC2', 'ip': '10.2.2.10', 'mask': '255.255.255.0', 'gw': '10.2.2.1', 'vlan': 0},
 }
 
-_BGP_IPS = {'192.168.1.1': 'R1 (PC1 gateway)', '192.168.2.1': 'R2 (PC2 gateway)',
-            '10.0.0.1': 'R1', '10.0.0.2': 'R2', '192.168.1.10': 'PC1', '192.168.2.10': 'PC2'}
+_BGP_IPS = {'10.1.1.1': 'R1 (PC1 gateway)', '10.2.2.1': 'R2 (PC2 gateway)',
+            '192.0.2.1': 'R1 (peering)', '192.0.2.2': 'R2 (peering)', '10.1.1.10': 'PC1', '10.2.2.10': 'PC2'}
 
 
 def _bgp_neighbor_ok(dev, peer_ip, peer_as) -> bool:
@@ -375,10 +397,10 @@ def _bgp_advertises(dev, net) -> bool:
 
 def derive_bgp(state) -> dict[str, bool]:
     d = state['dev']
-    r1 = bool(d['R1'].get('bgp')) and d['R1']['bgp']['asn'] == 65001 and _bgp_neighbor_ok(d['R1'], '10.0.0.2', 65002)
-    r2 = bool(d['R2'].get('bgp')) and d['R2']['bgp']['asn'] == 65002 and _bgp_neighbor_ok(d['R2'], '10.0.0.1', 65001)
+    r1 = bool(d['R1'].get('bgp')) and d['R1']['bgp']['asn'] == 65001 and _bgp_neighbor_ok(d['R1'], '192.0.2.2', 65002)
+    r2 = bool(d['R2'].get('bgp')) and d['R2']['bgp']['asn'] == 65002 and _bgp_neighbor_ok(d['R2'], '192.0.2.1', 65001)
     peering = r1 and r2
-    advertised = _bgp_advertises(d['R1'], '192.168.1.0') and _bgp_advertises(d['R2'], '192.168.2.0')
+    advertised = _bgp_advertises(d['R1'], '10.1.1.0') and _bgp_advertises(d['R2'], '10.2.2.0')
     connectivity = peering and advertised
     return {'r1_bgp': r1, 'r2_bgp': r2, 'bgp_peering': peering, 'bgp_advertised': advertised, 'bgp_connectivity': connectivity}
 
@@ -411,12 +433,9 @@ def show_bgp(state, dev_id, rest):
         b = dev.get('bgp')
         return f'Routing Protocol is "bgp {b["asn"]}"' if b else 'no routing protocol configured'
     if rest.startswith('ip route'):
-        lines = ['Codes: C - connected, B - BGP', '']
-        for n, i in dev['if'].items():
-            if i.get('ip') and i.get('up'):
-                lines.append(f'C    {_subnet(i["ip"])}.0/24 is directly connected, {n}')
+        lines = ['Codes: C - connected, B - BGP', ''] + _connected_routes(dev)
         if der['bgp_connectivity']:
-            far = '192.168.2.0/24' if dev_id == 'R1' else '192.168.1.0/24'
+            far = '10.2.2.0/24' if dev_id == 'R1' else '10.1.1.0/24'
             lines.append(f'B    {far} [20/0] via BGP')
         return '\n'.join(lines)
     return None

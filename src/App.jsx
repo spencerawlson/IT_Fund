@@ -31,6 +31,7 @@ import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Course
 import LessonView from './pages/academy/LessonView';
 import Practice from './pages/Practice';
 import LabWorkspace from './pages/LabWorkspace';
+import LabLauncher from './pages/LabLauncher';
 import SignIn from './pages/SignIn';
 
 // Dev-only design system preview; not bundled into production builds.
@@ -88,6 +89,7 @@ const AuthenticatedApp = () => {
       </Route>
 
       {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
+      <Route path="/labs" element={<LabLauncher />} />
       <Route path="/labs/:labId" element={<LabWorkspace />} />
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
       <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />
