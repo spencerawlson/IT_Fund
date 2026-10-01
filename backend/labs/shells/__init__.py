@@ -10,12 +10,13 @@ from __future__ import annotations
 from typing import Any
 
 from labs.providers.base import CommandResult
-from labs.shells import cisco_ios, linux_net, linux_recon
+from labs.shells import cisco_ios, linux_logs, linux_net, linux_recon
 
 _SHELLS = {
     'linux_recon': linux_recon,   # nmap / rustscan / recon labs
-    'cisco_ios': cisco_ios,       # switching / routing labs
+    'cisco_ios': cisco_ios,       # switching / routing / ACL labs
     'linux_net': linux_net,       # DNS & connectivity troubleshooting
+    'linux_logs': linux_logs,     # log triage / brute-force investigation
 }
 
 

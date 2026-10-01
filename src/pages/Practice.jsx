@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Box, Timer, ShieldCheck, ExternalLink, Radar, Network, Route as RouteIcon, Globe } from 'lucide-react';
+import { ArrowRight, Box, Timer, ShieldCheck, ExternalLink, Radar, Network, Route as RouteIcon, Globe, ShieldX, FileSearch } from 'lucide-react';
 import { Badge, Card, IconTile, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
 import { RESOURCES } from '@/data/academy';
 
@@ -16,7 +16,9 @@ const RANGES = [
   { to: '/labs/cyber-nmap-001', icon: Radar, title: 'Service Enumeration with Nmap', text: 'Discover ports and identify services on an isolated target from a simulated shell, then validate your findings.' },
   { to: '/labs/net-vlan-001', icon: Network, title: 'VLANs & Inter-VLAN Routing', text: 'Configure a real Cisco IOS switch and router-on-a-stick, then ping across the VLANs to prove it.' },
   { to: '/labs/net-static-routing-001', icon: RouteIcon, title: 'Static Routing Between Two Sites', text: 'Address two routers over a WAN link, add the static routes, and confirm end-to-end connectivity.' },
+  { to: '/labs/net-acl-001', icon: ShieldX, title: 'Filtering Traffic with ACLs', text: 'Write a standard access list to block one untrusted host from a server, then prove the rest still get through.' },
   { to: '/labs/net-dns-connectivity-001', icon: Globe, title: 'DNS & Connectivity Troubleshooting', text: 'Work the layers on a Linux shell — addressing, DNS, gateway, path, and HTTP — to find why an app is unreachable.' },
+  { to: '/labs/sec-logtriage-001', icon: FileSearch, title: 'Log Triage: Brute-Force Investigation', text: 'Hunt an SSH brute-force in /var/log/auth.log with real grep: find the attacker, the breach, and the compromised account.' },
 ];
 
 function Tile({ to, href, icon, title, text }) {

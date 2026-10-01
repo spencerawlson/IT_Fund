@@ -134,6 +134,12 @@ for _key, _ok, _todo in [
     ("r1_static_route", "R1 has a route to LAN2.", "On R1: ip route 192.168.2.0 255.255.255.0 10.0.0.2."),
     ("r2_static_route", "R2 has a route to LAN1.", "On R2: ip route 192.168.1.0 255.255.255.0 10.0.0.1."),
     ("end_to_end_connectivity", "PC1 can reach PC2 across both routers.", "Finish both routers' interfaces and static routes, then ping end to end."),
+    # Access Control Lists (Cisco IOS shell)
+    ("acl_denies_guest", "Your ACL denies the guest host.", "Add a rule denying 192.168.1.20 (access-list 10 deny host 192.168.1.20)."),
+    ("acl_permits_others", "Your ACL permits everyone else.", "Add a permit-any rule so other hosts still pass (access-list 10 permit any)."),
+    ("acl_applied", "The ACL is applied to the traffic path.", "Apply it near the destination: interface Gi0/1 → ip access-group 10 out."),
+    ("guest_blocked", "The guest can no longer reach the server.", "From GUEST, ping 192.168.2.10 — it should now fail."),
+    ("trusted_allowed", "Trusted hosts still reach the server.", "From PC1, ping 192.168.2.10 — it should still succeed."),
 ]:
     VALIDATORS[_key] = _network_validator(_key, _ok, _todo)
 
@@ -153,5 +159,11 @@ for _key, _ok, _todo in [
     ("gateway", "You confirmed the default gateway is reachable.", "Ping the default gateway."),
     ("trace", "You traced the path to the app.", "Run a traceroute to the app."),
     ("service", "You confirmed the web service responds.", "Request the app over HTTP (curl)."),
+    # Log triage / brute-force investigation (Linux logs shell)
+    ("log_viewed", "You opened the auth log.", "View the log (cat/tail /var/log/auth.log)."),
+    ("failed_found", "You found the failed login attempts.", "Filter the failed logins (grep \"Failed password\" auth.log)."),
+    ("attacker_ip", "You identified the attacker's IP.", "The brute-force comes from one IP — grep for 203.0.113.66."),
+    ("breach_found", "You found the successful login.", "Find the login that succeeded (grep \"Accepted password\" auth.log)."),
+    ("account_identified", "You identified the compromised account.", "Which account did the attacker get into? grep for that username."),
 ]:
     VALIDATORS[_key] = _finding_present(_key, _ok, _todo)

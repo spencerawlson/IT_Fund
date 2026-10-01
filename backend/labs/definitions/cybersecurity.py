@@ -87,3 +87,38 @@ PORTBLAST_COMPARISON_LAB = LabDefinition(
         LabObjective(id="compare-results", label="Compare manual findings with PortBlast", validator="comparison_complete", args={"target": "target.lab"}),
     ],
 )
+
+LOG_TRIAGE_LAB = LabDefinition(
+    id="sec-logtriage-001",
+    slug="brute-force-log-triage",
+    title="Log Triage: Brute-Force Investigation",
+    description=(
+        "web01 shows signs of an SSH brute-force. Investigate /var/log/auth.log with real cat, grep "
+        "and tail: find the failed attempts, pin down the attacker's IP, locate the login that "
+        "succeeded, and name the account that was compromised. A blue-team detective exercise."
+    ),
+    category="cybersecurity",
+    difficulty="beginner",
+    estimated_minutes=20,
+    shell="linux_logs",
+    environment=LabEnvironmentConfig(
+        provider="mock",
+        image="road-to-cissp/log-triage:latest",
+        idle_timeout_minutes=15,
+        max_runtime_minutes=45,
+        deny_internet_egress=True,
+    ),
+    targets=[LabTarget(hostname="web01", role="SSH server under investigation")],
+    objectives=[
+        LabObjective(id="view-log", label="Open the authentication log", validator="log_viewed",
+                     hints=["cat /var/log/auth.log  (or tail -n 20 auth.log)"]),
+        LabObjective(id="find-failed", label="Find the failed login attempts", validator="failed_found",
+                     hints=['grep "Failed password" auth.log']),
+        LabObjective(id="identify-attacker", label="Identify the attacker's IP", validator="attacker_ip",
+                     hints=["One IP repeats across the failures — grep for it to see its full activity (203.0.113.66)."]),
+        LabObjective(id="find-breach", label="Find the successful login", validator="breach_found",
+                     hints=['grep "Accepted password" auth.log — which attempt finally worked?']),
+        LabObjective(id="identify-account", label="Name the compromised account", validator="account_identified",
+                     hints=["The Accepted line names the user the attacker got into — grep that username."]),
+    ],
+)

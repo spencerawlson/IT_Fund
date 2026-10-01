@@ -49,6 +49,20 @@ def _norm_if(name: str) -> str | None:
     return f'{pfx}{num}'
 
 
+def _parse_acl_rule(action: str, rest: list[str]) -> dict[str, Any] | None:
+    """Parse a standard-ACL matcher: `any`, `host <ip>`, `<ip>`, or `<net> <wildcard>`."""
+    if not rest:
+        return None
+    head = rest[0].lower()
+    if head == 'any':
+        return {'action': action, 'kind': 'any'}
+    if head == 'host' and len(rest) >= 2:
+        return {'action': action, 'kind': 'host', 'ip': rest[1]}
+    if len(rest) >= 2:
+        return {'action': action, 'kind': 'net', 'net': rest[0], 'wc': rest[1]}
+    return {'action': action, 'kind': 'host', 'ip': rest[0]}
+
+
 def initial_prompt(lab) -> str:
     return _prompt(fresh_state(lab.id))
 
@@ -175,6 +189,17 @@ def _show(lab, state, tokens) -> CommandResult:
             status = 'up' if i.get('up', dev['kind'] == 'switch') else 'administratively down'
             proto = 'up' if i.get('up', dev['kind'] == 'switch') else 'down'
             lines.append(f'{n:<22} {ipaddr:<15} YES manual {status:<21} {proto}')
+        return _emit(lab, state, '\n'.join(lines))
+    if rest.startswith('access-list'):
+        acls = dev.get('acls', {})
+        if not acls:
+            return _emit(lab, state, '')
+        lines = []
+        for num in sorted(acls):
+            lines.append(f'Standard IP access list {num}')
+            for r in acls[num]:
+                matcher = 'any' if r['kind'] == 'any' else (f'host {r["ip"]}' if r['kind'] == 'host' else f'{r["net"]} {r["wc"]}')
+                lines.append(f'    {r["action"]} {matcher}')
         return _emit(lab, state, '\n'.join(lines))
     if rest.startswith('run') or rest.startswith('running'):
         return _emit(lab, state, _running_config(dev))
@@ -304,6 +329,16 @@ def _config_command(lab, state, dev, tokens, low) -> CommandResult:
             return _emit(lab, state, INVALID)
         dev['routes'].append((tokens[2], tokens[3], tokens[4]))
         return _emit(lab, state, '')
+    if cmd == 'access-list' and len(tokens) >= 3 and tokens[1].isdigit():
+        if dev['kind'] != 'router':
+            return _emit(lab, state, INVALID)
+        if low[2] not in ('permit', 'deny'):
+            return _emit(lab, state, INVALID)
+        rule = _parse_acl_rule(low[2], tokens[3:])
+        if rule is None:
+            return _emit(lab, state, INVALID)
+        dev.setdefault('acls', {}).setdefault(int(tokens[1]), []).append(rule)
+        return _emit(lab, state, '')
     if cmd == 'exit':
         state['mode'] = 'priv'
         return _emit(lab, state, '')
@@ -332,6 +367,9 @@ def _if_command(lab, state, dev, tokens, low) -> CommandResult:
             return _emit(lab, state, INVALID)
         return _emit(lab, state, '')
 
+    if low[:2] == ['ip', 'access-group'] and len(tokens) >= 4 and tokens[2].isdigit() and low[3] in ('in', 'out'):
+        iface[f'acl_{low[3]}'] = int(tokens[2])
+        return _emit(lab, state, '')
     if _match(low, 'encapsulation') and len(tokens) >= 3 and tokens[2].isdigit():
         iface['dot1q'] = int(tokens[2])
         return _emit(lab, state, '')

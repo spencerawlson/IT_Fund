@@ -151,6 +151,91 @@ def ping_static(state: dict[str, Any], from_dev: str, ip: str) -> tuple[bool, bo
 
 
 # --------------------------------------------------------------------------------------------------
+# Access Control Lists: one router, two LANs, already connected. Filter one host with a standard ACL.
+# --------------------------------------------------------------------------------------------------
+
+_ACL_DEVICES = {
+    'R1': {'kind': 'router', 'host': 'R1', 'acls': {}, 'subif': {}, 'routes': [], 'if': {
+        'Gi0/0': {'ip': '192.168.1.1', 'mask': '255.255.255.0', 'up': True},
+        'Gi0/1': {'ip': '192.168.2.1', 'mask': '255.255.255.0', 'up': True},
+    }},
+    'PC1': {'kind': 'pc', 'host': 'PC1', 'ip': '192.168.1.10', 'mask': '255.255.255.0', 'gw': '192.168.1.1', 'vlan': 0},
+    'GUEST': {'kind': 'pc', 'host': 'GUEST', 'ip': '192.168.1.20', 'mask': '255.255.255.0', 'gw': '192.168.1.1', 'vlan': 0},
+    'SRV': {'kind': 'pc', 'host': 'SRV', 'ip': '192.168.2.10', 'mask': '255.255.255.0', 'gw': '192.168.2.1', 'vlan': 0},
+}
+
+_ACL_IPS = {'192.168.1.1': 'R1 (LAN1 gateway)', '192.168.2.1': 'R1 (Server-LAN gateway)',
+            '192.168.1.10': 'PC1 (trusted)', '192.168.1.20': 'GUEST', '192.168.2.10': 'SRV (server)'}
+
+
+def _wc_match(ip: str, net: str, wc: str) -> bool:
+    try:
+        for i, n, w in zip(ip.split('.'), net.split('.'), wc.split('.')):
+            mask = 255 - int(w)
+            if (int(i) & mask) != (int(n) & mask):
+                return False
+        return True
+    except (ValueError, AttributeError):
+        return False
+
+
+def _rule_matches(rule: dict[str, Any], src: str) -> bool:
+    if rule['kind'] == 'any':
+        return True
+    if rule['kind'] == 'host':
+        return rule.get('ip') == src
+    if rule['kind'] == 'net':
+        return _wc_match(src, rule['net'], rule['wc'])
+    return False
+
+
+def _applied_acls(r1: dict[str, Any]) -> list[list[dict]]:
+    """ACL rule-lists filtering the host->server path (out on Gi0/1, or in on Gi0/0)."""
+    acls = r1.get('acls', {})
+    nums = [r1['if'].get('Gi0/1', {}).get('acl_out'), r1['if'].get('Gi0/0', {}).get('acl_in')]
+    return [acls[n] for n in nums if n and n in acls]
+
+
+def _acl_permits(r1: dict[str, Any], src: str) -> bool:
+    applied = _applied_acls(r1)
+    if not applied:
+        return True
+    for rules in applied:
+        decision = next((r['action'] for r in rules if _rule_matches(r, src)), 'deny')  # implicit deny
+        if decision == 'deny':
+            return False
+    return True
+
+
+def derive_acl(state: dict[str, Any]) -> dict[str, bool]:
+    r1 = state['dev']['R1']
+    any_rules = [r for lst in r1.get('acls', {}).values() for r in lst]
+    denies_guest = any(r['action'] == 'deny' and r.get('ip') == '192.168.1.20' for r in any_rules)
+    permits_others = any(r['action'] == 'permit' and r['kind'] == 'any' for r in any_rules)
+    applied = any(any(r['action'] == 'deny' and r.get('ip') == '192.168.1.20' for r in rules) for rules in _applied_acls(r1))
+    return {
+        'acl_denies_guest': denies_guest,
+        'acl_permits_others': permits_others,
+        'acl_applied': applied,
+        'guest_blocked': not _acl_permits(r1, '192.168.1.20'),
+        'trusted_allowed': _acl_permits(r1, '192.168.1.10'),
+    }
+
+
+def ping_acl(state: dict[str, Any], from_dev: str, ip: str) -> tuple[bool, bool, str]:
+    if ip not in _ACL_IPS:
+        return (False, False, ip)
+    r1 = state['dev']['R1']
+    src = state['dev'][from_dev].get('ip')
+    # Only the host -> server path is ACL-filtered; everything else is already connected.
+    if from_dev in ('PC1', 'GUEST') and ip == '192.168.2.10' and src:
+        ok = _acl_permits(r1, src)
+    else:
+        ok = True
+    return (True, ok, _ACL_IPS[ip])
+
+
+# --------------------------------------------------------------------------------------------------
 
 TOPOLOGIES: dict[str, dict[str, Any]] = {
     'net-vlan-001': {
@@ -166,6 +251,13 @@ TOPOLOGIES: dict[str, dict[str, Any]] = {
         'derive': derive_static,
         'ping': ping_static,
         'summary': 'LAN1(PC1)-R1 =10.0.0.0/30= R2-LAN2(PC2). Address the links, then route between the LANs.',
+    },
+    'net-acl-001': {
+        'devices': _ACL_DEVICES,
+        'initial': 'R1',
+        'derive': derive_acl,
+        'ping': ping_acl,
+        'summary': 'R1 routes LAN1 (PC1 .10, GUEST .20) to the Server LAN (SRV 192.168.2.10). Already connected — now filter the GUEST.',
     },
 }
 

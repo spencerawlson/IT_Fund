@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 import main
 from labs import sessions as sessions_mod
 from labs.registry import get_lab
-from labs.shells import cisco_ios, linux_net, meta
+from labs.shells import cisco_ios, linux_logs, linux_net, meta
 from labs.sessions import SessionService
 
 client = TestClient(main.app)
@@ -147,3 +147,76 @@ def test_meta_prompts():
     assert meta(VLAN)["prompt"] == "SW1> "
     assert meta(DNS)["prompt"].startswith("student@workstation")
     assert cisco_ios.initial_prompt(STATIC) == "R1> "
+
+
+# ---- ACL lab (Cisco IOS) ----
+
+ACL_STEPS = [
+    "enable", "conf t",
+    "access-list 10 deny host 192.168.1.20", "access-list 10 permit any",
+    "interface gi0/1", "ip access-group 10 out", "end",
+]
+
+
+def test_acl_lab_completes_and_filters_only_the_guest():
+    s, _ = _run("net-acl-001", ACL_STEPS + ["connect GUEST", "ping 192.168.2.10", "connect PC1", "ping 192.168.2.10"])
+    assert s.status == "COMPLETED"
+    assert all(s.progress.values())
+
+
+def test_guest_ping_blocked_trusted_allowed_after_acl():
+    _, guest = _run("net-acl-001", ACL_STEPS + ["connect GUEST", "ping 192.168.2.10"])
+    assert "100% loss" in guest.output
+    _, trusted = _run("net-acl-001", ACL_STEPS + ["connect PC1", "ping 192.168.2.10"])
+    assert "0% loss" in trusted.output and "100% loss" not in trusted.output
+
+
+def test_without_applying_acl_guest_is_not_blocked():
+    # Rules created but never applied -> traffic still flows (objective stays open).
+    s, _ = _run("net-acl-001", ["enable", "conf t", "access-list 10 deny host 192.168.1.20", "access-list 10 permit any", "end"])
+    assert s.progress["deny-guest"] is True
+    assert s.progress["apply"] is False
+    assert s.progress["guest-blocked"] is False
+
+
+def test_show_access_lists_reflects_rules():
+    s, res = _run("net-acl-001", ["enable", "conf t", "access-list 10 deny host 192.168.1.20", "end", "show access-lists"])
+    assert "access list 10" in res.output.lower() and "deny host 192.168.1.20" in res.output
+
+
+# ---- Log triage lab (Linux logs shell) ----
+
+LOG = get_lab("sec-logtriage-001")
+
+
+def test_log_triage_lab_completes():
+    s, _ = _run("sec-logtriage-001", [
+        "cat auth.log", 'grep "Failed password" auth.log', "grep 203.0.113.66 auth.log",
+        'grep "Accepted password" auth.log', "grep admin auth.log",
+    ])
+    assert s.status == "COMPLETED"
+    assert all(s.progress.values())
+
+
+def test_grep_really_filters_and_handles_quotes():
+    r = linux_logs.run(LOG, 'grep "Failed password" auth.log', {})
+    lines = r.output.splitlines()
+    assert lines and all("Failed password" in ln for ln in lines)
+    assert r.findings.get("failed_found")
+
+
+def test_grep_count_flag():
+    r = linux_logs.run(LOG, "grep -c 203.0.113.66 auth.log", {})
+    assert r.output.strip().isdigit() and int(r.output.strip()) > 1
+
+
+def test_grep_no_match_is_silent_exit_1():
+    r = linux_logs.run(LOG, "grep nonsense-token auth.log", {})
+    assert r.output == "" and r.exit_code == 1 and r.findings == {}
+
+
+def test_log_definitions_have_terminal_and_five_objectives():
+    r = client.get("/api/labs/definitions")
+    labs = {l["id"]: l for l in r.json()["labs"]}
+    assert labs["net-acl-001"].get("terminal") and len(labs["net-acl-001"]["objectives"]) == 5
+    assert labs["sec-logtriage-001"].get("terminal") and len(labs["sec-logtriage-001"]["objectives"]) == 5

@@ -74,6 +74,41 @@ STATIC_ROUTING_LAB = LabDefinition(
     ],
 )
 
+ACL_LAB = LabDefinition(
+    id="net-acl-001",
+    slug="access-control-lists",
+    title="Filtering Traffic with ACLs",
+    description=(
+        "R1 already routes a user LAN to a server LAN. Write a standard access list that blocks one "
+        "untrusted host (the GUEST, 192.168.1.20) from the server while leaving everyone else "
+        "connected — then prove it with ping from both the guest and a trusted PC. "
+        "Topology: PC1(.10) & GUEST(.20) - R1 - SRV(192.168.2.10)."
+    ),
+    category="networking",
+    difficulty="intermediate",
+    estimated_minutes=30,
+    shell="cisco_ios",
+    environment=LabEnvironmentConfig(provider="mock", idle_timeout_minutes=20, max_runtime_minutes=60, deny_internet_egress=True),
+    targets=[
+        LabTarget(hostname="R1", role="Router between the two LANs"),
+        LabTarget(hostname="PC1", role="Trusted host (192.168.1.10)"),
+        LabTarget(hostname="GUEST", role="Untrusted host (192.168.1.20)"),
+        LabTarget(hostname="SRV", role="Server (192.168.2.10)"),
+    ],
+    objectives=[
+        LabObjective(id="deny-guest", label="Deny the guest host in an ACL", validator="acl_denies_guest",
+                     hints=["conf t → access-list 10 deny host 192.168.1.20"]),
+        LabObjective(id="permit-others", label="Permit all other traffic", validator="acl_permits_others",
+                     hints=["access-list 10 permit any  (an ACL ends with an implicit deny, so this is required)"]),
+        LabObjective(id="apply", label="Apply the ACL to the path", validator="acl_applied",
+                     hints=["Standard ACLs go near the destination: interface gi0/1 → ip access-group 10 out"]),
+        LabObjective(id="guest-blocked", label="Confirm the guest is blocked", validator="guest_blocked",
+                     hints=["connect GUEST → ping 192.168.2.10 — it should fail now"]),
+        LabObjective(id="trusted-allowed", label="Confirm trusted hosts still pass", validator="trusted_allowed",
+                     hints=["connect PC1 → ping 192.168.2.10 — it should still succeed"]),
+    ],
+)
+
 DNS_CONNECTIVITY_LAB = LabDefinition(
     id="net-dns-connectivity-001",
     slug="dns-and-connectivity",
