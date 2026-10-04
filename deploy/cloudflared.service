@@ -1,0 +1,20 @@
+# Cloudflare Tunnel for the IT_Fund backend — systemd user unit
+# Install: cp deploy/cloudflared.service ~/.config/systemd/user/
+#          systemctl --user daemon-reload && systemctl --user enable --now cloudflared
+# Requires: cloudflared installed, tunnel created and routed
+#           (see deploy/README.md), config at ~/.config/itfund/config.yml.
+
+[Unit]
+Description=Cloudflare Tunnel (itfund-backend)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cloudflared tunnel --config %h/.config/itfund/config.yml run
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target
