@@ -54,12 +54,41 @@ UNIQUE_IPS = sorted({ATTACKER_IP, BENIGN_IP})
 
 API_RESPONSE = {'alerts': 3, 'top_source': ATTACKER_IP, 'severity': 'high', 'sensor': 'ids01'}
 
+# A small sample file for the scripting-basics lab: the learner's script counts these lines.
+NOTES_TXT = [
+    'todo: rotate ssh keys',
+    'todo: patch web01',
+    'note: backup ran at 02:00',
+    'todo: review firewall rules',
+    'note: incident drill on friday',
+]
+NOTES_NAME = 'notes.txt'
+NOTES_COUNT = len(NOTES_TXT)
+
+
+def _files(findings: dict[str, Any]) -> dict[str, str]:
+    """In-memory files the learner 'wrote' with echo (persisted in the session findings)."""
+    return findings.setdefault('_pyfiles', {})
+
 
 def initial_prompt(lab) -> str:
     return 'analyst@auto01:~$ '
 
 
 def banner(lab) -> list[str]:
+    lab_id = getattr(lab, 'id', '')
+    if lab_id == 'py-basics-001':
+        return [
+            'Road to CISSP - simulated Linux shell   (safe: nothing is really executed)',
+            'Task: learn Python by doing. notes.txt is in this directory — count its lines.',
+            'Try: python3 --version · cat notes.txt · then python3 -c "..." (see help).',
+        ]
+    if lab_id == 'py-netauto-001':
+        return [
+            'Road to CISSP - simulated Linux shell   (safe: nothing is really executed)',
+            'Task: automate network chores with Python. switch.cfg is in this directory.',
+            'Try: cat switch.cfg · then python3 -c "..." (see help).',
+        ]
     return [
         'Road to CISSP - simulated Linux shell   (safe: nothing is really executed)',
         'Task: automate the triage with Python one-liners. auth.log is in this directory.',
@@ -91,14 +120,61 @@ def _grep(args: list[str]) -> CommandResult:
     return CommandResult(output='\n'.join(matched))
 
 
-def _cat(args: list[str]) -> CommandResult:
+def _cat(args: list[str], findings: dict[str, Any]) -> CommandResult:
     file = next((a for a in args if not a.startswith('-')), 'auth.log')
+    if file == NOTES_NAME or file.endswith('/' + NOTES_NAME):
+        return CommandResult(output='\n'.join(NOTES_TXT))
+    files = _files(findings)
+    if file in files:
+        return CommandResult(output=files[file])
     if not _is_logfile(file):
         return CommandResult(output=f'cat: {file}: No such file or directory', exit_code=1)
     return CommandResult(output='\n'.join(AUTH_LOG))
 
 
-def _python3(args: list[str], raw: str) -> CommandResult:
+def _echo(raw: str, findings: dict[str, Any]) -> CommandResult:
+    # Minimal honest `echo ... > file` / `>> file`: stores text in the session's in-memory files.
+    # Only single/double-quoted or bare text is accepted — no expansion, no execution.
+    text = raw
+    if text.lower().startswith('sudo '):
+        text = text[5:].lstrip()
+    body = text[4:] if text.lower().startswith('echo') else text
+    redir = None
+    idx = None
+    for marker in ('>>', '>'):
+        i = body.find(marker)
+        if i != -1 and (idx is None or i < idx):
+            idx, redir = i, marker
+    if idx is None:
+        # Plain `echo text` — just print it back.
+        return CommandResult(output=_strip_quotes(body.strip()))
+    content = _strip_quotes(body[:idx].strip())
+    name = body[idx + len(redir):].strip().split()[0] if body[idx + len(redir):].strip() else ''
+    if not name or '/' in name or name.startswith('.'):
+        return CommandResult(output='simulated shell: redirect target must be a plain filename', exit_code=1)
+    files = _files(findings)
+    if redir == '>>' and name in files:
+        files[name] = files[name] + '\n' + content
+    else:
+        files[name] = content
+    if _script_complete(files[name]):
+        return CommandResult(output='', findings={'py_script_written': {'file': name}})
+    return CommandResult(output='')
+
+
+def _strip_quotes(text: str) -> str:
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in ('"', "'"):
+        return text[1:-1]
+    return text
+
+
+def _script_complete(content: str) -> bool:
+    """The taught count-lines script shape: reads notes.txt, prints len() of its lines."""
+    c = content.lower()
+    return 'notes.txt' in c and 'print(' in c and 'len(' in c
+
+
+def _python3(args: list[str], raw: str, findings: dict[str, Any]) -> CommandResult:
     if not args or args[0] in ('--version', '-V'):
         return CommandResult(
             output='Python 3.12.3 (simulated)',
@@ -107,12 +183,28 @@ def _python3(args: list[str], raw: str) -> CommandResult:
     if args[0] == '-c' and len(args) >= 2:
         return _oneliner(args[1])
     if args[0].endswith('.py'):
-        return CommandResult(
-            output=f"python3: can't open file '{args[0]}': [Errno 2] No such file or directory",
-            exit_code=2,
-        )
+        return _run_script(args[0], findings)
     return CommandResult(
         output='simulated python3: interactive mode is not available here — use python3 -c "..."',
+        exit_code=1,
+    )
+
+
+def _run_script(name: str, findings: dict[str, Any]) -> CommandResult:
+    files = _files(findings)
+    if name not in files:
+        return CommandResult(
+            output=f"python3: can't open file '{name}': [Errno 2] No such file or directory",
+            exit_code=2,
+        )
+    if _script_complete(files[name]):
+        return CommandResult(
+            output=str(NOTES_COUNT),
+            findings={'py_script_run': {'file': name, 'lines': NOTES_COUNT}},
+        )
+    return CommandResult(
+        output=('simulated python3: this lab only runs the taught count-lines script shape.\n'
+                'Write it with echo (see help), then run it again.'),
         exit_code=1,
     )
 
@@ -145,6 +237,18 @@ def _oneliner(code: str) -> CommandResult:
             output='\n'.join(lines),
             findings={'py_scan_done': {'target': SCAN_TARGET, 'open': OPEN_PORTS}},
         )
+    # 5) Scripting basics: print a greeting built from a variable.
+    if 'print(' in c and 'hello' in c and '+' in c:
+        return CommandResult(
+            output='hello, ada',
+            findings={'py_basics_print': {'output': 'hello, ada'}},
+        )
+    # 6) Scripting basics: a for loop over range().
+    if 'print(' in c and 'for ' in c and 'range(' in c:
+        return CommandResult(
+            output='port 0\nport 1\nport 2',
+            findings={'py_basics_loop': {'output': ['port 0', 'port 1', 'port 2']}},
+        )
     return CommandResult(
         output=('simulated python3: that snippet is outside this lab\'s scope.\n'
                 'Try the hinted one-liners — type "help" for the exact shapes.'),
@@ -152,7 +256,36 @@ def _oneliner(code: str) -> CommandResult:
     )
 
 
-def _help() -> CommandResult:
+def _help(lab=None) -> CommandResult:
+    lab_id = getattr(lab, 'id', '') if lab else ''
+    if lab_id == 'py-basics-001':
+        return CommandResult(output=(
+            'Available commands (simulated - nothing really runs):\n'
+            '  python3 --version              verify the interpreter\n'
+            '  python3 -c "name=\'ada\'; print(\'hello, \' + name)"\n'
+            '                               print a greeting built from a variable\n'
+            '  python3 -c "for i in range(3): print(\'port\', i)"\n'
+            '                               loop with for and range()\n'
+            '  echo "lines = open(\'notes.txt\').read().splitlines()" > count.py\n'
+            '  echo "print(\'lines:\', len(lines))" >> count.py\n'
+            '                               write a script file (use >> to append)\n'
+            '  python3 count.py                 run your script — it prints the line count\n'
+            '  cat notes.txt | cat count.py | ls | pwd | whoami | clear | help\n'
+            'Goal: print, loop, write a script, run it.'
+        ))
+    if lab_id == 'py-netauto-001':
+        return CommandResult(output=(
+            'Available commands (simulated - nothing really runs):\n'
+            '  python3 --version              verify the interpreter\n'
+            '  python3 -c "print([l for l in open(\'switch.cfg\') if \'vlan 10\' in l.lower()])"\n'
+            '                               list config lines mentioning VLAN 10\n'
+            '  python3 -c "for d in [\'sw1\',\'sw2\']: print(f\'hostname {d}\')"\n'
+            '                               generate configs in a loop\n'
+            '  echo "hostname sw1" > day0.txt   (>> appends)\n'
+            '                               write generated configs to a file\n'
+            '  cat switch.cfg | cat day0.txt | ls | pwd | whoami | clear | help\n'
+            'Goal: parse the switch config, generate device configs, save them.'
+        ))
     return CommandResult(output=(
         'Available commands (simulated - nothing really runs):\n'
         '  python3 --version              verify the interpreter\n'
@@ -185,15 +318,18 @@ def run(lab, command: str, findings: dict[str, Any]) -> CommandResult:
     if cmd in ('clear', 'cls'):
         return CommandResult(output='', clear=True)
     if cmd in ('help', '?'):
-        return _help()
+        return _help(lab)
     if cmd in ('python3', 'python'):
-        return _python3(args, raw)
+        return _python3(args, raw, findings)
     if cmd == 'grep':
         return _grep(args)
     if cmd in ('cat', 'less', 'more'):
-        return _cat(args)
+        return _cat(args, findings)
+    if cmd == 'echo':
+        return _echo(raw, findings)
     if cmd == 'ls':
-        return CommandResult(output='auth.log')
+        names = ['auth.log', NOTES_NAME] + sorted(_files(findings))
+        return CommandResult(output='  '.join(names))
     if cmd == 'pwd':
         return CommandResult(output='/home/analyst')
     if cmd == 'whoami':

@@ -224,5 +224,10 @@ for _key, _ok, _todo in [
     ("py_ips_extracted", "You extracted the unique source IPs with Python.", "re.findall an IPv4 pattern over the log and wrap it in set()."),
     ("py_api_called", "You queried the alerts API from Python.", "urllib.request.urlopen('http://localhost:8080/api/alerts') + json.load — see help."),
     ("py_scan_done", "You port-scanned 10.0.0.8 with Python sockets.", "socket.socket().connect_ex(('10.0.0.8', port)) == 0 means open — see help."),
+    # Python scripting basics (Linux + simulated python3 shell)
+    ("py_basics_print", "You printed a greeting built from a variable.", "python3 -c \"name='ada'; print('hello, ' + name)\" — see help."),
+    ("py_basics_loop", "You looped with for and range().", "python3 -c \"for i in range(3): print('port', i)\" — see help."),
+    ("py_script_written", "You wrote a Python script to a file.", "echo \"lines = open('notes.txt').read().splitlines()\" > count.py, then append the print line with >>."),
+    ("py_script_run", "You ran your Python script.", "python3 count.py — it prints the number of lines in notes.txt."),
 ]:
     VALIDATORS[_key] = _finding_present(_key, _ok, _todo)

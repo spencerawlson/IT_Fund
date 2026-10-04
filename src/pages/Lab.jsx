@@ -123,12 +123,12 @@ const RENDERERS = {
 
 const resolveId = (id) => (RENDERERS[ALIASES[id]] ? ALIASES[id] : id);
 
-// Visual Lab scenario -> the Interactive Lab where you build/configure it ("See → Build").
+// Visual Lab scenario -> the Interactive Lab(s) where you build/configure it ("See → Build").
 const BUILD_IN_LAB = {
-  'rt-ospf-neighbor': 'net-ospf-001',
-  'rt-bgp-path': 'net-bgp-001',
-  'rt-link-failure': 'net-ospf-tshoot-001',
-  'python-lab': 'py-automation-001',
+  'rt-ospf-neighbor': ['net-ospf-001'],
+  'rt-bgp-path': ['net-bgp-001'],
+  'rt-link-failure': ['net-ospf-tshoot-001'],
+  'python-lab': ['py-basics-001', 'py-automation-001'],
 };
 
 const is3D = (id) => (SUBJECT_BY_ID[id]?.kind || '') === '3d';
@@ -191,12 +191,16 @@ function Stage({ id, onBack }) {
         </ErrorBoundary>
       </div>
 
-      {BUILD_IN_LAB[id] && (
+      {BUILD_IN_LAB[id]?.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl glass-1 p-4">
           <p className="text-small text-ink-2">Now make it happen yourself — configure this topology in the terminal.</p>
-          <Link to={`/labs/${BUILD_IN_LAB[id]}`} className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
-            Build this in the Interactive Lab <ArrowRight size={16} aria-hidden="true" />
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            {BUILD_IN_LAB[id].map((labId) => (
+              <Link key={labId} to={`/labs/${labId}`} className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
+                Build this in the Interactive Lab <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

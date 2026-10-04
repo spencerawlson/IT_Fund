@@ -7,6 +7,7 @@ from labs.definitions.blue_team import C2_BEACON_LAB, DNS_TUNNEL_LAB, RANSOMWARE
 from labs.definitions.cloud import CLOUD_AUDIT_LAB, TERRAFORM_LAB
 from labs.definitions.container_security import DOCKER_SIEM_LAB
 from labs.definitions.cybersecurity import LOG_TRIAGE_LAB, NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB
+from labs.definitions.python_basics import PYTHON_BASICS_LAB
 from labs.definitions.python_lab import PYTHON_AUTOMATION_LAB
 from labs.definitions.networking import (
     ACL_LAB,
@@ -39,5 +40,6 @@ ALL_LABS = [
     C2_BEACON_LAB,
     DNS_TUNNEL_LAB,
     RANSOMWARE_LAB,
+    PYTHON_BASICS_LAB,
     PYTHON_AUTOMATION_LAB,
 ]
