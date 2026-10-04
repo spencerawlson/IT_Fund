@@ -201,6 +201,33 @@ EIGRP_LAB = LabDefinition(
     ],
 )
 
+EIGRP_TSHOOT_LAB = LabDefinition(
+    id="net-eigrp-tshoot-001",
+    slug="eigrp-troubleshooting",
+    title="EIGRP Troubleshooting",
+    description=(
+        "EIGRP is already configured on R1, R2 and R3, but PC-A cannot reach Server-A. One router "
+        "runs EIGRP with the wrong autonomous-system number, so no adjacency forms on either side of "
+        "it. Use show commands to find the fault, fix it, and restore end-to-end connectivity."
+    ),
+    category="networking", difficulty="advanced", estimated_minutes=30, shell="cisco_ios", environment=_RT_ENV,
+    targets=[
+        LabTarget(hostname="R1", role="Edge router (PC-A LAN)"),
+        LabTarget(hostname="R2", role="Transit router"),
+        LabTarget(hostname="R3", role="Edge router (Server-A LAN)"),
+        LabTarget(hostname="PC-A", role="Host on R1's LAN"),
+        LabTarget(hostname="Server-A", role="Host on R3's LAN"),
+    ],
+    objectives=[
+        LabObjective(id="fix", label="Fix the mis-configured router", validator="r2_eigrp",
+                     hints=["show ip eigrp neighbors on R2 is empty. Compare show ip protocols on R2 vs R1 — the AS numbers differ. Remove the wrong process (no router eigrp 200) and configure AS 100 with the right networks."]),
+        LabObjective(id="adj", label="Restore all EIGRP adjacencies", validator="eigrp_adjacencies",
+                     hints=["After the fix, show ip eigrp neighbors on R2 should list both R1 and R3."]),
+        LabObjective(id="conn", label="Restore PC-A → Server-A connectivity", validator="eigrp_connectivity",
+                     hints=["connect PC-A → ping 192.168.3.10"]),
+    ],
+)
+
 BGP_LAB = LabDefinition(
     id="net-bgp-001",
     slug="ebgp-configuration",

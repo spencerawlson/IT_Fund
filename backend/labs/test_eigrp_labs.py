@@ -57,18 +57,46 @@ def test_eigrp_protocols_shows_as_number():
     assert '"eigrp 100"' in res.output
 
 
+def test_eigrp_troubleshoot_starts_broken_then_is_fixable():
+    # Fresh troubleshoot session: R2 runs AS 200, so connectivity is broken until fixed.
+    svc = SessionService()
+    s = asyncio.run(svc.start("net-eigrp-tshoot-001", "u1"))
+    s, _ = asyncio.run(svc.exec_command(s.id, "u1", "connect PC-A"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "ping 192.168.3.10"))
+    assert "100% loss" in res.output
+    # Diagnose: no neighbors on R2, and the protocols disagree on the AS number.
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "connect R2"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "show ip eigrp neighbors"))
+    assert res.output.strip() == ""
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "show ip protocols"))
+    assert '"eigrp 200"' in res.output
+    # Fix: remove the wrong process, configure AS 100 with the right networks.
+    for c in ["enable", "conf t", "no router eigrp 200", "router eigrp 100",
+              "network 10.0.12.0 0.0.0.255", "network 10.0.23.0 0.0.0.255", "end",
+              "show ip eigrp neighbors"]:
+        s, res = asyncio.run(svc.exec_command(s.id, "u1", c))
+    assert "10.0.12.1" in res.output and "10.0.23.3" in res.output
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "connect PC-A"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "ping 192.168.3.10"))
+    assert s.status == "COMPLETED" and all(s.progress.values())
+
+
 def test_eigrp_help_is_lab_specific():
     from labs.shells import cisco_ios
-    lab = get_lab("net-eigrp-001")
-    out = cisco_ios.run(lab, "help", {}).output
-    assert "eigrp" in out.lower()
-    # Must not leak another lab's walkthrough.
-    ospf_out = cisco_ios.run(get_lab("net-ospf-001"), "help", {}).output
-    assert out != ospf_out
+    for lab_id in ("net-eigrp-001", "net-eigrp-tshoot-001"):
+        lab = get_lab(lab_id)
+        out = cisco_ios.run(lab, "help", {}).output
+        assert "eigrp" in out.lower()
+        assert lab_id not in out  # no leak of other labs' text
+    # The two walkthroughs must differ (config vs troubleshooting).
+    assert (cisco_ios.run(get_lab("net-eigrp-001"), "help", {}).output
+            != cisco_ios.run(get_lab("net-eigrp-tshoot-001"), "help", {}).output)
 
 
 def test_eigrp_lab_definitions():
     labs = {l["id"]: l for l in client.get("/api/labs/definitions").json()["labs"]}
     assert len(labs["net-eigrp-001"]["objectives"]) == 5
-    assert labs["net-eigrp-001"]["terminal"]["multi_device"] is True
-    assert labs["net-eigrp-001"]["category"] == "networking"
+    assert len(labs["net-eigrp-tshoot-001"]["objectives"]) == 3
+    for lab_id in ("net-eigrp-001", "net-eigrp-tshoot-001"):
+        assert labs[lab_id]["terminal"]["multi_device"] is True
+        assert labs[lab_id]["category"] == "networking"

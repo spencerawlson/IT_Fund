@@ -592,6 +592,19 @@ TOPOLOGIES: dict[str, dict[str, Any]] = {
         'show': show_eigrp,
         'summary': 'PC-A - R1 =10.0.12.0= R2 =10.0.23.0= R3 - Server-A. Interfaces are up; configure EIGRP AS 100 so PC-A reaches Server-A.',
     },
+    'net-eigrp-tshoot-001': {
+        'devices': _eigrp_devices(preset={
+            'R1': {'asn': 100, 'networks': [('192.168.1.0', '0.0.0.255'), ('10.0.12.0', '0.0.0.255')], 'passive': []},
+            # BUG: R2 runs EIGRP with the wrong AS number (200), so no adjacency forms on either side.
+            'R2': {'asn': 200, 'networks': [('10.0.12.0', '0.0.0.255'), ('10.0.23.0', '0.0.0.255')], 'passive': []},
+            'R3': {'asn': 100, 'networks': [('10.0.23.0', '0.0.0.255'), ('192.168.3.0', '0.0.0.255')], 'passive': []},
+        }),
+        'initial': 'R1',
+        'derive': derive_eigrp,
+        'ping': ping_eigrp,
+        'show': show_eigrp,
+        'summary': 'EIGRP is configured but PC-A cannot reach Server-A. One router runs the wrong AS number — find it and fix it.',
+    },
     'net-bgp-001': {
         'devices': _BGP_DEVICES,
         'initial': 'R1',

@@ -172,6 +172,15 @@ _HELP_WALKTHROUGHS = {
         'EIGRP neighbors must run the SAME autonomous-system number or no adjacency forms.\n'
         'Verify: show ip eigrp neighbors — R1-R2 and R2-R3 should appear. Then connect PC-A | ping 192.168.3.10.'
     ),
+    'net-eigrp-tshoot-001': (
+        'Troubleshooting walkthrough: EIGRP is configured but PC-A cannot reach Server-A. '
+        'An adjacency never forms, so hunt it down: on each router run show ip eigrp neighbors, '
+        'show ip protocols and show ip route.\n'
+        'The fault is on R2: it runs EIGRP AS 200 while everyone else runs AS 100 — neighbors '
+        'must share the same AS number. Fix it with: configure terminal | no router eigrp 200 | '
+        'router eigrp 100 | network 10.0.12.0 0.0.0.255 | network 10.0.23.0 0.0.0.255 | end\n'
+        'Verify: show ip eigrp neighbors on R2 lists both R1 and R3; connect PC-A | ping 192.168.3.10.'
+    ),
 }
 
 _GENERIC_IOS_HELP = (
