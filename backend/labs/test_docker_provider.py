@@ -236,6 +236,20 @@ def test_validate_objective_uses_shared_validators(provider, fake_docker):
     assert good.passed is True
 
 
+def test_exec_uses_lab_workdir(provider, fake_docker):
+    env = asyncio.run(provider.create_session(_lab(workdir="/home/student"), "u1"))
+    container = fake_docker.containers.get(env.id.removeprefix("docker-"))
+    asyncio.run(provider.exec_command(env.id, _lab(workdir="/home/student"), "pwd", {}))
+    assert container.exec_calls[0][1]["workdir"] == "/home/student"
+
+
+def test_exec_defaults_to_root_workdir(provider, fake_docker):
+    env = asyncio.run(provider.create_session(_lab(), "u1"))
+    container = fake_docker.containers.get(env.id.removeprefix("docker-"))
+    asyncio.run(provider.exec_command(env.id, _lab(), "pwd", {}))
+    assert container.exec_calls[0][1]["workdir"] == "/root"
+
+
 def test_provider_registers_only_when_enabled(monkeypatch):
     monkeypatch.delenv("LAB_DOCKER_ENABLED", raising=False)
     assert "docker" not in sessions_mod._build_providers()

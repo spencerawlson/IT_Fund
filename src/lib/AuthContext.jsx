@@ -6,6 +6,10 @@ import { disableServerSync, enableServerSync, flushServerSync } from '@/lib/prog
 // so there is no token in JavaScript. When signed in, progress syncs to the server.
 const AuthContext = createContext(null);
 
+// Hosted backend target (e.g. https://api.road2cissp.com/api in production).
+// Falls back to same-origin /api for local dev (Vite proxy) and the Vercel rewrite.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -14,7 +18,12 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
-      const res = await fetch('/api/auth/me', { headers: { Accept: 'application/json' } });
+      // credentials:include: the session cookie lives on the API origin, which
+      // differs from the app origin in production (api.road2cissp.com).
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: { Accept: 'application/json' },
+        credentials: 'include',
+      });
       setUser(res.ok ? await res.json() : null);
     } catch {
       setUser(null); // network error: treat as anonymous, don't block the app
@@ -52,12 +61,12 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signInWith = (provider) => {
-    window.location.href = `/api/auth/${provider}/login`;
+    window.location.href = `${API_BASE}/auth/${provider}/login`;
   };
 
   const signOut = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
     } catch {
       // ignore; clear locally regardless
     }

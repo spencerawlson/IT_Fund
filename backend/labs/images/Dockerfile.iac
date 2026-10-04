@@ -1,0 +1,64 @@
+# road-to-cissp IaC lab image.
+# Serves: cloud-terraform-001 (Terraform: Provision & Secure Infrastructure).
+#
+# Real terraform (1.9.8) + real tfsec (v1.28.14), both checksum-verified.
+# The AWS provider (5.31.0, matching the mock's simulated output) is
+# pre-seeded into a filesystem mirror so `terraform init` works with no
+# internet egress. The provider block carries the standard offline-lab stanza
+# (dummy credentials + skip flags, see seeds/iac/main.tf), so `init`,
+# `validate`, `fmt`, `tfsec` and `plan` run fully offline and for real.
+# `apply` needs real AWS credentials and network: it is out of scope for the
+# offline lab (the lab definition is data-only by design).
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="Road to CISSP - IaC lab" \
+      org.opencontainers.image.description="Real terraform + tfsec with a pre-seeded provider mirror (offline)"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    TF_CLI_CONFIG_FILE=/etc/terraformrc \
+    # Dummy lab credentials for the offline provider stanza (NOT real keys).
+    AWS_ACCESS_KEY_ID=lab \
+    AWS_SECRET_ACCESS_KEY=lab \
+    AWS_DEFAULT_REGION=us-east-1
+
+ARG TERRAFORM_VERSION=1.9.8
+ARG TFSEC_VERSION=v1.28.14
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates unzip \
+ && rm -rf /var/lib/apt/lists/* \
+ && curl -fsSL -o /tmp/terraform.zip \
+      "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
+ && curl -fsSL -o /tmp/terraform_SHA256SUMS \
+      "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS" \
+ && (cd /tmp && grep "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" terraform_SHA256SUMS | sha256sum -c -) \
+ && unzip -q /tmp/terraform.zip -d /usr/local/bin \
+ && curl -fsSL -o /usr/local/bin/tfsec \
+      "https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64" \
+ && curl -fsSL -o /tmp/tfsec_checksums.txt \
+      "https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec_checksums.txt" \
+ && (cd /usr/local/bin && grep "tfsec-linux-amd64$" /tmp/tfsec_checksums.txt | sha256sum -c -) \
+ && chmod 755 /usr/local/bin/terraform /usr/local/bin/tfsec \
+ && rm -rf /tmp/terraform.zip /tmp/terraform_SHA256SUMS /tmp/tfsec_checksums.txt \
+ && terraform version && tfsec --version
+
+RUN useradd -m -s /bin/bash student
+
+# Lab workspace + offline provider mirror (populated at build time, when the
+# VM has internet; the lab network itself denies egress). The second `init`
+# below proves the offline path works: it installs strictly from the mirror.
+COPY seeds/iac/main.tf /home/student/infra/main.tf
+COPY seeds/iac/terraformrc /etc/terraformrc
+RUN chown -R student:student /home/student/infra \
+ && su student -s /bin/bash -c "cd /home/student/infra && terraform providers mirror /tmp/tfplugins" \
+ && mkdir -p /usr/share/terraform/plugins \
+ && cp -r /tmp/tfplugins/. /usr/share/terraform/plugins/ \
+ && rm -rf /tmp/tfplugins \
+ && su student -s /bin/bash -c "cd /home/student/infra && terraform init -input=false" \
+ && rm -rf /home/student/infra/.terraform /home/student/infra/.terraform.lock.hcl \
+ && chown -R student:student /home/student
+
+USER student
+WORKDIR /home/student/infra
+# No entrypoint needed: the provider starts lab containers with `sleep infinity`.
+CMD ["sleep", "infinity"]

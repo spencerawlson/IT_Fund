@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""PortBlast v1.0 - orchestrated recon for the Road to CISSP portblast lab.
+
+Actually runs nmap (connect scan, no ping - this container is unprivileged),
+parses the XML report, prints phased progress, and writes a structured JSON
+report to ./portblast-<target>.json. Compare its findings with your manual
+enumeration: that comparison is the lab.
+"""
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+
+NMAP_TIMEOUT = 300  # full 65k-port connect sweep of localhost
+
+
+def parse_nmap_xml(xml_text: str) -> list[dict]:
+    """Extract open ports from nmap -oX output. Pure function (unit-tested)."""
+    records: list[dict] = []
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return records
+    for host in root.findall("host"):
+        for port in host.findall("ports/port"):
+            state = port.find("state")
+            if state is None or state.get("state") != "open":
+                continue
+            service = port.find("service")
+            name = service.get("name", "unknown") if service is not None else "unknown"
+            product = (service.get("product", "") if service is not None else "").strip()
+            version = (service.get("version", "") if service is not None else "").strip()
+            ver = " ".join(p for p in (product, version) if p) or "unknown"
+            records.append({
+                "port": int(port.get("portid")),
+                "protocol": port.get("protocol", "tcp"),
+                "service": name,
+                "version": ver,
+            })
+    return records
+
+
+def run_nmap(target: str) -> str:
+    nmap = shutil.which("nmap")
+    if not nmap:
+        sys.exit("portblast: nmap not found in PATH")
+    proc = subprocess.run(
+        [nmap, "-sT", "-Pn", "-p-", "--open", "-sV", "-oX", "-", target],
+        capture_output=True, text=True, timeout=NMAP_TIMEOUT,
+    )
+    if proc.returncode != 0 and not proc.stdout.strip():
+        sys.exit(f"portblast: nmap failed: {proc.stderr.strip()[:200]}")
+    return proc.stdout
+
+
+def main() -> None:
+    target = sys.argv[1] if len(sys.argv) > 1 else "127.0.0.1"
+    started = datetime.now(timezone.utc).isoformat()
+    print("PortBlast v1.0 - orchestrated recon")
+    print(f"[+] Target: {target}")
+    print("[+] Phase 1: host discovery ......... up (-Pn: ping needs raw sockets)")
+    print("[+] Phase 2: port sweep ............. running (nmap -sT -p- --open)")
+    xml_text = run_nmap(target)
+    print("[+] Phase 3: service/version ........ parsing nmap XML")
+    records = parse_nmap_xml(xml_text)
+    report = {
+        "tool": "portblast",
+        "version": "1.0",
+        "target": target,
+        "scanned_at": started,
+        "open_ports": records,
+    }
+    out_name = f"portblast-{target}.json"
+    with open(out_name, "w", encoding="utf-8") as fh:
+        json.dump(report, fh, indent=2)
+    print(f"[+] {len(records)} open ports found")
+    for r in records:
+        print(f"    {r['port']}/{r['protocol']}  {r['service']}  {r['version']}")
+    print(f"[+] Report written to ./{out_name}")
+
+
+if __name__ == "__main__":
+    main()

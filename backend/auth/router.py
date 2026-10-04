@@ -21,6 +21,12 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 PROVIDERS = {"google", "github"}
 APP_ORIGIN = os.environ.get("APP_ORIGIN", "http://localhost:5188")
+# Where the browser should land after OAuth. APP_ORIGIN is the API's own public
+# origin (it builds the provider callback URL, which must match exactly what is
+# registered with Google/GitHub). In production the app lives on a different
+# origin (e.g. https://www.road2cissp.com), so the post-login redirect needs its
+# own variable; it defaults to APP_ORIGIN for local dev.
+FRONTEND_URL = os.environ.get("FRONTEND_URL", APP_ORIGIN)
 
 
 def _check_provider(provider: str) -> None:
@@ -60,12 +66,12 @@ async def callback(provider: str, request: Request):
         info = await oauth_mod.fetch_identity(provider, request)
     except Exception:
         # Bad/expired state, denied consent, etc. Send the user back to sign-in, not a 500.
-        return RedirectResponse(f"{APP_ORIGIN}/signin?error=oauth", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(f"{FRONTEND_URL}/signin?error=oauth", status_code=status.HTTP_302_FOUND)
     with db.SessionLocal() as s:
         user = upsert_identity(s, info)
         raw = create_session(s, user.id)
         s.commit()
-    resp = RedirectResponse(f"{APP_ORIGIN}/", status_code=status.HTTP_302_FOUND)
+    resp = RedirectResponse(f"{FRONTEND_URL}/", status_code=status.HTTP_302_FOUND)
     resp.set_cookie(COOKIE_NAME, raw, **cookie_kwargs())
     return resp
 

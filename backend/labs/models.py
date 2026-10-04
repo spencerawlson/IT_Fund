@@ -39,6 +39,11 @@ class LabEnvironmentConfig:
     idle_timeout_minutes: int = 15
     max_runtime_minutes: int = 45
     deny_internet_egress: bool = True  # cyber labs must default to no outbound internet
+    # Working directory for commands run by a real provider (docker exec).
+    # Lab images run as a non-root user, so this must be a directory that user
+    # can write to (their home). The mock provider ignores it. Defaults to the
+    # historical value so existing behaviour is unchanged.
+    workdir: str = "/root"
 
 
 @dataclass(frozen=True)

@@ -23,6 +23,10 @@ DOCKER_SIEM_LAB = LabDefinition(
     environment=LabEnvironmentConfig(
         provider="mock",
         image="road-to-cissp/docker-siem:latest",
+        # No docker-siem image is built (Docker-in-Docker is incompatible with
+        # the hardened provider; see backend/labs/images/README.md). Kept for
+        # uniformity: used only by a real provider, never sent to the client.
+        workdir="/home/student",
         idle_timeout_minutes=25,
         max_runtime_minutes=75,
         deny_internet_egress=True,

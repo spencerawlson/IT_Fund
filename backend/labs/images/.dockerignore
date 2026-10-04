@@ -1,0 +1,4 @@
+# Keep the build context to exactly what the images need.
+__pycache__/
+*.pyc
+gen_seeds.py

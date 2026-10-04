@@ -44,6 +44,12 @@ cd backend
 .venv/Scripts/python -m pytest labs/            # lab tests
 ```
 
+Real lab images: `backend/labs/images/` holds the Dockerfiles, build script
+(`build.sh`), seed data (byte-identical to the mock shells), and the full
+build / enable / verify / troubleshooting guide (`images/README.md`).
+To run a lab on Docker, set its definition's `environment.provider = "docker"` and
+`environment.image` to a published training image (e.g. `road-to-cissp/security-tools:latest`).
+
 Endpoints. Labs are **open to everyone during development** — no account needed. The owner of a
 session is `resolve_visitor_id` (`auth/deps.py`): the signed-in user, else a random per-browser
 guest id in the `rtc_guest` cookie. It always comes from a cookie, never from the body or path.

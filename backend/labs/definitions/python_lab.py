@@ -24,6 +24,7 @@ PYTHON_AUTOMATION_LAB = LabDefinition(
     environment=LabEnvironmentConfig(
         provider="mock",
         image="road-to-cissp/python-automation:latest",
+        workdir="/home/analyst",
         idle_timeout_minutes=15,
         max_runtime_minutes=45,
         deny_internet_egress=True,

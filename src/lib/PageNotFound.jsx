@@ -1,6 +1,9 @@
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
+// Hosted backend target; same-origin /api fallback for local dev.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+
 export default function PageNotFound({}) {
   const location = useLocation();
   const pageName = location.pathname.substring(1);
@@ -9,10 +12,11 @@ export default function PageNotFound({}) {
     queryKey: ['user'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch(`${API_BASE}/auth/me`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('it_fund_access_token') || ''}`
-          }
+          },
+          credentials: 'include',
         });
         if (!response.ok) return { user: null, isAuthenticated: false };
         const user = await response.json();

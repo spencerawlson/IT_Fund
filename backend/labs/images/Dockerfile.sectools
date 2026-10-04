@@ -1,0 +1,49 @@
+# road-to-cissp security-tools lab image.
+# Serves: cyber-nmap-001 (Service Enumeration with Nmap).
+#
+# Real recon toolkit (nmap, dig, traceroute, whois, netcat, curl) against a
+# REAL local target: OpenSSH on 2222, nginx on 8080, and a Python HTTP server
+# on 8000, all on 127.0.0.1. The hardened provider drops the capabilities
+# needed for privileged ports and raw sockets, so:
+#   - scan 127.0.0.1 (this host); `nmap -Pn` (ping needs raw sockets)
+#   - TCP connect scans (-sT, the default unprivileged mode) and -sV work
+# rustscan and searchsploit are intentionally omitted: rustscan needs raw
+# sockets the provider never grants, and searchsploit needs a ~234 MB exploit
+# database that goes stale (see README.md).
+FROM python:3.12.7-slim-bookworm
+
+LABEL org.opencontainers.image.title="Road to CISSP - security tools lab" \
+      org.opencontainers.image.description="Real nmap/dig/traceroute against a real local target"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      nmap dnsutils traceroute whois netcat-openbsd curl ca-certificates \
+      openssh-server nginx iproute2 iputils-ping \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash student
+
+# --- target services (run as the lab user on unprivileged ports) ---
+# sshd host keys (sshd runs as `student`, so it must own them)
+RUN mkdir -p /run/sshd /home/student/.ssh/host \
+ && ssh-keygen -q -t ed25519 -N "" -f /home/student/.ssh/host/ssh_host_ed25519_key \
+ && ssh-keygen -q -t rsa -b 3072 -N "" -f /home/student/.ssh/host/ssh_host_rsa_key \
+ && chown -R student:student /run/sshd /home/student/.ssh
+# nginx site + config for unprivileged operation
+COPY seeds/sectools/nginx.conf /home/student/nginx.conf
+COPY seeds/sectools/www /home/student/www
+COPY seeds/sectools/entrypoint.sh /entrypoint.sh
+RUN chown -R student:student /home/student \
+ && chmod 755 /entrypoint.sh \
+ && nginx -t -c /home/student/nginx.conf
+
+USER student
+WORKDIR /home/student
+ENTRYPOINT ["/entrypoint.sh"]
+# The provider starts lab containers with `sleep infinity`; the entrypoint
+# boots sshd/nginx/httpd first, then execs it as this user.
+CMD ["sleep", "infinity"]

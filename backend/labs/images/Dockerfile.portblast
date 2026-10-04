@@ -1,0 +1,22 @@
+# road-to-cissp PortBlast lab image.
+# Serves: cyber-portblast-001 (Manual Reconnaissance vs PortBlast).
+#
+# Extends the security-tools image with the REAL `portblast` orchestrated
+# scanner (seeds/portblast/portblast): it actually runs nmap, parses the XML
+# report, and writes ./portblast-<target>.json. Build security-tools first
+# (build.sh does this in order).
+ARG BASE_TAG=latest
+FROM road-to-cissp/security-tools:${BASE_TAG}
+
+LABEL org.opencontainers.image.title="Road to CISSP - PortBlast lab" \
+      org.opencontainers.image.description="security-tools image plus the real portblast orchestrated scanner"
+
+# portblast is already usable as `student` (nmap needs no privileges for
+# connect scans); install it on PATH.
+COPY seeds/portblast/portblast /usr/local/bin/portblast
+RUN chmod 755 /usr/local/bin/portblast
+
+USER student
+WORKDIR /home/student
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["sleep", "infinity"]

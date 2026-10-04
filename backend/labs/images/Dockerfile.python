@@ -1,0 +1,39 @@
+# road-to-cissp Python lab image.
+# Serves: py-basics-001, py-automation-001, py-netauto-001
+# (one image, three tags - the environments are identical).
+#
+# Real python3 + the lab seed files (byte-identical to the mock shell data,
+# see gen_seeds.py) + a tiny alerts API on :8080 mirroring the mock's curl
+# target. Learners write and run REAL Python here.
+FROM python:3.12.7-slim-bookworm
+
+LABEL org.opencontainers.image.title="Road to CISSP - Python lab" \
+      org.opencontainers.image.description="Real python3 with seed files for the Python automation labs"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends grep sed gawk curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Non-root lab user (the DockerLabProvider drops all capabilities anyway).
+RUN useradd -m -s /bin/bash analyst
+
+# Seed files: byte-identical to labs/shells/linux_python.py (gen_seeds.py).
+COPY seeds/python/auth.log /var/log/auth.log
+COPY seeds/python/notes.txt seeds/python/switch.cfg /home/analyst/
+COPY seeds/python/alerts_api.py /usr/local/bin/alerts-api
+COPY seeds/python/entrypoint.sh /entrypoint.sh
+RUN chown analyst:analyst /var/log/auth.log \
+        /home/analyst/notes.txt /home/analyst/switch.cfg \
+ && chmod 644 /var/log/auth.log /home/analyst/notes.txt /home/analyst/switch.cfg \
+ && chmod 755 /usr/local/bin/alerts-api /entrypoint.sh
+
+USER analyst
+WORKDIR /home/analyst
+ENTRYPOINT ["/entrypoint.sh"]
+# The provider starts lab containers with `sleep infinity`; the entrypoint
+# boots the alerts API first, then execs it as this user.
+CMD ["sleep", "infinity"]

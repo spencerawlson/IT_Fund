@@ -1,0 +1,31 @@
+# road-to-cissp log-triage lab image.
+# Serves: sec-logtriage-001 (linux_logs), sec-c2beacon-001, sec-dns-typo-001,
+#         sec-ransomware-001 (logfile shell over labs/logsets.py).
+#
+# Real coreutils/grep against the real seed log files (byte-identical to the
+# mock data, see gen_seeds.py). No services, no network needs.
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="Road to CISSP - log triage lab" \
+      org.opencontainers.image.description="Real grep/cat/wc/tail over the blue-team log datasets"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      grep sed gawk coreutils findutils less ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash analyst
+
+# Seed logs: byte-identical to labs/shells/linux_logs.py and labs/logsets.py.
+COPY seeds/logtriage/auth.log /var/log/auth.log
+COPY seeds/logtriage/conn.log seeds/logtriage/http.log \
+     seeds/logtriage/dns.log seeds/logtriage/smb.log /home/analyst/
+RUN chown analyst:analyst /var/log/auth.log /home/analyst/*.log \
+ && chmod 644 /var/log/auth.log /home/analyst/*.log
+
+USER analyst
+WORKDIR /home/analyst
+# No entrypoint needed: the provider starts lab containers with `sleep infinity`.
+CMD ["sleep", "infinity"]

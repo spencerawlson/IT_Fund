@@ -1,10 +1,10 @@
-// Client for the interactive-lab backend (backend/labs). Uses relative /api paths so the Vite dev
-// proxy (-> :8000) and the Vercel rewrite (-> backend service) both work, which also means the
-// cookies are sent automatically. Labs are open during development, with no sign-in: the backend
-// owns a lab session by account session cookie if there is one, else by a guest cookie it sets
-// itself (`resolve_visitor_id`). Nothing here needs to know which.
+// Client for the interactive-lab backend (backend/labs). Uses the hosted backend target
+// (VITE_API_BASE_URL) when set, same-origin /api fallback for local dev (Vite proxy).
+// credentials:include keeps the lab session on the same backend that owns the account
+// session cookie (api.road2cissp.com in production).
 // TOKEN_KEY is the legacy demo bearer token, still accepted by the backend as a fallback.
 const TOKEN_KEY = 'it_fund_access_token';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 async function labRequest(path, { method = 'GET', body } = {}) {
   const token = (() => {
@@ -14,12 +14,13 @@ async function labRequest(path, { method = 'GET', body } = {}) {
       return null;
     }
   })();
-  const res = await fetch(`/api/labs${path}`, {
+  const res = await fetch(`${API_BASE}/labs${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
+    credentials: 'include',
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (res.status === 204) return null;

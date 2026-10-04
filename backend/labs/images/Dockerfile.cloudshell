@@ -1,0 +1,46 @@
+# road-to-cissp cloudshell lab image.
+# Serves: cloud-aws-audit-001 (Cloud Security Audit with the AWS CLI).
+#
+# The REAL `aws` CLI (1.46.1) against a LOCAL moto API (moto[server]==5.2.3)
+# seeded with the lab's misconfigured account (see seeds/cloudshell/moto_lab.py
+# and labs/shells/aws_audit.py): public S3 bucket, open SSH security group,
+# over-privileged IAM user, stale access key. The credentials below are
+# intentionally fake lab credentials for a simulator that never leaves the
+# container - never put real AWS keys in a lab image.
+FROM python:3.12.7-slim-bookworm
+
+LABEL org.opencontainers.image.title="Road to CISSP - cloud shell lab" \
+      org.opencontainers.image.description="Real aws CLI against a local moto API seeded with misconfigurations"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    # Fake lab credentials for the local simulator (NOT real AWS keys).
+    AWS_ACCESS_KEY_ID=auditor \
+    AWS_SECRET_ACCESS_KEY=lab-fake-key \
+    AWS_DEFAULT_REGION=us-east-1 \
+    AWS_ENDPOINT_URL_S3=http://127.0.0.1:5001 \
+    AWS_ENDPOINT_URL_EC2=http://127.0.0.1:5002 \
+    AWS_ENDPOINT_URL_IAM=http://127.0.0.1:5003 \
+    AWS_ENDPOINT_URL_STS=http://127.0.0.1:5004 \
+    MOTO_IAM_LOAD_MANAGED_POLICIES=true
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/* \
+ && pip install --no-cache-dir "awscli==1.46.1" "moto[server]==5.2.3"
+
+RUN useradd -m -s /bin/bash auditor
+
+COPY seeds/cloudshell/moto_lab.py /usr/local/bin/moto-lab
+COPY seeds/cloudshell/entrypoint.sh /entrypoint.sh
+RUN chown auditor:auditor /usr/local/bin/moto-lab \
+ && chmod 755 /usr/local/bin/moto-lab /entrypoint.sh \
+ && python3 -m py_compile /usr/local/bin/moto-lab
+
+USER auditor
+WORKDIR /home/auditor
+ENTRYPOINT ["/entrypoint.sh"]
+# The provider starts lab containers with `sleep infinity`; the entrypoint
+# boots the moto API and waits for the seed, then execs it as this user.
+CMD ["sleep", "infinity"]

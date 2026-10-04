@@ -107,6 +107,19 @@ def test_me_requires_auth():
     assert client.get("/api/auth/me").status_code == 401
 
 
+def test_oauth_callback_redirects_to_frontend_url(monkeypatch):
+    """Post-login landing is the app origin, not the API origin (APP_ORIGIN builds
+    the provider callback URL, which must stay exactly as registered)."""
+    import auth.router as auth_router
+
+    monkeypatch.setattr(oauth_mod, "fetch_identity", _fake_fetch)
+    monkeypatch.setattr(auth_router, "FRONTEND_URL", "https://app.example.test")
+    monkeypatch.setattr(auth_router, "APP_ORIGIN", "https://api.example.test")
+    r = client.get("/api/auth/google/callback", follow_redirects=False)
+    assert r.status_code == 302
+    assert r.headers["location"] == "https://app.example.test/"
+
+
 def test_unconfigured_provider_login_is_404():
     assert client.get("/api/auth/google/login", follow_redirects=False).status_code == 404
 

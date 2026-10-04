@@ -248,7 +248,9 @@ class DockerLabProvider(LabProvider):
                 stdout=True,
                 stderr=True,
                 demux=True,
-                workdir="/root",
+                # The lab definition's workdir: images run as a non-root user,
+                # so this must be writable by them (their home directory).
+                workdir=lab.environment.workdir,
             )
             code = result.exit_code
             out_b, err_b = result.output if isinstance(result.output, tuple) else (result.output, b"")

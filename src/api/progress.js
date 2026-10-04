@@ -1,13 +1,18 @@
-// Client for the server-side progress API (backend/progress_api.py). Same-origin (via the /api
-// dev proxy and the Vercel rewrite), so the session cookie is sent automatically. A 409 carries the
-// server's current copy so the caller can merge without a second request.
+// Client for the server-side progress API (backend/progress_api.py). Uses the hosted
+// backend target when set (VITE_API_BASE_URL), same-origin /api fallback for local
+// dev (Vite proxy). credentials:include is required in production because the
+// session cookie lives on the API origin (api.road2cissp.com), not the app origin.
+// A 409 carries the server's current copy so the caller can merge without a second request.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+
 async function req(method, body, version) {
-  const res = await fetch('/api/academy/progress', {
+  const res = await fetch(`${API_BASE}/academy/progress`, {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...(version != null ? { 'If-Match': String(version) } : {}),
     },
+    credentials: 'include',
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const text = await res.text();

@@ -1,0 +1,5 @@
+todo: rotate ssh keys
+todo: patch web01
+note: backup ran at 02:00
+todo: review firewall rules
+note: incident drill on friday
