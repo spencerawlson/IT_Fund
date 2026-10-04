@@ -113,18 +113,71 @@ def _connect(lab, state, tokens) -> CommandResult:
     return _emit(lab, state, f'[Connected to {dev["host"]} console] {note}')
 
 
-def _help(lab, state) -> str:
-    dev = _dev(state)
-    if dev['kind'] == 'pc':
-        return 'PC commands: ping <ip>, ipconfig, connect <device>, clear'
-    return (
+# Per-lab walkthroughs for the `help` command. The shell is shared by six labs, so the
+# help text must follow the lab being run, not a single hardcoded scenario.
+_HELP_WALKTHROUGHS = {
+    'net-vlan-001': (
         'Walkthrough (switch SW1): enable | configure terminal | vlan 10 | name SALES | exit | '
         'interface gi0/1 | switchport mode access | switchport access vlan 10 | exit | '
         'interface gi0/24 | switchport mode trunk | end | show vlan brief\n'
         'Router R1 (router-on-a-stick): interface gi0/0 | no shutdown | exit | interface gi0/0.10 | '
         'encapsulation dot1q 10 | ip address 192.168.10.1 255.255.255.0 | exit ...\n'
         'Verify: connect PC1 | ping 192.168.20.10.   Switch devices with connect <name>.'
-    )
+    ),
+    'net-static-routing-001': (
+        'Walkthrough (router R1): enable | configure terminal | interface gi0/0 | '
+        'ip address 192.168.1.1 255.255.255.0 | no shutdown | exit | interface gi0/1 | '
+        'ip address 10.0.0.1 255.255.255.252 | no shutdown | exit | '
+        'ip route 192.168.2.0 255.255.255.0 10.0.0.2 | end\n'
+        'Router R2: interface gi0/0 | ip address 192.168.2.1 255.255.255.0 | no shutdown | exit | '
+        'interface gi0/1 | ip address 10.0.0.2 255.255.255.252 | no shutdown | exit | '
+        'ip route 192.168.1.0 255.255.255.0 10.0.0.1 | end\n'
+        'Verify: show ip route on each router, then connect PC1 | ping 192.168.2.10.'
+    ),
+    'net-acl-001': (
+        'Walkthrough (router R1): enable | configure terminal | access-list 10 deny host 192.168.1.20 | '
+        'access-list 10 permit any | exit | interface gi0/1 | ip access-group 10 out | end\n'
+        'Remember: an ACL ends with an implicit deny, so "permit any" is required or nobody gets through. '
+        'Standard ACLs go near the destination.\n'
+        'Verify: connect GUEST | ping 192.168.2.10 (should fail); connect PC1 | ping 192.168.2.10 (should work).'
+    ),
+    'net-ospf-001': (
+        'Walkthrough (router R1): enable | configure terminal | router ospf 1 | '
+        'network 192.168.1.0 0.0.0.255 area 0 | network 10.0.12.0 0.0.0.255 area 0 | end\n'
+        'Router R2: router ospf 1 | advertise 10.0.12.0 and 10.0.23.0 in area 0.\n'
+        'Router R3: router ospf 1 | advertise 10.0.23.0 and the server LAN 192.168.3.0 in area 0.\n'
+        'Verify: show ip ospf neighbor — R1-R2 and R2-R3 should reach FULL. Then connect PC-A | ping 192.168.3.10.'
+    ),
+    'net-ospf-tshoot-001': (
+        'Troubleshooting walkthrough: OSPF is configured but PC-A cannot reach Server-A. '
+        'An adjacency never forms, so hunt it down: on each router run show ip ospf neighbor, '
+        'show ip protocols and show running-config.\n'
+        'The fault is on R2: the 10.0.23.0 link network was advertised in the wrong area. '
+        'Fix it with: configure terminal | router ospf 1 | no network <old entry> | '
+        'network 10.0.23.0 0.0.0.255 area 0 | end\n'
+        'Verify: show ip ospf neighbor on R2 lists both R1 and R3 as FULL; connect PC-A | ping 192.168.3.10.'
+    ),
+    'net-bgp-001': (
+        'Walkthrough (router R1, AS 65001): enable | configure terminal | router bgp 65001 | '
+        'neighbor 192.0.2.2 remote-as 65002 | network 10.1.1.0 mask 255.255.255.0 | end\n'
+        'Router R2 (AS 65002): router bgp 65002 | neighbor 192.0.2.1 remote-as 65001 | '
+        'network 10.2.2.0 mask 255.255.255.0 | end\n'
+        'Verify: show ip bgp summary — the neighbor should be Established. Then connect PC1 | ping 10.2.2.10.'
+    ),
+}
+
+_GENERIC_IOS_HELP = (
+    'IOS basics: enable | configure terminal | interface <name> | ip address <ip> <mask> | '
+    'no shutdown | exit | end. Useful show commands: show ip interface brief, show ip route, '
+    'show running-config. Switch devices with connect <name>.'
+)
+
+
+def _help(lab, state) -> str:
+    dev = _dev(state)
+    if dev['kind'] == 'pc':
+        return 'PC commands: ping <ip>, ipconfig, connect <device>, clear'
+    return _HELP_WALKTHROUGHS.get(getattr(lab, 'id', ''), _GENERIC_IOS_HELP)
 
 
 def _pc_command(lab, state, tokens) -> CommandResult:
