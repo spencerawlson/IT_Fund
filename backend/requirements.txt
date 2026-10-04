@@ -5,6 +5,7 @@ pydantic-settings>=2.7.0
 email-validator>=2.2.0
 openai>=1.40
 sqlalchemy>=2.0
+alembic>=1.13.0
 # Postgres driver for production (self-hosted); local dev/tests use bundled SQLite.
 psycopg[binary]>=3.2
 authlib>=1.6
