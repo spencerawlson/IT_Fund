@@ -65,7 +65,7 @@ python3 -m venv .venv
 3. On the **Install connector** step, copy the **token** (long string after `--token`). Save it — you'll put it in `~/.config/itfund/tunnel.env` on the server in step 5.
 4. Go to the tunnel's **Public Hostnames** tab → **Add a public hostname**:
    - Subdomain: `api`, Domain: `road2cissp.com`
-   - Service Type: **HTTP**, URL: `localhost:8000`
+   - Service Type: **HTTP**, URL: `localhost:8001`
    - **Save**. This creates the `api.road2cissp.com` DNS record automatically (proxied, as tunnels require).
 
 No `cloudflared tunnel login` is needed on the server — the token carries the tunnel's identity.
@@ -112,8 +112,8 @@ sudo loginctl enable-linger $USER
 
 ```bash
 # backend directly:
-curl http://127.0.0.1:8000/health
-curl http://127.0.0.1:8000/health/db     # {"db":"ok"} once migrations ran
+curl http://127.0.0.1:8001/health
+curl http://127.0.0.1:8001/health/db     # {"db":"ok"} once migrations ran
 
 # through the tunnel (give DNS a minute):
 curl https://api.road2cissp.com/health
@@ -160,7 +160,7 @@ journalctl --user -u itfund-backend --since "1 hour ago" -p err
 cd ~/IT_Fund
 git pull
 systemctl --user restart itfund-backend     # migrations auto-run at startup
-curl http://127.0.0.1:8000/health/db        # confirm
+curl http://127.0.0.1:8001/health/db        # confirm
 ```
 
 ## Rollback
@@ -177,8 +177,8 @@ systemctl --user restart itfund-backend
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Tunnel serves a Cloudflare 404 | Public Hostname misconfigured | In Zero Trust → Tunnels → itfund-backend → Public Hostnames, check `api.road2cissp.com` → HTTP `localhost:8000` |
-| `curl https://api.road2cissp.com/health` → 502 | Backend not listening on :8000 | `systemctl --user status itfund-backend`; check `journalctl` |
+| Tunnel serves a Cloudflare 404 | Public Hostname misconfigured | In Zero Trust → Tunnels → itfund-backend → Public Hostnames, check `api.road2cissp.com` → HTTP `localhost:8001` |
+| `curl https://api.road2cissp.com/health` → 502 | Backend not listening on :8001 | `systemctl --user status itfund-backend`; check `journalctl` |
 | Browser: CORS errors on API calls | Vercel domain missing from `APP_ORIGINS` | Add it to `backend.env`, restart the backend unit |
 | OAuth redirect fails | Callback URL not registered | Register the exact `{APP_ORIGIN}/api/auth/{provider}/callback` URL |
 | `/health/db` fails / startup crash | DB unreachable or migration failed | Check `DATABASE_URL`, that postgres is running, and backend logs |
@@ -192,4 +192,4 @@ systemctl --user restart itfund-backend
 - **Never** put `OPENAI_API_KEY` in a `VITE_*` variable or frontend code — it is
   server-side only.
 - **Never** run uvicorn as root or bind it to `0.0.0.0` — it stays on
-  `127.0.0.1:8000` behind the tunnel.
+  `127.0.0.1:8001` behind the tunnel.

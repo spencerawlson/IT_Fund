@@ -4,7 +4,7 @@
 # Requires: cloudflared installed, tunnel created in the Zero Trust dashboard
 #           (see deploy/README.md), token saved at ~/.config/itfund/tunnel.env
 #           (chmod 600) as TUNNEL_TOKEN=<token>. Ingress (api.road2cissp.com ->
-#           localhost:8000) is configured as a Public Hostname in the dashboard —
+#           localhost:8001) is configured as a Public Hostname in the dashboard —
 #           no config.yml needed.
 
 [Unit]
