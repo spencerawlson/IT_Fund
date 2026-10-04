@@ -137,4 +137,9 @@ export const RESOURCES = {
   'nist-rmf': { title: 'NIST Risk Management Framework (SP 800-37)', url: 'https://csrc.nist.gov/projects/risk-management' },
   'destcert': { title: 'Destination Certification CISSP MindMaps (free videos + PDF)', url: 'https://destcert.com/cissp-mindmaps/' },
   'zerger': { title: 'Inside Cloud and Security: CISSP Exam Cram (free videos)', url: 'https://www.youtube.com/results?search_query=Inside+Cloud+and+Security+CISSP+Exam+Cram' },
+  // Linux
+  'linuxjourney': { title: 'Linux Journey (free interactive lessons)', url: 'https://linuxjourney.com/' },
+  'tldr': { title: 'tldr-pages: community command examples', url: 'https://tldr.sh/' },
+  'explainshell': { title: 'explainshell: dissect any command line', url: 'https://explainshell.com/' },
+  'comptia-linux': { title: 'CompTIA Linux+ exam objectives', url: 'https://www.comptia.org/certifications/linux' },
 };

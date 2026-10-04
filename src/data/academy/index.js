@@ -7,6 +7,7 @@ import cyber from './cyber';
 import cloud from './cloud';
 import ai from './ai';
 import cissp from './cissp';
+import linux from './linux';
 import interactive from './interactive';
 import { TIERS, RESOURCES } from './meta';
 
@@ -35,7 +36,7 @@ function normaliseTrack(raw) {
   return { ...raw, tiers };
 }
 
-export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp].map(normaliseTrack);
+export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp, linux].map(normaliseTrack);
 
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);

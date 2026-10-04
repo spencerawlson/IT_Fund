@@ -7,6 +7,7 @@ export const CERTIFICATIONS = {
   'network-plus': { id: 'network-plus', name: 'Network+', vendor: 'CompTIA' },
   ccna: { id: 'ccna', name: 'CCNA', vendor: 'Cisco' },
   'security-plus': { id: 'security-plus', name: 'Security+', vendor: 'CompTIA' },
+  'linux-plus': { id: 'linux-plus', name: 'Linux+', vendor: 'CompTIA' },
   'cysa-plus': { id: 'cysa-plus', name: 'CySA+', vendor: 'CompTIA' },
   'aws-ccp': { id: 'aws-ccp', name: 'AWS Cloud Practitioner', vendor: 'AWS' },
   'aws-ai-practitioner': { id: 'aws-ai-practitioner', name: 'AWS AI Practitioner', vendor: 'AWS' },

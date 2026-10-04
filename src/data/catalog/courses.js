@@ -173,4 +173,26 @@ export const COURSE_META = [
       advanced: { title: 'Testing, Operations & Software', summary: 'Domains 6, 7 and 8.' },
     },
   },
+  {
+    slug: 'linux-administration',
+    trackId: 'linux',
+    title: 'Linux Administration',
+    difficulty: 'Beginner',
+    description:
+      'The operating system of the cloud, the SOC, and every server you will ever touch: shell fluency, permissions, users, packages, systemd, networking, bash scripting, and hardening — aligned to CompTIA Linux+.',
+    objectives: [
+      'Navigate, manipulate, and search the filesystem from the shell',
+      'Manage permissions, users, groups, and sudo securely',
+      'Install software and manage services with systemd',
+      'Write bash scripts that automate real admin work',
+      'Harden a Linux server: SSH, firewall, patching, least privilege',
+    ],
+    skills: ['linux', 'troubleshooting', 'security'],
+    certifications: ['linux-plus'],
+    modules: {
+      beginner: { title: 'Shell Fundamentals', summary: 'Command line, permissions, users, and text pipelines.' },
+      intermediate: { title: 'System Administration', summary: 'Packages, systemd services, and networking tools.' },
+      advanced: { title: 'Scripting, Troubleshooting & Hardening', summary: 'Bash automation, logs, and Linux security basics.' },
+    },
+  },
 ];

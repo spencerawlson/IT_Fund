@@ -10,6 +10,7 @@ import cyber from './lessons/cyber';
 import cloud from './lessons/cloud';
 import ai from './lessons/ai';
 import cissp from './lessons/cissp';
+import linux from './lessons/linux';
 
 /** @type {Record<string, import('./schema').LessonContent>} */
-export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...cissp };
+export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...cissp, ...linux };
