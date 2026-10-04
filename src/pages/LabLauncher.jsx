@@ -11,12 +11,13 @@ import useDocumentTitle from '@/hooks/useDocumentTitle';
 // navigates to the lab workspace; context passed via ?start=<id> shows the instruction without
 // auto-running it. Reuses LabTerminal with a local command runner (no backend session here).
 
-const CATEGORY_ORDER = ['networking', 'cloud', 'portblast', 'cybersecurity'];
+const CATEGORY_ORDER = ['networking', 'cloud', 'portblast', 'cybersecurity', 'python'];
 const CATEGORY_LABEL = {
   networking: 'Networking & Routing',
   cloud: 'Cloud & IaC',
   cybersecurity: 'Security & Blue Team',
   portblast: 'Security & Blue Team',
+  python: 'Python Automation',
 };
 
 function orderLabs(labs) {

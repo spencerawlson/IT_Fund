@@ -128,6 +128,7 @@ const BUILD_IN_LAB = {
   'rt-ospf-neighbor': 'net-ospf-001',
   'rt-bgp-path': 'net-bgp-001',
   'rt-link-failure': 'net-ospf-tshoot-001',
+  'python-lab': 'py-automation-001',
 };
 
 const is3D = (id) => (SUBJECT_BY_ID[id]?.kind || '') === '3d';

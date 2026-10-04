@@ -10,13 +10,14 @@ from __future__ import annotations
 from typing import Any
 
 from labs.providers.base import CommandResult
-from labs.shells import aws_audit, cisco_ios, docker_siem, linux_logs, linux_net, linux_recon, logfile, terraform
+from labs.shells import aws_audit, cisco_ios, docker_siem, linux_logs, linux_net, linux_python, linux_recon, logfile, terraform
 
 _SHELLS = {
     'linux_recon': linux_recon,   # nmap / rustscan / recon labs
     'cisco_ios': cisco_ios,       # switching / routing / ACL labs
     'linux_net': linux_net,       # DNS & connectivity troubleshooting
     'linux_logs': linux_logs,     # log triage / brute-force investigation
+    'linux_python': linux_python, # python automation lab (simulated python3)
     'aws_audit': aws_audit,       # cloud security audit (AWS CLI)
     'terraform': terraform,       # IaC provisioning + cloud security
     'docker_siem': docker_siem,   # container security monitoring + SIEM investigation

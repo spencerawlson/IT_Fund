@@ -212,5 +212,11 @@ for _key, _ok, _todo in [
     ("rw_host", "You identified the infected host.", "Which host is writing all those files? grep its name/IP."),
     ("rw_note", "You found the ransom note.", "Ransomware drops a note — grep for DECRYPT / readme."),
     ("rw_scope", "You assessed the scope of the damage.", "How many files were written/encrypted? grep the write operations."),
+    # Python automation lab (Linux + simulated python3 shell)
+    ("py_version", "You verified the Python interpreter.", "Check the interpreter (python3 --version)."),
+    ("py_failed_count", "You counted the failed logins with Python.", "One-liner: python3 -c \"print(sum(1 for l in open('auth.log') if 'Failed' in l))\"."),
+    ("py_ips_extracted", "You extracted the unique source IPs with Python.", "re.findall an IPv4 pattern over the log and wrap it in set()."),
+    ("py_api_called", "You queried the alerts API from Python.", "urllib.request.urlopen('http://localhost:8080/api/alerts') + json.load — see help."),
+    ("py_scan_done", "You port-scanned 10.0.0.8 with Python sockets.", "socket.socket().connect_ex(('10.0.0.8', port)) == 0 means open — see help."),
 ]:
     VALIDATORS[_key] = _finding_present(_key, _ok, _todo)
