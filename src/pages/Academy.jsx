@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Repeat, Crown, ArrowRight, Flame, Zap, Award, Play } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { ContinueLearning, LearningPathCard } from '@/components/academy/ui/cards';
+import LandingView from '@/components/academy/LandingView';
 import { PATHS, pathsForCourse } from '@/data/catalog';
 import { DAILY_GOAL_XP, levelInfo, liveStreak, useAcademy, xpToday } from '@/lib/academy';
 import { continueLearning, dueReviewCount, lessonsDone, lessonsTotal, overallProgress, pathStatus } from '@/lib/progress/engine';
@@ -67,12 +68,18 @@ function ReviewHero({ due }) {
 }
 
 /** Home: the one next lesson, then review, then where you are on your path. */
+const LANDING_TITLE = 'Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training';
+
 export default function Academy() {
-  useDocumentTitle('Academy · Road to CISSP');
   const state = useAcademy();
+  const studied = Object.keys(state.lessons || {}).length > 0;
+  useDocumentTitle(studied ? 'Academy · Road to CISSP' : LANDING_TITLE);
+  // First-run visitors get the platform landing; returning learners keep the dashboard below.
+  if (!studied) {
+    return <LandingView />;
+  }
   const next = continueLearning(state);
   const due = dueReviewCount(state);
-  const studied = Object.keys(state.lessons || {}).length > 0;
   // The path you're on: the first one that contains your next lesson's course.
   const currentPath =
     (next && pathsForCourse(next.lesson.courseSlug)[0]) ||
