@@ -48,4 +48,5 @@ venv/
 # Local SQLite dev databases (Postgres is used in production)
 backend/*.db
 CLAUDE.md
-Road_to_CISSP_Claude_Code_Master_Prompt.mdlabs_dev.db
+Road_to_CISSP_Claude_Code_Master_Prompt.md
+labs_dev.db

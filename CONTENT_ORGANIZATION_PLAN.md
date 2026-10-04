@@ -150,7 +150,7 @@ node .\node_modules\vite\bin\vite.js build
 
 This has already been validated successfully in the current project state.
 
-## Claude / AI prompt
+## AI content prompt
 
 ```text
 Update the IT_Fund learning app without changing its overall structure or design.
