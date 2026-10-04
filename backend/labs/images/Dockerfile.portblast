@@ -12,7 +12,9 @@ LABEL org.opencontainers.image.title="Road to CISSP - PortBlast lab" \
       org.opencontainers.image.description="security-tools image plus the real portblast orchestrated scanner"
 
 # portblast is already usable as `student` (nmap needs no privileges for
-# connect scans); install it on PATH.
+# connect scans); install it on PATH. The base image ends USER student, so
+# become root for the install, then drop back.
+USER root
 COPY seeds/portblast/portblast /usr/local/bin/portblast
 RUN chmod 755 /usr/local/bin/portblast
 
