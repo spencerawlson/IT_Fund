@@ -1,6 +1,7 @@
 import React from 'react';
 import * as THREE from 'three';
 import ModelViewer from './ModelViewer';
+import { addLabel } from './labels';
 
 function addBox(scene, parts, o) {
   const geo = new THREE.BoxGeometry(o.w, o.h, o.d);
@@ -63,9 +64,50 @@ function buildMotherboard(scene) {
     label: 'CPU Heatsink',
     desc: 'Dissipates heat from the CPU. Fins increase surface area for faster cooling.',
   });
-  // Heatsink fins
+  // Heatsink fins — raised so they protrude above the base (base top is at y=2.5);
+  // previously they sat entirely inside the base and were invisible.
   for (let i = -1.5; i <= 1.5; i += 0.6) {
-    addBox(scene, parts, { w: 0.18, h: 1.5, d: 3.6, x: -0.5 + i, y: 1.65, z: -1, color: 0x4a5260, metalness: 0.85 });
+    addBox(scene, parts, { w: 0.18, h: 1.5, d: 3.6, x: -0.5 + i, y: 2.3, z: -1, color: 0x4a5260, metalness: 0.85 });
+  }
+
+  // PCB traces — thin copper runs on the board surface in Manhattan bus patterns,
+  // suggesting the etched wiring that links CPU → RAM, CPU → chipset, chipset → PCIe.
+  const traceMat = { color: 0xb87333, metalness: 0.8, roughness: 0.35 };
+  const trace = (x1, z1, x2, z2) => {
+    const horiz = Math.abs(x2 - x1) >= Math.abs(z2 - z1);
+    if (horiz) {
+      const w = Math.abs(x2 - x1);
+      if (w < 0.05) return;
+      addBox(scene, parts, { w, h: 0.02, d: 0.06, x: (x1 + x2) / 2, y: 0.19, z: z1, ...traceMat });
+    } else {
+      const d = Math.abs(z2 - z1);
+      if (d < 0.05) return;
+      addBox(scene, parts, { w: 0.06, h: 0.02, d, x: x1, y: 0.19, z: (z1 + z2) / 2, ...traceMat });
+    }
+  };
+  // CPU (-0.5,-1) → RAM slots (x=5.6): a bus of parallel runs
+  for (let k = 0; k < 8; k++) {
+    const z = -2.6 + k * 0.45;
+    trace(1.8, z, 5.2, z);
+    trace(1.8, z, 1.8, -1);
+  }
+  // CPU → chipset (1.5, 3.5)
+  for (let k = 0; k < 6; k++) {
+    const x = -0.2 + k * 0.35;
+    trace(x, 1.2, x, 2.4);
+    trace(x, 1.2, -0.5, 1.2);
+  }
+  // Chipset → PCIe slots (x=-6.2)
+  for (let k = 0; k < 6; k++) {
+    const z = 2.6 + k * 0.4;
+    trace(0.4, z, -5.8, z);
+    trace(0.4, z, 0.4, 3.5);
+  }
+  // Chipset → M.2 slot (2,-5)
+  for (let k = 0; k < 4; k++) {
+    const x = 1.0 + k * 0.3;
+    trace(x, 2.4, x, -2.8);
+    trace(x, -2.8, 2.0, -2.8);
   }
 
   // RAM slots (4)
@@ -134,9 +176,11 @@ function buildMotherboard(scene) {
     label: 'I/O Panel',
     desc: 'Rear ports: USB, Ethernet, audio, display outputs. Pre-installed on the board.',
   });
-  // small port detail
-  for (let i = 0; i < 4; i++) {
-    addBox(scene, parts, { w: 0.5, h: 0.4, d: 0.2, x: 1.5 + i * 0.8, y: 0.7, z: -6.5, color: 0x0a0a0a });
+  // small port cutouts: 2 rows x 3
+  for (let r = 0; r < 2; r++) {
+    for (let i = 0; i < 3; i++) {
+      addBox(scene, parts, { w: 0.5, h: 0.4, d: 0.2, x: 1.8 + i * 1.1, y: 0.5 + r * 0.55, z: -6.5, color: 0x060606 });
+    }
   }
 
   // 24-pin power
@@ -146,6 +190,15 @@ function buildMotherboard(scene) {
     label: '24-pin ATX Power',
     desc: 'Main power connector from the PSU to the motherboard.',
   });
+
+  // Floating annotations
+  addLabel(scene, 'CPU + Heatsink', -0.5, 4.4, -1);
+  addLabel(scene, 'RAM (DIMM)', 5.6, 2.0, -2.1);
+  addLabel(scene, 'PCIe Slot', -6.2, 1.6, 1.6);
+  addLabel(scene, 'Chipset', 1.5, 1.6, 3.5);
+  addLabel(scene, 'CMOS Battery', -5, 1.7, 4.5);
+  addLabel(scene, 'M.2 SSD', 2, 1.5, -5);
+  addLabel(scene, '24-pin ATX', 7, 2.0, 5.8);
 
   return parts;
 }

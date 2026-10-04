@@ -1,8 +1,20 @@
-# Interactive Labs — Phase 1 (foundation)
+# Interactive Labs
 
-A provider-agnostic, **simulation-only** lab engine for Road to CISSP. It lets a student start a
-lab session, record findings, and have objectives validated against the resulting **state** rather
-than against which commands they typed. Phase 1 executes nothing: no containers, no tools, no shell.
+A provider-agnostic lab engine for Road to CISSP. It lets a student start a
+lab session, run commands, record findings, and have objectives validated against the
+resulting **state** rather than against which commands they typed.
+
+Two providers ship:
+
+| Provider | File | What it does |
+|---|---|---|
+| `mock` | `providers/mock.py` | Simulation: executes nothing; pattern-matches commands through `labs/shells`. The safe default — every lab definition uses it today. |
+| `docker` | `providers/docker.py` | Real execution: one hardened Docker container per session (dropped capabilities, `no-new-privileges`, CPU/memory/PID limits, internal-only network when the lab denies internet egress). Registered only when `LAB_DOCKER_ENABLED=1` is set on the host and a daemon is reachable; otherwise `provider="docker"` labs fail with "unavailable". |
+
+To run a lab on Docker, set its definition's `environment.provider = "docker"` and
+`environment.image` to a published training image (e.g. `road-to-cissp/security-tools:latest`).
+Lab definitions keep `provider="mock"` until those images are built and published — flipping
+the flag is the only change needed.
 
 ## Layers
 
@@ -10,8 +22,8 @@ than against which commands they typed. Phase 1 executes nothing: no containers,
 API (labs/api.py)  ->  Lab Service (labs/sessions.py)  ->  LabProvider (labs/providers/*)  ->  runtime
 ```
 
-The API only authenticates and delegates; orchestration never lives in routes. This separation is
-what lets a later `DockerLabProvider` or `ProxmoxLabProvider` slot in without touching the API.
+The API only authenticates and delegates; orchestration never lives in routes. This separation
+is what lets `DockerLabProvider` slot in without touching the API.
 
 | File | Role |
 |---|---|

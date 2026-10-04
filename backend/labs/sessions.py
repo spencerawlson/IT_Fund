@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
+from labs.models import LabError
 from labs.providers.base import CommandResult, LabProvider
 from labs.providers.mock import MockLabProvider
 from labs.registry import get_lab
@@ -101,9 +102,22 @@ class LabSession:
         }
 
 
+def _build_providers() -> dict[str, LabProvider]:
+    import os
+
+    providers: dict[str, LabProvider] = {"mock": MockLabProvider()}
+    # The Docker provider only registers on hosts that opted in (LAB_DOCKER_ENABLED=1) with a
+    # reachable daemon; otherwise a lab naming provider="docker" fails "unavailable".
+    if os.environ.get("LAB_DOCKER_ENABLED") == "1":
+        from labs.providers.docker import DockerLabProvider
+
+        providers["docker"] = DockerLabProvider()
+    return providers
+
+
 # Only implemented providers may run. The client never chooses a provider; this maps a lab's
 # server-side provider name to an instance, and refuses anything not built yet.
-_PROVIDERS: dict[str, LabProvider] = {"mock": MockLabProvider()}
+_PROVIDERS: dict[str, LabProvider] = _build_providers()
 
 
 class SessionService:

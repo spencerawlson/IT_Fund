@@ -72,7 +72,9 @@ async def put_progress(request: Request, response: Response, user_id: str = Depe
     _rate_limit(user_id)
 
     with db.SessionLocal() as s:
-        row = s.get(Progress, user_id)
+        # Lock the row between the version check and the write so two devices racing with the
+        # same expected version can't both pass (lost update). No-op on SQLite, real on Postgres.
+        row = s.get(Progress, user_id, with_for_update=True)
         current = row.version if row else 0
         if expected != current:
             # Another device wrote first: hand back the current server copy so the client can merge.

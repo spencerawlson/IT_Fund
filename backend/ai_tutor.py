@@ -3,6 +3,9 @@
 The OpenAI key lives only here (env var OPENAI_API_KEY). The browser sends study
 context (card text, the learner's answer, a mode); the prompts are built server side
 so clients cannot supply their own system prompt.
+
+Spend control: the endpoint requires a signed-in learner (session cookie) and is
+rate-limited per user id, so the limit can't be dodged with header spoofing.
 """
 from __future__ import annotations
 
@@ -15,9 +18,11 @@ from typing import Annotated, Iterator, Literal, Optional
 
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+
+from auth.deps import require_user_id
 
 
 def _load_dotenv(path: Path = Path(__file__).with_name(".env")) -> None:
@@ -146,16 +151,9 @@ _hits: dict[str, deque] = defaultdict(deque)
 _cache: "OrderedDict[str, str]" = OrderedDict()
 
 
-def _client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
-
-
-def check_rate(ip: str, now: Optional[float] = None) -> None:
+def check_rate(key: str, now: Optional[float] = None) -> None:
     now = now or time.time()
-    q = _hits[ip]
+    q = _hits[key]
     while q and q[0] <= now - RATE_WINDOW:
         q.popleft()
     if len(q) >= RATE_LIMIT:
@@ -233,12 +231,13 @@ def ai_status():
 
 
 @router.post("/ai/tutor")
-def ai_tutor(body: TutorReq, request: Request):
+def ai_tutor(body: TutorReq, user_id: str = Depends(require_user_id)):
     client = get_client()
     if client is None:
         raise HTTPException(status_code=503, detail="AI tutor is not configured.")
     build_messages(body)  # validate the mode's required fields before rate limiting
-    check_rate(_client_ip(request))
+    # Spend control: sign-in required, and the per-user limit can't be dodged by IP spoofing.
+    check_rate(f"user:{user_id}")
     return StreamingResponse(
         stream_answer(client, body, cache_key(body)),
         media_type="text/event-stream",

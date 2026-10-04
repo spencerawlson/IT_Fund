@@ -1,3 +1,5 @@
+"""App-level smoke tests. The old demo auth (plaintext in-memory users/tokens) was removed;
+these tests pin that it stays gone and that the health endpoints answer."""
 import sys
 from pathlib import Path
 
@@ -11,50 +13,32 @@ import main
 client = TestClient(main.app)
 
 
-def setup_function():
-    main.USERS.clear()
-    main.TOKENS.clear()
-    main.OTPS.clear()
-    main.RESET_TOKENS.clear()
-
-
 def test_health_returns_ok():
     r = client.get("/health")
     assert r.status_code == 200
     assert r.json() == {"status": "ok"}
 
 
-def test_register_and_me_flow():
-    r = client.post("/api/auth/register", json={"email": "u@example.com", "password": "secret123"})
-    assert r.status_code == 200
-    token = r.json()["access_token"]
-    assert token
-
-    r = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
-    assert r.status_code == 200
-    body = r.json()
-    assert body["email"] == "u@example.com"
-    assert body["role"] == "user"
-
-    r = client.post("/api/auth/logout", headers={"Authorization": f"Bearer {token}"})
-    assert r.status_code == 200
-
-    r = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+def test_demo_auth_is_gone():
+    # The demo register/login/OTP/password-reset endpoints must not exist anymore.
+    for path, payload in [
+        ("/auth/register", {"email": "u@example.com", "password": "secret123"}),
+        ("/auth/login", {"email": "u@example.com", "password": "secret123"}),
+        ("/auth/verify-otp", {"email": "u@example.com", "otpCode": "000000"}),
+        ("/auth/resend-otp", {"email": "u@example.com"}),
+        ("/auth/forgot-password", {"email": "u@example.com"}),
+        ("/auth/reset-password", {"resetToken": "x", "newPassword": "y"}),
+        ("/api/auth/register", {"email": "u@example.com", "password": "secret123"}),
+    ]:
+        r = client.post(path, json=payload)
+        assert r.status_code in (404, 405), (path, r.status_code)
+    r = client.get("/auth/me")
+    assert r.status_code == 401  # the real OAuth router's /me, correctly refusing a sessionless call
+    # A forged demo-style bearer token must no longer be honored as identity anywhere.
+    r = client.get("/auth/me", headers={"Authorization": "Bearer deadbeef"})
     assert r.status_code == 401
 
 
-def test_duplicate_register_rejected():
-    client.post("/api/auth/register", json={"email": "dup@example.com", "password": "secret123"})
-    r = client.post("/api/auth/register", json={"email": "dup@example.com", "password": "secret123"})
-    assert r.status_code == 400
-
-
-def test_login_rejects_bad_credentials():
-    r = client.post("/api/auth/login", json={"email": "x@example.com", "password": "bad"})
-    assert r.status_code == 401
-
-
-def test_forgot_password_creates_reset_token():
-    client.post("/api/auth/register", json={"email": "fp@example.com", "password": "secret123"})
-    r = client.post("/api/auth/forgot-password", json={"email": "fp@example.com"})
-    assert r.status_code == 200
+def test_demo_auth_leaves_no_module_state():
+    for attr in ("USERS", "TOKENS", "OTPS", "RESET_TOKENS"):
+        assert not hasattr(main, attr), attr

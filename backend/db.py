@@ -27,7 +27,11 @@ SessionLocal = None
 def configure(url: str | None = None) -> None:
     """(Re)create the engine and session factory. Tests call this with an in-memory URL."""
     global engine, SessionLocal
-    url = url or os.environ.get("DATABASE_URL") or DEFAULT_URL
+    url = url or os.environ.get("DATABASE_URL")
+    if not url:
+        if os.environ.get("APP_ENV", "development").lower() == "production":
+            raise RuntimeError("DATABASE_URL must be set when APP_ENV=production.")
+        url = DEFAULT_URL
     if url.startswith("sqlite") and ":memory:" in url:
         # One shared connection so every session sees the same in-memory database (tests).
         engine = create_engine(url, future=True, connect_args={"check_same_thread": False}, poolclass=StaticPool)

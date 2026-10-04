@@ -78,3 +78,11 @@ class LabDefinition:
                 for o in self.objectives
             ],
         }
+
+
+class LabError(Exception):
+    """Carries a code the API maps to an HTTP status: not_found, unavailable, invalid."""
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message

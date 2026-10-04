@@ -1,7 +1,7 @@
 """Shared auth resolution used by both the auth routes and the labs API.
 
-Order: the session cookie first, then a legacy demo bearer token (removed when the demo auth goes).
 The caller is always derived here from the request, never from a body or path parameter.
+The session cookie is the only credential: demo bearer tokens were removed with the demo auth.
 
 Two levels:
   - `require_user_id` for anything that needs a real account (progress sync).
@@ -27,19 +27,13 @@ _GUEST_TOKEN = re.compile(r"\A[A-Za-z0-9_-]{22,64}\Z")
 
 def resolve_user_id(request: Request) -> str | None:
     raw = request.cookies.get(COOKIE_NAME)
-    if raw:
-        with db.SessionLocal() as s:
-            user = user_for_session(s, raw)
-            if user is not None:
-                s.commit()  # persist sliding-expiry update
-                return user.id
-    # Legacy demo bearer token (temporary; removed with the demo auth).
-    authz = request.headers.get("authorization")
-    if authz and authz.startswith("Bearer "):
-        import main
-        user = main._user_from_token(authz.split(" ", 1)[1])
-        if user:
-            return user["id"]
+    if not raw:
+        return None
+    with db.SessionLocal() as s:
+        user = user_for_session(s, raw)
+        if user is not None:
+            s.commit()  # persist sliding-expiry update
+            return user.id
     return None
 
 

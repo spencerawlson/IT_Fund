@@ -1,6 +1,7 @@
 import React from 'react';
 import * as THREE from 'three';
 import ModelViewer from './ModelViewer';
+import { addLabel } from './labels';
 
 function addBox(scene, parts, o) {
   const geo = new THREE.BoxGeometry(o.w, o.h, o.d);
@@ -31,17 +32,54 @@ const LAYERS = [
 
 function buildOsi(scene) {
   const parts = [];
+  const layerY = [];
   LAYERS.forEach((l, i) => {
     const y = -7.5 + i * 2.5;
+    layerY.push(y);
+    // Staggered widths: L1 widest, L7 narrowest — the stack reads as a pyramid
+    // of abstraction instead of seven identical slabs.
+    const w = 15 - i * 1.0;
     addBox(scene, parts, {
-      w: 13, h: 2.2, d: 8, x: 0, y, z: 0,
+      w, h: 2.2, d: 8, x: 0, y, z: 0,
       color: l.color, metalness: 0.4, roughness: 0.5,
       emissive: l.color, emissiveIntensity: 0.18,
       label: `Layer ${l.n}: ${l.name}`,
       desc: `${l.desc} Example protocols: ${l.ex}.`,
     });
+    // Bright edge strip on the front face — each layer gets a glowing "spine".
+    const strip = new THREE.Mesh(
+      new THREE.BoxGeometry(w, 0.28, 0.12),
+      new THREE.MeshStandardMaterial({
+        color: l.color, emissive: l.color, emissiveIntensity: 1.4, roughness: 0.4,
+      }),
+    );
+    strip.position.set(0, y - 0.85, 4.02);
+    scene.add(strip);
+    // Floating layer tag to the left of the slab.
+    addLabel(scene, `L${l.n} · ${l.name}`, -w / 2 - 3.4, y, 0, { height: 0.8 });
   });
-  return parts;
+
+  // Glowing data packet that travels down the stack and back up, showing how
+  // data is encapsulated passing through the layers. Decorative, not clickable.
+  const packet = new THREE.Mesh(
+    new THREE.SphereGeometry(0.35, 24, 24),
+    new THREE.MeshStandardMaterial({
+      color: 0xdbeafe, emissive: 0x60a5fa, emissiveIntensity: 2.2, roughness: 0.2,
+    }),
+  );
+  scene.add(packet);
+  const topY = layerY[layerY.length - 1];
+  const bottomY = layerY[0];
+  const PERIOD = 8; // seconds for a full down-and-up trip
+  const tick = (t) => {
+    const phase = (t % PERIOD) / PERIOD; // 0..1
+    // Triangle wave with ease-in-out: 0→1→0.
+    const tri = phase < 0.5 ? phase * 2 : 2 - phase * 2;
+    const eased = tri * tri * (3 - 2 * tri);
+    packet.position.set(2.5, topY + (bottomY - topY) * eased, 4.6);
+  };
+
+  return { parts, tick };
 }
 
 export default function Osi3D() {

@@ -1,9 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Header
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-import secrets
-import time
 #The AI Tutor
 import ai_tutor
 
@@ -27,17 +23,61 @@ app.add_middleware(
 # Authlib stores the OAuth state/nonce in a signed session cookie during the login round-trip.
 from starlette.middleware.sessions import SessionMiddleware  # noqa: E402
 
+# A missing SESSION_SECRET is only tolerable in local dev: in production it would let
+# anyone forge the signed OAuth state cookie (login CSRF). Refuse to boot instead.
+_session_secret = os.environ.get("SESSION_SECRET")
+if not _session_secret:
+    if os.environ.get("APP_ENV", "development").lower() == "production":
+        raise RuntimeError("SESSION_SECRET must be set when APP_ENV=production.")
+    import warnings
+
+    warnings.warn(
+        "SESSION_SECRET is not set; using an insecure dev default. "
+        "Set SESSION_SECRET before any real deployment.",
+        RuntimeWarning,
+        stacklevel=2,
+    )
+    _session_secret = "dev-insecure-session-secret-change-me"
+
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.environ.get("SESSION_SECRET", "dev-insecure-session-secret-change-me"),
+    secret_key=_session_secret,
     same_site="lax",
     https_only=os.environ.get("COOKIE_INSECURE") != "1",
 )
 
-# Create database tables on startup (idempotent). Replaced by Alembic migrations before real data.
+# Create database tables on startup (idempotent). In production the schema is owned by
+# Alembic migrations (backend/alembic/versions), applied at startup below; create_all is
+# only a dev/test convenience and never runs against the production database.
 import db  # noqa: E402
 
-db.init_db()
+IS_PRODUCTION = os.environ.get("APP_ENV", "development").lower() == "production"
+
+if not IS_PRODUCTION:
+    db.init_db()
+
+
+def _run_migrations() -> None:
+    from pathlib import Path
+
+    from alembic import command
+    from alembic.config import Config
+
+    cfg = Config(str(Path(__file__).with_name("alembic.ini").resolve()))
+    command.upgrade(cfg, "head")
+
+
+from contextlib import asynccontextmanager  # noqa: E402
+
+
+@asynccontextmanager
+async def lifespan(app):
+    if IS_PRODUCTION:
+        _run_migrations()
+    yield
+
+
+app.router.lifespan_context = lifespan
 
 # The AI tutor answers on both /ai/* and /api/ai/*, so it works whether or not the
 # hosting layer strips the /api prefix before forwarding.
@@ -63,68 +103,6 @@ from progress_api import router as progress_router  # noqa: E402
 app.include_router(progress_router)
 app.include_router(progress_router, prefix="/api")
 
-# ---- in-memory stores for teaching/demo ----
-USERS: dict[str, dict] = {}
-TOKENS: dict[str, dict] = {}
-OTPS: dict[str, dict] = {}
-RESET_TOKENS: dict[str, dict] = {}
-
-# ---- models ----
-class RegisterReq(BaseModel):
-    email: EmailStr
-    password: str
-
-class LoginReq(BaseModel):
-    email: EmailStr
-    password: str
-
-class VerifyOtpReq(BaseModel):
-    email: EmailStr
-    otpCode: str
-
-class ResendOtpReq(BaseModel):
-    email: EmailStr
-
-class ForgotPasswordReq(BaseModel):
-    email: EmailStr
-
-class ResetPasswordReq(BaseModel):
-    resetToken: str
-    newPassword: str
-
-class TokenRes(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-class UserOut(BaseModel):
-    id: str
-    email: EmailStr
-    role: str = "user"
-
-# ---- helpers ----
-def _now() -> int:
-    return int(time.time())
-
-def _issue_token(user_id: str) -> str:
-    token = secrets.token_urlsafe(32)
-    TOKENS[token] = {"user_id": user_id, "created_at": _now()}
-    return token
-
-def _user_from_token(token: Optional[str]) -> Optional[dict]:
-    if not token:
-        return None
-    rec = TOKENS.get(token)
-    if not rec:
-        return None
-    user = USERS.get(rec["user_id"])
-    return user
-
-def _current_user(token: Optional[str] = None) -> dict:
-    user = _user_from_token(token)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
-    return user
-
 # ---- routes ----
 @app.get("/health")
 def health():
@@ -137,84 +115,3 @@ def health_db():
         return {"db": "ok"}
     except Exception:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="database unavailable")
-
-@app.post("/auth/register", response_model=TokenRes)
-def register(body: RegisterReq):
-    for u in USERS.values():
-        if u["email"] == body.email:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
-
-    user_id = secrets.token_urlsafe(12)
-    USERS[user_id] = {"id": user_id, "email": body.email, "password": body.password, "role": "user"}
-
-    # demo OTP flow
-    otp = f"{secrets.randbelow(900000) + 100000}"
-    OTPS[body.email] = {"code": otp, "created_at": _now(), "user_id": user_id}
-
-    token = _issue_token(user_id)
-    return TokenRes(access_token=token)
-
-@app.post("/auth/verify-otp", response_model=TokenRes)
-def verify_otp(body: VerifyOtpReq):
-    rec = OTPS.get(body.email)
-    if not rec or rec["code"] != body.otpCode:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired OTP")
-    user_id = rec["user_id"]
-    token = _issue_token(user_id)
-    return TokenRes(access_token=token)
-
-@app.post("/auth/resend-otp")
-def resend_otp(body: ResendOtpReq):
-    rec = OTPS.get(body.email)
-    if not rec:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Email not found")
-    otp = f"{secrets.randbelow(900000) + 100000}"
-    OTPS[body.email] = {"code": otp, "created_at": _now(), "user_id": rec["user_id"]}
-    return {"status": "ok"}
-
-@app.post("/auth/login", response_model=TokenRes)
-def login(body: LoginReq):
-    for u in USERS.values():
-        if u["email"] == body.email and u["password"] == body.password:
-            token = _issue_token(u["id"])
-            return TokenRes(access_token=token)
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-
-@app.post("/auth/forgot-password")
-def forgot_password(body: ForgotPasswordReq):
-    rec = next((u for u in USERS.values() if u["email"] == body.email), None)
-    if rec:
-        reset_token = secrets.token_urlsafe(24)
-        RESET_TOKENS[reset_token] = {"user_id": rec["id"], "created_at": _now()}
-    return {"status": "ok"}
-
-@app.post("/auth/reset-password")
-def reset_password(body: ResetPasswordReq):
-    rec = RESET_TOKENS.get(body.resetToken)
-    if not rec:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token")
-    user = USERS.get(rec["user_id"])
-    if user:
-        user["password"] = body.newPassword
-    return {"status": "ok"}
-
-@app.get("/auth/me", response_model=UserOut)
-def auth_me(authorization: Optional[str] = Header(None)):
-    token = None
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization.split(" ", 1)[1]
-    user = _current_user(token)
-    return UserOut(id=user["id"], email=user["email"], role=user.get("role", "user"))
-
-@app.post("/auth/logout")
-def logout(authorization: Optional[str] = Header(None)):
-    token = None
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization.split(" ", 1)[1]
-    if token and token in TOKENS:
-        del TOKENS[token]
-    return {"status": "ok"}
-
-@app.get("/api/auth/{provider}")
-def auth_provider_redirect(provider: str, redirectTo: str = "/"):
-    return HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=f"{provider} redirect not implemented")

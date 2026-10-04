@@ -29,7 +29,9 @@ node ./node_modules/vite/bin/vite.js build
 
 ## Status
 
-Base44 has been removed. Auth is standalone/local unless a backend is provided via `VITE_API_BASE_URL`.
+Base44 has been fully removed (SDK, config, entities, localStorage keys, dead shadcn/ui components
+and 49 unused npm deps were pruned in the production-readiness pass). Auth is OAuth via the backend
+(HttpOnly session cookie) unless no backend is provided.
 
 ## Academy platform (paths → courses → modules → lessons)
 
@@ -45,15 +47,26 @@ Base44 has been removed. Auth is standalone/local unless a backend is provided v
 - Content lives in `src/data/academy/<track>.js` (cards are `[question, answer, explanation?, wrongOptions?]`); tiers, CISSP domains, roadmap steps, and free resources are in `meta.js`.
 - Card ids are position-based (`<deckId>-<index>`): append new cards, don't reorder, or learners lose progress on them.
 - Guided lessons (`/academy/:trackId/lesson/:deckId`, Brilliant style) mix each deck's questions with hands-on puzzles from `src/data/academy/interactive.js` (order / numeric / widget: bits, cidr, hash).
-- Styling: liquid glass utilities (`.glass`, `.glass-strong`, `.glass-btn` with `--tint`) and `LiquidBackground` in `src/index.css` / `components/academy/`. Pages using it need a `relative isolate` root.
+- Styling: two glass systems are in use — legacy `.glass`/`.glass-strong`/`.glass-btn` and the newer `.glass-1`/`.glass-2`/`.glass-3` (see `src/index.css`). Prefer the numbered system for new work. `LiquidBackground` lives in `components/academy/`; pages using it need a `relative isolate` root.
 - Game state (XP, streak, Leitner boxes, bosses, badges) is in `src/lib/academy.js`, stored in localStorage key `itfund-academy-v1`.
 
 ## AI tutor (OpenAI)
 
 - Backend only: `backend/ai_tutor.py` (routes `GET /ai/status`, `POST /ai/tutor`, also mounted under `/api`). Streams Server-Sent Events. Prompts are built server-side; clients send study context + a `mode` (`hint`, `explain`, `simplify`, `example`, `weakspots`, `chat`).
+- `POST /ai/tutor` requires a signed-in learner (session cookie) and is rate-limited per user id — it spends OpenAI money, so it is never anonymous.
 - Key: `OPENAI_API_KEY` in `backend/.env` locally (see `backend/.env.example`) or the host's env vars. Never in `VITE_*` vars or frontend code. Optional: `OPENAI_MODEL` (default `gpt-4o-mini`), `AI_RATE_LIMIT` / `AI_RATE_WINDOW` (per-IP, in-memory).
 - Local dev: `cd backend && .venv/Scripts/python -m uvicorn main:app --port 8000`; Vite proxies `/api` to it. Tests: `.venv/Scripts/python -m pytest test_ai_tutor.py` (fake client, no API calls).
 - Frontend: `src/api/tutor.js`, `src/components/academy/tutor/` (`TutorAssist` pills + answer, `TutorChat`). Tutor UI hides itself when `/ai/status` isn't enabled.
+
+## Interactive labs (backend/labs)
+
+- Providers: `mock` (simulation — the default for every lab definition) and `docker` (`labs/providers/docker.py`:
+  one hardened container per session: dropped caps, no-new-privileges, CPU/mem/PID limits, internal-only
+  network when the lab denies internet egress). Docker registers only with `LAB_DOCKER_ENABLED=1` on a host
+  with a reachable daemon; flip a lab's `environment.provider` to `"docker"` once its image is published.
+- DB: `APP_ENV=production` requires `DATABASE_URL` + `SESSION_SECRET` and runs Alembic migrations
+  (`backend/alembic/versions`) at startup. Dev/test use SQLite + `create_all`. New schema change = new
+  `alembic revision --autogenerate`.
 
 ## Module study notes
 

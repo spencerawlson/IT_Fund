@@ -1,13 +1,21 @@
+import os
 """Tests for the simulated lab shell: the interpreter (pure) and the /exec API + auto-validation."""
+import os
 import sys
 from pathlib import Path
+
+os.environ["COOKIE_INSECURE"] = "1"  # allow the session cookie over http in tests
 
 backend_dir = Path(__file__).resolve().parents[1]
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from fastapi.testclient import TestClient
+import db
 import main
+from auth.sessions import COOKIE_NAME, create_session
+from db_models import User
+from labs import api as labs_api
 from labs import sessions as sessions_mod
 from labs.registry import get_lab
 from labs.scenarios import DEFAULT_TARGET, banner_for, simulate_command
@@ -19,16 +27,24 @@ PORTBLAST_LAB = get_lab("cyber-portblast-001")
 
 
 def setup_function():
-    main.USERS.clear()
-    main.TOKENS.clear()
+    db.configure("sqlite+pysqlite:///:memory:")
+    db.init_db()
     client.cookies.clear()
     sessions_mod.service._sessions.clear()
+    labs_api._check_start_rate.clear()
+    labs_api._check_exec_rate.clear()
     sessions_mod.service._providers["mock"]._envs.clear()
 
 
 def _user(uid: str):
-    main.USERS[uid] = {"id": uid, "email": f"{uid}@example.com", "role": "user"}
-    return {"Authorization": f"Bearer {main._issue_token(uid)}"}
+    """Per-request session cookie for a real DB-backed session (two users => two cookies)."""
+    with db.SessionLocal() as s:
+        if s.get(User, uid) is None:
+            s.add(User(id=uid, display_name=uid, email=f"{uid}@example.com"))
+            s.flush()
+        raw = create_session(s, uid)
+        s.commit()
+    return {COOKIE_NAME: raw}
 
 
 def sim(command, findings=None):
@@ -128,8 +144,8 @@ def test_compare_refuses_without_both_inputs():
 
 def test_exec_endpoint_completes_the_nmap_lab():
     h = _user("u1")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
-    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap -sV -p- target.lab"}, headers=h)
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
+    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap -sV -p- target.lab"}, cookies=h)
     assert r.status_code == 200
     body = r.json()
     assert "OpenSSH" in body["output"]
@@ -139,9 +155,9 @@ def test_exec_endpoint_completes_the_nmap_lab():
 
 def test_exec_accumulates_findings_across_commands():
     h = _user("u1")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
-    client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap target.lab"}, headers=h)
-    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap -sV target.lab"}, headers=h)
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
+    client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap target.lab"}, cookies=h)
+    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap -sV target.lab"}, cookies=h)
     ports = r.json()["session"]["findings"]["ports"]
     # The later -sV upgrades the earlier entries in place rather than duplicating them.
     assert all(p.get("version") for p in ports)
@@ -157,13 +173,13 @@ def test_exec_is_open_to_guests():
 
 def test_exec_on_another_users_session_is_404():
     a, b = _user("alice"), _user("bob")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=a).json()["id"]
-    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap target.lab"}, headers=b)
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=a).json()["id"]
+    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "nmap target.lab"}, cookies=b)
     assert r.status_code == 404
 
 
 def test_exec_rejects_non_string_command():
     h = _user("u1")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
-    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": 123}, headers=h)
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
+    r = client.post(f"/api/labs/sessions/{sid}/exec", json={"command": 123}, cookies=h)
     assert r.status_code == 400

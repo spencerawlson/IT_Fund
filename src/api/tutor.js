@@ -17,6 +17,7 @@ export async function streamTutor(body, { onToken, signal } = {}) {
   const res = await fetch(`${API_BASE}/ai/tutor`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // session cookie: the tutor requires a signed-in learner
     body: JSON.stringify(body),
     signal,
   });
@@ -28,7 +29,9 @@ export async function streamTutor(body, { onToken, signal } = {}) {
       // non-JSON error body
     }
     const message =
-      res.status === 429
+      res.status === 401
+        ? 'Sign in to use the AI tutor.'
+        : res.status === 429
         ? 'You’ve hit the tutor limit for now. Try again a bit later.'
         : res.status === 503
           ? 'The AI tutor isn’t set up on this server.'

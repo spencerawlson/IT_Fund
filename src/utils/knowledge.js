@@ -1,3 +1,5 @@
+import { COURSE_KNOWLEDGE } from '../data/courseKnowledge.js';
+
 export function searchKnowledge(query, maxResults = 3) {
   if (!query || !Array.isArray(COURSE_KNOWLEDGE)) return [];
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);

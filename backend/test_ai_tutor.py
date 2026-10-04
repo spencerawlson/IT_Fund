@@ -11,7 +11,10 @@ import pytest
 from fastapi.testclient import TestClient
 
 import ai_tutor
+import db
 import main
+from auth.sessions import COOKIE_NAME, create_session
+from db_models import User
 
 client = TestClient(main.app)
 
@@ -42,6 +45,28 @@ def events(resp):
 
 
 CARD = {"mode": "explain", "question": "Which port does SSH use?", "answer": "22/TCP", "user_answer": "23/TCP"}
+
+
+@pytest.fixture(autouse=True)
+def _signed_in():
+    """The tutor spends OpenAI money, so it requires a signed-in learner."""
+    db.configure("sqlite+pysqlite:///:memory:")
+    db.init_db()
+    with db.SessionLocal() as s:
+        if s.get(User, "tutor-test") is None:
+            s.add(User(id="tutor-test", display_name="t", email="t@example.com"))
+            s.flush()
+        raw = create_session(s, "tutor-test")
+        s.commit()
+    client.cookies.set(COOKIE_NAME, raw)
+    yield
+    client.cookies.clear()
+
+
+def test_tutor_requires_sign_in():
+    client.cookies.clear()
+    r = client.post("/api/ai/tutor", json=CARD)
+    assert r.status_code == 401
 
 
 def test_status_reports_disabled_without_key(monkeypatch):

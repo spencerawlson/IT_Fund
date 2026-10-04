@@ -1,6 +1,7 @@
 import React from 'react';
 import * as THREE from 'three';
 import ModelViewer from './ModelViewer';
+import { addLabel } from './labels';
 
 function addBox(scene, parts, o) {
   const geo = new THREE.BoxGeometry(o.w, o.h, o.d);
@@ -46,11 +47,25 @@ function addEdges(scene, o) {
 }
 
 function addLine(scene, a, b, color = 0x475569) {
-  const geo = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(a[0], a[1], a[2]),
-    new THREE.Vector3(b[0], b[1], b[2]),
-  ]);
-  scene.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.5 })));
+  // Solid cylinder link — readable at any zoom, unlike a 1px Line.
+  const start = new THREE.Vector3(a[0], a[1], a[2]);
+  const end = new THREE.Vector3(b[0], b[1], b[2]);
+  const dir = new THREE.Vector3().subVectors(end, start);
+  const len = dir.length();
+  const geo = new THREE.CylinderGeometry(0.07, 0.07, len, 10);
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.4,
+    metalness: 0.2,
+    emissive: color,
+    emissiveIntensity: 0.55,
+    transparent: true,
+    opacity: 0.85,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.copy(start).addScaledVector(dir, 0.5);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  scene.add(mesh);
 }
 
 function buildVpc(scene) {
@@ -143,6 +158,17 @@ function buildVpc(scene) {
   addLine(scene, [0, 2.6, 0], [4.5, 2.6, 4], 0x2dd4bf);               // NAT → App2
   addLine(scene, [4.5, 2.6, -4], [9.8, 2.6, 0], 0xa78bfa);            // App1 → DB
   addLine(scene, [4.5, 2.6, 4], [9.8, 2.6, 0], 0xa78bfa);             // App2 → DB
+
+  // Floating annotations
+  addLabel(scene, 'VPC', 0, 8.2, -7.5, { height: 1.1 });
+  addLabel(scene, 'Internet Gateway', -12.8, 4.6, 0);
+  addLabel(scene, 'Load Balancer', -6.5, 4.7, 0);
+  addLabel(scene, 'Web Server', -6.5, 4.6, 5);
+  addLabel(scene, 'NAT Gateway', 0, 4.6, 0);
+  addLabel(scene, 'App Servers', 4.5, 4.6, 0);
+  addLabel(scene, 'Database', 9.8, 4.9, 0);
+  addLabel(scene, 'Public Subnet', -6.5, 1.1, -6.2, { height: 0.75 });
+  addLabel(scene, 'Private Subnet', 6.5, 1.1, -6.2, { height: 0.75 });
 
   return parts;
 }

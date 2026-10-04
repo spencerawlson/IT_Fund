@@ -1,14 +1,21 @@
+import os
 import sys
 from datetime import timedelta
 from pathlib import Path
+
+os.environ["COOKIE_INSECURE"] = "1"  # allow the session cookie over http in tests
 
 backend_dir = Path(__file__).resolve().parents[1]
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from fastapi.testclient import TestClient
+import db
 import main
+from auth.sessions import COOKIE_NAME, create_session
+from db_models import User
 from auth.deps import GUEST_COOKIE, _GUEST_TOKEN
+from labs import api as labs_api
 from labs import sessions as sessions_mod
 from labs.registry import LABS
 from labs.sessions import _now
@@ -17,16 +24,24 @@ client = TestClient(main.app)
 
 
 def setup_function():
-    main.USERS.clear()
-    main.TOKENS.clear()
+    db.configure("sqlite+pysqlite:///:memory:")
+    db.init_db()
     client.cookies.clear()  # a guest cookie from a previous test must not leak into the next
     sessions_mod.service._sessions.clear()
+    labs_api._check_start_rate.clear()
+    labs_api._check_exec_rate.clear()
     sessions_mod.service._providers["mock"]._envs.clear()
 
 
 def _user(uid: str):
-    main.USERS[uid] = {"id": uid, "email": f"{uid}@example.com", "role": "user"}
-    return {"Authorization": f"Bearer {main._issue_token(uid)}"}
+    """Per-request session cookie for a real DB-backed session (two users => two cookies)."""
+    with db.SessionLocal() as s:
+        if s.get(User, uid) is None:
+            s.add(User(id=uid, display_name=uid, email=f"{uid}@example.com"))
+            s.flush()
+        raw = create_session(s, uid)
+        s.commit()
+    return {COOKIE_NAME: raw}
 
 
 def _guest():
@@ -87,31 +102,31 @@ def test_a_forged_guest_cookie_is_replaced_not_trusted():
 def test_signing_in_separates_a_users_sessions_from_guest_ones():
     guest_sid = client.post("/api/labs/cyber-nmap-001/start").json()["id"]
     h = _user("u1")
-    assert client.get(f"/api/labs/sessions/{guest_sid}", headers=h).status_code == 404
-    user_sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
+    assert client.get(f"/api/labs/sessions/{guest_sid}", cookies=h).status_code == 404
+    user_sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
     assert user_sid != guest_sid
     assert client.get(f"/api/labs/sessions/{user_sid}").status_code == 404  # back to the guest id
 
 
 def test_start_unknown_lab_is_404():
-    assert client.post("/api/labs/nope/start", headers=_user("u1")).status_code == 404
+    assert client.post("/api/labs/nope/start", cookies=_user("u1")).status_code == 404
 
 
 def test_full_pass_flow():
     h = _user("u1")
-    r = client.post("/api/labs/cyber-nmap-001/start", headers=h)
+    r = client.post("/api/labs/cyber-nmap-001/start", cookies=h)
     assert r.status_code == 200
     sid = r.json()["id"]
     assert r.json()["status"] == "RUNNING"
     assert set(r.json()["progress"].values()) == {False}
 
     # Validating before recording anything leaves objectives unmet.
-    r = client.post(f"/api/labs/sessions/{sid}/validate", headers=h)
+    r = client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
     assert r.json()["status"] == "RUNNING"
     assert not any(o["passed"] for o in r.json()["validation_results"])
 
-    client.post(f"/api/labs/sessions/{sid}/findings", json=PORTS, headers=h)
-    r = client.post(f"/api/labs/sessions/{sid}/validate", headers=h)
+    client.post(f"/api/labs/sessions/{sid}/findings", json=PORTS, cookies=h)
+    r = client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
     body = r.json()
     assert body["status"] == "COMPLETED"
     assert all(body["progress"].values())
@@ -120,10 +135,10 @@ def test_full_pass_flow():
 
 def test_reset_clears_progress_and_findings():
     h = _user("u1")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
-    client.post(f"/api/labs/sessions/{sid}/findings", json=PORTS, headers=h)
-    client.post(f"/api/labs/sessions/{sid}/validate", headers=h)
-    r = client.post(f"/api/labs/sessions/{sid}/reset", headers=h)
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
+    client.post(f"/api/labs/sessions/{sid}/findings", json=PORTS, cookies=h)
+    client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
+    r = client.post(f"/api/labs/sessions/{sid}/reset", cookies=h)
     body = r.json()
     assert body["findings"] == {} and not any(body["progress"].values())
     assert body["status"] == "RUNNING"
@@ -134,29 +149,29 @@ def test_reset_clears_progress_and_findings():
 def test_cannot_access_another_users_session():
     a = _user("alice")
     b = _user("bob")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=a).json()["id"]
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=a).json()["id"]
     # Bob sees the same 404 as for a non-existent session: existence is not leaked.
-    assert client.get(f"/api/labs/sessions/{sid}", headers=b).status_code == 404
-    assert client.post(f"/api/labs/sessions/{sid}/validate", headers=b).status_code == 404
-    assert client.get(f"/api/labs/sessions/{sid}", headers=a).status_code == 200
+    assert client.get(f"/api/labs/sessions/{sid}", cookies=b).status_code == 404
+    assert client.post(f"/api/labs/sessions/{sid}/validate", cookies=b).status_code == 404
+    assert client.get(f"/api/labs/sessions/{sid}", cookies=a).status_code == 200
 
 
 def test_delete_is_idempotent_and_owner_scoped():
     a = _user("alice")
     b = _user("bob")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=a).json()["id"]
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=a).json()["id"]
     # Bob's delete does nothing (still 204) and must not remove Alice's session.
-    assert client.delete(f"/api/labs/sessions/{sid}", headers=b).status_code == 204
-    assert client.get(f"/api/labs/sessions/{sid}", headers=a).status_code == 200
-    assert client.delete(f"/api/labs/sessions/{sid}", headers=a).status_code == 204
-    assert client.delete(f"/api/labs/sessions/{sid}", headers=a).status_code == 204  # again: no error
-    assert client.get(f"/api/labs/sessions/{sid}", headers=a).status_code == 404
+    assert client.delete(f"/api/labs/sessions/{sid}", cookies=b).status_code == 204
+    assert client.get(f"/api/labs/sessions/{sid}", cookies=a).status_code == 200
+    assert client.delete(f"/api/labs/sessions/{sid}", cookies=a).status_code == 204
+    assert client.delete(f"/api/labs/sessions/{sid}", cookies=a).status_code == 204  # again: no error
+    assert client.get(f"/api/labs/sessions/{sid}", cookies=a).status_code == 404
 
 
 def test_client_cannot_choose_image_or_target():
     h = _user("u1")
     # Extra body fields are ignored; the environment comes only from the server-side definition.
-    r = client.post("/api/labs/cyber-nmap-001/start", headers=h,
+    r = client.post("/api/labs/cyber-nmap-001/start", cookies=h,
                     json={"image": "evil:latest", "provider": "docker", "target": "10.0.0.1"})
     assert r.status_code == 200
     text = r.text
@@ -165,8 +180,8 @@ def test_client_cannot_choose_image_or_target():
 
 def test_findings_must_be_an_object():
     h = _user("u1")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
-    r = client.post(f"/api/labs/sessions/{sid}/findings", json={"findings": "not-a-dict"}, headers=h)
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
+    r = client.post(f"/api/labs/sessions/{sid}/findings", json={"findings": "not-a-dict"}, cookies=h)
     assert r.status_code == 400
 
 
@@ -174,17 +189,17 @@ def test_findings_must_be_an_object():
 
 def test_session_expires_and_validate_is_blocked():
     h = _user("u1")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
     sessions_mod.service._sessions[sid].expires_at = _now() - timedelta(minutes=1)
-    assert client.get(f"/api/labs/sessions/{sid}", headers=h).json()["status"] == "EXPIRED"
-    assert client.post(f"/api/labs/sessions/{sid}/validate", headers=h).status_code == 400
+    assert client.get(f"/api/labs/sessions/{sid}", cookies=h).json()["status"] == "EXPIRED"
+    assert client.post(f"/api/labs/sessions/{sid}/validate", cookies=h).status_code == 400
 
 
 def test_cleanup_removes_expired_sessions():
     import asyncio
 
     h = _user("u1")
-    sid = client.post("/api/labs/cyber-nmap-001/start", headers=h).json()["id"]
+    sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
     sessions_mod.service._sessions[sid].expires_at = _now() - timedelta(minutes=1)
     removed = asyncio.run(sessions_mod.service.cleanup_expired())
     assert removed == 1

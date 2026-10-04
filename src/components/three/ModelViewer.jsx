@@ -25,8 +25,11 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
     camera.position.set(...cameraPos);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    let renderer;
     try {
+      // The constructor itself can throw (no WebGL); it must sit inside the try
+      // or the fallback below is skipped by the very failure it is meant to catch.
+      renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -97,12 +100,25 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     const stopAuto = () => { controls.autoRotate = false; };
     renderer.domElement.addEventListener('pointerdown', stopAuto);
 
-    // Build scene
-    const interactives = buildRef.current(scene) || [];
+    // Build scene — may return an array of interactives, or { parts, tick } where
+    // tick(t) is called each animation frame for scene animation.
+    const built = buildRef.current(scene) || [];
+    let tick = null;
+    let interactives = built;
+    if (built && !Array.isArray(built)) {
+      interactives = built.parts || [];
+      tick = built.tick || null;
+    }
     // Every built mesh casts and receives shadows; the ground plane only receives.
+    // Transparent materials (e.g. VPC subnet floors) don't cast — otherwise they
+    // throw solid shadows from see-through objects.
     scene.traverse((obj) => {
       if (obj.isMesh && obj !== ground) {
-        obj.castShadow = true;
+        const m = obj.material;
+        const isTransparent = Array.isArray(m)
+          ? m.some((x) => x.transparent && x.opacity < 1)
+          : (m.transparent && m.opacity < 1);
+        obj.castShadow = !isTransparent;
         obj.receiveShadow = true;
       }
     });
@@ -142,8 +158,17 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     renderer.domElement.addEventListener('click', onClick);
 
     let frameId;
+    let hidden = document.hidden;
+    const onVisibility = () => { hidden = document.hidden; };
+    document.addEventListener('visibilitychange', onVisibility);
+    const clock = new THREE.Clock();
     const animate = () => {
       frameId = requestAnimationFrame(animate);
+      // Skip rendering while the tab is hidden — saves GPU/battery; controls
+      // and timers resume seamlessly when the tab becomes visible again.
+      if (hidden) return;
+      const t = clock.getElapsedTime();
+      if (tick) tick(t);
       controls.update();
       renderer.render(scene, camera);
     };
@@ -162,6 +187,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
 
     return () => {
       cancelAnimationFrame(frameId);
+      document.removeEventListener('visibilitychange', onVisibility);
       ro.disconnect();
       renderer.domElement.removeEventListener('click', onClick);
       renderer.domElement.removeEventListener('pointerdown', stopAuto);
