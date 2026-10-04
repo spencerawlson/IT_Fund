@@ -46,6 +46,17 @@ EOF
 
 Use that password in `DATABASE_URL` later:
 `postgresql://itfund:CHOOSE_A_STRONG_PASSWORD@localhost:5432/itfund`
+(password must be URL-safe: letters, numbers, `-`, `_` only — no `& @ : / ? # %`).
+
+Fedora's default `pg_hba.conf` uses `ident` auth for local TCP connections, which
+ignores the password and fails with `FATAL: Ident authentication failed`.
+Switch local connections to password auth:
+
+```bash
+sudo sed -i -E 's/^(host\s+all\s+all\s+(127\.0\.0\.1\/32|::1\/128)\s+)ident/\1scram-sha-256/' /var/lib/pgsql/data/pg_hba.conf
+grep -E '^host\s+all\s+all\s+(127|::1)' /var/lib/pgsql/data/pg_hba.conf
+sudo systemctl reload postgresql
+```
 
 ## 3. Clone the repo, create the venv, install deps
 
