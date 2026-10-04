@@ -190,6 +190,16 @@ _HELP_WALKTHROUGHS = {
         'router summarizes at classful boundaries — a classic source of black holes.\n'
         'Verify: show ip route — look for R (RIP) routes. Then connect PC-A | ping 192.168.3.10.'
     ),
+    'net-rip-tshoot-001': (
+        'Troubleshooting walkthrough: RIP is configured but PC-A cannot reach Server-A. '
+        'The routers exchange no useful routes, so hunt it down: on each router run '
+        'show ip protocols and show ip route.\n'
+        'The fault is on R2: automatic summarization is still in effect, so its RIP '
+        'advertisements get summarized at the classful boundary and the far networks never '
+        'propagate correctly. Fix it with: configure terminal | router rip | no auto-summary | end\n'
+        'Verify: show ip protocols on R2 says "Automatic network summarization is not in effect"; '
+        'show ip route shows R routes; connect PC-A | ping 192.168.3.10.'
+    ),
 }
 
 _GENERIC_IOS_HELP = (

@@ -260,6 +260,34 @@ RIP_LAB = LabDefinition(
     ],
 )
 
+RIP_TSHOOT_LAB = LabDefinition(
+    id="net-rip-tshoot-001",
+    slug="rip-troubleshooting",
+    title="RIP Troubleshooting",
+    description=(
+        "RIP is already running on R1, R2 and R3, but PC-A cannot reach Server-A. One router "
+        "still has automatic summarization turned on, so its advertisements get summarized at "
+        "the classful boundary and the far networks never propagate correctly. Use show commands "
+        "to find the fault, fix it, and restore end-to-end connectivity."
+    ),
+    category="networking", difficulty="intermediate", estimated_minutes=25, shell="cisco_ios", environment=_RT_ENV,
+    targets=[
+        LabTarget(hostname="R1", role="Edge router (PC-A LAN)"),
+        LabTarget(hostname="R2", role="Transit router"),
+        LabTarget(hostname="R3", role="Edge router (Server-A LAN)"),
+        LabTarget(hostname="PC-A", role="Host on R1's LAN"),
+        LabTarget(hostname="Server-A", role="Host on R3's LAN"),
+    ],
+    objectives=[
+        LabObjective(id="fix", label="Fix the mis-configured router", validator="r2_rip",
+                     hints=["show ip route on R1 has no R entries. Compare show ip protocols on R2 vs R1 — R2 says \"Automatic network summarization is in effect\". Fix it with: configure terminal | router rip | no auto-summary | end"]),
+        LabObjective(id="routes", label="Restore RIP route propagation", validator="rip_routes_learned",
+                     hints=["After the fix, show ip route on R1 should show R entries for 10.0.23.0/24 and 192.168.3.0/24."]),
+        LabObjective(id="conn", label="Restore PC-A → Server-A connectivity", validator="rip_connectivity",
+                     hints=["connect PC-A → ping 192.168.3.10"]),
+    ],
+)
+
 BGP_LAB = LabDefinition(
     id="net-bgp-001",
     slug="ebgp-configuration",

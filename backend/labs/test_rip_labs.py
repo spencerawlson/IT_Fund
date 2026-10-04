@@ -68,15 +68,48 @@ def test_rip_rip_database_lists_networks():
     assert "192.168.1.0/24" in res.output and "10.0.23.0/24" in res.output
 
 
+def test_rip_troubleshoot_starts_broken_then_is_fixable():
+    # Fresh troubleshoot session: R2 still summarizes, so no RIP routes propagate until fixed.
+    svc = SessionService()
+    s = asyncio.run(svc.start("net-rip-tshoot-001", "u1"))
+    s, _ = asyncio.run(svc.exec_command(s.id, "u1", "connect PC-A"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "ping 192.168.3.10"))
+    assert "100% loss" in res.output
+    # Diagnose: no R routes on R1, and R2's protocols disagree about summarization.
+    s, _ = asyncio.run(svc.exec_command(s.id, "u1", "connect R1"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "show ip route"))
+    assert "\nR    " not in res.output
+    s, _ = asyncio.run(svc.exec_command(s.id, "u1", "connect R2"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "show ip protocols"))
+    assert "Automatic network summarization is in effect" in res.output
+    # Fix: disable auto-summary under the RIP process.
+    for c in ["enable", "conf t", "router rip", "no auto-summary", "end",
+              "show ip protocols"]:
+        s, res = asyncio.run(svc.exec_command(s.id, "u1", c))
+    assert "is not in effect" in res.output
+    s, _ = asyncio.run(svc.exec_command(s.id, "u1", "connect R1"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "show ip route"))
+    assert "R    10.0.23.0/24" in res.output
+    s, _ = asyncio.run(svc.exec_command(s.id, "u1", "connect PC-A"))
+    s, res = asyncio.run(svc.exec_command(s.id, "u1", "ping 192.168.3.10"))
+    assert s.status == "COMPLETED" and all(s.progress.values())
+
+
 def test_rip_help_is_lab_specific():
     from labs.shells import cisco_ios
-    out = cisco_ios.run(get_lab("net-rip-001"), "help", {}).output
-    assert "rip" in out.lower()
-    assert out != cisco_ios.run(get_lab("net-ospf-001"), "help", {}).output
+    for lab_id in ("net-rip-001", "net-rip-tshoot-001"):
+        lab = get_lab(lab_id)
+        out = cisco_ios.run(lab, "help", {}).output
+        assert "rip" in out.lower()
+    # The two walkthroughs must differ (config vs troubleshooting).
+    assert (cisco_ios.run(get_lab("net-rip-001"), "help", {}).output
+            != cisco_ios.run(get_lab("net-rip-tshoot-001"), "help", {}).output)
 
 
 def test_rip_lab_definition():
     labs = {l["id"]: l for l in client.get("/api/labs/definitions").json()["labs"]}
     assert len(labs["net-rip-001"]["objectives"]) == 5
-    assert labs["net-rip-001"]["terminal"]["multi_device"] is True
-    assert labs["net-rip-001"]["category"] == "networking"
+    assert len(labs["net-rip-tshoot-001"]["objectives"]) == 3
+    for lab_id in ("net-rip-001", "net-rip-tshoot-001"):
+        assert labs[lab_id]["terminal"]["multi_device"] is True
+        assert labs[lab_id]["category"] == "networking"

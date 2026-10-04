@@ -702,6 +702,20 @@ TOPOLOGIES: dict[str, dict[str, Any]] = {
         'show': show_rip,
         'summary': 'PC-A - R1 =10.0.12.0= R2 =10.0.23.0= R3 - Server-A. Interfaces are up; enable RIPv2 with no auto-summary so PC-A reaches Server-A.',
     },
+    'net-rip-tshoot-001': {
+        'devices': _rip_devices(preset={
+            'R1': {'version': 2, 'networks': [('192.168.1.0',), ('10.0.12.0',)], 'auto_summary': False},
+            # BUG: R2 still has auto-summary on, so its RIP advertisements get summarized
+            # at the classful boundary and the far networks never propagate correctly.
+            'R2': {'version': 2, 'networks': [('10.0.12.0',), ('10.0.23.0',)], 'auto_summary': True},
+            'R3': {'version': 2, 'networks': [('10.0.23.0',), ('192.168.3.0',)], 'auto_summary': False},
+        }),
+        'initial': 'R1',
+        'derive': derive_rip,
+        'ping': ping_rip,
+        'show': show_rip,
+        'summary': 'RIP is configured but PC-A cannot reach Server-A. One router still summarizes at the classful boundary — find it and fix it.',
+    },
     'net-bgp-001': {
         'devices': _BGP_DEVICES,
         'initial': 'R1',
