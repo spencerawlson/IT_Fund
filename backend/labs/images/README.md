@@ -76,6 +76,27 @@ Then complete the lab in the UI: run the real commands, record findings by
 hand (the Docker provider validates outcome-based findings, same as mock),
 and confirm objectives tick over.
 
+### Recon labs on Docker: what differs from the mock
+
+- **Scan `127.0.0.1`, not `target.lab`.** The hardened container cannot edit
+  `/etc/hosts`, and the target services run in the same container.
+- **Use `nmap -Pn` (and `-sT` for the full sweep).** Ping and SYN scans need
+  raw sockets the provider never grants; connect scans and `-sV` work.
+- **Real ports, remapped:** SSH on **2222**, nginx on **8080**, a second HTTP
+  service on **8000** (privileged ports are unbindable with all capabilities
+  dropped). The enumeration skills are identical; only the numbers differ.
+- **Record findings under `target.lab`.** Objectives validate against findings
+  keyed by the lab's target name, so report your 127.0.0.1 results there.
+- `rustscan` and `searchsploit` are not installed (see "Deliberate omissions"
+  above); research CVEs with `curl` against a vulnerability database instead.
+
+### Log-triage lab on Docker: one gap
+
+The mock's `last` command shows a fabricated attacker session; the real `last`
+reads the container's (empty) wtmp and shows nothing. The same evidence is in
+`/var/log/auth.log` (the successful `admin` login from 203.0.113.66) — use
+`grep` there instead of faking a binary wtmp.
+
 ## Troubleshooting
 
 | Symptom | Cause / fix |

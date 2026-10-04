@@ -31,15 +31,19 @@ RUN apt-get update \
       "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
  && curl -fsSL -o /tmp/terraform_SHA256SUMS \
       "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS" \
- && (cd /tmp && grep "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" terraform_SHA256SUMS | sha256sum -c -) \
+ && (cd /tmp && grep "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" terraform_SHA256SUMS > terraform.sha256 \
+     && test -s terraform.sha256 && sha256sum -c terraform.sha256) \
  && unzip -q /tmp/terraform.zip -d /usr/local/bin \
  && curl -fsSL -o /usr/local/bin/tfsec \
       "https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64" \
  && curl -fsSL -o /tmp/tfsec_checksums.txt \
       "https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec_checksums.txt" \
- && (cd /usr/local/bin && grep "tfsec-linux-amd64$" /tmp/tfsec_checksums.txt | sha256sum -c -) \
+ && grep "tfsec-linux-amd64$" /tmp/tfsec_checksums.txt > /tmp/tfsec.sha256 \
+ && test -s /tmp/tfsec.sha256 \
+ && (cd /usr/local/bin && sha256sum -c /tmp/tfsec.sha256) \
  && chmod 755 /usr/local/bin/terraform /usr/local/bin/tfsec \
  && rm -rf /tmp/terraform.zip /tmp/terraform_SHA256SUMS /tmp/tfsec_checksums.txt \
+            /tmp/terraform.sha256 /tmp/tfsec.sha256 \
  && terraform version && tfsec --version
 
 RUN useradd -m -s /bin/bash student

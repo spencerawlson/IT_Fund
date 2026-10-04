@@ -22,7 +22,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       nmap dnsutils traceroute whois netcat-openbsd curl ca-certificates \
-      openssh-server nginx iproute2 iputils-ping \
+      openssh-server openssh-client nginx iproute2 iputils-ping \
  && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash student

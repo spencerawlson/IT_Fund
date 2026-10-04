@@ -57,7 +57,8 @@ TERRAFORM_LAB = LabDefinition(
     environment=LabEnvironmentConfig(
         provider="mock",
         image="road-to-cissp/iac:latest",
-        workdir="/home/student",
+        # Matches the mock shell's prompt (student@iac:~/infra$): the config lives here.
+        workdir="/home/student/infra",
         idle_timeout_minutes=20,
         max_runtime_minutes=60,
         deny_internet_egress=True,
