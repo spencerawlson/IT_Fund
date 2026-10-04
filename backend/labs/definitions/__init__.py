@@ -9,6 +9,7 @@ from labs.definitions.container_security import DOCKER_SIEM_LAB
 from labs.definitions.cybersecurity import LOG_TRIAGE_LAB, NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB
 from labs.definitions.python_basics import PYTHON_BASICS_LAB
 from labs.definitions.python_lab import PYTHON_AUTOMATION_LAB
+from labs.definitions.python_netauto import PYTHON_NETAUTO_LAB
 from labs.definitions.networking import (
     ACL_LAB,
     BGP_LAB,
@@ -41,5 +42,6 @@ ALL_LABS = [
     DNS_TUNNEL_LAB,
     RANSOMWARE_LAB,
     PYTHON_BASICS_LAB,
+    PYTHON_NETAUTO_LAB,
     PYTHON_AUTOMATION_LAB,
 ]

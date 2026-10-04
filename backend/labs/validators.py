@@ -229,5 +229,10 @@ for _key, _ok, _todo in [
     ("py_basics_loop", "You looped with for and range().", "python3 -c \"for i in range(3): print('port', i)\" — see help."),
     ("py_script_written", "You wrote a Python script to a file.", "echo \"lines = open('notes.txt').read().splitlines()\" > count.py, then append the print line with >>."),
     ("py_script_run", "You ran your Python script.", "python3 count.py — it prints the number of lines in notes.txt."),
+    # Python network automation (Linux + simulated python3 shell)
+    ("py_netauto_parse", "You listed the VLAN 10 access ports from the switch config.", "Parse switch.cfg with Python — see help for the one-liner."),
+    ("py_netauto_generate", "You generated device configs with a Python loop.", "Loop over ['sw1','sw2','sw3'] and print a hostname line per device — see help."),
+    ("py_netauto_saved", "You saved the generated configs to a file.", "open('day0.txt','w') and write the generated lines — see help."),
+    ("py_netauto_verified", "You verified the generated file with cat.", "cat day0.txt — the three hostname lines should be there."),
 ]:
     VALIDATORS[_key] = _finding_present(_key, _ok, _todo)

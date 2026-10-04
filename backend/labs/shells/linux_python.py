@@ -66,6 +66,36 @@ NOTES_NAME = 'notes.txt'
 NOTES_COUNT = len(NOTES_TXT)
 
 
+# A small simulated switch config for the network-automation lab.
+SWITCH_CFG = """hostname SW-ACCESS-01
+!
+interface Gi0/1
+ description Workstation-A
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/2
+ description Workstation-B
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/3
+ description Printer
+ switchport mode access
+ switchport access vlan 20
+!
+interface Gi0/24
+ description Uplink-to-CORE
+ switchport mode trunk
+!"""
+SWITCH_NAME = 'switch.cfg'
+VLAN10_PORTS = ['Gi0/1', 'Gi0/2']
+
+# Canonical output of the taught "generate configs in a loop, save to a file" shape.
+DAY0_NAME = 'day0.txt'
+DAY0_CONTENT = 'hostname sw1\nhostname sw2\nhostname sw3'
+
+
 def _files(findings: dict[str, Any]) -> dict[str, str]:
     """In-memory files the learner 'wrote' with echo (persisted in the session findings)."""
     return findings.setdefault('_pyfiles', {})
@@ -124,8 +154,12 @@ def _cat(args: list[str], findings: dict[str, Any]) -> CommandResult:
     file = next((a for a in args if not a.startswith('-')), 'auth.log')
     if file == NOTES_NAME or file.endswith('/' + NOTES_NAME):
         return CommandResult(output='\n'.join(NOTES_TXT))
+    if file == SWITCH_NAME or file.endswith('/' + SWITCH_NAME):
+        return CommandResult(output=SWITCH_CFG)
     files = _files(findings)
     if file in files:
+        if files[file] == DAY0_CONTENT:
+            return CommandResult(output=files[file], findings={'py_netauto_verified': {'file': file}})
         return CommandResult(output=files[file])
     if not _is_logfile(file):
         return CommandResult(output=f'cat: {file}: No such file or directory', exit_code=1)
@@ -181,7 +215,7 @@ def _python3(args: list[str], raw: str, findings: dict[str, Any]) -> CommandResu
             findings={'py_version': {'version': '3.12.3'}},
         )
     if args[0] == '-c' and len(args) >= 2:
-        return _oneliner(args[1])
+        return _oneliner(args[1], findings)
     if args[0].endswith('.py'):
         return _run_script(args[0], findings)
     return CommandResult(
@@ -209,7 +243,7 @@ def _run_script(name: str, findings: dict[str, Any]) -> CommandResult:
     )
 
 
-def _oneliner(code: str) -> CommandResult:
+def _oneliner(code: str, findings: dict[str, Any]) -> CommandResult:
     c = code.lower()
     has_log = 'auth.log' in c
     # 1) Count the failed logins.
@@ -248,6 +282,26 @@ def _oneliner(code: str) -> CommandResult:
         return CommandResult(
             output='port 0\nport 1\nport 2',
             findings={'py_basics_loop': {'output': ['port 0', 'port 1', 'port 2']}},
+        )
+    # 7) Netauto: list the VLAN 10 access ports parsed out of switch.cfg.
+    if 'switch.cfg' in c and 'vlan 10' in c:
+        lines = [f'interface {p}: access vlan 10' for p in VLAN10_PORTS]
+        return CommandResult(
+            output='\n'.join(lines) + f'\n{len(VLAN10_PORTS)} access ports in VLAN 10',
+            findings={'py_netauto_parse': {'ports': VLAN10_PORTS, 'vlan': 10}},
+        )
+    # 8) Netauto: generate per-device configs in a loop over a device list.
+    if 'print(' in c and 'for ' in c and 'range(' not in c and ('hostname' in c or 'sw1' in c):
+        return CommandResult(
+            output=DAY0_CONTENT,
+            findings={'py_netauto_generate': {'devices': ['sw1', 'sw2', 'sw3']}},
+        )
+    # 9) Netauto: save generated configs to a file with open(..., 'w').
+    if 'open(' in c and DAY0_NAME in c and ('"w"' in c or "'w'" in c):
+        _files(findings)[DAY0_NAME] = DAY0_CONTENT
+        return CommandResult(
+            output=f'wrote {DAY0_NAME}',
+            findings={'py_netauto_saved': {'file': DAY0_NAME}},
         )
     return CommandResult(
         output=('simulated python3: that snippet is outside this lab\'s scope.\n'
@@ -328,7 +382,7 @@ def run(lab, command: str, findings: dict[str, Any]) -> CommandResult:
     if cmd == 'echo':
         return _echo(raw, findings)
     if cmd == 'ls':
-        names = ['auth.log', NOTES_NAME] + sorted(_files(findings))
+        names = ['auth.log', NOTES_NAME, SWITCH_NAME] + sorted(_files(findings))
         return CommandResult(output='  '.join(names))
     if cmd == 'pwd':
         return CommandResult(output='/home/analyst')
