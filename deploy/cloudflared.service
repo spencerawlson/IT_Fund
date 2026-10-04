@@ -1,8 +1,11 @@
-# Cloudflare Tunnel for the IT_Fund backend — systemd user unit
+# Cloudflare Tunnel for the IT_Fund backend — systemd user unit (token mode)
 # Install: cp deploy/cloudflared.service ~/.config/systemd/user/
 #          systemctl --user daemon-reload && systemctl --user enable --now cloudflared
-# Requires: cloudflared installed, tunnel created and routed
-#           (see deploy/README.md), config at ~/.config/itfund/config.yml.
+# Requires: cloudflared installed, tunnel created in the Zero Trust dashboard
+#           (see deploy/README.md), token saved at ~/.config/itfund/tunnel.env
+#           (chmod 600) as TUNNEL_TOKEN=<token>. Ingress (api.road2cissp.com ->
+#           localhost:8000) is configured as a Public Hostname in the dashboard —
+#           no config.yml needed.
 
 [Unit]
 Description=Cloudflare Tunnel (itfund-backend)
@@ -11,7 +14,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/cloudflared tunnel --config %h/.config/itfund/config.yml run
+EnvironmentFile=%h/.config/itfund/tunnel.env
+ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
 Restart=on-failure
 RestartSec=5
 NoNewPrivileges=true

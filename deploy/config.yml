@@ -1,3 +1,7 @@
+# ALTERNATIVE PATH: only needed if you manage the tunnel from the cloudflared
+# CLI instead of the Zero Trust dashboard. With a dashboard-managed tunnel
+# (Public Hostnames configured in the UI, connector running with --token),
+# this file is not used at all.
 # Cloudflare named-tunnel config for the IT_Fund backend.
 # Copy to ~/.config/itfund/config.yml and replace <TUNNEL_ID> with the UUID
 # from `cloudflared tunnel create itfund-backend`. The credentials-file path

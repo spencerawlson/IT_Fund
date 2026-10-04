@@ -58,25 +58,26 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
-## 4. Create the Cloudflare tunnel and DNS route
+## 4. Create the Cloudflare tunnel (dashboard)
 
-```bash
-cloudflared tunnel login          # opens a browser; authorizes your Cloudflare account
-cloudflared tunnel create itfund-backend
-# note the tunnel UUID it prints -> <TUNNEL_ID>
+1. Go to **one.dash.cloudflare.com** → **Networks** → **Tunnels** → **Create a tunnel**.
+2. Choose **Cloudflared**, name it `itfund-backend`, **Save tunnel**.
+3. On the **Install connector** step, copy the **token** (long string after `--token`). Save it — you'll put it in `~/.config/itfund/tunnel.env` on the server in step 5.
+4. Go to the tunnel's **Public Hostnames** tab → **Add a public hostname**:
+   - Subdomain: `api`, Domain: `road2cissp.com`
+   - Service Type: **HTTP**, URL: `localhost:8000`
+   - **Save**. This creates the `api.road2cissp.com` DNS record automatically (proxied, as tunnels require).
 
-cloudflared tunnel route dns <TUNNEL_ID> api.road2cissp.com
-# creates a CNAME: api.road2cissp.com -> <TUNNEL_ID>.cfargotunnel.com
-```
+No `cloudflared tunnel login` is needed on the server — the token carries the tunnel's identity.
 
-## 5. Write the tunnel config
+## 5. Write the tunnel token file (server)
 
 ```bash
 mkdir -p ~/.config/itfund
-cp ~/IT_Fund/deploy/config.yml ~/.config/itfund/config.yml
-# edit: replace <TUNNEL_ID>
-# credentials-file defaults to ~/.cloudflared/<TUNNEL_ID>.json (created in step 4)
-nano ~/.config/itfund/config.yml
+cat > ~/.config/itfund/tunnel.env <<'EOF2'
+TUNNEL_TOKEN=<paste the token from step 4>
+EOF2
+chmod 600 ~/.config/itfund/tunnel.env
 ```
 
 ## 6. Write the backend env file
@@ -176,7 +177,7 @@ systemctl --user restart itfund-backend
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Tunnel serves a Cloudflare 404 | `config.yml` hostname/ingress mismatch | Check `hostname:` matches the routed DNS name exactly |
+| Tunnel serves a Cloudflare 404 | Public Hostname misconfigured | In Zero Trust → Tunnels → itfund-backend → Public Hostnames, check `api.road2cissp.com` → HTTP `localhost:8000` |
 | `curl https://api.road2cissp.com/health` → 502 | Backend not listening on :8000 | `systemctl --user status itfund-backend`; check `journalctl` |
 | Browser: CORS errors on API calls | Vercel domain missing from `APP_ORIGINS` | Add it to `backend.env`, restart the backend unit |
 | OAuth redirect fails | Callback URL not registered | Register the exact `{APP_ORIGIN}/api/auth/{provider}/callback` URL |
