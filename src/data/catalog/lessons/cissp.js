@@ -99,6 +99,59 @@ export default {
     ],
   },
 
+  'cissp-d1b': {
+    overview: [
+      'This deep dive takes Domain 1 further into the governance machinery the exam loves: what business continuity and disaster recovery plans actually contain, how recovery is tested, how controls are classified, how policies are layered, and how people themselves are controlled.',
+      'This lesson covers BCP versus DRP plan contents, the Business Impact Analysis, RTO and RPO, DR test types from checklist to parallel, control types and categories, the policy-to-guideline hierarchy, and personnel security controls.',
+    ],
+    learn: [
+      {
+        heading: 'Continuity: plans and analysis',
+        body: [
+          'The Business Continuity Plan keeps critical business functions running during a disruption; the Disaster Recovery Plan restores IT systems. The DRP is the IT-focused subset of the wider BCP effort, and the BCP is owned by the business, not just IT.',
+          'A BCP contains the Business Impact Analysis, recovery strategies, plan invocation procedures, roles and responsibilities, communications plans, and plan maintenance. A DRP contains system recovery procedures, RTO and RPO targets, backup and restore steps, and alternate site details.',
+          'The Business Impact Analysis identifies critical functions and their dependencies, the maximum tolerable downtime, RTO and RPO targets, and the financial and operational impacts of disruption. The BIA drives the priorities of both the BCP and the DRP.',
+          'RTO is how fast a function must be restored; RPO is how much data loss is tolerable. RTO must sit within the maximum tolerable downtime, and RPO sets how often you back up.',
+        ],
+      },
+      {
+        heading: 'Testing recovery',
+        body: [
+          'From least to most disruptive: checklist or read-through review, structured walkthrough (tabletop) where the team discusses the plan step by step, simulation where the team practices in a mock scenario, parallel test where recovery systems run alongside production, and full interruption where production actually fails over.',
+          'Walkthroughs are cheap and discussion-based, good for finding plan gaps. Simulations add realism without touching production. Parallel tests validate the plan closely but need duplicate capacity. Full interruption is the most realistic and the riskiest, so it is done rarely and carefully.',
+        ],
+      },
+      {
+        heading: 'Controls: types and categories',
+        body: [
+          'Control types describe intent: preventive controls stop incidents (firewall rules), detective controls spot them in progress (IDS), corrective controls restore afterwards (backups), deterrent controls discourage the attacker (warning signs, policies), recovery controls restore operations (failover), and compensating controls substitute when the primary control is not feasible.',
+          'Control categories describe where the control lives: administrative (policies, training, procedures), technical (firewalls, encryption, authentication enforced by systems), and physical (guards, locks, cameras). A single control has both a type and a category.',
+          'Policies, standards, procedures, and guidelines form a hierarchy. The policy states mandatory high-level intent and needs senior management sign-off; standards give mandatory specifics; procedures are step-by-step instructions; guidelines are recommended, not mandatory.',
+        ],
+      },
+      {
+        heading: 'Personnel security',
+        body: [
+          'People are both an asset and a risk. Separation of duties splits critical tasks so fraud needs collusion. Mandatory vacations force someone else to perform a person\'s duties, which can surface fraud or irregularities. Job rotation reduces both fraud opportunity and single points of knowledge.',
+          'These controls work as a set: separation of duties prevents unilateral fraud, mandatory vacations detect ongoing fraud, and job rotation limits how long any one person holds a sensitive position unobserved.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['BCP vs DRP', 'Business functions keep running / IT systems restored'],
+      ['BCP contains', 'BIA, strategies, invocation, roles, comms, maintenance'],
+      ['DRP contains', 'Recovery procedures, RTO/RPO, backups, alternate site'],
+      ['BIA identifies', 'Critical functions, dependencies, MTD, RTO/RPO, impacts'],
+      ['RTO / RPO', 'How fast to restore / how much data loss is OK'],
+      ['Test order', 'Checklist, walkthrough, simulation, parallel, full interruption'],
+      ['Control types', 'Preventive, detective, corrective, deterrent, recovery, compensating'],
+      ['Control categories', 'Administrative, technical, physical'],
+      ['Hierarchy', 'Policy (intent) > standard (specifics) > procedure (steps) > guideline (recommended)'],
+      ['Mandatory vacations', 'Detective control against fraud'],
+      ['Job rotation', 'Less fraud opportunity, no single points of knowledge'],
+    ],
+  },
+
   'cissp-d2': {
     overview: [
       'Domain 2 (10%) is about knowing what information you hold, who is responsible for it, how it is classified, how long you keep it and how you destroy it. It sounds administrative, but data that was never inventoried or never destroyed is behind many breaches.',
@@ -146,6 +199,60 @@ export default {
       ['Pseudonymised', 'Still personal data (anonymised is not)'],
       ['Scoping / tailoring', 'Select relevant controls / adjust them'],
       ['DRM', 'Controls use after distribution'],
+    ],
+  },
+
+  'cissp-d2b': {
+    overview: [
+      'This deep dive extends Domain 2 beyond classification and sanitisation into the full life of data: the lifecycle phases protection must follow, the roles that govern data, how long data is kept and when destruction must stop, how data loss prevention works across network, endpoint and cloud, and the controls that protect data in cloud environments.',
+      'This lesson covers the six data lifecycle phases, owner versus steward versus custodian, retention periods and legal holds, network, endpoint and cloud DLP, data sovereignty and residency, and cloud data controls.',
+    ],
+    learn: [
+      {
+        heading: 'The data lifecycle and its roles',
+        body: [
+          'The data lifecycle runs create, store, use, share, archive, destroy. Protection must follow the data through every phase: most breaches exploit the share and archive phases, not the database itself.',
+          'The data owner is accountable for the data and classifies it. The data steward manages day-to-day quality and handling according to the owner\'s policy. The custodian maintains the systems that store and process the data. The owner decides, the steward oversees handling, the custodian operates.',
+          'Handling requirements scale with classification: higher classifications need marking, encryption, and strict access control, while public data mainly needs integrity. The rules must be written down, trained, and enforced, or they do not exist.',
+        ],
+      },
+      {
+        heading: 'Retention and legal holds',
+        body: [
+          'A retention period is set by legal and regulatory requirements plus business need, whichever is longer, and the justification should be documented. Over-retention inflates breach impact and e-discovery costs; under-retention risks non-compliance.',
+          'A legal hold, or litigation hold, suspends normal destruction so relevant data is preserved for litigation. Destroying data under a hold can be ruled spoliation of evidence. Holds and retention schedules extend to backups and archives, not just live data.',
+        ],
+      },
+      {
+        heading: 'Data loss prevention',
+        body: [
+          'Network DLP inspects data in motion at egress points such as email, web uploads, and file transfers. Endpoint DLP controls USB drives, printing, clipboard, and local storage on devices, closing the "sneakernet" exfiltration path. Cloud DLP, often delivered through a CASB, scans uploads, sharing links, and collaboration apps in SaaS.',
+          'On a policy violation, DLP can block, quarantine, encrypt, or alert. New deployments should start in monitor and alert mode before enforcing blocks, so legitimate workflows are not broken on day one.',
+        ],
+      },
+      {
+        heading: 'Data in the cloud',
+        body: [
+          'The customer, not the provider, owns data in a SaaS application; contracts should state ownership, return, and deletion terms explicitly. In IaaS, the customer owns the data and OS layers while the provider owns the hypervisor down, so customer-managed keys (BYOK), storage encryption, and private endpoints are the customer\'s controls to apply.',
+          'Data sovereignty means data is subject to the laws of the country where it is stored or processed, which drives cloud region selection for regulated data. Data residency is only about where data is stored; you can meet residency and still fail sovereignty.',
+          'Data discovery and classification tools automatically scan data stores to find and label sensitive data such as PII or card numbers. You cannot apply handling rules to data you have not found, which is why discovery precedes enforcement.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Lifecycle', 'Create, store, use, share, archive, destroy'],
+      ['Owner / steward / custodian', 'Accountable, classifies / manages handling / maintains systems'],
+      ['Handling', 'Scales with classification; must be written and enforced'],
+      ['Retention period', 'Legal + business need, whichever longer'],
+      ['Legal hold', 'Suspend destruction for litigation; covers backups'],
+      ['Network DLP', 'Data in motion at egress'],
+      ['Endpoint DLP', 'USB, print, clipboard, local storage'],
+      ['Cloud DLP', 'CASB scanning uploads and sharing'],
+      ['DLP actions', 'Block, quarantine, encrypt, alert'],
+      ['SaaS ownership', 'The customer owns the data'],
+      ['Sovereignty / residency', 'Whose laws apply / where stored'],
+      ['IaaS data controls', 'BYOK, storage encryption, private endpoints'],
+      ['Discovery first', 'Find and label before enforcing rules'],
     ],
   },
 
