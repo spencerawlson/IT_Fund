@@ -12,6 +12,10 @@ to the backend via `VITE_API_BASE_URL`.
 No secrets live in this repo — only `backend.env.example` with placeholders.
 The real env file lives at `~/.config/itfund/backend.env` on the server.
 
+> The Cloudflare side of this setup (domain purchase, DNS records, the
+> `itfund-backend` tunnel, Vercel domains, verification, and the required
+> credential rotation) is documented separately in [`CLOUDFLARE.md`](CLOUDFLARE.md).
+
 ---
 
 ## 0. Prerequisites
