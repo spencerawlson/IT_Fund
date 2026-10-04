@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ChevronDown } from 'lucide-react';
-import { Card, ListLink, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
+import { Check, ChevronDown, Timer } from 'lucide-react';
+import { Button, Card, ListLink, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { tracks, ROADMAP, CISSP_DOMAINS, decksForDomain, RESOURCES } from '@/data/academy';
 import { COURSES, courseHref } from '@/data/catalog';
 import { useAcademy, mastery, grantBadge } from '@/lib/academy';
@@ -56,6 +56,16 @@ export default function CisspRoadmap() {
         title="Road to CISSP"
         description="Seven steps that follow the path most successful candidates take: technical foundations, the CompTIA core, hands-on defence, cloud and AI, then the managerial view the CISSP tests. Every lesson is tagged with the domains it builds toward, so early study counts."
       />
+
+      <section aria-labelledby="exam-heading" className="mb-12">
+        <Card level={2} padding="md" className="flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h2 id="exam-heading" className="text-heading text-ink-1">Practice exam</h2>
+            <p className="mt-1 text-small text-ink-2">100 questions, 3 hours, weighted by the official domain weights. 70% to pass.</p>
+          </div>
+          <Button to="/academy/exam" icon={Timer} className="shrink-0">Start practice exam</Button>
+        </Card>
+      </section>
 
       <section aria-labelledby="steps-heading">
         <SectionHeader id="steps-heading" title="The seven steps" description={`A step counts as done at ${READY_PCT}% mastery of its lessons.`} />

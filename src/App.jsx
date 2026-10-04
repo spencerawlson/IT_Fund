@@ -30,6 +30,7 @@ import { PathsIndex, PathDetail } from './pages/academy/Paths';
 import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Courses';
 import LessonView from './pages/academy/LessonView';
 import Badges from './pages/academy/Badges';
+import PracticeExam from './pages/academy/PracticeExam';
 import Practice from './pages/Practice';
 import LabWorkspace from './pages/LabWorkspace';
 import LabLauncher from './pages/LabLauncher';
@@ -93,6 +94,7 @@ const AuthenticatedApp = () => {
       {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
       <Route path="/labs" element={<LabLauncher />} />
       <Route path="/labs/:labId" element={<LabWorkspace />} />
+      <Route path="/academy/exam" element={<PracticeExam />} />
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
       <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />
       <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />

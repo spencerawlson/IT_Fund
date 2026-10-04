@@ -2,6 +2,8 @@
 // All state is local to the browser (localStorage), matching src/lib/progress.js.
 import { useSyncExternalStore } from 'react';
 import { localStorageAdapter } from './progress/storage';
+import { allDecks, allCards } from '../data/academy';
+import { CISSP_DOMAINS } from '../data/academy/meta';
 
 const KEY = 'itfund-academy-v1';
 const EVENT = 'itfund-academy-change';
@@ -21,6 +23,7 @@ export const XP = {
   deckMastered: 100,
   puzzleSolved: 20,
   lessonComplete: 30,
+  examPerCorrect: 1,
 };
 
 const RANKS = [
@@ -48,7 +51,7 @@ export const BADGES = {
   'cissp-ready': { title: 'CISSP-Ready', desc: 'Reach 80% readiness in all 8 CISSP domains.', icon: 'ShieldCheck' },
 };
 
-const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null };
+const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null, exams: [], exam: null };
 
 let cache = null;
 // Persistence goes through an adapter (src/lib/progress/storage.js) so a server-backed store
@@ -262,4 +265,169 @@ export function buildQuestions(cards, pool, count) {
       const options = shuffle([card.a, ...wrong]);
       return { card, options, correct: options.indexOf(card.a) };
     });
+}
+
+// -------------------------------------------------------------------------------------------------
+// CISSP practice exam: a timed, domain-weighted test-day simulator.
+//
+// Deck -> domain mapping reuses the curated `cissp` tags on each deck (see
+// src/data/academy/*.js). A deck tagged with several domains (e.g. cissp: [4, 7])
+// counts toward its PRIMARY domain (the first tag) for quota math, so the eight
+// quotas always sum to the exam length. Sampling is without replacement per
+// domain; if a domain's pool is ever smaller than its quota, the shortfall is
+// filled from the global pool and reported.
+// -------------------------------------------------------------------------------------------------
+
+export const EXAM_QUESTION_COUNT = 100;
+export const EXAM_DURATION_MIN = 180;
+export const EXAM_PASS_PCT = 70;
+export const EXAM_HISTORY_LIMIT = 20;
+
+/** Deck id -> primary CISSP domain id (first curated tag), derived from the data. */
+export const DECK_DOMAIN = Object.fromEntries(allDecks.map((d) => [d.id, (d.cissp || [])[0] || null]));
+
+/** Per-domain question quotas for an exam of `total` questions (largest remainder). */
+export function examDomainQuotas(total = EXAM_QUESTION_COUNT) {
+  const rows = CISSP_DOMAINS.map((d) => ({ id: d.id, exact: (d.weight / 100) * total, n: 0 }));
+  rows.forEach((r) => {
+    r.n = Math.floor(r.exact);
+  });
+  let remainder = total - rows.reduce((s, r) => s + r.n, 0);
+  const byFrac = [...rows].sort((a, b) => b.exact - b.n - (a.exact - a.n));
+  for (let i = 0; remainder > 0; i++, remainder--) byFrac[i % byFrac.length].n += 1;
+  return Object.fromEntries(rows.map((r) => [r.id, r.n]));
+}
+
+/**
+ * Build one exam: domain-weighted sampling without replacement, option order and
+ * question order shuffled. Returns { questions, quotas, shortfalls } where each
+ * question is { id, domain, card, options, correct }.
+ */
+export function buildPracticeExam({ count = EXAM_QUESTION_COUNT } = {}) {
+  const quotas = examDomainQuotas(count);
+  const byDomain = {};
+  for (const card of allCards) {
+    const dom = DECK_DOMAIN[card.deckId];
+    if (dom) (byDomain[dom] ??= []).push(card);
+  }
+  const picked = []; // [{ card, domain }]
+  const shortfalls = [];
+  for (const d of CISSP_DOMAINS) {
+    const pool = shuffle(byDomain[d.id] || []);
+    const take = pool.slice(0, quotas[d.id]);
+    take.forEach((card) => picked.push({ card, domain: d.id }));
+    if (take.length < quotas[d.id]) shortfalls.push(d.id);
+  }
+  if (shortfalls.length) {
+    const seen = new Set(picked.map((p) => p.card.id));
+    const missing = count - picked.length;
+    const rest = shuffle(allCards.filter((c) => !seen.has(c.id))).slice(0, missing);
+    rest.forEach((card) => picked.push({ card, domain: DECK_DOMAIN[card.deckId] || shortfalls[0] }));
+  }
+  const questions = shuffle(
+    picked.slice(0, count).map(({ card, domain }) => {
+      const q = buildQuestions([card], allCards, 1)[0];
+      return { id: card.id, domain, card, options: q.options, correct: q.correct };
+    }),
+  );
+  return { questions, quotas, shortfalls };
+}
+
+/** Score a finished exam. answers: { [questionId]: chosenOptionIndex }. */
+export function scoreExam(questions, answers) {
+  const perDomain = {};
+  for (const d of CISSP_DOMAINS) perDomain[d.id] = { total: 0, correct: 0, pct: 0, passed: false };
+  const missed = [];
+  let correct = 0;
+  for (const q of questions) {
+    const pd = perDomain[q.domain] ?? (perDomain[q.domain] = { total: 0, correct: 0, pct: 0, passed: false });
+    pd.total += 1;
+    if (answers[q.id] === q.correct) {
+      correct += 1;
+      pd.correct += 1;
+    } else {
+      missed.push(q);
+    }
+  }
+  for (const d of CISSP_DOMAINS) {
+    const pd = perDomain[d.id];
+    pd.pct = pd.total ? Math.round((pd.correct / pd.total) * 100) : 0;
+    pd.passed = pd.pct >= EXAM_PASS_PCT;
+  }
+  const pct = questions.length ? Math.round((correct / questions.length) * 100) : 0;
+  return { total: questions.length, correct, pct, passed: pct >= EXAM_PASS_PCT, perDomain, missed };
+}
+
+// ---------- exam session (persisted in academy state, so a refresh resumes) ----------
+
+/** Start a new exam. The deadline timestamp is persisted: refreshes don't reset the clock. */
+export function startPracticeExam() {
+  const { questions, quotas } = buildPracticeExam();
+  const exam = {
+    id: `exam-${Date.now()}`,
+    startedAt: Date.now(),
+    deadline: Date.now() + EXAM_DURATION_MIN * 60 * 1000,
+    questions,
+    quotas,
+    answers: {},
+    flagged: [],
+    index: 0,
+    finishedAt: null,
+    result: null,
+  };
+  const state = read();
+  write({ ...state, exam });
+  return exam;
+}
+
+export function answerExamQuestion(qid, optionIdx) {
+  const state = read();
+  if (!state.exam || state.exam.finishedAt) return;
+  write({ ...state, exam: { ...state.exam, answers: { ...state.exam.answers, [qid]: optionIdx } } });
+}
+
+export function toggleExamFlag(qid) {
+  const state = read();
+  if (!state.exam || state.exam.finishedAt) return;
+  const flagged = state.exam.flagged.includes(qid)
+    ? state.exam.flagged.filter((f) => f !== qid)
+    : [...state.exam.flagged, qid];
+  write({ ...state, exam: { ...state.exam, flagged } });
+}
+
+export function setExamIndex(index) {
+  const state = read();
+  if (!state.exam || state.exam.finishedAt) return;
+  write({ ...state, exam: { ...state.exam, index } });
+}
+
+/** Finish the exam: score it, save the attempt to history, award XP. Returns the finished exam. */
+export function finishPracticeExam() {
+  const state = read();
+  const exam = state.exam;
+  if (!exam || exam.finishedAt) return exam;
+  const result = scoreExam(exam.questions, exam.answers);
+  const attempt = {
+    id: exam.id,
+    at: Date.now(),
+    total: result.total,
+    correct: result.correct,
+    pct: result.pct,
+    passed: result.passed,
+    perDomain: Object.fromEntries(CISSP_DOMAINS.map((d) => [d.id, result.perDomain[d.id].pct])),
+  };
+  const exams = [attempt, ...(state.exams || [])].slice(0, EXAM_HISTORY_LIMIT);
+  const finished = { ...exam, finishedAt: Date.now(), result };
+  write(withBadges(withXp({ ...state, exams, exam: finished }, result.correct * XP.examPerCorrect)));
+  return finished;
+}
+
+/** Discard the current (or finished) exam without recording an attempt. */
+export function clearPracticeExam() {
+  const state = read();
+  if (state.exam) write({ ...state, exam: null });
+}
+
+export function examHistory(state) {
+  return state.exams || [];
 }
