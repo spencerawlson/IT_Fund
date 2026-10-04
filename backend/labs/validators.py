@@ -158,6 +158,12 @@ for _key, _ok, _todo in [
     ("r3_eigrp", "R3 runs EIGRP AS 100 and advertises its networks.", "On R3: router eigrp 100, then advertise the link and the Server LAN."),
     ("eigrp_adjacencies", "All required EIGRP adjacencies are up.", "Check show ip eigrp neighbors — R1-R2 and R2-R3 should appear. Both sides need AS 100."),
     ("eigrp_connectivity", "PC-A can reach Server-A across the EIGRP network.", "From PC-A, ping 192.168.3.10 once EIGRP has converged."),
+    # RIP v2 / troubleshooting (Cisco IOS)
+    ("r1_rip", "R1 runs RIPv2 (no auto-summary) and advertises its networks.", "On R1: router rip, version 2, no auto-summary, then network 192.168.1.0 and network 10.0.12.0."),
+    ("r2_rip", "R2 runs RIPv2 (no auto-summary) and advertises its networks.", "On R2: router rip, version 2, no auto-summary, then network 10.0.12.0 and network 10.0.23.0."),
+    ("r3_rip", "R3 runs RIPv2 (no auto-summary) and advertises its networks.", "On R3: router rip, version 2, no auto-summary, then network 10.0.23.0 and network 192.168.3.0."),
+    ("rip_routes_learned", "RIP routes are propagating between the routers.", "Check show ip route for R entries — every router needs version 2 and no auto-summary."),
+    ("rip_connectivity", "PC-A can reach Server-A across the RIP network.", "From PC-A, ping 192.168.3.10 once RIP has converged."),
 ]:
     VALIDATORS[_key] = _network_validator(_key, _ok, _todo)
 

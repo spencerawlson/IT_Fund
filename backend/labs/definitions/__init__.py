@@ -18,6 +18,7 @@ from labs.definitions.networking import (
     EIGRP_TSHOOT_LAB,
     OSPF_LAB,
     OSPF_TSHOOT_LAB,
+    RIP_LAB,
     STATIC_ROUTING_LAB,
     VLAN_ROUTING_LAB,
 )
@@ -33,6 +34,7 @@ ALL_LABS = [
     OSPF_TSHOOT_LAB,
     EIGRP_LAB,
     EIGRP_TSHOOT_LAB,
+    RIP_LAB,
     BGP_LAB,
     DNS_CONNECTIVITY_LAB,
     CLOUD_AUDIT_LAB,

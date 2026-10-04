@@ -181,6 +181,15 @@ _HELP_WALKTHROUGHS = {
         'router eigrp 100 | network 10.0.12.0 0.0.0.255 | network 10.0.23.0 0.0.0.255 | end\n'
         'Verify: show ip eigrp neighbors on R2 lists both R1 and R3; connect PC-A | ping 192.168.3.10.'
     ),
+    'net-rip-001': (
+        'Walkthrough (router R1): enable | configure terminal | router rip | version 2 | '
+        'no auto-summary | network 192.168.1.0 | network 10.0.12.0 | end\n'
+        'Router R2: router rip | version 2 | no auto-summary | network 10.0.12.0 | network 10.0.23.0.\n'
+        'Router R3: router rip | version 2 | no auto-summary | network 10.0.23.0 | network 192.168.3.0.\n'
+        'RIP network statements are classful (no wildcard mask). Leave auto-summary on and the '
+        'router summarizes at classful boundaries — a classic source of black holes.\n'
+        'Verify: show ip route — look for R (RIP) routes. Then connect PC-A | ping 192.168.3.10.'
+    ),
 }
 
 _GENERIC_IOS_HELP = (
@@ -438,12 +447,20 @@ def _config_command(lab, state, dev, tokens, low) -> CommandResult:
         state['mode'] = 'router'
         state['ctx'] = {'proto': proto}
         return _emit(lab, state, '')
+    if cmd == 'router' and low[1] == 'rip' and len(tokens) == 2:
+        # `router rip` takes no process number.
+        if dev['kind'] != 'router':
+            return _emit(lab, state, INVALID)
+        dev.setdefault('rip', {'version': 1, 'networks': [], 'auto_summary': True})
+        state['mode'] = 'router'
+        state['ctx'] = {'proto': 'rip'}
+        return _emit(lab, state, '')
     if low[:2] == ['no', 'router'] and len(tokens) >= 3:
         # `no router eigrp 200` — tears down a routing process (needed to fix a wrong AS/PID).
         if dev['kind'] != 'router':
             return _emit(lab, state, INVALID)
         proto = low[2]
-        if proto not in ('ospf', 'eigrp', 'bgp'):
+        if proto not in ('ospf', 'eigrp', 'bgp', 'rip'):
             return _emit(lab, state, INVALID)
         if len(tokens) >= 4 and tokens[3].isdigit():
             cur = dev.get(proto) or {}
@@ -471,10 +488,19 @@ def _router_command(lab, state, dev, tokens, low) -> CommandResult:
             wc = tokens[2] if len(tokens) >= 3 and not tokens[2].startswith('a') else None
             dev['eigrp']['networks'].append((tokens[1], wc))
             return _emit(lab, state, '')
+        if proto == 'rip':
+            # RIP network statements are classful: `network 192.168.1.0` (no wildcard).
+            dev['rip']['networks'].append((tokens[1],))
+            return _emit(lab, state, '')
         if proto == 'bgp':
             mask = tokens[3] if len(tokens) >= 4 and low[2] == 'mask' else None
             dev['bgp']['networks'].append((tokens[1], mask))
             return _emit(lab, state, '')
+    if proto == 'rip' and _match(low, 'version') and len(tokens) >= 2:
+        if tokens[1] == '2':
+            dev['rip']['version'] = 2
+            return _emit(lab, state, '')
+        return _emit(lab, state, INVALID)
     if proto == 'bgp' and cmd == 'neighbor' and len(tokens) >= 4 and low[2] == 'remote-as' and tokens[3].isdigit():
         dev['bgp']['neighbors'].append({'ip': tokens[1], 'remote_as': int(tokens[3])})
         return _emit(lab, state, '')
@@ -486,7 +512,13 @@ def _router_command(lab, state, dev, tokens, low) -> CommandResult:
         if nm:
             dev[proto].setdefault('passive', []).append(nm)
         return _emit(lab, state, '')
-    if low[:2] == ['no', 'auto-summary'] or _match(low, 'auto-summary'):
+    if low[:2] == ['no', 'auto-summary']:
+        if proto == 'rip':
+            dev['rip']['auto_summary'] = False
+        return _emit(lab, state, '')
+    if _match(low, 'auto-summary'):
+        if proto == 'rip':
+            dev['rip']['auto_summary'] = True
         return _emit(lab, state, '')
     if cmd == 'exit':
         state['mode'] = 'config'

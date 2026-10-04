@@ -465,6 +465,95 @@ def show_eigrp(state, dev_id, rest):
 
 
 # --------------------------------------------------------------------------------------------------
+# RIP: PC-A - R1 =10.0.12.0/24= R2 =10.0.23.0/24= R3 - Server-A. Interfaces pre-addressed
+# and up; the learner enables RIPv2 with `no auto-summary` so the LANs can reach each other.
+# Coverage requires version 2 AND auto-summary off — the tshoot lab presets R2 with
+# auto-summary still on, so its routes never propagate correctly.
+# --------------------------------------------------------------------------------------------------
+
+def _rip_devices(preset=None):
+    # Same addressing as the OSPF/EIGRP labs; the routing protocol configured is what differs.
+    devs = _ospf_devices()
+    for dev_id, rip in (preset or {}).items():
+        devs[dev_id]['rip'] = rip
+    return devs
+
+
+def _rip_covers(dev, subnet_ip) -> bool:
+    r = dev.get('rip')
+    if not r or r.get('version') != 2 or r.get('auto_summary', True):
+        return False
+    for (ip,) in r['networks']:
+        if _wc_match(subnet_ip, ip, '0.0.0.255'):
+            return True
+        # classful fallback: `network 10.0.0.0` enables RIP on every 10.0.0.0/8 interface
+        if ip == '10.0.0.0' and subnet_ip.split('.')[0] == '10':
+            return True
+    return False
+
+
+def derive_rip(state) -> dict[str, bool]:
+    d = state['dev']
+    r1 = _rip_covers(d['R1'], '192.168.1.0') and _rip_covers(d['R1'], '10.0.12.0')
+    r2 = _rip_covers(d['R2'], '10.0.12.0') and _rip_covers(d['R2'], '10.0.23.0')
+    r3 = _rip_covers(d['R3'], '10.0.23.0') and _rip_covers(d['R3'], '192.168.3.0')
+    adj12 = _rip_covers(d['R1'], '10.0.12.0') and _rip_covers(d['R2'], '10.0.12.0')
+    adj23 = _rip_covers(d['R2'], '10.0.23.0') and _rip_covers(d['R3'], '10.0.23.0')
+    routes = adj12 and adj23
+    connectivity = routes and _rip_covers(d['R1'], '192.168.1.0') and _rip_covers(d['R3'], '192.168.3.0')
+    return {'r1_rip': r1, 'r2_rip': r2, 'r3_rip': r3, 'rip_routes_learned': routes,
+            'rip_connectivity': connectivity}
+
+
+def ping_rip(state, from_dev, ip) -> tuple[bool, bool, str]:
+    if ip not in _OSPF_IPS:
+        return (False, False, ip)
+    src = state['dev'][from_dev].get('ip')
+    conn = derive_rip(state)['rip_connectivity']
+    ok = True if (src and _subnet(src) == _subnet(ip)) else conn
+    return (True, ok, _OSPF_IPS[ip])
+
+
+def show_rip(state, dev_id, rest):
+    dev = state['dev'].get(dev_id, {})
+    if dev.get('kind') != 'router':
+        return None
+    if rest.startswith('ip rip database'):
+        r = dev.get('rip')
+        if not r:
+            return ''
+        lines = []
+        for (ip,) in r['networks']:
+            lines.append(f'{ip}/24    directly connected')
+        if derive_rip(state)['rip_routes_learned']:
+            far = {'R1': ['10.0.23.0/24', '192.168.3.0/24'], 'R2': ['192.168.1.0/24', '192.168.3.0/24'],
+                   'R3': ['10.0.12.0/24', '192.168.1.0/24']}.get(dev_id, [])
+            for route in far:
+                lines.append(f'{route}    via RIP, metric 2')
+        return '\n'.join(lines)
+    if rest.startswith('ip protocols'):
+        r = dev.get('rip')
+        if not r:
+            return 'no routing protocol configured'
+        nets = '\n'.join(f'    {ip}' for (ip,) in r['networks'])
+        summ = ('is in effect' if r.get('auto_summary', True) else 'is not in effect')
+        return (f'Routing Protocol is "rip"\n'
+                f'  Sending updates every 30 seconds, next due in 12 seconds\n'
+                f'  Invalid after 180 seconds, hold down 180, flushed after 240\n'
+                f'  Automatic network summarization {summ}\n'
+                f'  Routing for Networks:\n{nets}')
+    if rest.startswith('ip route'):
+        lines = ['Codes: C - connected, R - RIP', ''] + _connected_routes(dev)
+        if derive_rip(state)['rip_connectivity']:
+            far = {'R1': ['10.0.23.0/24', '192.168.3.0/24'], 'R2': ['192.168.1.0/24', '192.168.3.0/24'],
+                   'R3': ['10.0.12.0/24', '192.168.1.0/24']}.get(dev_id, [])
+            for route in far:
+                lines.append(f'R    {route} [120/1] via RIP')
+        return '\n'.join(lines)
+    return None
+
+
+# --------------------------------------------------------------------------------------------------
 # eBGP: two ISPs peer over a /30. AS 65001 (LAN 10.1.1.0/24, PC1) --192.0.2.0/30-- AS 65002
 # (LAN 10.2.2.0/24, PC2). Addressing is deliberately distinct from the Static Routing lab. The
 # learner configures eBGP so each AS can reach the other's customer LAN.
@@ -604,6 +693,14 @@ TOPOLOGIES: dict[str, dict[str, Any]] = {
         'ping': ping_eigrp,
         'show': show_eigrp,
         'summary': 'EIGRP is configured but PC-A cannot reach Server-A. One router runs the wrong AS number — find it and fix it.',
+    },
+    'net-rip-001': {
+        'devices': _rip_devices(),
+        'initial': 'R1',
+        'derive': derive_rip,
+        'ping': ping_rip,
+        'show': show_rip,
+        'summary': 'PC-A - R1 =10.0.12.0= R2 =10.0.23.0= R3 - Server-A. Interfaces are up; enable RIPv2 with no auto-summary so PC-A reaches Server-A.',
     },
     'net-bgp-001': {
         'devices': _BGP_DEVICES,

@@ -228,6 +228,38 @@ EIGRP_TSHOOT_LAB = LabDefinition(
     ],
 )
 
+RIP_LAB = LabDefinition(
+    id="net-rip-001",
+    slug="rip-configuration",
+    title="RIP Configuration",
+    description=(
+        "Enable RIPv2 across R1, R2 and R3 so the two LANs can talk. The links are already "
+        "addressed and up — your job is the routing. RIP is classful by default: turn on version 2, "
+        "disable auto-summary (or routes get summarized at classful boundaries), advertise every "
+        "network, and prove PC-A can reach Server-A. Topology: PC-A - R1 = R2 = R3 - Server-A."
+    ),
+    category="networking", difficulty="beginner", estimated_minutes=30, shell="cisco_ios", environment=_RT_ENV,
+    targets=[
+        LabTarget(hostname="R1", role="Edge router (PC-A LAN)"),
+        LabTarget(hostname="R2", role="Transit router"),
+        LabTarget(hostname="R3", role="Edge router (Server-A LAN)"),
+        LabTarget(hostname="PC-A", role="Host on R1's LAN"),
+        LabTarget(hostname="Server-A", role="Host on R3's LAN"),
+    ],
+    objectives=[
+        LabObjective(id="r1", label="Enable RIPv2 on R1 (no auto-summary)", validator="r1_rip",
+                     hints=["connect R1 → enable → conf t → router rip → version 2 → no auto-summary → network 192.168.1.0 → network 10.0.12.0"]),
+        LabObjective(id="r2", label="Enable RIPv2 on R2 (no auto-summary)", validator="r2_rip",
+                     hints=["connect R2: router rip — version 2, no auto-summary, then network 10.0.12.0 and network 10.0.23.0."]),
+        LabObjective(id="r3", label="Enable RIPv2 on R3 (no auto-summary)", validator="r3_rip",
+                     hints=["connect R3: router rip — version 2, no auto-summary, then network 10.0.23.0 and network 192.168.3.0."]),
+        LabObjective(id="routes", label="Verify RIP routes are learned", validator="rip_routes_learned",
+                     hints=["show ip route on each router — look for R entries for the far networks."]),
+        LabObjective(id="conn", label="Prove PC-A reaches Server-A", validator="rip_connectivity",
+                     hints=["connect PC-A → ping 192.168.3.10"]),
+    ],
+)
+
 BGP_LAB = LabDefinition(
     id="net-bgp-001",
     slug="ebgp-configuration",
