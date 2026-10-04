@@ -566,4 +566,236 @@ export default {
       ['Acquired software', 'Requirements, vendor practices, SOC 2'],
     ],
   },
+  'cissp-cap-d1': {
+    overview: [
+      'Domain 1 scenarios test whether you think like a risk advisor, not a technician. The exam rewards the answer that follows the risk process: assess, choose a treatment, document, and get the right owner to accept what remains.',
+      'This capstone drills the patterns: compensating controls when remediation is impossible, closing BIA-to-plan gaps through management, assessing before acting on new regulations, and routing policy exceptions through the formal process.',
+    ],
+    learn: [
+      {
+        heading: 'When you cannot fix it, compensate',
+        body: [
+          'Remediation is not always available: no patch exists, or the business cannot tolerate downtime. The CISSP answer is never "do nothing" and rarely "pull the plug unilaterally" — it is a compensating control that reduces likelihood or impact while the risk is formally tracked.',
+          'Compensating controls must be documented, time-bound where possible, and tied to risk acceptance by the appropriate owner. "Temporary" controls without an owner and a review date become permanent shadow controls.',
+        ],
+      },
+      {
+        heading: 'Assess first, exceptions through process',
+        body: [
+          'New regulation, new threat, new business demand — the first step is almost always to assess the gap between what is required and what exists. Action without assessment is guessing, and the exam punishes guessing.',
+          'Policy exceptions are legitimate but only through the exception process: documented business justification, risk analysis, compensating controls, expiry date, and sign-off by the risk owner. Seniority is not a control.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['No patch + cannot go offline', 'Compensating control + documented risk acceptance'],
+      ['BIA vs plan gap', 'Report to management; strategy review'],
+      ['New regulation', 'Gap analysis first, then roadmap'],
+      ['Policy exception', 'Formal process: justification, risk sign-off, expiry'],
+      ['Risk treatment', 'Avoid, transfer, mitigate, accept — in that thinking order'],
+    ],
+  },
+  'cissp-cap-d2': {
+    overview: [
+      'Domain 2 scenarios revolve around one truth: data outlives every other asset in the story. The exam tests whether you protect the data through its whole lifecycle — including the awkward moments of departure, testing, and litigation.',
+      'This capstone drills data remanence on departure, why production data never belongs in test, and how a legal hold freezes the retention schedule.',
+    ],
+    learn: [
+      {
+        heading: 'Departures and remanence',
+        body: [
+          'When someone with sensitive access leaves, containment comes before cleanup: revoke access immediately so nothing more can leave, then handle the hardware per the media-handling policy — sanitise, destroy, or reassign based on classification.',
+          'A quick format is not sanitisation. Match the method to the classification: cryptographic erase or destruction for the highest tiers, documented and witnessed.',
+        ],
+      },
+      {
+        heading: 'Test data and legal holds',
+        body: [
+          'Production PII in a test environment is a breach waiting to happen: test systems rarely carry production-grade access controls, logging, or monitoring. The answer is always masked, anonymised, or synthetic data.',
+          'A litigation hold suspends the normal retention and destruction schedule for the affected data. Destroying held data is spoliation. When in doubt, preserve and ask legal.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Employee departure', 'Revoke access first, then sanitise hardware'],
+      ['Quick format', 'Not sanitisation for sensitive media'],
+      ['Production data in test', 'Never — use masked or synthetic data'],
+      ['Litigation hold', 'Suspends retention/destruction; preserve'],
+      ['Spoliation', 'Destroying held data — serious legal exposure'],
+    ],
+  },
+  'cissp-cap-d3': {
+    overview: [
+      'Domain 3 scenarios test architectural principles under pressure: what the system does when it fails, how controls layer, and where the keys live. The exam loves designs that look reasonable until one principle is violated.',
+      'This capstone drills fail-secure defaults, defence in depth as layering of different functions, and the separation of keys from the data they protect.',
+    ],
+    learn: [
+      {
+        heading: 'Fail secure, layer defences',
+        body: [
+          'Fail-secure (fail closed) means a failure denies access rather than granting it. Any design where a bug becomes a vulnerability has this backwards. Deny by default is the quiet version of the same principle.',
+          'Defence in depth is not two firewalls — it is different control functions layered so one miss is another\'s catch: a firewall for access control plus an IPS for threat prevention, for example.',
+        ],
+      },
+      {
+        heading: 'Keys live apart from data',
+        body: [
+          'Whoever holds both the ciphertext and the key holds the plaintext. Keys belong in a dedicated security domain — a KMS or HSM with split administrative duties — never next to the data, in source code, or in the same admin\'s pocket.',
+          'Key management questions on the exam almost always reduce to separation and lifecycle: generate securely, store separately, rotate on schedule and on compromise, destroy when retired.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Fail-secure', 'Failures deny access (fail closed)'],
+      ['Defence in depth', 'Layer different control functions, not duplicates'],
+      ['Keys + data together', 'One breach yields both — separate security domains'],
+      ['KMS / HSM', 'Dedicated key storage with split duties'],
+      ['Deny by default', 'The quiet version of fail-secure'],
+    ],
+  },
+  'cissp-cap-d4': {
+    overview: [
+      'Domain 4 scenarios are about moving bits safely across untrusted space and keeping hostile traffic away from trusted assets. The exam tests whether you reach for the right tool: encryption in transit, inspection that cannot be evaded, and segmentation before anything else.',
+      'This capstone drills site-to-site VPNs, defeating fragmentation evasion, and segmenting untrusted networks first.',
+    ],
+    learn: [
+      {
+        heading: 'Encrypt the path, inspect honestly',
+        body: [
+          'Traffic crossing the internet between sites gets a site-to-site IPsec VPN: confidentiality and integrity over untrusted networks. This is the standard answer; exotic alternatives are distractors.',
+          'Attackers fragment packets to slip past signature matching. The defence is normalisation: reassemble at the IPS before inspection, so the analyser sees what the endpoint will see.',
+        ],
+      },
+      {
+        heading: 'Segment the untrusted first',
+        body: [
+          'Guest, IoT, and partner networks are untrusted by definition. The first design step is always segmentation — separate VLANs and firewall zones — before tuning any monitoring or access rules.',
+          'Segmentation contains lateral movement. Everything else (monitoring, NAC, passwords) is secondary to not letting the hostile network touch the trusted one.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Sites across the internet', 'Site-to-site IPsec VPN'],
+      ['Fragmentation evasion', 'Reassemble at the IPS before inspection'],
+      ['Guest / untrusted networks', 'Segment first (VLANs + firewall zones)'],
+      ['Lateral movement', 'Contained by segmentation'],
+      ['ping and ports', 'ICMP has no ports — use a port test, not ping'],
+    ],
+  },
+  'cissp-cap-d5': {
+    overview: [
+      'Domain 5 scenarios test the identity lifecycle under stress: proving who someone is without sharing secrets, bounding the damage when a session is stolen, and treating an exposed credential as compromised the instant it leaks.',
+      'This capstone drills federation for SSO, session controls as the complement to MFA, and immediate rotation of exposed secrets.',
+    ],
+    learn: [
+      {
+        heading: 'Federate, do not share',
+        body: [
+          'When users need access to a third-party service, federate: SAML for enterprise SSO, OIDC for modern web apps. The identity provider authenticates; the service trusts the assertion. Passwords never cross the boundary.',
+          'Shared accounts destroy accountability. Every exam answer that proposes sharing credentials — service or human — is wrong.',
+        ],
+      },
+      {
+        heading: 'Sessions are the second half of authentication',
+        body: [
+          'MFA proves identity at login; it says nothing about the session afterwards. Short timeouts, idle disconnects, and step-up re-authentication for privileged actions bound the blast radius of a stolen session.',
+          'An exposed secret is a compromised secret. Revoke and rotate first, investigate second — the order matters because every minute of delay is attacker opportunity.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['SSO without sharing passwords', 'SAML / OIDC federation'],
+      ['Shared accounts', 'Destroy accountability — never the answer'],
+      ['Session hijack despite MFA', 'Short timeouts + step-up re-auth'],
+      ['Exposed API key', 'Revoke and rotate FIRST, then investigate'],
+      ['MFA scope', 'Proves identity at login; sessions need their own controls'],
+    ],
+  },
+  'cissp-cap-d6': {
+    overview: [
+      'Domain 6 scenarios test whether you choose the right assessment for the question asked — and whether you can tell a finding from a risk. The exam punishes both testing the wrong thing and treating scanner output as a to-do list.',
+      'This capstone drills matching test types to targets, prioritising by risk rather than count, and demanding evidence for vendor claims.',
+    ],
+    learn: [
+      {
+        heading: 'Right test, right target',
+        body: [
+          'Penetration tests simulate attackers against running systems; SAST examines source code; DAST automates black-box checks of running apps; vulnerability scans enumerate known issues. "Best assurance against the running application" points at pentesting.',
+          'No single test covers everything. Mature programmes layer them: SAST in the pipeline, DAST in staging, pentests for high-risk releases, scans for continuous hygiene.',
+        ],
+      },
+      {
+        heading: 'Findings are not risks',
+        body: [
+          'Five hundred scanner findings are a starting point, not a plan. Prioritise by risk: exploitability times business impact. An internet-facing critical system outranks an isolated lab box regardless of raw severity.',
+          'Vendor claims are marketing until verified. SOC 2, ISO 27001, pentest letters — read the actual report: scope, period, methodology, and qualifications. Third-party risk management runs on evidence.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Running app assurance', 'Penetration test'],
+      ['Source code flaws', 'SAST (white box)'],
+      ['500 scan findings', 'Prioritise by risk, not count'],
+      ['Vendor "compliant"', 'Read the actual report: scope, period, qualifications'],
+      ['Test layering', 'SAST + DAST + pentest + scans, each in its place'],
+    ],
+  },
+  'cissp-cap-d7': {
+    overview: [
+      'Domain 7 scenarios happen at the worst possible time — and the exam checks whether your instincts follow the incident-response order instead of panic. Contain first, think second, learn always.',
+      'This capstone drills the contain → eradicate → recover sequence, alert triage by fidelity, and the lessons-learned review that prevents recurrence.',
+    ],
+    learn: [
+      {
+        heading: 'Contain before you cure',
+        body: [
+          'Active encryption, active exfiltration, active lateral movement: isolate the affected systems from the network first. Every minute of spread multiplies the recovery bill. Forensics, backups, and blame all wait for containment.',
+          'Eradication before recovery, or you restore the attacker along with the data. Verify the root cause is gone before bringing systems back.',
+        ],
+      },
+      {
+        heading: 'Triage by fidelity, close with learning',
+        body: [
+          'Not every alert is an incident. Triage by fidelity and corroboration: a single failed login is noise; the same IP failing five hundred times is a case. Tune the noise, chase the signal.',
+          'The most important step is the last one: the lessons-learned review. Update playbooks, controls, and monitoring from what the incident taught, or it will recur on schedule.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Active attack RIGHT NOW', 'Isolate first (contain → eradicate → recover)'],
+      ['Single failed login', 'Noise — triage by fidelity and corroboration'],
+      ['Before closing an incident', 'Lessons-learned review; update playbooks'],
+      ['Eradication before recovery', 'Or you restore the attacker too'],
+      ['MTTR gaming', 'Speed of closure < quality of learning'],
+    ],
+  },
+  'cissp-cap-d8': {
+    overview: [
+      'Domain 8 scenarios test whether security is built in or bolted on: what happens before a dependency is adopted, what happens the instant a secret leaks, and where in the lifecycle a bug is cheapest to kill.',
+      'This capstone drills supply-chain due diligence, secret-spill response, and the economics of shift-left.',
+    ],
+    learn: [
+      {
+        heading: 'Trust, but verify the supply chain',
+        body: [
+          'Every dependency is code you did not write running with your privileges. Before adopting: licence compatibility, maintenance health (commits, maintainers, issue response), and known vulnerabilities via SCA. Popularity is not diligence.',
+          'Generate and keep an SBOM so that when the next Log4Shell lands, you know in minutes whether you are exposed instead of discovering it in weeks.',
+        ],
+      },
+      {
+        heading: 'Secrets spill: revoke first, shift left always',
+        body: [
+          'A secret in version control is compromised the moment it is pushed — repositories are copied, backed up, and mirrored. Revoke and rotate immediately, move to a vault, and add pre-commit scanning so it cannot recur.',
+          'Bugs are cheapest where they are born: threat modelling in design beats a pentest finding, which beats an emergency production patch. Shift-left is economics, not ideology.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['New dependency', 'Licence + maintenance + CVEs (SCA) first'],
+      ['Secret committed', 'Revoke NOW, vault, pre-commit scanning'],
+      ['Cheapest bug fix', 'Requirements/design — shift-left'],
+      ['SBOM', 'Know your exposure when the next Log4Shell lands'],
+      ['Popularity', 'Not a security control'],
+    ],
+  },
 };
