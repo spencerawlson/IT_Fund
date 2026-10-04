@@ -1,14 +1,12 @@
 # Cloudflare named-tunnel config for the IT_Fund backend.
-# Copy to ~/.config/itfund/config.yml and replace the placeholders:
-#   <TUNNEL_ID>        — the UUID from `cloudflared tunnel create itfund-backend`
-#   <TUNNEL_HOSTNAME>  — the public hostname, e.g. api.spencerlab.tech
-# The credentials-file path is where `cloudflared tunnel create` stores the
-# tunnel's JSON credentials by default.
+# Copy to ~/.config/itfund/config.yml and replace <TUNNEL_ID> with the UUID
+# from `cloudflared tunnel create itfund-backend`. The credentials-file path
+# is the default location where the create command stores the tunnel JSON.
 
 tunnel: <TUNNEL_ID>
-credentials-file: /home/spencer/.cloudflared/<TUNNEL_ID>.json
+credentials-file: ~/.cloudflared/<TUNNEL_ID>.json
 
 ingress:
-  - hostname: <TUNNEL_HOSTNAME>
+  - hostname: api.road2cissp.com
     service: http://localhost:8000
   - service: http_status:404

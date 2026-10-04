@@ -4,12 +4,10 @@ This pack puts the FastAPI backend on a Fedora server and exposes it over HTTPS
 through a Cloudflare named tunnel. The Vite frontend stays on Vercel and talks
 to the backend via `VITE_API_BASE_URL`.
 
-**Conventions used below** (replace with your values):
+**Hostnames used below:**
 
-| Variable     | Example               |
-| ------------ | --------------------- |
-| `<hostname>` | `api.spencerlab.tech` |
-| `<vercel>`   | `road-to-cissp.vercel.app` |
+- Backend API (Cloudflare Tunnel): `api.road2cissp.com`
+- Frontend (Vercel): `road2cissp.com`
 
 No secrets live in this repo — only `backend.env.example` with placeholders.
 The real env file lives at `~/.config/itfund/backend.env` on the server.
@@ -19,7 +17,7 @@ The real env file lives at `~/.config/itfund/backend.env` on the server.
 ## 0. Prerequisites
 
 - A Fedora server (x86_64) with sudo access and a non-root user (`spencer` below).
-- A domain whose DNS is managed by Cloudflare (e.g. `spencerlab.tech`).
+- A domain whose DNS is managed by Cloudflare (`road2cissp.com`).
 - A Cloudflare account (free tier is enough).
 - The Vercel project for the frontend.
 
@@ -67,8 +65,8 @@ cloudflared tunnel login          # opens a browser; authorizes your Cloudflare 
 cloudflared tunnel create itfund-backend
 # note the tunnel UUID it prints -> <TUNNEL_ID>
 
-cloudflared tunnel route dns <TUNNEL_ID> <hostname>
-# creates a CNAME: <hostname> -> <TUNNEL_ID>.cfargotunnel.com
+cloudflared tunnel route dns <TUNNEL_ID> api.road2cissp.com
+# creates a CNAME: api.road2cissp.com -> <TUNNEL_ID>.cfargotunnel.com
 ```
 
 ## 5. Write the tunnel config
@@ -76,7 +74,7 @@ cloudflared tunnel route dns <TUNNEL_ID> <hostname>
 ```bash
 mkdir -p ~/.config/itfund
 cp ~/IT_Fund/deploy/config.yml ~/.config/itfund/config.yml
-# edit: replace <TUNNEL_ID> and <TUNNEL_HOSTNAME>
+# edit: replace <TUNNEL_ID>
 # credentials-file defaults to ~/.cloudflared/<TUNNEL_ID>.json (created in step 4)
 nano ~/.config/itfund/config.yml
 ```
@@ -91,7 +89,7 @@ openssl rand -hex 32
 nano ~/.config/itfund/backend.env
 ```
 
-Fill in: `APP_ORIGIN=https://<hostname>`, `APP_ORIGINS=https://<vercel>`,
+Fill in: `APP_ORIGIN=https://api.road2cissp.com`, `APP_ORIGINS=https://road2cissp.com`,
 `SESSION_SECRET`, `DATABASE_URL`, `OPENAI_API_KEY`, OAuth keys if used.
 **Alembic migrations run automatically at backend startup** — no manual
 migrate step is needed, but the DB/user from step 2 must exist first.
@@ -117,8 +115,8 @@ curl http://127.0.0.1:8000/health
 curl http://127.0.0.1:8000/health/db     # {"db":"ok"} once migrations ran
 
 # through the tunnel (give DNS a minute):
-curl https://<hostname>/health
-curl https://<hostname>/health/db
+curl https://api.road2cissp.com/health
+curl https://api.road2cissp.com/health/db
 ```
 
 Both `/health` and `/health/db` must return OK before moving on.
@@ -128,7 +126,7 @@ Both `/health` and `/health/db` must return OK before moving on.
 In the Vercel project: Settings → Environment Variables, set
 
 ```
-VITE_API_BASE_URL=https://<hostname>/api
+VITE_API_BASE_URL=https://api.road2cissp.com/api
 ```
 
 then redeploy the frontend (a new build is required — Vite bakes env vars in
@@ -141,8 +139,8 @@ If using Google/GitHub login, register these exact callback URLs in each
 provider's console:
 
 ```
-https://<hostname>/api/auth/google/callback
-https://<hostname>/api/auth/github/callback
+https://api.road2cissp.com/api/auth/google/callback
+https://api.road2cissp.com/api/auth/github/callback
 ```
 
 ---
@@ -179,7 +177,7 @@ systemctl --user restart itfund-backend
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Tunnel serves a Cloudflare 404 | `config.yml` hostname/ingress mismatch | Check `hostname:` matches the routed DNS name exactly |
-| `curl https://<hostname>/health` → 502 | Backend not listening on :8000 | `systemctl --user status itfund-backend`; check `journalctl` |
+| `curl https://api.road2cissp.com/health` → 502 | Backend not listening on :8000 | `systemctl --user status itfund-backend`; check `journalctl` |
 | Browser: CORS errors on API calls | Vercel domain missing from `APP_ORIGINS` | Add it to `backend.env`, restart the backend unit |
 | OAuth redirect fails | Callback URL not registered | Register the exact `{APP_ORIGIN}/api/auth/{provider}/callback` URL |
 | `/health/db` fails / startup crash | DB unreachable or migration failed | Check `DATABASE_URL`, that postgres is running, and backend logs |
