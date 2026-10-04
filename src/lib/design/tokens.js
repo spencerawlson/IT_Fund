@@ -1,4 +1,4 @@
-// Design tokens for the liquid-glass UI. The CSS variables in src/index.css must match these
+// Design tokens for the glass UI. The CSS variables in src/index.css must match these
 // values; tokens.test.js checks that, and checks text contrast on every glass level.
 
 /**
@@ -28,18 +28,18 @@ export const SEMANTIC = {
 };
 
 /** Page base and the three glass fills ([r, g, b, alpha]). White-dominant light theme. */
-export const BASE = '#F5F3FB';
+export const BASE = '#F7F6F3';
 export const SURFACES = {
   'glass-1': [255, 255, 255, 0.55],
   'glass-2': [255, 255, 255, 0.82],
   'glass-3': [255, 255, 255, 0.92],
 };
 
-/** Liquid background blobs: colour and opacity, as rendered by LiquidBackground. */
-export const BLOBS = [
-  { color: '#8B5CF6', opacity: 0.2 },
-  { color: '#A78BFA', opacity: 0.18 },
-  { color: '#C4B5FD', opacity: 0.16 },
+/** Background tints: ultra-subtle static radial washes, as rendered by LiquidBackground.
+ *  Peak [r, g, b] colour and opacity — each gradient fades to transparent. */
+export const TINTS = [
+  { color: '#6366F1', opacity: 0.055 },
+  { color: '#64748B', opacity: 0.075 },
 ];
 
 // ---- contrast maths (WCAG 2.x) ----
@@ -68,14 +68,14 @@ export function contrast(a, b) {
 }
 
 /**
- * The backgrounds a glass panel can sit on: the plain base, each blob at full strength, and
- * every pair of overlapping blobs. The darkening overlay is ignored, so this errs bright.
+ * The backgrounds a glass panel can sit on: the plain base, each tint at peak strength, and
+ * every pair of overlapping tints. The darkening overlay is ignored, so this errs bright.
  */
 export function backgroundSamples() {
   const base = hexToRgb(BASE);
-  const paint = (blob, under) => over([...hexToRgb(blob.color), blob.opacity], under);
-  const singles = BLOBS.map((b) => paint(b, base));
-  const pairs = BLOBS.flatMap((a, i) => BLOBS.slice(i + 1).map((b) => paint(b, paint(a, base))));
+  const paint = (tint, under) => over([...hexToRgb(tint.color), tint.opacity], under);
+  const singles = TINTS.map((t) => paint(t, base));
+  const pairs = TINTS.flatMap((a, i) => TINTS.slice(i + 1).map((b) => paint(b, paint(a, base))));
   return [base, ...singles, ...pairs];
 }
 

@@ -58,17 +58,15 @@
     --warning-rgb: 180 83 9;
     --danger-rgb: 185 28 28;
     --info-rgb: 37 99 235;
-    /* Page base, glass fills (1 cards/nav, 2 reading, 3 menus/dialogs) and background blobs. */
-    --bg-base: #F5F3FB;
+    /* Page base, glass fills (1 cards/nav, 2 reading, 3 menus/dialogs) and background tints.
+       Focus-driven: a warm-neutral paper base with two ultra-subtle STATIC radial tints.
+       No saturated colour, no motion — the background stays out of the learner's way. */
+    --bg-base: #F7F6F3;
     --surface-1: rgba(255, 255, 255, 0.55);
     --surface-2: rgba(255, 255, 255, 0.82);
     --surface-3: rgba(255, 255, 255, 0.92);
-    --blob-1: #8B5CF6;
-    --blob-1-opacity: 0.2;
-    --blob-2: #A78BFA;
-    --blob-2-opacity: 0.18;
-    --blob-3: #C4B5FD;
-    --blob-3-opacity: 0.16;
+    --bg-tint-1: radial-gradient(closest-side, rgba(99, 102, 241, 0.055), transparent);
+    --bg-tint-2: radial-gradient(closest-side, rgba(100, 116, 139, 0.075), transparent);
   }
 }
 
@@ -195,24 +193,12 @@
 }
 
 @layer utilities {
-  .liquid-blob {
-    position: absolute;
-    border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
-    filter: blur(70px);
-    animation: liquid-morph 40s ease-in-out infinite alternate;
-    will-change: transform, border-radius;
-  }
   .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
   .animate-pop { animation: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .animate-shake { animation: shake 0.4s ease; }
   .animate-rise { animation: rise 0.35s ease-out; }
 }
 
-@keyframes liquid-morph {
-  0% { transform: translate(0, 0) rotate(0deg) scale(1); border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
-  50% { transform: translate(6vw, 4vh) rotate(40deg) scale(1.12); border-radius: 63% 37% 38% 62% / 52% 61% 39% 48%; }
-  100% { transform: translate(-4vw, 8vh) rotate(80deg) scale(0.95); border-radius: 36% 64% 57% 43% / 62% 35% 65% 38%; }
-}
 @keyframes pop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes rise { 0% { transform: translateY(16px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
@@ -229,5 +215,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .liquid-blob, .animate-pop, .animate-shake, .animate-rise { animation: none; }
+  .animate-pop, .animate-shake, .animate-rise { animation: none; }
 }
