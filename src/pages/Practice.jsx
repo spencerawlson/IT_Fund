@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Box, Timer, ExternalLink, Radar, Network, Route as RouteIcon, Globe, ShieldX, FileSearch, Cloud, Boxes, Container, Activity, Siren, FileWarning, Waypoints, Wrench, Spline } from 'lucide-react';
 import { Badge, Card, IconTile, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 // Hands-on practice beside the lesson path. Nothing here changes lesson progress.
 // Reference material (the modules) lives under Learn -> Concept library.
@@ -47,6 +48,7 @@ function Tile({ to, href, icon, title, text }) {
 }
 
 export default function Practice() {
+  useDocumentTitle('Practice · Road to CISSP');
   return (
     <PageContainer>
       <PageHeader

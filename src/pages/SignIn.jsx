@@ -2,10 +2,12 @@ import React from 'react';
 import { LogIn, LogOut, ShieldCheck, Check, RefreshCw } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 // Sign-in is optional: it only adds cross-device sync. Anonymous learners keep working with progress
 // saved in this browser. When signed in, this page is the account view (profile + sign out).
 export default function SignIn() {
+  useDocumentTitle('Sign in · Road to CISSP');
   const { isAuthenticated, isLoadingAuth, user, signInWith, signOut } = useAuth();
 
   if (isLoadingAuth) {

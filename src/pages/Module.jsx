@@ -11,6 +11,7 @@ import QuizSession from '@/components/QuizSession';
 import ProgressRing from '@/components/ProgressRing';
 import LevelBadge from '@/components/LevelBadge';
 import ModuleSources from '@/components/ui/ModuleSources';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const icons = { Cpu, HardDrive, Network, Share2, Cloud, Boxes, Database, ShieldCheck, Workflow, Terminal, Lock, GitBranch, Trophy };
 
@@ -21,6 +22,7 @@ const TABS = [
 ];
 
 export default function Module() {
+  useDocumentTitle('Module · Road to CISSP');
   const { moduleId: rawId } = useParams();
   // Merged duplicate modules keep their old URLs working.
   const moduleId = resolveModuleId(rawId);

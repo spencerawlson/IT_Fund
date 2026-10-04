@@ -9,6 +9,7 @@ import {
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
 import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const SAMPLE_QUESTIONS = 4;
 
@@ -26,6 +27,7 @@ export default function LessonView() {
   const state = useAcademy();
   const lesson = getLesson(lessonId);
   const course = lesson && getCourse(lesson.courseSlug);
+  useDocumentTitle(lesson ? `${lesson.title} · Road to CISSP` : 'Lesson · Road to CISSP');
 
   if (!lesson) {
     return (

@@ -15,6 +15,7 @@ import {
   courseProgress, courseStatus, courseMinutesLeft, nextLessonInCourse, moduleProgress, moduleStatus, isModuleComplete,
   pathPrerequisites, lessonStatus,
 } from '@/lib/progress/engine';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 // Courses you're working on come first, then ones you haven't opened, then the ones you finished.
 const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
@@ -43,6 +44,7 @@ function LibraryTile({ to, icon: Icon, title, text }) {
 }
 
 export function CoursesIndex() {
+  useDocumentTitle('Courses · Road to CISSP');
   const state = useAcademy();
   const courses = [...COURSES].sort((a, b) => ORDER[courseStatus(state, a)] - ORDER[courseStatus(state, b)]);
   return (
@@ -80,6 +82,7 @@ export function CourseDetail() {
   const { courseSlug } = useParams();
   const state = useAcademy();
   const course = getCourse(courseSlug);
+  useDocumentTitle(course ? `${course.title} · Road to CISSP` : 'Course · Road to CISSP');
   if (!course) return <CourseNotFound />;
 
   const next = nextLessonInCourse(state, course);
@@ -193,6 +196,7 @@ export function ModuleDetail() {
   const state = useAcademy();
   const course = getCourse(courseSlug);
   const module = getModuleBySlug(courseSlug, moduleSlug);
+  useDocumentTitle(module ? `${module.title} · Road to CISSP` : 'Module · Road to CISSP');
 
   if (!course || !module) {
     return (

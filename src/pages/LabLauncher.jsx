@@ -4,6 +4,7 @@ import { FlaskConical } from 'lucide-react';
 import { Button } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { labsApi } from '@/api/labs';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 // Terminal-first lab selection: the learner discovers and launches Interactive Labs by typing
 // (`labs`, `lab start <name|NN>`, `lab info <name>`, `help`) rather than clicking a card. `lab start`
@@ -29,6 +30,7 @@ function orderLabs(labs) {
 const pad2 = (n) => String(n).padStart(2, '0');
 
 export default function LabLauncher() {
+  useDocumentTitle('Labs · Road to CISSP');
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const startHint = params.get('start');

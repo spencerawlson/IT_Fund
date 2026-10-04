@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Timer, Play, RotateCcw, CheckCircle2, XCircle, Trophy, Terminal, Calculator, Shield, Zap } from 'lucide-react';
 import { CHALLENGES, TYPE_META } from '@/data/challenges';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const CHALLENGE_TIME = 45;
 const CATEGORIES = ['All', 'CLI Fix', 'Subnetting', 'Firewall'];
@@ -13,6 +14,7 @@ function normalize(s) {
 }
 
 export default function Challenge() {
+  useDocumentTitle('Challenge · Road to CISSP');
   const [phase, setPhase] = useState('intro');
   const [category, setCategory] = useState('All');
   const [queue, setQueue] = useState([]);

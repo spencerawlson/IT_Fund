@@ -7,12 +7,14 @@ import { Card, EmptyState, PageContainer, PageHeader, ProgressBar, SectionHeader
 import { PATHS, getPath, getCourse, formatMinutes, pathMinutes } from '@/data/catalog';
 import { useAcademy } from '@/lib/academy';
 import { pathProgress, pathStatus } from '@/lib/progress/engine';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 // Paths you're on come first, then untouched ones, then finished ones. Paths without courses yet
 // are not listed.
 const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
 
 export function PathsIndex() {
+  useDocumentTitle('Career Paths · Road to CISSP');
   const state = useAcademy();
   const paths = PATHS.filter((p) => pathStatus(state, p) !== 'coming-soon').sort(
     (a, b) => ORDER[pathStatus(state, a)] - ORDER[pathStatus(state, b)],
@@ -44,6 +46,7 @@ export function PathDetail() {
   const { slug } = useParams();
   const state = useAcademy();
   const path = getPath(slug);
+  useDocumentTitle(path ? `${path.title} · Road to CISSP` : 'Career Path · Road to CISSP');
 
   if (!path) {
     return (

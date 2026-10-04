@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Shield, FileText, Terminal, BookOpen, ArrowLeft } from 'lucide-react';
 import { REGISTRY_DATA, listSides } from '@/data/registryData';
 import { Link } from 'react-router-dom';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 export default function RegistryEditor() {
+  useDocumentTitle('Registry Editor · Road to CISSP');
   const sides = listSides();
   const [active, setActive] = useState(sides[0]);
   const data = REGISTRY_DATA[active];

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Map, Trophy, CheckCircle2 } from 'lucide-react';
 import { modules, levelColors } from '@/data/modules';
 import { getOverallProgress } from '@/lib/progress';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const PHASES = [
   { n: 1, title: 'IT Fundamentals', desc: 'How computers work — binary, hardware, boot, and file systems.', color: '#A855F7', ids: ['it-fundamentals-internals', 'module-2', 'module-3'] },
@@ -29,6 +30,7 @@ const CERTS = [
 ];
 
 export default function Roadmap() {
+  useDocumentTitle('Roadmap · Road to CISSP');
   const overallPct = Math.round(modules.reduce((s, m) => s + getOverallProgress(m.id), 0) / modules.length);
 
   return (

@@ -29,6 +29,7 @@ import AcademyLesson from './pages/AcademyLesson';
 import { PathsIndex, PathDetail } from './pages/academy/Paths';
 import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Courses';
 import LessonView from './pages/academy/LessonView';
+import Badges from './pages/academy/Badges';
 import Practice from './pages/Practice';
 import LabWorkspace from './pages/LabWorkspace';
 import LabLauncher from './pages/LabLauncher';
@@ -74,6 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/academy/courses/:courseSlug" element={<CourseDetail />} />
         <Route path="/academy/courses/:courseSlug/:moduleSlug" element={<ModuleDetail />} />
         <Route path="/academy/lessons/:lessonId" element={<LessonView />} />
+        <Route path="/academy/badges" element={<Badges />} />
         <Route path="/academy/:trackId" element={<AcademyTrack />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/practice" element={<Practice />} />

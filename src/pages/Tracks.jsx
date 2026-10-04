@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { modules } from '@/data/modules';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const TRACKS = [
   {
@@ -54,6 +55,7 @@ function resolveTitle(id) {
 }
 
 export default function Tracks() {
+  useDocumentTitle('Tracks · Road to CISSP');
   return (
     <div className="min-h-screen text-ink-1">
 

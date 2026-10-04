@@ -5,12 +5,14 @@ import {
   GitBranch, Calculator, TerminalSquare, Globe, Shield, KeyRound, Zap, CloudCog, Database,
   Container, Lock, Route as RouteIcon, ShieldAlert, Search, Boxes,
 } from 'lucide-react';
-import Motherboard3D from '@/components/three/Motherboard3D';
-import Switch3D from '@/components/three/Switch3D';
-import ServerRack3D from '@/components/three/ServerRack3D';
-import Vpc3D from '@/components/three/Vpc3D';
-import LoadBalancer3D from '@/components/three/LoadBalancer3D';
-import Osi3D from '@/components/three/Osi3D';
+// 3D scenes are code-split: three.js (~600 KB) only loads when a 3D subject is opened,
+// never as part of the initial bundle.
+const Motherboard3D = React.lazy(() => import('@/components/three/Motherboard3D'));
+const Switch3D = React.lazy(() => import('@/components/three/Switch3D'));
+const ServerRack3D = React.lazy(() => import('@/components/three/ServerRack3D'));
+const Vpc3D = React.lazy(() => import('@/components/three/Vpc3D'));
+const LoadBalancer3D = React.lazy(() => import('@/components/three/LoadBalancer3D'));
+const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
@@ -42,6 +44,7 @@ import LabGallery, { KINDS } from '@/components/lab/LabGallery';
 import { LAB_FLOWS } from '@/data/labFlows';
 import { ROUTING_SCENARIOS } from '@/data/routingScenarios';
 import { getModulesForLab, NOTES, LAB_LABELS } from '@/data/labLinks';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 // Ordered categories for the gallery.
 const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Security', 'Data & Systems', 'DevOps'];
@@ -99,8 +102,8 @@ const ALIASES = {
 // Every renderable subject id -> how to render it. Superset of the gallery, so deep-links survive
 // curation. Flow subjects are data-driven via FlowDiagram.
 const RENDERERS = {
-  motherboard: () => <Motherboard3D />, switch: () => <Switch3D />, 'server-rack': () => <ServerRack3D />,
-  vpc: () => <Vpc3D />, 'lb-3d': () => <LoadBalancer3D />, osi: () => <Osi3D />,
+  motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
+  vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
   'auto-scaling': () => <AutoScalingAnimation />, cicd: () => <CICDAnimation />, kubernetes: () => <KubernetesAnimation />,
@@ -140,6 +143,7 @@ function Stage({ id, onBack }) {
   const k = KINDS[meta.kind] || KINDS.anim;
   const Icon = meta.icon;
   const refs = getModulesForLab(id);
+  const Renderer = RENDERERS[id];
 
   return (
     <div>
@@ -170,9 +174,18 @@ function Stage({ id, onBack }) {
       <div className="rounded-2xl border border-black/10 bg-[#0b1020] p-4 text-slate-200 shadow-[0_18px_50px_-18px_rgba(76,29,149,0.35)] sm:p-6">
         <ErrorBoundary key={id} label="This visualization">
           {is3D(id) ? (
-            <div className="h-[440px] w-full sm:h-[560px]">{RENDERERS[id]?.()}</div>
+            <div className="h-[440px] w-full sm:h-[560px]">
+              <React.Suspense fallback={(
+                <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400" role="status" aria-label="Loading 3D scene">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-slate-200" />
+                  <p className="text-sm">Loading 3D scene…</p>
+                </div>
+              )}>
+                {Renderer ? <Renderer /> : null}
+              </React.Suspense>
+            </div>
           ) : (
-            <div className="mx-auto max-w-3xl">{RENDERERS[id]?.()}</div>
+            <div className="mx-auto max-w-3xl">{Renderer ? <Renderer /> : null}</div>
           )}
         </ErrorBoundary>
       </div>
@@ -211,6 +224,7 @@ function Stage({ id, onBack }) {
 }
 
 export default function Lab() {
+  useDocumentTitle('Visual Lab · Road to CISSP');
   const [active, setActive] = useState(() => {
     const item = new URLSearchParams(window.location.search).get('item');
     return item && RENDERERS[resolveId(item)] ? resolveId(item) : null;

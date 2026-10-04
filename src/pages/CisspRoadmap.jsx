@@ -6,6 +6,7 @@ import { tracks, ROADMAP, CISSP_DOMAINS, decksForDomain, RESOURCES } from '@/dat
 import { COURSES, courseHref } from '@/data/catalog';
 import { useAcademy, mastery, grantBadge } from '@/lib/academy';
 import { cn } from '@/lib/utils';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const READY_PCT = 80;
 
@@ -36,6 +37,7 @@ function StepMarker({ n, done, current }) {
 }
 
 export default function CisspRoadmap() {
+  useDocumentTitle('CISSP Roadmap · Road to CISSP');
   const state = useAcademy();
   const domains = CISSP_DOMAINS.map((d) => ({ ...d, ...domainReadiness(state, d.id) }));
   const weighted = Math.round(domains.reduce((s, d) => s + d.pct * d.weight, 0) / 100);

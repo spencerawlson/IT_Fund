@@ -1,14 +1,74 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Repeat, Crown, ArrowRight } from 'lucide-react';
-import { Card, IconTile, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
+import { Repeat, Crown, ArrowRight, Flame, Zap, Award, Play } from 'lucide-react';
+import { Button, Card, IconTile, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { ContinueLearning, LearningPathCard } from '@/components/academy/ui/cards';
 import { PATHS, pathsForCourse } from '@/data/catalog';
-import { useAcademy } from '@/lib/academy';
+import { DAILY_GOAL_XP, levelInfo, liveStreak, useAcademy, xpToday } from '@/lib/academy';
 import { continueLearning, dueReviewCount, lessonsDone, lessonsTotal, overallProgress, pathStatus } from '@/lib/progress/engine';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
+
+/** Streak flame, today's XP vs the daily goal, and current rank. Read-only over the game engine. */
+function StreakWidget({ state }) {
+  const streak = liveStreak(state);
+  const today = xpToday(state);
+  const { rank } = levelInfo(state.xp || 0);
+  const pct = Math.min(100, Math.round((today / DAILY_GOAL_XP) * 100));
+
+  return (
+    <Card level={2} padding="md" aria-label="Your study stats">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+        <div className="flex items-center gap-3">
+          <IconTile icon={Flame} color={streak > 0 ? '#f97316' : '#64748b'} />
+          <div>
+            <p className="text-heading text-ink-1">{streak} {streak === 1 ? 'day' : 'days'}</p>
+            <p className="text-caption text-ink-2">study streak</p>
+          </div>
+        </div>
+        <div className="min-w-[11rem] flex-1">
+          <div className="mb-1.5 flex items-center justify-between text-caption text-ink-2">
+            <span className="inline-flex items-center gap-1"><Zap size={12} aria-hidden="true" /> Today&apos;s XP</span>
+            <span>{today} / {DAILY_GOAL_XP}</span>
+          </div>
+          <ProgressBar value={pct} label="Today's XP progress" showValue={false} />
+        </div>
+        <div className="flex items-center gap-3">
+          <IconTile icon={Award} color="#f59e0b" />
+          <div>
+            <p className="text-heading text-ink-1">{rank}</p>
+            <p className="text-caption text-ink-2">current rank</p>
+          </div>
+        </div>
+        <Link to="/academy/badges" className="ml-auto inline-flex items-center gap-1 text-small font-semibold text-ink-2 transition hover:text-ink-1">
+          Badges <ArrowRight size={14} aria-hidden="true" />
+        </Link>
+      </div>
+    </Card>
+  );
+}
+
+/** When reviews are due, this takes the top hero slot so the reps actually happen. */
+function ReviewHero({ due }) {
+  return (
+    <Card as="section" padding="lg" aria-labelledby="review-hero-heading" className="mt-6">
+      <div className="flex flex-wrap items-center gap-4">
+        <IconTile icon={Repeat} color="#f59e0b" size="lg" />
+        <div className="min-w-0 flex-1">
+          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Spaced repetition</p>
+          <h2 id="review-hero-heading" className="mt-1 text-heading text-ink-1">
+            {due} {due === 1 ? 'question is' : 'questions are'} due for review
+          </h2>
+          <p className="mt-1 text-small text-ink-2">Quick reps now beat relearning later. It only takes a few minutes.</p>
+        </div>
+        <Button to="/academy/review" size="lg" icon={Play}>Start review</Button>
+      </div>
+    </Card>
+  );
+}
 
 /** Home: the one next lesson, then review, then where you are on your path. */
 export default function Academy() {
+  useDocumentTitle('Academy · Road to CISSP');
   const state = useAcademy();
   const next = continueLearning(state);
   const due = dueReviewCount(state);
@@ -29,16 +89,22 @@ export default function Academy() {
         }
       />
 
-      <ContinueLearning state={state} next={next} />
+      <StreakWidget state={state} />
 
-      {studied && (
+      {due > 0 && <ReviewHero due={due} />}
+
+      <div className="mt-6">
+        <ContinueLearning state={state} next={next} />
+      </div>
+
+      {due === 0 && studied && (
         <Card to="/academy/review" className="mt-4">
           <div className="flex items-center gap-4">
             <IconTile icon={Repeat} />
             <div className="min-w-0 flex-1">
               <p className="text-heading text-ink-1">Review earlier lessons</p>
               <p className="mt-0.5 text-small text-ink-2">
-                {due ? `${due} ${due === 1 ? 'question is' : 'questions are'} due for review` : 'Nothing due. Practise your weakest questions.'}
+                Nothing due. Practise your weakest questions.
               </p>
             </div>
             <ArrowRight size={18} className="shrink-0 text-ink-2" aria-hidden="true" />

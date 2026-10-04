@@ -4,11 +4,13 @@ import { SearchX } from 'lucide-react';
 import { EmptyState } from '@/components/ui-glass';
 import LessonPlayer from '@/components/academy/lesson/LessonPlayer';
 import { getTrack, getDeck } from '@/data/academy';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 export default function AcademyLesson() {
   const { trackId, deckId } = useParams();
   const track = getTrack(trackId);
   const deck = getDeck(deckId);
+  useDocumentTitle(deck ? `Lesson: ${deck.title} · Road to CISSP` : 'Lesson · Road to CISSP');
 
   // Every lesson is open, so a bad URL is the only thing left to handle. The key matters because
   // a "Next lesson" link reuses this route: remount for a fresh session.

@@ -5,6 +5,7 @@ import { modules, levelOrder } from '@/data/modules';
 import { getOverallProgress } from '@/lib/progress';
 import ModuleCard from '@/components/ModuleCard';
 import { Button, Card, EmptyState, ListLink, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const LEVELS = ['All', ...levelOrder];
 const MAX_RESULTS = 40;
@@ -25,6 +26,7 @@ function searchConcepts(query) {
 
 /** The concept library (the original module material), with search. Lives under Practice. */
 export default function Home() {
+  useDocumentTitle('Library · Road to CISSP');
   const [params, setParams] = useSearchParams();
   const query = params.get('q') || '';
   const [level, setLevel] = useState('All');

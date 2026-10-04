@@ -4,6 +4,7 @@ import { Check, X, Lock, RotateCcw, Clock, FlaskConical, ShieldCheck, SearchX, T
 import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { labsApi } from '@/api/labs';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
 
@@ -82,6 +83,7 @@ function NetworkWorkbench({ draft, setDraft }) {
 /** Full-screen lab workspace: instructions and objectives, a workbench (simulated shell for
  * cyber labs, config recorder for networking), and live validation. */
 export default function LabWorkspace() {
+  useDocumentTitle('Interactive Lab · Road to CISSP');
   const { labId } = useParams();
   const navigate = useNavigate();
   const [lab, setLab] = useState(null);

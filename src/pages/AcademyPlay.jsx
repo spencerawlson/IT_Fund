@@ -13,6 +13,7 @@ import {
 } from '@/lib/academy';
 import { isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
 import { getModule } from '@/data/catalog';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const LEARN_BATCH = 15;
 const QUIZ_LENGTH = 10;
@@ -110,6 +111,7 @@ export default function AcademyPlay({ kind }) {
   const meta = { track: track?.title, topic: deck?.title || (tier ? `${tier.label} boss` : 'Daily review') };
   const title =
     kind === 'review' ? (session?.extra ? 'Extra practice: earlier lessons' : 'Review: earlier lessons') : kind === 'boss' ? `${track?.title}: ${tier?.label} assessment` : deck?.title;
+  useDocumentTitle(title ? `${title} · Road to CISSP` : 'Practice · Road to CISSP');
 
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {

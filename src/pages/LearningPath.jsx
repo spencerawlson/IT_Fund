@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shield, GitBranch, Activity, Lock, Container, DollarSign, Map, ArrowLeft, BookOpen } from 'lucide-react';
 import { modules } from '@/data/modules';
 import { LEARNING_PRINCIPLES } from '@/data/learningPath';
+import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const ICONS = { Shield, GitBranch, Activity, Lock, Container, DollarSign };
 const accentCls = {
@@ -15,6 +16,7 @@ const accentCls = {
 };
 
 export default function LearningPath() {
+  useDocumentTitle('Learning Path · Road to CISSP');
   const moduleById = React.useMemo(() => {
     const m = {};
     for (const item of modules) m[item.id] = item;
