@@ -1,0 +1,16 @@
+Oct  3 22:01:12 auto01 sshd[3110]: Accepted password for deploy from 10.0.0.5 port 51220 ssh2
+Oct  3 22:14:02 auto01 sshd[3201]: Failed password for invalid user oracle from 203.0.113.66 port 52110 ssh2
+Oct  3 22:14:05 auto01 sshd[3203]: Failed password for invalid user postgres from 203.0.113.66 port 52118 ssh2
+Oct  3 22:14:08 auto01 sshd[3205]: Failed password for invalid user test from 203.0.113.66 port 52126 ssh2
+Oct  3 22:14:11 auto01 sshd[3207]: Failed password for root from 203.0.113.66 port 52134 ssh2
+Oct  3 22:14:14 auto01 sshd[3209]: Failed password for root from 203.0.113.66 port 52142 ssh2
+Oct  3 22:14:17 auto01 sshd[3211]: Failed password for admin from 203.0.113.66 port 52150 ssh2
+Oct  3 22:14:20 auto01 sshd[3213]: Failed password for admin from 203.0.113.66 port 52158 ssh2
+Oct  3 22:14:23 auto01 sshd[3215]: Failed password for admin from 203.0.113.66 port 52166 ssh2
+Oct  3 22:14:26 auto01 sshd[3217]: Failed password for admin from 203.0.113.66 port 52174 ssh2
+Oct  3 22:14:29 auto01 sshd[3219]: Failed password for admin from 203.0.113.66 port 52182 ssh2
+Oct  3 22:14:32 auto01 sshd[3221]: Failed password for admin from 203.0.113.66 port 52190 ssh2
+Oct  3 22:14:35 auto01 sshd[3223]: Failed password for admin from 203.0.113.66 port 52198 ssh2
+Oct  3 22:14:38 auto01 sshd[3225]: Failed password for admin from 203.0.113.66 port 52206 ssh2
+Oct  3 22:14:41 auto01 sshd[3227]: Failed password for admin from 203.0.113.66 port 52214 ssh2
+Oct  3 22:15:02 auto01 CRON[3300]: pam_unix(cron:session): session opened for user root

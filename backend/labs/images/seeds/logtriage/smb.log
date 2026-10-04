@@ -1,0 +1,10 @@
+ts         host|ip|share|operation|file
+09:10:00   win10-alice|10.0.0.20|HR|read|policy.pdf
+09:14:50   win10-victim|10.0.0.33|Finance|read|budget.xlsx
+09:15:02   win10-victim|10.0.0.33|Finance|write|budget.xlsx.locked
+09:15:03   win10-victim|10.0.0.33|Finance|write|report.docx.locked
+09:15:04   win10-victim|10.0.0.33|Finance|write|forecast.xlsx.locked
+09:15:05   win10-victim|10.0.0.33|Finance|write|contract.pdf.encrypted
+09:15:06   win10-victim|10.0.0.33|Finance|write|payroll.csv.encrypted
+09:15:30   win10-victim|10.0.0.33|Finance|write|DECRYPT_INSTRUCTIONS.txt
+09:16:00   win10-bob|10.0.0.21|Eng|read|design.docx

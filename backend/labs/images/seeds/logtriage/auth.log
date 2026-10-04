@@ -1,0 +1,15 @@
+Sep 30 01:02:11 web01 sshd[1900]: Accepted password for deploy from 10.0.0.5 port 44122 ssh2
+Sep 30 01:30:44 web01 CRON[1955]: pam_unix(cron:session): session opened for user root
+Sep 30 02:14:01 web01 sshd[2041]: Failed password for invalid user oracle from 203.0.113.66 port 50122 ssh2
+Sep 30 02:14:03 web01 sshd[2043]: Failed password for invalid user postgres from 203.0.113.66 port 50130 ssh2
+Sep 30 02:14:05 web01 sshd[2045]: Failed password for invalid user test from 203.0.113.66 port 50138 ssh2
+Sep 30 02:14:07 web01 sshd[2047]: Failed password for root from 203.0.113.66 port 50146 ssh2
+Sep 30 02:14:09 web01 sshd[2049]: Failed password for root from 203.0.113.66 port 50152 ssh2
+Sep 30 02:14:12 web01 sshd[2051]: Failed password for admin from 203.0.113.66 port 50160 ssh2
+Sep 30 02:14:15 web01 sshd[2053]: Failed password for admin from 203.0.113.66 port 50166 ssh2
+Sep 30 02:14:18 web01 sshd[2055]: Failed password for admin from 203.0.113.66 port 50172 ssh2
+Sep 30 02:14:21 web01 sshd[2057]: Accepted password for admin from 203.0.113.66 port 50180 ssh2
+Sep 30 02:14:21 web01 sshd[2057]: pam_unix(sshd:session): session opened for user admin by (uid=0)
+Sep 30 02:15:02 web01 sudo:    admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/bin/bash
+Sep 30 02:16:40 web01 sshd[2101]: Failed password for admin from 203.0.113.66 port 50240 ssh2
+Sep 30 03:05:19 web01 sshd[2200]: Accepted publickey for deploy from 10.0.0.5 port 44990 ssh2

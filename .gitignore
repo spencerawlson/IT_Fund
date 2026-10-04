@@ -6,6 +6,8 @@
 /logs
 *.log
 npm-debug.log*
+# ...but the Docker lab image seeds are deliberate fixtures, not build output.
+!backend/labs/images/seeds/**/*.log
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*

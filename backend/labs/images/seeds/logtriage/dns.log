@@ -1,0 +1,10 @@
+ts         src         query                       qtype  answer
+09:00:01   10.0.0.50   globocorp.com               A      203.0.113.10
+09:00:05   10.0.0.51   www.globocorp.com           A      203.0.113.10
+09:00:40   10.0.0.52   mail.globocorp.com          A      203.0.113.12
+09:01:00   10.0.0.77   g1obocorp.com               A      185.220.101.9
+09:02:00   10.0.0.88   aGVsbG8taGVsbG8.dnsexfil.xyz TXT   "v=1;seg=1"
+09:02:02   10.0.0.88   d29ybGQtZGF0YQ.dnsexfil.xyz  TXT   "v=1;seg=2"
+09:02:05   10.0.0.88   c2VjcmV0LWtleQ.dnsexfil.xyz  TXT   "v=1;seg=3"
+09:02:09   10.0.0.88   bW9yZS1kYXRh.dnsexfil.xyz    TXT   "v=1;seg=4"
+09:03:00   10.0.0.50   update.globocorp.com         A     203.0.113.14
