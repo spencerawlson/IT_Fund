@@ -152,6 +152,12 @@ for _key, _ok, _todo in [
     ("bgp_peering", "The eBGP session is established.", "Both routers must point at each other with the correct remote-as; check show ip bgp summary."),
     ("bgp_advertised", "Both LANs are advertised into BGP.", "network 192.168.1.0 mask 255.255.255.0 on R1, and 192.168.2.0 on R2."),
     ("bgp_connectivity", "PC1 can reach PC2 across the eBGP peering.", "From PC1, ping 192.168.2.10 once the session is up and routes are advertised."),
+    # EIGRP single-AS / troubleshooting (Cisco IOS)
+    ("r1_eigrp", "R1 runs EIGRP AS 100 and advertises its networks.", "On R1: router eigrp 100, then network statements for its LAN and link (wildcards 0.0.0.255)."),
+    ("r2_eigrp", "R2 runs EIGRP AS 100 and advertises its networks.", "On R2: router eigrp 100, then advertise both link networks (10.0.12.0 and 10.0.23.0)."),
+    ("r3_eigrp", "R3 runs EIGRP AS 100 and advertises its networks.", "On R3: router eigrp 100, then advertise the link and the Server LAN."),
+    ("eigrp_adjacencies", "All required EIGRP adjacencies are up.", "Check show ip eigrp neighbors — R1-R2 and R2-R3 should appear. Both sides need AS 100."),
+    ("eigrp_connectivity", "PC-A can reach Server-A across the EIGRP network.", "From PC-A, ping 192.168.3.10 once EIGRP has converged."),
 ]:
     VALIDATORS[_key] = _network_validator(_key, _ok, _todo)
 

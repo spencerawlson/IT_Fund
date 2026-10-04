@@ -367,6 +367,104 @@ def show_ospf(state, dev_id, rest):
 
 
 # --------------------------------------------------------------------------------------------------
+# EIGRP: PC-A - R1 =10.0.12.0/24= R2 =10.0.23.0/24= R3 - Server-A. Interfaces pre-addressed
+# and up; the learner configures EIGRP AS 100 so the two LANs can reach each other.
+# Adjacency requires BOTH sides to run EIGRP with the SAME autonomous-system number and to
+# advertise the shared link network — the tshoot lab presets R2 with the wrong AS (200).
+# --------------------------------------------------------------------------------------------------
+
+_EIGRP_ASN = 100
+
+
+def _eigrp_devices(preset=None):
+    # Same addressing as the OSPF lab; the routing protocol configured is what differs.
+    devs = _ospf_devices()
+    for dev_id, eigrp in (preset or {}).items():
+        devs[dev_id]['eigrp'] = eigrp
+    return devs
+
+
+def _eigrp_covers(dev, subnet_ip) -> bool:
+    e = dev.get('eigrp')
+    if not e or e.get('asn') != _EIGRP_ASN:
+        return False
+    # A bare `network 10.0.12.0` (no wildcard) is treated as the /24 it names.
+    return any(_wc_match(subnet_ip, ip, wc or '0.0.0.255') for (ip, wc) in e['networks'])
+
+
+def derive_eigrp(state) -> dict[str, bool]:
+    d = state['dev']
+    r1 = _eigrp_covers(d['R1'], '192.168.1.0') and _eigrp_covers(d['R1'], '10.0.12.0')
+    r2 = _eigrp_covers(d['R2'], '10.0.12.0') and _eigrp_covers(d['R2'], '10.0.23.0')
+    r3 = _eigrp_covers(d['R3'], '10.0.23.0') and _eigrp_covers(d['R3'], '192.168.3.0')
+    adj12 = _eigrp_covers(d['R1'], '10.0.12.0') and _eigrp_covers(d['R2'], '10.0.12.0')
+    adj23 = _eigrp_covers(d['R2'], '10.0.23.0') and _eigrp_covers(d['R3'], '10.0.23.0')
+    adjacencies = adj12 and adj23
+    connectivity = adjacencies and _eigrp_covers(d['R1'], '192.168.1.0') and _eigrp_covers(d['R3'], '192.168.3.0')
+    return {'r1_eigrp': r1, 'r2_eigrp': r2, 'r3_eigrp': r3, 'eigrp_adjacencies': adjacencies,
+            'eigrp_connectivity': connectivity}
+
+
+def ping_eigrp(state, from_dev, ip) -> tuple[bool, bool, str]:
+    if ip not in _OSPF_IPS:
+        return (False, False, ip)
+    src = state['dev'][from_dev].get('ip')
+    conn = derive_eigrp(state)['eigrp_connectivity']
+    ok = True if (src and _subnet(src) == _subnet(ip)) else conn
+    return (True, ok, _OSPF_IPS[ip])
+
+
+def _eigrp_adj_for(state, dev_id):
+    d = state['dev']
+    adj12 = _eigrp_covers(d['R1'], '10.0.12.0') and _eigrp_covers(d['R2'], '10.0.12.0')
+    adj23 = _eigrp_covers(d['R2'], '10.0.23.0') and _eigrp_covers(d['R3'], '10.0.23.0')
+    nb = []
+    if dev_id == 'R1' and adj12:
+        nb.append(('10.0.12.2', 'Gi0/1'))
+    if dev_id == 'R2':
+        if adj12:
+            nb.append(('10.0.12.1', 'Gi0/0'))
+        if adj23:
+            nb.append(('10.0.23.3', 'Gi0/1'))
+    if dev_id == 'R3' and adj23:
+        nb.append(('10.0.23.2', 'Gi0/0'))
+    return nb
+
+
+def show_eigrp(state, dev_id, rest):
+    dev = state['dev'].get(dev_id, {})
+    if dev.get('kind') != 'router':
+        return None
+    if rest.startswith('ip eigrp neighbor'):
+        nb = _eigrp_adj_for(state, dev_id)
+        if not nb:
+            return ''
+        lines = ['IP-EIGRP neighbors for process 100',
+                 'H   Address                 Interface       Hold Uptime   SRTT   RTO  Q  Seq',
+                 '                                                   (sec)         (ms)       Cnt Num']
+        for h, (addr, iface) in enumerate(nb):
+            lines.append(f'{h}   {addr:<23} {iface:<15} 11 00:05:12   40     1000  0  3')
+        return '\n'.join(lines)
+    if rest.startswith('ip protocols'):
+        e = dev.get('eigrp')
+        if not e:
+            return 'no routing protocol configured'
+        nets = '\n'.join(f'    {ip} {wc or "0.0.0.255"}' for (ip, wc) in e['networks'])
+        return (f'Routing Protocol is "eigrp {e.get("asn")}"\n'
+                f'  EIGRP metric weight K1=1, K2=0, K3=1, K4=0, K5=0\n'
+                f'  Routing for Networks:\n{nets}')
+    if rest.startswith('ip route'):
+        lines = ['Codes: C - connected, D - EIGRP', ''] + _connected_routes(dev)
+        if derive_eigrp(state)['eigrp_connectivity']:
+            far = {'R1': ['10.0.23.0/24', '192.168.3.0/24'], 'R2': ['192.168.1.0/24', '192.168.3.0/24'],
+                   'R3': ['10.0.12.0/24', '192.168.1.0/24']}.get(dev_id, [])
+            for route in far:
+                lines.append(f'D    {route} [90/3072] via EIGRP')
+        return '\n'.join(lines)
+    return None
+
+
+# --------------------------------------------------------------------------------------------------
 # eBGP: two ISPs peer over a /30. AS 65001 (LAN 10.1.1.0/24, PC1) --192.0.2.0/30-- AS 65002
 # (LAN 10.2.2.0/24, PC2). Addressing is deliberately distinct from the Static Routing lab. The
 # learner configures eBGP so each AS can reach the other's customer LAN.
@@ -485,6 +583,14 @@ TOPOLOGIES: dict[str, dict[str, Any]] = {
         'ping': ping_ospf,
         'show': show_ospf,
         'summary': 'OSPF is configured but PC-A cannot reach Server-A. One router advertises a link in the wrong area — find it and fix it.',
+    },
+    'net-eigrp-001': {
+        'devices': _eigrp_devices(),
+        'initial': 'R1',
+        'derive': derive_eigrp,
+        'ping': ping_eigrp,
+        'show': show_eigrp,
+        'summary': 'PC-A - R1 =10.0.12.0= R2 =10.0.23.0= R3 - Server-A. Interfaces are up; configure EIGRP AS 100 so PC-A reaches Server-A.',
     },
     'net-bgp-001': {
         'devices': _BGP_DEVICES,

@@ -164,6 +164,14 @@ _HELP_WALKTHROUGHS = {
         'network 10.2.2.0 mask 255.255.255.0 | end\n'
         'Verify: show ip bgp summary — the neighbor should be Established. Then connect PC1 | ping 10.2.2.10.'
     ),
+    'net-eigrp-001': (
+        'Walkthrough (router R1): enable | configure terminal | router eigrp 100 | '
+        'network 192.168.1.0 0.0.0.255 | network 10.0.12.0 0.0.0.255 | end\n'
+        'Router R2: router eigrp 100 | advertise 10.0.12.0 and 10.0.23.0 (wildcards 0.0.0.255).\n'
+        'Router R3: router eigrp 100 | advertise 10.0.23.0 and the server LAN 192.168.3.0.\n'
+        'EIGRP neighbors must run the SAME autonomous-system number or no adjacency forms.\n'
+        'Verify: show ip eigrp neighbors — R1-R2 and R2-R3 should appear. Then connect PC-A | ping 192.168.3.10.'
+    ),
 }
 
 _GENERIC_IOS_HELP = (
@@ -420,6 +428,20 @@ def _config_command(lab, state, dev, tokens, low) -> CommandResult:
             return _emit(lab, state, INVALID)
         state['mode'] = 'router'
         state['ctx'] = {'proto': proto}
+        return _emit(lab, state, '')
+    if low[:2] == ['no', 'router'] and len(tokens) >= 3:
+        # `no router eigrp 200` — tears down a routing process (needed to fix a wrong AS/PID).
+        if dev['kind'] != 'router':
+            return _emit(lab, state, INVALID)
+        proto = low[2]
+        if proto not in ('ospf', 'eigrp', 'bgp'):
+            return _emit(lab, state, INVALID)
+        if len(tokens) >= 4 and tokens[3].isdigit():
+            cur = dev.get(proto) or {}
+            cur_id = cur.get('asn') if proto != 'ospf' else cur.get('pid')
+            if cur_id != int(tokens[3]):
+                return _emit(lab, state, f'% No {proto} process {tokens[3]} is running')
+        dev.pop(proto, None)
         return _emit(lab, state, '')
     if cmd == 'exit':
         state['mode'] = 'priv'

@@ -169,6 +169,38 @@ OSPF_TSHOOT_LAB = LabDefinition(
     ],
 )
 
+EIGRP_LAB = LabDefinition(
+    id="net-eigrp-001",
+    slug="eigrp-configuration",
+    title="EIGRP Configuration",
+    description=(
+        "Configure EIGRP autonomous system 100 across R1, R2 and R3 so the two LANs can talk. The links "
+        "are already addressed and up — your job is the routing. EIGRP neighbors only form when both "
+        "sides run the same AS number. Topology: PC-A - R1 = R2 = R3 - Server-A. Establish both "
+        "adjacencies, advertise every network, and prove PC-A can reach Server-A."
+    ),
+    category="networking", difficulty="intermediate", estimated_minutes=35, shell="cisco_ios", environment=_RT_ENV,
+    targets=[
+        LabTarget(hostname="R1", role="Edge router (PC-A LAN)"),
+        LabTarget(hostname="R2", role="Transit router"),
+        LabTarget(hostname="R3", role="Edge router (Server-A LAN)"),
+        LabTarget(hostname="PC-A", role="Host on R1's LAN"),
+        LabTarget(hostname="Server-A", role="Host on R3's LAN"),
+    ],
+    objectives=[
+        LabObjective(id="r1", label="Configure EIGRP AS 100 on R1", validator="r1_eigrp",
+                     hints=["connect R1 → enable → conf t → router eigrp 100 → network 192.168.1.0 0.0.0.255 → network 10.0.12.0 0.0.0.255"]),
+        LabObjective(id="r2", label="Configure EIGRP AS 100 on R2", validator="r2_eigrp",
+                     hints=["connect R2: router eigrp 100 — advertise both link networks (10.0.12.0 and 10.0.23.0). The AS number must match R1's."]),
+        LabObjective(id="r3", label="Configure EIGRP AS 100 on R3", validator="r3_eigrp",
+                     hints=["connect R3: router eigrp 100 — advertise 10.0.23.0 and the Server LAN 192.168.3.0."]),
+        LabObjective(id="adj", label="Bring up all EIGRP adjacencies", validator="eigrp_adjacencies",
+                     hints=["Verify with show ip eigrp neighbors — R1-R2 and R2-R3 should appear."]),
+        LabObjective(id="conn", label="Prove PC-A reaches Server-A", validator="eigrp_connectivity",
+                     hints=["connect PC-A → ping 192.168.3.10"]),
+    ],
+)
+
 BGP_LAB = LabDefinition(
     id="net-bgp-001",
     slug="ebgp-configuration",
