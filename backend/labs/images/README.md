@@ -52,9 +52,35 @@ cloudshell ~500 MB (awscli + moto), iac ~400 MB (terraform + provider mirror).
    The `docker` Python package must be installed where the backend runs
    (`pip install docker`), and the daemon must be reachable.
 3. Restart the backend: `systemctl --user restart itfund-backend`.
-4. Flip one lab at a time: in `backend/labs/definitions/<file>.py`, change that
-   lab's `environment.provider` from `"mock"` to `"docker"`. The `image` and
-   `workdir` are already set. Start with a Python lab - it is the simplest.
+
+That's it — there is **no per-lab flip to do**. Activation is now driven by an
+`environment.prefers_docker` opt-in on each lab definition plus host
+availability, resolved once when a session starts (`SessionService.
+_effective_provider_name`):
+
+- `prefers_docker=True` + Docker registered (step 2 done, daemon up) → the lab
+  runs on **real Docker**.
+- `prefers_docker=True` + no Docker (the common host, incl. the hosted demo) →
+  the lab transparently stays on the **mock** shell. Same lab, same objectives.
+- `provider="docker"` (hard pin, used by none today) + no Docker → fails loudly
+  with `unavailable`, never silently simulates.
+
+The command runs for real in the container; the objective **findings** are
+still derived by the lab's simulation shell from the same typed command (the
+"findings bridge" in `providers/docker.py`). That only agrees with reality when
+the image is seeded **byte-identically** to the mock, which `test_lab_images.py`
+proves for exactly the python, log-triage and IaC seeds. So those are the labs
+carrying `prefers_docker=True`:
+
+| Promoted (`prefers_docker=True`) | Held on mock (and why) |
+|---|---|
+| py-basics / py-automation / py-netauto | **cyber-nmap-001, cyber-portblast-001** — the image's real sshd/nginx on 127.0.0.1:2222/8080/8000 does not reproduce the simulated 7-port `target.lab`, so real output would contradict recorded findings. |
+| sec-logtriage-001 + the blue-team trio (c2beacon / dns-typo / ransomware) | **cloud-aws-audit-001** — real `awscli`+`moto` emit dynamic ARNs/IDs/timestamps the mock can't match, and no test proves parity. |
+| cloud-terraform-001 | **container-security (docker-siem)** — no image built (DinD incompatible). |
+
+To close a held-back case, make its image byte-faithful to the mock (or add a
+real-output findings parser) **and** a `test_lab_images.py` assertion, then set
+`prefers_docker=True`.
 
 ## Verify end-to-end
 
@@ -77,6 +103,11 @@ hand (the Docker provider validates outcome-based findings, same as mock),
 and confirm objectives tick over.
 
 ### Recon labs on Docker: what differs from the mock
+
+> These labs are **not** `prefers_docker` (see the table above) — they stay
+> simulated. The notes below apply only if you deliberately hard-pin one to
+> `provider="docker"` and accept that the real port set differs from the
+> scenario the objectives validate against.
 
 - **Scan `127.0.0.1`, not `target.lab`.** The hardened container cannot edit
   `/etc/hosts`, and the target services run in the same container.

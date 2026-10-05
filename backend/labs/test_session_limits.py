@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 
 import main
 from labs import sessions as sessions_mod
+from labs.providers.mock import MockLabProvider
 from labs.sessions import COMPLETED, MAX_LIVE_SESSIONS_PER_OWNER, LabError, SessionService, _now
 
 client = TestClient(main.app)
@@ -74,3 +75,39 @@ def test_expired_sessions_are_forgotten():
         assert err.code == "not_found"
     else:
         raise AssertionError("expected the swept session to be gone")
+
+
+# --- provider selection: prefers_docker upgrades to Docker only when it's available -----------
+
+def test_prefers_docker_lab_uses_docker_when_available():
+    # A second provider registered under "docker" (MockLabProvider satisfies the interface).
+    svc = SessionService(providers={"mock": MockLabProvider(), "docker": MockLabProvider()})
+    s = run(svc.start("sec-logtriage-001", "guest:abc"))  # prefers_docker=True
+    assert s.provider == "docker"
+
+
+def test_prefers_docker_lab_falls_back_to_mock_when_docker_absent():
+    # The common host: no Docker registered. The same lab transparently stays on the mock shell.
+    svc = SessionService(providers={"mock": MockLabProvider()})
+    s = run(svc.start("sec-logtriage-001", "guest:abc"))
+    assert s.provider == "mock"
+
+
+def test_non_prefers_lab_stays_on_mock_even_when_docker_available():
+    # cyber-nmap-001 is deliberately NOT prefers_docker (real image != simulated target).
+    svc = SessionService(providers={"mock": MockLabProvider(), "docker": MockLabProvider()})
+    s = run(svc.start("cyber-nmap-001", "guest:abc"))
+    assert s.provider == "mock"
+
+
+def test_resolved_provider_is_reused_by_later_calls():
+    # exec/validate/reset must all route to the SAME provider the environment was created on.
+    docker_stub = MockLabProvider()
+    svc = SessionService(providers={"mock": MockLabProvider(), "docker": docker_stub})
+    s = run(svc.start("sec-logtriage-001", "guest:abc"))
+    assert s.provider == "docker"
+    assert s.environment_id in docker_stub._envs          # created on the docker-slot provider
+    run(svc.exec_command(s.id, "guest:abc", "cat auth.log"))
+    run(svc.reset(s.id, "guest:abc"))
+    run(svc.destroy(s.id, "guest:abc"))
+    assert s.environment_id not in docker_stub._envs        # torn down on the same provider
