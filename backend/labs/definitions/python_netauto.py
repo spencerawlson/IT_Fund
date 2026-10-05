@@ -22,6 +22,7 @@ PYTHON_NETAUTO_LAB = LabDefinition(
     shell="linux_python",
     environment=LabEnvironmentConfig(
         provider="mock",
+        prefers_docker=True,
         image="road-to-cissp/python-netauto:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,

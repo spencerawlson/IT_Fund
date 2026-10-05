@@ -6,7 +6,7 @@ five-step investigation validated against what the learner uncovered with real g
 """
 from labs.models import LabDefinition, LabEnvironmentConfig, LabObjective, LabTarget
 
-_ENV = LabEnvironmentConfig(provider="mock", image="road-to-cissp/log-triage:latest",
+_ENV = LabEnvironmentConfig(provider="mock", prefers_docker=True, image="road-to-cissp/log-triage:latest",
         workdir="/home/analyst",
                             idle_timeout_minutes=15, max_runtime_minutes=45, deny_internet_egress=True)
 

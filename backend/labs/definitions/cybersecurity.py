@@ -16,6 +16,13 @@ NMAP_ENUMERATION_LAB = LabDefinition(
     estimated_minutes=25,
     environment=LabEnvironmentConfig(
         provider="mock",
+        # NOT prefers_docker: the hardened security-tools image exposes a real
+        # sshd/nginx/http.server on 127.0.0.1:2222/8080/8000, which does NOT
+        # reproduce this lab's simulated 7-port target.lab (ssh/http/samba/
+        # mysql/tomcat). On Docker the learner would see real ports that
+        # contradict the findings the mock records, so this lab stays simulated
+        # until the image reproduces the scenario (or a real-output nmap
+        # findings parser lands). See backend/labs/images/README.md.
         image="road-to-cissp/security-tools:latest",
         workdir="/home/student",  # used only by a real provider, never sent to the client
         idle_timeout_minutes=15,
@@ -72,6 +79,9 @@ PORTBLAST_COMPARISON_LAB = LabDefinition(
     estimated_minutes=45,
     environment=LabEnvironmentConfig(
         provider="mock",
+        # NOT prefers_docker: same as the nmap lab — the real portblast image
+        # scans localhost's 2222/8080/8000, which does not match the simulated
+        # target.lab port set this lab's objectives validate against.
         image="road-to-cissp/portblast-lab:latest",
         workdir="/home/student",
         idle_timeout_minutes=20,
@@ -105,6 +115,7 @@ LOG_TRIAGE_LAB = LabDefinition(
     shell="linux_logs",
     environment=LabEnvironmentConfig(
         provider="mock",
+        prefers_docker=True,
         image="road-to-cissp/log-triage:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,

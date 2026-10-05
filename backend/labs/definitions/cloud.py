@@ -20,6 +20,12 @@ CLOUD_AUDIT_LAB = LabDefinition(
     shell="aws_audit",
     environment=LabEnvironmentConfig(
         provider="mock",
+        # NOT prefers_docker: the cloudshell image runs real awscli against a
+        # live moto server, whose output (account IDs, ARNs, timestamps) is
+        # dynamic and not byte-identical to the aws_audit mock shell — and no
+        # test proves parity. Promoting it risks the learner seeing real moto
+        # output that disagrees with the recorded findings. Stays simulated
+        # until an end-to-end fidelity test covers the moto scenario.
         image="road-to-cissp/cloudshell:latest",
         workdir="/home/auditor",
         idle_timeout_minutes=20,
@@ -56,6 +62,7 @@ TERRAFORM_LAB = LabDefinition(
     shell="terraform",
     environment=LabEnvironmentConfig(
         provider="mock",
+        prefers_docker=True,
         image="road-to-cissp/iac:latest",
         # Matches the mock shell's prompt (student@iac:~/infra$): the config lives here.
         workdir="/home/student/infra",
