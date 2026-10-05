@@ -29,7 +29,7 @@ from labs.shells import linux_logs, linux_python, terraform  # noqa: E402
 def write(path: Path, lines: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     # \n-joined + trailing newline, exactly like the mock's "\n".join() reads.
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {path.relative_to(HERE)} ({len(lines)} lines)")
 
 
@@ -40,7 +40,7 @@ def main() -> None:
     write(seeds / "python" / "auth.log", linux_python.AUTH_LOG)
     write(seeds / "python" / "notes.txt", linux_python.NOTES_TXT)
     (seeds / "python" / "switch.cfg").write_text(
-        linux_python.SWITCH_CFG + "\n", encoding="utf-8")
+        linux_python.SWITCH_CFG + "\n", encoding="utf-8", newline="\n")
     print("wrote seeds/python/switch.cfg")
 
     # --- log-triage labs (sec-logtriage-001 uses linux_logs; the blue-team
@@ -75,7 +75,7 @@ def main() -> None:
     # what learners saw in the simulation.
     main_tf = terraform.MAIN_TF.replace('version = "~> 5.0"', 'version = "5.31.0"')
     main_tf = main_tf.rstrip("\n") + "\n" + offline_stanza
-    (seeds / "iac" / "main.tf").write_text(main_tf, encoding="utf-8")
+    (seeds / "iac" / "main.tf").write_text(main_tf, encoding="utf-8", newline="\n")
     print("wrote seeds/iac/main.tf")
 
     print("done.")

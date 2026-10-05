@@ -32,7 +32,14 @@ class LabTarget:
 
 @dataclass(frozen=True)
 class LabEnvironmentConfig:
+    # `provider` is the explicit choice; "mock" (simulation) or "docker" (real
+    # container execution). `prefers_docker` is a softer opt-in: run on Docker
+    # when a daemon is available (LAB_DOCKER_ENABLED=1 and the client connects),
+    # otherwise fall back to the mock shell transparently. Labs set
+    # prefers_docker=True so they get real execution on hosts that have Docker
+    # and the identical simulated experience on hosts that don't.
     provider: str = "mock"
+    prefers_docker: bool = False
     image: str | None = None
     cpu_limit: float = 1.0
     memory_mb: int = 512

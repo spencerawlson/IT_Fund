@@ -82,6 +82,10 @@ class LabSession:
     expires_at: datetime
     started_at: datetime | None = None
     completed_at: datetime | None = None
+    # Provider actually chosen for this session (resolved once at start). A lab may prefer Docker
+    # but fall back to mock when no daemon is present; every later call (exec/validate/reset/
+    # destroy) must use the SAME provider the environment was created on, not re-derive it.
+    provider: str = "mock"
     progress: dict[str, bool] = field(default_factory=dict)  # objective_id -> passed
     validation_results: list[dict] = field(default_factory=list)  # last result per objective
     findings: dict[str, Any] = field(default_factory=dict)
@@ -131,6 +135,19 @@ class SessionService:
             raise LabError("unavailable", f"Lab provider '{provider_name}' is not available.")
         return provider
 
+    def _effective_provider_name(self, lab) -> str:
+        """Resolve which provider a lab actually runs on, given what's available here.
+
+        A lab's explicit `provider` is honoured as-is. The softer `prefers_docker` opt-in upgrades
+        a lab to real Docker execution only when the Docker provider is registered (daemon present
+        and LAB_DOCKER_ENABLED=1); on every other host it transparently stays on the mock shell, so
+        the same lab definition works identically whether or not Docker exists. A lab that both
+        names provider="docker" and is missing the daemon still fails loudly via `_provider_for`."""
+        env = lab.environment
+        if getattr(env, "prefers_docker", False) and "docker" in self._providers:
+            return "docker"
+        return env.provider
+
     def _owned(self, session_id: str, user_id: str) -> LabSession:
         session = self._sessions.get(session_id)
         # Not found and not-yours are the same 404, so ownership can't be probed.
@@ -155,7 +172,8 @@ class SessionService:
                    if s.user_id == user_id and s.status in (CREATING, READY, RUNNING, VALIDATING))
         if live >= MAX_LIVE_SESSIONS_PER_OWNER:
             raise LabError("invalid", f"You already have {MAX_LIVE_SESSIONS_PER_OWNER} labs open. Exit one first.")
-        provider = self._provider_for(lab.environment.provider)
+        provider_name = self._effective_provider_name(lab)
+        provider = self._provider_for(provider_name)
         env = await provider.create_session(lab, user_id)
         now = _now()
         session = LabSession(
@@ -167,6 +185,7 @@ class SessionService:
             created_at=now,
             started_at=now,
             expires_at=env.expires_at,
+            provider=provider_name,
             progress={o.id: False for o in lab.objectives},
             validation_results=[],
         )
@@ -199,7 +218,7 @@ class SessionService:
         Shared by `validate` (explicit "Check my work") and `exec_command` (so the terminal ticks
         objectives off live as the learner discovers things). Never un-completes a session."""
         lab = get_lab(session.lab_id)
-        provider = self._provider_for(lab.environment.provider)
+        provider = self._provider_for(session.provider)
         results = []
         for objective in lab.objectives:
             result = await provider.validate_objective(session.environment_id, lab, objective.id, session.findings)
@@ -220,7 +239,7 @@ class SessionService:
         if not isinstance(command, str):
             raise LabError("invalid", "Command must be a string.")
         lab = get_lab(session.lab_id)
-        provider = self._provider_for(lab.environment.provider)
+        provider = self._provider_for(session.provider)
         result = await provider.exec_command(session.environment_id, lab, command, session.findings)
         if result.findings:
             _merge_findings(session.findings, result.findings)
@@ -230,7 +249,7 @@ class SessionService:
     async def reset(self, session_id: str, user_id: str) -> LabSession:
         session = self._owned(session_id, user_id)
         lab = get_lab(session.lab_id)
-        provider = self._provider_for(lab.environment.provider)
+        provider = self._provider_for(session.provider)
         await provider.reset_session(session.environment_id)
         session.findings = {}
         session.validation_results = []
@@ -245,9 +264,9 @@ class SessionService:
         session = self._sessions.get(session_id)
         if session is None or session.user_id != user_id:
             return
-        lab = get_lab(session.lab_id)
-        if lab is not None:
-            await self._provider_for(lab.environment.provider).destroy_session(session.environment_id)
+        provider = self._providers.get(session.provider)
+        if provider is not None:
+            await provider.destroy_session(session.environment_id)
         session.status = DESTROYED
         self._sessions.pop(session_id, None)
 
@@ -263,9 +282,9 @@ class SessionService:
             if session.status in (COMPLETED, FAILED) and _now() >= session.expires_at:
                 session.status = EXPIRED
             if session.status in (EXPIRED, DESTROYED):
-                lab = get_lab(session.lab_id)
-                if lab is not None:
-                    await self._provider_for(lab.environment.provider).destroy_session(session.environment_id)
+                provider = self._providers.get(session.provider)
+                if provider is not None:
+                    await provider.destroy_session(session.environment_id)
                 self._sessions.pop(session.id, None)
                 removed += 1
         return removed

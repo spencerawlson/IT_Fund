@@ -1,0 +1,18 @@
+# Road to CISSP is built and deployed on Linux; keep every text file LF regardless of the
+# developer's OS. Without this, a Windows checkout rewrites LF->CRLF and the Docker lab seed
+# fixtures (which must be byte-identical to the mock shells, and are consumed by Linux images)
+# fail their integrity tests. See backend/labs/images/README.md.
+* text=auto eol=lf
+
+# Binary assets: never normalize.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.pdf   binary
+*.evtx  binary
+*.pyc   binary

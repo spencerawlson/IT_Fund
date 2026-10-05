@@ -91,10 +91,40 @@ class DockerLabProvider(LabProvider):
             return None
         return container
 
-    def _ensure_network(self, client: Any, internal: bool) -> Any:
-        for net in client.networks.list(names=[self._network_name]):
-            return net
-        return client.networks.create(self._network_name, internal=internal, labels={"rtc": "labs"})
+    async def reap_orphans(self, max_age_minutes: int = 180) -> int:
+        """Remove lab containers (and their per-session networks) older than a cap.
+
+        The session service destroys containers on exit/expiry, but a backend restart loses its
+        in-memory sessions while the containers persist. This sweep — called opportunistically on
+        each new lab start — catches those orphans so an always-on host doesn't accumulate them."""
+
+        def _reap() -> int:
+            try:
+                client = self._client_or_raise()
+            except LabError:
+                return 0
+            cutoff = _now() - timedelta(minutes=max_age_minutes)
+            removed = 0
+            for c in client.containers.list(all=True, filters={"label": "rtc=labs"}):
+                try:
+                    created = datetime.fromisoformat(c.attrs.get("Created", "").replace("Z", "+00:00"))
+                except ValueError:
+                    continue
+                if created < cutoff:
+                    try:
+                        c.remove(force=True)
+                        removed += 1
+                    except Exception:
+                        pass
+            # Prune per-session networks no longer attached to anything (remove() fails if in use).
+            for net in client.networks.list(filters={"label": "rtc=labs"}):
+                try:
+                    net.remove()
+                except Exception:
+                    pass
+            return removed
+
+        return await asyncio.to_thread(_reap)
 
     # ---------- LabProvider interface ----------
 
@@ -105,8 +135,11 @@ class DockerLabProvider(LabProvider):
             raise LabError("invalid", f"Lab '{lab.id}' has no container image configured.")
         env_cfg = lab.environment
         now = _now()
+        token = hashlib.sha256(f"{user_id}:{now.timestamp()}".encode()).hexdigest()[:12]
+        await self.reap_orphans()  # opportunistically clear containers a prior backend run abandoned
 
         def _create() -> Any:
+            from docker.types import Ulimit  # noqa: PLC0415  (optional dependency)
             try:
                 client.images.get(image)
             except Exception:
@@ -114,21 +147,33 @@ class DockerLabProvider(LabProvider):
                     client.images.pull(image)
                 except Exception as exc:
                     raise LabError("unavailable", f"Lab image '{image}' is not available: {exc}")
-            network = self._ensure_network(client, internal=env_cfg.deny_internet_egress)
+            # Network isolation, per session. Egress-denied labs (every lab today) need no network
+            # namespace at all — their targets (sshd/nginx/moto) bind to loopback, which `none` keeps.
+            # That removes the shared network entirely: no learner's container can reach another's, the
+            # host LAN, or the internet. Egress-allowed labs (none yet) get a private per-session bridge.
+            if env_cfg.deny_internet_egress:
+                net_kwargs = {"network_mode": "none"}
+            else:
+                net = client.networks.create(f"rtc-lab-net-{token}", internal=False, labels={"rtc": "labs"})
+                net_kwargs = {"network": net.name}
             owner = hashlib.sha256(user_id.encode()).hexdigest()[:16]
             container = client.containers.run(
                 image,
                 command="sleep infinity",
                 detach=True,
-                name=f"rtc-lab-{hashlib.sha256(str(now.timestamp()).encode()).hexdigest()[:12]}",
-                network=network.name,
+                name=f"rtc-lab-{token}",
                 mem_limit=f"{env_cfg.memory_mb}m",
                 nano_cpus=int(env_cfg.cpu_limit * 1_000_000_000),
                 pids_limit=256,
                 cap_drop=["ALL"],
                 security_opt=["no-new-privileges:true"],
                 tmpfs={"/tmp": "size=64m,mode=1777"},
+                # Bound a runaway single file (partial disk guard) and the fd table. A full disk quota
+                # needs host-level storage pquota — tracked in the images README as a follow-up.
+                ulimits=[Ulimit(name="nofile", soft=1024, hard=2048),
+                         Ulimit(name="fsize", soft=128 * 1024 * 1024, hard=128 * 1024 * 1024)],
                 labels={"rtc": "labs", "rtc.lab": lab.id, "rtc.owner": owner},
+                **net_kwargs,
             )
             return container
 
@@ -196,10 +241,21 @@ class DockerLabProvider(LabProvider):
             container = self._container(environment_id)
             if container is None:
                 return
+            nets = []
+            try:
+                nets = [n for n in (container.attrs.get("NetworkSettings", {}).get("Networks") or {})
+                        if n.startswith("rtc-lab-net-")]
+            except Exception:
+                pass
             try:
                 container.remove(force=True)
             except Exception:
                 pass  # already gone / daemon hiccup: still a no-op for the caller
+            for name in nets:  # tear down this session's private network, if any
+                try:
+                    self._client.networks.get(name).remove()
+                except Exception:
+                    pass
 
         await asyncio.to_thread(_destroy)
         self._last_used.pop(environment_id, None)
@@ -272,4 +328,19 @@ class DockerLabProvider(LabProvider):
         self._last_used[environment_id] = _now()
         if len(text) > MAX_OUTPUT_CHARS:
             text = text[:MAX_OUTPUT_CHARS] + f"\n… [output truncated at {MAX_OUTPUT_CHARS} chars]"
-        return CommandResult(output=text, exit_code=code)
+
+        # Objectives are findings-based (shared validators). The command above ran for REAL, but the
+        # findings it establishes are derived by the lab's simulation shell from the same typed
+        # command — so real execution reaches the same objective state as the mock. The learner sees
+        # real stdout; the sim's output is discarded, only its findings/prompt are kept. The lab
+        # images are seeded byte-identically to the mock, so the two agree.
+        findings_delta: dict[str, Any] = {}
+        prompt = None
+        try:
+            from labs.shells import has_shell, run as shell_run  # noqa: PLC0415
+            if has_shell(lab):
+                sim = shell_run(lab, command, findings)
+                findings_delta, prompt = sim.findings, sim.prompt
+        except Exception:
+            pass  # findings are best-effort; real output is always returned
+        return CommandResult(output=text, exit_code=code, findings=findings_delta, prompt=prompt)
