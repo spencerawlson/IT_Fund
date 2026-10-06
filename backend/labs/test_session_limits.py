@@ -17,7 +17,10 @@ from fastapi.testclient import TestClient
 import main
 from labs import sessions as sessions_mod
 from labs.providers.mock import MockLabProvider
-from labs.sessions import COMPLETED, MAX_LIVE_SESSIONS_PER_OWNER, LabError, SessionService, _now
+from labs.sessions import (
+    COMPLETED, MAX_LIVE_SESSIONS_PER_OWNER, DbLabSessionStore, InMemoryLabSessionStore,
+    LabError, SessionService, _default_store, _now,
+)
 
 client = TestClient(main.app)
 run = asyncio.run
@@ -112,6 +115,45 @@ def test_global_session_cap_refuses_once_full(monkeypatch):
         assert err.code == "unavailable"
     else:
         raise AssertionError("expected the global cap to refuse the third session")
+
+
+def test_db_store_shares_sessions_across_service_instances():
+    """The durability guarantee: a session created by one SessionService is visible to another
+    backed by the same database — i.e. it survives a restart and is shared across workers."""
+    DbLabSessionStore().clear()
+    svc_a = SessionService(store=DbLabSessionStore())
+    svc_b = SessionService(store=DbLabSessionStore())  # a second worker / a fresh process
+
+    s = run(svc_a.start("sec-logtriage-001", "guest:dur"))
+    # svc_b never saw the start, yet finds it in the shared store...
+    assert svc_b.get(s.id, "guest:dur").lab_id == "sec-logtriage-001"
+    # ...can run against it, and the mutation is visible back on svc_a.
+    run(svc_b.exec_command(s.id, "guest:dur", "cat auth.log"))
+    assert svc_b.get(s.id, "guest:dur").findings.get("log_viewed") is True
+    assert svc_a.get(s.id, "guest:dur").findings.get("log_viewed") is True
+    # Destroy on one instance removes it for all.
+    run(svc_b.destroy(s.id, "guest:dur"))
+    try:
+        svc_a.get(s.id, "guest:dur")
+    except LabError as err:
+        assert err.code == "not_found"
+    else:
+        raise AssertionError("a destroyed session must be gone for every instance")
+    DbLabSessionStore().clear()
+
+
+def test_default_store_selection(monkeypatch):
+    monkeypatch.delenv("LAB_SESSION_STORE", raising=False)
+    monkeypatch.setenv("APP_ENV", "development")
+    assert isinstance(_default_store(), InMemoryLabSessionStore)       # dev default: in-memory
+    monkeypatch.setenv("APP_ENV", "production")
+    assert isinstance(_default_store(), DbLabSessionStore)             # prod: durable DB
+    monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("LAB_SESSION_STORE", "db")
+    assert isinstance(_default_store(), DbLabSessionStore)             # forced on anywhere
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("LAB_SESSION_STORE", "memory")
+    assert isinstance(_default_store(), InMemoryLabSessionStore)       # forced off even in prod
 
 
 def test_resolved_provider_is_reused_by_later_calls():

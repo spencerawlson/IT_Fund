@@ -70,3 +70,27 @@ class Progress(Base):
     state: Mapped[dict] = mapped_column(JSON, default=dict)
     version: Mapped[int] = mapped_column(Integer, default=0)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class LabSession(Base):
+    """A live interactive-lab session, persisted so it survives a backend restart and is shared
+    across workers/instances (lab sessions used to live only in one process's memory). `owner_id` is
+    the account id OR a `guest:<token>` id — NOT a FK, because most lab users are anonymous guests
+    with no `users` row. The provider environment itself is reconstructable: the mock provider is
+    pure (no stored env needed) and Docker containers persist by id, so only this row must survive.
+    """
+    __tablename__ = "lab_sessions"
+
+    id: Mapped[str] = mapped_column(String(48), primary_key=True)
+    lab_id: Mapped[str] = mapped_column(String(64), index=True)
+    owner_id: Mapped[str] = mapped_column(String(128), index=True)
+    status: Mapped[str] = mapped_column(String(16))
+    environment_id: Mapped[str] = mapped_column(String(128))
+    provider: Mapped[str] = mapped_column(String(16), default="mock")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    progress: Mapped[dict] = mapped_column(JSON, default=dict)
+    validation_results: Mapped[list] = mapped_column(JSON, default=list)
+    findings: Mapped[dict] = mapped_column(JSON, default=dict)

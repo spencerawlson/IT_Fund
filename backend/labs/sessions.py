@@ -1,9 +1,10 @@
 """Lab session service — the layer between the API and the provider.
 
 Holds the per-user session lifecycle, findings and validation results, and enforces ownership and
-expiry. Storage is in-memory for now, matching the current backend (no database yet); when C3 adds
-Postgres this is the single place that swaps to persistent storage, and the API above it does not
-change. The API must go through this service, never call a provider directly.
+expiry. Storage is behind a `LabSessionStore`: in-memory for dev/tests (fast, isolated) and the
+shared database in production (`DbLabSessionStore`), so a session survives a restart and is visible
+to every worker/instance. Selected by `_default_store()` (APP_ENV / LAB_SESSION_STORE). The API must
+go through this service, never call a provider directly.
 """
 from __future__ import annotations
 
@@ -134,10 +135,146 @@ def _build_providers() -> dict[str, LabProvider]:
 _PROVIDERS: dict[str, LabProvider] = _build_providers()
 
 
-class SessionService:
-    def __init__(self, providers: dict[str, LabProvider] | None = None) -> None:
+# ---------------------------------------------------------------------------
+# Session storage
+# ---------------------------------------------------------------------------
+# The service talks to storage only through a LabSessionStore, so the same logic runs whether
+# sessions live in this process's memory (dev/tests: fast, isolated) or in the shared database
+# (production: durable across restarts and visible to every worker/instance). The store holds the
+# LabSession dataclass as its unit; the DB store converts it to and from a `lab_sessions` row.
+
+
+class InMemoryLabSessionStore:
+    """Per-process dict. The default: fast and isolated, but a session vanishes on restart and is
+    invisible to other workers — fine for a single dev process and for tests, not for prod."""
+
+    def __init__(self) -> None:
         self._sessions: dict[str, LabSession] = {}
+
+    def get(self, session_id: str) -> LabSession | None:
+        return self._sessions.get(session_id)
+
+    def save(self, session: LabSession) -> None:
+        self._sessions[session.id] = session
+
+    def delete(self, session_id: str) -> None:
+        self._sessions.pop(session_id, None)
+
+    def all(self) -> list[LabSession]:
+        return list(self._sessions.values())
+
+    def live_count(self, owner_id: str | None = None) -> int:
+        return sum(1 for s in self._sessions.values()
+                   if s.status in _LIVE_STATUSES and (owner_id is None or s.user_id == owner_id))
+
+    def clear(self) -> None:
+        self._sessions.clear()
+
+
+def _as_utc(dt: datetime | None) -> datetime | None:
+    # SQLite drops tzinfo on round-trip; treat a naive value as UTC so comparisons with _now()
+    # (tz-aware) never raise "can't compare offset-naive and offset-aware datetimes".
+    if dt is None:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+class DbLabSessionStore:
+    """Shared, durable storage in the app database (`lab_sessions`). Every operation is its own
+    short transaction, so writes from any worker are immediately visible to the others. Concurrent
+    writes to the same session are last-writer-wins, which is fine: one learner's terminal is
+    sequential."""
+
+    def _row_to_session(self, row) -> LabSession:
+        return LabSession(
+            id=row.id, lab_id=row.lab_id, user_id=row.owner_id, status=row.status,
+            environment_id=row.environment_id, provider=row.provider,
+            created_at=_as_utc(row.created_at), expires_at=_as_utc(row.expires_at),
+            started_at=_as_utc(row.started_at), completed_at=_as_utc(row.completed_at),
+            progress=dict(row.progress or {}), validation_results=list(row.validation_results or []),
+            findings=dict(row.findings or {}),
+        )
+
+    def get(self, session_id: str) -> LabSession | None:
+        import db
+        from db_models import LabSession as Row
+        with db.SessionLocal() as s:
+            row = s.get(Row, session_id)
+            return self._row_to_session(row) if row is not None else None
+
+    def save(self, session: LabSession) -> None:
+        import db
+        from db_models import LabSession as Row
+        with db.SessionLocal() as s:
+            row = s.get(Row, session.id)
+            if row is None:
+                row = Row(id=session.id)
+                s.add(row)
+            row.lab_id = session.lab_id
+            row.owner_id = session.user_id
+            row.status = session.status
+            row.environment_id = session.environment_id
+            row.provider = session.provider
+            row.created_at = session.created_at
+            row.started_at = session.started_at
+            row.completed_at = session.completed_at
+            row.expires_at = session.expires_at
+            # New objects each time so SQLAlchemy detects the change (JSON is mutable-in-place).
+            row.progress = dict(session.progress)
+            row.validation_results = list(session.validation_results)
+            row.findings = dict(session.findings)
+            s.commit()
+
+    def delete(self, session_id: str) -> None:
+        import db
+        from db_models import LabSession as Row
+        with db.SessionLocal() as s:
+            row = s.get(Row, session_id)
+            if row is not None:
+                s.delete(row)
+                s.commit()
+
+    def all(self) -> list[LabSession]:
+        import db
+        from db_models import LabSession as Row
+        with db.SessionLocal() as s:
+            return [self._row_to_session(r) for r in s.query(Row).all()]
+
+    def live_count(self, owner_id: str | None = None) -> int:
+        import db
+        from db_models import LabSession as Row
+        with db.SessionLocal() as s:
+            q = s.query(Row).filter(Row.status.in_(_LIVE_STATUSES))
+            if owner_id is not None:
+                q = q.filter(Row.owner_id == owner_id)
+            return q.count()
+
+    def clear(self) -> None:
+        import db
+        from db_models import LabSession as Row
+        with db.SessionLocal() as s:
+            s.query(Row).delete()
+            s.commit()
+
+
+def _default_store():
+    """DB-backed in production (durable, shared across workers); in-memory otherwise. Force the DB
+    store anywhere with LAB_SESSION_STORE=db (e.g. a multi-worker staging host on SQLite)."""
+    choice = os.environ.get("LAB_SESSION_STORE", "").lower()
+    if choice == "db" or (choice != "memory" and os.environ.get("APP_ENV", "development").lower() == "production"):
+        return DbLabSessionStore()
+    return InMemoryLabSessionStore()
+
+
+class SessionService:
+    def __init__(self, providers: dict[str, LabProvider] | None = None, store=None) -> None:
+        self._store = store if store is not None else InMemoryLabSessionStore()
         self._providers = providers or _PROVIDERS
+
+    @property
+    def _sessions(self) -> dict[str, LabSession]:
+        """Back-compat accessor for the in-memory store's dict (tests inspect it directly)."""
+        return self._store._sessions
 
     def _provider_for(self, provider_name: str) -> LabProvider:
         provider = self._providers.get(provider_name)
@@ -159,16 +296,21 @@ class SessionService:
         return env.provider
 
     def _owned(self, session_id: str, user_id: str) -> LabSession:
-        session = self._sessions.get(session_id)
+        session = self._store.get(session_id)
         # Not found and not-yours are the same 404, so ownership can't be probed.
         if session is None or session.user_id != user_id:
             raise LabError("not_found", "Lab session not found.")
-        self._expire_if_due(session)
+        if self._expire_if_due(session):
+            self._store.save(session)
         return session
 
-    def _expire_if_due(self, session: LabSession) -> None:
+    def _expire_if_due(self, session: LabSession) -> bool:
+        """Flip a past-its-window session to EXPIRED. Returns whether it changed (so the caller can
+        persist it)."""
         if session.status not in (COMPLETED, EXPIRED, DESTROYED) and _now() >= session.expires_at:
             session.status = EXPIRED
+            return True
+        return False
 
     async def start(self, lab_id: str, user_id: str) -> LabSession:
         lab = get_lab(lab_id)
@@ -178,16 +320,12 @@ class SessionService:
         # caps how many one owner may hold live. Without this, `_sessions` grows for as long as
         # anyone keeps calling start.
         await self.cleanup_expired()
-        live = sum(1 for s in self._sessions.values()
-                   if s.user_id == user_id and s.status in _LIVE_STATUSES)
-        if live >= MAX_LIVE_SESSIONS_PER_OWNER:
+        if self._store.live_count(user_id) >= MAX_LIVE_SESSIONS_PER_OWNER:
             raise LabError("invalid", f"You already have {MAX_LIVE_SESSIONS_PER_OWNER} labs open. Exit one first.")
         # Host-wide ceiling (defence-in-depth; the Docker provider enforces its own daemon-level cap).
-        if MAX_LIVE_SESSIONS_TOTAL:
-            total_live = sum(1 for s in self._sessions.values() if s.status in _LIVE_STATUSES)
-            if total_live >= MAX_LIVE_SESSIONS_TOTAL:
-                raise LabError("unavailable",
-                               "All lab environments are in use right now. Please try again in a few minutes.")
+        if MAX_LIVE_SESSIONS_TOTAL and self._store.live_count() >= MAX_LIVE_SESSIONS_TOTAL:
+            raise LabError("unavailable",
+                           "All lab environments are in use right now. Please try again in a few minutes.")
         provider_name = self._effective_provider_name(lab)
         provider = self._provider_for(provider_name)
         env = await provider.create_session(lab, user_id)
@@ -205,7 +343,7 @@ class SessionService:
             progress={o.id: False for o in lab.objectives},
             validation_results=[],
         )
-        self._sessions[session.id] = session
+        self._store.save(session)
         return session
 
     def get(self, session_id: str, user_id: str) -> LabSession:
@@ -219,6 +357,7 @@ class SessionService:
             raise LabError("invalid", "Findings must be an object.")
         # Merge so a student can record incrementally.
         session.findings.update(findings)
+        self._store.save(session)
         return session
 
     async def validate(self, session_id: str, user_id: str) -> LabSession:
@@ -244,6 +383,7 @@ class SessionService:
         if all(session.progress.values()) and session.status != COMPLETED:
             session.status = COMPLETED
             session.completed_at = _now()
+        self._store.save(session)
         return session
 
     async def exec_command(self, session_id: str, user_id: str, command: str) -> tuple[LabSession, CommandResult]:
@@ -273,18 +413,18 @@ class SessionService:
         session.completed_at = None
         if session.status in (COMPLETED, EXPIRED, FAILED):
             session.status = RUNNING
+        self._store.save(session)
         return session
 
     async def destroy(self, session_id: str, user_id: str) -> None:
         # Idempotent: destroying an unknown/foreign session is a silent no-op, never an error.
-        session = self._sessions.get(session_id)
+        session = self._store.get(session_id)
         if session is None or session.user_id != user_id:
             return
         provider = self._providers.get(session.provider)
         if provider is not None:
             await provider.destroy_session(session.environment_id)
-        session.status = DESTROYED
-        self._sessions.pop(session_id, None)
+        self._store.delete(session_id)
 
     async def cleanup_expired(self) -> int:
         """Destroy the environments of expired/finished sessions and forget them.
@@ -293,18 +433,22 @@ class SessionService:
         a learner can still read their results; after that the environment is gone anyway.
         """
         removed = 0
-        for session in list(self._sessions.values()):
-            self._expire_if_due(session)
+        for session in self._store.all():
+            changed = self._expire_if_due(session)
             if session.status in (COMPLETED, FAILED) and _now() >= session.expires_at:
                 session.status = EXPIRED
+                changed = True
             if session.status in (EXPIRED, DESTROYED):
                 provider = self._providers.get(session.provider)
                 if provider is not None:
                     await provider.destroy_session(session.environment_id)
-                self._sessions.pop(session.id, None)
+                self._store.delete(session.id)
                 removed += 1
+            elif changed:
+                self._store.save(session)
         return removed
 
 
-# One shared service for the app. Tests construct their own for isolation.
-service = SessionService()
+# One shared service for the app: DB-backed in production (durable, shared across workers),
+# in-memory otherwise. Tests construct their own with an explicit store for isolation.
+service = SessionService(store=_default_store())
