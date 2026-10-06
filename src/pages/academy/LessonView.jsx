@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap, Eye } from 'lucide-react';
 import RichText from '@/components/academy/RichText';
+import { LessonPart, Para } from '@/components/academy/lesson/blocks';
+import { LessonVisual } from '@/components/academy/lesson/visuals';
 import { PrereqNotice } from '@/components/academy/ui/bits';
 import {
   Button, Card, EmptyState, ListLink, PageContainer, PageHeader, StatusBadge,
@@ -123,21 +125,25 @@ export default function LessonView() {
 
         {c.learn?.length > 0 && (
           <Section id="learn" title="Learn">
-            {c.learn.map((part) => (
-              <div key={part.heading} className="space-y-3">
-                <h3 className="text-heading text-ink-1">{part.heading}</h3>
-                {part.body.map((p) => <Para key={p} text={p} />)}
-              </div>
-            ))}
+            <div className="space-y-10">
+              {c.learn.map((part, n) => <LessonPart key={part.heading} part={part} index={n} />)}
+            </div>
           </Section>
         )}
 
         {c.architecture && (
           <Section id="architecture" title="Architecture">
-            <figure>
-              <pre className="overflow-x-auto rounded-control border border-white/10 bg-black/30 p-5 font-mono text-small leading-relaxed text-ink-1">{c.architecture.diagram}</pre>
-              <figcaption className="mt-3 text-small text-ink-2">{c.architecture.caption}</figcaption>
-            </figure>
+            {c.architecture.visual ? (
+              <>
+                <LessonVisual id={c.architecture.visual} />
+                <p className="max-w-reading text-small text-ink-2">{c.architecture.caption}</p>
+              </>
+            ) : (
+              <figure>
+                <pre className="overflow-x-auto rounded-control border border-white/10 bg-black/30 p-5 font-mono text-small leading-relaxed text-ink-1">{c.architecture.diagram}</pre>
+                <figcaption className="mt-3 text-small text-ink-2">{c.architecture.caption}</figcaption>
+              </figure>
+            )}
           </Section>
         )}
 
@@ -223,12 +229,6 @@ function Section({ id, title, children }) {
     </section>
   );
 }
-
-const Para = ({ text }) => (
-  <p className="max-w-reading text-lesson text-ink-1">
-    <RichText text={text} />
-  </p>
-);
 
 function CodeBlock({ code }) {
   const [copied, setCopied] = useState(false);
