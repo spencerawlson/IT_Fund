@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LabTerminal from '@/components/labs/LabTerminal';
+import { Button } from '@/components/ui-glass';
 import { labsApi } from '@/api/labs';
 
 // The terminal-first Interactive Lab console: the learner discovers and launches labs by typing
@@ -35,13 +36,18 @@ export default function LabConsole({ startHint = null, prompt = 'roadtocissp@lab
   const [labs, setLabs] = useState(null);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    let live = true;
+  // Fetch the catalogue. Returned cleanup cancels a stale in-flight load; Retry just calls it again.
+  const load = useCallback(() => {
+    let cancelled = false;
+    setError('');
+    setLabs(null);
     labsApi.listDefinitions()
-      .then(({ labs: defs }) => { if (live) setLabs(orderLabs(defs)); })
-      .catch((e) => { if (live) setError(e.message); });
-    return () => { live = false; };
+      .then(({ labs: defs }) => { if (!cancelled) setLabs(orderLabs(defs || [])); })
+      .catch((e) => { if (!cancelled) setError(e.message || 'Could not reach the lab service.'); });
+    return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => load(), [load]);
 
   const lookup = useMemo(() => {
     const byToken = {};
@@ -138,9 +144,25 @@ export default function LabConsole({ startHint = null, prompt = 'roadtocissp@lab
     return { output: `${cmd}: command not found. Type 'help'.`, exit_code: 127 };
   };
 
+  // Loading / error are rendered as their own panels rather than as banner lines inside the
+  // terminal: the terminal only reads `banner` once at mount, so folding these states into it
+  // (and swapping via a key) left it stuck on "Loading…" whenever the fetch errored. The terminal
+  // mounts once, with the full catalogue, the moment the labs are ready.
+  const shellBox = 'rounded-xl border border-black/20 bg-[#0a0e14] p-4 font-mono text-[13px] text-emerald-300/80';
+  if (error) {
+    return (
+      <div className={shellBox}>
+        <p className="text-red-400">Couldn’t load the lab catalogue.</p>
+        <p className="mt-1 text-emerald-300/50">{error}</p>
+        <Button size="sm" variant="secondary" onClick={load} className="mt-3">Retry</Button>
+      </div>
+    );
+  }
+  if (!labs) {
+    return <div className={`${shellBox} animate-pulse`}>Loading lab catalogue…</div>;
+  }
   return (
     <LabTerminal
-      key={labs ? 'ready' : 'loading'}
       runner={runner}
       banner={banner}
       prompt={prompt}
