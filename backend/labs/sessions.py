@@ -7,6 +7,7 @@ change. The API must go through this service, never call a provider directly.
 """
 from __future__ import annotations
 
+import os
 import secrets
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -27,6 +28,15 @@ CREATING, READY, RUNNING, VALIDATING, COMPLETED, FAILED, EXPIRED, DESTROYING, DE
 #: Live sessions one owner (account or guest) may hold at once. A guard, not a product limit: lab
 #: starts are open to anonymous visitors, and session storage is in-memory.
 MAX_LIVE_SESSIONS_PER_OWNER = 5
+
+#: Optional host-wide ceiling on live sessions across ALL owners — defence-in-depth for the
+#: in-memory store and a process-local backstop to the Docker provider's daemon-level container cap
+#: (`LAB_DOCKER_MAX_CONTAINERS`). 0 (the default) leaves it unlimited so current behaviour is
+#: unchanged; set LAB_MAX_TOTAL_SESSIONS to cap it.
+MAX_LIVE_SESSIONS_TOTAL = max(0, int(os.environ.get("LAB_MAX_TOTAL_SESSIONS", "0") or 0))
+
+#: Statuses that count as holding a live environment.
+_LIVE_STATUSES = (CREATING, READY, RUNNING, VALIDATING)
 
 
 class LabError(Exception):
@@ -169,9 +179,15 @@ class SessionService:
         # anyone keeps calling start.
         await self.cleanup_expired()
         live = sum(1 for s in self._sessions.values()
-                   if s.user_id == user_id and s.status in (CREATING, READY, RUNNING, VALIDATING))
+                   if s.user_id == user_id and s.status in _LIVE_STATUSES)
         if live >= MAX_LIVE_SESSIONS_PER_OWNER:
             raise LabError("invalid", f"You already have {MAX_LIVE_SESSIONS_PER_OWNER} labs open. Exit one first.")
+        # Host-wide ceiling (defence-in-depth; the Docker provider enforces its own daemon-level cap).
+        if MAX_LIVE_SESSIONS_TOTAL:
+            total_live = sum(1 for s in self._sessions.values() if s.status in _LIVE_STATUSES)
+            if total_live >= MAX_LIVE_SESSIONS_TOTAL:
+                raise LabError("unavailable",
+                               "All lab environments are in use right now. Please try again in a few minutes.")
         provider_name = self._effective_provider_name(lab)
         provider = self._provider_for(provider_name)
         env = await provider.create_session(lab, user_id)

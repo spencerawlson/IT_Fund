@@ -111,7 +111,11 @@ export default function LabLauncher() {
     const lines = ['Road to CISSP Interactive Lab', '=============================', '', listText()];
     if (startHint && lookup[startHint.toLowerCase()]) {
       const l = lookup[startHint.toLowerCase()];
-      lines.push('', 'Visual Lab scenario detected.', `Corresponding Interactive Lab: ${l.slug}`, '', `To begin, type:  lab start ${l.slug}`);
+      // A lab was preselected (from the Visual Lab's "Build this" or a Practice card). We do NOT
+      // auto-start it — the learner enters by typing, which is the whole point of terminal-first.
+      lines.push('', `Selected lab:  ${l.title}`, '', `To begin, type:  lab start ${l.slug}`);
+    } else if (startHint) {
+      lines.push('', `No lab matches "${startHint}". Type 'labs' to list them.`);
     }
     return lines;
     // eslint-disable-next-line react-hooks/exhaustive-deps

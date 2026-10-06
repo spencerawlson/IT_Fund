@@ -8,7 +8,10 @@ Security posture (this endpoint runs untrusted learner input):
   - No privileged containers, ever. All Linux capabilities are dropped and
     `no-new-privileges` is set, so a container breakout buys the attacker nothing.
   - Resource bounds from the lab definition: CPU (`nano_cpus`) and memory (`mem_limit`),
-    plus a PID limit so a fork bomb dies inside the container.
+    a PID limit so a fork bomb dies inside the container, fd/file-size ulimits, and an
+    optional per-container disk quota (`LAB_DOCKER_STORAGE_SIZE`, where the backend supports it).
+  - A host-wide ceiling on concurrently-running lab containers (`LAB_DOCKER_MAX_CONTAINERS`),
+    enforced at the daemon level so it holds across backend workers.
   - Network isolation: labs with `deny_internet_egress=True` (the default, and mandatory
     for cyber labs) are attached to an *internal-only* Docker network — no outbound
     internet, no route to the host's LAN. The learner's container cannot scan the host.
@@ -59,6 +62,15 @@ class DockerLabProvider(LabProvider):
         self._client_failed: str | None = None
         # environment_id -> last activity (for idle expiry)
         self._last_used: dict[str, datetime] = {}
+        # Global ceiling on concurrently-running lab containers on THIS host. Enforced at the daemon
+        # level (count of `rtc=labs` containers), so it holds even across multiple backend workers
+        # that share one daemon — unlike the per-owner session cap, which is per-process memory.
+        # 0 disables it. Default 50: a generous but finite guard for an open, no-login endpoint.
+        self._max_containers = max(0, int(os.environ.get("LAB_DOCKER_MAX_CONTAINERS", "50") or 0))
+        # Optional per-container disk quota for the writable layer (e.g. "1g", "512m"). Caps total
+        # bytes a learner can write, not just one file (that's the fsize ulimit). Requires a storage
+        # backend that supports it (overlay2 on xfs/btrfs with pquota); unset = no quota.
+        self._storage_size = os.environ.get("LAB_DOCKER_STORAGE_SIZE", "").strip() or None
 
     # ---------- daemon access ----------
 
@@ -140,6 +152,17 @@ class DockerLabProvider(LabProvider):
 
         def _create() -> Any:
             from docker.types import Ulimit  # noqa: PLC0415  (optional dependency)
+            # Host-wide capacity guard: refuse before spawning if the daemon is already at the cap.
+            # Checked here (just before `run`, in the daemon thread) so the count is as fresh as it
+            # can be. Not perfectly race-free across simultaneous starts, but the window is tiny and
+            # the overshoot is at most the number of concurrent create calls.
+            if self._max_containers:
+                running = client.containers.list(filters={"label": "rtc=labs"})
+                if len(running) >= self._max_containers:
+                    raise LabError(
+                        "unavailable",
+                        "The lab environment is at capacity right now. Please try again in a few minutes.",
+                    )
             try:
                 client.images.get(image)
             except Exception:
@@ -157,6 +180,11 @@ class DockerLabProvider(LabProvider):
                 net = client.networks.create(f"rtc-lab-net-{token}", internal=False, labels={"rtc": "labs"})
                 net_kwargs = {"network": net.name}
             owner = hashlib.sha256(user_id.encode()).hexdigest()[:16]
+            # A per-container disk quota on the writable layer, when the host is configured for it
+            # (LAB_DOCKER_STORAGE_SIZE). This bounds TOTAL bytes written, closing the gap the fsize
+            # ulimit (one file) left open. Omitted entirely when unset so hosts without pquota are
+            # unaffected.
+            storage_kwargs = {"storage_opt": {"size": self._storage_size}} if self._storage_size else {}
             container = client.containers.run(
                 image,
                 command="sleep infinity",
@@ -168,11 +196,12 @@ class DockerLabProvider(LabProvider):
                 cap_drop=["ALL"],
                 security_opt=["no-new-privileges:true"],
                 tmpfs={"/tmp": "size=64m,mode=1777"},
-                # Bound a runaway single file (partial disk guard) and the fd table. A full disk quota
-                # needs host-level storage pquota — tracked in the images README as a follow-up.
+                # Bound a runaway single file (fsize) and the fd table (nofile); storage_opt above
+                # bounds total writable-layer bytes where the storage backend supports a quota.
                 ulimits=[Ulimit(name="nofile", soft=1024, hard=2048),
                          Ulimit(name="fsize", soft=128 * 1024 * 1024, hard=128 * 1024 * 1024)],
                 labels={"rtc": "labs", "rtc.lab": lab.id, "rtc.owner": owner},
+                **storage_kwargs,
                 **net_kwargs,
             )
             return container
@@ -182,6 +211,17 @@ class DockerLabProvider(LabProvider):
         except LabError:
             raise
         except Exception as exc:  # noqa: BLE001
+            msg = str(exc)
+            # A storage quota the backend can't honour is a host misconfiguration, not a lab fault —
+            # say so plainly instead of a generic "could not start".
+            if self._storage_size and ("storage-opt" in msg.lower() or "storage opt" in msg.lower()
+                                       or "pquota" in msg.lower() or "does not support" in msg.lower()):
+                raise LabError(
+                    "unavailable",
+                    "LAB_DOCKER_STORAGE_SIZE is set but this host's Docker storage backend does not "
+                    "support per-container quotas (needs overlay2 on xfs/btrfs with pquota). Unset it "
+                    f"or enable pquota. Daemon said: {msg}",
+                )
             raise LabError("unavailable", f"Could not start the lab environment: {exc}")
 
         env_id = f"docker-{container.id[:12]}"

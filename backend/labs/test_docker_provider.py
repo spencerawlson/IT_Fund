@@ -362,3 +362,42 @@ def test_reap_orphans_removes_only_stale_labelled_containers(provider, fake_dock
     assert other.removed is False
     # Unused per-session networks are pruned too.
     assert client.networks._by_name == {}
+
+
+def test_create_refuses_when_at_global_container_cap(provider, fake_docker):
+    from datetime import datetime, timezone
+
+    provider._max_containers = 1
+    # One (fresh, so the reaper keeps it) lab container already running on the host.
+    now = datetime.now(timezone.utc).isoformat()
+    fake_docker._containers["existing12345"] = FakeContainer(
+        "existing12345", fake_docker, created=now, labels={"rtc": "labs"})
+    with pytest.raises(LabError) as ei:
+        asyncio.run(provider.create_session(_lab(), "u1"))
+    assert ei.value.code == "unavailable"
+    assert "capacity" in ei.value.message.lower()
+
+
+def test_create_omits_storage_quota_by_default(provider, fake_docker):
+    asyncio.run(provider.create_session(_lab(), "u1"))
+    assert "storage_opt" not in fake_docker.last_run_kwargs
+
+
+def test_create_passes_storage_quota_when_configured(provider, fake_docker):
+    provider._storage_size = "512m"
+    asyncio.run(provider.create_session(_lab(), "u1"))
+    assert fake_docker.last_run_kwargs["storage_opt"] == {"size": "512m"}
+
+
+def test_create_reports_storage_quota_unsupported_clearly(provider, fake_docker, monkeypatch):
+    provider._storage_size = "512m"
+
+    def boom(*a, **k):
+        raise RuntimeError("Error response from daemon: --storage-opt is supported only for "
+                           "overlay over xfs with 'pquota' mount option")
+
+    monkeypatch.setattr(fake_docker.containers, "run", boom)
+    with pytest.raises(LabError) as ei:
+        asyncio.run(provider.create_session(_lab(), "u1"))
+    assert ei.value.code == "unavailable"
+    assert "pquota" in ei.value.message.lower()

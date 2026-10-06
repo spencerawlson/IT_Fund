@@ -82,6 +82,22 @@ To close a held-back case, make its image byte-faithful to the mock (or add a
 real-output findings parser) **and** a `test_lab_images.py` assertion, then set
 `prefers_docker=True`.
 
+## Capacity & disk limits
+
+Lab starts are open to anyone (no login), so a real-Docker host needs bounds.
+Per container we already drop all caps, set `no-new-privileges`, cap CPU/memory,
+PIDs (256), fd count (`nofile`) and single-file size (`fsize` 128 MB), and mount
+`/tmp` as a 64 MB tmpfs. On top of that:
+
+| Env var | Default | Effect |
+|---|---|---|
+| `LAB_DOCKER_MAX_CONTAINERS` | `50` | Host-wide ceiling on concurrently-running `rtc=labs` containers, enforced at the daemon level (so it holds across backend workers). Over the cap, new starts get `503` "at capacity". `0` disables. |
+| `LAB_DOCKER_STORAGE_SIZE` | *(unset)* | Per-container writable-layer disk quota, e.g. `1g`, `512m`. Bounds **total** bytes written (the `fsize` ulimit only bounds one file). **Requires** a storage backend that supports quotas — overlay2 on xfs/btrfs with the `pquota` mount option. If set on a host without it, lab starts fail `503` with a message naming the cause; unset it or enable pquota. |
+| `LAB_MAX_TOTAL_SESSIONS` | `0` (off) | Process-local ceiling on live sessions across all owners, in `SessionService`. Defence-in-depth for the in-memory store and a backstop to the container cap. `0` leaves it unlimited. |
+
+The per-owner session cap (`MAX_LIVE_SESSIONS_PER_OWNER = 5`, in `sessions.py`)
+is separate and always on.
+
 ## Verify end-to-end
 
 The API never exposes the provider, so verify on the VM itself:
@@ -134,6 +150,8 @@ reads the container's (empty) wtmp and shows nothing. The same evidence is in
 |---|---|
 | `Lab provider 'docker' is not available` | `LAB_DOCKER_ENABLED=1` not set, `docker` package missing, or daemon unreachable. Check `docker info` as the backend user and `journalctl --user -u itfund-backend`. |
 | `Lab image 'road-to-cissp/x:latest' is not available` | Image not built (or wrong tag). Run `./build.sh`; the provider does **not** fall back to mock - the lab fails loudly instead of silently simulating. |
+| `The lab environment is at capacity right now` (503) | `LAB_DOCKER_MAX_CONTAINERS` reached. Raise it, or wait for sessions to idle out / be reaped. `docker ps --filter label=rtc=labs \| wc -l` shows the live count. |
+| `LAB_DOCKER_STORAGE_SIZE is set but this host's Docker storage backend does not support per-container quotas` (503) | The storage driver has no quota support. Either unset `LAB_DOCKER_STORAGE_SIZE`, or switch to overlay2 on an xfs/btrfs filesystem mounted with `pquota` (`prjquota`). |
 | `terraform init` tries the network | The provider mirror wasn't populated (build ran without internet). Rebuild `iac` with internet access. |
 | `aws` commands hang | The moto supervisor is still seeding (first ~10s). The entrypoint waits for `~/.moto-ready`; check `/home/auditor/.moto-lab.log` via `docker exec`. |
 | `nmap` says host is down | Normal unprivileged behaviour: use `nmap -Pn` and `-sT` (see image notes). Ping and SYN scans need raw sockets the hardened provider never grants. |

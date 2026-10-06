@@ -100,6 +100,20 @@ def test_non_prefers_lab_stays_on_mock_even_when_docker_available():
     assert s.provider == "mock"
 
 
+def test_global_session_cap_refuses_once_full(monkeypatch):
+    # Host-wide ceiling across owners (defence-in-depth), independent of the per-owner cap.
+    monkeypatch.setattr(sessions_mod, "MAX_LIVE_SESSIONS_TOTAL", 2)
+    svc = SessionService()
+    run(svc.start("cyber-nmap-001", "guest:a"))
+    run(svc.start("cyber-nmap-001", "guest:b"))
+    try:
+        run(svc.start("cyber-nmap-001", "guest:c"))  # third owner, but the host is full
+    except LabError as err:
+        assert err.code == "unavailable"
+    else:
+        raise AssertionError("expected the global cap to refuse the third session")
+
+
 def test_resolved_provider_is_reused_by_later_calls():
     # exec/validate/reset must all route to the SAME provider the environment was created on.
     docker_stub = MockLabProvider()
