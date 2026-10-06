@@ -115,7 +115,6 @@ export default function LabConsole({ startHint = null, prompt = 'roadtocissp@lab
       lines.push('', `No lab matches "${startHint}". Type 'labs' to list them.`);
     }
     return lines;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [labs, error, startHint]);
 
   const runner = async (raw) => {

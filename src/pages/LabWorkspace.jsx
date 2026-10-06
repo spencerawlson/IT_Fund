@@ -129,6 +129,27 @@ export default function LabWorkspace() {
   const sessionRef = useRef(null);
   sessionRef.current = session;
 
+  // Self-heal a lost session. Lab sessions live in the backend's memory (see labs/sessions.py), so a
+  // backend restart, an idle-expiry, or a different worker in a multi-instance deploy can make the
+  // session the browser holds "not found". Rather than dead-end, start a fresh one and retry once, so
+  // the terminal keeps working. `fn` receives the id to use (the fresh one on retry).
+  const restartSession = useCallback(async () => {
+    const s = await labsApi.start(labId);
+    setSession(s);
+    setDraft(s.findings || {});
+    return s;
+  }, [labId]);
+
+  const withRecovery = useCallback(async (fn) => {
+    try {
+      return await fn(sessionRef.current?.id);
+    } catch (e) {
+      if (e.status !== 404) throw e;
+      const s = await restartSession();
+      return fn(s.id);
+    }
+  }, [restartSession]);
+
   // Best-effort cleanup ONLY when leaving the page.
   useEffect(() => {
     return () => {
@@ -141,35 +162,38 @@ export default function LabWorkspace() {
   }, []);
 
   const check = useCallback(async () => {
-    if (!session) return;
+    if (!sessionRef.current) return;
     setBusy(true);
     setError('');
     try {
-      await labsApi.recordFindings(session.id, draft);
-      setSession(await labsApi.validate(session.id));
+      const s = await withRecovery(async (sid) => {
+        await labsApi.recordFindings(sid, draft);
+        return labsApi.validate(sid);
+      });
+      setSession(s);
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [session, draft]);
+  }, [draft, withRecovery]);
 
   const reset = useCallback(async () => {
-    if (!session) return;
+    if (!sessionRef.current) return;
     setBusy(true);
     setError('');
     try {
-      const s = await labsApi.reset(session.id);
+      const s = await withRecovery((sid) => labsApi.reset(sid));
       setSession(s);
       setDraft({});
       setEpoch((n) => n + 1);
-      setActiveDevice(deviceFromPrompt(lab.terminal?.prompt));
+      setActiveDevice(deviceFromPrompt(lab?.terminal?.prompt));
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [session, lab]);
+  }, [lab, withRecovery]);
 
   // Device-console tabs (multi-device IOS labs): switch which device the shell is driving.
   const connectTo = useCallback((host) => {
@@ -208,7 +232,7 @@ export default function LabWorkspace() {
     }
     if (c === 'check') {
       try {
-        const s = await labsApi.validate(session.id);
+        const s = await withRecovery((sid) => labsApi.validate(sid));
         return { output: `Checked. ${Object.values(s.progress).filter(Boolean).length}/${lab.objectives.length} objectives complete.`, session: s };
       } catch (e) { return { output: e.message, exit_code: 1 }; }
     }
@@ -234,12 +258,12 @@ export default function LabWorkspace() {
         'This lab\'s tools:',
       ].filter(Boolean).join('\n');
       try {
-        const res = await labsApi.exec(session.id, 'help');
+        const res = await withRecovery((sid) => labsApi.exec(sid, 'help'));
         return { output: `${meta}\n${res.output || ''}`, session: res.session, prompt: res.prompt };
       } catch { return { output: meta }; }
     }
-    return labsApi.exec(session.id, raw);
-  }, [session, lab, reset, navigate]);
+    return withRecovery((sid) => labsApi.exec(sid, raw));
+  }, [session, lab, reset, navigate, withRecovery]);
 
   const results = session?.validation_results || [];
   const passedCount = useMemo(() => Object.values(session?.progress || {}).filter(Boolean).length, [session]);
@@ -337,9 +361,10 @@ export default function LabWorkspace() {
                 </div>
               )}
               <LabTerminal
-                key={`${session.id}:${epoch}`}
+                key={`${labId}:${epoch}`}
                 ref={termRef}
                 sessionId={session.id}
+                runner={runner}
                 banner={banner}
                 prompt={prompt}
                 disabled={expired}
