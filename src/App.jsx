@@ -34,6 +34,8 @@ import PracticeExam from './pages/academy/PracticeExam';
 import Practice from './pages/Practice';
 import LabWorkspace from './pages/LabWorkspace';
 import LabLauncher from './pages/LabLauncher';
+import LabProgress from './pages/LabProgress';
+import Landing from './pages/Landing';
 import SignIn from './pages/SignIn';
 
 // Dev-only design system preview; not bundled into production builds.
@@ -67,8 +69,8 @@ const AuthenticatedApp = () => {
     <Routes>
       {/* Pages inside the app shell: one sidebar (desktop) / tab bar (mobile) navigation. */}
       <Route element={<AppShell />}>
-        <Route path="/" element={<Academy />} />
-        <Route path="/academy" element={<Navigate to="/" replace />} />
+        <Route path="/app" element={<Academy />} />
+        <Route path="/academy" element={<Navigate to="/app" replace />} />
         <Route path="/academy/roadmap" element={<CisspRoadmap />} />
         <Route path="/academy/paths" element={<PathsIndex />} />
         <Route path="/academy/paths/:slug" element={<PathDetail />} />
@@ -91,8 +93,12 @@ const AuthenticatedApp = () => {
         <Route path="*" element={<PageNotFound />} />
       </Route>
 
+      {/* Public front door: the marketing landing. Signed-in visitors go straight to /app. */}
+      <Route path="/" element={<Landing />} />
+
       {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
       <Route path="/labs" element={<LabLauncher />} />
+      <Route path="/labs/progress" element={<LabProgress />} />
       <Route path="/labs/:labId" element={<LabWorkspace />} />
       <Route path="/academy/exam" element={<PracticeExam />} />
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />

@@ -4,6 +4,7 @@ import { Check, X, Lock, RotateCcw, Clock, FlaskConical, ShieldCheck, SearchX, T
 import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { labsApi } from '@/api/labs';
+import { recordLabCompletion } from '@/lib/labProgress';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
@@ -187,6 +188,16 @@ export default function LabWorkspace() {
   // Whether this lab really executes (Docker) instead of simulating — drives the terminal
   // caption and the attestation buttons.
   const isLive = !!lab?.environment?.live;
+
+  // Record the completion (with its duration) the first time this session completes,
+  // so the lab progress page can show per-lab times. History lives in this browser.
+  const recordedRef = useRef(new Set());
+  useEffect(() => {
+    if (session?.status === 'COMPLETED' && session.completed_at && !recordedRef.current.has(session.id)) {
+      recordedRef.current.add(session.id);
+      recordLabCompletion(session.lab_id, session.started_at, session.completed_at);
+    }
+  }, [session]);
 
   const reset = useCallback(async () => {
     if (!session) return;

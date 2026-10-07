@@ -144,6 +144,7 @@ export default function LabLauncher() {
         <div className="glass-1 mx-auto flex max-w-5xl items-center gap-3 rounded-card px-3 py-2 sm:px-4">
           <FlaskConical size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate text-body font-semibold">Interactive Lab</span>
+          <Button size="sm" variant="ghost" to="/labs/progress">My progress</Button>
           <Button size="sm" variant="secondary" to="/practice">Exit</Button>
         </div>
       </header>

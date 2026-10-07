@@ -114,7 +114,7 @@ export default function AppShell() {
       {/* Desktop sidebar: the site header (logo, search, navigation). Hidden below lg, where the top bar takes over. */}
       <header className="fixed inset-y-3 left-3 z-40 hidden w-60 lg:block">
         <div className="glass-1 flex h-full flex-col rounded-card p-3">
-          <Link to="/" aria-label="Road to CISSP home" className="mb-5 mt-1 px-2">
+          <Link to="/app" aria-label="Road to CISSP home" className="mb-5 mt-1 px-2">
             <Logo size={30} />
           </Link>
           <SearchForm className="mb-4" />
@@ -156,7 +156,7 @@ export default function AppShell() {
             </>
           ) : (
             <>
-              <Link to="/" aria-label="Road to CISSP home">
+              <Link to="/app" aria-label="Road to CISSP home">
                 <Logo size={28} />
               </Link>
               <div className="flex items-center">

@@ -115,7 +115,7 @@ export default function AcademyPlay({ kind }) {
 
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {
-    body = <EmptyState icon={SearchX} title="Not found" text="This quiz may have moved." to="/" action="Back to Home" />;
+    body = <EmptyState icon={SearchX} title="Not found" text="This quiz may have moved." to="/app" action="Back to Home" />;
     // Lessons are all open; a module's assessment still waits until its lessons are passed, since
     // it is that module's final check and draws its questions from them.
   } else if (!result && kind === 'boss' && !isTierComplete(state, track, tierIndex)) {
@@ -124,7 +124,7 @@ export default function AcademyPlay({ kind }) {
         icon={Lock}
         title="Not open yet"
         text="The assessment is this module’s final check: pass every lesson in the module first."
-        to="/"
+        to="/app"
         action="Back to Home"
       />
     );
@@ -136,7 +136,7 @@ export default function AcademyPlay({ kind }) {
         icon={Sparkles}
         title="Nothing to review yet"
         text="Finish your first lesson and its questions will start coming back here."
-        to="/"
+        to="/app"
         action="Back to Home"
       />
     );
