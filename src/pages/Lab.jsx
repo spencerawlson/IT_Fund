@@ -196,7 +196,9 @@ function Stage({ id, onBack }) {
           <p className="text-small text-ink-2">Now make it happen yourself — configure this topology in the terminal.</p>
           <div className="flex flex-wrap gap-2">
             {BUILD_IN_LAB[id].map((labId) => (
-              <Link key={labId} to={`/labs/${labId}`} className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
+              // Terminal-first: hand the lab context to the launcher (?start=) which shows
+              // "To begin, type: lab start <name>". The learner types it — we never auto-launch.
+              <Link key={labId} to={`/labs?start=${labId}`} className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
                 Build this in the Interactive Lab <ArrowRight size={16} aria-hidden="true" />
               </Link>
             ))}

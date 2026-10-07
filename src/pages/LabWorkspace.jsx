@@ -385,6 +385,7 @@ export default function LabWorkspace() {
                 key={`${session.id}:${epoch}`}
                 ref={termRef}
                 sessionId={session.id}
+                runner={runner}
                 banner={banner}
                 prompt={prompt}
                 disabled={expired}
