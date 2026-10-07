@@ -28,8 +28,10 @@ function LabTimer({ expiresAt }) {
 
 const resultFor = (results, id) => results.find((r) => r.objective_id === id);
 
-/** Objectives with live pass/fail from the last validation. */
-function LabObjectives({ objectives, results }) {
+/** Objectives with live pass/fail from the last validation.
+ *  Live-execution labs (real containers) can't fabricate findings, so each open objective
+ *  gets an "I did this" attestation button that records the finding and re-validates. */
+function LabObjectives({ objectives, results, attestable = false, onAttest, busy = false }) {
   return (
     <ol className="space-y-2">
       {objectives.map((o) => {
@@ -44,11 +46,22 @@ function LabObjectives({ objectives, results }) {
             >
               {passed ? <Check size={14} aria-hidden="true" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
             </span>
-            <span className="min-w-0">
+            <span className="min-w-0 flex-1">
               <span className="block text-body text-ink-1">{o.label}</span>
               {r && !passed && <span className="block text-small text-ink-2">{r.message}</span>}
               {!r && o.hints?.[0] && <span className="block text-small text-ink-2">Hint: {o.hints[0]}</span>}
             </span>
+            {attestable && !passed && (
+              <button
+                type="button"
+                onClick={() => onAttest(o)}
+                disabled={busy}
+                title="You ran this step for real — record it as done"
+                className="shrink-0 self-start rounded-control border border-white/10 px-2 py-1 text-caption font-semibold text-ink-2 transition hover:border-white/25 hover:text-ink-1 disabled:opacity-50"
+              >
+                I did this
+              </button>
+            )}
           </li>
         );
       })}
@@ -129,27 +142,6 @@ export default function LabWorkspace() {
   const sessionRef = useRef(null);
   sessionRef.current = session;
 
-  // Self-heal a lost session. Lab sessions live in the backend's memory (see labs/sessions.py), so a
-  // backend restart, an idle-expiry, or a different worker in a multi-instance deploy can make the
-  // session the browser holds "not found". Rather than dead-end, start a fresh one and retry once, so
-  // the terminal keeps working. `fn` receives the id to use (the fresh one on retry).
-  const restartSession = useCallback(async () => {
-    const s = await labsApi.start(labId);
-    setSession(s);
-    setDraft(s.findings || {});
-    return s;
-  }, [labId]);
-
-  const withRecovery = useCallback(async (fn) => {
-    try {
-      return await fn(sessionRef.current?.id);
-    } catch (e) {
-      if (e.status !== 404) throw e;
-      const s = await restartSession();
-      return fn(s.id);
-    }
-  }, [restartSession]);
-
   // Best-effort cleanup ONLY when leaving the page.
   useEffect(() => {
     return () => {
@@ -162,38 +154,56 @@ export default function LabWorkspace() {
   }, []);
 
   const check = useCallback(async () => {
-    if (!sessionRef.current) return;
+    if (!session) return;
     setBusy(true);
     setError('');
     try {
-      const s = await withRecovery(async (sid) => {
-        await labsApi.recordFindings(sid, draft);
-        return labsApi.validate(sid);
-      });
-      setSession(s);
+      await labsApi.recordFindings(session.id, draft);
+      setSession(await labsApi.validate(session.id));
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [draft, withRecovery]);
+  }, [session, draft]);
 
-  const reset = useCallback(async () => {
-    if (!sessionRef.current) return;
+  // Live-execution labs: the learner ran the step for real in the container — record the
+  // attestation as a finding, then validate so progress ticks. (Simulated labs fabricate
+  // findings server-side and never need this.)
+  const attest = useCallback(async (objective) => {
+    if (!session || !objective?.validator) return;
     setBusy(true);
     setError('');
     try {
-      const s = await withRecovery((sid) => labsApi.reset(sid));
+      await labsApi.recordFindings(session.id, { [objective.validator]: { attested: true } });
+      setSession(await labsApi.validate(session.id));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }, [session]);
+
+  // Whether this lab really executes (Docker) instead of simulating — drives the terminal
+  // caption and the attestation buttons.
+  const isLive = !!lab?.environment?.live;
+
+  const reset = useCallback(async () => {
+    if (!session) return;
+    setBusy(true);
+    setError('');
+    try {
+      const s = await labsApi.reset(session.id);
       setSession(s);
       setDraft({});
       setEpoch((n) => n + 1);
-      setActiveDevice(deviceFromPrompt(lab?.terminal?.prompt));
+      setActiveDevice(deviceFromPrompt(lab.terminal?.prompt));
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [lab, withRecovery]);
+  }, [session, lab]);
 
   // Device-console tabs (multi-device IOS labs): switch which device the shell is driving.
   const connectTo = useCallback((host) => {
@@ -232,7 +242,7 @@ export default function LabWorkspace() {
     }
     if (c === 'check') {
       try {
-        const s = await withRecovery((sid) => labsApi.validate(sid));
+        const s = await labsApi.validate(session.id);
         return { output: `Checked. ${Object.values(s.progress).filter(Boolean).length}/${lab.objectives.length} objectives complete.`, session: s };
       } catch (e) { return { output: e.message, exit_code: 1 }; }
     }
@@ -258,12 +268,12 @@ export default function LabWorkspace() {
         'This lab\'s tools:',
       ].filter(Boolean).join('\n');
       try {
-        const res = await withRecovery((sid) => labsApi.exec(sid, 'help'));
+        const res = await labsApi.exec(session.id, 'help');
         return { output: `${meta}\n${res.output || ''}`, session: res.session, prompt: res.prompt };
       } catch { return { output: meta }; }
     }
-    return withRecovery((sid) => labsApi.exec(sid, raw));
-  }, [session, lab, reset, navigate, withRecovery]);
+    return labsApi.exec(session.id, raw);
+  }, [session, lab, reset, navigate]);
 
   const results = session?.validation_results || [];
   const passedCount = useMemo(() => Object.values(session?.progress || {}).filter(Boolean).length, [session]);
@@ -326,7 +336,7 @@ export default function LabWorkspace() {
             <ProgressBar value={total ? Math.round((passedCount / total) * 100) : 0} label="Objectives complete" showValue={false} />
             {/* Scrollable so a long mission (e.g. the 9-step Docker+SIEM lab) never overflows the card. */}
             <div className="mt-4 max-h-[22rem] overflow-y-auto pr-1 [scrollbar-width:thin]">
-              <LabObjectives objectives={lab.objectives} results={results} />
+              <LabObjectives objectives={lab.objectives} results={results} attestable={isLive} onAttest={attest} busy={busy} />
             </div>
           </Card>
         </div>
@@ -337,7 +347,7 @@ export default function LabWorkspace() {
               <div className="mb-3 flex items-center gap-2">
                 <TerminalSquare size={18} className="text-ink-2" aria-hidden="true" />
                 <h2 className="text-heading text-ink-1">Terminal</h2>
-                <span className="ml-auto text-caption text-ink-3">simulated — nothing is really executed</span>
+                <span className="ml-auto text-caption text-ink-3">{isLive ? 'live container — real commands, real output' : 'simulated — nothing is really executed'}</span>
               </div>
               {devices.length > 1 && (
                 <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -361,10 +371,9 @@ export default function LabWorkspace() {
                 </div>
               )}
               <LabTerminal
-                key={`${labId}:${epoch}`}
+                key={`${session.id}:${epoch}`}
                 ref={termRef}
                 sessionId={session.id}
-                runner={runner}
                 banner={banner}
                 prompt={prompt}
                 disabled={expired}
@@ -373,7 +382,11 @@ export default function LabWorkspace() {
                 onPrompt={onPrompt}
               />
               <p className="mt-3 text-caption text-ink-3">
-                Objectives check automatically as you run commands. Type <code className="font-mono text-ink-2">help</code> for the command list.
+                {isLive ? (
+                  <>Run each step for real in the container, then press <span className="font-semibold text-ink-1">I did this</span> on the objective and check your work.</>
+                ) : (
+                  <>Objectives check automatically as you run commands. Type <code className="font-mono text-ink-2">help</code> for the command list.</>
+                )}
               </p>
             </Card>
           ) : (

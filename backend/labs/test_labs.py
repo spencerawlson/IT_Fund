@@ -70,6 +70,25 @@ def test_definitions_load_and_hide_internals():
     assert '"mock"' not in blob
 
 
+# ---- live-execution flag ----
+
+def test_public_view_marks_live_labs_without_leaking_internals():
+    r = client.get("/api/labs/definitions")
+    assert r.status_code == 200
+    labs = {l["id"]: l for l in r.json()["labs"]}
+    basics = labs["py-basics-001"]
+    assert basics["environment"]["live"] is True
+    # Simulated labs stay non-live...
+    assert labs["cyber-nmap-001"]["environment"]["live"] is False
+    # ...and objectives carry their (opaque) validator keys so the UI can record
+    # attested findings for live labs.
+    by_id = {o["id"]: o for o in basics["objectives"]}
+    assert by_id["write-script"]["validator"] == "py_script_written"
+    # Still no provider/image internals in the public blob.
+    blob = r.text
+    assert '"provider"' not in blob and '"image"' not in blob
+
+
 # ---- auth + lifecycle ----
 
 def test_start_is_open_to_anonymous_visitors():

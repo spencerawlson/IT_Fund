@@ -21,8 +21,11 @@ PYTHON_BASICS_LAB = LabDefinition(
     estimated_minutes=20,
     shell="linux_python",
     environment=LabEnvironmentConfig(
-        provider="mock",
-        prefers_docker=True,
+        # First lab converted from simulation to real execution: learners get a real
+        # python3 container (image built by labs/images/build.sh on the host).
+        # Findings are no longer fabricated — the learner attests each objective in
+        # the UI and "Check my work" validates the recorded findings.
+        provider="docker",
         image="road-to-cissp/python-basics:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,

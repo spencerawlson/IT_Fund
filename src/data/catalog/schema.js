@@ -52,20 +52,10 @@
  * @property {string} code
  * @property {string} [explanation]
  *
- * @typedef {object} LessonPart  One learn section, rendered in this order:
- * @property {string} heading
- * @property {string[]} body          Lead paragraphs (at least one).
- * @property {string} [visual]        Inline diagram id (components/academy/lesson/visuals.jsx).
- * @property {{ columns: string[], rows: string[][], caption?: string }} [table]  Aligned table;
- *                                    the first cell of each row is its label.
- * @property {string[]} [points]      Key points. "Lead: text" sets the lead in bold.
- * @property {{ label: string, text: string }} [note]  Callout: exam tip, memory aid, pitfall.
- *
  * @typedef {object} LessonContent
  * @property {string[]} [overview]     What it is and why it matters (paragraphs).
- * @property {LessonPart[]} [learn]    Detailed explanation.
- * @property {{ caption: string, diagram?: string, visual?: string }} [architecture]  A visual id,
- *                                    or a monospace diagram.
+ * @property {{ heading: string, body: string[] }[]} [learn]  Detailed explanation.
+ * @property {{ caption: string, diagram: string }} [architecture]  Monospace diagram.
  * @property {LessonExample[]} [examples]
  * @property {[string, string][]} [cheatSheet]  [term, meaning] rows.
  */

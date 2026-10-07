@@ -191,11 +191,6 @@ def _echo(raw: str, findings: dict[str, Any]) -> CommandResult:
         files[name] = files[name] + '\n' + content
     else:
         files[name] = content
-    # Netauto save objective: the help teaches `echo "hostname sw1" > day0.txt` then `>>` for sw2/sw3.
-    # Completing the file with all three generated configs satisfies the save, same as the open()
-    # one-liner. A single line is a legit partial write — it just doesn't complete the task yet.
-    if name == DAY0_NAME and files[name] == DAY0_CONTENT:
-        return CommandResult(output='', findings={'py_netauto_saved': {'file': name}})
     if _script_complete(files[name]):
         return CommandResult(output='', findings={'py_script_written': {'file': name}})
     return CommandResult(output='')
@@ -340,8 +335,8 @@ def _help(lab=None) -> CommandResult:
             '                               list config lines mentioning VLAN 10\n'
             '  python3 -c "for d in [\'sw1\',\'sw2\']: print(f\'hostname {d}\')"\n'
             '                               generate configs in a loop\n'
-            '  echo "hostname sw1" > day0.txt   then >> for sw2 and sw3 (>> appends)\n'
-            '                               save all three generated configs to the file\n'
+            '  echo "hostname sw1" > day0.txt   (>> appends)\n'
+            '                               write generated configs to a file\n'
             '  cat switch.cfg | cat day0.txt | ls | pwd | whoami | clear | help\n'
             'Goal: parse the switch config, generate device configs, save them.'
         ))

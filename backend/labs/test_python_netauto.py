@@ -70,32 +70,6 @@ def test_write_shape_creates_file_and_cat_verifies():
     assert r.findings["py_netauto_verified"]["file"] == "day0.txt"
 
 
-def test_netauto_lab_completes_with_echo_workflow():
-    # The help teaches `echo "hostname sw1" > day0.txt` + `>>` for sw2/sw3 as the save path, so that
-    # workflow must complete the lab just like the open() one-liner.
-    s, _ = _run("py-netauto-001", [
-        "python3 --version",
-        "python3 -c \"print([l for l in open('switch.cfg') if 'vlan 10' in l])\"",
-        "python3 -c \"for sw in ['sw1','sw2','sw3']: print('hostname ' + sw)\"",
-        'echo "hostname sw1" > day0.txt',
-        'echo "hostname sw2" >> day0.txt',
-        'echo "hostname sw3" >> day0.txt',
-        "cat day0.txt",
-    ])
-    assert s.status == "COMPLETED"
-    assert all(s.progress.values())
-
-
-def test_echo_save_needs_all_three_hostnames():
-    lab = get_lab("py-netauto-001")
-    findings = {}
-    r = linux_python.run(lab, 'echo "hostname sw1" > day0.txt', findings)
-    assert "py_netauto_saved" not in r.findings  # one line is a partial write, not done yet
-    linux_python.run(lab, 'echo "hostname sw2" >> day0.txt', findings)
-    r = linux_python.run(lab, 'echo "hostname sw3" >> day0.txt', findings)
-    assert r.findings["py_netauto_saved"]["file"] == "day0.txt"  # full config completes the save
-
-
 def test_switch_cfg_is_listed_and_readable():
     lab = get_lab("py-netauto-001")
     r = linux_python.run(lab, "ls", {})

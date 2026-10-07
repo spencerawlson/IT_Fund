@@ -5,97 +5,52 @@
 export default {
   'net-osi': {
     overview: [
-      'Every network conversation, whether it is a browser loading a page or a switch forwarding a frame, is a stack of smaller jobs handled in a fixed order. Layered models give each job a name. That gives engineers a shared vocabulary ("it is a Layer 2 problem") and a disciplined way to troubleshoot: test one layer, prove it works, then move to the next.',
-      'By the end of this lesson you will be able to name the seven OSI layers in order, say what each one does, identify the data unit at each layer, explain encapsulation, and map OSI onto the four-layer TCP/IP model that real networks run on.',
+      'Every network conversation, from loading a web page to a switch forwarding a frame, can be described in layers. Models give you a shared vocabulary ("that is a Layer 2 problem") and a systematic way to troubleshoot from the cable up.',
+      'This lesson covers the seven OSI layers and what lives at each, the four-layer TCP/IP model used in practice, the name of the data unit at each layer (the PDU), and encapsulation.',
     ],
     learn: [
       {
-        heading: 'Why networks are described in layers',
-        body: [
-          'A layer is a job with a clear boundary. Each layer serves the layer above it and relies on the layer below, without needing to know how either one works inside. That separation is why you can replace Wi-Fi with Ethernet without changing your browser, or move a website from HTTP to HTTPS without rewiring the building.',
-        ],
-        points: [
-          'Vocabulary: "a Layer 3 issue" tells a colleague to check IP addressing and routing, not cabling.',
-          'Troubleshooting: test layer by layer and stop at the first one that fails.',
-          'Interoperability: because each boundary is standardised, equipment from different vendors works together.',
-        ],
-      },
-      {
         heading: 'The seven OSI layers',
         body: [
-          'The Open Systems Interconnection (OSI) model, published by ISO, divides network communication into seven layers. Layer 1 sits closest to the wire and Layer 7 closest to the user. Read the stack from the bottom up, the way data arrives off the network.',
+          'Layer 1, Physical: bits as electrical, light or radio signals, plus cables, connectors and hubs. Layer 2, Data Link: frames, MAC addresses and switches. Layer 3, Network: packets, IP addresses and routers. Layer 4, Transport: segments (TCP) or datagrams (UDP), and port numbers.',
+          'Layer 5, Session: establishing, maintaining and tearing down sessions between applications. Layer 6, Presentation: formatting, encoding, compression and encryption such as TLS. Layer 7, Application: the protocols applications speak, such as HTTP, DNS and SMTP.',
+          'A common mnemonic from Layer 1 up is "Please Do Not Throw Sausage Pizza Away": Physical, Data Link, Network, Transport, Session, Presentation, Application.',
         ],
-        visual: 'osi-stack',
-        points: [
-          'Media layers: Layers 1 to 3 move data between devices, hop by hop, across the network.',
-          'Host layers: Layers 4 to 7 run end to end, between the two hosts that are talking.',
-          'In practice: Layers 5 and 6 rarely appear as separate protocols. Their jobs are usually done inside the application or by TLS, which exams place at Layer 6.',
-        ],
-        note: {
-          label: 'Memory aid',
-          text: 'From Layer 1 up: "Please Do Not Throw Sausage Pizza Away" (Physical, Data Link, Network, Transport, Session, Presentation, Application). From Layer 7 down: "All People Seem To Need Data Processing."',
-        },
       },
       {
         heading: 'PDUs and encapsulation',
         body: [
-          'Each layer has its own name for the unit of data it handles, called its protocol data unit (PDU). Using the right name tells people which layer you mean: a switch forwards frames, while a router forwards packets.',
-          'As data moves down the sender\'s stack, each layer wraps what it receives in its own header. This is encapsulation. The Data Link layer also adds a trailer, the frame check sequence (FCS), which lets the receiver detect a corrupted frame. The receiver reverses the process, removing one header per layer on the way up. This is de-encapsulation.',
+          'Each layer has a name for its unit of data, its protocol data unit: bits at Layer 1, frames at Layer 2, packets at Layer 3, and segments (TCP) or datagrams (UDP) at Layer 4.',
+          'On the way down the stack, each layer wraps the data from the layer above with its own header (and at Layer 2 a trailer too). This is encapsulation. The receiver de-encapsulates, stripping one header per layer on the way up. A router, for example, removes the incoming frame, reads the packet\'s destination IP, and builds a new frame for the next link.',
         ],
-        visual: 'encapsulation',
-        table: {
-          columns: ['Layer', 'PDU', 'What its header adds'],
-          rows: [
-            ['4 Transport', 'Segment (TCP) or datagram (UDP)', 'Source and destination port numbers'],
-            ['3 Network', 'Packet', 'Source and destination IP addresses'],
-            ['2 Data Link', 'Frame', 'Source and destination MAC addresses, plus the FCS trailer'],
-            ['1 Physical', 'Bits', 'No header: the frame becomes signals on the medium'],
-          ],
-        },
-        note: {
-          label: 'Exam tip',
-          text: 'A router de-encapsulates only as far as Layer 3. It discards the incoming frame, reads the destination IP address, and builds a new frame for the next link. The IP packet crosses the whole path; the frame is rebuilt at every hop.',
-        },
       },
       {
         heading: 'The TCP/IP model',
         body: [
-          'OSI is the reference language. TCP/IP is the protocol suite the internet actually runs on, and its model has four layers. Each TCP/IP layer covers one or more OSI layers.',
+          'The TCP/IP model has four layers: Link (also called Network Access, OSI 1 and 2), Internet (OSI 3), Transport (OSI 4) and Application (OSI 5 to 7). Real protocols are built on TCP/IP; OSI remains the standard language for describing where a problem or device sits.',
         ],
-        visual: 'tcpip-map',
-        note: {
-          label: 'Watch for',
-          text: 'The original specification (RFC 1122) defines four layers. Some textbooks split Link into Physical and Data Link to make a five-layer model. If a question says "the TCP/IP model" without qualification, assume four layers.',
-        },
-      },
-      {
-        heading: 'Using the model to troubleshoot',
-        body: [
-          'Layers turn a vague complaint such as "the internet is down" into an ordered set of tests. Start at the bottom, confirm each layer works, and stop at the first one that fails. That is where the fault is.',
-        ],
-        table: {
-          columns: ['Layer', 'Question to ask', 'Quick check'],
-          rows: [
-            ['1 Physical', 'Is there a signal?', 'Link light on, cable seated, Wi-Fi associated'],
-            ['2 Data Link', 'Can I reach the local network?', '`arp -a` lists the default gateway\'s MAC address'],
-            ['3 Network', 'Do I have a valid address and route?', '`ipconfig` or `ip addr`, then `ping` the gateway'],
-            ['4 Transport', 'Is the service port reachable?', '`Test-NetConnection host -Port 443`'],
-            ['7 Application', 'Does the service respond correctly?', '`nslookup` the name, then open the URL'],
-          ],
-        },
       },
     ],
+    architecture: {
+      caption: 'Encapsulation as data moves down the stack. Each layer wraps the one above with its own header (Ethernet also adds an FCS trailer); the receiver removes them in reverse.',
+      diagram: [
+        'Layer 7-5  Data                                   [ HTTP request ]',
+        'Layer 4    Segment                      [ TCP hdr | HTTP request ]',
+        'Layer 3    Packet              [ IP hdr | TCP hdr | HTTP request ]',
+        'Layer 2    Frame     [ Eth hdr | IP hdr | TCP hdr | HTTP request ] + FCS',
+        'Layer 1    Bits      0101 1001 0111 0100 ... on the wire, fibre or radio',
+      ].join('\n'),
+    },
     cheatSheet: [
-      ['L7 Application', 'Network services for apps: HTTP, DNS, SMTP, SSH'],
+      ['L1 Physical', 'Bits, cables, signals, hubs'],
+      ['L2 Data Link', 'Frames, MAC addresses, switches'],
+      ['L3 Network', 'Packets, IP addresses, routers'],
+      ['L4 Transport', 'Segments (TCP) / datagrams (UDP), ports'],
+      ['L5 Session', 'Set up and tear down application sessions'],
       ['L6 Presentation', 'Encoding, compression, encryption (TLS)'],
-      ['L5 Session', 'Opens, manages and closes sessions'],
-      ['L4 Transport', 'Ports; segments (TCP) or datagrams (UDP)'],
-      ['L3 Network', 'IP addressing and routing; packets; routers'],
-      ['L2 Data Link', 'MAC addressing; frames; switches'],
-      ['L1 Physical', 'Signals, cables, connectors; bits; hubs'],
-      ['Encapsulation', 'Each layer adds a header on the way down; L2 also adds the FCS'],
-      ['TCP/IP model', 'Link (L1–2), Internet (L3), Transport (L4), Application (L5–7)'],
-      ['Mnemonic (1 to 7)', 'Please Do Not Throw Sausage Pizza Away'],
+      ['L7 Application', 'HTTP, DNS, SMTP'],
+      ['Encapsulation', 'Each layer adds a header going down'],
+      ['TCP/IP model', 'Link, Internet, Transport, Application'],
     ],
   },
 

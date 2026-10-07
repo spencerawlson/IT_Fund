@@ -23,7 +23,6 @@ PYTHON_AUTOMATION_LAB = LabDefinition(
     shell="linux_python",
     environment=LabEnvironmentConfig(
         provider="mock",
-        prefers_docker=True,
         image="road-to-cissp/python-automation:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,

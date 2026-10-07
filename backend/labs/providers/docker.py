@@ -8,10 +8,7 @@ Security posture (this endpoint runs untrusted learner input):
   - No privileged containers, ever. All Linux capabilities are dropped and
     `no-new-privileges` is set, so a container breakout buys the attacker nothing.
   - Resource bounds from the lab definition: CPU (`nano_cpus`) and memory (`mem_limit`),
-    a PID limit so a fork bomb dies inside the container, fd/file-size ulimits, and an
-    optional per-container disk quota (`LAB_DOCKER_STORAGE_SIZE`, where the backend supports it).
-  - A host-wide ceiling on concurrently-running lab containers (`LAB_DOCKER_MAX_CONTAINERS`),
-    enforced at the daemon level so it holds across backend workers.
+    plus a PID limit so a fork bomb dies inside the container.
   - Network isolation: labs with `deny_internet_egress=True` (the default, and mandatory
     for cyber labs) are attached to an *internal-only* Docker network — no outbound
     internet, no route to the host's LAN. The learner's container cannot scan the host.
@@ -62,15 +59,6 @@ class DockerLabProvider(LabProvider):
         self._client_failed: str | None = None
         # environment_id -> last activity (for idle expiry)
         self._last_used: dict[str, datetime] = {}
-        # Global ceiling on concurrently-running lab containers on THIS host. Enforced at the daemon
-        # level (count of `rtc=labs` containers), so it holds even across multiple backend workers
-        # that share one daemon — unlike the per-owner session cap, which is per-process memory.
-        # 0 disables it. Default 50: a generous but finite guard for an open, no-login endpoint.
-        self._max_containers = max(0, int(os.environ.get("LAB_DOCKER_MAX_CONTAINERS", "50") or 0))
-        # Optional per-container disk quota for the writable layer (e.g. "1g", "512m"). Caps total
-        # bytes a learner can write, not just one file (that's the fsize ulimit). Requires a storage
-        # backend that supports it (overlay2 on xfs/btrfs with pquota); unset = no quota.
-        self._storage_size = os.environ.get("LAB_DOCKER_STORAGE_SIZE", "").strip() or None
 
     # ---------- daemon access ----------
 
@@ -103,40 +91,10 @@ class DockerLabProvider(LabProvider):
             return None
         return container
 
-    async def reap_orphans(self, max_age_minutes: int = 180) -> int:
-        """Remove lab containers (and their per-session networks) older than a cap.
-
-        The session service destroys containers on exit/expiry, but a backend restart loses its
-        in-memory sessions while the containers persist. This sweep — called opportunistically on
-        each new lab start — catches those orphans so an always-on host doesn't accumulate them."""
-
-        def _reap() -> int:
-            try:
-                client = self._client_or_raise()
-            except LabError:
-                return 0
-            cutoff = _now() - timedelta(minutes=max_age_minutes)
-            removed = 0
-            for c in client.containers.list(all=True, filters={"label": "rtc=labs"}):
-                try:
-                    created = datetime.fromisoformat(c.attrs.get("Created", "").replace("Z", "+00:00"))
-                except ValueError:
-                    continue
-                if created < cutoff:
-                    try:
-                        c.remove(force=True)
-                        removed += 1
-                    except Exception:
-                        pass
-            # Prune per-session networks no longer attached to anything (remove() fails if in use).
-            for net in client.networks.list(filters={"label": "rtc=labs"}):
-                try:
-                    net.remove()
-                except Exception:
-                    pass
-            return removed
-
-        return await asyncio.to_thread(_reap)
+    def _ensure_network(self, client: Any, internal: bool) -> Any:
+        for net in client.networks.list(names=[self._network_name]):
+            return net
+        return client.networks.create(self._network_name, internal=internal, labels={"rtc": "labs"})
 
     # ---------- LabProvider interface ----------
 
@@ -147,22 +105,8 @@ class DockerLabProvider(LabProvider):
             raise LabError("invalid", f"Lab '{lab.id}' has no container image configured.")
         env_cfg = lab.environment
         now = _now()
-        token = hashlib.sha256(f"{user_id}:{now.timestamp()}".encode()).hexdigest()[:12]
-        await self.reap_orphans()  # opportunistically clear containers a prior backend run abandoned
 
         def _create() -> Any:
-            from docker.types import Ulimit  # noqa: PLC0415  (optional dependency)
-            # Host-wide capacity guard: refuse before spawning if the daemon is already at the cap.
-            # Checked here (just before `run`, in the daemon thread) so the count is as fresh as it
-            # can be. Not perfectly race-free across simultaneous starts, but the window is tiny and
-            # the overshoot is at most the number of concurrent create calls.
-            if self._max_containers:
-                running = client.containers.list(filters={"label": "rtc=labs"})
-                if len(running) >= self._max_containers:
-                    raise LabError(
-                        "unavailable",
-                        "The lab environment is at capacity right now. Please try again in a few minutes.",
-                    )
             try:
                 client.images.get(image)
             except Exception:
@@ -170,39 +114,21 @@ class DockerLabProvider(LabProvider):
                     client.images.pull(image)
                 except Exception as exc:
                     raise LabError("unavailable", f"Lab image '{image}' is not available: {exc}")
-            # Network isolation, per session. Egress-denied labs (every lab today) need no network
-            # namespace at all — their targets (sshd/nginx/moto) bind to loopback, which `none` keeps.
-            # That removes the shared network entirely: no learner's container can reach another's, the
-            # host LAN, or the internet. Egress-allowed labs (none yet) get a private per-session bridge.
-            if env_cfg.deny_internet_egress:
-                net_kwargs = {"network_mode": "none"}
-            else:
-                net = client.networks.create(f"rtc-lab-net-{token}", internal=False, labels={"rtc": "labs"})
-                net_kwargs = {"network": net.name}
+            network = self._ensure_network(client, internal=env_cfg.deny_internet_egress)
             owner = hashlib.sha256(user_id.encode()).hexdigest()[:16]
-            # A per-container disk quota on the writable layer, when the host is configured for it
-            # (LAB_DOCKER_STORAGE_SIZE). This bounds TOTAL bytes written, closing the gap the fsize
-            # ulimit (one file) left open. Omitted entirely when unset so hosts without pquota are
-            # unaffected.
-            storage_kwargs = {"storage_opt": {"size": self._storage_size}} if self._storage_size else {}
             container = client.containers.run(
                 image,
                 command="sleep infinity",
                 detach=True,
-                name=f"rtc-lab-{token}",
+                name=f"rtc-lab-{hashlib.sha256(str(now.timestamp()).encode()).hexdigest()[:12]}",
+                network=network.name,
                 mem_limit=f"{env_cfg.memory_mb}m",
                 nano_cpus=int(env_cfg.cpu_limit * 1_000_000_000),
                 pids_limit=256,
                 cap_drop=["ALL"],
                 security_opt=["no-new-privileges:true"],
                 tmpfs={"/tmp": "size=64m,mode=1777"},
-                # Bound a runaway single file (fsize) and the fd table (nofile); storage_opt above
-                # bounds total writable-layer bytes where the storage backend supports a quota.
-                ulimits=[Ulimit(name="nofile", soft=1024, hard=2048),
-                         Ulimit(name="fsize", soft=128 * 1024 * 1024, hard=128 * 1024 * 1024)],
                 labels={"rtc": "labs", "rtc.lab": lab.id, "rtc.owner": owner},
-                **storage_kwargs,
-                **net_kwargs,
             )
             return container
 
@@ -211,17 +137,6 @@ class DockerLabProvider(LabProvider):
         except LabError:
             raise
         except Exception as exc:  # noqa: BLE001
-            msg = str(exc)
-            # A storage quota the backend can't honour is a host misconfiguration, not a lab fault —
-            # say so plainly instead of a generic "could not start".
-            if self._storage_size and ("storage-opt" in msg.lower() or "storage opt" in msg.lower()
-                                       or "pquota" in msg.lower() or "does not support" in msg.lower()):
-                raise LabError(
-                    "unavailable",
-                    "LAB_DOCKER_STORAGE_SIZE is set but this host's Docker storage backend does not "
-                    "support per-container quotas (needs overlay2 on xfs/btrfs with pquota). Unset it "
-                    f"or enable pquota. Daemon said: {msg}",
-                )
             raise LabError("unavailable", f"Could not start the lab environment: {exc}")
 
         env_id = f"docker-{container.id[:12]}"
@@ -281,21 +196,10 @@ class DockerLabProvider(LabProvider):
             container = self._container(environment_id)
             if container is None:
                 return
-            nets = []
-            try:
-                nets = [n for n in (container.attrs.get("NetworkSettings", {}).get("Networks") or {})
-                        if n.startswith("rtc-lab-net-")]
-            except Exception:
-                pass
             try:
                 container.remove(force=True)
             except Exception:
                 pass  # already gone / daemon hiccup: still a no-op for the caller
-            for name in nets:  # tear down this session's private network, if any
-                try:
-                    self._client.networks.get(name).remove()
-                except Exception:
-                    pass
 
         await asyncio.to_thread(_destroy)
         self._last_used.pop(environment_id, None)
@@ -368,19 +272,4 @@ class DockerLabProvider(LabProvider):
         self._last_used[environment_id] = _now()
         if len(text) > MAX_OUTPUT_CHARS:
             text = text[:MAX_OUTPUT_CHARS] + f"\n… [output truncated at {MAX_OUTPUT_CHARS} chars]"
-
-        # Objectives are findings-based (shared validators). The command above ran for REAL, but the
-        # findings it establishes are derived by the lab's simulation shell from the same typed
-        # command — so real execution reaches the same objective state as the mock. The learner sees
-        # real stdout; the sim's output is discarded, only its findings/prompt are kept. The lab
-        # images are seeded byte-identically to the mock, so the two agree.
-        findings_delta: dict[str, Any] = {}
-        prompt = None
-        try:
-            from labs.shells import has_shell, run as shell_run  # noqa: PLC0415
-            if has_shell(lab):
-                sim = shell_run(lab, command, findings)
-                findings_delta, prompt = sim.findings, sim.prompt
-        except Exception:
-            pass  # findings are best-effort; real output is always returned
-        return CommandResult(output=text, exit_code=code, findings=findings_delta, prompt=prompt)
+        return CommandResult(output=text, exit_code=code)
