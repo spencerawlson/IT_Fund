@@ -57,13 +57,8 @@ if not IS_PRODUCTION:
     db.init_db()
 
 
-<<<<<<< HEAD
-#: Fixed app key for the Postgres advisory lock that serializes startup migrations across workers.
-_MIGRATION_LOCK_KEY = 526100
-=======
 # Stable key for the migration advisory lock below (any fixed 64-bit int).
 _MIGRATION_LOCK_KEY = 7271700107
->>>>>>> 0e30e7372677604a240c35448fd6bc7c525f710f
 
 
 def _run_migrations() -> None:
@@ -80,23 +75,8 @@ def _run_migrations() -> None:
 
     from alembic import command
     from alembic.config import Config
-    from sqlalchemy import text
 
     cfg = Config(str(Path(__file__).with_name("alembic.ini").resolve()))
-<<<<<<< HEAD
-
-    if db.engine is not None and db.engine.dialect.name == "postgresql":
-        # AUTOCOMMIT so the lock/unlock take effect immediately and no open transaction wraps the
-        # (transactional) migration the lock is guarding.
-        with db.engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-            conn.execute(text("SELECT pg_advisory_lock(:k)"), {"k": _MIGRATION_LOCK_KEY})
-            try:
-                command.upgrade(cfg, "head")
-            finally:
-                conn.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": _MIGRATION_LOCK_KEY})
-    else:
-        command.upgrade(cfg, "head")
-=======
     url = os.environ.get("DATABASE_URL") or db.DEFAULT_URL
     if not url.startswith("postgres"):
         command.upgrade(cfg, "head")
@@ -120,7 +100,6 @@ def _run_migrations() -> None:
                 conn.execute(text(f"SELECT pg_advisory_unlock({_MIGRATION_LOCK_KEY})"))
     finally:
         engine.dispose()
->>>>>>> 0e30e7372677604a240c35448fd6bc7c525f710f
 
 
 from contextlib import asynccontextmanager  # noqa: E402
