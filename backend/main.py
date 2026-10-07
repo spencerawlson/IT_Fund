@@ -57,6 +57,10 @@ if not IS_PRODUCTION:
     db.init_db()
 
 
+# Stable key for the migration advisory lock below (any fixed 64-bit int).
+_MIGRATION_LOCK_KEY = 7271700107
+
+
 def _run_migrations() -> None:
     from pathlib import Path
 
@@ -64,7 +68,29 @@ def _run_migrations() -> None:
     from alembic.config import Config
 
     cfg = Config(str(Path(__file__).with_name("alembic.ini").resolve()))
-    command.upgrade(cfg, "head")
+    url = os.environ.get("DATABASE_URL") or db.DEFAULT_URL
+    if not url.startswith("postgres"):
+        command.upgrade(cfg, "head")
+        return
+    # uvicorn --workers N runs this lifespan in *every* worker. With a pending
+    # migration, the workers race to apply it concurrently; on 2026-10-07 the
+    # loser crashed startup ("Child process failed to start, stopping the
+    # parent process"), taking the whole backend down behind a healthy tunnel
+    # (Cloudflare 502). A session-level advisory lock serializes the workers:
+    # the loser waits, then finds nothing left to apply. The lock releases on
+    # disconnect, so a crashed worker can't wedge it.
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(url)
+    try:
+        with engine.connect() as conn:
+            conn.execute(text(f"SELECT pg_advisory_lock({_MIGRATION_LOCK_KEY})"))
+            try:
+                command.upgrade(cfg, "head")
+            finally:
+                conn.execute(text(f"SELECT pg_advisory_unlock({_MIGRATION_LOCK_KEY})"))
+    finally:
+        engine.dispose()
 
 
 from contextlib import asynccontextmanager  # noqa: E402
