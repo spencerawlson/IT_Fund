@@ -29,10 +29,11 @@ def _run(lab_id, cmds):
     return s, last
 
 
+# TEMPORARY (2026-10-07): mock-backed until the FedSer Docker daemon runs.
+# Restore the docker assertions when the lab flips back.
 def test_basics_lab_is_docker_backed():
     lab = get_lab("py-basics-001")
-    assert lab.environment.provider == "docker"
-    assert lab.environment.image == "road-to-cissp/python-basics:latest"
+    assert lab.environment.provider == "mock"
     assert lab.environment.workdir == "/home/analyst"
 
 
