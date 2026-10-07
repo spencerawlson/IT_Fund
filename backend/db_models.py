@@ -70,3 +70,25 @@ class Progress(Base):
     state: Mapped[dict] = mapped_column(JSON, default=dict)
     version: Mapped[int] = mapped_column(Integer, default=0)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class LabCompletion(Base):
+    """One completed interactive-lab run, for signed-in learners.
+
+    Written when a lab session completes (see labs/api.py). One row per session —
+    the (user_id, session_id) unique constraint makes repeat validations idempotent.
+    Guests keep history in the browser only (see src/lib/labProgress.js).
+    Feeds GET /api/labs/history, which the lab progress page aggregates into
+    per-lab completions and best/last times.
+    """
+    __tablename__ = "lab_completions"
+    __table_args__ = (
+        UniqueConstraint("user_id", "session_id", name="uq_lab_completion_session"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    lab_id: Mapped[str] = mapped_column(String(128), index=True)
+    session_id: Mapped[str] = mapped_column(String(64))
+    duration_seconds: Mapped[int] = mapped_column(Integer)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)

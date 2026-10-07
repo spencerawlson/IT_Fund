@@ -10,10 +10,11 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from fastapi.testclient import TestClient
+from sqlalchemy import func, select
 import db
 import main
 from auth.sessions import COOKIE_NAME, create_session
-from db_models import User
+from db_models import LabCompletion, User
 from auth.deps import GUEST_COOKIE, _GUEST_TOKEN
 from labs import api as labs_api
 from labs import sessions as sessions_mod
@@ -87,6 +88,78 @@ def test_public_view_marks_live_labs_without_leaking_internals():
     # Still no provider/image internals in the public blob.
     blob = r.text
     assert '"provider"' not in blob and '"image"' not in blob
+
+
+# ---- server-side lab history ----
+
+def _complete_nmap(c, cookie):
+    """Drive cyber-nmap-001 to COMPLETED through the API, returning the session."""
+    r = c.post("/api/labs/cyber-nmap-001/start", cookies=cookie)
+    assert r.status_code == 200
+    sid = r.json()["id"]
+    c.post(f"/api/labs/sessions/{sid}/findings", json=PORTS, cookies=cookie)
+    r = c.post(f"/api/labs/sessions/{sid}/validate", cookies=cookie)
+    assert r.json()["status"] == "COMPLETED"
+    return r.json()
+
+
+def _completion_count(user_id):
+    with db.SessionLocal() as s:
+        return s.execute(
+            select(func.count()).select_from(LabCompletion)
+            .where(LabCompletion.user_id == user_id)
+        ).scalar()
+
+
+def test_completion_is_recorded_for_signed_in_users():
+    h = _user("hist1")
+    sess = _complete_nmap(client, h)
+    with db.SessionLocal() as s:
+        rows = s.execute(
+            select(LabCompletion).where(LabCompletion.user_id == "hist1")
+        ).scalars().all()
+    assert len(rows) == 1
+    row = rows[0]
+    assert row.lab_id == "cyber-nmap-001"
+    assert row.session_id == sess["id"]
+    assert row.duration_seconds >= 0
+    assert row.completed_at is not None
+
+
+def test_completion_recording_is_idempotent():
+    h = _user("hist2")
+    sess = _complete_nmap(client, h)
+    sid = sess["id"]
+    # Repeat validations — and an exec on the completed session — must not
+    # create more rows for the same session.
+    client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
+    client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
+    client.post(f"/api/labs/sessions/{sid}/exec", json={"command": "help"}, cookies=h)
+    assert _completion_count("hist2") == 1
+
+
+def test_guest_completions_are_not_recorded():
+    g = _guest()
+    _complete_nmap(g, {})
+    with db.SessionLocal() as s:
+        n = s.execute(select(func.count()).select_from(LabCompletion)).scalar()
+    assert n == 0
+
+
+def test_history_endpoint_needs_sign_in_and_is_user_scoped():
+    assert _guest().get("/api/labs/history").status_code == 401
+    h = _user("hist3")
+    r = client.get("/api/labs/history", cookies=h)
+    assert r.status_code == 200 and r.json() == {"history": []}
+    _complete_nmap(client, h)
+    hist = client.get("/api/labs/history", cookies=h).json()["history"]
+    assert len(hist) == 1
+    assert hist[0]["lab_id"] == "cyber-nmap-001"
+    assert isinstance(hist[0]["duration_seconds"], int)
+    assert hist[0]["completed_at"]
+    # Another signed-in learner sees none of it.
+    r = client.get("/api/labs/history", cookies=_user("hist4"))
+    assert r.json() == {"history": []}
 
 
 # ---- auth + lifecycle ----

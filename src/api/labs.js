@@ -36,6 +36,7 @@ async function labRequest(path, { method = 'GET', body } = {}) {
 
 export const labsApi = {
   listDefinitions: () => labRequest('/definitions'),
+  history: () => labRequest('/history'),
   start: (labId) => labRequest(`/${labId}/start`, { method: 'POST' }),
   getSession: (id) => labRequest(`/sessions/${id}`),
   recordFindings: (id, findings) => labRequest(`/sessions/${id}/findings`, { method: 'POST', body: { findings } }),
