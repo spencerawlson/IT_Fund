@@ -78,7 +78,10 @@ def test_public_view_marks_live_labs_without_leaking_internals():
     assert r.status_code == 200
     labs = {l["id"]: l for l in r.json()["labs"]}
     basics = labs["py-basics-001"]
-    assert basics["environment"]["live"] is True
+    # TEMPORARY (2026-10-07): py-basics-001 is back on the mock provider until the
+    # Docker daemon runs on FedSer, so it must NOT claim to be live. Flip this
+    # assertion back to `is True` when the lab returns to provider="docker".
+    assert basics["environment"]["live"] is False
     # Simulated labs stay non-live...
     assert labs["cyber-nmap-001"]["environment"]["live"] is False
     # ...and objectives carry their (opaque) validator keys so the UI can record

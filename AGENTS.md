@@ -67,6 +67,13 @@ and 49 unused npm deps were pruned in the production-readiness pass). Auth is OA
 - DB: `APP_ENV=production` requires `DATABASE_URL` + `SESSION_SECRET` and runs Alembic migrations
   (`backend/alembic/versions`) at startup. Dev/test use SQLite + `create_all`. New schema change = new
   `alembic revision --autogenerate`.
+- Migrations are append-only: NEVER delete a migration file that has been applied to the production
+  database. On 2026-10-07 commit b1898770 deleted `b7f3a1c9d2e4_add_lab_sessions.py` after prod had applied
+  it; every subsequent backend restart crashed with "Can't locate revision identified by 'b7f3a1c9d2e4'"
+  (uvicorn child failed → parent stopped → Cloudflare 502 for 7+ hours). Fix was restoring the file and
+  re-chaining. If a migration was a mistake, write a new migration that undoes it — don't remove the file.
+- Startup migrations run in every uvicorn worker (`--workers 2`); `main._run_migrations()` serializes them
+  with a Postgres advisory lock so concurrent workers can't race a pending migration.
 
 ## Module study notes
 

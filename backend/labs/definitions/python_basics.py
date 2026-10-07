@@ -21,12 +21,14 @@ PYTHON_BASICS_LAB = LabDefinition(
     estimated_minutes=20,
     shell="linux_python",
     environment=LabEnvironmentConfig(
-        # First lab converted from simulation to real execution: learners get a real
-        # python3 container (image built by labs/images/build.sh on the host).
-        # Findings are no longer fabricated — the learner attests each objective in
-        # the UI and "Check my work" validates the recorded findings.
-        provider="docker",
-        image="road-to-cissp/python-basics:latest",
+        # TEMPORARY (2026-10-07): back to the mock provider until the Docker daemon
+        # runs on FedSer (`docker info` fails there even after `systemctl start
+        # docker`, so the docker provider can't serve). Flip back to "docker" with
+        # image="road-to-cissp/python-basics:latest" once the daemon is healthy —
+        # the hardened provider, image Dockerfiles and runbook all stay in repo.
+        # `environment.live` derives from this flag, so the UI automatically drops
+        # the "live container" claim and attestation buttons while mocked.
+        provider="mock",
         workdir="/home/analyst",
         idle_timeout_minutes=15,
         max_runtime_minutes=45,
