@@ -57,14 +57,39 @@ if not IS_PRODUCTION:
     db.init_db()
 
 
+#: Fixed app key for the Postgres advisory lock that serializes startup migrations across workers.
+_MIGRATION_LOCK_KEY = 526100
+
+
 def _run_migrations() -> None:
+    """Apply Alembic migrations to head, serialized so multiple uvicorn workers can't race.
+
+    Every worker runs this in its startup lifespan. Without coordination, two workers call
+    `alembic upgrade head` concurrently against Postgres, collide applying the same revision, and one
+    crashes — which takes the whole service down (a real outage we hit). A session-level advisory
+    lock lets exactly one worker apply the migration while the others wait; by the time they acquire
+    the lock the schema is already at head, so their upgrade is a no-op. SQLite (dev/tests) has no
+    advisory locks and no multi-worker races, so it upgrades directly.
+    """
     from pathlib import Path
 
     from alembic import command
     from alembic.config import Config
+    from sqlalchemy import text
 
     cfg = Config(str(Path(__file__).with_name("alembic.ini").resolve()))
-    command.upgrade(cfg, "head")
+
+    if db.engine is not None and db.engine.dialect.name == "postgresql":
+        # AUTOCOMMIT so the lock/unlock take effect immediately and no open transaction wraps the
+        # (transactional) migration the lock is guarding.
+        with db.engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.execute(text("SELECT pg_advisory_lock(:k)"), {"k": _MIGRATION_LOCK_KEY})
+            try:
+                command.upgrade(cfg, "head")
+            finally:
+                conn.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": _MIGRATION_LOCK_KEY})
+    else:
+        command.upgrade(cfg, "head")
 
 
 from contextlib import asynccontextmanager  # noqa: E402
