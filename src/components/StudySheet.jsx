@@ -3,10 +3,11 @@ import { X, ChevronLeft, ChevronRight, Lightbulb, Target } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
 import RichText from './academy/RichText';
 import TutorAssist from './academy/tutor/TutorAssist';
+import StudyMascot from './StudyMascot';
 import { getNote } from '@/data/moduleNotes';
 
 /** Full study notes for one concept, with prev/next through the module. */
-export default function StudySheet({ concepts, index, moduleTitle, color, onClose, onNavigate }) {
+export default function StudySheet({ concepts, index, moduleId, moduleTitle, color, onClose, onNavigate }) {
   const concept = concepts[index];
   const note = getNote(concept);
 
@@ -78,6 +79,12 @@ export default function StudySheet({ concepts, index, moduleTitle, color, onClos
               </p>
             </div>
           )}
+          <StudyMascot
+            key={`mascot-${concept.id}`}
+            conceptId={concept.id}
+            moduleId={moduleId}
+            color={color}
+          />
           <TutorAssist
             key={concept.id}
             actions={[{ mode: 'simplify', label: 'Explain simply' }, { mode: 'example', label: 'Another example' }]}
