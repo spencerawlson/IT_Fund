@@ -38,14 +38,11 @@ def _lab(**env_overrides):
 
 
 class FakeContainer:
-    def __init__(self, cid, client, created="2026-01-01T00:00:00Z", networks=None, labels=None):
+    def __init__(self, cid, client):
         self.id = cid
         self._client = client
         self.status = "running"
-        self.labels = labels or {}
-        # The reaper reads attrs["Created"]; destroy reads NetworkSettings.Networks.
-        self.attrs = {"Created": created,
-                      "NetworkSettings": {"Networks": dict(networks or {})}}
+        self.attrs = {"Created": "2026-01-01T00:00:00Z"}
         self.exec_calls = []
         self.restarted = False
         self.removed = False
@@ -75,10 +72,7 @@ class FakeContainers:
     def run(self, *args, **kwargs):
         self._client.last_run_kwargs = kwargs
         cid = "abcdef1234567890"
-        # A per-session bridge (egress-allowed labs) is attached by name; `network_mode="none"`
-        # (egress-denied, the default) attaches nothing — mirror that so destroy can find it.
-        networks = {kwargs["network"]: {}} if kwargs.get("network") else {}
-        c = FakeContainer(cid, self._client, networks=networks, labels=kwargs.get("labels"))
+        c = FakeContainer(cid, self._client)
         self._client._containers[cid] = c
         return c
 
@@ -87,14 +81,6 @@ class FakeContainers:
             if full.startswith(cid):
                 return c
         raise KeyError(cid)  # stands in for docker.errors.NotFound
-
-    def list(self, all=False, filters=None):  # noqa: A002  (matches docker SDK signature)
-        label = (filters or {}).get("label")
-        out = list(self._client._containers.values())
-        if label and "=" in label:
-            k, v = label.split("=", 1)
-            out = [c for c in out if c.labels.get(k) == v]
-        return out
 
 
 class FakeImages:
@@ -111,35 +97,16 @@ class FakeImages:
         self.present.add(image)
 
 
-class FakeNetwork:
-    def __init__(self, name, registry):
-        self.name = name
-        self.removed = False
-        self._registry = registry
-
-    def remove(self):
-        self.removed = True
-        self._registry.pop(self.name, None)
-
-
 class FakeNetworks:
     def __init__(self):
         self.created = []
-        self._by_name = {}
 
-    def list(self, names=None, filters=None):
-        return list(self._by_name.values())
-
-    def get(self, name):
-        if name not in self._by_name:
-            raise KeyError(name)
-        return self._by_name[name]
+    def list(self, names=None):
+        return []
 
     def create(self, name, internal=False, labels=None):
         self.created.append({"name": name, "internal": internal})
-        net = FakeNetwork(name, self._by_name)
-        self._by_name[name] = net
-        return net
+        return SimpleNamespace(name=name)
 
 
 class FakeClient:
@@ -159,13 +126,7 @@ def fake_docker(monkeypatch):
     client = FakeClient()
     mod = ModuleType("docker")
     mod.from_env = lambda: client
-    # The provider does `from docker.types import Ulimit` inside create_session; give the fake
-    # module that submodule so the import resolves without a real docker install.
-    types_mod = ModuleType("docker.types")
-    types_mod.Ulimit = lambda name, soft, hard: SimpleNamespace(name=name, soft=soft, hard=hard)
-    mod.types = types_mod
     monkeypatch.setitem(sys.modules, "docker", mod)
-    monkeypatch.setitem(sys.modules, "docker.types", types_mod)
     return client
 
 
@@ -203,15 +164,8 @@ def test_create_pulls_missing_image_and_hardens_container(provider, fake_docker)
     assert kw["mem_limit"] == "512m"
     assert kw["pids_limit"] == 256
     assert kw["detach"] is True
-    # deny_internet_egress=True (the default) -> no network namespace at all, and no shared/
-    # per-session network is created. Loopback-only; a learner's container can reach nothing else.
-    assert kw["network_mode"] == "none"
-    assert "network" not in kw
-    assert fake_docker.networks.created == []
-    # Disk/fd guards: a single file is capped (fsize) and the fd table is bounded (nofile).
-    limits = {u.name: (u.soft, u.hard) for u in kw["ulimits"]}
-    assert limits["nofile"] == (1024, 2048)
-    assert limits["fsize"] == (128 * 1024 * 1024, 128 * 1024 * 1024)
+    # deny_internet_egress=True -> internal-only network
+    assert fake_docker.networks.created[0]["internal"] is True
 
 
 def test_create_uses_existing_image(provider, fake_docker):
@@ -302,102 +256,3 @@ def test_provider_registers_only_when_enabled(monkeypatch):
     monkeypatch.setenv("LAB_DOCKER_ENABLED", "1")
     providers = sessions_mod._build_providers()
     assert providers["docker"].name == "docker"
-
-
-def test_exec_findings_bridge_populates_from_sim_shell(provider, fake_docker):
-    """The command runs for real (fake stdout here), but objectives are findings-based, so the
-    provider derives findings from the lab's simulation shell against the same typed command. Without
-    this bridge, objectives could never complete on Docker."""
-    from labs.registry import get_lab
-
-    lab = get_lab("sec-logtriage-001")  # linux_logs shell; `cat auth.log` -> {'log_viewed': True}
-    env = asyncio.run(provider.create_session(lab, "u1"))
-    result = asyncio.run(provider.exec_command(env.id, lab, "cat auth.log", {}))
-    assert result.output == "out: cat auth.log\n"      # real stdout, not the sim's
-    assert result.findings == {"log_viewed": True}      # findings came from the sim shell
-
-
-def test_exec_findings_bridge_silent_when_no_shell(provider, fake_docker):
-    # A lab with no simulation shell still returns real output and simply no findings.
-    env = asyncio.run(provider.create_session(_lab(), "u1"))
-    result = asyncio.run(provider.exec_command(env.id, _lab(), "ls", {}))
-    assert result.output == "out: ls\n"
-    assert result.findings == {}
-
-
-def test_egress_allowed_lab_gets_private_bridge_torn_down_on_destroy(provider, fake_docker):
-    """A lab that allows egress gets its OWN bridge network (not a shared one), and destroying the
-    session removes that network so per-session networks don't accumulate."""
-    lab = _lab(deny_internet_egress=False)
-    env = asyncio.run(provider.create_session(lab, "u1"))
-    # One per-session bridge was created and the container was attached to it (not network_mode).
-    assert len(fake_docker.networks.created) == 1
-    net_name = fake_docker.networks.created[0]["name"]
-    assert net_name.startswith("rtc-lab-net-")
-    assert fake_docker.last_run_kwargs.get("network") == net_name
-    assert "network_mode" not in fake_docker.last_run_kwargs
-    net = fake_docker.networks.get(net_name)
-    asyncio.run(provider.destroy_session(env.id))
-    assert net.removed is True
-
-
-def test_reap_orphans_removes_only_stale_labelled_containers(provider, fake_docker):
-    from datetime import datetime, timezone
-
-    client = fake_docker
-    now = datetime.now(timezone.utc)
-    old = FakeContainer("old123456789", client, created="2026-01-01T00:00:00Z",
-                        labels={"rtc": "labs"})
-    fresh = FakeContainer("fresh12345678", client, created=now.isoformat(),
-                          labels={"rtc": "labs"})
-    other = FakeContainer("other12345678", client, created="2026-01-01T00:00:00Z",
-                          labels={"some": "app"})  # not ours: never touched
-    client._containers.update({old.id: old, fresh.id: fresh, other.id: other})
-    client.networks.create("rtc-lab-net-dead", labels={"rtc": "labs"})
-
-    removed = asyncio.run(provider.reap_orphans(max_age_minutes=180))
-    assert removed == 1
-    assert old.removed is True
-    assert fresh.removed is False
-    assert other.removed is False
-    # Unused per-session networks are pruned too.
-    assert client.networks._by_name == {}
-
-
-def test_create_refuses_when_at_global_container_cap(provider, fake_docker):
-    from datetime import datetime, timezone
-
-    provider._max_containers = 1
-    # One (fresh, so the reaper keeps it) lab container already running on the host.
-    now = datetime.now(timezone.utc).isoformat()
-    fake_docker._containers["existing12345"] = FakeContainer(
-        "existing12345", fake_docker, created=now, labels={"rtc": "labs"})
-    with pytest.raises(LabError) as ei:
-        asyncio.run(provider.create_session(_lab(), "u1"))
-    assert ei.value.code == "unavailable"
-    assert "capacity" in ei.value.message.lower()
-
-
-def test_create_omits_storage_quota_by_default(provider, fake_docker):
-    asyncio.run(provider.create_session(_lab(), "u1"))
-    assert "storage_opt" not in fake_docker.last_run_kwargs
-
-
-def test_create_passes_storage_quota_when_configured(provider, fake_docker):
-    provider._storage_size = "512m"
-    asyncio.run(provider.create_session(_lab(), "u1"))
-    assert fake_docker.last_run_kwargs["storage_opt"] == {"size": "512m"}
-
-
-def test_create_reports_storage_quota_unsupported_clearly(provider, fake_docker, monkeypatch):
-    provider._storage_size = "512m"
-
-    def boom(*a, **k):
-        raise RuntimeError("Error response from daemon: --storage-opt is supported only for "
-                           "overlay over xfs with 'pquota' mount option")
-
-    monkeypatch.setattr(fake_docker.containers, "run", boom)
-    with pytest.raises(LabError) as ei:
-        asyncio.run(provider.create_session(_lab(), "u1"))
-    assert ei.value.code == "unavailable"
-    assert "pquota" in ei.value.message.lower()

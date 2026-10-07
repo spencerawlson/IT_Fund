@@ -52,51 +52,9 @@ cloudshell ~500 MB (awscli + moto), iac ~400 MB (terraform + provider mirror).
    The `docker` Python package must be installed where the backend runs
    (`pip install docker`), and the daemon must be reachable.
 3. Restart the backend: `systemctl --user restart itfund-backend`.
-
-That's it — there is **no per-lab flip to do**. Activation is now driven by an
-`environment.prefers_docker` opt-in on each lab definition plus host
-availability, resolved once when a session starts (`SessionService.
-_effective_provider_name`):
-
-- `prefers_docker=True` + Docker registered (step 2 done, daemon up) → the lab
-  runs on **real Docker**.
-- `prefers_docker=True` + no Docker (the common host, incl. the hosted demo) →
-  the lab transparently stays on the **mock** shell. Same lab, same objectives.
-- `provider="docker"` (hard pin, used by none today) + no Docker → fails loudly
-  with `unavailable`, never silently simulates.
-
-The command runs for real in the container; the objective **findings** are
-still derived by the lab's simulation shell from the same typed command (the
-"findings bridge" in `providers/docker.py`). That only agrees with reality when
-the image is seeded **byte-identically** to the mock, which `test_lab_images.py`
-proves for exactly the python, log-triage and IaC seeds. So those are the labs
-carrying `prefers_docker=True`:
-
-| Promoted (`prefers_docker=True`) | Held on mock (and why) |
-|---|---|
-| py-basics / py-automation / py-netauto | **cyber-nmap-001, cyber-portblast-001** — the image's real sshd/nginx on 127.0.0.1:2222/8080/8000 does not reproduce the simulated 7-port `target.lab`, so real output would contradict recorded findings. |
-| sec-logtriage-001 + the blue-team trio (c2beacon / dns-typo / ransomware) | **cloud-aws-audit-001** — real `awscli`+`moto` emit dynamic ARNs/IDs/timestamps the mock can't match, and no test proves parity. |
-| cloud-terraform-001 | **container-security (docker-siem)** — no image built (DinD incompatible). |
-
-To close a held-back case, make its image byte-faithful to the mock (or add a
-real-output findings parser) **and** a `test_lab_images.py` assertion, then set
-`prefers_docker=True`.
-
-## Capacity & disk limits
-
-Lab starts are open to anyone (no login), so a real-Docker host needs bounds.
-Per container we already drop all caps, set `no-new-privileges`, cap CPU/memory,
-PIDs (256), fd count (`nofile`) and single-file size (`fsize` 128 MB), and mount
-`/tmp` as a 64 MB tmpfs. On top of that:
-
-| Env var | Default | Effect |
-|---|---|---|
-| `LAB_DOCKER_MAX_CONTAINERS` | `50` | Host-wide ceiling on concurrently-running `rtc=labs` containers, enforced at the daemon level (so it holds across backend workers). Over the cap, new starts get `503` "at capacity". `0` disables. |
-| `LAB_DOCKER_STORAGE_SIZE` | *(unset)* | Per-container writable-layer disk quota, e.g. `1g`, `512m`. Bounds **total** bytes written (the `fsize` ulimit only bounds one file). **Requires** a storage backend that supports quotas — overlay2 on xfs/btrfs with the `pquota` mount option. If set on a host without it, lab starts fail `503` with a message naming the cause; unset it or enable pquota. |
-| `LAB_MAX_TOTAL_SESSIONS` | `0` (off) | Process-local ceiling on live sessions across all owners, in `SessionService`. Defence-in-depth for the in-memory store and a backstop to the container cap. `0` leaves it unlimited. |
-
-The per-owner session cap (`MAX_LIVE_SESSIONS_PER_OWNER = 5`, in `sessions.py`)
-is separate and always on.
+4. Flip one lab at a time: in `backend/labs/definitions/<file>.py`, change that
+   lab's `environment.provider` from `"mock"` to `"docker"`. The `image` and
+   `workdir` are already set. Start with a Python lab - it is the simplest.
 
 ## Verify end-to-end
 
@@ -119,11 +77,6 @@ hand (the Docker provider validates outcome-based findings, same as mock),
 and confirm objectives tick over.
 
 ### Recon labs on Docker: what differs from the mock
-
-> These labs are **not** `prefers_docker` (see the table above) — they stay
-> simulated. The notes below apply only if you deliberately hard-pin one to
-> `provider="docker"` and accept that the real port set differs from the
-> scenario the objectives validate against.
 
 - **Scan `127.0.0.1`, not `target.lab`.** The hardened container cannot edit
   `/etc/hosts`, and the target services run in the same container.
@@ -150,8 +103,6 @@ reads the container's (empty) wtmp and shows nothing. The same evidence is in
 |---|---|
 | `Lab provider 'docker' is not available` | `LAB_DOCKER_ENABLED=1` not set, `docker` package missing, or daemon unreachable. Check `docker info` as the backend user and `journalctl --user -u itfund-backend`. |
 | `Lab image 'road-to-cissp/x:latest' is not available` | Image not built (or wrong tag). Run `./build.sh`; the provider does **not** fall back to mock - the lab fails loudly instead of silently simulating. |
-| `The lab environment is at capacity right now` (503) | `LAB_DOCKER_MAX_CONTAINERS` reached. Raise it, or wait for sessions to idle out / be reaped. `docker ps --filter label=rtc=labs \| wc -l` shows the live count. |
-| `LAB_DOCKER_STORAGE_SIZE is set but this host's Docker storage backend does not support per-container quotas` (503) | The storage driver has no quota support. Either unset `LAB_DOCKER_STORAGE_SIZE`, or switch to overlay2 on an xfs/btrfs filesystem mounted with `pquota` (`prjquota`). |
 | `terraform init` tries the network | The provider mirror wasn't populated (build ran without internet). Rebuild `iac` with internet access. |
 | `aws` commands hang | The moto supervisor is still seeding (first ~10s). The entrypoint waits for `~/.moto-ready`; check `/home/auditor/.moto-lab.log` via `docker exec`. |
 | `nmap` says host is down | Normal unprivileged behaviour: use `nmap -Pn` and `-sT` (see image notes). Ping and SYN scans need raw sockets the hardened provider never grants. |

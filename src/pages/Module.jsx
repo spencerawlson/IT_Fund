@@ -177,6 +177,7 @@ export default function Module() {
             <StudySheet
               concepts={module.concepts}
               index={reading}
+              moduleId={module.id}
               moduleTitle={module.title}
               color={cat.dot}
               onClose={() => setReading(null)}

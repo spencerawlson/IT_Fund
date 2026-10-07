@@ -48,7 +48,7 @@ function StartScreen({ history }) {
   const recent = history.slice(0, 3);
   return (
     <div>
-      <Button to="/" variant="ghost" size="sm" icon={ArrowLeft} className="-ml-3 mb-6">Home</Button>
+      <Button to="/app" variant="ghost" size="sm" icon={ArrowLeft} className="-ml-3 mb-6">Home</Button>
       <p className="text-small font-semibold text-ink-2">Test-day simulator</p>
       <h1 className="mt-1 text-title text-ink-1">CISSP practice exam</h1>
 
@@ -301,7 +301,7 @@ function ReportScreen({ exam }) {
         <p className="mt-1 text-small text-ink-2">{result.correct} / {result.total} correct · {EXAM_PASS_PCT}% needed to pass</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button icon={RotateCcw} onClick={() => startPracticeExam()}>Retake exam</Button>
-          <Button to="/" variant="secondary" icon={Home}>Back to home</Button>
+          <Button to="/app" variant="secondary" icon={Home}>Back to home</Button>
         </div>
       </Card>
 

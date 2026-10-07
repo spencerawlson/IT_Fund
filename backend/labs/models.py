@@ -32,14 +32,7 @@ class LabTarget:
 
 @dataclass(frozen=True)
 class LabEnvironmentConfig:
-    # `provider` is the explicit choice; "mock" (simulation) or "docker" (real
-    # container execution). `prefers_docker` is a softer opt-in: run on Docker
-    # when a daemon is available (LAB_DOCKER_ENABLED=1 and the client connects),
-    # otherwise fall back to the mock shell transparently. Labs set
-    # prefers_docker=True so they get real execution on hosts that have Docker
-    # and the identical simulated experience on hosts that don't.
     provider: str = "mock"
-    prefers_docker: bool = False
     image: str | None = None
     cpu_limit: float = 1.0
     memory_mb: int = 512
@@ -70,7 +63,13 @@ class LabDefinition:
     shell: str | None = None
 
     def public_dict(self) -> dict[str, Any]:
-        """Serialisable view safe to send to the browser: no image, no provider internals."""
+        """Serialisable view safe to send to the browser: no image, no provider internals.
+
+        `environment.live` tells the client the lab really executes (Docker) instead of
+        simulating, so the UI can offer attestation; the image name stays server-side.
+        Objective `validator` keys are opaque finding names — the client needs them to
+        record attested findings for live labs.
+        """
         return {
             "id": self.id,
             "slug": self.slug,
@@ -83,10 +82,12 @@ class LabDefinition:
                 "idle_timeout_minutes": self.environment.idle_timeout_minutes,
                 "max_runtime_minutes": self.environment.max_runtime_minutes,
                 "deny_internet_egress": self.environment.deny_internet_egress,
+                "live": self.environment.provider == "docker",
             },
             "targets": [asdict(t) for t in self.targets],
             "objectives": [
-                {"id": o.id, "label": o.label, "description": o.description, "hints": o.hints}
+                {"id": o.id, "label": o.label, "description": o.description, "hints": o.hints,
+                 "validator": o.validator}
                 for o in self.objectives
             ],
         }

@@ -16,7 +16,7 @@ export default function AcademyLesson() {
   // a "Next lesson" link reuses this route: remount for a fresh session.
   const body =
     !track || !deck || deck.trackId !== track.id ? (
-      <Message title="Lesson not found" href="/" link="Back to Home" />
+      <Message title="Lesson not found" href="/app" link="Back to Home" />
     ) : (
       <LessonPlayer key={deck.id} track={track} deck={deck} />
     );

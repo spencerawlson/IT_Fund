@@ -13,18 +13,25 @@ place the paid gate goes when billing lands.
 from __future__ import annotations
 
 import json
+import logging
 import time
 from collections import defaultdict, deque
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
+from sqlalchemy import select
 
-from auth.deps import resolve_visitor_id
+import db
+from auth.deps import require_user_id, resolve_user_id, resolve_visitor_id
+from db_models import LabCompletion
 from labs.registry import get_lab, list_labs
 from labs.sessions import LabError, service
 from labs.shells import meta as shell_meta
 
 router = APIRouter(prefix="/labs", tags=["labs"])
+
+log = logging.getLogger(__name__)
 
 
 def _rate_limiter(max_calls: int, window: int):
@@ -89,6 +96,71 @@ def get_definitions() -> dict[str, Any]:
     return {"labs": labs}
 
 
+def _record_completion(user_id: str | None, sess: dict[str, Any]) -> None:
+    """Persist one lab completion for signed-in learners.
+
+    Guests keep history in the browser only. Idempotent per session via the
+    (user_id, session_id) unique constraint — repeat validations can't double
+    count. A failed write must never fail the lab response, so errors are
+    logged, not raised.
+    """
+    if not user_id or sess.get("status") != "COMPLETED":
+        return
+    try:
+        started = datetime.fromisoformat(sess["started_at"])
+        completed = datetime.fromisoformat(sess["completed_at"])
+    except (KeyError, ValueError, TypeError):
+        return
+    duration = max(0, int((completed - started).total_seconds()))
+    try:
+        with db.SessionLocal() as s:
+            exists = s.execute(
+                select(LabCompletion.id).where(
+                    LabCompletion.user_id == user_id,
+                    LabCompletion.session_id == sess["id"],
+                )
+            ).first()
+            if exists:
+                return
+            s.add(LabCompletion(
+                user_id=user_id,
+                lab_id=sess["lab_id"],
+                session_id=sess["id"],
+                duration_seconds=duration,
+                completed_at=completed,
+            ))
+            s.commit()
+    except Exception:  # noqa: BLE001 — history is best-effort; the lab already worked
+        log.exception("failed to record lab completion")
+
+
+@router.get("/history")
+def lab_history(user_id: str = Depends(require_user_id)) -> dict[str, Any]:
+    """The signed-in learner's lab completions, newest first. The progress page
+    aggregates these into per-lab completions and best/last times."""
+    with db.SessionLocal() as s:
+        rows = s.execute(
+            select(
+                LabCompletion.lab_id,
+                LabCompletion.duration_seconds,
+                LabCompletion.completed_at,
+            )
+            .where(LabCompletion.user_id == user_id)
+            .order_by(LabCompletion.completed_at.desc())
+            .limit(1000)
+        ).all()
+    return {
+        "history": [
+            {
+                "lab_id": r.lab_id,
+                "duration_seconds": r.duration_seconds,
+                "completed_at": r.completed_at.isoformat(),
+            }
+            for r in rows
+        ]
+    }
+
+
 @router.post("/{lab_id}/start")
 async def start_lab(lab_id: str, owner_id: str = Depends(resolve_visitor_id)) -> dict[str, Any]:
     # lab_id is looked up server-side; the client cannot pass an image, target or provider.
@@ -132,6 +204,7 @@ async def exec_in_session(
     session_id: str,
     body: dict = Body(default_factory=dict),
     owner_id: str = Depends(resolve_visitor_id),
+    user_id: str | None = Depends(resolve_user_id),
 ) -> dict[str, Any]:
     _check_exec_rate(owner_id)
     # The command is untrusted input; the (mock) provider only pattern-matches it, never runs it.
@@ -142,21 +215,29 @@ async def exec_in_session(
         session, result = await service.exec_command(session_id, owner_id, command)
     except LabError as err:
         raise _http(err)
+    sess = session.public_dict()
+    _record_completion(user_id, sess)
     return {
         "output": result.output,
         "exit_code": result.exit_code,
         "clear": result.clear,
         "prompt": result.prompt,
-        "session": session.public_dict(),
+        "session": sess,
     }
 
 
 @router.post("/sessions/{session_id}/validate")
-async def validate_session(session_id: str, owner_id: str = Depends(resolve_visitor_id)) -> dict[str, Any]:
+async def validate_session(
+    session_id: str,
+    owner_id: str = Depends(resolve_visitor_id),
+    user_id: str | None = Depends(resolve_user_id),
+) -> dict[str, Any]:
     try:
-        return (await service.validate(session_id, owner_id)).public_dict()
+        sess = (await service.validate(session_id, owner_id)).public_dict()
     except LabError as err:
         raise _http(err)
+    _record_completion(user_id, sess)
+    return sess
 
 
 @router.post("/sessions/{session_id}/reset")

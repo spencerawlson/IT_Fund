@@ -1,12 +1,13 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { labsApi } from '@/api/labs';
 
-// A simulated shell for a lab session. The learner types real tools (nmap, Cisco IOS config, dig,
-// ping...) and the backend returns realistic canned output for a *provided* environment while
-// executing nothing; the findings each command establishes are recorded server-side, so objectives
-// tick off as you work. The prompt is dynamic: shells whose prompt changes (e.g. IOS modes, or
-// switching devices with `connect`) return a new one with each command. This is a UI over the
-// LabProvider `exec` seam — real execution can be swapped in later with no change here.
+// A shell for a lab session. The learner types real tools (nmap, Cisco IOS config, dig,
+// ping...) and the backend answers through the LabProvider `exec` seam. Simulated labs return
+// realistic canned output while executing nothing and record findings server-side, so objectives
+// tick off as you work; live-execution labs (Docker) run the commands for real in a container,
+// and the learner attests each objective in the workspace instead. The prompt is dynamic:
+// shells whose prompt changes (e.g. IOS modes, or switching devices with `connect`) return a
+// new one with each command.
 //
 // Exposes an imperative `send(command)` so the workspace's device-console tabs can `connect <device>`.
 

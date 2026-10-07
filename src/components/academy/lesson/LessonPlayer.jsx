@@ -125,7 +125,7 @@ export default function LessonPlayer({ track, deck }) {
       {/* Top bar: exit, progress, position. No site navigation in a lesson. */}
       <header className="sticky top-0 z-30 px-3 pt-3 sm:px-6 sm:pt-5">
         <div className="glass-1 mx-auto flex max-w-2xl items-center gap-3 rounded-card px-2 py-2 sm:px-3">
-          <Button to="/" variant="ghost" icon={X} aria-label="Exit lesson (your place is saved)" title="Your place is saved" className="w-10 shrink-0 px-0" />
+          <Button to="/app" variant="ghost" icon={X} aria-label="Exit lesson (your place is saved)" title="Your place is saved" className="w-10 shrink-0 px-0" />
           <ProgressBar value={progress} label="Lesson progress" showValue={false} className="flex-1" />
           <span className="w-16 shrink-0 text-right text-small tabular-nums text-ink-2">
             {done ? 'Done' : index < 0 ? `${steps.length} steps` : `${index + 1} / ${steps.length}`}
