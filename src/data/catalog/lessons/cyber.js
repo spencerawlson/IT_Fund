@@ -548,4 +548,423 @@ export default {
       ['events.jsonl', 'Ground truth to grade detections'],
     ],
   },
+  'cy-threat-actors': {
+    overview: [
+      'Every defence starts with knowing who might attack and why. A bank faces organized crime chasing money; a defence contractor faces nation-states chasing secrets; everyone faces phishing. Threat actors differ in resources, patience, and goals — and those differences dictate which controls matter most.',
+      'This lesson covers the major actor types (nation-state APTs, hacktivists, insiders, organized crime), the concept of TTPs, and the social engineering attack vectors Security+ expects you to recognize: phishing variants, BEC, pretexting, watering holes, and more.',
+    ],
+    learn: [
+      {
+        heading: 'Who attacks and why',
+        body: [
+          'Advanced persistent threats (APTs), usually nation-state backed, are resourced, patient, and targeted: they dwell in networks for months pursuing espionage or sabotage. Opportunistic attackers spray ransomware and phishing broadly, optimizing for volume rather than a specific victim.',
+          'Hacktivists act for political or social causes and want publicity — defacements and DDoS are their signature. Organized crime wants money and runs ransomware-as-a-service like a business. Insiders come in three flavours: malicious, negligent (the user who clicked), and compromised (whose account an outsider now drives). Shadow IT — unsanctioned apps holding real data — is an insider-adjacent risk that lives outside security visibility entirely.',
+          'TTP stands for tactics, techniques, and procedures: the attacker\u2019s playbook. MITRE ATT&CK catalogs TTPs so defenders can detect behavioural patterns rather than chasing individual indicators. Profiling which actors target your sector tells you which TTPs to prioritize.',
+        ],
+      },
+      {
+        heading: 'Social engineering attack vectors',
+        body: [
+          'Phishing is bulk deception by email; spear phishing targets specific people; whaling targets senior executives with deeply researched pretexts. Vishing moves the con to voice calls ("IT support" asking for your MFA code) and smishing to text messages, often fake delivery or bank alerts.',
+          'Business email compromise rarely carries malware at all: a spoofed or hijacked executive account directs a wire transfer or invoice change purely on trust, which is why finance teams need their own training. Pretexting invents a scenario to extract information, baiting dangles something tempting (the parking-lot USB drop), and tailgating follows an authorized person through a secured door.',
+          'Watering hole attacks compromise websites the targets already visit instead of attacking them directly. Typosquatting registers lookalike domains for credential harvesting. Influence campaigns coordinate disinformation through fake personas. Clone phishing copies a real email and swaps in malicious links, while pharming poisons DNS so even correctly typed URLs land on the attacker\u2019s copy. The defence against all of it is process and culture: verify out of band.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['APT', 'Resourced, patient, targeted (often nation-state)'],
+      ['Hacktivist', 'Political cause, wants publicity'],
+      ['Insider types', 'Malicious, negligent, compromised'],
+      ['TTP', 'Tactics, techniques, procedures'],
+      ['Whaling', 'Spear phishing aimed at executives'],
+      ['Vishing / smishing', 'Voice / SMS phishing'],
+      ['BEC', 'Executive email fraud, usually no malware'],
+      ['Pretexting', 'Invented scenario to extract info'],
+      ['Baiting', 'Tempting lure: USB drop, fake download'],
+      ['Tailgating', 'Following someone through a secured door'],
+      ['Watering hole', 'Compromise sites the target visits'],
+      ['Typosquatting', 'Lookalike domains for phishing'],
+    ],
+  },
+  'cy-malware': {
+    overview: [
+      'Malware is not one thing: a worm that spreads itself, a Trojan the user installs willingly, and fileless code living only in memory demand completely different defences. Security+ expects you to tell them apart and know what each one implies for detection and response.',
+      'This lesson covers the major malware types — ransomware (including double extortion), Trojans and RATs, worms versus viruses, fileless malware, rootkits and bootkits, spyware, logic bombs, backdoors — plus the evasion techniques (packers, polymorphism, process hollowing) that make them hard to catch.',
+    ],
+    learn: [
+      {
+        heading: 'The malware zoo',
+        body: [
+          'Ransomware encrypts data and demands payment; modern strains add double extortion, threatening to publish stolen data, which is why backups alone no longer defeat it. A Trojan disguises itself as legitimate software that the user installs willingly, and a RAT (Remote Access Trojan) then gives the attacker full remote control of the machine.',
+          'Worms self-propagate across networks while viruses need a host file and user action to spread. Fileless malware runs entirely in memory through legitimate tools like PowerShell and WMI, leaving no binary for antivirus to find — but EDR and Sysmon can still see it. Rootkits hide by subverting the operating system itself, and bootkits go further, infecting the boot process so they survive even an OS reinstall; Secure Boot is the mitigation.',
+          'Keyloggers record keystrokes to steal credentials, spyware secretly monitors activity, logic bombs wait for a trigger condition (the classic disgruntled-admin revenge), and backdoors provide hidden access bypassing normal authentication. Droppers and downloaders are stage-one malware whose only job is delivering the real payload.',
+        ],
+      },
+      {
+        heading: 'Evasion and analysis',
+        body: [
+          'Attackers hide malware with packers and crypters that compress or encrypt the binary to defeat signature detection — high-entropy packed executables are themselves a red flag. Polymorphic malware re-encrypts each copy while metamorphic malware rewrites its own code, both defeating hash-based detection. Process hollowing swaps a legitimate process\u2019s memory for malicious code, and DLL injection forces trusted processes to load hostile libraries.',
+          'Botnets network compromised machines for DDoS, spam, and cryptojacking — the theft of compute for mining cryptocurrency, betrayed by unexplained CPU spikes. Wipers destroy data with no recovery option (NotPetya posed as ransomware but was a wiper), and ransomware-as-a-service lets criminals lease attack kits to affiliates, lowering the skill barrier for everyone.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Ransomware', 'Encrypts data, demands payment'],
+      ['Double extortion', 'Encrypt + threaten to leak'],
+      ['Trojan / RAT', 'Disguised installer / remote control'],
+      ['Worm vs virus', 'Self-propagates vs needs host + user'],
+      ['Fileless', 'Memory-only via legit tools'],
+      ['Rootkit / bootkit', 'Hides in OS / in boot process'],
+      ['Logic bomb', 'Triggers on condition or date'],
+      ['Backdoor', 'Hidden access bypassing auth'],
+      ['Packer', 'Evades signatures via encryption'],
+      ['Polymorphic', 'Re-encrypts each copy'],
+      ['Process hollowing', 'Malicious code in legit process memory'],
+      ['Wiper', 'Destroys data, no ransom (NotPetya)'],
+    ],
+  },
+  'cy-vulns': {
+    overview: [
+      'Vulnerabilities are the raw material of every attack, and Security+ tests whether you can name the flaw class, explain how it is exploited, and state the fix. Memorizing individual CVEs is pointless; recognizing that unsanitized input plus string-built SQL equals injection is the skill.',
+      'This lesson covers the major vulnerability classes — zero-days, buffer overflows, race conditions, injection flaws (SQL, XSS, CSRF, XXE, LDAP, template), cryptographic and protocol weaknesses — and the mitigations that actually work: input validation, parameterized queries, output encoding, least privilege, and defence in depth.',
+    ],
+    learn: [
+      {
+        heading: 'Flaw classes to recognize',
+        body: [
+          'A zero-day is exploited before the vendor knows or patches it, so the response is isolation and monitoring rather than patching. Buffer overflows write past a buffer\u2019s bounds to hijack execution, mitigated by safe languages, ASLR (which randomizes memory layout), and DEP/NX. Race conditions (time-of-check to time-of-use) exploit the gap between a security check and the action it approved.',
+          'Injection flaws share one root cause: untrusted input treated as code. SQL injection manipulates databases (fix: parameterized queries), cross-site scripting injects scripts into victims\u2019 browsers (fix: output encoding plus Content Security Policy), and the family extends to LDAP injection, template injection, and XXE, where XML parsers resolve external entities to read files. Cross-site request forgery tricks a logged-in browser into unwanted actions, countered by anti-CSRF tokens.',
+          'Replay attacks re-send captured valid data, defeated by nonces and timestamps. Downgrade attacks force weaker crypto, countered by HSTS and version enforcement. Side-channel attacks extract secrets from timing or cache behaviour — the Spectre class — mitigated with constant-time code.',
+        ],
+      },
+      {
+        heading: 'Mitigations that work',
+        body: [
+          'Validate input against an allow-list of known-good values; deny-lists always miss the next bypass. Encode output for its context so data can never execute. Separate code from data with parameterized queries. None of these is optional — they are the actual fixes, not suggestions.',
+          'Least privilege grants only the access a task needs, limiting any compromise\u2019s blast radius. Defence in depth layers controls so no single failure is fatal. Attack surface reduction removes what attackers could target in the first place. And "security through obscurity" — hiding details — fails the moment it is discovered, so use it only as one layer among many, per Kerckhoffs\u2019s principle.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Zero-day', 'Exploited before vendor knows/patches'],
+      ['Buffer overflow', 'Write past bounds; fix: safe langs, ASLR, DEP'],
+      ['Race condition', 'Gap between check and use (TOCTOU)'],
+      ['SQLi fix', 'Parameterized queries'],
+      ['XSS fix', 'Output encoding + CSP'],
+      ['Stored / reflected / DOM XSS', 'Persists / bounces / client-side JS'],
+      ['CSRF fix', 'Anti-CSRF tokens, SameSite cookies'],
+      ['Replay fix', 'Nonces and timestamps'],
+      ['Allow-list > deny-list', 'Deny-lists miss the next bypass'],
+      ['Least privilege', 'Only the access needed'],
+      ['Defence in depth', 'Layered; no single point of failure'],
+    ],
+  },
+  'cy-cloud-arch': {
+    overview: [
+      'Cloud security starts with one uncomfortable truth: most cloud breaches are the customer\u2019s misconfiguration, not the provider\u2019s failure. The shared responsibility model draws the line, and Security+ expects you to draw it differently for IaaS, PaaS, and SaaS.',
+      'This lesson covers the cloud service and deployment models, virtualization and container security, and the zero-trust direction modern architecture is heading — plus the practical controls (CSPM, golden images, secrets management) that keep cloud estates safe.',
+    ],
+    learn: [
+      {
+        heading: 'Models and the shared line',
+        body: [
+          'IaaS rents raw infrastructure (you manage the OS up), PaaS rents a platform (you manage code and data), SaaS rents finished software (you manage users, access, and data). The higher the stack, the less you control — and the more the provider secures. Public clouds are multi-tenant and shared, private clouds are dedicated, hybrid mixes both, and community clouds serve peer organizations.',
+          'Misconfigurations — public storage buckets, open security groups, exposed keys — cause more breaches than zero-days. Cloud Security Posture Management continuously scans for them. Lift-and-shift migrations move workloads unchanged, which is fast but carries on-prem weaknesses into the cloud.',
+        ],
+      },
+      {
+        heading: 'Virtualization, containers, and zero trust',
+        body: [
+          'Type 1 hypervisors run on bare metal while Type 2 run atop a host OS. VM sprawl — untracked, unpatched virtual machines — is an asset-management failure, and VM escape (guest breaking out to the hypervisor) is rare but catastrophic. Containers share the host kernel, so a kernel bug escapes every container on the host: run them as non-root, keep images minimal, and scan them in CI.',
+          'Harden with golden images (approved templates), immutable infrastructure (replace rather than patch), infrastructure-as-code scanning, and runtime-injected secrets — never baked into images. Zero trust ("never trust, always verify") replaces flat VPN-era networking with per-request, identity-aware access; microsegmentation and service meshes (mutual TLS between services) are its network expression.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['IaaS / PaaS / SaaS', 'You manage OS / code / data+access'],
+      ['#1 cloud breach cause', 'Customer misconfiguration'],
+      ['CSPM', 'Continuous misconfig scanning'],
+      ['Type 1 / 2 hypervisor', 'Bare metal / on host OS'],
+      ['VM escape', 'Guest breaks out to hypervisor'],
+      ['Container risk', 'Shared kernel; run non-root'],
+      ['Golden image', 'Hardened approved template'],
+      ['Immutable infra', 'Replace, don\u2019t patch'],
+      ['Secrets rule', 'Inject at runtime, never bake in'],
+      ['Zero trust', 'Never trust, always verify'],
+    ],
+  },
+  'cy-net-arch': {
+    overview: [
+      'Network architecture is where security policy becomes geography: what sits in the DMZ, which VLANs can reach each other, and where the single guarded entry point is. Get the topology right and most attacks run out of road.',
+      'This lesson covers DMZs, segmentation (VLANs, microsegmentation), bastion hosts, deception (honeypots, honeynets, honeytokens), air gaps and data diodes, and the firewall and IDS/IPS concepts that enforce it all.',
+    ],
+    learn: [
+      {
+        heading: 'Zones and segmentation',
+        body: [
+          'A DMZ (screened subnet) is a buffer network between the internet and the internal LAN, firewalled on both sides. Web servers, mail relays, and VPN concentrators belong there; databases never do — if a DMZ host falls, the data stays inside.',
+          'Segmentation limits lateral movement and blast radius: a compromised laptop should never reach operational technology. VLANs separate at Layer 2 (watch for double-tagging VLAN hopping) while subnets separate at Layer 3, and microsegmentation pushes policy down to individual workloads. A jump (bastion) host is the single hardened entry point for administration — MFA it, log everything, and never RDP to servers directly from user VLANs.',
+        ],
+      },
+      {
+        heading: 'Deception, isolation, and enforcement',
+        body: [
+          'Honeypots are decoy systems that alert the instant they are touched — no legitimate user ever would, so the signal is nearly pure. Honeynets scale the idea to whole fake networks, and honeytokens are fake credentials or files (a bogus AWS key in code) that trip an immediate alert. Air gaps isolate physically with no network path (though USBs and insiders bridge them), while data diodes enforce one-way flow in hardware.',
+          'Stateful firewalls track connections rather than judging packets alone, and zone policies default-deny between trust zones. A WAF filters HTTP-layer attacks in front of web apps, an IDS only alerts while an IPS blocks inline (tune in IDS mode first to avoid false-positive outages), and reverse proxies terminate client connections so origin servers stay hidden.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['DMZ', 'Buffer net; firewalled both sides'],
+      ['Never in DMZ', 'Databases'],
+      ['Segmentation goal', 'Limit lateral movement'],
+      ['Bastion host', 'Single hardened admin entry'],
+      ['Honeypot', 'Decoy; any touch = alert'],
+      ['Honeytoken', 'Fake credential tripwire'],
+      ['Air gap', 'No network path at all'],
+      ['Data diode', 'One-way flow in hardware'],
+      ['WAF', 'Filters HTTP attacks'],
+      ['IDS vs IPS', 'Alert only vs block inline'],
+    ],
+  },
+  'cy-secure-proto': {
+    overview: [
+      'Protocols are promises about how data moves, and the secure versions of familiar protocols are where most day-to-day security lives: the S that turns HTTP into HTTPS, the 3 that turns SNMPv2c into SNMPv3, the tunnel that turns remote access from exposure into a non-event.',
+      'This lesson covers TLS and certificates, secure management and file-transfer protocols, IPSec, VPN designs, and wireless security from WPA3 down to Bluetooth — the protocol knowledge Security+ tests directly.',
+    ],
+    learn: [
+      {
+        heading: 'TLS, certificates, and secure services',
+        body: [
+          'TLS provides confidentiality, integrity, and server authentication; version 1.3 is faster, drops weak ciphers, and encrypts more of the handshake — disable SSL and anything below 1.2. Certificate authorities vouch for public keys, HSTS headers force browsers onto HTTPS (defeating downgrade attacks), and certificate pinning makes an app trust only specific certificates regardless of the CA store.',
+          'SSH replaces cleartext Telnet for everything, SFTP (over SSH) beats FTPS (FTP over TLS) for file transfer, SNMPv3 adds the authentication and encryption that v1/v2c\u2019s community strings lack, LDAPS encrypts directory queries, and DNSSEC validates DNS responses against cache poisoning. IPSec\u2019s ESP mode (encrypt plus authenticate) in tunnel mode is the standard site-to-site VPN construction.',
+        ],
+      },
+      {
+        heading: 'VPN designs and wireless',
+        body: [
+          'Split-tunnel VPNs send only corporate traffic through the tunnel (faster) while full-tunnel sends everything (inspectable and controlled). Site-to-site VPNs link networks; remote-access VPNs link roaming users. Always-on VPN connects before user logon so policy and patching apply off-network.',
+          'WPA3 replaces WPA2\u2019s crackable handshakes with SAE, which resists offline dictionary attacks; WPA2-Enterprise adds per-user 802.1X authentication via RADIUS instead of one shared PSK. Rogue access points and evil twins (fake APs cloning a real SSID) are countered with wireless intrusion prevention and wired-side NAC. Deauthentication attacks spoof disconnect frames to capture handshakes — 802.11w protected management frames mitigate them. Bluetooth and NFC bring close-range risks (pairing interception, relay attacks); keep discoverable mode off.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['TLS 1.3', 'Faster, weak ciphers dropped'],
+      ['HSTS', 'Forces HTTPS, blocks downgrade'],
+      ['S/MIME', 'Email encryption + signing'],
+      ['SFTP vs FTPS', 'Over SSH:22 vs FTP over TLS'],
+      ['SNMPv3', 'Adds auth + encryption'],
+      ['IPSec tunnel / ESP', 'Whole packet / encrypt+auth'],
+      ['Split vs full tunnel', 'Corp-only vs all traffic via VPN'],
+      ['WPA3 SAE', 'Resists offline dictionary attacks'],
+      ['Enterprise vs Personal', '802.1X per-user vs shared PSK'],
+      ['Evil twin', 'Fake AP cloning a real SSID'],
+      ['Deauth mitigation', '802.11w protected mgmt frames'],
+    ],
+  },
+  'cy-crypto': {
+    overview: [
+      'Cryptography is the quiet machinery underneath nearly every security control: the TLS that protects a login, the hash that proves a file is intact, the signature that makes a software update trustworthy. Security+ expects you to know not just the names but when each tool fits.',
+      'This lesson covers how strangers agree on secrets (key exchange), how hybrid encryption gets the best of both worlds, what certificates actually prove, and how the pieces — ciphers, hashes, signatures — combine into working systems.',
+    ],
+    learn: [
+      {
+        heading: 'Agreeing on secrets and mixing ciphers',
+        body: [
+          'Two parties who have never met can still agree on a secret over a public channel using Diffie-Hellman: each combines a private value with the other’s public value, and both arrive at the same secret while eavesdroppers cannot. It solves key distribution without ever transmitting the key itself.',
+          'Real systems rarely use one cipher type alone. A digital envelope encrypts the message with a fast symmetric key, then encrypts that key with the recipient’s public key — symmetric speed for the bulk data, asymmetric convenience for the key. TLS handshakes work the same way, and ephemeral keys per session give perfect forward secrecy.',
+          'Block ciphers like AES encrypt fixed-size chunks; stream ciphers encrypt bit by bit. Prefer authenticated modes such as AES-GCM, which bundle confidentiality and integrity, over plain CBC, which needs a separate HMAC to detect tampering. And remember the fundamental split: hashing is one-way with no key, encryption is reversible with one.',
+        ],
+      },
+      {
+        heading: 'Certificates and the PKI that backs them',
+        body: [
+          'A certificate binds a public key to an identity, vouched for by a certificate authority. Domain-validated (DV) certs only prove control of the domain; organization-validated (OV) verify the business; extended-validation (EV) vets rigorously. All three encrypt identically — the difference is how much identity was checked.',
+          'Choose wildcards (*.example.com) for many subdomains of one domain, and SAN certificates when one certificate must cover several different names. Self-signed certificates encrypt fine but no trusted third party vouches for them, so browsers warn — acceptable in a lab, not in production.',
+          'Trust flows down a chain: the leaf was signed by an intermediate, which was signed by a root your system trusts. Intermediates exist so the root key can stay offline; if an intermediate is compromised it can be revoked without replacing the root. Certificate pinning goes further — an app accepts only one specific key — defeating rogue-CA attacks at the cost of painful rotations.',
+        ],
+      },
+      {
+        heading: 'Keys, signatures, and where they live',
+        body: [
+          'A digital signature is a hash of the message encrypted with the sender’s private key. Verification decrypts with the public key, re-hashes, and compares. It proves origin and integrity — but not confidentiality, since anyone can read a signed message.',
+          'Keys need homes and lifecycles. A hardware security module (HSM) is a network-attached vault serving keys to many systems; a TPM is a chip binding keys to one motherboard. Rotate keys on schedule and immediately on suspected compromise, and never hard-code them into shipped software — anyone who downloads the app owns the key.',
+          'Elliptic-curve crypto gives more strength per bit than RSA: a 256-bit curve rivals RSA-3072, which is why ECC dominates on phones and constrained devices. And when secrecy must also hide the message’s very existence, steganography tucks data inside innocent files — but unlike encryption, it provides no mathematical guarantee once discovered.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Diffie-Hellman', 'Agree on a secret over a public channel'],
+      ['Digital envelope', 'Symmetric message key, encrypted asymmetrically'],
+      ['DV / OV / EV', 'Domain / organization / extended validation'],
+      ['Wildcard vs SAN', '*.domain subdomains vs several different names'],
+      ['Self-signed', 'Encrypts fine; no trusted vouching'],
+      ['Key escrow', 'Third party holds key copies for recovery'],
+      ['HSM vs TPM', 'Network vault vs motherboard chip'],
+      ['AES-GCM', 'Authenticated encryption: confidentiality + integrity'],
+      ['Signature steps', 'Hash, then encrypt hash with private key'],
+      ['Chain validation', 'Leaf → intermediate → trusted root'],
+      ['Pinning', 'App accepts only one specific key'],
+      ['ECC P-256', '≈ RSA-3072 strength, far less computation'],
+    ],
+  },
+  'cy-concepts': {
+    overview: [
+      'Before any tool or protocol, security rests on a handful of ideas that show up on every exam and in every real design review: what you are protecting (the CIA triad), who gets in (AAA), and how you arrange trust (zero trust, defense in depth, least privilege).',
+      'This lesson turns those abstractions into working instincts — which goal a ransomware attack hits, why a mantrap beats a polite sign, and how biometric error rates actually trade off.',
+    ],
+    learn: [
+      {
+        heading: 'CIA and AAA in practice',
+        body: [
+          'Confidentiality keeps secrets secret, integrity keeps data trustworthy, availability keeps systems reachable. Ransomware that encrypts your files attacks availability; when it also steals them for double extortion, confidentiality falls too. A database with wrong balances but no outage is an integrity failure — and only a verified clean copy restores it, not just any backup.',
+          'Redundancy — RAID, clustering, generators — buys availability. Hashes, checksums, and version control buy integrity by detecting change. Encryption buys confidentiality. Most real controls serve one goal primarily; knowing which one tells you what a given attack actually breaks.',
+          'AAA separates three questions: authentication (prove who you are), authorization (what you may do), and accounting (a record of what you did). A badge that opens the door but logs nothing failed at accounting — and without that record, incident response is blind. Authorization should default to implicit deny: nothing is allowed unless explicitly granted.',
+        ],
+      },
+      {
+        heading: 'Zero trust and layered defense',
+        body: [
+          'The old castle-and-moat model trusted everything inside the network. Zero trust assumes no implicit trust by location: every request is verified continuously, based on identity, device health, and context. A compromised laptop on the LAN gets no free pass.',
+          'Microsegmentation carves the network into tiny isolated zones so breaching one does not open the rest. Continuous validation re-checks throughout the session rather than once at login. The policy engine decides, the administrator configures, and the enforcement point applies — the three logical pieces of a NIST 800-207 architecture.',
+          'Defense in depth layers controls so one failure is not a breach: if phishing beats training, MFA and EDR still stand in the way. "Assume breach" designs detection, segmentation, and least privilege as if attackers were already inside — because eventually, they will be.',
+        ],
+      },
+      {
+        heading: 'Physical security and biometrics',
+        body: [
+          'Physical controls are the outermost layer. Bollards stop vehicle ramming; a mantrap — two interlocked doors where the second opens only after the first closes — defeats tailgating; a Faraday cage blocks all radio signals for rooms where wireless exfiltration is a concern. Cable locks deter opportunistic laptop theft, and visitor logs with escorts keep non-employees accountable.',
+          'Biometrics authenticate "something you are": fingerprint, iris, face, voice. Two error rates govern them — the false acceptance rate (wrongly admitting) and false rejection rate (wrongly denying) — and lowering one raises the other. The crossover error rate, where the two are equal, lets you compare systems objectively.',
+          'The catch with biometrics is permanence: you cannot revoke a compromised fingerprint. Use them for convenience, and pair them with something revocable — a PIN or token — where the stakes are high.',
+        ],
+      },
+      {
+        heading: 'Design principles that prevent fraud',
+        body: [
+          'Separation of duties splits critical tasks so no single person can complete fraud alone — the approver of payments cannot also issue them. Dual control goes further, requiring two authorized people for one sensitive action, as in key ceremonies and large transfers.',
+          'Job rotation exposes fraud by putting fresh eyes on a role, and mandatory vacations force a break in any scheme that needs constant cover — both are classic anti-fraud controls, especially in finance. "Need to know" limits information access to those whose role requires it.',
+          'These principles compose: classification labels data, need-to-know limits who sees it, least privilege limits what they can do with it, and separation of duties ensures no one person controls the whole chain.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Ransomware encrypting files', 'Availability (+ confidentiality if stolen)'],
+      ['Wrong balances, no outage', 'Integrity'],
+      ['DDoS on the web shop', 'Availability'],
+      ['Sniffed HTTP logins', 'Confidentiality'],
+      ['AAA', 'Authenticate, authorize, account'],
+      ['Implicit deny', 'Deny unless explicitly allowed'],
+      ['Zero trust', 'Never trust, always verify, continuously'],
+      ['Microsegmentation', 'Tiny isolated zones limit lateral movement'],
+      ['Bollards / mantrap / Faraday', 'Anti-ram / anti-tailgate / anti-radio'],
+      ['FAR vs FRR', 'Wrongly admit vs wrongly deny; CER compares'],
+      ['Biometric catch', 'Cannot revoke a fingerprint'],
+      ['Separation of duties', 'No single person completes fraud alone'],
+      ['Mandatory vacations', 'Fraud needing cover unravels'],
+    ],
+  },
+  'cy-risk': {
+    overview: [
+      'Security exists to manage risk, not to eliminate it — and risk is a business language, not a technical one. Leaders decide how much risk to accept; your job is to measure it honestly, price it in dollars or clear ratings, and drive it down to the line they drew.',
+      'This lesson covers how risks are assessed and answered, what a business impact analysis produces, and how continuity planning keeps the organisation alive when controls fail.',
+    ],
+    learn: [
+      {
+        heading: 'Measuring and answering risk',
+        body: [
+          'Qualitative assessments rate risks high, medium, or low — fast and cheap. Quantitative assessments put numbers on them: single loss expectancy times annualized rate of occurrence gives annualized loss expectancy in dollars. Use qualitative for speed, quantitative when you need to justify a budget.',
+          'A risk matrix plots likelihood against impact so the red corner — high likelihood times high impact — demands action first. Inherent risk is what you face before controls; residual risk is what remains after. The goal is never zero risk; it is residual risk at or below the appetite leadership set.',
+          'Four answers exist for any risk: mitigate it with controls, transfer it with insurance or outsourcing, accept it with formal sign-off, or avoid it by stopping the activity. Acceptance is a documented decision with an expiry date, not neglect — and transfer never removes your residual liability.',
+        ],
+      },
+      {
+        heading: 'Business impact analysis and continuity',
+        body: [
+          'The business impact analysis identifies critical functions, sets recovery time and recovery point objectives for each, and maps the dependencies they need. Its outputs — not anyone’s gut feeling — drive the continuity budget. Maximum tolerable downtime caps it all: the RTO must fit inside the MTD or recovery is theatre.',
+          'The business continuity plan keeps the whole organisation running and belongs to business leadership; the disaster recovery plan restores IT systems and belongs to IT. DRP is a subset of BCP. Succession planning names trained backups for every critical role, because incidents do not wait for the one expert to return.',
+          'Match alternate sites to RTO: hot sites run ready for seconds-to-minutes recovery, warm sites need hours, cold sites are empty space for days-long rebuilds. Separate primary and recovery sites geographically — one regional disaster must not take both — and consider power grids and flood plains, not just mileage.',
+        ],
+      },
+      {
+        heading: 'Backups, testing, and communication',
+        body: [
+          'Full backups copy everything; incremental copies changes since the last backup of any kind (fast daily, slow to restore); differential copies changes since the last full (the middle path). Align backup frequency to the recovery point objective — a weekly tape cannot serve a four-hour RPO.',
+          'Test realism in stages: tabletops talk through a scenario, functional exercises actually fail systems over, full-interruption tests run the business from the alternate site. Escalate gradually, because the most realistic tests risk real disruption. Test generators under load monthly — an untested generator is a hope, not a control.',
+          'Continuity lives or dies on communication: who contacts whom, over which out-of-band channels, with pre-drafted messages for staff, customers, regulators, and media. Rehearse call trees — people change numbers, and a drill finds the dead branches before 2 a.m. does.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Qualitative vs quantitative', 'Ratings vs dollar figures (ALE)'],
+      ['Risk matrix', 'Likelihood × impact'],
+      ['Inherent vs residual', 'Before controls vs after controls'],
+      ['Appetite vs tolerance', 'How much accepted vs allowed variation'],
+      ['Risk owner', 'The business, not security'],
+      ['ALE $50k × 0.5 ARO', '$25k justifies cheaper controls'],
+      ['BIA outputs', 'Critical functions, RTO/RPO, dependencies'],
+      ['MTD', 'RTO must fit inside it'],
+      ['BCP vs DRP', 'Business-owned vs IT-owned; DRP ⊂ BCP'],
+      ['Hot / warm / cold', 'Ready / hours / empty space'],
+      ['Incremental vs differential', 'Since last backup vs since last full'],
+      ['Test ladder', 'Tabletop → functional → full interruption'],
+    ],
+  },
+  'cy-governance': {
+    overview: [
+      'Someone has to decide what "secure enough" means, prove it to outsiders, and keep vendors honest. That is governance: the laws that constrain you, the frameworks that organise you, the audits that verify you, and the contracts that bind your third parties.',
+      'This lesson maps the compliance landscape Security+ tests — HIPAA, SOX, PCI DSS, GDPR and friends — plus the frameworks, privacy principles, and vendor-risk practices that turn policy into proof.',
+    ],
+    learn: [
+      {
+        heading: 'The compliance landscape',
+        body: [
+          'HIPAA protects health information held by covered entities and their business associates, with breach notification within 60 days. Sarbanes-Oxley demands reliable financial reporting, which forces controlled IT systems under Section 404. The GLBA Safeguards Rule requires written security programs at financial institutions — broadly defined enough to include car dealerships offering financing.',
+          'California’s CCPA/CPRA grants consumers rights to know, delete, and opt out of sale or sharing of personal data. FERPA guards student education records. FISMA makes federal systems categorise, control, assess, authorise, and continuously monitor via the NIST Risk Management Framework.',
+          'PCI DSS is an industry standard, not a law — but its twelve requirement families bind anyone handling card data, and transaction volume decides whether you self-assess or face an on-site Report on Compliance. GDPR adds data-subject rights — access, rectification, erasure, portability, objection — and the ePrivacy Directive layers cookie consent on top.',
+        ],
+      },
+      {
+        heading: 'Frameworks that organise security',
+        body: [
+          'The NIST Risk Management Framework runs seven steps: Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor — authorisation being an explicit risk decision. ISO 27001 states certifiable requirements for an information security management system; ISO 27002 is the companion code of practice, and ISO 27701 extends both into privacy.',
+          'The CIS Controls v8 organise eighteen controls into Implementation Groups: IG1 is basic cyber hygiene every organisation should reach, IG2 and IG3 add depth for the mature. SOC 2 reports on five trust services criteria — Security plus Availability, Processing Integrity, Confidentiality, and Privacy as needed — under the SSAE 18 auditing standard.',
+          'NIST CSF 2.0 added Govern as a sixth top-level function, placing organisational context, risk strategy, and supply-chain oversight above Identify, Protect, Detect, Respond, and Recover. For cloud, the CSA Cloud Controls Matrix maps provider controls to ISO, SOC 2, and others, and FedRAMP standardises authorisation for US federal cloud use.',
+        ],
+      },
+      {
+        heading: 'Privacy principles and data rights',
+        body: [
+          'Collect and keep only what you need — data minimization shrinks both breach blast radius and compliance burden — and use it only for the purpose collected, which is purpose limitation. Know your data regimes: PII identifies a person, PHI is health data, PCI is cardholder data, each triggering different laws and handling.',
+          'Data sovereignty means data answers to the laws where it resides, driving residency and cloud-region choices. The right to erasure is easy to promise and hard to deliver: every copy must be found across backups, logs, analytics, and vendor systems. True anonymization escapes GDPR scope; mere de-identification, where re-identification remains possible, does not.',
+          'Build privacy in from the start rather than bolting it on. The controller decides purposes and means and carries primary accountability; the processor acts only on instructions. Moving personal data across borders needs an adequacy decision, Standard Contractual Clauses, or Binding Corporate Rules — and high-risk processing triggers a Data Protection Impact Assessment first.',
+        ],
+      },
+      {
+        heading: 'Policies, audits, and third-party risk',
+        body: [
+          'Policies set intent: acceptable use defines permitted behaviour and consequences; data retention sets how long each type lives and how it dies; BYOD rests on MDM enrolment plus containerisation; and the IR policy authorises, the plan organises, the playbook executes. NIST 800-63B modernised password thinking: long passphrases, no forced rotation without cause, and checks against breached lists.',
+          'Internal audits serve management and can run continuously; external audits serve regulators or customers and are point-in-time. A good scope states objectives, systems, period, and criteria before fieldwork. Findings mean a control failed and demand dated responses; continuous auditing replaces annual sampling with automated, always-on testing.',
+          'Vet vendors before signing — security posture, financial health, compliance evidence, incident history — because leverage evaporates after the contract is signed. Demand right-to-audit clauses, define SLAs with measurement and remedies (not wishes), and remember fourth-party risk: your vendors’ vendors, whom you never vetted. Offboard completely — orphaned vendor VPN accounts are a classic breach path.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['HIPAA', 'PHI; 60-day breach notice'],
+      ['SOX 404', 'Controlled IT for financial reporting'],
+      ['CCPA/CPRA', 'Know, delete, opt out of sale'],
+      ['PCI DSS', '12 families; volume sets SAQ vs ROC'],
+      ['GDPR rights', 'Access, rectify, erase, port, object'],
+      ['NIST RMF', 'Prepare→Categorize→Select→Implement→Assess→Authorize→Monitor'],
+      ['27001 vs 27002', 'Certifiable ISMS vs code of practice'],
+      ['CIS IG1/2/3', 'Basic hygiene → mature'],
+      ['SOC 2 criteria', 'Security + A, PI, C, P'],
+      ['CSF 2.0 Govern', 'Context, risk strategy, supply chain'],
+      ['800-63B passwords', 'Long, no forced rotation, breach-list check'],
+      ['Internal vs external audit', 'Management/continuous vs regulators/point-in-time'],
+      ['Minimization / purpose limit', 'Only what you need / only why collected'],
+      ['Controller vs processor', 'Decides why vs acts on instructions'],
+      ['Fourth-party risk', 'Your vendors’ vendors'],
+      ['SLA needs', 'Levels, measurement, remedies'],
+    ],
+  },
 };
