@@ -35,6 +35,7 @@ export default {
         title: 'Frameworks: ATT&CK, Kill Chain, CSF',
         summary: 'The shared maps defenders use to reason about attacks.',
         cissp: [1, 7],
+        secplus: [5],
         sources: ['mitre-attack', 'nist-csf'],
         cards: [
           ['What is MITRE ATT&CK?', 'A knowledge base of adversary tactics and techniques', 'Tactics are the "why" (goal); techniques are the "how".', ['A vulnerability scanner', 'A compliance law', 'A firewall']],
@@ -55,6 +56,7 @@ export default {
         title: 'Cryptography Deep Dive',
         summary: 'Key exchange, certificates, PKI, and cipher types. (Domain 1.4)',
         cissp: [3],
+        secplus: [1],
         sources: ['messer-sec', 'nist-glossary'],
         cards: [
           ['Two parties need a shared secret over a public channel. Which algorithm?', 'Diffie-Hellman key exchange', 'Each side combines its private value with the other’s public value to derive the same secret; eavesdroppers cannot.', ['RSA encryption', 'SHA-256', 'AES key wrap']],
@@ -89,6 +91,7 @@ export default {
         title: 'Core Security Concepts',
         summary: 'CIA, AAA, zero trust, physical security, and design principles. (Domain 1.1–1.3)',
         cissp: [1, 3],
+        secplus: [1],
         sources: ['messer-sec', 'isc2-cc', 'nist-glossary'],
         cards: [
           ['Ransomware encrypts the file server. Which CIA goals are attacked?', 'Availability first, then confidentiality if data is also stolen', 'Double extortion adds a confidentiality breach to the availability loss.', ['Integrity only', 'None', 'Authentication']],
@@ -132,6 +135,7 @@ export default {
         title: 'SOC Analyst Fundamentals',
         summary: 'Triage, logs, alerts, and phishing analysis.',
         cissp: [7, 6],
+        secplus: [4],
         sources: ['tryhackme', 'mitre-attack'],
         cards: [
           ['What does SOC Tier 1 typically do?', 'Alert triage: validate, enrich, escalate', 'Tier 2 investigates deeper; Tier 3 hunts and handles major incidents.', ['Write malware', 'Approve budgets', 'Configure payroll']],
@@ -188,6 +192,7 @@ export default {
         title: 'Threat Actors & Attack Vectors',
         summary: 'Who attacks, why, and the social engineering they use.',
         cissp: [1, 7],
+        secplus: [2],
         sources: ['mitre-attack', 'comptia-sec'],
         cards: [
           ['APT vs opportunistic attacker: what is the difference?', 'APTs are resourced, patient, targeted; opportunistic actors spray broadly', 'APTs dwell for months pursuing specific objectives; opportunistic actors blast ransomware and phishing widely.', ['APTs are always faster', 'Opportunistic actors never succeed', 'No difference']],
@@ -233,6 +238,7 @@ export default {
         title: 'Malware Types',
         summary: 'Ransomware to rootkits: what each does and how it spreads.',
         cissp: [7],
+        secplus: [2],
         sources: ['comptia-sec', 'mitre-attack'],
         cards: [
           ['What is ransomware?', 'Malware that encrypts data and demands payment for the key', 'Modern strains add double extortion: pay, or we leak it.', ['A firewall', 'A backup tool', 'An antivirus']],
@@ -273,6 +279,7 @@ export default {
         title: 'Web Application Attacks',
         summary: 'OWASP Top 10 and PortSwigger-style labs.',
         cissp: [8],
+        secplus: [2],
         sources: ['portswigger', 'owasp-top10'],
         cards: [
           ['OWASP Top 10 (2021) #1 risk?', 'Broken Access Control', 'e.g. changing /account?id=123 to 124 (IDOR).', ['Injection', 'Cryptographic Failures', 'Security Misconfiguration']],
@@ -315,6 +322,7 @@ export default {
         title: 'Detection Engineering',
         summary: 'Writing and tuning detections: Sigma, YARA, and queries.',
         cissp: [7],
+        secplus: [4],
         sources: ['mitre-attack', 'tryhackme'],
         cards: [
           ['What is Sigma?', 'A generic, SIEM-agnostic format for log detection rules', 'Convert one Sigma rule to Splunk, Elastic, Sentinel queries.', ['A malware family', 'A packet format', 'A vulnerability scanner']],
@@ -370,6 +378,7 @@ export default {
         title: 'Vulnerability Types & Mitigations',
         summary: 'Zero-days to race conditions: the flaw classes Security+ tests.',
         cissp: [7, 8],
+        secplus: [2],
         sources: ['comptia-sec', 'owasp-top10'],
         cards: [
           ['What is a zero-day vulnerability?', 'A flaw exploited before the vendor knows about or patches it', 'No patch exists yet — mitigate with isolation and monitoring.', ['A patched bug', 'A firewall', 'A backup']],
@@ -415,6 +424,7 @@ export default {
         title: 'Cloud Models & Virtualization Security',
         summary: 'Shared responsibility, hypervisors, containers, and zero trust.',
         cissp: [3, 7],
+        secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-210'],
         cards: [
           ['IaaS vs PaaS vs SaaS in one line each?', 'IaaS: manage OS up; PaaS: code+data; SaaS: data+access', 'The higher the stack, the less you control.', ['All identical', 'SaaS means servers', 'IaaS is email']],
@@ -454,6 +464,7 @@ export default {
         title: 'Network Architecture & Segmentation',
         summary: 'DMZs, VLANs, bastions, honeypots, and secure topologies.',
         cissp: [3, 4],
+        secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-53'],
         cards: [
           ['What is a DMZ?', 'A buffer network between the untrusted internet and the internal LAN', 'Firewalled on both sides.', ['A firewall', 'A backup', 'A military base']],
@@ -488,6 +499,7 @@ export default {
         title: 'Secure Protocols, VPN & Wireless',
         summary: 'TLS, IPSec, VPN designs, and locking down Wi-Fi.',
         cissp: [3, 4],
+        secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-52'],
         cards: [
           ['TLS 1.2 vs 1.3: why prefer 1.3?', 'Faster handshakes, weak ciphers removed, more of the handshake encrypted', 'Disable SSL and TLS 1.0/1.1 everywhere.', ['1.2 is newer', 'No difference', 'A firewall']],
@@ -531,6 +543,7 @@ export default {
         title: 'Risk Management & Business Continuity',
         summary: 'Risk analysis, BIA, and keeping the business running. (Domain 5.1–5.2)',
         cissp: [1],
+        secplus: [5],
         sources: ['messer-sec', 'nist-sp800-30', 'isc2-cc'],
         cards: [
           ['Qualitative vs quantitative risk assessment?', 'Qualitative uses ratings (high/medium/low); quantitative uses numbers (ALE in dollars)', 'Qualitative is fast and cheap; quantitative needs data but justifies budgets.', ['Same thing', 'Qualitative uses dollars', 'Quantitative is guesswork']],
@@ -583,6 +596,7 @@ export default {
         title: 'Compliance, Frameworks & Third-Party Risk',
         summary: 'Laws, frameworks, audits, privacy, and vendor risk. (Domain 5.3–5.5)',
         cissp: [1],
+        secplus: [5],
         sources: ['messer-sec', 'nist-csf', 'nist-rmf', 'iso27001'],
         cards: [
           ['HIPAA: who must comply and what is protected?', 'Covered entities and business associates; PHI — health data tied to identity', 'The Security Rule mandates administrative, physical, and technical safeguards.', ['Only hospitals', 'Only insurers', 'Credit card data']],
@@ -650,6 +664,7 @@ export default {
         title: 'Incident Response & Forensics',
         summary: 'Running an incident, preserving evidence, and recovery.',
         cissp: [7],
+        secplus: [4],
         sources: ['nist-ir', 'mitre-attack'],
         cards: [
           ['Why take a memory image before shutting down?', 'RAM holds processes, network connections, keys, and fileless malware', 'Tools: WinPmem, LiME; analyse with Volatility.', ['RAM is backed up automatically', 'Disks are volatile', 'It is required by the OS']],
@@ -720,6 +735,7 @@ export default {
         title: 'Threat Intelligence & Hunting',
         summary: 'Turning intel into hunts and hunts into detections.',
         cissp: [7, 1],
+        secplus: [2],
         sources: ['mitre-attack', 'cisa-kev'],
         cards: [
           ['Strategic vs tactical threat intelligence?', 'Long-term trends for leaders vs TTPs/IoCs for defenders', 'Operational intel covers specific campaigns.', ['Paid vs free', 'Internal vs external', 'Same thing']],
@@ -739,6 +755,7 @@ export default {
         title: 'Detection Lab Drills',
         summary: 'Hunt the real traces from the CyberSecurity_Lab simulations (run them, then detect them).',
         cissp: [7, 6],
+        secplus: [4],
         sources: ['cyberlab', 'spencerlab', 'mitre-attack'],
         cards: [
           ['In the web-attack lab, what betrays credential stuffing (T1110)?', 'A burst of 401s with many distinct usernames from one source hitting /login', 'The lab’s auth_failure_threshold_exceeded event marks where the alert fires; chase any 401 burst that ends in a 200.', ['A 404 spike across many paths', 'One source touching many ports', 'A single slow connection']],

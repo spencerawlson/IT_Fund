@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from 'react';
 import { localStorageAdapter } from './progress/storage';
 import { allDecks, allCards } from '../data/academy';
-import { CISSP_DOMAINS } from '../data/academy/meta';
+import { CISSP_DOMAINS, SECURITY_PLUS_DOMAINS } from '../data/academy/meta';
 
 const KEY = 'itfund-academy-v1';
 const EVENT = 'itfund-academy-change';
@@ -51,7 +51,7 @@ export const BADGES = {
   'cissp-ready': { title: 'CISSP-Ready', desc: 'Reach 80% readiness in all 8 CISSP domains.', icon: 'ShieldCheck' },
 };
 
-const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null, exams: [], exam: null };
+const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null, exams: [], exam: null, secplusExams: [], secplusExam: null };
 
 let cache = null;
 // Persistence goes through an adapter (src/lib/progress/storage.js) so a server-backed store
@@ -430,4 +430,165 @@ export function clearPracticeExam() {
 
 export function examHistory(state) {
   return state.exams || [];
+}
+
+// -------------------------------------------------------------------------------------------------
+// Security+ practice exam: a timed, domain-weighted SY0-701 test-day simulator.
+//
+// Mirrors the CISSP exam engine above. Deck -> domain mapping reuses the curated
+// `secplus` tags on each deck (see src/data/academy/cyber.js). First tag is the
+// primary domain for quota math, so the five quotas always sum to the exam length.
+// -------------------------------------------------------------------------------------------------
+
+export const SECPLUS_EXAM_QUESTION_COUNT = 90;
+export const SECPLUS_EXAM_DURATION_MIN = 90;
+export const SECPLUS_EXAM_PASS_PCT = 83;
+export const SECPLUS_EXAM_HISTORY_LIMIT = 20;
+
+/** Deck id -> primary Security+ domain id (first curated tag), derived from the data. */
+export const SECPLUS_DECK_DOMAIN = Object.fromEntries(allDecks.map((d) => [d.id, (d.secplus || [])[0] || null]));
+
+/** Per-domain question quotas for a Security+ exam of `total` questions (largest remainder). */
+export function secplusExamDomainQuotas(total = SECPLUS_EXAM_QUESTION_COUNT) {
+  const rows = SECURITY_PLUS_DOMAINS.map((d) => ({ id: d.id, exact: (d.weight / 100) * total, n: 0 }));
+  rows.forEach((r) => {
+    r.n = Math.floor(r.exact);
+  });
+  let remainder = total - rows.reduce((s, r) => s + r.n, 0);
+  const byFrac = [...rows].sort((a, b) => b.exact - b.n - (a.exact - a.n));
+  for (let i = 0; remainder > 0; i++, remainder--) byFrac[i % byFrac.length].n += 1;
+  return Object.fromEntries(rows.map((r) => [r.id, r.n]));
+}
+
+/**
+ * Build one Security+ exam: domain-weighted sampling without replacement, option
+ * order and question order shuffled. Returns { questions, quotas, shortfalls }.
+ */
+export function buildSecplusPracticeExam({ count = SECPLUS_EXAM_QUESTION_COUNT } = {}) {
+  const quotas = secplusExamDomainQuotas(count);
+  const byDomain = {};
+  for (const card of allCards) {
+    const dom = SECPLUS_DECK_DOMAIN[card.deckId];
+    if (dom) (byDomain[dom] ??= []).push(card);
+  }
+  const picked = []; // [{ card, domain }]
+  const shortfalls = [];
+  for (const d of SECURITY_PLUS_DOMAINS) {
+    const pool = shuffle(byDomain[d.id] || []);
+    const take = pool.slice(0, quotas[d.id]);
+    take.forEach((card) => picked.push({ card, domain: d.id }));
+    if (take.length < quotas[d.id]) shortfalls.push(d.id);
+  }
+  if (shortfalls.length) {
+    const seen = new Set(picked.map((p) => p.card.id));
+    const missing = count - picked.length;
+    const rest = shuffle(allCards.filter((c) => !seen.has(c.id))).slice(0, missing);
+    rest.forEach((card) => picked.push({ card, domain: SECPLUS_DECK_DOMAIN[card.deckId] || shortfalls[0] }));
+  }
+  const questions = shuffle(
+    picked.slice(0, count).map(({ card, domain }) => {
+      const q = buildQuestions([card], allCards, 1)[0];
+      return { id: card.id, domain, card, options: q.options, correct: q.correct };
+    }),
+  );
+  return { questions, quotas, shortfalls };
+}
+
+/** Score a finished Security+ exam. answers: { [questionId]: chosenOptionIndex }. */
+export function scoreSecplusExam(questions, answers) {
+  const perDomain = {};
+  for (const d of SECURITY_PLUS_DOMAINS) perDomain[d.id] = { total: 0, correct: 0, pct: 0, passed: false };
+  const missed = [];
+  let correct = 0;
+  for (const q of questions) {
+    const pd = perDomain[q.domain] ?? (perDomain[q.domain] = { total: 0, correct: 0, pct: 0, passed: false });
+    pd.total += 1;
+    if (answers[q.id] === q.correct) {
+      correct += 1;
+      pd.correct += 1;
+    } else {
+      missed.push(q);
+    }
+  }
+  for (const d of SECURITY_PLUS_DOMAINS) {
+    const pd = perDomain[d.id];
+    pd.pct = pd.total ? Math.round((pd.correct / pd.total) * 100) : 0;
+    pd.passed = pd.pct >= SECPLUS_EXAM_PASS_PCT;
+  }
+  const pct = questions.length ? Math.round((correct / questions.length) * 100) : 0;
+  return { total: questions.length, correct, pct, passed: pct >= SECPLUS_EXAM_PASS_PCT, perDomain, missed };
+}
+
+// ---------- Security+ exam session (persisted separately from the CISSP exam) ----------
+
+/** Start a new Security+ exam. Stored as state.secplusExam so both exams can coexist. */
+export function startSecplusPracticeExam() {
+  const { questions, quotas } = buildSecplusPracticeExam();
+  const exam = {
+    id: `secplus-exam-${Date.now()}`,
+    startedAt: Date.now(),
+    deadline: Date.now() + SECPLUS_EXAM_DURATION_MIN * 60 * 1000,
+    questions,
+    quotas,
+    answers: {},
+    flagged: [],
+    index: 0,
+    finishedAt: null,
+    result: null,
+  };
+  const state = read();
+  write({ ...state, secplusExam: exam });
+  return exam;
+}
+
+function secplusExamMutate(fn) {
+  const state = read();
+  if (!state.secplusExam || state.secplusExam.finishedAt) return;
+  write({ ...state, secplusExam: fn(state.secplusExam) });
+}
+
+export function answerSecplusExamQuestion(qid, optionIdx) {
+  secplusExamMutate((exam) => ({ ...exam, answers: { ...exam.answers, [qid]: optionIdx } }));
+}
+
+export function toggleSecplusExamFlag(qid) {
+  secplusExamMutate((exam) => ({
+    ...exam,
+    flagged: exam.flagged.includes(qid) ? exam.flagged.filter((f) => f !== qid) : [...exam.flagged, qid],
+  }));
+}
+
+export function setSecplusExamIndex(index) {
+  secplusExamMutate((exam) => ({ ...exam, index }));
+}
+
+/** Finish the Security+ exam: score it, save the attempt to history, award XP. */
+export function finishSecplusPracticeExam() {
+  const state = read();
+  const exam = state.secplusExam;
+  if (!exam || exam.finishedAt) return exam;
+  const result = scoreSecplusExam(exam.questions, exam.answers);
+  const attempt = {
+    id: exam.id,
+    at: Date.now(),
+    total: result.total,
+    correct: result.correct,
+    pct: result.pct,
+    passed: result.passed,
+    perDomain: Object.fromEntries(SECURITY_PLUS_DOMAINS.map((d) => [d.id, result.perDomain[d.id].pct])),
+  };
+  const secplusExams = [attempt, ...(state.secplusExams || [])].slice(0, SECPLUS_EXAM_HISTORY_LIMIT);
+  const finished = { ...exam, finishedAt: Date.now(), result };
+  write(withBadges(withXp({ ...state, secplusExams, secplusExam: finished }, result.correct * XP.examPerCorrect)));
+  return finished;
+}
+
+/** Discard the current (or finished) Security+ exam without recording an attempt. */
+export function clearSecplusPracticeExam() {
+  const state = read();
+  if (state.secplusExam) write({ ...state, secplusExam: null });
+}
+
+export function secplusExamHistory(state) {
+  return state.secplusExams || [];
 }
