@@ -77,6 +77,10 @@ function HeroVisual() {
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
           </span>
           <span className="ml-1 text-caption text-ink-3">Networking · Lesson 3 of 9</span>
+          <span className="ml-auto flex items-center gap-2.5 text-caption font-semibold text-ink-2">
+            <span className="inline-flex items-center gap-1"><Flame size={12} style={{ color: '#f97316' }} aria-hidden="true" /> 7</span>
+            <span className="inline-flex items-center gap-1"><Zap size={12} style={{ color: ACCENT }} aria-hidden="true" /> +120 XP</span>
+          </span>
         </div>
 
         {/* Flashcard */}
@@ -104,14 +108,6 @@ function HeroVisual() {
           <div className="text-emerald-400/80">O&nbsp;&nbsp;&nbsp;10.2.2.0/24 [110/2] via 192.0.2.2</div>
           <div className="text-emerald-400/80">C&nbsp;&nbsp;&nbsp;10.1.1.0/24 is directly connected</div>
         </div>
-      </div>
-
-      {/* Floating chips (positive insets so they never force horizontal scroll) */}
-      <div className="glass-1 absolute right-3 -top-3 hidden items-center gap-2 rounded-full px-3 py-1.5 text-small font-semibold text-ink-1 shadow-lg sm:inline-flex">
-        <Flame size={15} style={{ color: '#f97316' }} aria-hidden="true" /> 7-day streak
-      </div>
-      <div className="glass-1 absolute bottom-3 left-3 hidden items-center gap-2 rounded-full px-3 py-1.5 text-small font-semibold text-ink-1 shadow-lg sm:inline-flex">
-        <Zap size={15} style={{ color: ACCENT }} aria-hidden="true" /> +120 XP today
       </div>
     </div>
   );
