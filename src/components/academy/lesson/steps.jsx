@@ -96,8 +96,19 @@ export function ChoiceStep({ step, color, onComplete, meta }) {
 }
 
 /** Tap items from the bank to build a sequence. Misplaced items bounce back on retry. */
+// Curated spectrum for ordering drills with no domain palette: each item takes a stable, distinct
+// colour by its correct position, so a completed order reads as a tidy top-to-bottom colour strip.
+const ORDER_SPECTRUM = ['#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#64748b'];
+
 export function OrderStep({ step, color, onComplete, meta }) {
   const { status, check, retry, reveal, firstTry } = useAttempts(3);
+  // Per-item colours: an explicit map (e.g. the OSI layers) wins; otherwise auto-colour every
+  // non-code ordering drill from the spectrum so each lesson's order step is a colour strip.
+  const itemColors = useMemo(() => {
+    if (step.colors) return step.colors;
+    if (step.items.some((x) => x.startsWith(' '))) return null; // code / indented puzzle: keep it plain
+    return Object.fromEntries(step.items.map((it, i) => [it, ORDER_SPECTRUM[i % ORDER_SPECTRUM.length]]));
+  }, [step.items, step.colors]);
   const initialBank = useMemo(() => {
     let s = shuffle(step.items);
     while (s.length > 1 && s.every((v, i) => v === step.items[i])) s = shuffle(step.items);
@@ -137,7 +148,7 @@ export function OrderStep({ step, color, onComplete, meta }) {
           const item = shown[i];
           const right = status !== 'idle' && item === step.items[i];
           const wrong = status === 'wrong' && item && item !== step.items[i];
-          const lc = (item && step.colors?.[item]) || color; // per-item colour (e.g. the OSI layer strip)
+          const lc = (item && itemColors?.[item]) || color;
           return (
             <li key={i} className="flex items-center gap-2.5">
               <span className="w-6 shrink-0 text-right text-sm font-bold text-ink-2">{i + 1}</span>
@@ -167,7 +178,7 @@ export function OrderStep({ step, color, onComplete, meta }) {
                 type="button"
                 onClick={() => place(item)}
                 className="glass-2 glass-hover rounded-control px-4 py-2.5 text-left text-sm text-ink-1 active:scale-95"
-                style={step.colors?.[item] ? { borderLeftColor: step.colors[item], borderLeftWidth: '4px', borderColor: `${step.colors[item]}55` } : undefined}
+                style={itemColors?.[item] ? { borderLeftColor: itemColors[item], borderLeftWidth: '4px', borderColor: `${itemColors[item]}55` } : undefined}
               >
                 <RichText text={codeClass ? item.trim() : item} className={codeClass} />
               </button>
