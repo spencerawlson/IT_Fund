@@ -137,6 +137,7 @@ export function OrderStep({ step, color, onComplete, meta }) {
           const item = shown[i];
           const right = status !== 'idle' && item === step.items[i];
           const wrong = status === 'wrong' && item && item !== step.items[i];
+          const lc = (item && step.colors?.[item]) || color; // per-item colour (e.g. the OSI layer strip)
           return (
             <li key={i} className="flex items-center gap-2.5">
               <span className="w-6 shrink-0 text-right text-sm font-bold text-ink-2">{i + 1}</span>
@@ -145,7 +146,7 @@ export function OrderStep({ step, color, onComplete, meta }) {
                   type="button"
                   onClick={() => unplace(item)}
                   className={`glass-2 flex-1 rounded-control px-4 py-3 text-left text-body text-ink-1 ${wrong ? 'animate-shake' : 'animate-pop'}`}
-                  style={right ? { borderColor: 'rgba(52,211,153,0.8)', background: 'rgba(16,185,129,0.16)' } : wrong ? { borderColor: 'rgba(251,113,133,0.8)', background: 'rgba(244,63,94,0.14)' } : { borderColor: `${color}88` }}
+                  style={right ? { borderColor: 'rgba(52,211,153,0.8)', background: 'rgba(16,185,129,0.16)' } : wrong ? { borderColor: 'rgba(251,113,133,0.8)', background: 'rgba(244,63,94,0.14)' } : { borderColor: `${lc}66`, borderLeftColor: lc, borderLeftWidth: '4px', background: `${lc}12` }}
                 >
                   <RichText text={item} className={codeClass} />
                 </button>
@@ -166,6 +167,7 @@ export function OrderStep({ step, color, onComplete, meta }) {
                 type="button"
                 onClick={() => place(item)}
                 className="glass-2 glass-hover rounded-control px-4 py-2.5 text-left text-sm text-ink-1 active:scale-95"
+                style={step.colors?.[item] ? { borderLeftColor: step.colors[item], borderLeftWidth: '4px', borderColor: `${step.colors[item]}55` } : undefined}
               >
                 <RichText text={codeClass ? item.trim() : item} className={codeClass} />
               </button>
