@@ -12,22 +12,22 @@ export default {
       {
         heading: 'The seven OSI layers',
         body: [
-          'Layer 1, Physical: bits as electrical, light or radio signals, plus cables, connectors and hubs. Layer 2, Data Link: frames, MAC addresses and switches. Layer 3, Network: packets, IP addresses and routers. Layer 4, Transport: segments (TCP) or datagrams (UDP), and port numbers.',
-          'Layer 5, Session: establishing, maintaining and tearing down sessions between applications. Layer 6, Presentation: formatting, encoding, compression and encryption such as TLS. Layer 7, Application: the protocols applications speak, such as HTTP, DNS and SMTP.',
-          'A common mnemonic from Layer 1 up is "Please Do Not Throw Sausage Pizza Away": Physical, Data Link, Network, Transport, Session, Presentation, Application.',
+          'Every network conversation — a page loading, a file crossing an ocean — descends through seven layers, each with a single job done well. At the foundation, Layer 1 (Physical) moves raw bits as electrical pulses, light, or radio waves across cables, connectors, and hubs. Layer 2 (Data Link) organizes those bits into frames addressed by MAC address; this is the layer switches operate on. Layer 3 (Network) carries packets between networks using IP addresses, choosing paths through routers. Layer 4 (Transport) ensures end-to-end delivery, dividing data into TCP segments or UDP datagrams and steering each to the right application by port number.',
+          'The upper layers serve software directly. Layer 5 (Session) opens, sustains, and gracefully closes conversations between applications. Layer 6 (Presentation) translates — encoding text, compressing images, encrypting with TLS — so both endpoints understand each other. Layer 7 (Application) is where users live: HTTP, DNS, SMTP, the protocols your applications speak every day.',
+          'Generations of engineers have memorized the order from the wire up with a single sentence: "Please Do Not Throw Sausage Pizza Away" — Physical, Data Link, Network, Transport, Session, Presentation, Application.',
         ],
       },
       {
         heading: 'PDUs and encapsulation',
         body: [
-          'Each layer has a name for its unit of data, its protocol data unit: bits at Layer 1, frames at Layer 2, packets at Layer 3, and segments (TCP) or datagrams (UDP) at Layer 4.',
-          'On the way down the stack, each layer wraps the data from the layer above with its own header (and at Layer 2 a trailer too). This is encapsulation. The receiver de-encapsulates, stripping one header per layer on the way up. A router, for example, removes the incoming frame, reads the packet\'s destination IP, and builds a new frame for the next link.',
+          'Each layer names its unit of data — its protocol data unit — differently: bits at Layer 1, frames at Layer 2, packets at Layer 3, and segments at Layer 4 when TCP delivers them reliably, datagrams when UDP sends them best-effort.',
+          'As data descends the stack, every layer wraps what it received in its own header — Layer 2 appends a trailer as well — nesting envelopes within envelopes. This is encapsulation. At the destination the process reverses: each layer strips its own header and passes the payload upward until the original message emerges intact. A router demonstrates it in miniature: it discards the arriving frame, reads the destination IP from the packet within, then builds a fresh frame to carry it across the next link.',
         ],
       },
       {
         heading: 'The TCP/IP model',
         body: [
-          'The TCP/IP model has four layers: Link (also called Network Access, OSI 1 and 2), Internet (OSI 3), Transport (OSI 4) and Application (OSI 5 to 7). Real protocols are built on TCP/IP; OSI remains the standard language for describing where a problem or device sits.',
+          'The internet itself runs on a leaner blueprint: four layers. Link — sometimes called Network Access — absorbs OSI’s bottom two. Internet maps to OSI’s Layer 3. Transport aligns directly with Layer 4. A single Application layer folds OSI’s top three into one. Every protocol you will ever configure lives in this model — yet engineers still speak OSI daily, because "that’s a Layer 2 problem" or "it’s failing at Layer 7" tells a colleague exactly where to look.',
         ],
       },
     ],
