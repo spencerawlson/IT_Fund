@@ -28,7 +28,7 @@ def test_run_migrations_is_idempotent(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", url)
     main._run_migrations()
     main._run_migrations()  # second run: no-op, no error
-    assert _alembic_version(url) == "ea90a8d9b101"
+    assert _alembic_version(url) == "9363864b178c"
 
 
 def test_run_migrations_takes_advisory_lock_on_postgres(monkeypatch):
@@ -60,4 +60,4 @@ def test_run_migrations_skips_lock_off_postgres(tmp_path, monkeypatch):
     with patch("sqlalchemy.create_engine") as mock_create:
         main._run_migrations()
     mock_create.assert_not_called()
-    assert _alembic_version(url) == "ea90a8d9b101"
+    assert _alembic_version(url) == "9363864b178c"

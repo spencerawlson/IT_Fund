@@ -138,6 +138,13 @@ from progress_api import router as progress_router  # noqa: E402
 app.include_router(progress_router)
 app.include_router(progress_router, prefix="/api")
 
+# Stripe subscription billing. Both prefixes like the other routers, so
+# /api/billing/* works behind the /api rewrite.
+from billing import router as billing_router  # noqa: E402
+
+app.include_router(billing_router)
+app.include_router(billing_router, prefix="/api")
+
 # ---- routes ----
 @app.get("/health")
 def health():

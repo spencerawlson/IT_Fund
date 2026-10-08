@@ -38,6 +38,7 @@ import LabLauncher from './pages/LabLauncher';
 import LabProgress from './pages/LabProgress';
 import Landing from './pages/Landing';
 import SignIn from './pages/SignIn';
+import Pricing from './pages/Pricing';
 
 // Dev-only design system preview; not bundled into production builds.
 const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
@@ -96,6 +97,7 @@ const AuthenticatedApp = () => {
 
       {/* Public front door: the marketing landing. Signed-in visitors go straight to /app. */}
       <Route path="/" element={<Landing />} />
+      <Route path="/pricing" element={<Pricing />} />
 
       {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
       <Route path="/labs" element={<LabLauncher />} />

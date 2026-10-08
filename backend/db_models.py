@@ -92,3 +92,21 @@ class LabCompletion(Base):
     session_id: Mapped[str] = mapped_column(String(64))
     duration_seconds: Mapped[int] = mapped_column(Integer)
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+
+
+class Subscription(Base):
+    """One row per user tracking their Stripe subscription state.
+
+    Written by the Stripe webhook (see billing.py) — never trust client input for
+    subscription status. `status` mirrors Stripe's subscription status
+    ("active", "trialing", "past_due", "canceled", ...). A user counts as
+    subscribed when status is "active" or "trialing" (see billing.is_subscribed).
+    """
+    __tablename__ = "subscriptions"
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    stripe_customer_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="incomplete")
+    current_period_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)

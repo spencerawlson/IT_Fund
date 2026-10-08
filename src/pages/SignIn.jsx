@@ -1,8 +1,78 @@
-import React from 'react';
-import { LogIn, LogOut, ShieldCheck, Check, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
+import { useSubscription } from '@/lib/subscription';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+
+// Subscription status for signed-in users: current plan, renewal date, manage/cancel.
+function SubscriptionSection() {
+  const { subscribed, status, currentPeriodEnd, loading, refresh } = useSubscription();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
+  const manage = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/billing/portal`, { method: 'POST', credentials: 'include' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || 'Could not open the billing portal.');
+      window.location.href = data.portal_url;
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card level={2} padding="lg" className="mt-4 max-w-reading">
+        <p className="text-small text-ink-2">Loading subscription…</p>
+      </Card>
+    );
+  }
+
+  const renewal = currentPeriodEnd ? new Date(currentPeriodEnd).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+
+  return (
+    <Card level={2} padding="lg" className="mt-4 max-w-reading">
+      <p className="flex items-center gap-2 text-heading font-semibold text-ink-1">
+        <CreditCard size={18} aria-hidden="true" /> Subscription
+      </p>
+      {subscribed ? (
+        <>
+          <p className="mt-3 text-body text-ink-1">
+            <span className="font-semibold text-success">Premium active</span>
+            {renewal && <span className="text-ink-2"> — renews {renewal}</span>}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button variant="secondary" onClick={manage} disabled={busy}>
+              {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+              Manage subscription
+            </Button>
+            <Button variant="ghost" size="sm" onClick={refresh}>Refresh status</Button>
+          </div>
+          {error && <p className="mt-3 text-small text-error">{error}</p>}
+          <p className="mt-3 text-small text-ink-3">Update payment method or cancel anytime from the Stripe portal.</p>
+        </>
+      ) : (
+        <>
+          <p className="mt-3 text-body text-ink-2">
+            You&apos;re on the <span className="font-semibold text-ink-1">free tier</span>
+            {status !== 'none' && status !== 'anonymous' && ` (status: ${status})`}.
+            Premium unlocks every track, all labs, and the exam simulators.
+          </p>
+          <div className="mt-4">
+            <Button to="/pricing">See plans — $19/mo</Button>
+          </div>
+        </>
+      )}
+    </Card>
+  );
+}
 
 // Sign-in is optional: it only adds cross-device sync. Anonymous learners keep working with progress
 // saved in this browser. When signed in, this page is the account view (profile + sign out).
@@ -44,6 +114,7 @@ export default function SignIn() {
             <Button variant="ghost" icon={LogOut} onClick={signOut}>Sign out</Button>
           </div>
         </Card>
+        <SubscriptionSection />
       </PageContainer>
     );
   }

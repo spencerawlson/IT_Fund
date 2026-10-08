@@ -12,6 +12,8 @@ import {
   SECPLUS_EXAM_QUESTION_COUNT, SECPLUS_EXAM_DURATION_MIN, SECPLUS_EXAM_PASS_PCT,
 } from '@/lib/academy';
 import { cn } from '@/lib/utils';
+import { useSubscription } from '@/lib/subscription';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const domainById = Object.fromEntries(SECURITY_PLUS_DOMAINS.map((d) => [d.id, d]));
@@ -27,7 +29,18 @@ function fmtClock(ms) {
 export default function SecplusPracticeExam() {
   const state = useAcademy();
   useDocumentTitle('Security+ Practice Exam · Road to CISSP');
+  const { subscribed, loading } = useSubscription();
   const exam = state.secplusExam;
+
+  if (!loading && !subscribed) {
+    return (
+      <main className="min-h-screen text-ink-1">
+        <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
+          <UpgradePrompt what="The Security+ practice exam" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen text-ink-1">

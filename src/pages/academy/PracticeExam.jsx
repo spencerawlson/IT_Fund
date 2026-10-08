@@ -12,6 +12,8 @@ import {
   EXAM_QUESTION_COUNT, EXAM_DURATION_MIN, EXAM_PASS_PCT,
 } from '@/lib/academy';
 import { cn } from '@/lib/utils';
+import { useSubscription } from '@/lib/subscription';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const domainById = Object.fromEntries(CISSP_DOMAINS.map((d) => [d.id, d]));
@@ -27,7 +29,18 @@ function fmtClock(ms) {
 export default function PracticeExam() {
   const state = useAcademy();
   useDocumentTitle('Practice Exam · Road to CISSP');
+  const { subscribed, loading } = useSubscription();
   const exam = state.exam;
+
+  if (!loading && !subscribed) {
+    return (
+      <main className="min-h-screen text-ink-1">
+        <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
+          <UpgradePrompt what="The CISSP practice exam" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen text-ink-1">
