@@ -7,6 +7,7 @@ import LandingView from '@/components/academy/LandingView';
 import { PATHS, pathsForCourse } from '@/data/catalog';
 import { DAILY_GOAL_XP, levelInfo, liveStreak, useAcademy, xpToday } from '@/lib/academy';
 import { continueLearning, dueReviewCount, lessonsDone, lessonsTotal, overallProgress, pathStatus } from '@/lib/progress/engine';
+import { useAuth } from '@/lib/AuthContext';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 /** Streak flame, today's XP vs the daily goal, and current rank. Read-only over the game engine. */
@@ -72,11 +73,15 @@ const LANDING_TITLE = 'Road to CISSP — Networking, Security, Python, Cloud & C
 
 export default function Academy() {
   const state = useAcademy();
+  const { isAuthenticated, isLoadingAuth } = useAuth();
   const studied = Object.keys(state.lessons || {}).length > 0;
   useDocumentTitle(studied ? 'Academy · Road to CISSP' : LANDING_TITLE);
-  // First-run visitors get the platform landing; returning learners keep the dashboard below.
+  // The first-run marketing landing (with "Free to start · No account needed") is for logged-OUT
+  // visitors only. A signed-in user with no progress yet gets the dashboard's "Welcome to Road to
+  // CISSP" state instead — showing them "no account needed" while they're logged in is wrong.
   if (!studied) {
-    return <LandingView />;
+    if (isLoadingAuth) return null;                 // still checking the session; don't flash either view
+    if (!isAuthenticated) return <LandingView />;
   }
   const next = continueLearning(state);
   const due = dueReviewCount(state);
