@@ -13,6 +13,9 @@ export const CERTIFICATIONS = {
   'aws-ai-practitioner': { id: 'aws-ai-practitioner', name: 'AWS AI Practitioner', vendor: 'AWS' },
   ccsp: { id: 'ccsp', name: 'CCSP', vendor: 'ISC2' },
   cissp: { id: 'cissp', name: 'CISSP', vendor: 'ISC2' },
+  'terraform-associate': { id: 'terraform-associate', name: 'Terraform Associate (003)', vendor: 'HashiCorp' },
+  'cpa-cpp': { id: 'cpa-cpp', name: 'CPA — C++ Certified Associate Programmer', vendor: 'C++ Institute' },
+  cka: { id: 'cka', name: 'CKA — Certified Kubernetes Administrator', vendor: 'CNCF / Linux Foundation' },
 };
 
 /** Skills a course can teach. Phase 3 adds subskills and the scoring model. */
@@ -31,4 +34,18 @@ export const SKILLS = {
   'cloud-security': 'Cloud Security',
   ai: 'AI / ML',
   architecture: 'Architecture',
+  terraform: 'Terraform',
+  iac: 'Infrastructure as Code',
+  cpp: 'C++',
+  systems: 'Systems Programming',
+  go: 'Go',
+  concurrency: 'Concurrency',
+  rust: 'Rust',
+  sql: 'SQL',
+  databases: 'Databases',
+  docker: 'Docker',
+  containers: 'Containers',
+  devops: 'DevOps',
+  kubernetes: 'Kubernetes',
+  orchestration: 'Orchestration',
 };

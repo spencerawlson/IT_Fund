@@ -4,7 +4,7 @@ import { LESSON_CONTENT } from './lessonContent';
 
 // Courses whose reading content is still being written. Remove a course from this list when it is
 // finished; from then on, every one of its lessons must keep full content. Never add one back.
-const PENDING = [];
+const PENDING = ['terraform-iac', 'cpp-programming', 'go-programming', 'rust-programming', 'sql-databases', 'docker-containers'];
 
 const finished = COURSES.filter((c) => !PENDING.includes(c.slug));
 const text = (s) => typeof s === 'string' && s.trim().length > 0;

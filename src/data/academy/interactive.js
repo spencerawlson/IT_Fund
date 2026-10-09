@@ -123,4 +123,65 @@ export default {
   'cissp-d8': [
     { type: 'order', prompt: 'Order the CMMI maturity levels from 1 to 5.', items: ['Initial', 'Managed', 'Defined', 'Quantitatively Managed', 'Optimizing'], x: 'Maturity grows from ad hoc work to measured, continuously improving processes.' },
   ],
+
+  // ---------- Terraform ----------
+  'tf-core-workflow': [
+    { type: 'order', prompt: 'Put the core Terraform workflow in order for a first run.', items: ['terraform init', 'terraform validate', 'terraform plan', 'terraform apply'], x: 'init downloads providers and sets up the backend, validate checks the config, plan previews the change, apply makes it real.' },
+    { type: 'numeric', prompt: 'How many resources does a plan showing "2 to add, 1 to change, 0 to destroy" apply in total (add + change + destroy)?', answer: 3, x: 'A plan summarises the actions: 2 creates + 1 update + 0 deletes = 3 resource actions.' },
+  ],
+  'tf-prod-security': [
+    { type: 'order', prompt: 'Order the stages of a safe Terraform CI pipeline.', items: ['terraform fmt and validate', 'terraform plan -out=plan', 'policy and security scan', 'human review of the plan', 'gated terraform apply plan'], x: 'Format and validate, produce a saved plan, scan it, let a human review it, then apply exactly that reviewed plan.' },
+  ],
+
+  // ---------- C++ ----------
+  'cpp-basics': [
+    { type: 'order', prompt: 'Put the C++ build pipeline in order, from source to running program.', items: ['Preprocess (#include, macros)', 'Compile to object code', 'Link objects and libraries', 'Run the executable'], x: 'The preprocessor expands includes and macros, the compiler produces object files, the linker combines them into an executable, then the OS runs it.' },
+    { type: 'numeric', prompt: 'What does the expression 7 / 2 evaluate to in C++ when both operands are int?', answer: 3, x: 'Integer division truncates toward zero: 7 / 2 is 3. Use 7.0 / 2 to get 3.5.' },
+  ],
+  'cpp-stl': [
+    { type: 'numeric', prompt: 'You push_back three elements onto an empty std::vector. What does v.size() return?', answer: 3, x: 'push_back appends to the end; size() reports the element count — here 3.' },
+  ],
+
+  // ---------- Go ----------
+  'go-basics': [
+    { type: 'order', prompt: 'Order the steps to create and build a new Go program.', items: ['go mod init example', 'write package main and func main', 'go mod tidy', 'go build'], x: 'Initialise the module, write the code, tidy dependencies into go.mod/go.sum, then compile the binary.' },
+    { type: 'numeric', prompt: 'How many loop keywords does Go have?', answer: 1, x: 'Just `for` — it covers C-style loops, while-style (for cond {}) and infinite (for {}).' },
+  ],
+  'go-concurrency': [
+    { type: 'order', prompt: 'Order the sync.WaitGroup pattern to wait for N goroutines.', items: ['wg.Add(n) before launching', 'launch each goroutine with defer wg.Done()', 'wg.Wait() blocks until the counter hits zero'], x: 'Add the count up front, each goroutine signals Done when it finishes, and Wait blocks until all have.' },
+  ],
+
+  // ---------- Rust ----------
+  'rust-basics': [
+    { type: 'order', prompt: 'Order the Cargo workflow to run a new Rust program.', items: ['cargo new app', 'write code in src/main.rs', 'cargo check', 'cargo run'], x: 'Scaffold the project, write the code, fast-check it compiles/borrows, then build-and-run.' },
+    { type: 'numeric', prompt: 'How many values does the range 0..5 produce?', answer: 5, x: '0..5 is end-exclusive: 0, 1, 2, 3, 4 — five values. Use 0..=5 for inclusive.' },
+  ],
+  'rust-ownership': [
+    { type: 'order', prompt: 'Order the borrowing rules from most to least permissive by count.', items: ['Any number of immutable &T references', 'Exactly one mutable &mut T reference', 'Never both at the same time'], x: 'Share freely OR mutate exclusively — the compiler forbids aliasing and mutation together, which is what prevents data races.' },
+  ],
+
+  // ---------- SQL ----------
+  'sql-select': [
+    { type: 'order', prompt: 'Put the SQL clauses in the order you write them in a query.', items: ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT'], x: 'Written order: choose columns, pick the table, filter rows, group them, filter groups, sort, then limit. (The DB evaluates FROM/WHERE first, but this is how you type it.)' },
+    { type: 'numeric', prompt: 'A table has 5 rows; 2 of them have NULL in the "email" column. What does COUNT(email) return?', answer: 3, x: 'COUNT(column) ignores NULLs, so it counts the 3 non-NULL emails. COUNT(*) would return 5.' },
+  ],
+  'sql-transactions-security': [
+    { type: 'order', prompt: 'Order a safe money-transfer transaction.', items: ['BEGIN', 'UPDATE accounts SET balance = balance - 100 (debit)', 'UPDATE accounts SET balance = balance + 100 (credit)', 'COMMIT'], x: 'Both updates happen atomically between BEGIN and COMMIT; if either fails you ROLLBACK, so money is never lost or created.' },
+  ],
+
+  // ---------- Docker ----------
+  'docker-images': [
+    { type: 'order', prompt: 'Order a cache-friendly Dockerfile for a Node app.', items: ['FROM node:20-alpine', 'WORKDIR /app', 'COPY package.json .', 'RUN npm install', 'COPY . .', 'CMD ["node", "server.js"]'], x: 'Copy and install dependencies BEFORE copying all source, so the install layer is cached and only re-runs when package.json changes.' },
+  ],
+  'docker-optimization-security': [
+    { type: 'order', prompt: 'Order a multi-stage build that ships only the artifact.', items: ['FROM node AS build', 'RUN build the app', 'FROM nginx:alpine (slim runtime)', 'COPY --from=build the built files'], x: 'The heavy build tools stay in the build stage; the final image copies only the compiled output into a slim runtime — smaller and more secure.' },
+  ],
+
+  // ---------- Kubernetes ----------
+  'k8s-workloads': [
+    { type: 'order', prompt: 'Order the Kubernetes workload abstractions from smallest to largest.', items: ['Container', 'Pod', 'ReplicaSet', 'Deployment'], x: 'A Deployment manages a ReplicaSet, which keeps N Pods running, and each Pod runs one or more Containers.' },
+  ],
+  'k8s-networking': [
+    { type: 'order', prompt: 'Order the path external HTTP traffic takes to reach a pod.', items: ['Client request', 'Ingress controller (host/path routing)', 'Service (stable virtual IP)', 'Pod'], x: 'Ingress routes by host/path to a Service, the Service load-balances to a healthy Pod by label selector.' },
+  ],
 };

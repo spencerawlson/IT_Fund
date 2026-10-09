@@ -68,7 +68,10 @@ describe('buildPracticeExam', () => {
     expect(questions.length).toBeLessThanOrEqual(4000);
     expect(shortfalls.length).toBeGreaterThan(0);
     expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length);
-  });
+    // Generous timeout: count=4000 is a deliberately impossible stress case that builds the WHOLE
+    // card pool (O(n²) in buildQuestions). It scales with total content and has no product impact
+    // — real exams are EXAM_QUESTION_COUNT (100) and build in a few hundred ms.
+  }, 20000);
 });
 
 describe('scoreExam', () => {

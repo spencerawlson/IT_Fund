@@ -8,6 +8,13 @@ import cloud from './cloud';
 import ai from './ai';
 import cissp from './cissp';
 import linux from './linux';
+import terraform from './terraform';
+import cpp from './cpp';
+import go from './go';
+import rust from './rust';
+import sql from './sql';
+import docker from './docker';
+import kubernetes from './kubernetes';
 import interactive from './interactive';
 import { TIERS, RESOURCES } from './meta';
 
@@ -36,7 +43,7 @@ function normaliseTrack(raw) {
   return { ...raw, tiers };
 }
 
-export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp, linux].map(normaliseTrack);
+export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes].map(normaliseTrack);
 
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);

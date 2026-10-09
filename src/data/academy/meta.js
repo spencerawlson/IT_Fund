@@ -151,4 +151,38 @@ export const RESOURCES = {
   'tldr': { title: 'tldr-pages: community command examples', url: 'https://tldr.sh/' },
   'explainshell': { title: 'explainshell: dissect any command line', url: 'https://explainshell.com/' },
   'comptia-linux': { title: 'CompTIA Linux+ exam objectives', url: 'https://www.comptia.org/certifications/linux' },
+  // Terraform
+  'tf-docs': { title: 'Terraform documentation (HashiCorp)', url: 'https://developer.hashicorp.com/terraform/docs' },
+  'tf-tutorials': { title: 'HashiCorp Terraform tutorials', url: 'https://developer.hashicorp.com/terraform/tutorials' },
+  'tf-registry': { title: 'Terraform Registry (providers & modules)', url: 'https://registry.terraform.io/' },
+  'tf-up-running': { title: 'Terraform: Up & Running (Gruntwork, sample chapters)', url: 'https://www.terraformupandrunning.com/' },
+  'tf-associate': { title: 'HashiCorp Certified: Terraform Associate (study guide)', url: 'https://developer.hashicorp.com/terraform/tutorials/certification-003' },
+  // C++
+  'learncpp': { title: 'LearnCpp.com (free, modern C++ tutorials)', url: 'https://www.learncpp.com/' },
+  'cpp-ref': { title: 'cppreference.com (the standard-library reference)', url: 'https://en.cppreference.com/' },
+  'cpp-core': { title: 'C++ Core Guidelines (Stroustrup & Sutter)', url: 'https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines' },
+  'cpp-tour': { title: 'A Tour of C++ / isocpp.org "Get Started"', url: 'https://isocpp.org/get-started' },
+  // Go
+  'go-tour': { title: 'A Tour of Go (interactive, official)', url: 'https://go.dev/tour/' },
+  'go-docs': { title: 'Go documentation & package reference', url: 'https://go.dev/doc/' },
+  'effective-go': { title: 'Effective Go (idiomatic style guide)', url: 'https://go.dev/doc/effective_go' },
+  'go-by-example': { title: 'Go by Example (annotated programs)', url: 'https://gobyexample.com/' },
+  // Rust
+  'rust-book': { title: 'The Rust Programming Language ("the book")', url: 'https://doc.rust-lang.org/book/' },
+  'rust-by-example': { title: 'Rust by Example (runnable snippets)', url: 'https://doc.rust-lang.org/rust-by-example/' },
+  // SQL
+  'sqlbolt': { title: 'SQLBolt (interactive SQL lessons)', url: 'https://sqlbolt.com/' },
+  'mode-sql': { title: 'Mode SQL Tutorial (basic → advanced)', url: 'https://mode.com/sql-tutorial/' },
+  'pgexercises': { title: 'PostgreSQL Exercises (hands-on practice)', url: 'https://pgexercises.com/' },
+  'w3-sql': { title: 'W3Schools SQL Tutorial & reference', url: 'https://www.w3schools.com/sql/' },
+  'use-the-index': { title: 'Use The Index, Luke! (SQL indexing & performance)', url: 'https://use-the-index-luke.com/' },
+  // Docker
+  'docker-docs': { title: 'Docker documentation', url: 'https://docs.docker.com/' },
+  'docker-get-started': { title: 'Docker "Get Started" guide', url: 'https://docs.docker.com/get-started/' },
+  'docker-curriculum': { title: 'Docker Curriculum (hands-on tutorial)', url: 'https://docker-curriculum.com/' },
+  'play-with-docker': { title: 'Play with Docker (free in-browser labs)', url: 'https://labs.play-with-docker.com/' },
+  // Kubernetes
+  'k8s-docs': { title: 'Kubernetes documentation', url: 'https://kubernetes.io/docs/home/' },
+  'k8s-basics': { title: 'Kubernetes Basics (interactive tutorial)', url: 'https://kubernetes.io/docs/tutorials/kubernetes-basics/' },
+  'kube-by-example': { title: 'Kube by Example (hands-on learning)', url: 'https://kubebyexample.com/' },
 };
