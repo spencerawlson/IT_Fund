@@ -10,7 +10,14 @@ import cyber from './lessons/cyber';
 import cloud from './lessons/cloud';
 import ai from './lessons/ai';
 import cissp from './lessons/cissp';
+import cpp from './lessons/cpp';
+import docker from './lessons/docker';
+import go from './lessons/go';
+import kubernetes from './lessons/kubernetes';
 import linux from './lessons/linux';
+import rust from './lessons/rust';
+import sql from './lessons/sql';
+import terraform from './lessons/terraform';
 
 /** @type {Record<string, import('./schema').LessonContent>} */
-export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...cissp, ...linux };
+export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...cissp, ...cpp, ...docker, ...go, ...kubernetes, ...linux, ...rust, ...sql, ...terraform };
