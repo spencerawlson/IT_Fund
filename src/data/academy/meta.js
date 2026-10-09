@@ -18,6 +18,15 @@ export const CISSP_DOMAINS = [
   { id: 8, title: 'Software Development Security', weight: 10, color: '#22C55E' },
 ];
 
+// CompTIA Security+ SY0-701 exam objectives (current as of 2026).
+export const SECURITY_PLUS_DOMAINS = [
+  { id: 1, title: 'General Security Concepts', weight: 12, color: '#3B82F6' },
+  { id: 2, title: 'Threats, Vulnerabilities & Mitigations', weight: 22, color: '#F43F5E' },
+  { id: 3, title: 'Security Architecture', weight: 18, color: '#A855F7' },
+  { id: 4, title: 'Security Operations', weight: 28, color: '#EF4444' },
+  { id: 5, title: 'Security Program Management & Oversight', weight: 20, color: '#F59E0B' },
+];
+
 // The "best of" community path to CISSP: fundamentals -> CompTIA core -> hands-on
 // defence -> cloud -> AI -> the managerial CISSP mindset. Each step names the track
 // tiers that prepare you for it and the free-to-sit or common certification milestone.

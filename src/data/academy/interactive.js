@@ -31,7 +31,7 @@ export default {
 
   // ---------- Network+ ----------
   'net-osi': [
-    { type: 'order', prompt: 'Build the OSI model from Layer 1 (bottom) to Layer 7 (top).', items: ['Physical', 'Data Link', 'Network', 'Transport', 'Session', 'Presentation', 'Application'], colors: { Physical: '#64748b', 'Data Link': '#06b6d4', Network: '#3b82f6', Transport: '#6366f1', Session: '#a855f7', Presentation: '#ec4899', Application: '#f59e0b' }, x: '"Please Do Not Throw Sausage Pizza Away" runs from Layer 1 up to Layer 7.' },
+    { type: 'order', prompt: 'Build the OSI model from Layer 1 (bottom) to Layer 7 (top).', items: ['Physical', 'Data Link', 'Network', 'Transport', 'Session', 'Presentation', 'Application'], x: '"Please Do Not Throw Sausage Pizza Away" runs from Layer 1 up to Layer 7.' },
     { type: 'order', prompt: 'Order the PDUs from Layer 1 up to Layer 4.', items: ['Bits', 'Frames', 'Packets', 'Segments'], x: 'Bits on the wire, frames at Data Link, packets at Network, segments (TCP) at Transport.' },
   ],
   'net-ports': [

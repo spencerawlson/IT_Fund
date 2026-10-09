@@ -12,6 +12,8 @@ import {
   useAcademy, buildQuestions, cardState, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
 } from '@/lib/academy';
 import { isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
+import { useSubscription, isDeckFree } from '@/lib/subscription';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import { getModule } from '@/data/catalog';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
@@ -50,6 +52,7 @@ export default function AcademyPlay({ kind }) {
 
   const track = trackId ? getTrack(trackId) : null;
   const deck = kind === 'deck' ? getDeck(deckId) : null;
+  const { subscribed, loading: subLoading } = useSubscription();
   const tierIndex = track ? track.tiers.findIndex((t) => t.id === (deck ? deck.tierId : tierId)) : -1;
   const tier = tierIndex >= 0 ? track.tiers[tierIndex] : null;
   // One accent everywhere, not the course colour.
@@ -116,6 +119,8 @@ export default function AcademyPlay({ kind }) {
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {
     body = <EmptyState icon={SearchX} title="Not found" text="This quiz may have moved." to="/app" action="Back to Home" />;
+  } else if (kind === 'deck' && deck && !subLoading && !subscribed && !isDeckFree(deck.id)) {
+    body = <UpgradePrompt what={`The “${deck.title}” deck`} />;
     // Lessons are all open; a module's assessment still waits until its lessons are passed, since
     // it is that module's final check and draws its questions from them.
   } else if (!result && kind === 'boss' && !isTierComplete(state, track, tierIndex)) {

@@ -5,6 +5,8 @@ import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-gl
 import LabTerminal from '@/components/labs/LabTerminal';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
+import { useSubscription, isLabFree } from '@/lib/subscription';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
@@ -100,6 +102,7 @@ export default function LabWorkspace() {
   useDocumentTitle('Interactive Lab · Road to CISSP');
   const { labId } = useParams();
   const navigate = useNavigate();
+  const { subscribed, loading: subLoading } = useSubscription();
   const [lab, setLab] = useState(null);
   const [session, setSession] = useState(null);
   const [draft, setDraft] = useState({});
@@ -305,6 +308,14 @@ export default function LabWorkspace() {
   }
   if (!lab || !session) {
     return <div className="flex min-h-[100dvh] items-center justify-center text-ink-2">Starting lab environment…</div>;
+  }
+
+  if (!subLoading && !subscribed && !isLabFree(labId)) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center px-4 text-ink-1">
+        <UpgradePrompt what="This lab" />
+      </div>
+    );
   }
 
   const usesTerminal = !!lab.terminal;

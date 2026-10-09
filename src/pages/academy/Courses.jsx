@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, Swords, Check, SearchX, ArrowRight, Library, Route as RouteIcon, Map as MapIcon } from 'lucide-react';
+import { Play, Swords, Check, SearchX, ArrowRight, Library, Route as RouteIcon, Map as MapIcon, Timer } from 'lucide-react';
 import { IconTile, PrereqNotice, Prerequisites } from '@/components/academy/ui/bits';
 import { CourseCard, LessonList, ModuleList, externalModulePrereqs, modulePrereqItems } from '@/components/academy/ui/cards';
 import {
@@ -139,6 +139,18 @@ export function CourseDetail() {
         </aside>
 
         <div className="min-w-0 space-y-12">
+          {course.slug === 'security-fundamentals' && (
+            <section aria-labelledby="secplus-exam-heading">
+              <Card level={2} padding="md" className="flex flex-wrap items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <h2 id="secplus-exam-heading" className="text-heading text-ink-1">Security+ practice exam</h2>
+                  <p className="mt-1 text-small text-ink-2">90 questions, 90 minutes, weighted by the official SY0-701 domain weights. 83% to pass.</p>
+                </div>
+                <Button to="/academy/security-plus/exam" icon={Timer} className="shrink-0">Start practice exam</Button>
+              </Card>
+            </section>
+          )}
+
           <section aria-labelledby="modules-heading">
             <SectionHeader id="modules-heading" title="Syllabus" description={`${course.modules.length} modules · ${course.lessons.length} lessons`} />
             <ModuleList state={state} course={course} />

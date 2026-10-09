@@ -9,9 +9,14 @@ import {
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
 import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
+import { useSubscription } from '@/lib/subscription';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const SAMPLE_QUESTIONS = 4;
+
+// Free-tier sample: this lesson's full content is open to everyone.
+const FREE_LESSON_ID = 'net-osi';
 
 // Lessons that have a matching Visual Lab scenario ("Learn → See"). Deep-links straight to it.
 const VISUAL_LAB_FOR = {
@@ -25,6 +30,7 @@ const VISUAL_LAB_FOR = {
 export default function LessonView() {
   const { lessonId } = useParams();
   const state = useAcademy();
+  const { subscribed, loading: subLoading } = useSubscription();
   const lesson = getLesson(lessonId);
   const course = lesson && getCourse(lesson.courseSlug);
   useDocumentTitle(lesson ? `${lesson.title} · Road to CISSP` : 'Lesson · Road to CISSP');
@@ -33,6 +39,15 @@ export default function LessonView() {
     return (
       <PageContainer>
         <EmptyState icon={SearchX} title="Lesson not found" text="It may have moved. Your progress is safe." to="/academy/courses" action="Browse courses" />
+      </PageContainer>
+    );
+  }
+
+  if (!subLoading && !subscribed && lessonId !== FREE_LESSON_ID) {
+    return (
+      <PageContainer>
+        <PageHeader breadcrumbs={[{ label: 'Home', to: '/' }]} title={lesson.title} />
+        <UpgradePrompt what={`The “${lesson.title}” lesson`} />
       </PageContainer>
     );
   }

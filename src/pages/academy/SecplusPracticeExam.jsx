@@ -5,18 +5,18 @@ import {
   Home, ListChecks, Play, RotateCcw, TriangleAlert, X,
 } from 'lucide-react';
 import { Button, Card, ProgressBar, EmptyState } from '@/components/ui-glass';
-import { CISSP_DOMAINS } from '@/data/academy/meta';
+import { SECURITY_PLUS_DOMAINS } from '@/data/academy/meta';
 import {
-  useAcademy, startPracticeExam, answerExamQuestion, toggleExamFlag, setExamIndex,
-  finishPracticeExam, clearPracticeExam, examHistory,
-  EXAM_QUESTION_COUNT, EXAM_DURATION_MIN, EXAM_PASS_PCT,
+  useAcademy, startSecplusPracticeExam, answerSecplusExamQuestion, toggleSecplusExamFlag,
+  setSecplusExamIndex, finishSecplusPracticeExam, clearSecplusPracticeExam, secplusExamHistory,
+  SECPLUS_EXAM_QUESTION_COUNT, SECPLUS_EXAM_DURATION_MIN, SECPLUS_EXAM_PASS_PCT,
 } from '@/lib/academy';
 import { cn } from '@/lib/utils';
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
-const domainById = Object.fromEntries(CISSP_DOMAINS.map((d) => [d.id, d]));
+const domainById = Object.fromEntries(SECURITY_PLUS_DOMAINS.map((d) => [d.id, d]));
 
 function fmtClock(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
@@ -26,17 +26,17 @@ function fmtClock(ms) {
   return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
 
-export default function PracticeExam() {
+export default function SecplusPracticeExam() {
   const state = useAcademy();
-  useDocumentTitle('Practice Exam · Road to CISSP');
+  useDocumentTitle('Security+ Practice Exam · Road to CISSP');
   const { subscribed, loading } = useSubscription();
-  const exam = state.exam;
+  const exam = state.secplusExam;
 
   if (!loading && !subscribed) {
     return (
       <main className="min-h-screen text-ink-1">
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
-          <UpgradePrompt what="The CISSP practice exam" />
+          <UpgradePrompt what="The Security+ practice exam" />
         </div>
       </main>
     );
@@ -45,7 +45,7 @@ export default function PracticeExam() {
   return (
     <main className="min-h-screen text-ink-1">
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
-        {!exam && <StartScreen history={examHistory(state)} />}
+        {!exam && <StartScreen history={secplusExamHistory(state)} />}
         {exam && !exam.finishedAt && <RunningExam key={exam.id} exam={exam} />}
         {exam && exam.finishedAt && <ReportScreen exam={exam} />}
       </div>
@@ -62,17 +62,17 @@ function StartScreen({ history }) {
   return (
     <div>
       <Button to="/app" variant="ghost" size="sm" icon={ArrowLeft} className="-ml-3 mb-6">Home</Button>
-      <p className="text-small font-semibold text-ink-2">Test-day simulator</p>
-      <h1 className="mt-1 text-title text-ink-1">CISSP practice exam</h1>
+      <p className="text-small font-semibold text-ink-2">SY0-701 test-day simulator</p>
+      <h1 className="mt-1 text-title text-ink-1">Security+ practice exam</h1>
 
       <Card level={2} padding="lg" className="mt-6">
         <ul className="space-y-3 text-body text-ink-1">
-          <li className="flex gap-3"><ListChecks size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_QUESTION_COUNT} questions, sampled from every track and weighted by the official CISSP domain weights.</li>
-          <li className="flex gap-3"><Clock size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_DURATION_MIN / 60} hours on the clock. The timer survives a refresh — closing the tab does not buy you time.</li>
-          <li className="flex gap-3"><Award size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_PASS_PCT}% proficiency to pass, with a per-domain breakdown so you know exactly what to study next.</li>
+          <li className="flex gap-3"><ListChecks size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{SECPLUS_EXAM_QUESTION_COUNT} questions, sampled from every Security+ deck and weighted by the official SY0-701 domain weights.</li>
+          <li className="flex gap-3"><Clock size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{SECPLUS_EXAM_DURATION_MIN} minutes on the clock. The timer survives a refresh — closing the tab does not buy you time.</li>
+          <li className="flex gap-3"><Award size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{SECPLUS_EXAM_PASS_PCT}% proficiency to pass, with a per-domain breakdown so you know exactly what to study next.</li>
         </ul>
         <div className="mt-6">
-          <Button size="lg" icon={Play} onClick={() => startPracticeExam()} className="w-full sm:w-auto">Start the exam</Button>
+          <Button size="lg" icon={Play} onClick={() => startSecplusPracticeExam()} className="w-full sm:w-auto">Start the exam</Button>
         </div>
         <p className="mt-3 text-small text-ink-2">One sitting. Flag questions to revisit them before you finish.</p>
       </Card>
@@ -132,7 +132,7 @@ function RunningExam({ exam }) {
   useEffect(() => {
     if (!finishedRef.current && exam.deadline - Date.now() <= 0) {
       finishedRef.current = true;
-      finishPracticeExam();
+      finishSecplusPracticeExam();
     }
   }, [now, exam.deadline]);
 
@@ -148,7 +148,7 @@ function RunningExam({ exam }) {
 
   const go = (i) => {
     setConfirming(false);
-    setExamIndex(Math.max(0, Math.min(exam.questions.length - 1, i)));
+    setSecplusExamIndex(Math.max(0, Math.min(exam.questions.length - 1, i)));
     window.scrollTo({ top: 0 });
   };
 
@@ -173,7 +173,7 @@ function RunningExam({ exam }) {
         <div className="mt-2 flex items-center justify-between gap-2">
           <button
             type="button"
-            onClick={() => toggleExamFlag(q.id)}
+            onClick={() => toggleSecplusExamFlag(q.id)}
             aria-pressed={flagged}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-control px-3 py-1.5 text-small font-semibold transition-colors',
@@ -186,7 +186,7 @@ function RunningExam({ exam }) {
           {confirming ? (
             <span className="inline-flex items-center gap-2">
               <button type="button" onClick={() => setConfirming(false)} className="rounded-control px-3 py-1.5 text-small font-semibold text-ink-2 hover:text-ink-1">Keep going</button>
-              <Button size="sm" variant="secondary" onClick={() => finishPracticeExam()}>Submit exam</Button>
+              <Button size="sm" variant="secondary" onClick={() => finishSecplusPracticeExam()}>Submit exam</Button>
             </span>
           ) : (
             <button type="button" onClick={() => setConfirming(true)} className="rounded-control px-3 py-1.5 text-small font-semibold text-ink-2 hover:text-danger">
@@ -220,9 +220,9 @@ function RunningExam({ exam }) {
                 >
                   <input
                     type="radio"
-                    name={`exam-q-${q.id}`}
+                    name={`secplus-exam-q-${q.id}`}
                     checked={selected}
-                    onChange={() => answerExamQuestion(q.id, i)}
+                    onChange={() => answerSecplusExamQuestion(q.id, i)}
                     className="mt-1 h-4 w-4 shrink-0 accent-[#7C3AED]"
                   />
                   <span>{opt}</span>
@@ -276,7 +276,7 @@ function RunningExam({ exam }) {
         </div>
       </details>
 
-      <button type="button" onClick={() => { if (window.confirm('Abandon this exam? Your answers will not be recorded.')) clearPracticeExam(); }} className="mt-8 text-small text-ink-3 hover:text-ink-2">
+      <button type="button" onClick={() => { if (window.confirm('Abandon this exam? Your answers will not be recorded.')) clearSecplusPracticeExam(); }} className="mt-8 text-small text-ink-3 hover:text-ink-2">
         Abandon exam (nothing is recorded)
       </button>
     </div>
@@ -311,9 +311,9 @@ function ReportScreen({ exam }) {
           {result.passed ? <Check size={32} aria-hidden="true" /> : <X size={30} aria-hidden="true" />}
         </span>
         <p className="mt-4 text-title tabular-nums text-ink-1">{result.pct}%</p>
-        <p className="mt-1 text-small text-ink-2">{result.correct} / {result.total} correct · {EXAM_PASS_PCT}% needed to pass</p>
+        <p className="mt-1 text-small text-ink-2">{result.correct} / {result.total} correct · {SECPLUS_EXAM_PASS_PCT}% needed to pass</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Button icon={RotateCcw} onClick={() => startPracticeExam()}>Retake exam</Button>
+          <Button icon={RotateCcw} onClick={() => startSecplusPracticeExam()}>Retake exam</Button>
           <Button to="/app" variant="secondary" icon={Home}>Back to home</Button>
         </div>
       </Card>
@@ -321,7 +321,7 @@ function ReportScreen({ exam }) {
       <h2 className="mt-10 text-heading text-ink-1">Per-domain breakdown</h2>
       <Card level={2} padding="md" className="mt-4">
         <ul className="divide-y divide-white/[0.06]">
-          {CISSP_DOMAINS.map((d) => {
+          {SECURITY_PLUS_DOMAINS.map((d) => {
             const pd = result.perDomain[d.id];
             return (
               <li key={d.id} className="px-2 py-3">
