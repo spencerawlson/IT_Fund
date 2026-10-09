@@ -1,0 +1,25 @@
+#!/bin/sh
+# Block commits that contain unresolved merge/stash conflict markers.
+#
+# Why this exists: on 2026-10-07/08 committed conflict markers (`>>>>>>> <hash>`) reached production
+# TWICE — Python read them as a SyntaxError, uvicorn couldn't start, and the API went 502 behind a
+# healthy tunnel. A marker is never something you mean to commit, so we stop it at the door.
+#
+# Checks the STAGED content (the index), so it catches markers whether they're newly added or were
+# committed earlier and never resolved. Excludes the npm lockfile (integrity hashes, never markers).
+#
+# Activated by `git config core.hooksPath .githooks` (the repo's `prepare` npm script does this on
+# install). Bypass only in a genuine emergency with `git commit --no-verify` — CI still blocks it.
+
+markers=$(git grep --cached -nE '^(<<<<<<<|>>>>>>>)( |$)|^=======$' -- . ':(exclude)package-lock.json' 2>/dev/null)
+
+if [ -n "$markers" ]; then
+  echo "" >&2
+  echo "✖ Commit blocked — unresolved conflict markers found:" >&2
+  echo "$markers" >&2
+  echo "" >&2
+  echo "  Resolve the conflict (delete the <<<<<<< ======= >>>>>>> lines, keep the right code)," >&2
+  echo "  re-stage the files, and commit again." >&2
+  echo "" >&2
+  exit 1
+fi

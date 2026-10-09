@@ -1,0 +1,96 @@
+name: CI
+
+# Gate every push and PR to main: nothing broken should be able to reach a deploy. This exists
+# because the things that took prod down (committed conflict markers, a NameError the build didn't
+# catch, a migration that crashed startup) would all have been stopped here.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conflict-markers:
+    name: No conflict markers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if any tracked file has conflict markers
+        run: |
+          if git grep -nE '^(<<<<<<<|>>>>>>>)( |$)|^=======$' -- . ':(exclude)package-lock.json'; then
+            echo "::error::Unresolved conflict markers found (see matches above)"
+            exit 1
+          fi
+          echo "clean"
+
+  frontend:
+    name: Frontend (lint · test · build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  backend:
+    name: Backend (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # CI runs 3.12 for dependable wheels; production runs 3.14. Bump this to match once all
+          # deps publish 3.14 wheels, so CI exercises the exact prod interpreter.
+          python-version: '3.12'
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+      - name: Run tests (SQLite, like local dev)
+        working-directory: backend
+        run: python -m pytest -q
+
+  migrations:
+    name: Migrations apply on Postgres
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: itfund
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: alembic upgrade head (catches the startup migration path that 502'd prod)
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://ci:ci@localhost:5432/itfund
+        run: alembic upgrade head
