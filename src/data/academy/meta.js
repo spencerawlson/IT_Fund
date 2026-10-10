@@ -185,4 +185,9 @@ export const RESOURCES = {
   'k8s-docs': { title: 'Kubernetes documentation', url: 'https://kubernetes.io/docs/home/' },
   'k8s-basics': { title: 'Kubernetes Basics (interactive tutorial)', url: 'https://kubernetes.io/docs/tutorials/kubernetes-basics/' },
   'kube-by-example': { title: 'Kube by Example (hands-on learning)', url: 'https://kubebyexample.com/' },
+  // Git
+  'git-scm': { title: 'Pro Git (the official Git book, free online)', url: 'https://git-scm.com/book' },
+  'learn-git-branching': { title: 'Learn Git Branching (interactive visual tutorial)', url: 'https://learngitbranching.js.org/' },
+  'github-skills': { title: 'GitHub Skills (hands-on courses)', url: 'https://skills.github.com/' },
+  'oh-shit-git': { title: 'Dangit, Git!? — recovering from common mistakes', url: 'https://dangitgit.com/' },
 };

@@ -40,6 +40,7 @@ const PILLARS = [
   { id: 'cloud', title: 'Cloud', desc: 'Service models to Well-Architected design to cloud-native security.', icon: 'Cloud', color: '#6366F1', trackIds: ['cloud'], to: '/academy/cloud' },
   { id: 'terraform', title: 'Terraform', desc: 'Infrastructure as Code: plan and provision cloud infra as versioned, reviewable code.', icon: 'Layers', color: '#7B42BC', trackIds: ['terraform'], to: '/academy/terraform' },
   { id: 'linux', title: 'Linux', desc: 'Own the command line: the OS that runs the cloud, the SOC, and every server.', icon: 'Terminal', color: '#84CC16', trackIds: ['linux'], to: '/academy/linux' },
+  { id: 'git', title: 'Git', desc: 'Version control end to end: stage, commit, branch, merge, resolve conflicts and collaborate.', icon: 'GitBranch', color: '#F05032', trackIds: ['git'], to: '/academy/git' },
   { id: 'ai', title: 'AI Engineering', desc: 'ML fundamentals to production LLM apps, agents, and AI security.', icon: 'Brain', color: '#A855F7', trackIds: ['ai'], to: '/academy/ai' },
 ];
 

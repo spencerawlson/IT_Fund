@@ -15,6 +15,7 @@ import rust from './rust';
 import sql from './sql';
 import docker from './docker';
 import kubernetes from './kubernetes';
+import git from './git';
 import interactive from './interactive';
 import { TIERS, RESOURCES } from './meta';
 
@@ -43,7 +44,7 @@ function normaliseTrack(raw) {
   return { ...raw, tiers };
 }
 
-export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes].map(normaliseTrack);
+export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes, git].map(normaliseTrack);
 
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);

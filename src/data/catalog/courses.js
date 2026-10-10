@@ -349,4 +349,26 @@ export const COURSE_META = [
       advanced: { title: 'Workloads, Ops & Security', summary: 'StatefulSets, debugging, RBAC and network policy.' },
     },
   },
+  {
+    slug: 'git-version-control',
+    trackId: 'git',
+    title: 'Git & Version Control',
+    difficulty: 'Beginner',
+    description:
+      'The version-control system every developer and team relies on. From the three areas and the stage → commit → push cycle through branching, merging and conflict resolution, to rebasing, workflows, and keeping history clean and secrets out.',
+    objectives: [
+      'Track changes with the stage, commit and push cycle',
+      'Branch, merge and resolve conflicts with confidence',
+      'Collaborate through remotes, pull requests and reviews',
+      'Undo mistakes safely with restore, reset, revert and reflog',
+      'Keep history clean and keep secrets out of the repo',
+    ],
+    skills: ['git', 'version-control', 'devops'],
+    certifications: [],
+    modules: {
+      beginner: { title: 'Git Fundamentals', summary: 'The three areas, staging, commits and remotes.' },
+      intermediate: { title: 'Branching, Merging & Undo', summary: 'Branches, conflicts, rebase and undoing changes.' },
+      advanced: { title: 'Workflows & Good Practice', summary: 'Feature branches, PRs, internals, history and security.' },
+    },
+  },
 ];

@@ -184,4 +184,12 @@ export default {
   'k8s-networking': [
     { type: 'order', prompt: 'Order the path external HTTP traffic takes to reach a pod.', items: ['Client request', 'Ingress controller (host/path routing)', 'Service (stable virtual IP)', 'Pod'], x: 'Ingress routes by host/path to a Service, the Service load-balances to a healthy Pod by label selector.' },
   ],
+
+  // ---------- Git ----------
+  'git-staging-commits': [
+    { type: 'order', prompt: 'Order the steps to record and share a change in Git.', items: ['Edit a file (working directory)', 'git add (stage the change)', 'git commit (record a snapshot)', 'git push (share to the remote)'], x: 'Changes flow working directory → staging area → local repo → remote. A commit is local until you push.' },
+  ],
+  'git-conflicts': [
+    { type: 'order', prompt: 'Order the steps to resolve a merge conflict.', items: ['git merge triggers a conflict', 'Edit the file, removing <<<<<<< ======= >>>>>>>', 'git add the resolved file', 'git commit to finish the merge'], x: 'You edit to the correct result and delete all three markers, then staging marks it resolved and the commit completes the merge.' },
+  ],
 };

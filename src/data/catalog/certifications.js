@@ -48,4 +48,6 @@ export const SKILLS = {
   devops: 'DevOps',
   kubernetes: 'Kubernetes',
   orchestration: 'Orchestration',
+  git: 'Git',
+  'version-control': 'Version Control',
 };

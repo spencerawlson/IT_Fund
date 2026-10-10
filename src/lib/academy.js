@@ -260,8 +260,15 @@ export function buildQuestions(cards, pool, count) {
   return shuffle(cards)
     .slice(0, count)
     .map((card) => {
-      const others = shuffle(pool.filter((p) => p.id !== card.id && p.a !== card.a).map((p) => p.a));
-      const wrong = [...(card.wrong || []), ...others].filter((w, i, arr) => w !== card.a && arr.indexOf(w) === i).slice(0, 3);
+      // Prefer the card's own distractors; only scan the pool when they don't yield three.
+      // This keeps the common case O(1) per card instead of O(pool) — the whole-pool scan
+      // dominates when building an exam one card at a time (see buildPracticeExam).
+      const own = (card.wrong || []).filter((w, i, arr) => w !== card.a && arr.indexOf(w) === i);
+      let wrong = own.slice(0, 3);
+      if (wrong.length < 3) {
+        const others = shuffle(pool.filter((p) => p.id !== card.id && p.a !== card.a).map((p) => p.a));
+        wrong = [...own, ...others].filter((w, i, arr) => w !== card.a && arr.indexOf(w) === i).slice(0, 3);
+      }
       const options = shuffle([card.a, ...wrong]);
       return { card, options, correct: options.indexOf(card.a) };
     });
