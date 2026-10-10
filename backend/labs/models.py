@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, asdict
 from typing import Any, Literal
 
-LabCategory = Literal["networking", "linux", "cybersecurity", "cloud", "python", "portblast"]
+LabCategory = Literal["networking", "linux", "cybersecurity", "cloud", "python", "portblast", "devops"]
 LabDifficulty = Literal["beginner", "intermediate", "advanced"]
 
 

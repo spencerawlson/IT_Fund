@@ -116,6 +116,14 @@ reads the container's (empty) wtmp and shows nothing. The same evidence is in
   posture (no privileged containers, Docker socket never exposed). It stays on
   the `mock` provider until that changes - building a fake `docker` CLI shim
   would be dishonest scaffolding.
+- **`road-to-cissp/docker-fundamentals` is not built**, for the same reason: the
+  Docker fundamentals lab (`docker-fundamentals-001`) teaches the Docker CLI on
+  a simulated host, which also requires Docker-in-Docker. It stays on the `mock`
+  provider.
+- **`road-to-cissp/k8s-lab` is not built.** The Kubernetes fundamentals lab
+  (`k8s-fundamentals-001`) simulates a cluster (nodes, pods, deployments) in the
+  mock provider; there is no real cluster to package. It stays on the `mock`
+  provider.
 - **rustscan** is not installed: it needs raw sockets the provider drops; `nmap
   -p-` teaches the same skill.
 - **searchsploit** is not installed: it needs a ~234 MB exploit-db snapshot that

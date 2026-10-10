@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 from labs.providers.base import CommandResult
-from labs.shells import aws_audit, cisco_ios, docker_siem, linux_logs, linux_net, linux_python, linux_recon, logfile, terraform
+from labs.shells import aws_audit, cisco_ios, docker_cli, docker_siem, kubectl, linux_logs, linux_net, linux_python, linux_recon, logfile, pentest, terraform, terraform_cli
 
 _SHELLS = {
     'linux_recon': linux_recon,   # nmap / rustscan / recon labs
@@ -21,6 +21,11 @@ _SHELLS = {
     'aws_audit': aws_audit,       # cloud security audit (AWS CLI)
     'terraform': terraform,       # IaC provisioning + cloud security
     'docker_siem': docker_siem,   # container security monitoring + SIEM investigation
+    'docker_cli': docker_cli,     # docker fundamentals (images/containers/compose)
+    'kubectl': kubectl,           # kubernetes fundamentals (deploy/scale/troubleshoot)
+    'pentest': pentest,           # full pentest methodology (recon → exploitation → reporting)
+    'terraform': terraform,       # IaC provisioning + cloud security
+    'terraform_cli': terraform_cli,  # terraform fundamentals (full workflow)
     'logfile': logfile,           # generic data-driven log-analysis labs (blue-team)
 }
 

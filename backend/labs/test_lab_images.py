@@ -39,6 +39,8 @@ IMAGE_DOCKERFILE = {
     "cloudshell": "Dockerfile.cloudshell",
     "iac": "Dockerfile.iac",
     "docker-siem": None,  # Docker-in-Docker is incompatible with the hardened provider
+    "docker-fundamentals": None,  # same: the lab simulates a Docker host; DiD is incompatible
+    "k8s-lab": None,  # mock lab simulates a cluster; no real k8s image needed
 }
 
 IMAGE_RE = re.compile(r'image="(road-to-cissp/([\w-]+)):latest"')
