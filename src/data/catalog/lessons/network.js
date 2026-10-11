@@ -13,17 +13,20 @@ export default {
         heading: 'The seven OSI layers',
         body: [
           'Every network conversation — a page loading, a file crossing an ocean — descends through seven layers, each with a single job done well. The upper three serve software directly; the lower four move the data.',
+          { stack: {
+            title: 'The OSI model, top to bottom',
+            items: [
+              { badge: 'L7', name: 'Application', tag: 'Data', does: 'Where users live: the protocols your applications speak every day.', examples: 'HTTP, DNS, SMTP', word: 'Away' },
+              { badge: 'L6', name: 'Presentation', tag: 'Data', does: 'Translates so both endpoints understand each other: encoding, compression, encryption.', examples: 'TLS, JPEG, UTF-8', word: 'Pizza' },
+              { badge: 'L5', name: 'Session', tag: 'Data', does: 'Opens, sustains and gracefully closes conversations between applications.', examples: 'RPC, NetBIOS', word: 'Sausage' },
+              { badge: 'L4', name: 'Transport', tag: 'Segment / Datagram', does: 'End-to-end delivery, steered to the right application by port number.', examples: 'TCP, UDP, ports', word: 'Throw' },
+              { badge: 'L3', name: 'Network', tag: 'Packet', does: 'Carries packets between networks, choosing paths through routers.', examples: 'IP, ICMP, routers', word: 'Not' },
+              { badge: 'L2', name: 'Data Link', tag: 'Frame', does: 'Organizes bits into frames addressed by MAC address.', examples: 'Ethernet, MAC, switches', word: 'Do' },
+              { badge: 'L1', name: 'Physical', tag: 'Bits', does: 'Moves raw bits as electrical pulses, light or radio waves.', examples: 'Cables, connectors, hubs', word: 'Please' },
+            ],
+            mnemonic: { lead: 'Generations of engineers have memorized the order from the wire up with a single sentence:', fromBottom: true },
+          } },
         ],
-        layers: [
-          { n: 7, name: 'Application', pdu: 'Data', does: 'Where users live: the protocols your applications speak every day.', examples: 'HTTP, DNS, SMTP', word: 'Away' },
-          { n: 6, name: 'Presentation', pdu: 'Data', does: 'Translates so both endpoints understand each other: encoding, compression, encryption.', examples: 'TLS, JPEG, UTF-8', word: 'Pizza' },
-          { n: 5, name: 'Session', pdu: 'Data', does: 'Opens, sustains and gracefully closes conversations between applications.', examples: 'RPC, NetBIOS', word: 'Sausage' },
-          { n: 4, name: 'Transport', pdu: 'Segment / Datagram', does: 'End-to-end delivery, steered to the right application by port number.', examples: 'TCP, UDP, ports', word: 'Throw' },
-          { n: 3, name: 'Network', pdu: 'Packet', does: 'Carries packets between networks, choosing paths through routers.', examples: 'IP, ICMP, routers', word: 'Not' },
-          { n: 2, name: 'Data Link', pdu: 'Frame', does: 'Organizes bits into frames addressed by MAC address.', examples: 'Ethernet, MAC, switches', word: 'Do' },
-          { n: 1, name: 'Physical', pdu: 'Bits', does: 'Moves raw bits as electrical pulses, light or radio waves.', examples: 'Cables, connectors, hubs', word: 'Please' },
-        ],
-        mnemonic: 'Generations of engineers have memorized the order from the wire up with a single sentence:',
       },
       {
         heading: 'PDUs and encapsulation',
@@ -35,7 +38,17 @@ export default {
       {
         heading: 'The TCP/IP model',
         body: [
-          'The internet itself runs on a leaner blueprint: four layers. Link — sometimes called Network Access — absorbs OSI’s bottom two. Internet maps to OSI’s Layer 3. Transport aligns directly with Layer 4. A single Application layer folds OSI’s top three into one. Every protocol you will ever configure lives in this model — yet engineers still speak OSI daily, because "that’s a Layer 2 problem" or "it’s failing at Layer 7" tells a colleague exactly where to look.',
+          'The internet itself runs on a leaner blueprint: four layers, each absorbing one or more OSI layers. The colours match the OSI layers above.',
+          { stack: {
+            title: 'The TCP/IP model and its OSI equivalents',
+            items: [
+              { badge: '4', name: 'Application', tag: 'OSI L5–L7', tone: 7, does: 'Folds OSI’s top three layers into one.', examples: 'HTTP, DNS, SMTP, TLS' },
+              { badge: '3', name: 'Transport', tag: 'OSI L4', tone: 4, does: 'Aligns directly with OSI Layer 4.', examples: 'TCP, UDP' },
+              { badge: '2', name: 'Internet', tag: 'OSI L3', tone: 3, does: 'Maps to OSI Layer 3: addressing and routing.', examples: 'IP, ICMP' },
+              { badge: '1', name: 'Link', tag: 'OSI L1–L2', tone: 1, does: 'Sometimes called Network Access; absorbs OSI’s bottom two.', examples: 'Ethernet, Wi-Fi' },
+            ],
+          } },
+          'Every protocol you will ever configure lives in this model — yet engineers still speak OSI daily, because "that’s a Layer 2 problem" or "it’s failing at Layer 7" tells a colleague exactly where to look.',
         ],
       },
     ],
@@ -321,8 +334,19 @@ export default {
       {
         heading: 'The seven-step method',
         body: [
-          '1. Identify the problem: gather information, question users, identify symptoms, determine what changed recently, and duplicate the problem if you can. 2. Establish a theory of probable cause, questioning the obvious. 3. Test the theory to determine the cause; if it fails, establish a new theory or escalate.',
-          '4. Establish a plan of action to resolve the problem and identify potential effects. 5. Implement the solution, or escalate. 6. Verify full system functionality and, if applicable, implement preventive measures. 7. Document findings, actions, outcomes and lessons learned.',
+          'CompTIA’s troubleshooting methodology runs in seven steps. Work them in order: skipping straight to a fix is how outages get longer.',
+          { stack: {
+            title: 'The CompTIA troubleshooting methodology',
+            items: [
+              { badge: '1', name: 'Identify the problem', does: 'Gather information, question users, identify symptoms, determine what changed recently, and duplicate the problem if you can.' },
+              { badge: '2', name: 'Establish a theory', does: 'Establish a theory of probable cause, questioning the obvious.' },
+              { badge: '3', name: 'Test the theory', does: 'Determine the cause; if the theory fails, establish a new one or escalate.' },
+              { badge: '4', name: 'Plan of action', does: 'Establish a plan to resolve the problem and identify its potential effects.' },
+              { badge: '5', name: 'Implement', does: 'Implement the solution, or escalate.' },
+              { badge: '6', name: 'Verify', does: 'Verify full system functionality and, if applicable, implement preventive measures.' },
+              { badge: '7', name: 'Document', does: 'Document findings, actions, outcomes and lessons learned.' },
+            ],
+          } },
         ],
       },
       {

@@ -432,7 +432,18 @@ export default {
       {
         heading: 'The data lifecycle and destruction',
         body: [
-          'The Cloud Security Alliance defines six stages: create, store, use, share, archive and destroy. Apply controls at each one, such as classification at creation, encryption in storage, DLP when sharing and retention rules for archives.',
+          'The Cloud Security Alliance defines six stages of the data lifecycle. Apply controls at each one.',
+          { stack: {
+            title: 'The CSA data lifecycle',
+            items: [
+              { badge: '1', name: 'Create', does: 'Data is generated or captured. Classify it here.' },
+              { badge: '2', name: 'Store', does: 'Committed to storage. Encrypt it and control access.' },
+              { badge: '3', name: 'Use', does: 'Viewed or processed. Enforce least privilege and log access.' },
+              { badge: '4', name: 'Share', does: 'Made available to others. Apply DLP and secure transfer.' },
+              { badge: '5', name: 'Archive', does: 'Moved to long-term storage. Follow retention rules.' },
+              { badge: '6', name: 'Destroy', does: 'Permanently removed. Sanitise or crypto-shred.' },
+            ],
+          } },
           'You cannot degauss a provider\'s disks, so crypto-shredding is the practical way to sanitise cloud data: destroy the encryption keys, and the encrypted data becomes unrecoverable.',
         ],
       },

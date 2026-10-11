@@ -86,15 +86,49 @@ export default {
       {
         heading: 'Kill Chain, CSF and the Diamond Model',
         body: [
-          'The Lockheed Martin Cyber Kill Chain has seven phases: Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command and Control, and Actions on Objectives. Breaking any link stops the attack.',
-          'NIST CSF 2.0 (2024) organises a whole security programme into six functions: Govern (new in 2.0), Identify, Protect, Detect, Respond and Recover.',
+          'The Lockheed Martin Cyber Kill Chain has seven phases. Breaking any link stops the attack.',
+          { stack: {
+            title: 'The Cyber Kill Chain',
+            items: [
+              { badge: '1', name: 'Reconnaissance', does: 'Research the target: people, systems, exposed services.' },
+              { badge: '2', name: 'Weaponization', does: 'Pair an exploit with a payload, such as a malicious document.' },
+              { badge: '3', name: 'Delivery', does: 'Send the weapon: phishing email, malicious link, USB drop.' },
+              { badge: '4', name: 'Exploitation', does: 'Trigger the vulnerability to run code on the target.' },
+              { badge: '5', name: 'Installation', does: 'Install malware or a backdoor for persistence.' },
+              { badge: '6', name: 'Command and Control', does: 'Open a channel so the attacker can steer the compromised host.' },
+              { badge: '7', name: 'Actions on Objectives', does: 'Do what they came for: steal, encrypt or destroy data.' },
+            ],
+          } },
+          'NIST CSF 2.0 (2024) organises a whole security programme into six functions.',
+          { stack: {
+            title: 'NIST CSF 2.0 functions',
+            items: [
+              { badge: 'GV', name: 'Govern', tag: 'New in 2.0', does: 'Organisational context, risk strategy, policy and supply-chain oversight; sits over the other five.' },
+              { badge: 'ID', name: 'Identify', does: 'Understand assets, risks and the business context.' },
+              { badge: 'PR', name: 'Protect', does: 'Safeguards that limit or contain an incident.' },
+              { badge: 'DE', name: 'Detect', does: 'Find cybersecurity events quickly.' },
+              { badge: 'RS', name: 'Respond', does: 'Act on a detected incident.' },
+              { badge: 'RC', name: 'Recover', does: 'Restore capabilities and services.' },
+            ],
+          } },
           'The Diamond Model links four features of every intrusion (adversary, capability, infrastructure and victim), helping analysts pivot from one known element to discover the others.',
         ],
       },
       {
         heading: 'Pyramid of Pain and sharing intel',
         body: [
-          'The Pyramid of Pain ranks indicator types by how much it hurts attackers when you block them. Hashes and IP addresses are at the bottom, trivial to change; domains and tools are harder; TTPs (tactics, techniques and procedures) are at the top, because changing behaviour is expensive. Aim detections as high up as you can.',
+          'The Pyramid of Pain ranks indicator types by how much it hurts attackers when you block them. Aim detections as high up as you can.',
+          { stack: {
+            title: 'The Pyramid of Pain, top to bottom',
+            items: [
+              { badge: '6', name: 'TTPs', tag: 'Tough', does: 'Tactics, techniques and procedures. Changing behaviour is expensive, so this hurts most.' },
+              { badge: '5', name: 'Tools', tag: 'Challenging', does: 'Forces the attacker to find or build new tooling.' },
+              { badge: '4', name: 'Host and network artifacts', tag: 'Annoying', does: 'Registry keys, file paths, user agents, URI patterns.' },
+              { badge: '3', name: 'Domain names', tag: 'Simple', does: 'Cheap to register, but takes some effort to replace.' },
+              { badge: '2', name: 'IP addresses', tag: 'Easy', does: 'Trivial to rotate through proxies and cloud hosts.' },
+              { badge: '1', name: 'Hash values', tag: 'Trivial', does: 'Change one byte and the hash changes.' },
+            ],
+          } },
           'STIX is a standard format for describing threat intelligence, and TAXII is the transport for exchanging it, so tools can share IoCs automatically.',
         ],
       },
@@ -458,8 +492,27 @@ export default {
       {
         heading: 'Intelligence levels and lifecycle',
         body: [
-          'Strategic intelligence covers long-term trends for leaders; tactical intelligence gives TTPs and IoCs to defenders; operational intelligence covers specific campaigns in between.',
-          'The intelligence lifecycle runs direction (requirements), collection, processing, analysis, dissemination and feedback. Start from the questions your organisation needs answered, not from whatever feeds you can buy.',
+          'Threat intelligence comes at three levels, from the boardroom down to the SOC console.',
+          { stack: {
+            title: 'Intelligence levels',
+            items: [
+              { badge: 'S', name: 'Strategic', tag: 'Leaders', does: 'Long-term trends and risk for decision-makers.' },
+              { badge: 'O', name: 'Operational', tag: 'Planners', does: 'Specific campaigns in between: who, what and when.' },
+              { badge: 'T', name: 'Tactical', tag: 'Defenders', does: 'TTPs and IoCs to detect and block.' },
+            ],
+          } },
+          'The intelligence lifecycle starts from the questions your organisation needs answered, not from whatever feeds you can buy.',
+          { stack: {
+            title: 'The intelligence lifecycle',
+            items: [
+              { badge: '1', name: 'Direction', does: 'Set requirements: what decisions must this intelligence support?' },
+              { badge: '2', name: 'Collection', does: 'Gather data from feeds, logs, OSINT and partners.' },
+              { badge: '3', name: 'Processing', does: 'Normalise, translate and de-duplicate raw data.' },
+              { badge: '4', name: 'Analysis', does: 'Turn data into judgements that answer the requirements.' },
+              { badge: '5', name: 'Dissemination', does: 'Deliver it to the right audience in a usable form.' },
+              { badge: '6', name: 'Feedback', does: 'Ask consumers what helped, and refine the next cycle.' },
+            ],
+          } },
         ],
       },
       {
@@ -926,9 +979,34 @@ export default {
       {
         heading: 'Frameworks that organise security',
         body: [
-          'The NIST Risk Management Framework runs seven steps: Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor — authorisation being an explicit risk decision. ISO 27001 states certifiable requirements for an information security management system; ISO 27002 is the companion code of practice, and ISO 27701 extends both into privacy.',
+          'The NIST Risk Management Framework runs seven steps, authorisation being an explicit risk decision.',
+          { stack: {
+            title: 'NIST Risk Management Framework (SP 800-37)',
+            items: [
+              { badge: '1', name: 'Prepare', does: 'Set context, roles and risk strategy before any system work.' },
+              { badge: '2', name: 'Categorize', does: 'Rate the system by the impact of losing confidentiality, integrity or availability.' },
+              { badge: '3', name: 'Select', does: 'Choose a baseline of controls and tailor it.' },
+              { badge: '4', name: 'Implement', does: 'Put the controls in place and document them.' },
+              { badge: '5', name: 'Assess', does: 'Test that the controls work as intended.' },
+              { badge: '6', name: 'Authorize', does: 'A senior official explicitly accepts the residual risk.' },
+              { badge: '7', name: 'Monitor', does: 'Watch controls and risk continuously, and reassess on change.' },
+            ],
+          } },
+          'ISO 27001 states certifiable requirements for an information security management system; ISO 27002 is the companion code of practice, and ISO 27701 extends both into privacy.',
           'The CIS Controls v8 organise eighteen controls into Implementation Groups: IG1 is basic cyber hygiene every organisation should reach, IG2 and IG3 add depth for the mature. SOC 2 reports on five trust services criteria — Security plus Availability, Processing Integrity, Confidentiality, and Privacy as needed — under the SSAE 18 auditing standard.',
-          'NIST CSF 2.0 added Govern as a sixth top-level function, placing organisational context, risk strategy, and supply-chain oversight above Identify, Protect, Detect, Respond, and Recover. For cloud, the CSA Cloud Controls Matrix maps provider controls to ISO, SOC 2, and others, and FedRAMP standardises authorisation for US federal cloud use.',
+          'NIST CSF 2.0 added Govern as a sixth top-level function, placing organisational context, risk strategy, and supply-chain oversight above the original five.',
+          { stack: {
+            title: 'NIST CSF 2.0 functions',
+            items: [
+              { badge: 'GV', name: 'Govern', tag: 'New in 2.0', does: 'Organisational context, risk strategy, policy and supply-chain oversight; sits over the other five.' },
+              { badge: 'ID', name: 'Identify', does: 'Understand assets, risks and the business context.' },
+              { badge: 'PR', name: 'Protect', does: 'Safeguards that limit or contain an incident.' },
+              { badge: 'DE', name: 'Detect', does: 'Find cybersecurity events quickly.' },
+              { badge: 'RS', name: 'Respond', does: 'Act on a detected incident.' },
+              { badge: 'RC', name: 'Recover', does: 'Restore capabilities and services.' },
+            ],
+          } },
+          'For cloud, the CSA Cloud Controls Matrix maps provider controls to ISO, SOC 2, and others, and FedRAMP standardises authorisation for US federal cloud use.',
         ],
       },
       {

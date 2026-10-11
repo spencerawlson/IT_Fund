@@ -52,19 +52,23 @@
  * @property {string} code
  * @property {string} [explanation]
  *
- * @typedef {object} StackLayer  One row of a colour-coded protocol stack.
- * @property {number} n         Layer number (1–7); picks the colour.
+ * @typedef {object} StackItem  One row of a colour-coded stack (a layer, step, level or function).
+ * @property {string} badge       Short label in the coloured badge, e.g. 'L7', '3', 'GV'.
  * @property {string} name
- * @property {string} pdu       Data unit at this layer.
- * @property {string} does
- * @property {string} examples
- * @property {string} [word]    Mnemonic word; first letter is highlighted.
+ * @property {string} does        Supports `inline code`.
+ * @property {string} [tag]       Pill beside the name, e.g. the PDU or OSI mapping.
+ * @property {string} [examples]  Muted trailer after `does`.
+ * @property {number} [tone]      1–7 (cool to warm; OSI layer n = tone n). Default: spread warm→cool.
+ * @property {string} [word]      Mnemonic word; its first letter is highlighted.
+ *
+ * @typedef {object} LessonStack  Rendered by components/academy/LayerStack, in reading order.
+ * @property {string} [title]
+ * @property {StackItem[]} items
+ * @property {{ lead: string, fromBottom?: boolean }} [mnemonic]  Needs `word` on every item.
  *
  * @typedef {object} LearnSection
  * @property {string} heading
- * @property {string[]} body
- * @property {StackLayer[]} [layers]  Rendered as an aligned stack, top layer first.
- * @property {string} [mnemonic]     Lead-in shown above the coloured mnemonic words.
+ * @property {(string | { stack: LessonStack })[]} body  Paragraphs, with stacks placed inline.
  *
  * @typedef {object} LessonContent
  * @property {string[]} [overview]     What it is and why it matters (paragraphs).

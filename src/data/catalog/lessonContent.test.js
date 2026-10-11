@@ -30,7 +30,13 @@ describe('lesson reading content', () => {
       c.learn.forEach((part) => {
         expect(text(part.heading), 'learn heading').toBe(true);
         expect(part.body.length, `body of "${part.heading}"`).toBeGreaterThanOrEqual(1);
-        expect(part.body.every(text)).toBe(true);
+        expect(part.body.some(text), 'body needs at least one paragraph').toBe(true);
+        part.body.filter((p) => !text(p)).forEach(({ stack }) => {
+          expect(stack?.items?.length, `stack in "${part.heading}"`).toBeGreaterThanOrEqual(2);
+          stack.items.forEach((it) => expect(text(it.badge) && text(it.name) && text(it.does)).toBe(true));
+          expect(new Set(stack.items.map((it) => it.name)).size, 'stack names are unique').toBe(stack.items.length);
+          if (stack.mnemonic) expect(stack.items.every((it) => text(it.word))).toBe(true);
+        });
       });
       expect(c.cheatSheet?.length, 'cheat sheet rows').toBeGreaterThanOrEqual(5);
       c.cheatSheet.forEach(([term, meaning]) => expect(text(term) && text(meaning)).toBe(true));

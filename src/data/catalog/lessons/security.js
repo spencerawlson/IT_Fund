@@ -358,7 +358,17 @@ export default {
       {
         heading: 'Incident response',
         body: [
-          'NIST SP 800-61r2 defines four phases: Preparation; Detection and Analysis; Containment, Eradication and Recovery; and Post-Incident Activity (lessons learned). The 2025 revision, SP 800-61r3, maps incident response onto the NIST CSF 2.0 functions.',
+          'NIST SP 800-61r2 defines four phases of incident response.',
+          { stack: {
+            title: 'NIST incident response lifecycle (SP 800-61r2)',
+            items: [
+              { badge: '1', name: 'Preparation', does: 'Plans, playbooks, tools, training and contacts, ready before anything happens.' },
+              { badge: '2', name: 'Detection and Analysis', does: 'Spot the incident, confirm it, and scope its impact.' },
+              { badge: '3', name: 'Containment, Eradication and Recovery', does: 'Stop the spread, remove the cause, restore systems.' },
+              { badge: '4', name: 'Post-Incident Activity', does: 'Lessons learned, and feed the fixes back into preparation.' },
+            ],
+          } },
+          'The 2025 revision, SP 800-61r3, maps incident response onto the NIST CSF 2.0 functions.',
           'After detecting ransomware on one host, the first priority is containment: isolate the host from the network to stop the spread. Preserve evidence, and do not simply power it off if memory forensics matters, because RAM is lost.',
         ],
       },

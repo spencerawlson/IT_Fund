@@ -60,7 +60,19 @@ export default {
         heading: 'Risk',
         body: [
           'Quantitative risk analysis uses monetary values (SLE, ARO, ALE); qualitative analysis uses ratings such as high, medium and low. Most organisations blend both.',
-          'The NIST Risk Management Framework (SP 800-37) has seven steps: Prepare, Categorize, Select, Implement, Assess, Authorize and Monitor. Authorization is the management decision to accept the residual risk, the risk remaining after controls are applied. Someone with the authority must explicitly accept it.',
+          'The NIST Risk Management Framework (SP 800-37) has seven steps. Authorization is the management decision to accept the residual risk, the risk remaining after controls are applied. Someone with the authority must explicitly accept it.',
+          { stack: {
+            title: 'NIST Risk Management Framework (SP 800-37)',
+            items: [
+              { badge: '1', name: 'Prepare', does: 'Set context, roles and risk strategy before any system work.' },
+              { badge: '2', name: 'Categorize', does: 'Rate the system by the impact of losing confidentiality, integrity or availability.' },
+              { badge: '3', name: 'Select', does: 'Choose a baseline of controls and tailor it.' },
+              { badge: '4', name: 'Implement', does: 'Put the controls in place and document them.' },
+              { badge: '5', name: 'Assess', does: 'Test that the controls work as intended.' },
+              { badge: '6', name: 'Authorize', does: 'A senior official explicitly accepts the residual risk.' },
+              { badge: '7', name: 'Monitor', does: 'Watch controls and risk continuously, and reassess on change.' },
+            ],
+          } },
           'Threat modelling finds design flaws before they are built. Microsoft\'s STRIDE covers Spoofing, Tampering, Repudiation, Information disclosure, Denial of service and Elevation of privilege.',
         ],
       },
@@ -211,7 +223,18 @@ export default {
       {
         heading: 'The data lifecycle and its roles',
         body: [
-          'The data lifecycle runs create, store, use, share, archive, destroy. Protection must follow the data through every phase: most breaches exploit the share and archive phases, not the database itself.',
+          'Protection must follow the data through every phase of its lifecycle: most breaches exploit the share and archive phases, not the database itself.',
+          { stack: {
+            title: 'The data lifecycle',
+            items: [
+              { badge: '1', name: 'Create', does: 'Data is generated or captured. Classify it here.' },
+              { badge: '2', name: 'Store', does: 'Committed to storage. Encrypt it and control access.' },
+              { badge: '3', name: 'Use', does: 'Viewed or processed. Enforce least privilege and log access.' },
+              { badge: '4', name: 'Share', does: 'Made available to others. Apply DLP and secure transfer.' },
+              { badge: '5', name: 'Archive', does: 'Moved to long-term storage. Follow retention rules.' },
+              { badge: '6', name: 'Destroy', does: 'Permanently removed. Sanitise or crypto-shred.' },
+            ],
+          } },
           'The data owner is accountable for the data and classifies it. The data steward manages day-to-day quality and handling according to the owner\'s policy. The custodian maintains the systems that store and process the data. The owner decides, the steward oversees handling, the custodian operates.',
           'Handling requirements scale with classification: higher classifications need marking, encryption, and strict access control, while public data mainly needs integrity. The rules must be written down, trained, and enforced, or they do not exist.',
         ],
@@ -520,7 +543,17 @@ export default {
       {
         heading: 'Measuring maturity',
         body: [
-          'OWASP SAMM (open) and BSIMM (descriptive, based on what real firms do) measure software security programme maturity. CMMI rates process maturity from 1 to 5: Initial, Managed, Defined, Quantitatively Managed, Optimising.',
+          'OWASP SAMM (open) and BSIMM (descriptive, based on what real firms do) measure software security programme maturity. CMMI rates process maturity from 1 to 5.',
+          { stack: {
+            title: 'CMMI maturity levels, highest first',
+            items: [
+              { badge: '5', name: 'Optimising', does: 'Continuous, data-driven process improvement.' },
+              { badge: '4', name: 'Quantitatively Managed', does: 'Processes are measured and controlled with metrics.' },
+              { badge: '3', name: 'Defined', does: 'Standard processes documented across the organisation.' },
+              { badge: '2', name: 'Managed', does: 'Processes are planned and tracked per project.' },
+              { badge: '1', name: 'Initial', does: 'Ad hoc and unpredictable; success depends on heroics.' },
+            ],
+          } },
         ],
       },
       {
