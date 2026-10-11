@@ -52,9 +52,23 @@
  * @property {string} code
  * @property {string} [explanation]
  *
+ * @typedef {object} StackLayer  One row of a colour-coded protocol stack.
+ * @property {number} n         Layer number (1–7); picks the colour.
+ * @property {string} name
+ * @property {string} pdu       Data unit at this layer.
+ * @property {string} does
+ * @property {string} examples
+ * @property {string} [word]    Mnemonic word; first letter is highlighted.
+ *
+ * @typedef {object} LearnSection
+ * @property {string} heading
+ * @property {string[]} body
+ * @property {StackLayer[]} [layers]  Rendered as an aligned stack, top layer first.
+ * @property {string} [mnemonic]     Lead-in shown above the coloured mnemonic words.
+ *
  * @typedef {object} LessonContent
  * @property {string[]} [overview]     What it is and why it matters (paragraphs).
- * @property {{ heading: string, body: string[] }[]} [learn]  Detailed explanation.
+ * @property {LearnSection[]} [learn]  Detailed explanation.
  * @property {{ caption: string, diagram: string }} [architecture]  Monospace diagram.
  * @property {LessonExample[]} [examples]
  * @property {[string, string][]} [cheatSheet]  [term, meaning] rows.

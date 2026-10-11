@@ -12,10 +12,18 @@ export default {
       {
         heading: 'The seven OSI layers',
         body: [
-          'Every network conversation — a page loading, a file crossing an ocean — descends through seven layers, each with a single job done well. At the foundation, Layer 1 (Physical) moves raw bits as electrical pulses, light, or radio waves across cables, connectors, and hubs. Layer 2 (Data Link) organizes those bits into frames addressed by MAC address; this is the layer switches operate on. Layer 3 (Network) carries packets between networks using IP addresses, choosing paths through routers. Layer 4 (Transport) ensures end-to-end delivery, dividing data into TCP segments or UDP datagrams and steering each to the right application by port number.',
-          'The upper layers serve software directly. Layer 5 (Session) opens, sustains, and gracefully closes conversations between applications. Layer 6 (Presentation) translates — encoding text, compressing images, encrypting with TLS — so both endpoints understand each other. Layer 7 (Application) is where users live: HTTP, DNS, SMTP, the protocols your applications speak every day.',
-          'Generations of engineers have memorized the order from the wire up with a single sentence: "Please Do Not Throw Sausage Pizza Away" — Physical, Data Link, Network, Transport, Session, Presentation, Application.',
+          'Every network conversation — a page loading, a file crossing an ocean — descends through seven layers, each with a single job done well. The upper three serve software directly; the lower four move the data.',
         ],
+        layers: [
+          { n: 7, name: 'Application', pdu: 'Data', does: 'Where users live: the protocols your applications speak every day.', examples: 'HTTP, DNS, SMTP', word: 'Away' },
+          { n: 6, name: 'Presentation', pdu: 'Data', does: 'Translates so both endpoints understand each other: encoding, compression, encryption.', examples: 'TLS, JPEG, UTF-8', word: 'Pizza' },
+          { n: 5, name: 'Session', pdu: 'Data', does: 'Opens, sustains and gracefully closes conversations between applications.', examples: 'RPC, NetBIOS', word: 'Sausage' },
+          { n: 4, name: 'Transport', pdu: 'Segment / Datagram', does: 'End-to-end delivery, steered to the right application by port number.', examples: 'TCP, UDP, ports', word: 'Throw' },
+          { n: 3, name: 'Network', pdu: 'Packet', does: 'Carries packets between networks, choosing paths through routers.', examples: 'IP, ICMP, routers', word: 'Not' },
+          { n: 2, name: 'Data Link', pdu: 'Frame', does: 'Organizes bits into frames addressed by MAC address.', examples: 'Ethernet, MAC, switches', word: 'Do' },
+          { n: 1, name: 'Physical', pdu: 'Bits', does: 'Moves raw bits as electrical pulses, light or radio waves.', examples: 'Cables, connectors, hubs', word: 'Please' },
+        ],
+        mnemonic: 'Generations of engineers have memorized the order from the wire up with a single sentence:',
       },
       {
         heading: 'PDUs and encapsulation',

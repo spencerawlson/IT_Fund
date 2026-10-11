@@ -142,6 +142,7 @@ export default function LessonView() {
               <div key={part.heading} className="space-y-3">
                 <h3 className="text-heading text-ink-1">{part.heading}</h3>
                 {part.body.map((p) => <Para key={p} text={p} />)}
+                {part.layers && <LayerStack layers={part.layers} mnemonic={part.mnemonic} />}
               </div>
             ))}
           </Section>
@@ -244,6 +245,63 @@ const Para = ({ text }) => (
     <RichText text={text} />
   </p>
 );
+
+// One hue per layer, warm at the top of the stack to cool at the wire.
+const LAYER_COLORS = {
+  7: '#c084fc', 6: '#f472b6', 5: '#fb7185', 4: '#fb923c', 3: '#facc15', 2: '#4ade80', 1: '#38bdf8',
+};
+
+/** A colour-coded, column-aligned protocol stack, top layer first, with an optional mnemonic. */
+function LayerStack({ layers, mnemonic }) {
+  const fromWire = [...layers].sort((a, b) => a.n - b.n);
+  return (
+    <div className="space-y-5 pt-2">
+      <ol className="overflow-hidden rounded-control border border-white/10" aria-label="Layers, top to bottom">
+        {layers.map((l) => {
+          const color = LAYER_COLORS[l.n];
+          return (
+            <li
+              key={l.n}
+              className="grid grid-cols-[3rem_1fr] items-start gap-x-4 gap-y-1 border-b border-white/[0.06] px-4 py-3 last:border-b-0 sm:grid-cols-[3rem_9rem_9.5rem_1fr]"
+              style={{ background: `${color}14`, boxShadow: `inset 4px 0 0 ${color}` }}
+            >
+              <span
+                className="row-span-2 flex h-9 w-12 items-center justify-center rounded-md font-mono text-small font-bold sm:row-span-1"
+                style={{ background: `${color}26`, color, border: `1px solid ${color}55` }}
+              >
+                L{l.n}
+              </span>
+              <span className="font-semibold text-ink-1 sm:pt-1.5">{l.name}</span>
+              <span className="text-small text-ink-2 sm:pt-2">
+                <span className="sr-only">PDU: </span>
+                <span className="rounded-full px-2 py-0.5 font-mono text-[0.75rem]" style={{ color, border: `1px solid ${color}44` }}>{l.pdu}</span>
+              </span>
+              <span className="col-start-2 text-small text-ink-2 sm:col-start-auto sm:pt-1.5">
+                {l.does} <span className="text-ink-3">· {l.examples}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+      {mnemonic && fromWire.every((l) => l.word) && (
+        <div className="max-w-reading">
+          <p className="text-lesson text-ink-1">{mnemonic}</p>
+          <p className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-lesson font-semibold">
+            {fromWire.map((l) => (
+              <span key={l.n} className="flex flex-col items-center leading-tight">
+                <span>
+                  <span style={{ color: LAYER_COLORS[l.n] }}>{l.word[0]}</span>
+                  <span className="text-ink-1">{l.word.slice(1)}</span>
+                </span>
+                <span className="mt-1 text-[0.7rem] font-normal text-ink-3">{l.name}</span>
+              </span>
+            ))}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function CodeBlock({ code }) {
   const [copied, setCopied] = useState(false);
