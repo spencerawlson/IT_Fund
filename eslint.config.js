@@ -40,6 +40,10 @@ export default [
       // an un-imported component (e.g. an icon) compiles and builds cleanly and
       // only throws at render time, blanking the page.
       "no-undef": "error",
+      // no-undef can't see a missing icon whose name is also a browser global
+      // (Lock, Image, Screen...): JSX then renders the DOM class and throws
+      // "Illegal constructor". This rule ignores globals for JSX tags.
+      "react/jsx-no-undef": ["error", { allowGlobals: false }],
       "no-unused-vars": "off",
       "react/jsx-uses-vars": "error",
       "react/jsx-uses-react": "error",

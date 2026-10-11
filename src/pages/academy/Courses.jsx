@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, Swords, Check, SearchX, ArrowRight, Library, Route as RouteIcon, Map as MapIcon, Timer } from 'lucide-react';
+import { Play, Swords, Check, Lock, SearchX, ArrowRight, Library, Route as RouteIcon, Map as MapIcon, Timer } from 'lucide-react';
 import { IconTile, PrereqNotice, Prerequisites } from '@/components/academy/ui/bits';
 import { CourseCard, LessonList, ModuleList, externalModulePrereqs, modulePrereqItems } from '@/components/academy/ui/cards';
 import {
