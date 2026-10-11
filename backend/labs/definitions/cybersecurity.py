@@ -60,11 +60,13 @@ NMAP_ENUMERATION_LAB = LabDefinition(
 PORTBLAST_COMPARISON_LAB = LabDefinition(
     id="cyber-portblast-001",
     slug="manual-vs-portblast",
-    title="Manual Reconnaissance vs PortBlast",
+    title="PortBlast: Full Assessment Workflow",
     description=(
-        "Enumerate an authorized target manually with standard tools and record your findings, "
-        "then run PortBlast against the same target and compare its structured results with yours. "
-        "PortBlast is an automation/orchestration tool, not a replacement for the native tools."
+        "PortBlast grew from a port scanner into a full assessment workflow. Enumerate an authorized "
+        "target manually, run PortBlast's orchestrated scan and compare, then walk the rest of the "
+        "workflow: vulnerability lookup, credential testing, hash cracking, and a single-module "
+        "exploit run. Every network-facing action is scope-gated to target.lab - try stepping outside "
+        "it and watch PortBlast refuse."
     ),
     category="portblast",
     shell="linux_recon",
@@ -85,8 +87,18 @@ PORTBLAST_COMPARISON_LAB = LabDefinition(
         LabObjective(id="manual-enumeration", label="Enumerate the target manually", validator="manual_enumeration_complete", args={"target": "target.lab"}),
         LabObjective(id="service-identification", label="Identify exposed services and versions", validator="services_identified", args={"target": "target.lab"}),
         LabObjective(id="vulnerability-research", label="Research discovered software", validator="research_complete", args={"target": "target.lab"}),
-        LabObjective(id="portblast-run", label="Run PortBlast against the training target", validator="portblast_result_exists", args={"target": "target.lab"}),
+        LabObjective(id="portblast-run", label="Run PortBlast scan against the training target", validator="portblast_result_exists", args={"target": "target.lab"}),
         LabObjective(id="compare-results", label="Compare manual findings with PortBlast", validator="comparison_complete", args={"target": "target.lab"}),
+        LabObjective(id="portblast-vuln", label="Look up vulnerabilities with PortBlast", validator="portblast_vulns_found", args={"target": "target.lab"},
+                     hints=["portblast vuln apache 2.4.52  (passive Exploit-DB lookup)"]),
+        LabObjective(id="portblast-scope", label="Confirm PortBlast enforces scope", validator="portblast_scope_understood", args={"target": "target.lab"},
+                     hints=["Try a network action against a host outside scope, e.g. portblast scan evil.example.com"]),
+        LabObjective(id="portblast-creds", label="Test credentials with PortBlast", validator="portblast_creds_found", args={"target": "target.lab"},
+                     hints=["portblast creds target.lab --service ssh"]),
+        LabObjective(id="portblast-crack", label="Crack a captured hash offline", validator="portblast_crack_done", args={"target": "target.lab"},
+                     hints=["portblast crack hashes.txt  (local only, no network)"]),
+        LabObjective(id="portblast-exploit", label="Run a single exploit module", validator="portblast_exploit_done", args={"target": "target.lab"},
+                     hints=["portblast exploit --module exploit/linux/samba/is_known_pipename --target target.lab"]),
     ],
 )
 

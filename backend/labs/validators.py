@@ -100,6 +100,48 @@ def comparison_complete(args, findings):
     return False, "Complete the manual-vs-PortBlast comparison.", None
 
 
+# ---- portblast: full assessment workflow ----
+
+@validator("portblast_vulns_found")
+def portblast_vulns_found(args, findings):
+    vulns = findings.get("portblast_vulns") or []
+    if vulns and any(v.get("records", 0) > 0 for v in vulns):
+        return True, f"PortBlast found exploit records for {vulns[0]['product']}.", {"product": vulns[0]["product"]}
+    return False, "Run `portblast vuln <product> [version]` to look up exploits.", None
+
+
+@validator("portblast_scope_understood")
+def portblast_scope_understood(args, findings):
+    refused = findings.get("portblast_scope_refused")
+    if refused:
+        return True, f"PortBlast refused out-of-scope target '{refused['host']}'. Scope gating works.", refused
+    return False, "Try a network action against a host outside scope and watch PortBlast refuse.", None
+
+
+@validator("portblast_creds_found")
+def portblast_creds_found(args, findings):
+    creds = findings.get("portblast_creds") or []
+    if creds:
+        return True, f"PortBlast found valid credentials: {creds[0]['login']}.", {"login": creds[0]["login"]}
+    return False, "Run `portblast creds target.lab --service ssh` to test credentials.", None
+
+
+@validator("portblast_crack_done")
+def portblast_crack_done(args, findings):
+    cracked = findings.get("portblast_cracked") or []
+    if cracked:
+        return True, f"Cracked {len(cracked)} hash(es) offline: {cracked[0]['plaintext']}.", None
+    return False, "Run `portblast crack <hashfile>` to crack a captured hash.", None
+
+
+@validator("portblast_exploit_done")
+def portblast_exploit_done(args, findings):
+    exploit = findings.get("portblast_exploit") or []
+    if exploit:
+        return True, f"PortBlast ran {exploit[0]['module']} (simulated session {exploit[0]['session']}).", None
+    return False, "Run `portblast exploit --module <module> --target target.lab`.", None
+
+
 # ---- networking: state checks against the recorded device config ----
 
 def _config_flag(findings: dict[str, Any], key: str) -> bool:

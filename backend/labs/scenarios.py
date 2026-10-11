@@ -253,11 +253,27 @@ def _cmd_searchsploit(target, args, lab, findings):
     return CommandResult(output=out, findings={"research": [{"note": f"searchsploit {term}", "term": term}]})
 
 
-def _cmd_portblast(target, args, lab, findings):
+def _portblast_scope_refused(host: str) -> CommandResult:
+    return CommandResult(
+        output=(
+            f"PortBlast: target '{host}' is NOT in scope.\n"
+            f"Authorized scope (see targets.txt): target.lab (10.10.10.5)\n"
+            f"Refusing to run against an out-of-scope target."
+        ),
+        exit_code=1,
+        findings={"portblast_scope_refused": {"host": host}},
+    )
+
+
+def _cmd_portblast_scan(target, args, lab, findings):
+    """Port discovery via RustScan/nmap orchestration (the original PortBlast behavior)."""
+    host, known = _resolve_target(target, args)
+    if host is not None and not known:
+        return _portblast_scope_refused(host)
     ports = _scan_ports(target, all_ports=True)
     recs = _port_findings(target, ports, versions=True)
     body = ",\n    ".join(
-        f'{{"port": {r["port"]}, "service": "{r["service"]}", "version": "{r["version"]}"}}' for r in recs
+        f'{{\"port\": {r["port"]}, \"service\": \"{r["service"]}\", \"version\": \"{r["version"]}\"}}' for r in recs
     )
     out = (
         "PortBlast v0.4 - orchestrated recon (simulated)\n"
@@ -275,6 +291,177 @@ def _cmd_portblast(target, args, lab, findings):
         "hosts": {target.hostname: {"up": True}},
         "portblast": {"simulated": True, "ports": recs},
     })
+
+
+# Simulated Exploit-DB records keyed by product keyword. Versions shown are the
+# target's real ones from the scenario so the lookup feels grounded.
+_PORTBLAST_VULN_DB: dict[str, list[dict[str, str]]] = {
+    "apache": [
+        {"title": "Apache HTTP Server 2.4.52 - Remote Code Execution", "path": "linux/remote/51257.py", "cve": "CVE-2021-41773"},
+        {"title": "Apache HTTP Server 2.4.52 - Path Traversal", "path": "multiple/webapps/50478.txt", "cve": "CVE-2021-42013"},
+    ],
+    "httpd": [
+        {"title": "Apache HTTP Server 2.4.52 - Remote Code Execution", "path": "linux/remote/51257.py", "cve": "CVE-2021-41773"},
+    ],
+    "openssh": [
+        {"title": "OpenSSH 8.9p1 - no public RCE; check for weak configs instead", "path": "-", "cve": "-"},
+    ],
+    "ssh": [
+        {"title": "OpenSSH 8.9p1 - no public RCE; check for weak configs instead", "path": "-", "cve": "-"},
+    ],
+    "samba": [
+        {"title": "Samba 4.6.2 - Remote Code Execution (SambaCry)", "path": "linux/remote/42060.py", "cve": "CVE-2017-7494"},
+        {"title": "Samba 4.6.2 - Symlink Directory Traversal", "path": "linux/remote/42045.txt", "cve": "CVE-2017-7494"},
+    ],
+    "smb": [
+        {"title": "Samba 4.6.2 - Remote Code Execution (SambaCry)", "path": "linux/remote/42060.py", "cve": "CVE-2017-7494"},
+    ],
+    "mysql": [
+        {"title": "MySQL 5.7.40 - Privilege Escalation via UDF", "path": "linux/local/47176.sh", "cve": "CVE-2019-2693"},
+    ],
+    "tomcat": [
+        {"title": "Apache Tomcat 9.0.65 - Request Smuggling", "path": "multiple/webapps/51478.txt", "cve": "CVE-2022-42252"},
+    ],
+}
+
+
+def _cmd_portblast_vuln(target, args, lab, findings):
+    """Exploit-DB lookup via SearchSploit (passive, read-only)."""
+    terms = [a for a in args if not a.startswith("-")]
+    if not terms:
+        return CommandResult(output="Usage: portblast vuln <product> [version]  e.g. portblast vuln apache 2.4.52", exit_code=2)
+    product = terms[0].lower()
+    version = terms[1] if len(terms) > 1 else ""
+    records = []
+    for key, recs in _PORTBLAST_VULN_DB.items():
+        if key in product or product in key:
+            records = recs
+            break
+    sep = "-" * 30
+    if not records:
+        out = (
+            f"PortBlast vuln lookup (simulated) - {terms[0]}\n"
+            f"{'Exploit Title':<50} | CVE\n"
+            f"{sep} | {sep}\n"
+            "No Results - try a broader product name"
+        )
+    else:
+        rows = "\n".join(f"{r['title']:<50} | {r['cve']}" for r in records)
+        out = (
+            f"PortBlast vuln lookup (simulated) - {terms[0]}{' ' + version if version else ''}\n"
+            f"{'Exploit Title':<50} | CVE\n"
+            f"{sep} | {sep}\n"
+            f"{rows}\n"
+            f"{len(records)} exploit record(s) found (Exploit-DB, offline mirror)"
+        )
+    return CommandResult(output=out, findings={
+        "portblast_vulns": [{"product": terms[0], "version": version, "records": len(records)}],
+    })
+
+
+def _cmd_portblast_creds(target, args, lab, findings):
+    """Hydra credential testing against a scope-authorized target (simulated)."""
+    host, known = _resolve_target(target, args)
+    if host is None:
+        return CommandResult(output="Usage: portblast creds <target> --service <ssh|ftp|samba>", exit_code=2)
+    if not known:
+        return _portblast_scope_refused(host)
+    service = "ssh"
+    for i, a in enumerate(args):
+        if a == "--service" and i + 1 < len(args):
+            service = args[i + 1].lower()
+    # The training target has one deliberate weak credential on SSH.
+    if service in ("ssh", "22"):
+        out = (
+            "PortBlast creds - hydra wrapper (simulated)\n"
+            f"[DATA] attacking {service}://{target.ip}:22/\n"
+            "[22][ssh] host: 10.10.10.5   login: admin   password: password123\n"
+            "1 of 1 target successfully completed, 1 valid password found"
+        )
+        creds = [{"service": "ssh", "login": "admin", "password": "password123", "host": target.ip}]
+    else:
+        out = (
+            "PortBlast creds - hydra wrapper (simulated)\n"
+            f"[DATA] attacking {service}://{target.ip}/\n"
+            "0 valid passwords found - service hardened or not listening"
+        )
+        creds = []
+    return CommandResult(output=out, findings={"portblast_creds": creds})
+
+
+def _cmd_portblast_crack(target, args, lab, findings):
+    """Local hash cracking (NOT scope-gated: no network I/O)."""
+    hashfile = next((a for a in args if not a.startswith("-")), None)
+    if not hashfile:
+        return CommandResult(output="Usage: portblast crack <hashfile>  e.g. portblast crack hashes.txt", exit_code=2)
+    out = (
+        "PortBlast crack - offline hash cracker (simulated)\n"
+        f"[+] Loaded 1 hash from {hashfile} (md5)\n"
+        "[+] Cracking with rockyou wordlist ......... done\n"
+        "5d41402abc4b2a76b9719d911017c592:password123\n"
+        "[+] 1/1 hashes cracked"
+    )
+    return CommandResult(output=out, findings={
+        "portblast_cracked": [{"hash": "5d41402abc4b2a76b9719d911017c592", "plaintext": "password123", "type": "md5"}],
+    })
+
+
+def _cmd_portblast_exploit(target, args, lab, findings):
+    """Build a Metasploit resource script and run it once (simulated)."""
+    module = None
+    host_tok = None
+    for i, a in enumerate(args):
+        if a == "--module" and i + 1 < len(args):
+            module = args[i + 1]
+        elif a == "--target" and i + 1 < len(args):
+            host_tok = args[i + 1]
+    if not module or not host_tok:
+        return CommandResult(
+            output="Usage: portblast exploit --module <module> --target <target>\n"
+                   "  e.g. portblast exploit --module exploit/linux/samba/is_known_pipename --target target.lab",
+            exit_code=2,
+        )
+    host, known = _resolve_target(target, [host_tok])
+    if not known:
+        return _portblast_scope_refused(host_tok)
+    out = (
+        "PortBlast exploit - metasploit resource runner (simulated)\n"
+        f"[+] Writing resource script: /tmp/pb_{module.split('/')[-1]}.rc\n"
+        f"[+] use {module}\n"
+        f"[+] set RHOSTS {target.ip}\n"
+        "[+] set PAYLOAD linux/x64/meterpreter/reverse_tcp\n"
+        "[+] run -j (single run)\n"
+        "[*] Started reverse TCP handler\n"
+        "[*] Meterpreter session 1 opened (simulated - no real shell)\n"
+        "[+] Session recorded. This was a SIMULATED run."
+    )
+    return CommandResult(output=out, findings={
+        "portblast_exploit": [{"module": module, "target": target.hostname, "session": 1}],
+    })
+
+
+def _cmd_portblast(target, args, lab, findings):
+    """Dispatch PortBlast subcommands. Bare `portblast <target>` keeps the legacy scan behavior."""
+    sub = (args[0].lower() if args else "")
+    rest = args[1:] if args else []
+    if sub in ("scan", ""):
+        # `portblast target.lab` -> legacy scan; `portblast scan target.lab` -> explicit scan
+        scan_args = rest if sub == "scan" else args
+        return _cmd_portblast_scan(target, scan_args, lab, findings)
+    if sub in ("vuln", "creds", "crack", "exploit"):
+        return {
+            "vuln": _cmd_portblast_vuln,
+            "creds": _cmd_portblast_creds,
+            "crack": _cmd_portblast_crack,
+            "exploit": _cmd_portblast_exploit,
+        }[sub](target, rest, lab, findings)
+    # Not a subcommand: if it looks like a target, treat as legacy `portblast <target>` scan.
+    if "." in sub:
+        return _cmd_portblast_scan(target, args, lab, findings)
+    return CommandResult(
+        output=f"PortBlast: unknown subcommand '{sub}'. Try: scan, vuln, creds, crack, exploit",
+        exit_code=2,
+    )
 
 
 def _cmd_compare(target, args, lab, findings):
@@ -325,7 +512,16 @@ def _help_text(lab: LabDefinition) -> str:
     if lab.category == "portblast":
         common += [
             "  searchsploit <term>       search Exploit-DB for a product",
-            f"  portblast {target.hostname}     run the orchestrated scanner",
+            f"  portblast scan {target.hostname}",
+            "                            orchestrated port/service scan",
+            "  portblast vuln <product> [version]",
+            "                            Exploit-DB lookup (passive, read-only)",
+            f"  portblast creds {target.hostname} --service ssh",
+            "                            Hydra credential testing (scope-gated)",
+            "  portblast crack <hashfile>",
+            "                            offline hash cracking (local only)",
+            "  portblast exploit --module <m> --target <t>",
+            "                            Metasploit single-module run (scope-gated)",
             "  compare                   diff your manual findings against PortBlast",
         ]
     common += [
