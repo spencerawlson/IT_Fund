@@ -21,14 +21,10 @@ PYTHON_BASICS_LAB = LabDefinition(
     estimated_minutes=20,
     shell="linux_python",
     environment=LabEnvironmentConfig(
-        # TEMPORARY (2026-10-07): back to the mock provider until the Docker daemon
-        # runs on FedSer (`docker info` fails there even after `systemctl start
-        # docker`, so the docker provider can't serve). Flip back to "docker" with
-        # image="road-to-cissp/python-basics:latest" once the daemon is healthy —
-        # the hardened provider, image Dockerfiles and runbook all stay in repo.
-        # `environment.live` derives from this flag, so the UI automatically drops
-        # the "live container" claim and attestation buttons while mocked.
-        provider="mock",
+        # Docker daemon healthy on FedSer as of 2026-10-12 (29.7.2, overlayfs,
+        # hello-world runs clean) — back on the hardened docker provider.
+        provider="docker",
+        image="road-to-cissp/python-basics:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,
         max_runtime_minutes=45,
