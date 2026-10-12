@@ -78,29 +78,97 @@ export default {
   'net-ports': {
     overview: [
       'A port number tells the receiving host which service a segment is for. Knowing the common ports lets you read firewall rules, spot suspicious traffic and answer a large share of Network+ and Security+ questions.',
-      'This lesson covers TCP versus UDP, the three-way handshake, and the well-known ports grouped by job, including which cleartext protocols to replace with secure ones.',
+      'This lesson covers TCP versus UDP, the three-way handshake, and the well-known ports grouped by job — each with its full name, so the acronyms stop being alphabet soup — including which cleartext protocols to replace with secure ones.',
     ],
     learn: [
       {
         heading: 'TCP and UDP',
         body: [
-          'TCP is connection-oriented. It opens a connection with a three-way handshake (SYN, SYN-ACK, ACK), numbers every byte, acknowledges receipt, retransmits losses and delivers data in order. It closes with FIN/ACK exchanges, or abruptly with RST.',
-          'UDP is connectionless and best-effort: no handshake, no acknowledgements, no ordering. That makes it lighter and faster, which suits DNS queries, VoIP, video, and protocols that handle reliability themselves, such as QUIC (HTTP/3 runs over UDP 443).',
+          'TCP (Transmission Control Protocol) is connection-oriented. It opens a connection with a three-way handshake (SYN, SYN-ACK, ACK), numbers every byte, acknowledges receipt, retransmits losses and delivers data in order. It closes with FIN/ACK exchanges, or abruptly with RST (reset).',
+          'UDP (User Datagram Protocol) is connectionless and best-effort: no handshake, no acknowledgements, no ordering. That makes it lighter and faster, which suits DNS queries, VoIP, video, and protocols that handle reliability themselves, such as QUIC (HTTP/3 runs over UDP 443).',
         ],
       },
       {
-        heading: 'Remote access and file transfer',
+        heading: 'Remote access',
         body: [
-          'SSH uses 22/TCP and also carries SFTP and SCP. Telnet (23/TCP) sends everything, passwords included, in cleartext; replace it with SSH. RDP uses 3389/TCP and should never be exposed directly to the internet.',
-          'FTP uses 21/TCP for control and 20/TCP for active-mode data, all in cleartext. SMB, Windows file sharing, uses 445/TCP; block it at the internet edge.',
+          'Remote administration is the highest-value target on the network, so its ports deserve the most scrutiny. Encrypted administration is non-negotiable; anything cleartext here is a finding.',
+          { stack: {
+            title: 'Remote access ports',
+            items: [
+              { badge: '22', name: 'SSH — Secure Shell', tag: 'TCP', tone: 4, does: 'Encrypted remote shell and the secure workhorse of administration. Also carries SFTP (SSH File Transfer Protocol) and SCP (Secure Copy Protocol), so one port covers shell and file transfer.', examples: 'Replaces Telnet and FTP' },
+              { badge: '23', name: 'Telnet — Teletype Network', tag: 'TCP', tone: 4, does: 'Unencrypted remote shell from another era. Usernames, passwords and every keystroke cross the wire in cleartext.', examples: 'Finding: replace with SSH' },
+              { badge: '3389', name: 'RDP — Remote Desktop Protocol', tag: 'TCP', tone: 4, does: 'Microsoft\'s graphical remote desktop. Powerful for administration, dangerous when exposed.', examples: 'Never expose to the internet; use a VPN' },
+            ],
+          } },
         ],
       },
       {
-        heading: 'Web, email and infrastructure services',
+        heading: 'File transfer',
         body: [
-          'HTTP uses 80/TCP and HTTPS 443/TCP. SMTP uses 25/TCP between mail servers; mail submission from clients uses 587, and SMTPS 465.',
-          'DNS uses 53: UDP for most queries, TCP for zone transfers and large responses. DHCP uses UDP 67 (server) and 68 (client). NTP uses 123/UDP, and accurate time is critical for Kerberos authentication and log correlation.',
-          'For management and directories: SNMP uses UDP 161 for polling and 162 for traps (use SNMPv3 for encryption), Syslog 514/UDP (6514/TCP when protected with TLS), LDAP 389 and LDAPS 636.',
+          'Moving files sounds mundane until you realize the oldest protocols do it in cleartext — credentials and data alike. Know which are safe and which are legacy.',
+          { stack: {
+            title: 'File transfer ports',
+            items: [
+              { badge: '20/21', name: 'FTP — File Transfer Protocol', tag: 'TCP', tone: 3, does: 'The classic file transfer protocol: port 21 carries the control channel, port 20 carries data in active mode. Everything — including the login — is cleartext.', examples: 'Replace with SFTP on 22' },
+              { badge: '445', name: 'SMB — Server Message Block', tag: 'TCP', tone: 3, does: 'Windows file sharing and printer sharing, the protocol behind mapped network drives. A favourite target of ransomware worms.', examples: 'Block at the internet edge' },
+              { badge: '69', name: 'TFTP — Trivial File Transfer Protocol', tag: 'UDP', tone: 3, does: 'A stripped-down, unauthenticated cousin of FTP used to push firmware and configs to network devices. Simple, fast, and trusting — by design, not by accident.', examples: 'UDP because it is lightweight' },
+            ],
+          } },
+        ],
+      },
+      {
+        heading: 'Web traffic',
+        body: [
+          'The web is two ports, and the difference between them is the difference between a private conversation and a postcard.',
+          { stack: {
+            title: 'Web ports',
+            items: [
+              { badge: '80', name: 'HTTP — Hypertext Transfer Protocol', tag: 'TCP', tone: 7, does: 'Unencrypted web traffic. Fine for public, non-sensitive content; unacceptable for logins or anything personal.', examples: 'Redirect to 443' },
+              { badge: '443', name: 'HTTPS — HTTP Secure', tag: 'TCP', tone: 7, does: 'HTTP wrapped in TLS (Transport Layer Security): encrypted, authenticated, and the default for the modern web. HTTP/3 (QUIC) also uses 443, but over UDP.', examples: 'TLS = encryption + identity' },
+            ],
+          } },
+        ],
+      },
+      {
+        heading: 'Email',
+        body: [
+          'Email is three jobs — sending between servers, submitting from clients, and retrieving to clients — and each job has its own port. Mixing them up is a classic exam trap.',
+          { stack: {
+            title: 'Email ports',
+            items: [
+              { badge: '25', name: 'SMTP — Simple Mail Transfer Protocol', tag: 'TCP', tone: 6, does: 'Server-to-server mail delivery across the internet. Clients submit new mail on 587 instead, and the legacy encrypted variant SMTPS uses 465.', examples: '25 relay, 587 submit, 465 SMTPS' },
+              { badge: '110', name: 'POP3 — Post Office Protocol v3', tag: 'TCP', tone: 6, does: 'Retrieves mail by downloading it, historically deleting the server copy. Simple, but one device ends up holding the mailbox. Encrypted variant POP3S uses 995.', examples: 'Download-and-delete model' },
+              { badge: '143', name: 'IMAP — Internet Message Access Protocol', tag: 'TCP', tone: 6, does: 'Retrieves mail while leaving it on the server, so phone, laptop and webmail stay in sync. The modern default for clients. Encrypted variant IMAPS uses 993.', examples: 'Sync model; 993 with TLS' },
+            ],
+          } },
+        ],
+      },
+      {
+        heading: 'Name, address and time services',
+        body: [
+          'These three are the invisible plumbing: without them, nothing resolves, nothing gets an address, and nothing agrees what time it is — and authentication quietly breaks.',
+          { stack: {
+            title: 'Infrastructure service ports',
+            items: [
+              { badge: '53', name: 'DNS — Domain Name System', tag: 'UDP/TCP', tone: 2, does: 'Translates names to IP addresses. Most queries ride UDP; TCP handles zone transfers between servers and responses too large for one datagram.', examples: 'UDP queries, TCP zone transfers' },
+              { badge: '67/68', name: 'DHCP — Dynamic Host Configuration Protocol', tag: 'UDP', tone: 2, does: 'Hands out IP addresses automatically. The server listens on 67, the client on 68 — the conversation is a four-step DORA exchange (Discover, Offer, Request, Acknowledge).', examples: 'Server 67, client 68' },
+              { badge: '123', name: 'NTP — Network Time Protocol', tag: 'UDP', tone: 2, does: 'Keeps clocks synchronized across the network. Accurate time is not cosmetic: Kerberos authentication fails when clocks drift, and forensic log correlation depends on it.', examples: 'Kerberos needs synced clocks' },
+            ],
+          } },
+        ],
+      },
+      {
+        heading: 'Management and directories',
+        body: [
+          'The protocols that watch the network and the directories that know who everyone is. Both carry sensitive data, so both have encrypted variants you are expected to name.',
+          { stack: {
+            title: 'Management and directory ports',
+            items: [
+              { badge: '161', name: 'SNMP — Simple Network Management Protocol', tag: 'UDP', tone: 1, does: 'Monitors and manages network devices. Managers poll agents on 161; agents send unsolicited alerts (traps) on 162. Versions 1 and 2c use cleartext community strings — use SNMPv3 for encryption and authentication.', examples: '161 poll, 162 traps, v3 encrypts' },
+              { badge: '514', name: 'Syslog — System Logging Protocol', tag: 'UDP', tone: 1, does: 'The standard way devices ship log messages to a central collector. Plain syslog is UDP and unencrypted; wrap it in TLS and it commonly moves to 6514/TCP.', examples: '6514/TCP with TLS' },
+              { badge: '389', name: 'LDAP — Lightweight Directory Access Protocol', tag: 'TCP', tone: 1, does: 'Queries directory services like Active Directory: who is this user, what groups are they in. The encrypted variant LDAPS wraps it in TLS on 636.', examples: '389 plain, 636 with TLS' },
+            ],
+          } },
         ],
       },
     ],
@@ -121,20 +189,24 @@ export default {
       },
     ],
     cheatSheet: [
-      ['20/21 TCP', 'FTP data / control (cleartext)'],
-      ['22 TCP', 'SSH, SFTP, SCP'],
-      ['23 TCP', 'Telnet (cleartext: replace with SSH)'],
-      ['25 / 587 / 465', 'SMTP / submission / SMTPS'],
-      ['53 UDP+TCP', 'DNS (TCP for zone transfers)'],
-      ['67/68 UDP', 'DHCP server / client'],
-      ['80 / 443', 'HTTP / HTTPS (HTTP/3 on UDP 443)'],
-      ['123 UDP', 'NTP'],
-      ['161/162 UDP', 'SNMP polling / traps'],
-      ['389 / 636', 'LDAP / LDAPS'],
-      ['445 TCP', 'SMB'],
+      ['22 TCP', 'SSH — Secure Shell (also SFTP, SCP)'],
+      ['23 TCP', 'Telnet — Teletype Network (cleartext: replace with SSH)'],
+      ['20/21 TCP', 'FTP — File Transfer Protocol, control / data (cleartext)'],
+      ['69 UDP', 'TFTP — Trivial File Transfer Protocol'],
+      ['445 TCP', 'SMB — Server Message Block (Windows sharing)'],
+      ['80 / 443', 'HTTP / HTTPS — Hypertext Transfer Protocol (Secure)'],
+      ['25 / 587 / 465', 'SMTP — Simple Mail Transfer Protocol / submission / SMTPS'],
+      ['110 / 995', 'POP3 — Post Office Protocol v3 (995 encrypted)'],
+      ['143 / 993', 'IMAP — Internet Message Access Protocol (993 encrypted)'],
+      ['53 UDP+TCP', 'DNS — Domain Name System (TCP for zone transfers)'],
+      ['67/68 UDP', 'DHCP — Dynamic Host Configuration Protocol, server / client'],
+      ['123 UDP', 'NTP — Network Time Protocol'],
+      ['161/162 UDP', 'SNMP — Simple Network Management Protocol, polling / traps'],
       ['514 UDP', 'Syslog (6514/TCP with TLS)'],
-      ['3389 TCP', 'RDP'],
+      ['389 / 636', 'LDAP — Lightweight Directory Access Protocol / LDAPS'],
+      ['3389 TCP', 'RDP — Remote Desktop Protocol'],
       ['SYN, SYN-ACK, ACK', 'TCP three-way handshake'],
+      ['DORA', 'DHCP: Discover, Offer, Request, Acknowledge'],
     ],
   },
 
