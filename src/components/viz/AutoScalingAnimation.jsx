@@ -40,7 +40,7 @@ export default function AutoScalingAnimation() {
         {/* Load meter */}
         <div>
           <div className="mb-1.5 flex items-center justify-between text-[11px]">
-            <span className="font-semibold text-slate-400">CPU LOAD</span>
+            <span className="font-semibold text-ink-3">CPU LOAD</span>
             <span className="font-bold text-white">{current.load}%</span>
           </div>
           <div className="relative h-3 overflow-hidden rounded-full bg-white/10">
@@ -53,7 +53,7 @@ export default function AutoScalingAnimation() {
             <div className="absolute top-0 h-full w-px bg-amber-400/60" style={{ left: '30%' }} />
             <div className="absolute top-0 h-full w-px bg-red-400/60" style={{ left: '70%' }} />
           </div>
-          <div className="mt-1 flex justify-between text-[9px] text-slate-400">
+          <div className="mt-1 flex justify-between text-[9px] text-ink-3">
             <span>scale-in 30%</span>
             <span>scale-out 70%</span>
           </div>
@@ -62,7 +62,7 @@ export default function AutoScalingAnimation() {
         {/* Instances */}
         <div className="mt-6">
           <div className="mb-2 flex items-center justify-between text-[11px]">
-            <span className="font-semibold text-slate-400">INSTANCES</span>
+            <span className="font-semibold text-ink-3">INSTANCES</span>
             <span className="font-bold text-white">{current.count} running</span>
           </div>
           <div className="flex items-end gap-3">
@@ -88,14 +88,14 @@ export default function AutoScalingAnimation() {
                 key={`empty-${i}`}
                 className="flex h-24 w-20 items-center justify-center rounded-xl border border-dashed border-white/10"
               >
-                <span className="text-[10px] text-slate-500">idle</span>
+                <span className="text-[10px] text-ink-3">idle</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Step indicator */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-slate-400">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-ink-3">
           Step {step + 1} / {STEPS.length}
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function AutoScalingAnimation() {
       {/* Note */}
       <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
-        <p className="text-slate-400">{current.note}</p>
+        <p className="text-ink-3">{current.note}</p>
       </div>
 
       {/* Controls */}
@@ -117,7 +117,7 @@ export default function AutoScalingAnimation() {
         </button>
         <button
           onClick={reset}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5"
+          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5"
         >
           <RotateCcw size={15} /> Restart
         </button>

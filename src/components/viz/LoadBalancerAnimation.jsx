@@ -47,7 +47,7 @@ export default function LoadBalancerAnimation() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(99,102,241,0.06)_1px,transparent_0)] bg-[length:22px_22px]" />
 
         {/* Availability zone labels */}
-        <div className="absolute inset-x-0 top-2 flex justify-between px-4 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+        <div className="absolute inset-x-0 top-2 flex justify-between px-4 text-[10px] font-medium uppercase tracking-wider text-ink-3">
           <span>AZ-1a</span>
           <span>AZ-1b</span>
         </div>
@@ -55,7 +55,7 @@ export default function LoadBalancerAnimation() {
         {/* Client */}
         <div className="absolute left-[3%] top-1/2 -translate-y-1/2 rounded-xl border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-center backdrop-blur">
           <p className="text-xs font-bold text-sky-300">CLIENT</p>
-          <p className="mt-0.5 text-[10px] text-slate-400">internet / app</p>
+          <p className="mt-0.5 text-[10px] text-ink-3">internet / app</p>
         </div>
 
         {/* Load Balancer */}
@@ -82,9 +82,9 @@ export default function LoadBalancerAnimation() {
             >
               <div className="flex items-center justify-center gap-2">
                 <div className={`h-2 w-2 rounded-full ${isFailed ? 'bg-red-500 animate-pulse' : isTarget ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-white/30'}`} />
-                <p className={`text-[11px] font-bold ${isFailed ? 'text-red-300' : 'text-slate-200'}`}>{SERVER_NAMES[i]}</p>
+                <p className={`text-[11px] font-bold ${isFailed ? 'text-red-300' : 'text-ink-1'}`}>{SERVER_NAMES[i]}</p>
               </div>
-              <p className={`mt-0.5 text-[10px] ${isFailed ? 'text-red-400/80' : 'text-slate-400'}`}>
+              <p className={`mt-0.5 text-[10px] ${isFailed ? 'text-red-400/80' : 'text-ink-3'}`}>
                 {isFailed ? 'unhealthy' : isTarget ? 'handling' : 'idle'}
               </p>
             </div>
@@ -118,15 +118,15 @@ export default function LoadBalancerAnimation() {
         </motion.div>
 
         {/* Step indicator */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-slate-400">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-ink-3">
           Step {step + 1} / {STEPS.length}
         </div>
       </div>
 
       <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.06] p-4">
         <p className="font-semibold text-white">{current.label}</p>
-        <p className="mt-1 text-sm text-slate-400">{current.note}</p>
-        <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
+        <p className="mt-1 text-sm text-ink-3">{current.note}</p>
+        <div className="mt-3 flex items-center gap-4 text-xs text-ink-3">
           <span>Servers: {SERVER_NAMES.filter((_, i) => failed !== i).length}/{SERVER_NAMES.length} healthy</span>
           <span>Strategy: Round Robin</span>
           <span>Health interval: 10s</span>
@@ -143,7 +143,7 @@ export default function LoadBalancerAnimation() {
         </button>
         <button
           onClick={reset}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5"
+          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5"
         >
           <RotateCcw size={15} /> Restart
         </button>

@@ -283,13 +283,13 @@ export default function TerminalSimulator() {
       <div className="mb-4 inline-flex rounded-lg border border-white/10 bg-white/[0.06] p-1">
         <button
           onClick={() => switchMode('bash')}
-          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'bash' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
+          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'bash' ? 'bg-white/10 text-white' : 'text-ink-3 hover:text-white'}`}
         >
           <TerminalSquare size={14} /> Bash
         </button>
         <button
           onClick={() => switchMode('ps')}
-          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'ps' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
+          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'ps' ? 'bg-white/10 text-white' : 'text-ink-3 hover:text-white'}`}
         >
           <Command size={14} /> PowerShell
         </button>
@@ -299,7 +299,7 @@ export default function TerminalSimulator() {
         className="h-[420px] overflow-y-auto rounded-xl border border-white/10 bg-black/55 backdrop-blur-xl p-4 font-mono text-[13px] leading-relaxed"
         onClick={() => inputRef.current?.focus()}
       >
-        <p className="mb-2 text-slate-400">
+        <p className="mb-2 text-ink-3">
           {mode === 'bash' ? 'Ubuntu 22.04 LTS — type `help` to see commands.' : 'Windows PowerShell — type `help` to see commands.'}
         </p>
         {blocks.map((b, i) => {
@@ -312,7 +312,7 @@ export default function TerminalSimulator() {
             );
           }
           if (b.type === 'out') {
-            return <div key={i} className="whitespace-pre-wrap break-words text-slate-300">{b.text}</div>;
+            return <div key={i} className="whitespace-pre-wrap break-words text-ink-1">{b.text}</div>;
           }
           return null;
         })}
@@ -331,8 +331,8 @@ export default function TerminalSimulator() {
         </form>
         <div ref={endRef} />
       </div>
-      <p className="mt-3 text-[11px] text-slate-400">
-        Try: <span className="font-mono text-slate-400">ls</span>, <span className="font-mono text-slate-400">cd projects</span>, <span className="font-mono text-slate-400">cat notes.txt</span>, <span className="font-mono text-slate-400">ping 192.168.1.1</span> — use ↑ to recall history.
+      <p className="mt-3 text-[11px] text-ink-3">
+        Try: <span className="font-mono text-ink-3">ls</span>, <span className="font-mono text-ink-3">cd projects</span>, <span className="font-mono text-ink-3">cat notes.txt</span>, <span className="font-mono text-ink-3">ping 192.168.1.1</span> — use ↑ to recall history.
       </p>
     </div>
   );

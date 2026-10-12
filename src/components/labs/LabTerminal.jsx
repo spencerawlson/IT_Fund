@@ -145,7 +145,7 @@ const LabTerminal = forwardRef(function LabTerminal(
           />
         </form>
       ) : (
-        <div className="text-slate-500">— session ended —</div>
+        <div className="text-ink-3">— session ended —</div>
       )}
       <div ref={endRef} />
     </div>

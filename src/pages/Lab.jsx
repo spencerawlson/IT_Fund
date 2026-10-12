@@ -172,13 +172,13 @@ function Stage({ id, onBack }) {
       {/* The visualization renders on a dark "screen": the 3D models, animations and terminals are
           dark by design, and the hands-on tools were authored for a dark surface. The page around it
           stays light. */}
-      <div className="rounded-2xl border border-black/10 bg-[#0b1020] p-4 text-slate-200 shadow-[0_18px_50px_-18px_rgba(76,29,149,0.35)] sm:p-6">
+      <div className="rounded-2xl border border-black/10 bg-[#0b1020] p-4 text-ink-1 shadow-[0_18px_50px_-18px_rgba(76,29,149,0.35)] sm:p-6">
         <ErrorBoundary key={id} label="This visualization">
           {is3D(id) ? (
             <div className="h-[440px] w-full sm:h-[560px]">
               <React.Suspense fallback={(
-                <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400" role="status" aria-label="Loading 3D scene">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-slate-200" />
+                <div className="flex h-full flex-col items-center justify-center gap-3 text-ink-3" role="status" aria-label="Loading 3D scene">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink-3 border-t-ink-1" />
                   <p className="text-sm">Loading 3D scene…</p>
                 </div>
               )}>

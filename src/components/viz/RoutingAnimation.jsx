@@ -81,14 +81,14 @@ export default function RoutingAnimation() {
                 }`}
                 style={{ left: `${node.x}%`, top: `${node.y}%` }}
               >
-                <p className={`text-[11px] font-bold ${isDown ? 'text-red-300' : isRouter ? 'text-teal-200' : 'text-slate-200'}`}>{node.label}</p>
+                <p className={`text-[11px] font-bold ${isDown ? 'text-red-300' : isRouter ? 'text-teal-200' : 'text-ink-1'}`}>{node.label}</p>
                 {isRouter && <p className="text-[10px] text-teal-300/80">{isDown ? 'OFFLINE' : saturate ? 'PAT FULL' : tunnelDown ? 'VPN DOWN' : 'NAT + route'}</p>}
               </div>
             );
           })}
         </div>
 
-        <div className="absolute left-1/2 top-[14px] -translate-x-1/2 text-[11px] text-slate-400">
+        <div className="absolute left-1/2 top-[14px] -translate-x-1/2 text-[11px] text-ink-3">
           Step {step + 1} / {STEPS.length}
         </div>
       </div>
@@ -96,13 +96,13 @@ export default function RoutingAnimation() {
       {note && (
         <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-200">
           <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><AlertTriangle size={10} /> Failure mode</span>
-          <span className="text-slate-300">{note}</span>
+          <span className="text-ink-2">{note}</span>
         </div>
       )}
 
       <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
-        <p className="text-slate-400">{current.note}</p>
+        <p className="text-ink-3">{current.note}</p>
       </div>
 
       <BreakItControls scenarios={BREAK_SCENARIOS} scenario={scenario} onScenarioChange={(id) => { setScenario(id); setStep(0); setPlaying(true); }} />
@@ -112,7 +112,7 @@ export default function RoutingAnimation() {
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
@@ -122,7 +122,7 @@ export default function RoutingAnimation() {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-ink-3">
         <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Routing table lookup</span>
         <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">NAT + VPN protections</span>
       </div>

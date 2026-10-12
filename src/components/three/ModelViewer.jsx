@@ -212,7 +212,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
       <div ref={mountRef} className="h-full w-full" />
       {rendererFailed && (
         <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] p-6">
-          <div className="text-center text-sm text-slate-400">
+          <div className="text-center text-sm text-ink-3">
             <p className="font-semibold text-white">Visual preview unavailable</p>
             <p className="mt-2">This lab requires hardware acceleration or WebGL support.</p>
           </div>
@@ -227,10 +227,10 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
           }}
         >
           <p className="font-bold text-blue-300">{info.label}</p>
-          <p className="mt-0.5 leading-relaxed text-slate-300">{info.desc}</p>
+          <p className="mt-0.5 leading-relaxed text-ink-2">{info.desc}</p>
         </div>
       )}
-      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-black/40 px-2 py-1 text-[10px] text-slate-400">
+      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-black/40 px-2 py-1 text-[10px] text-ink-3">
         Drag to rotate · Scroll to zoom · Click parts for info
       </div>
     </div>

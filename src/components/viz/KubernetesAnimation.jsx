@@ -100,13 +100,13 @@ export default function KubernetesAnimation() {
         <div className="absolute inset-y-0 left-0 right-0">
           {LANES.map((lane, idx) => (
             <div key={lane.label} className="relative h-full border-r border-white/5 last:border-none" style={{ width: `${100/LANES.length}%` }}>
-              <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-400">{lane.label}</div>
+              <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-ink-3">{lane.label}</div>
               {idx < visibleCount && <div className="absolute right-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]" />}
             </div>
           ))}
         </div>
 
-        <div className="absolute inset-x-0 bottom-2 flex items-center justify-between px-3 text-[10px] text-slate-400">
+        <div className="absolute inset-x-0 bottom-2 flex items-center justify-between px-3 text-[10px] text-ink-3">
           <span className={`inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.06] px-1.5 py-0.5 ${current.statusColor}`}>
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
             {current.statusLabel}
@@ -118,13 +118,13 @@ export default function KubernetesAnimation() {
       {note && (
         <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-200">
           <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><span className="text-rose-400">⚠</span> Failure mode</span>
-          <span className="text-slate-300">{note}</span>
+          <span className="text-ink-2">{note}</span>
         </div>
       )}
 
       <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
-        <p className="text-slate-400">{current.note}</p>
+        <p className="text-ink-3">{current.note}</p>
       </div>
 
       <BreakItControls scenarios={SCENARIOS} scenario={scenario} onScenarioChange={(id) => { setScenario(id); setStep(0); setPlaying(true); }} />
@@ -134,7 +134,7 @@ export default function KubernetesAnimation() {
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
@@ -144,24 +144,24 @@ export default function KubernetesAnimation() {
         </div>
       </div>
 
-      <div className="mt-3 rounded-lg border border-white/10 bg-black/55 backdrop-blur-xl px-3 py-2.5 text-[11px] leading-5 text-slate-300">
-        <div className="flex items-center gap-2 text-slate-400">
+      <div className="mt-3 rounded-lg border border-white/10 bg-black/55 backdrop-blur-xl px-3 py-2.5 text-[11px] leading-5 text-ink-2">
+        <div className="flex items-center gap-2 text-ink-3">
           <Terminal size={12} />
           <span className="text-[10px] uppercase tracking-wider">terminal</span>
         </div>
         <div className="mt-2 space-y-0.5">
           {current.log.map((line, i) => (
-            <div key={i} className={i === 0 ? 'text-emerald-400/90' : 'text-slate-400'}>{line}</div>
+            <div key={i} className={i === 0 ? 'text-emerald-400/90' : 'text-ink-3'}>{line}</div>
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
-          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-slate-400"><Cpu size={10} /> cpu: {current.metric.cpu}</span>
-          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-slate-400"><MemoryStick size={10} /> mem: {current.metric.mem}</span>
-          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-slate-400"><Activity size={10} /> restarts: {current.metric.restarts}</span>
+          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-ink-3"><Cpu size={10} /> cpu: {current.metric.cpu}</span>
+          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-ink-3"><MemoryStick size={10} /> mem: {current.metric.mem}</span>
+          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-ink-3"><Activity size={10} /> restarts: {current.metric.restarts}</span>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-ink-3">
         <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Deploy ↔ Service ↔ Probe</span>
         <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><AlertTriangle size={10}/> CrashLoopBackOff + HPA</span>
         <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">kubectl rollout undo</span>

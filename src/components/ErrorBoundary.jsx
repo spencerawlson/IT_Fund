@@ -38,7 +38,7 @@ export default class ErrorBoundary extends React.Component {
           {this.props.label ? `${this.props.label} failed to load` : 'Something went wrong'}
         </div>
 
-        <p className="mt-2 text-slate-400">
+        <p className="mt-2 text-ink-2">
           The rest of the page still works. This panel hit an error while rendering.
         </p>
 
@@ -48,7 +48,7 @@ export default class ErrorBoundary extends React.Component {
 
         <button
           onClick={this.handleRetry}
-          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/5"
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-ink-1 transition hover:bg-white/5"
         >
           <RotateCcw size={13} /> Try again
         </button>

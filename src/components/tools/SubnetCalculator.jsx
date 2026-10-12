@@ -38,7 +38,7 @@ export default function SubnetCalculator() {
 
   const Row = ({ label, value, accent }) => (
     <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</span>
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">{label}</span>
       <span className={`font-mono text-sm font-semibold ${accent || 'text-white'}`}>{value}</span>
     </div>
   );
@@ -48,7 +48,7 @@ export default function SubnetCalculator() {
       {/* Inputs */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">IP Address</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">IP Address</label>
           <input
             type="text"
             value={ip}
@@ -58,7 +58,7 @@ export default function SubnetCalculator() {
           />
         </div>
         <div>
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">CIDR Prefix — /{prefix}</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">CIDR Prefix — /{prefix}</label>
           <input
             type="range"
             min={0}
@@ -72,7 +72,7 @@ export default function SubnetCalculator() {
               <button
                 key={p}
                 onClick={() => setPrefix(p)}
-                className={`rounded px-2 py-0.5 font-mono text-xs transition ${prefix === p ? 'bg-blue-500/20 text-blue-300' : 'bg-white/5 text-slate-400 hover:text-white'}`}
+                className={`rounded px-2 py-0.5 font-mono text-xs transition ${prefix === p ? 'bg-blue-500/20 text-blue-300' : 'bg-white/5 text-ink-3 hover:text-white'}`}
               >
                 /{p}
               </button>
@@ -99,14 +99,14 @@ export default function SubnetCalculator() {
           </div>
 
           <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.06] p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Binary Breakdown</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">Binary Breakdown</p>
             <div className="mt-3 space-y-1.5 font-mono text-[11px] leading-relaxed">
-              <p><span className="text-slate-400">IP        </span><span className="text-white">{toBinary(result.ipInt)}</span></p>
-              <p><span className="text-slate-400">Mask      </span><span className="text-blue-300">{toBinary(result.mask)}</span></p>
-              <p><span className="text-slate-400">Network   </span><span className="text-teal-300">{toBinary(result.network)}</span></p>
-              <p><span className="text-slate-400">Broadcast </span><span className="text-rose-300">{toBinary(result.broadcast)}</span></p>
+              <p><span className="text-ink-3">IP        </span><span className="text-white">{toBinary(result.ipInt)}</span></p>
+              <p><span className="text-ink-3">Mask      </span><span className="text-blue-300">{toBinary(result.mask)}</span></p>
+              <p><span className="text-ink-3">Network   </span><span className="text-teal-300">{toBinary(result.network)}</span></p>
+              <p><span className="text-ink-3">Broadcast </span><span className="text-rose-300">{toBinary(result.broadcast)}</span></p>
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+            <p className="mt-3 text-[11px] leading-relaxed text-ink-3">
               The first <span className="text-blue-300">{prefix}</span> bits define the network portion; the remaining <span className="text-amber-300">{32 - prefix}</span> bits identify individual hosts within it.
             </p>
           </div>

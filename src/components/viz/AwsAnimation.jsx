@@ -34,25 +34,25 @@ export default function AwsAnimation() {
         <div className="absolute inset-y-0 left-0 right-0 flex items-center">
           {LANES.map((lane, idx) => (
             <div key={lane.label} className="relative h-full w-1/5 border-r border-white/5 last:border-none">
-              <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-400">{lane.label}</div>
+              <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-ink-3">{lane.label}</div>
               {idx < visibleCount && (
                 <div className="absolute bottom-3 inset-x-2 rounded-lg border border-white/15 bg-white/[0.06] px-2 py-2">
                   <p className="text-[10px] font-bold text-white">{current.badge}</p>
-                  <p className="text-[9px] text-slate-400">{current.label}</p>
+                  <p className="text-[9px] text-ink-3">{current.label}</p>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        <div className="absolute left-1/2 top-[14px] -translate-x-1/2 text-[11px] text-slate-400">
+        <div className="absolute left-1/2 top-[14px] -translate-x-1/2 text-[11px] text-ink-3">
           Step {step + 1} / {STEPS.length}
         </div>
       </div>
 
       <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
-        <p className="text-slate-400">{current.note}</p>
+        <p className="text-ink-3">{current.note}</p>
       </div>
 
       <div className="mt-4 flex items-center gap-3">
@@ -60,7 +60,7 @@ export default function AwsAnimation() {
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
@@ -70,7 +70,7 @@ export default function AwsAnimation() {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-ink-3">
         <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Edge → ALB → compute</span>
         <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">IAM + WAF + GuardDuty</span>
       </div>

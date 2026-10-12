@@ -42,11 +42,11 @@ export default function LinuxTerminalLab() {
           <span className="h-2 w-2 rounded-full bg-red-500/80" />
           <span className="h-2 w-2 rounded-full bg-amber-500/80" />
           <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
-          <span className="ml-2 text-[11px] text-slate-400">bash — Linux terminal</span>
+          <span className="ml-2 text-[11px] text-ink-3">bash — Linux terminal</span>
         </div>
         <div className="h-72 space-y-2 overflow-y-auto pr-2">
           {history.map((row, i) => (
-            <div key={i} className={row.type === 'cmd' ? 'text-emerald-300' : row.type === 'out' ? 'whitespace-pre text-slate-300' : 'text-slate-400'}>
+            <div key={i} className={row.type === 'cmd' ? 'text-emerald-300' : row.type === 'out' ? 'whitespace-pre text-ink-1' : 'text-ink-3'}>
               {row.type === 'cmd' && <span>{'user@linux:~$ ' + row.text}</span>}
               {row.type === 'out' && <span>{row.text}</span>}
               {row.type === 'info' && <span>{row.text}</span>}
@@ -59,7 +59,7 @@ export default function LinuxTerminalLab() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent text-slate-100 outline-none"
+            className="flex-1 bg-transparent text-ink-1 outline-none"
             placeholder="Type a command…"
             autoFocus
           />
@@ -68,7 +68,7 @@ export default function LinuxTerminalLab() {
 
       <div className="mt-3 flex flex-wrap gap-2">
         {COMMANDS.map((c) => (
-          <button key={c.cmd} onClick={() => run(c.cmd)} className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-slate-300 transition hover:border-white/25 hover:bg-white/[0.12]">
+          <button key={c.cmd} onClick={() => run(c.cmd)} className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-ink-2 transition hover:border-white/25 hover:bg-white/[0.12]">
             {c.cmd}
           </button>
         ))}

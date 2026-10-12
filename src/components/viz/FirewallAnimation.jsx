@@ -109,7 +109,7 @@ export default function FirewallAnimation() {
           </span>
         </motion.div>
 
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-slate-400">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-ink-3">
           Packet {step + 1} / {PACKETS.length}
         </div>
       </div>
@@ -117,19 +117,19 @@ export default function FirewallAnimation() {
       {note && (
         <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-200">
           <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><span className="text-rose-400">⚠</span> Failure mode</span>
-          <span className="text-slate-300">{note}</span>
+          <span className="text-ink-2">{note}</span>
         </div>
       )}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
         <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rules (top-down)</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">Rules (top-down)</p>
           <div className="mt-2 space-y-1 font-mono text-xs">
             {RULES.map((r, i) => (
               <div key={i} className="flex items-center gap-2">
                 <span className={`w-14 text-[11px] font-bold ${r.action === 'ALLOW' ? 'text-emerald-400' : 'text-rose-400'}`}>{r.action}</span>
-                <span className="text-slate-300">tcp/{r.port}</span>
-                <span className="text-slate-400">— {r.desc}</span>
+                <span className="text-ink-2">tcp/{r.port}</span>
+                <span className="text-ink-3">— {r.desc}</span>
               </div>
             ))}
           </div>
@@ -139,7 +139,7 @@ export default function FirewallAnimation() {
           <p className="font-semibold text-white">
             {current.proto}/{current.port} → {current.verdict === 'allow' ? 'ALLOWED' : 'DROPPED'}
           </p>
-          <p className="text-slate-400">{current.note}</p>
+          <p className="text-ink-3">{current.note}</p>
         </div>
       </div>
 
@@ -150,12 +150,12 @@ export default function FirewallAnimation() {
           {playing && step < PACKETS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < PACKETS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto hidden items-center gap-2 sm:flex">
-          <span className="text-[11px] text-slate-400">Mode: stateful</span>
-          <span className="text-[11px] text-slate-400">Policy: default-deny</span>
+          <span className="text-[11px] text-ink-3">Mode: stateful</span>
+          <span className="text-[11px] text-ink-3">Policy: default-deny</span>
         </div>
       </div>
     </div>

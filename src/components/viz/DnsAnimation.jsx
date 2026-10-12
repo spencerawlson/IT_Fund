@@ -46,8 +46,8 @@ export default function DnsAnimation() {
         }`}
         style={{ left: `${NODES[id].x}%`, top: `${NODES[id].y}%` }}
       >
-        <p className={`text-[11px] font-bold ${active ? 'text-blue-300' : 'text-slate-300'}`}>{label}</p>
-        <p className="text-[9px] text-slate-400">{sub}</p>
+        <p className={`text-[11px] font-bold ${active ? 'text-blue-300' : 'text-ink-2'}`}>{label}</p>
+        <p className="text-[9px] text-ink-3">{sub}</p>
       </div>
     );
   };
@@ -80,14 +80,14 @@ export default function DnsAnimation() {
           </div>
         </motion.div>
 
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-slate-400">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-ink-3">
           Step {step + 1} / {STEPS.length}
         </div>
       </div>
 
       <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}</p>
-        <p className="text-slate-400">{current.note}</p>
+        <p className="text-ink-3">{current.note}</p>
       </div>
 
       <div className="mt-4 flex items-center gap-3">
@@ -95,7 +95,7 @@ export default function DnsAnimation() {
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">

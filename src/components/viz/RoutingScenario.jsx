@@ -98,21 +98,21 @@ export default function RoutingScenario({ scenario }) {
           className="rounded-lg border border-violet-400/30 bg-violet-400/10 px-4 py-3">
           <div className="flex items-center gap-2">
             <p className="text-sm font-bold text-violet-200">{cur.title}</p>
-            <span className="ml-auto text-[11px] text-slate-400">Step {step + 1} / {steps.length}</span>
+            <span className="ml-auto text-[11px] text-ink-3">Step {step + 1} / {steps.length}</span>
           </div>
-          <p className="mt-1.5 text-sm leading-relaxed text-slate-200">{cur.text}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink-1">{cur.text}</p>
         </motion.div>
         <div className="flex items-center gap-2 sm:flex-col">
           <div className="flex gap-2">
             <button onClick={() => { setPlaying(false); setStep((s) => Math.max(0, s - 1)); }} aria-label="Previous step"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300 hover:bg-white/10"><ChevronLeft size={16} /></button>
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-ink-2 hover:bg-white/10"><ChevronLeft size={16} /></button>
             <button onClick={toggle} className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/15" aria-label={playing ? 'Pause' : 'Play'}>
               {step >= last ? <RotateCcw size={15} /> : playing ? <Pause size={15} /> : <Play size={15} />}
             </button>
             <button onClick={() => { setPlaying(false); setStep((s) => Math.min(last, s + 1)); }} aria-label="Next step"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300 hover:bg-white/10"><ChevronRight size={16} /></button>
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-ink-2 hover:bg-white/10"><ChevronRight size={16} /></button>
           </div>
-          <button onClick={() => { setStep(0); setPlaying(true); }} className="flex items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/5">
+          <button onClick={() => { setStep(0); setPlaying(true); }} className="flex items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-ink-2 hover:bg-white/5">
             <RotateCcw size={13} /> Restart
           </button>
         </div>

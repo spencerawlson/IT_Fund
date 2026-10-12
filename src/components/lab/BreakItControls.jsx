@@ -36,7 +36,7 @@ export default function BreakItControls({ scenarios = BREAK_SCENARIOS, scenario,
               type="button"
               onClick={() => onScenarioChange(s.id)}
               className={`flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition ${
-                active ? 'border-white/20 bg-white/10 text-white' : 'border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/5'
+                active ? 'border-white/20 bg-white/10 text-white' : 'border-white/10 bg-white/[0.06] text-ink-2 hover:bg-white/5'
               }`}
               title={s.description}
             >

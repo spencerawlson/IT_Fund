@@ -42,6 +42,42 @@ export const TINTS = [
   { color: '#64748B', opacity: 0.075 },
 ];
 
+// ---- Apple-standard dark theme (mirrors html[data-theme="dark"] in src/index.css) ----
+
+/**
+ * Dark text colours, brightest first. ink3 is the dimmest text allowed, and only on
+ * glass-2/glass-3 — same rule as the light theme. All pass WCAG AA on the dark glass.
+ */
+export const INK_DARK = {
+  ink1: '#FFFFFF',
+  ink2: '#AEAEB3',
+  ink3: '#8E8E93',
+};
+
+/** Dark accent: violet brightened for black backgrounds; white button text still passes AA. */
+export const ACTION_DARK = {
+  action: '#7F55F2',
+  actionHover: '#7C3AED',
+  actionInk: '#FFFFFF',
+  focus: '#7F55F2',
+};
+
+/** Dark status colours (Apple system dark palette). Used for meaning, never decoration. */
+export const SEMANTIC_DARK = {
+  success: '#30D158',
+  warning: '#FF9F0A',
+  danger: '#FF453A',
+  info: '#0A84FF',
+};
+
+/** Dark page base and the three glass fills ([r, g, b, alpha]): #1C1C1E frosted over pure black. */
+export const BASE_DARK = '#000000';
+export const SURFACES_DARK = {
+  'glass-1': [28, 28, 30, 0.55],
+  'glass-2': [28, 28, 30, 0.65],
+  'glass-3': [28, 28, 30, 0.7],
+};
+
 // ---- contrast maths (WCAG 2.x) ----
 
 export function hexToRgb(hex) {
@@ -83,4 +119,22 @@ export function backgroundSamples() {
 export function worstContrast(textHex, surface) {
   const text = hexToRgb(textHex);
   return Math.min(...backgroundSamples().map((bg) => contrast(text, over(SURFACES[surface], bg))));
+}
+
+/** Dark backgrounds a glass panel can sit on: pure black, each tint at peak strength,
+ *  and every pair of overlapping tints. */
+export function backgroundSamplesDark() {
+  const base = hexToRgb(BASE_DARK);
+  const paint = (tint, under) => over([...hexToRgb(tint.color), tint.opacity], under);
+  const singles = TINTS.map((t) => paint(t, base));
+  const pairs = TINTS.flatMap((a, i) => TINTS.slice(i + 1).map((b) => paint(b, paint(a, base))));
+  return [base, ...singles, ...pairs];
+}
+
+/** Lowest contrast of a text colour on a dark glass level, across every dark background sample. */
+export function worstContrastDark(textHex, surface) {
+  const text = hexToRgb(textHex);
+  return Math.min(
+    ...backgroundSamplesDark().map((bg) => contrast(text, over(SURFACES_DARK[surface], bg))),
+  );
 }

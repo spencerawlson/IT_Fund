@@ -47,8 +47,8 @@ export default function CICDAnimation() {
               }`}
               style={{ left: `${s.left}%` }}
             >
-              <p className={`text-[11px] font-bold ${isActive ? 'text-green-300' : isDone ? 'text-blue-300' : 'text-slate-400'}`}>{s.label}</p>
-              <p className="text-[9px] text-slate-400">{s.sub}</p>
+              <p className={`text-[11px] font-bold ${isActive ? 'text-green-300' : isDone ? 'text-blue-300' : 'text-ink-3'}`}>{s.label}</p>
+              <p className="text-[9px] text-ink-3">{s.sub}</p>
             </div>
           );
         })}
@@ -65,7 +65,7 @@ export default function CICDAnimation() {
         </motion.div>
 
         {/* Step indicator */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-slate-400">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-ink-3">
           Stage {step + 1} / {STAGES.length}
         </div>
       </div>
@@ -73,7 +73,7 @@ export default function CICDAnimation() {
       {/* Note */}
       <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
         <p className="font-semibold text-white">{current.label}: {current.sub}</p>
-        <p className="text-slate-400">{current.note}</p>
+        <p className="text-ink-3">{current.note}</p>
       </div>
 
       {/* Controls */}
@@ -87,7 +87,7 @@ export default function CICDAnimation() {
         </button>
         <button
           onClick={reset}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/5"
+          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5"
         >
           <RotateCcw size={15} /> Restart
         </button>
