@@ -32,7 +32,7 @@ export const PATHS = [
     color: '#22C55E',
     difficulty: 'Beginner',
     summary: 'Users, services, logs, storage and hardening on Linux and Windows servers.',
-    courses: [],
+    courses: ['linux-administration'],
     prerequisites: { recommended: ['it-foundations'] },
   },
   {
@@ -52,7 +52,7 @@ export const PATHS = [
     color: '#6366F1',
     difficulty: 'Intermediate',
     summary: 'Service models, core services and well-architected design on AWS, Azure and GCP.',
-    courses: ['cloud-computing'],
+    courses: ['cloud-computing', 'aws-solutions-architect'],
     prerequisites: { required: ['networking'], recommended: ['linux-sysadmin', 'python-automation'] },
   },
   {
@@ -62,7 +62,7 @@ export const PATHS = [
     color: '#F43F5E',
     difficulty: 'Intermediate',
     summary: 'Security fundamentals, then hands-on SOC, attack, detection and response skills.',
-    courses: ['security-fundamentals', 'cybersecurity-operations'],
+    courses: ['security-fundamentals', 'cybersecurity-operations', 'cysa-plus'],
     prerequisites: { required: ['networking'], recommended: ['linux-sysadmin', 'python-automation'] },
   },
   {
@@ -72,7 +72,7 @@ export const PATHS = [
     color: '#0EA5E9',
     difficulty: 'Advanced',
     summary: 'Identity, network controls, posture and governance for cloud workloads.',
-    courses: ['cloud-computing'],
+    courses: ['cloud-computing', 'aws-security-specialty'],
     prerequisites: { required: ['cloud-computing', 'cybersecurity'] },
   },
   {

@@ -133,6 +133,69 @@ export const COURSE_META = [
     },
   },
   {
+    slug: 'aws-solutions-architect',
+    trackId: 'aws-saa',
+    title: 'AWS Solutions Architect – Associate',
+    difficulty: 'Intermediate',
+    description:
+      'Design resilient, high-performing, secure and cost-optimised architectures on AWS. Aligned to the SAA-C03 exam across all four domains.',
+    objectives: [
+      'Design resilient multi-AZ architectures with the right compute and storage',
+      'Apply the Well-Architected pillars: security, reliability, performance, cost',
+      'Choose between EC2, Lambda, ECS and Fargate for each workload',
+      'Design VPC networking, hybrid connectivity and data pipelines',
+    ],
+    skills: ['aws', 'cloud-architecture', 'vpc', 'iam'],
+    certifications: ['aws-saa'],
+    modules: {
+      beginner: { title: 'AWS Foundations', summary: 'Regions, IAM, and the core building blocks.' },
+      intermediate: { title: 'Resilient Architectures', summary: 'Compute, storage, databases and decoupling.' },
+      advanced: { title: 'Well-Architected Design', summary: 'Networking, security, cost and exam drills.' },
+    },
+  },
+  {
+    slug: 'cysa-plus',
+    trackId: 'cysa',
+    title: 'CompTIA CySA+ (CS0-003)',
+    difficulty: 'Intermediate',
+    description:
+      'Behavioural analytics for the SOC: threat intelligence, vulnerability management, detection engineering and incident response. Aligned to CySA+ CS0-003.',
+    objectives: [
+      'Apply threat intelligence and the MITRE ATT&CK framework to detections',
+      'Run vulnerability management and interpret scan data',
+      'Engineer detections with SIEM queries and behavioural analytics',
+      'Respond to incidents and hunt proactively through logs',
+    ],
+    skills: ['soc', 'siem', 'threat-intel', 'vulnerability-management'],
+    certifications: ['cysa-plus'],
+    modules: {
+      beginner: { title: 'Security Operations Foundations', summary: 'Threat intel, frameworks and vuln management.' },
+      intermediate: { title: 'Detect & Analyse', summary: 'SIEM, EDR telemetry and attack analysis.' },
+      advanced: { title: 'Respond & Improve', summary: 'Incident response, forensics and SOC process.' },
+    },
+  },
+  {
+    slug: 'aws-security-specialty',
+    trackId: 'aws-security',
+    title: 'AWS Security – Specialty',
+    difficulty: 'Advanced',
+    description:
+      'Secure AWS workloads end to end: identity, detective controls, infrastructure protection, data protection and incident response. Aligned to the SCS-C02 exam.',
+    objectives: [
+      'Architect IAM, SCPs and cross-account access at scale',
+      'Deploy detective controls with CloudTrail, GuardDuty and Security Hub',
+      'Protect networks, compute and edge with layered controls',
+      'Encrypt and govern data with KMS, and respond to cloud incidents',
+    ],
+    skills: ['aws-security', 'iam', 'kms', 'detection'],
+    certifications: ['aws-security-specialty'],
+    modules: {
+      beginner: { title: 'Identity & Access', summary: 'IAM, federation and permission guardrails.' },
+      intermediate: { title: 'Logging & Detection', summary: 'CloudTrail, Config, GuardDuty and Security Hub.' },
+      advanced: { title: 'Protect & Respond', summary: 'Data protection, network security and IR.' },
+    },
+  },
+  {
     slug: 'ai-engineering',
     trackId: 'ai',
     title: 'AI / ML Engineering',

@@ -9,8 +9,11 @@ import security from './lessons/security';
 import cyber from './lessons/cyber';
 import cloud from './lessons/cloud';
 import ai from './lessons/ai';
+import awsSaa from './lessons/aws-saa';
+import awsSecurity from './lessons/aws-security';
 import cissp from './lessons/cissp';
 import cpp from './lessons/cpp';
+import cysa from './lessons/cysa';
 import docker from './lessons/docker';
 import git from './lessons/git';
 import go from './lessons/go';
@@ -21,4 +24,4 @@ import sql from './lessons/sql';
 import terraform from './lessons/terraform';
 
 /** @type {Record<string, import('./schema').LessonContent>} */
-export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...cissp, ...cpp, ...docker, ...git, ...go, ...kubernetes, ...linux, ...rust, ...sql, ...terraform };
+export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...awsSaa, ...awsSecurity, ...cysa, ...cissp, ...cpp, ...docker, ...git, ...go, ...kubernetes, ...linux, ...rust, ...sql, ...terraform };
