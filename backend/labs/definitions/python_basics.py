@@ -21,7 +21,7 @@ PYTHON_BASICS_LAB = LabDefinition(
     estimated_minutes=20,
     shell="linux_python",
     environment=LabEnvironmentConfig(
-        # Docker daemon healthy on FedSer as of 2026-10-12 (29.7.2, overlayfs,
+        # Docker daemon healthy on FedServ as of 2026-10-12 (29.7.2, overlayfs,
         # hello-world runs clean) — back on the hardened docker provider.
         provider="docker",
         image="road-to-cissp/python-basics:latest",

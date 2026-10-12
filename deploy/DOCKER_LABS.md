@@ -1,4 +1,4 @@
-# Docker-backed labs — FedSer runbook
+# Docker-backed labs — FedServ runbook
 
 Twelve labs now run for real in hardened per-session containers instead of
 simulating. Learners get real tools, real output — and attest each objective
@@ -26,7 +26,7 @@ Docker-in-Docker (incompatible with the hardened provider), and 7 are bespoke
 simulator workbenches (SIEM, vuln-management, IAM, pentest methodology, Linux
 terminal) where the simulation *is* the pedagogy.
 
-## One-time setup (on FedSer)
+## One-time setup (on FedServ)
 
 ```bash
 # 1. Sync the code
@@ -60,7 +60,7 @@ curl -s https://api.road2cissp.com/health
 3. Work the five objectives with the hinted one-liners. After each real run,
    press **I did this** on the objective — progress ticks to 5/5 and the lab
    completes.
-4. On FedSer, while the session is open:
+4. On FedServ, while the session is open:
    ```bash
    docker ps --filter label=rtc=labs --format '{{.Names}}  {{.Image}}  {{.Status}}'
    ```
@@ -74,7 +74,7 @@ curl -s https://api.road2cissp.com/health
 2. Flip `environment.provider` to `"docker"` in its definition under
    `backend/labs/definitions/`.
 3. Run the backend suite: `pytest backend/labs -q`.
-4. Push, pull on FedSer, restart. No frontend change needed — the workspace keys
+4. Push, pull on FedServ, restart. No frontend change needed — the workspace keys
    attestation off the lab's public `environment.live` flag automatically.
 
 ## Notes

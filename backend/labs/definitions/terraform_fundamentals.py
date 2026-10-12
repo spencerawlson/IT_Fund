@@ -118,7 +118,7 @@ TERRAFORM_FUNDAMENTALS_LAB = LabDefinition(
     estimated_minutes=45,
     shell="terraform_cli",
     environment=LabEnvironmentConfig(
-        # Docker image road-to-cissp/iac is published on FedSer: real terraform 1.9.8
+        # Docker image road-to-cissp/iac is published on FedServ: real terraform 1.9.8
         # + tfsec with an offline provider mirror. init/validate/plan/tfsec run for
         # real; there is no AWS API in the sandbox, so apply/destroy objectives are
         # framed around the saved plan (the honest boundary).

@@ -3,7 +3,7 @@
 Real container images for the interactive labs, so labs can graduate from the
 `mock` provider (simulation) to the `docker` provider (real execution, one
 hardened container per session). Build them on the VM that runs the backend
-(FedSer); nothing here is pushed to any registry.
+(FedServ); nothing here is pushed to any registry.
 
 ## What was built
 

@@ -7,7 +7,7 @@ five-step investigation validated against what the learner uncovered with real g
 from labs.models import LabDefinition, LabEnvironmentConfig, LabObjective, LabTarget
 
 _ENV = LabEnvironmentConfig(
-    # Docker image road-to-cissp/log-triage is published on FedSer: real logs,
+    # Docker image road-to-cissp/log-triage is published on FedServ: real logs,
     # real grep. Shared by the three blue-team investigation labs below.
     provider="docker", image="road-to-cissp/log-triage:latest",
     workdir="/home/analyst",

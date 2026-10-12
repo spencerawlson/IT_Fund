@@ -29,7 +29,7 @@ def _run(lab_id, cmds):
     return s, last
 
 
-# 2026-10-12: FedSer Docker daemon healthy (29.7.2) — py-basics-001 is back on
+# 2026-10-12: FedServ Docker daemon healthy (29.7.2) — py-basics-001 is back on
 # the hardened docker provider; the scenario tests below still inject the mock
 # explicitly to exercise lab content without a Docker daemon.
 def test_basics_lab_is_docker_backed():

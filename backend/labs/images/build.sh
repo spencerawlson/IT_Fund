@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the road-to-cissp lab images on the VM (FedSer).
+# Build the road-to-cissp lab images on the VM (FedServ).
 #
 # Usage:
 #   ./build.sh                 build all images (road-to-cissp/*:latest)

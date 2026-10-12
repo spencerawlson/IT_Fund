@@ -22,7 +22,7 @@ PYTHON_AUTOMATION_LAB = LabDefinition(
     estimated_minutes=25,
     shell="linux_python",
     environment=LabEnvironmentConfig(
-        # Docker image road-to-cissp/python-automation is published on FedSer.
+        # Docker image road-to-cissp/python-automation is published on FedServ.
         # The alerts API runs on 127.0.0.1:8080 inside the container, so the
         # port-scan objective targets localhost (the mock's 10.0.0.8 was simulated).
         provider="docker",

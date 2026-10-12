@@ -23,7 +23,7 @@ Browser
 ```
 
 Port **8001** (not 8000): the Ecosystem Tycoon dashboard already holds
-port 8000 on the same Fedora server ("FedSer").
+port 8000 on the same Fedora server ("FedServ").
 
 ## 2. Domain
 

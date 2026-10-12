@@ -20,7 +20,7 @@ CLOUD_AUDIT_LAB = LabDefinition(
     estimated_minutes=30,
     shell="aws_audit",
     environment=LabEnvironmentConfig(
-        # Docker image road-to-cissp/cloudshell is published on FedSer: the real
+        # Docker image road-to-cissp/cloudshell is published on FedServ: the real
         # AWS CLI against a local moto API seeded with the misconfigured account.
         provider="docker",
         image="road-to-cissp/cloudshell:latest",
@@ -59,7 +59,7 @@ TERRAFORM_LAB = LabDefinition(
     estimated_minutes=30,
     shell="terraform",
     environment=LabEnvironmentConfig(
-        # Docker image road-to-cissp/iac is published on FedSer: real terraform +
+        # Docker image road-to-cissp/iac is published on FedServ: real terraform +
         # tfsec with an offline provider mirror. init/validate/plan/tfsec all run
         # for real; apply stops at a saved plan (no AWS API in the sandbox).
         provider="docker",

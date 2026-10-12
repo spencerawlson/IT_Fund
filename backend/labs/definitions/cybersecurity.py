@@ -15,7 +15,7 @@ NMAP_ENUMERATION_LAB = LabDefinition(
     difficulty="beginner",
     estimated_minutes=25,
     environment=LabEnvironmentConfig(
-        # Docker image road-to-cissp/security-tools is published on FedSer: real
+        # Docker image road-to-cissp/security-tools is published on FedServ: real
         # sshd (2222), nginx (8080) and http.server (8000) on loopback. target.lab
         # resolves to 127.0.0.1 via extra_hosts; scan unprivileged (-Pn -sT).
         provider="docker",
@@ -77,7 +77,7 @@ PORTBLAST_COMPARISON_LAB = LabDefinition(
     difficulty="intermediate",
     estimated_minutes=45,
     environment=LabEnvironmentConfig(
-        # Docker image road-to-cissp/portblast-lab is published on FedSer: the real
+        # Docker image road-to-cissp/portblast-lab is published on FedServ: the real
         # PortBlast tool plus the security-tools target services on loopback.
         # target.lab resolves to 127.0.0.1 via extra_hosts (scope-gated, as in the mock).
         provider="docker",
@@ -124,7 +124,7 @@ LOG_TRIAGE_LAB = LabDefinition(
     estimated_minutes=20,
     shell="linux_logs",
     environment=LabEnvironmentConfig(
-        # Docker image road-to-cissp/log-triage is published on FedSer: the real
+        # Docker image road-to-cissp/log-triage is published on FedServ: the real
         # /var/log/auth.log, investigated with real cat/grep/tail.
         provider="docker",
         image="road-to-cissp/log-triage:latest",

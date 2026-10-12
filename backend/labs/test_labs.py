@@ -78,7 +78,7 @@ def test_public_view_marks_live_labs_without_leaking_internals():
     assert r.status_code == 200
     labs = {l["id"]: l for l in r.json()["labs"]}
     basics = labs["py-basics-001"]
-    # 2026-10-12: FedSer Docker daemon healthy — py-basics-001 is docker-backed
+    # 2026-10-12: FedServ Docker daemon healthy — py-basics-001 is docker-backed
     # again, so it claims live.
     assert basics["environment"]["live"] is True
     # Simulated labs stay non-live...
