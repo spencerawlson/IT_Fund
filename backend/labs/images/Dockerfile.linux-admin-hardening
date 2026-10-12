@@ -1,0 +1,16 @@
+# road-to-cissp/linux-admin-hardening — lab 046 (Hardening Capstone).
+# Extends linux-admin with deliberately misconfigured seeds + posture-check.
+FROM road-to-cissp/linux-admin:latest
+
+USER root
+COPY seeds/linux-hardening-001/rules.nft /home/student/firewall/rules.nft
+COPY seeds/linux-hardening-001/sudoers.d-contractors /home/student/sysroot/etc/sudoers.d/contractors
+COPY seeds/linux-hardening-001/cron-jobs.cron /home/student/cron/jobs.cron
+COPY seeds/linux-hardening-001/tool /home/student/bin/tool
+COPY seeds/linux-hardening-001/posture-check /home/student/posture-check
+RUN chmod 777 /home/student/bin/tool \
+ && chmod 755 /home/student/posture-check \
+ && chown -R student:student /home/student
+
+USER student
+WORKDIR /home/student

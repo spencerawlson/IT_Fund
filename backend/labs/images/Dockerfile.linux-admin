@@ -1,0 +1,42 @@
+# road-to-cissp/linux-admin — Phase 3 Linux & Systems labs (039-045).
+FROM debian:bookworm-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      bash coreutils findutils grep sed gawk less \
+      openssh-client openssh-server \
+      cron acl sudo \
+      supervisor \
+      fail2ban \
+      nftables iproute2 procps \
+      python3 \
+      vim-tiny ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash student
+
+COPY seeds/linux/bin/check-firewall seeds/linux/bin/supervisorctl \
+     seeds/linux/bin/sysroot-shim.py /usr/local/bin/
+COPY seeds/linux/bin/entrypoint.sh /usr/local/bin/entrypoint
+RUN chmod 755 /usr/local/bin/check-firewall /usr/local/bin/supervisorctl \
+    /usr/local/bin/sysroot-shim.py /usr/local/bin/entrypoint
+
+COPY seeds/linux-users-001/sysroot /home/student/sysroot
+COPY seeds/linux-ssh-001/sshd_config /home/student/ssh-lab/sshd_config
+COPY seeds/linux-audit-001/auth.log seeds/linux-audit-001/jail.local /home/student/audit/
+COPY seeds/linux-cron-001/ /home/student/cron/
+COPY seeds/linux-firewall-001/ /home/student/firewall/
+COPY seeds/linux/bin/supervisord.conf /home/student/supervisord.conf
+COPY seeds/linux-services-001/ /home/student/services/
+COPY seeds/linux-permissions-001/secret.txt seeds/linux-permissions-001/deploy.sh \
+     seeds/linux-permissions-001/report.txt /home/student/
+COPY seeds/linux-permissions-001/shared /home/student/shared
+COPY seeds/linux-permissions-001/dropbox /home/student/dropbox
+RUN chown -R student:student /home/student
+
+USER student
+WORKDIR /home/student
+ENTRYPOINT ["/usr/local/bin/entrypoint"]
+CMD ["sleep", "infinity"]
