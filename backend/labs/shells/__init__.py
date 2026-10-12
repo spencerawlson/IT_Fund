@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 from labs.providers.base import CommandResult
-from labs.shells import aws_audit, cisco_ios, docker_cli, docker_siem, kubectl, linux_logs, linux_net, linux_python, linux_recon, logfile, pentest, terraform, terraform_cli
+from labs.shells import aws_audit, aws_cli, cisco_ios, docker_cli, docker_siem, iam_cli, kubectl, linux_cli, linux_logs, linux_net, linux_python, linux_recon, logfile, pentest, siem_cli, subnet, terraform, terraform_cli, vuln_cli
 
 _SHELLS = {
     'linux_recon': linux_recon,   # nmap / rustscan / recon labs
@@ -19,6 +19,8 @@ _SHELLS = {
     'linux_logs': linux_logs,     # log triage / brute-force investigation
     'linux_python': linux_python, # python automation lab (simulated python3)
     'aws_audit': aws_audit,       # cloud security audit (AWS CLI)
+    'aws_cli': aws_cli,           # AWS CLI fundamentals (SAA-C03: ec2/s3/vpc/elb/iam/cw)
+    'iam_cli': iam_cli,           # IAM policy workbench: least privilege (SCS-C02)
     'terraform': terraform,       # IaC provisioning + cloud security
     'docker_siem': docker_siem,   # container security monitoring + SIEM investigation
     'docker_cli': docker_cli,     # docker fundamentals (images/containers/compose)
@@ -27,6 +29,10 @@ _SHELLS = {
     'terraform': terraform,       # IaC provisioning + cloud security
     'terraform_cli': terraform_cli,  # terraform fundamentals (full workflow)
     'logfile': logfile,           # generic data-driven log-analysis labs (blue-team)
+    'vuln_cli': vuln_cli,         # vulnerability assessment workflow (CySA+ vuln mgmt)
+    'linux_cli': linux_cli,       # linux terminal essentials (navigation → users)
+    'subnet': subnet,             # subnetting workbench (net-subnetting-001)
+    'siem_cli': siem_cli,         # SIEM threat-hunting workbench (CySA+ security operations)
 }
 
 

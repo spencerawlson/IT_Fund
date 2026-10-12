@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import LiquidBackground from '@/components/academy/LiquidBackground';
 import GlobalTutorChat from '@/components/academy/tutor/GlobalTutorChat';
+import { CelebrationHost } from '@/components/Celebration';
 import AppShell from '@/components/shell/AppShell';
 import { TutorProvider } from '@/components/shell/TutorContext';
 // Add page imports here
@@ -32,6 +33,7 @@ import LessonView from './pages/academy/LessonView';
 import Badges from './pages/academy/Badges';
 import PracticeExam from './pages/academy/PracticeExam';
 import SecplusPracticeExam from './pages/academy/SecplusPracticeExam';
+import CertPracticeExam from './pages/academy/CertPracticeExam';
 import Practice from './pages/Practice';
 import LabWorkspace from './pages/LabWorkspace';
 import LabLauncher from './pages/LabLauncher';
@@ -105,6 +107,7 @@ const AuthenticatedApp = () => {
       <Route path="/labs/:labId" element={<LabWorkspace />} />
       <Route path="/academy/exam" element={<PracticeExam />} />
       <Route path="/academy/security-plus/exam" element={<SecplusPracticeExam />} />
+      <Route path="/academy/cert/:certId/exam" element={<CertPracticeExam />} />
       <Route path="/academy/review" element={<AcademyPlay kind="review" />} />
       <Route path="/academy/:trackId/lesson/:deckId" element={<AcademyLesson />} />
       <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />
@@ -135,6 +138,7 @@ function App() {
               <ErrorBoundary label="Tutor">
                 <GlobalTutorChat />
               </ErrorBoundary>
+              <CelebrationHost />
             </TutorProvider>
           </div>
         </Router>

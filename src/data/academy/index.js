@@ -5,6 +5,9 @@ import routing from './routing';
 import security from './security';
 import cyber from './cyber';
 import cloud from './cloud';
+import awsSaa from './aws-saa';
+import cysa from './cysa';
+import awsSecurity from './aws-security';
 import ai from './ai';
 import cissp from './cissp';
 import linux from './linux';
@@ -19,7 +22,7 @@ import git from './git';
 import interactive from './interactive';
 import { TIERS, RESOURCES } from './meta';
 
-export { TIERS, CISSP_DOMAINS, ROADMAP, RESOURCES } from './meta';
+export { TIERS, CISSP_DOMAINS, SECURITY_PLUS_DOMAINS, SAA_DOMAINS, CYSA_DOMAINS, AWS_SECURITY_DOMAINS, ROADMAP, RESOURCES } from './meta';
 
 function normaliseTrack(raw) {
   const tiers = TIERS.map((tier) => ({
@@ -44,7 +47,7 @@ function normaliseTrack(raw) {
   return { ...raw, tiers };
 }
 
-export const tracks = [python, network, routing, security, cyber, cloud, ai, cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes, git].map(normaliseTrack);
+export const tracks = [python, network, routing, security, cyber, cloud, awsSaa, cysa, awsSecurity, ai, cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes, git].map(normaliseTrack);
 
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);

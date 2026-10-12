@@ -4,13 +4,19 @@ To add a lab: define a LabDefinition in a module here and add it to ALL_LABS. re
 at import time that every objective references a known validator, so a typo fails fast.
 """
 from labs.definitions.blue_team import C2_BEACON_LAB, DNS_TUNNEL_LAB, RANSOMWARE_LAB
-from labs.definitions.cloud import CLOUD_AUDIT_LAB, TERRAFORM_LAB
+from labs.definitions.cloud import AWS_CLI_LAB, AWS_IAM_LAB, CLOUD_AUDIT_LAB, TERRAFORM_LAB
 from labs.definitions.container_security import DOCKER_SIEM_LAB
 from labs.definitions.docker_fundamentals import DOCKER_FUNDAMENTALS_LAB
-from labs.definitions.cybersecurity import LOG_TRIAGE_LAB, NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB
+from labs.definitions.cybersecurity import LOG_TRIAGE_LAB, NMAP_ENUMERATION_LAB, PORTBLAST_COMPARISON_LAB, SIEM_HUNTING_LAB, VULN_SCANNING_LAB
 from labs.definitions.kubernetes import K8S_FUNDAMENTALS_LAB
 from labs.definitions.pentesting import PENTEST_METHODOLOGY_LAB
 from labs.definitions.terraform_fundamentals import TERRAFORM_FUNDAMENTALS_LAB
+from labs.definitions.terraform_k8s_docker import TERRAFORM_K8S_DOCKER_LAB
+from labs.definitions.terraform_aws import TERRAFORM_AWS_LAB
+from labs.definitions.terraform_azure import TERRAFORM_AZURE_LAB
+from labs.definitions.terraform_gcp import TERRAFORM_GCP_LAB
+from labs.definitions.terraform_proxmox import TERRAFORM_PROXMOX_LAB
+from labs.definitions.linux_terminal import LINUX_TERMINAL_LAB
 from labs.definitions.python_basics import PYTHON_BASICS_LAB
 from labs.definitions.python_lab import PYTHON_AUTOMATION_LAB
 from labs.definitions.python_netauto import PYTHON_NETAUTO_LAB
@@ -25,18 +31,27 @@ from labs.definitions.networking import (
     RIP_LAB,
     RIP_TSHOOT_LAB,
     STATIC_ROUTING_LAB,
+    SUBNETTING_LAB,
     VLAN_ROUTING_LAB,
 )
 
 ALL_LABS = [
     NMAP_ENUMERATION_LAB,
     PORTBLAST_COMPARISON_LAB,
+    VULN_SCANNING_LAB,
     PENTEST_METHODOLOGY_LAB,
     K8S_FUNDAMENTALS_LAB,
     TERRAFORM_FUNDAMENTALS_LAB,
+    TERRAFORM_K8S_DOCKER_LAB,
+    TERRAFORM_AWS_LAB,
+    TERRAFORM_AZURE_LAB,
+    TERRAFORM_GCP_LAB,
+    TERRAFORM_PROXMOX_LAB,
     LOG_TRIAGE_LAB,
+    SIEM_HUNTING_LAB,
     VLAN_ROUTING_LAB,
     STATIC_ROUTING_LAB,
+    SUBNETTING_LAB,
     ACL_LAB,
     OSPF_LAB,
     OSPF_TSHOOT_LAB,
@@ -48,6 +63,8 @@ ALL_LABS = [
     DNS_CONNECTIVITY_LAB,
     CLOUD_AUDIT_LAB,
     TERRAFORM_LAB,
+    AWS_CLI_LAB,
+    AWS_IAM_LAB,
     DOCKER_SIEM_LAB,
     DOCKER_FUNDAMENTALS_LAB,
     C2_BEACON_LAB,
@@ -56,4 +73,5 @@ ALL_LABS = [
     PYTHON_BASICS_LAB,
     PYTHON_NETAUTO_LAB,
     PYTHON_AUTOMATION_LAB,
+    LINUX_TERMINAL_LAB,
 ]

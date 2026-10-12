@@ -124,6 +124,18 @@ reads the container's (empty) wtmp and shows nothing. The same evidence is in
   (`k8s-fundamentals-001`) simulates a cluster (nodes, pods, deployments) in the
   mock provider; there is no real cluster to package. It stays on the `mock`
   provider.
+- **`road-to-cissp/aws-cli` is not built.** The AWS CLI fundamentals lab
+  (`aws-cli-001`) simulates the AWS API surface deterministically in the mock
+  provider; there is no AWS account to call. It stays on the `mock` provider.
+- **`road-to-cissp/siem-hunting` is not built.** The SIEM threat-hunting lab
+  (`siem-hunting-001`) simulates the event store and hunt workbench in the mock
+  provider. It stays on the `mock` provider.
+- **`road-to-cissp/vuln-lab` is not built.** The vulnerability assessment lab
+  (`vuln-scanning-001`) simulates scan results and findings in the mock
+  provider. It stays on the `mock` provider.
+- **`road-to-cissp/linux-terminal` is not built.** The Linux terminal lab
+  (`linux-terminal-001`) simulates the shell, filesystem, and services in the
+  mock provider. It stays on the `mock` provider.
 - **rustscan** is not installed: it needs raw sockets the provider drops; `nmap
   -p-` teaches the same skill.
 - **searchsploit** is not installed: it needs a ~234 MB exploit-db snapshot that

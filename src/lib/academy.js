@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from 'react';
 import { localStorageAdapter } from './progress/storage';
 import { allDecks, allCards } from '../data/academy';
-import { CISSP_DOMAINS, SECURITY_PLUS_DOMAINS } from '../data/academy/meta';
+import { CISSP_DOMAINS, SECURITY_PLUS_DOMAINS, SAA_DOMAINS, CYSA_DOMAINS, AWS_SECURITY_DOMAINS } from '../data/academy/meta';
 
 const KEY = 'itfund-academy-v1';
 const EVENT = 'itfund-academy-change';
@@ -598,4 +598,230 @@ export function clearSecplusPracticeExam() {
 
 export function secplusExamHistory(state) {
   return state.secplusExams || [];
+}
+
+// -------------------------------------------------------------------------------------------------
+// Generic certification practice exams: timed, domain-weighted test-day simulators for any
+// cert track. Deck -> domain mapping reuses the curated per-cert tags on each deck
+// (e.g. `saa: [1]`, `cysa: [2]`, `awss: [4]` — see src/data/academy/*.js).
+// -------------------------------------------------------------------------------------------------
+
+export const CERT_EXAMS = {
+  'aws-saa': {
+    certId: 'aws-saa',
+    trackId: 'aws-saa',
+    title: 'AWS Solutions Architect',
+    code: 'SAA-C03',
+    tagKey: 'saa',
+    domains: SAA_DOMAINS,
+    questionCount: 65,
+    durationMin: 130,
+    passPct: 72,
+    blurb: 'Scenario-based architecture decisions, weighted by the official SAA-C03 domain weights.',
+  },
+  cysa: {
+    certId: 'cysa',
+    trackId: 'cysa',
+    title: 'CySA+',
+    code: 'CS0-003',
+    tagKey: 'cysa',
+    domains: CYSA_DOMAINS,
+    questionCount: 85,
+    durationMin: 165,
+    passPct: 75,
+    blurb: 'SOC analyst scenarios — triage, hunting, and prioritization — weighted by the official CS0-003 domain weights.',
+  },
+  'aws-security': {
+    certId: 'aws-security',
+    trackId: 'aws-security',
+    title: 'AWS Security Specialty',
+    code: 'SCS-C02',
+    tagKey: 'awss',
+    domains: AWS_SECURITY_DOMAINS,
+    questionCount: 65,
+    durationMin: 170,
+    passPct: 75,
+    blurb: 'AWS security service selection and configuration, weighted by the official SCS-C02 domain weights.',
+  },
+};
+
+export const CERT_EXAM_HISTORY_LIMIT = 20;
+
+/** Per-domain question quotas for a cert exam (largest remainder). */
+export function certExamDomainQuotas(certId, total) {
+  const cfg = CERT_EXAMS[certId];
+  if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
+  const count = total || cfg.questionCount;
+  const rows = cfg.domains.map((d) => ({ id: d.id, exact: (d.weight / 100) * count, n: 0 }));
+  rows.forEach((r) => { r.n = Math.floor(r.exact); });
+  let remainder = count - rows.reduce((s, r) => s + r.n, 0);
+  const byFrac = [...rows].sort((a, b) => b.exact - b.n - (a.exact - a.n));
+  for (let i = 0; remainder > 0; i++, remainder--) byFrac[i % byFrac.length].n += 1;
+  return Object.fromEntries(rows.map((r) => [r.id, r.n]));
+}
+
+/**
+ * Build one cert exam: domain-weighted sampling without replacement, option
+ * order and question order shuffled. Returns { questions, quotas, shortfalls }.
+ */
+export function buildCertPracticeExam(certId, { count } = {}) {
+  const cfg = CERT_EXAMS[certId];
+  if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
+  const total = count || cfg.questionCount;
+  const quotas = certExamDomainQuotas(certId, total);
+  const deckDomain = Object.fromEntries(allDecks.map((d) => [d.id, (d[cfg.tagKey] || [])[0] || null]));
+  const byDomain = {};
+  for (const card of allCards) {
+    const dom = deckDomain[card.deckId];
+    if (dom) (byDomain[dom] ??= []).push(card);
+  }
+  const picked = [];
+  const shortfalls = [];
+  for (const d of cfg.domains) {
+    const pool = shuffle(byDomain[d.id] || []);
+    const take = pool.slice(0, quotas[d.id]);
+    take.forEach((card) => picked.push({ card, domain: d.id }));
+    if (take.length < quotas[d.id]) shortfalls.push(d.id);
+  }
+  if (shortfalls.length) {
+    const seen = new Set(picked.map((p) => p.card.id));
+    const missing = total - picked.length;
+    const rest = shuffle(allCards.filter((c) => !seen.has(c.id))).slice(0, missing);
+    rest.forEach((card) => picked.push({ card, domain: deckDomain[card.deckId] || shortfalls[0] }));
+  }
+  const questions = shuffle(
+    picked.slice(0, total).map(({ card, domain }) => {
+      const q = buildQuestions([card], allCards, 1)[0];
+      return { id: card.id, domain, card, options: q.options, correct: q.correct };
+    }),
+  );
+  return { questions, quotas, shortfalls };
+}
+
+/** Score a finished cert exam. answers: { [questionId]: chosenOptionIndex }. */
+export function scoreCertExam(certId, questions, answers) {
+  const cfg = CERT_EXAMS[certId];
+  if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
+  const perDomain = {};
+  for (const d of cfg.domains) perDomain[d.id] = { total: 0, correct: 0, pct: 0, passed: false };
+  const missed = [];
+  let correct = 0;
+  for (const q of questions) {
+    const pd = perDomain[q.domain] ?? (perDomain[q.domain] = { total: 0, correct: 0, pct: 0, passed: false });
+    pd.total += 1;
+    if (answers[q.id] === q.correct) {
+      correct += 1;
+      pd.correct += 1;
+    } else {
+      missed.push(q);
+    }
+  }
+  for (const d of cfg.domains) {
+    const pd = perDomain[d.id];
+    pd.pct = pd.total ? Math.round((pd.correct / pd.total) * 100) : 0;
+    pd.passed = pd.pct >= cfg.passPct;
+  }
+  const pct = questions.length ? Math.round((correct / questions.length) * 100) : 0;
+  return { total: questions.length, correct, pct, passed: pct >= cfg.passPct, perDomain, missed };
+}
+
+// ---------- Generic cert exam session (stored under state.certExams[certId]) ----------
+
+function certExamMutate(certId, fn) {
+  const state = read();
+  const exams = state.certExams || {};
+  const exam = exams[certId];
+  if (!exam || exam.finishedAt) return;
+  write({ ...state, certExams: { ...exams, [certId]: fn(exam) } });
+}
+
+/** Start a new practice exam for a cert. */
+export function startCertPracticeExam(certId) {
+  const cfg = CERT_EXAMS[certId];
+  if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
+  const { questions, quotas } = buildCertPracticeExam(certId);
+  const exam = {
+    id: `${certId}-exam-${Date.now()}`,
+    certId,
+    startedAt: Date.now(),
+    deadline: Date.now() + cfg.durationMin * 60 * 1000,
+    questions,
+    quotas,
+    answers: {},
+    flagged: [],
+    index: 0,
+    finishedAt: null,
+    result: null,
+  };
+  const state = read();
+  write({ ...state, certExams: { ...(state.certExams || {}), [certId]: exam } });
+  return exam;
+}
+
+export function answerCertExamQuestion(certId, qid, optionIdx) {
+  certExamMutate(certId, (exam) => ({ ...exam, answers: { ...exam.answers, [qid]: optionIdx } }));
+}
+
+export function toggleCertExamFlag(certId, qid) {
+  certExamMutate(certId, (exam) => ({
+    ...exam,
+    flagged: exam.flagged.includes(qid) ? exam.flagged.filter((f) => f !== qid) : [...exam.flagged, qid],
+  }));
+}
+
+export function setCertExamIndex(certId, index) {
+  certExamMutate(certId, (exam) => ({ ...exam, index }));
+}
+
+/** Finish a cert exam: score it, save the attempt to history, award XP. */
+export function finishCertPracticeExam(certId) {
+  const cfg = CERT_EXAMS[certId];
+  if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
+  const state = read();
+  const exam = (state.certExams || {})[certId];
+  if (!exam || exam.finishedAt) return exam;
+  const result = scoreCertExam(certId, exam.questions, exam.answers);
+  const attempt = {
+    id: exam.id,
+    at: Date.now(),
+    total: result.total,
+    correct: result.correct,
+    pct: result.pct,
+    passed: result.passed,
+    perDomain: Object.fromEntries(cfg.domains.map((d) => [d.id, result.perDomain[d.id].pct])),
+  };
+  const key = `${certId}Exams`;
+  const history = [attempt, ...(state[key] || [])].slice(0, CERT_EXAM_HISTORY_LIMIT);
+  const finished = { ...exam, finishedAt: Date.now(), result };
+  write(withBadges(withXp(
+    { ...state, [key]: history, certExams: { ...(state.certExams || {}), [certId]: finished } },
+    result.correct * XP.examPerCorrect,
+  )));
+  return finished;
+}
+
+/** Discard the current (or finished) cert exam without recording an attempt. */
+export function clearCertPracticeExam(certId) {
+  const state = read();
+  const exams = state.certExams || {};
+  if (exams[certId]) {
+    const next = { ...exams };
+    delete next[certId];
+    write({ ...state, certExams: next });
+  }
+}
+
+export function certExamHistory(state, certId) {
+  return state[`${certId}Exams`] || [];
+}
+
+export function getCertExam(state, certId) {
+  return (state.certExams || {})[certId] || null;
+}
+
+// ---------- milestone celebration seen-tracking (each celebration fires exactly once) ----------
+export function markCelebrationSeen(id) {
+  const state = read();
+  const seen = state.seenCelebrations || [];
+  if (!seen.includes(id)) write({ ...state, seenCelebrations: [...seen, id] });
 }

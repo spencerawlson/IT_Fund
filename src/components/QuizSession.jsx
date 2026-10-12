@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 import { Check, X, ChevronRight, RotateCcw, Trophy } from 'lucide-react';
+import { MascotReaction } from './StudyMascot';
+
+const reactionText = (n) =>
+  n >= 5 ? `${n} in a row — unstoppable!`
+  : n >= 3 ? `${n} in a row — nice!`
+  : n === 2 ? 'Two in a row — keep it up!'
+  : 'Correct! Nice work.';
 
 export default function QuizSession({ module, onComplete }) {
   const questions = module.quiz;
@@ -47,6 +54,12 @@ export default function QuizSession({ module, onComplete }) {
           <Trophy size={32} className="text-amber-400" />
         </div>
         <h3 className="mt-4 text-xl font-bold text-ink-1">Quiz Complete</h3>
+        <div className="mt-4 flex justify-center">
+          <MascotReaction
+            mood={pct === 100 ? 'celebrating' : pct >= 70 ? 'happy' : 'encouraging'}
+            text={pct === 100 ? 'Flawless! Cipher is impressed.' : pct >= 70 ? 'Solid run — keep climbing.' : 'Every rep counts. Run it back!'}
+          />
+        </div>
         <p className="mt-2 text-3xl font-bold text-ink-1">
           {score}/{questions.length}
         </p>
@@ -62,6 +75,13 @@ export default function QuizSession({ module, onComplete }) {
   }
 
   const isCorrect = selected === current.correct;
+
+  // Trailing run of correct answers, for the mascot's reaction line.
+  let combo = 0;
+  for (let i = answers.length - 1; i >= 0; i--) {
+    if (answers[i] === questions[i].correct) combo++;
+    else break;
+  }
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -109,6 +129,9 @@ export default function QuizSession({ module, onComplete }) {
           <div className={`mt-4 rounded-xl border p-4 text-sm ${isCorrect ? 'border-green-500/30 bg-green-500/[0.07] text-green-300' : 'border-amber-500/30 bg-amber-500/[0.07] text-amber-200'}`}>
             <p className="font-semibold">{isCorrect ? '✓ Correct!' : '✗ Not quite.'}</p>
             <p className="mt-1 text-ink-2">{current.explanation}</p>
+            {isCorrect && (
+              <MascotReaction mood={combo >= 4 ? 'celebrating' : 'happy'} text={reactionText(combo)} />
+            )}
           </div>
         )}
 

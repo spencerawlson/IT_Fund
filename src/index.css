@@ -203,6 +203,27 @@
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes rise { 0% { transform: translateY(8px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
+/* Alive moments: celebrations, streak ignition, mascot life signals. These live
+   on completion/report/dashboard surfaces only — study screens stay calm. */
+.mascot-blink { transform-box: fill-box; transform-origin: center; animation: mascot-blink 4.6s ease-in-out infinite; }
+@keyframes mascot-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+
+.streak-ignited { animation: ignite 1.4s ease-out 1; filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.65)); }
+@keyframes ignite {
+  0% { transform: scale(0.6) rotate(-8deg); filter: brightness(2.2) drop-shadow(0 0 18px rgba(249, 115, 22, 0.9)); }
+  55% { transform: scale(1.28) rotate(3deg); }
+  100% { transform: scale(1) rotate(0); filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.65)); }
+}
+
+.count-pop { display: inline-block; animation: count-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) 1; }
+@keyframes count-pop { 0% { transform: scale(0.7); } 100% { transform: scale(1); } }
+
+.ring-complete { animation: ring-pulse 2.6s ease-in-out infinite; }
+@keyframes ring-pulse {
+  0%, 100% { filter: drop-shadow(0 0 3px currentColor); }
+  50% { filter: drop-shadow(0 0 9px currentColor); }
+}
+
 /* People who ask their OS for less transparency get solid panels instead of frosted glass. */
 @media (prefers-reduced-transparency: reduce) {
   .glass, .glass-strong, .glass-1, .glass-2, .glass-3 {
@@ -216,4 +237,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animate-pop, .animate-shake, .animate-rise { animation: none; }
+  .mascot-blink, .streak-ignited, .count-pop, .ring-complete { animation: none; }
 }

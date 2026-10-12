@@ -41,6 +41,10 @@ IMAGE_DOCKERFILE = {
     "docker-siem": None,  # Docker-in-Docker is incompatible with the hardened provider
     "docker-fundamentals": None,  # same: the lab simulates a Docker host; DiD is incompatible
     "k8s-lab": None,  # mock lab simulates a cluster; no real k8s image needed
+    "aws-cli": None,  # mock lab simulates the AWS CLI; no image built
+    "siem-hunting": None,  # mock lab simulates the SIEM; no image built
+    "vuln-lab": None,  # mock lab simulates the scanner; no image built
+    "linux-terminal": None,  # mock lab simulates the shell; no image built
 }
 
 IMAGE_RE = re.compile(r'image="(road-to-cissp/([\w-]+)):latest"')

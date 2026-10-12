@@ -210,6 +210,43 @@ for _key, _ok, _todo in [
     VALIDATORS[_key] = _network_validator(_key, _ok, _todo)
 
 
+# ---- SIEM threat-hunting lab (CySA+ security operations) ----
+
+@validator("siem_rdp_attacker")
+def siem_rdp_attacker(args, findings):
+    iocs = findings.get("_siem", {}).get("tracked_iocs", [])
+    if "203.0.113.99" in iocs:
+        return True, "You identified the RDP brute-force source (203.0.113.99).", {"ioc": "203.0.113.99"}
+    return False, "Track the brute-force source IP as an IOC (hunt ioc <ip>).", None
+
+
+@validator("siem_dns_tunnel")
+def siem_dns_tunnel(args, findings):
+    iocs = findings.get("_siem", {}).get("tracked_iocs", [])
+    hit = next((i for i in iocs if "tun.exfil-ops.net" in i), None)
+    if hit:
+        return True, f"You identified the tunneling domain ({hit}).", {"ioc": hit}
+    return False, "Track the DNS tunneling domain as an IOC (hunt ioc <domain>).", None
+
+
+@validator("siem_malware_c2")
+def siem_malware_c2(args, findings):
+    iocs = findings.get("_siem", {}).get("tracked_iocs", [])
+    if "203.0.113.200" in iocs:
+        return True, "You identified the malware C2 server (203.0.113.200).", {"ioc": "203.0.113.200"}
+    return False, "Track the C2 server IP as an IOC (hunt ioc <ip>).", None
+
+
+@validator("siem_hosts_isolated")
+def siem_hosts_isolated(args, findings):
+    isolated = set(findings.get("_siem", {}).get("isolated_hosts", []))
+    need = {"ws-finance01", "srv-files02", "ws-hr02", "ws-sales03"}
+    missing = sorted(need - isolated)
+    if not missing:
+        return True, "All four compromised hosts are isolated.", {"isolated": sorted(isolated)}
+    return False, f"Isolate the remaining compromised host(s): {', '.join(missing)}.", None
+
+
 # ---- diagnostics: a top-level finding key simply being present (Linux troubleshooting shell) ----
 
 def _finding_present(key: str, ok: str, todo: str) -> Validator:
@@ -244,8 +281,7 @@ for _key, _ok, _todo in [
     ("plan_done", "You previewed the execution plan.", "Run terraform plan (after init)."),
     ("applied", "You provisioned the resources.", "Run terraform apply (after init)."),
     # Docker + SIEM container security monitoring lab
-    ("docker_verified", "You verified the Docker Engine is running.", "Check the engine: docker info (or systemctl status docker)."),
-    ("nginx_running", "You deployed the Nginx container with its port published.", "docker run -d --name lab-nginx -p 8080:80 nginx."),
+    ("docker_verified", "You verified the Docker Engine is running.", "Check the engine: docker info (or systemctl status docker)."),    ("nginx_running", "You deployed the Nginx container with its port published.", "docker run -d --name lab-nginx -p 8080:80 nginx."),
     ("container_investigated", "You investigated the running container.", "Inspect it: docker inspect lab-nginx (or docker logs lab-nginx)."),
     ("network_created", "You created a custom Docker network.", "docker network create security-lab."),
     ("volume_created", "You created a Docker volume for persistence.", "docker volume create <name> (databases need persistent storage)."),
@@ -253,7 +289,11 @@ for _key, _ok, _todo in [
     ("siem_searched", "You searched the centralized events in the SIEM.", "siem search (optionally field=value, e.g. event_type=auth_failure)."),
     ("bruteforce_found", "You found the brute-force detection alert.", "See which detection rules fired: siem alerts."),
     ("attacker_identified", "You pinned down the attacker and their kill chain.", "Pivot on the source: siem search src_ip=<the IP that appears on every malicious event>."),
-    # Blue-team log labs (generic logfile shell)
+    # SIEM threat-hunting lab (CySA+ security operations)
+    ("siem_alerts_triaged", "You triaged the fired detection alerts.", "Review what fired: alerts (then alert <id> for detail)."),
+    ("siem_rdp_timeline", "You reconstructed the RDP intrusion including lateral movement.", "Build the timeline for the breached host: timeline ws-finance01."),
+    ("siem_exfil_host", "You scoped the exfiltration to its source host.", "Build the timeline for the tunneling host: timeline ws-hr02 (or its IP)."),
+    ("siem_report_done", "You generated the incident report.", "Once IOCs are tracked and hosts isolated: report."),    # Blue-team log labs (generic logfile shell)
     ("beacon_dst", "You found the suspicious destination.", "One external IP is contacted over and over — grep for it in conn.log."),
     ("beacon_host", "You identified the beaconing internal host.", "Which internal host keeps talking to that destination? grep its IP."),
     ("c2_http", "You found the C2 beacon URI.", "Check http.log for the repeated request path (e.g. /api/v1/beacon)."),
@@ -284,3 +324,121 @@ for _key, _ok, _todo in [
     ("py_netauto_verified", "You verified the generated file with cat.", "cat day0.txt — the three hostname lines should be there."),
 ]:
     VALIDATORS[_key] = _finding_present(_key, _ok, _todo)
+
+
+# ---- vulnerability assessment workflow (vuln_cli shell) ----
+
+@validator("vuln_scan_complete")
+def vuln_scan_complete(args, findings):
+    if findings.get("vuln_scan_complete"):
+        return True, "You ran the vulnerability scan and captured 12 findings.", findings.get("vuln_scan_complete")
+    return False, "Run a scan first: scan 10.0.1.0/24.", None
+
+
+@validator("vuln_cvss_interpreted")
+def vuln_cvss_interpreted(args, findings):
+    if findings.get("vuln_cvss_interpreted"):
+        return True, "You inspected CVSS vectors on multiple findings.", findings.get("vuln_cvss_interpreted")
+    return False, "Inspect finding detail twice: vuln VULN-001, then vuln VULN-003.", None
+
+
+@validator("vuln_kev_checked")
+def vuln_kev_checked(args, findings):
+    if findings.get("vuln_kev_checked"):
+        return True, "You checked the CISA KEV catalog (2 matches in this environment).", True
+    return False, "Check the KEV catalog: kev.", None
+
+
+@validator("vuln_prioritized")
+def vuln_prioritized(args, findings):
+    """The key lesson: risk order != CVSS order. VULN-003 (7.5) must outrank VULN-004 (9.8)."""
+    sub = findings.get("vuln_priority_submission") or []
+    if len(sub) < 3:
+        return False, "Submit your top-3 by risk: prioritize VULN-001 VULN-003 VULN-002.", None
+    sub = [s.upper() for s in sub[:3]]
+    # Detect the naive CVSS-only answer.
+    cvss_top = {"VULN-001", "VULN-005", "VULN-011", "VULN-004", "VULN-006"}
+    if sub[0] != "VULN-001":
+        return False, "VULN-001 (Log4Shell: CVSS 10.0, EPSS 0.97, KEV, critical web server) is the clear #1. Re-check.", {"submission": sub}
+    if "VULN-003" not in sub:
+        return (
+            False,
+            "Your top-3 misses VULN-003. CVSS 7.5 looks medium — but EPSS 0.78, KEV-listed, on a "
+            "CRITICAL web server. CVSS alone misleads; weigh exploitability and asset context.",
+            {"submission": sub},
+        )
+    if "VULN-004" in sub:
+        return (
+            False,
+            "VULN-004 does not belong in the top-3. Yes, CVSS 9.8 — but EPSS 0.22, not KEV-listed, "
+            "on a LOW-criticality IoT camera with no patch available. Compare `prioritize --by cvss`.",
+            {"submission": sub},
+        )
+    if set(sub) & cvss_top == {"VULN-001"} and sub[1] == "VULN-003":
+        pass  # correct shape; fall through to pass
+    return True, f"Correct prioritization: {', '.join(sub)} — risk-weighted, not CVSS-sorted.", {"submission": sub}
+
+
+@validator("vuln_remediation_planned")
+def vuln_remediation_planned(args, findings):
+    rem = findings.get("vuln_remediated") or []
+    mit = findings.get("vuln_mitigated") or []
+    if rem and mit:
+        return True, f"You planned both remediation ({len(rem)}) and mitigation ({len(mit)}).", {"remediated": rem, "mitigated": mit}
+    if rem and not mit:
+        return False, "Good on patching — but VULN-004 has no patch. Use mitigate for it.", None
+    return False, "Plan fixes: remediate <id> for patchable vulns, mitigate <id> where no patch exists.", None
+
+
+@validator("vuln_top3_fixed")
+def vuln_top3_fixed(args, findings):
+    fixed = set(findings.get("vuln_remediated") or []) | set(findings.get("vuln_mitigated") or [])
+    top3 = {"VULN-001", "VULN-003", "VULN-002"}
+    missing = top3 - fixed
+    if not missing:
+        return True, "All three top-risk findings are addressed.", {"fixed": sorted(fixed)}
+    return False, f"Top-risk findings still untreated: {', '.join(sorted(missing))}.", None
+
+
+@validator("vuln_rescan_done")
+def vuln_rescan_done(args, findings):
+    if findings.get("vuln_rescanned"):
+        return True, "Follow-up scan confirms the fixes.", True
+    return False, "Verify with a follow-up scan: rescan.", None
+
+
+@validator("vuln_report_done")
+def vuln_report_done(args, findings):
+    if findings.get("vuln_report_generated"):
+        return True, "Executive summary generated.", True
+    return False, "Generate the executive summary: report.", None
+
+
+# ---- subnetting lab (net-subnetting-001) ----
+
+@validator("subnet_problem_solved")
+def subnet_problem_solved(args, findings):
+    """One parameterized validator for all eight subnetting objectives.
+
+    The expected answers are recomputed here from labs/subnet_math.py (the same
+    module the `subnet` shell uses), then compared against the answers the
+    student recorded with the `answer` command.
+    """
+    from labs import subnet_math as sm
+
+    objective = (args or {}).get("objective")
+    problem = sm.get_problem(objective)
+    if problem is None:
+        return False, f"Unknown subnetting problem {objective!r}.", None
+    recorded = (findings.get("subnet_answers") or {}).get(objective, {})
+    if not recorded:
+        return False, f'No answers recorded yet — type "practice" then "answer ...".', None
+    passed, missing, wrong, expected = sm.check_answers(objective, recorded)
+    if passed:
+        return True, f'"{problem["title"]}" solved correctly.', {"objective": objective}
+    details = []
+    if missing:
+        details.append(f"missing: {', '.join(missing)}")
+    if wrong:
+        details.append(f"incorrect: {', '.join(f'{k} (you: {recorded[k]}, expected: {expected[k]})' for k in wrong)}")
+    return False, "Not quite — " + "; ".join(details) + ".", None

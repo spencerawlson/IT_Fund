@@ -27,6 +27,33 @@ export const SECURITY_PLUS_DOMAINS = [
   { id: 5, title: 'Security Program Management & Oversight', weight: 20, color: '#F59E0B' },
 ];
 
+
+// AWS Certified Solutions Architect – Associate (SAA-C03) exam guide.
+export const SAA_DOMAINS = [
+  { id: 1, title: 'Design Secure Architectures', weight: 30, color: '#3B82F6' },
+  { id: 2, title: 'Design Resilient Architectures', weight: 26, color: '#22C55E' },
+  { id: 3, title: 'Design High-Performing Architectures', weight: 24, color: '#A855F7' },
+  { id: 4, title: 'Design Cost-Optimized Architectures', weight: 20, color: '#F59E0B' },
+];
+
+// CompTIA CySA+ CS0-003 exam objectives.
+export const CYSA_DOMAINS = [
+  { id: 1, title: 'Security Operations', weight: 33, color: '#8B5CF6' },
+  { id: 2, title: 'Vulnerability Management', weight: 30, color: '#F59E0B' },
+  { id: 3, title: 'Incident Response and Management', weight: 20, color: '#EF4444' },
+  { id: 4, title: 'Reporting and Communication', weight: 17, color: '#3B82F6' },
+];
+
+// AWS Certified Security – Specialty (SCS-C02) exam guide.
+export const AWS_SECURITY_DOMAINS = [
+  { id: 1, title: 'Threat Detection and Incident Response', weight: 14, color: '#EF4444' },
+  { id: 2, title: 'Security Logging and Monitoring', weight: 18, color: '#F59E0B' },
+  { id: 3, title: 'Infrastructure Security', weight: 20, color: '#3B82F6' },
+  { id: 4, title: 'Identity and Access Management', weight: 16, color: '#14B8A6' },
+  { id: 5, title: 'Data Protection', weight: 18, color: '#A855F7' },
+  { id: 6, title: 'Management and Security Governance', weight: 14, color: '#6366F1' },
+];
+
 // The "best of" community path to CISSP: fundamentals -> CompTIA core -> hands-on
 // defence -> cloud -> AI -> the managerial CISSP mindset. Each step names the track
 // tiers that prepare you for it and the free-to-sit or common certification milestone.

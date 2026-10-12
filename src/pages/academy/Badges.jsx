@@ -9,10 +9,13 @@ const ICONS = { Footprints, Flame, Zap, Layers, Swords, Crown, Award, ShieldChec
 
 function BadgeCard({ id, badge, earned }) {
   const Icon = ICONS[badge.icon] || Award;
+  const ignited = earned && id.startsWith('streak-');
   return (
     <Card level={2} padding="md" className={earned ? '' : 'opacity-75'}>
       <div className="flex items-start gap-4">
-        <IconTile icon={earned ? Icon : Lock} color={earned ? '#f59e0b' : '#64748b'} />
+        <span className={ignited ? 'streak-ignited inline-flex rounded-control' : 'inline-flex'}>
+          <IconTile icon={earned ? Icon : Lock} color={earned ? '#f59e0b' : '#64748b'} />
+        </span>
         <div className="min-w-0 flex-1">
           <h2 className="text-heading text-ink-1">{badge.title}</h2>
           <p className="mt-1 text-small text-ink-2">{earned ? badge.desc : `Locked — ${badge.desc.charAt(0).toLowerCase()}${badge.desc.slice(1)}`}</p>

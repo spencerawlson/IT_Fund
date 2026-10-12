@@ -40,6 +40,9 @@ export function recordLabCompletion(labId, startedAtIso, completedAtIso) {
   };
   all[labId] = next;
   save(all);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('itfund-lab-complete', { detail: { labId } }));
+  }
   return next;
 }
 

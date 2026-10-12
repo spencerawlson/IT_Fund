@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
-import { ArrowLeft, ArrowRight, RotateCcw, Check, X, Sparkles, Lock, SearchX } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Check, X, Sparkles, Lock, SearchX, FlaskConical } from 'lucide-react';
 import { Button, Card, EmptyState } from '@/components/ui-glass';
 import { ACTION } from '@/lib/design/tokens';
 import FlashDeck from '@/components/academy/FlashDeck';
 import QuizRun from '@/components/academy/QuizRun';
 import TutorAssist from '@/components/academy/tutor/TutorAssist';
 import { getTrack, getDeck } from '@/data/academy';
+import { getLabsForDeck, labTitle } from '@/data/deckLabs';
 import {
   useAcademy, buildQuestions, cardState, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
 } from '@/lib/academy';
@@ -134,7 +135,7 @@ export default function AcademyPlay({ kind }) {
       />
     );
   } else if (result) {
-    body = <Results result={result} kind={kind} mode={mode} onRestart={restart} backTo={backTo} meta={meta} />;
+    body = <Results result={result} kind={kind} mode={mode} onRestart={restart} backTo={backTo} meta={meta} deck={deck} track={track} />;
   } else if (session.cards && !session.cards.length) {
     body = (
       <EmptyState
@@ -177,10 +178,11 @@ export default function AcademyPlay({ kind }) {
   );
 }
 
-function Results({ result, kind, mode, onRestart, backTo, meta }) {
+function Results({ result, kind, mode, onRestart, backTo, meta, deck, track }) {
   const pct = result.pct ?? Math.round((result.correct / result.total) * 100);
   const isBoss = kind === 'boss';
   const failed = isBoss && !result.passed;
+  const labs = kind === 'deck' && deck ? getLabsForDeck(deck.id, track?.id) : [];
   const headline = isBoss
     ? result.passed
       ? 'Assessment passed'
@@ -216,6 +218,30 @@ function Results({ result, kind, mode, onRestart, backTo, meta }) {
         <Button variant="secondary" icon={RotateCcw} onClick={onRestart}>{failed ? 'Try again' : 'Go again'}</Button>
         <Button to={backTo} iconAfter={ArrowRight}>Continue</Button>
       </div>
+      {labs.length > 0 && (
+        <div className="mt-8 border-t border-white/10 pt-6 text-left">
+          <p className="flex items-center gap-2 text-small font-semibold text-ink-1">
+            <FlaskConical size={16} className="text-action" aria-hidden="true" />
+            Practice it hands-on
+          </p>
+          <ul className="mt-3 space-y-2">
+            {labs.map((l) => (
+              <li key={l.labId}>
+                <Link
+                  to={`/labs/${l.labId}`}
+                  className="glass-2 flex items-center justify-between gap-3 rounded-control border border-white/10 px-4 py-3 transition-colors hover:border-white/25"
+                >
+                  <span>
+                    <span className="block text-body font-semibold text-ink-1">{labTitle(l.labId)}</span>
+                    <span className="mt-0.5 block text-small text-ink-2">{l.blurb}</span>
+                  </span>
+                  <ArrowRight size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </Card>
   );
 }

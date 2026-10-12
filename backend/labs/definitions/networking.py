@@ -347,3 +347,48 @@ DNS_CONNECTIVITY_LAB = LabDefinition(
                      hints=["curl -I http://app.corp.example — look for 200 OK"]),
     ],
 )
+
+
+SUBNETTING_LAB = LabDefinition(
+    id="net-subnetting-001",
+    slug="subnetting-mastery",
+    title="Subnetting Mastery",
+    description=(
+        "A calculation workbench for CompTIA Network+ (N10-009) subnetting: eight guided problems "
+        "from CIDR notation to a full subnet analysis, including VLSM design, route summarization "
+        "and IPv6 subnetting. Use `practice` to see each problem, `solve <ip>/<cidr>` to study the "
+        "binary method, and `answer k=v ...` to submit your calculations."
+    ),
+    category="networking",
+    difficulty="beginner",
+    estimated_minutes=45,
+    shell="subnet",
+    environment=LabEnvironmentConfig(provider="mock", idle_timeout_minutes=15, max_runtime_minutes=45, deny_internet_egress=True),
+    targets=[LabTarget(hostname="netlab", role="Subnetting workstation (no devices needed)")],
+    objectives=[
+        LabObjective(id="cidr", label="Convert between CIDR and dotted-decimal masks", validator="subnet_problem_solved",
+                     args={"objective": "cidr"},
+                     hints=["Count the 1-bits: /20 = 8+8+4 one-bits → 255.255.240.0", "255.255.255.192 in binary is 8+8+8+2 one-bits"]),
+        LabObjective(id="net-bcast", label="Find network and broadcast addresses (192.168.10.77/26)", validator="subnet_problem_solved",
+                     args={"objective": "net-bcast"},
+                     hints=["/26 blocks are 64 addresses: .0, .64, .128, .192 — which block holds .77?", "Broadcast is the last address of the block"]),
+        LabObjective(id="host-range", label="Find the usable host range (10.20.30.45/21)", validator="subnet_problem_solved",
+                     args={"objective": "host-range"},
+                     hints=["/21 → third-octet blocks of 8: .24 is the network", "First usable = network + 1; last usable = broadcast - 1"]),
+        LabObjective(id="host-count", label="Count usable hosts in /27, /30 and /16 subnets", validator="subnet_problem_solved",
+                     args={"objective": "host-count"},
+                     hints=["Usable hosts = 2^(host bits) - 2", "/30 is the classic point-to-point link size"]),
+        LabObjective(id="vlsm", label="Carve 192.168.1.0/24 with VLSM (50/25/12/6 hosts)", validator="subnet_problem_solved",
+                     args={"objective": "vlsm"},
+                     hints=["Always allocate largest-first: /26, then /27, then /28, then /29", "50 hosts need 64 addresses (/26); 6 hosts need 8 addresses (/29)"]),
+        LabObjective(id="supernet", label="Summarize routes (192.168.0-3.0/24 and 10.1-2.0.0/16)", validator="subnet_problem_solved",
+                     args={"objective": "supernet"},
+                     hints=["Find the longest common prefix of the range", "192.168.0-3 → the third octet shares 6 bits"]),
+        LabObjective(id="ipv6", label="Subnet IPv6: /64s from 2001:db8:abcd::/48", validator="subnet_problem_solved",
+                     args={"objective": "ipv6"},
+                     hints=["Each extra hex digit of the 4th hextet is one more /64", "Count = 2^(new prefix - old prefix)"]),
+        LabObjective(id="final", label="Full analysis of 172.20.14.99/23", validator="subnet_problem_solved",
+                     args={"objective": "final"},
+                     hints=["/23 → third-octet blocks of 2", "Combine every technique from problems 1-7"]),
+    ],
+)

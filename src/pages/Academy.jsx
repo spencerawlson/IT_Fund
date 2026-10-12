@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Repeat, Crown, ArrowRight, Flame, Zap, Award, Play } from 'lucide-react';
+import { Repeat, Crown, ArrowRight, Zap, Award, Play } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { ContinueLearning, LearningPathCard } from '@/components/academy/ui/cards';
+import { StreakFlame } from '@/components/Celebration';
+import { STREAK_MILESTONES } from '@/lib/milestones';
 import LandingView from '@/components/academy/LandingView';
 import { PATHS, pathsForCourse } from '@/data/catalog';
 import { DAILY_GOAL_XP, levelInfo, liveStreak, useAcademy, xpToday } from '@/lib/academy';
@@ -21,9 +23,9 @@ function StreakWidget({ state }) {
     <Card level={2} padding="md" aria-label="Your study stats">
       <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
         <div className="flex items-center gap-3">
-          <IconTile icon={Flame} color={streak > 0 ? '#f97316' : '#64748b'} />
+          <StreakFlame streak={streak} />
           <div>
-            <p className="text-heading text-ink-1">{streak} {streak === 1 ? 'day' : 'days'}</p>
+            <p className={`text-heading text-ink-1 ${STREAK_MILESTONES.includes(streak) ? 'count-pop' : ''}`} key={streak}>{streak} {streak === 1 ? 'day' : 'days'}</p>
             <p className="text-caption text-ink-2">study streak</p>
           </div>
         </div>

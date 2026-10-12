@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import confetti from 'canvas-confetti';
 import {
   ArrowLeft, Award, Check, ChevronLeft, ChevronRight, Clock, Flag,
   Home, ListChecks, Play, RotateCcw, TriangleAlert, X,
@@ -289,15 +288,6 @@ function RunningExam({ exam }) {
 
 function ReportScreen({ exam }) {
   const { result } = exam;
-  const fired = useRef(false);
-
-  useEffect(() => {
-    if (result.passed && !fired.current) {
-      fired.current = true;
-      confetti({ particleCount: 160, spread: 80, origin: { y: 0.6 } });
-    }
-  }, [result.passed]);
-
   return (
     <div>
       <p className="text-small font-semibold text-ink-2">Exam report</p>
