@@ -2,7 +2,7 @@
 
 **Lesson ID:** sec-concepts
 **Track:** Security+ (SY0-701)
-**Estimated runtime:** ~5 minutes (~740 words)
+**Estimated runtime:** ~7 minutes (~950 words)
 
 ## Spoken script
 
