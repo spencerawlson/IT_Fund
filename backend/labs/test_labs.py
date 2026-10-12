@@ -313,3 +313,30 @@ def test_cleanup_removes_expired_sessions():
     assert sid not in sessions_mod.service._sessions
     # Cleanup again is safe.
     assert asyncio.run(sessions_mod.service.cleanup_expired()) == 0
+
+
+# ---- entitlement (real billing behavior; the file-wide patcher is paused) ----
+
+def test_lab_entitlement():
+    """Free labs start for anyone; premium labs need a subscription (402 otherwise)."""
+    setup_function._patcher.stop()
+    try:
+        with mock.patch.object(
+            labs_api, "is_subscribed", side_effect=lambda owner_id: owner_id == "u_sub"
+        ):
+            # Free tier is open to everyone, guest or signed in.
+            r = client.post("/api/labs/py-basics-001/start")
+            assert r.status_code == 200, r.text
+            r = client.post("/api/labs/net-vlan-001/start", cookies=_user("u1"))
+            assert r.status_code == 200, r.text
+            # Premium labs refuse anonymous guests with 402.
+            r = _guest().post("/api/labs/cyber-nmap-001/start")
+            assert r.status_code == 402, r.text
+            # ... and unsubscribed signed-in users.
+            r = client.post("/api/labs/cyber-nmap-001/start", cookies=_user("u1"))
+            assert r.status_code == 402, r.text
+            # Subscribed users start premium labs fine.
+            r = client.post("/api/labs/cyber-nmap-001/start", cookies=_user("u_sub"))
+            assert r.status_code == 200, r.text
+    finally:
+        setup_function._patcher.start()

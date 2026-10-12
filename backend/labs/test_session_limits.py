@@ -7,6 +7,7 @@ import asyncio
 import sys
 from datetime import timedelta
 from pathlib import Path
+from unittest import mock
 
 backend_dir = Path(__file__).resolve().parents[1]
 if str(backend_dir) not in sys.path:
@@ -15,6 +16,7 @@ if str(backend_dir) not in sys.path:
 from fastapi.testclient import TestClient
 
 import main
+from labs import api as labs_api
 from labs import sessions as sessions_mod
 from labs.sessions import COMPLETED, MAX_LIVE_SESSIONS_PER_OWNER, LabError, SessionService, _now
 
@@ -26,6 +28,17 @@ def setup_function():
     client.cookies.clear()
     sessions_mod.service._sessions.clear()
     sessions_mod.service._providers["mock"]._envs.clear()
+    # These tests exercise session bounds, not billing: act as a subscribed
+    # user so entitlement never interferes.
+    setup_function._patcher = mock.patch.object(labs_api, "is_subscribed", return_value=True)
+    setup_function._patcher.start()
+
+
+def teardown_function():
+    patcher = getattr(setup_function, "_patcher", None)
+    if patcher:
+        patcher.stop()
+        setup_function._patcher = None
 
 
 def test_one_visitor_cannot_hoard_live_sessions_over_http():

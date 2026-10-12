@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
+from unittest import mock
 
 os.environ["COOKIE_INSECURE"] = "1"  # allow the session cookie over http in tests
 
@@ -16,6 +17,7 @@ import main
 from auth import oauth as oauth_mod
 from auth.identity import OAuthIdentity, upsert_identity
 from auth.sessions import COOKIE_NAME, create_session, delete_session, user_for_session
+from labs import api as labs_api
 
 client = TestClient(main.app)
 
@@ -141,7 +143,10 @@ def test_dev_login_works_when_explicitly_enabled(monkeypatch):
 
 
 def test_labs_work_with_session_cookie(monkeypatch):
+    # This tests the auth layer (cookie → lab access), not billing: neutralize
+    # entitlement so the premium lab starts.
     monkeypatch.setattr(oauth_mod, "fetch_identity", _fake_fetch)
+    monkeypatch.setattr(labs_api, "is_subscribed", lambda owner_id: True)
     client.cookies.clear()
     client.get("/api/auth/google/callback", follow_redirects=False)  # signs in, sets cookie
     r = client.post("/api/labs/cyber-nmap-001/start")  # no bearer token, cookie only
