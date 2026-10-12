@@ -55,11 +55,12 @@ const LabTerminal = forwardRef(function LabTerminal(
     setBusy(true);
     try {
       const res = await exec(raw);
-      if (res.clear) {
-        setLines([]);
-      } else if (res.output) {
-        append(res.output.split('\n').map((text) => ({ kind: res.exit_code ? 'err' : 'out', text })));
-      }
+      const items = res.output
+        ? res.output.split('\n').map((text) => ({ kind: res.exit_code ? 'err' : 'out', text }))
+        : [];
+      // `clear` wipes the screen first (including the echoed command), then the
+      // command's own output is the only thing shown — `labs` leaves just titles.
+      setLines(res.clear ? items : (prev) => [...prev, ...items]);
       if (res.prompt) {
         setPrompt(res.prompt);
         if (onPrompt) onPrompt(res.prompt);
