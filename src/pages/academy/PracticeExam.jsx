@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft, Award, Check, ChevronLeft, ChevronRight, Clock, Flag,
-  Home, ListChecks, Play, RotateCcw, TriangleAlert, X,
+  Home, Info, ListChecks, Play, RotateCcw, TriangleAlert, X,
 } from 'lucide-react';
 import { Button, Card, ProgressBar, EmptyState } from '@/components/ui-glass';
 import { CISSP_DOMAINS } from '@/data/academy/meta';
@@ -69,6 +69,7 @@ function StartScreen({ history }) {
           <li className="flex gap-3"><ListChecks size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_QUESTION_COUNT} questions, sampled from every track and weighted by the official CISSP domain weights.</li>
           <li className="flex gap-3"><Clock size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_DURATION_MIN / 60} hours on the clock. The timer survives a refresh — closing the tab does not buy you time.</li>
           <li className="flex gap-3"><Award size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_PASS_PCT}% proficiency to pass, with a per-domain breakdown so you know exactly what to study next.</li>
+          <li className="flex gap-3"><Info size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />Fixed-length practice: the real CISSP is computer-adaptive (it adjusts difficulty as you answer). Treat this as a knowledge check, not a test-day prediction.</li>
         </ul>
         <div className="mt-6">
           <Button size="lg" icon={Play} onClick={() => startPracticeExam()} className="w-full sm:w-auto">Start the exam</Button>

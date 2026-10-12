@@ -6,6 +6,7 @@ import LabTerminal from '@/components/labs/LabTerminal';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
 import { useSubscription, isLabFree } from '@/lib/subscription';
+import { LESSONS_FOR_LAB } from '@/data/labLessons';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
@@ -321,6 +322,7 @@ export default function LabWorkspace() {
   const usesTerminal = !!lab.terminal;
   const done = session.status === 'COMPLETED';
   const expired = session.status === 'EXPIRED';
+  const relatedLessons = LESSONS_FOR_LAB[labId] || [];
 
   const banner = lab.terminal?.banner || [];
   const prompt = lab.terminal?.prompt || 'student@lab:~$ ';
@@ -335,6 +337,9 @@ export default function LabWorkspace() {
           <span className="min-w-0 flex-1 truncate text-body font-semibold">{lab.title}</span>
           <LabTimer expiresAt={session.expires_at} />
           <Button size="sm" variant="ghost" icon={RotateCcw} onClick={reset} disabled={busy}>Reset</Button>
+          {relatedLessons.length > 0 && (
+            <Button size="sm" variant="ghost" to={`/academy/lessons/${relatedLessons[0]}`}>Lesson</Button>
+          )}
           <Button size="sm" variant="secondary" to="/practice">Exit</Button>
         </div>
       </header>

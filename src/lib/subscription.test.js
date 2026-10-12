@@ -16,9 +16,10 @@ describe('free-tier boundaries', () => {
     expect(isDeckFree('nope')).toBe(false);
   });
 
-  it('marks exactly two labs as free', () => {
-    expect(isLabFree('vlan-inter-vlan-routing')).toBe(true);
+  it('marks exactly two labs as free (by lab ID, not slug)', () => {
+    expect(isLabFree('net-vlan-001')).toBe(true);
     expect(isLabFree('py-basics-001')).toBe(true);
+    expect(isLabFree('vlan-inter-vlan-routing')).toBe(false);
     expect(isLabFree('static-routing')).toBe(false);
     expect(isLabFree('nope')).toBe(false);
   });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap, Eye } from 'lucide-react';
+import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap, Eye, TerminalSquare } from 'lucide-react';
 import RichText from '@/components/academy/RichText';
 import LayerStack from '@/components/academy/LayerStack';
 import { PrereqNotice } from '@/components/academy/ui/bits';
@@ -8,6 +8,7 @@ import {
   Button, Card, EmptyState, ListLink, PageContainer, PageHeader, StatusBadge,
 } from '@/components/ui-glass';
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
+import { labForLesson } from '@/data/labLessons';
 import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 import { useSubscription } from '@/lib/subscription';
@@ -106,6 +107,17 @@ export default function LessonView() {
             <p className="text-small text-ink-2">See this concept animated, then configure it yourself.</p>
             <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm" icon={Eye}>
               Open in Visual Lab
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {labForLesson(lesson.id) && (
+        <Card level={2} padding="sm" className="mb-8 max-w-reading">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-small text-ink-2">Do it for real: a hands-on lab terminal for this lesson's skills.</p>
+            <Button to={`/labs/${labForLesson(lesson.id)}`} variant="primary" size="sm" icon={TerminalSquare}>
+              Launch Lab
             </Button>
           </div>
         </Card>

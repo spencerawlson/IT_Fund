@@ -55,4 +55,23 @@ describe('lab console track navigation', () => {
     expect(buildSearchResults(labs, 'CLI').map((l) => l.id)).toEqual(['aws-cli-001']);
     expect(buildSearchResults(labs, 'zzz')).toEqual([]);
   });
+
+  it('merges portblast into the Security & Blue Team track', () => {
+    const mixed = [
+      ...labs,
+      { id: 'cyber-nmap-001', slug: 'nmap', title: 'Nmap', category: 'cybersecurity', description: 'scan' },
+      { id: 'cyber-portblast-001', slug: 'portblast', title: 'PortBlast', category: 'portblast', description: 'scan' },
+    ];
+    const cats = getOrderedCategories(mixed);
+    expect(cats).toContain('cybersecurity');
+    expect(cats).not.toContain('portblast');
+    const out = buildTrackList(mixed, cats);
+    const securityRows = out.split('\n').filter((l) => l.includes('Security & Blue Team'));
+    expect(securityRows).toHaveLength(1);
+    expect(securityRows[0]).toContain('(2 labs)');
+    const trackOut = buildTrackLabs(mixed, 'cybersecurity');
+    expect(trackOut).toContain('Nmap');
+    expect(trackOut).toContain('PortBlast');
+    expect(resolveTrack(cats, 'portblast')).toBe('cybersecurity');
+  });
 });

@@ -111,9 +111,7 @@ TERRAFORM_FUNDAMENTALS_LAB = LabDefinition(
         "then clean up. The sandbox has no AWS API access, so apply/destroy stop at the plan "
         "stage — exactly where a careful engineer reviews before touching real infrastructure."
     ),
-    # NOTE: "devops" is not yet in LabCategory (models.py); the registry does not
-    # validate categories at runtime, but models.py may want the Literal extended.
-    category="devops",  # type: ignore[assignment]
+    category="devops",
     difficulty="beginner",
     estimated_minutes=45,
     shell="terraform_cli",

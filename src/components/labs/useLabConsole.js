@@ -15,27 +15,31 @@ import { labsApi } from '@/api/labs';
 //   back            → back to the track list
 // Slugs and ids always work globally: `lab start terraform-aws-001`.
 
-const CATEGORY_ORDER = ['networking', 'cloud', 'devops', 'portblast', 'cybersecurity', 'python', 'linux'];
+const CATEGORY_ORDER = ['networking', 'cloud', 'devops', 'cybersecurity', 'python', 'linux'];
 const CATEGORY_LABEL = {
   networking: 'Networking & Routing',
   cloud: 'Cloud & IaC',
   devops: 'DevOps & IaC',
   cybersecurity: 'Security & Blue Team',
-  portblast: 'Security & Blue Team',
   python: 'Python Automation',
   linux: 'Linux',
 };
 
+// PortBlast is a flavour of the Security & Blue Team track, not its own track:
+// every grouping below merges it into 'cybersecurity' so the console shows one
+// Security track instead of two identically-labelled rows.
+const trackKey = (category) => (category === 'portblast' ? 'cybersecurity' : category);
+
 function orderLabs(labs) {
   const rank = (c) => {
-    const i = CATEGORY_ORDER.indexOf(c);
+    const i = CATEGORY_ORDER.indexOf(trackKey(c));
     return i === -1 ? CATEGORY_ORDER.length : i;
   };
   return [...labs].sort((a, b) => rank(a.category) - rank(b.category) || a.title.localeCompare(b.title));
 }
 
 function orderedCategories(labs) {
-  return [...new Set(orderLabs(labs).map((l) => l.category))];
+  return [...new Set(orderLabs(labs).map((l) => trackKey(l.category)))];
 }
 
 const pad2 = (n) => String(n).padStart(2, '0');
@@ -43,13 +47,13 @@ const pad2 = (n) => String(n).padStart(2, '0');
 // ---------- Pure, exported for tests ----------
 
 export function getOrderedCategories(labs) {
-  return [...new Set(orderLabs(labs).map((l) => l.category))];
+  return [...new Set(orderLabs(labs).map((l) => trackKey(l.category)))];
 }
 
 export function buildTrackList(labs, categories) {
   const lines = ['LAB TRACKS', '==========', ''];
   categories.forEach((c, i) => {
-    const n = labs.filter((l) => l.category === c).length;
+    const n = labs.filter((l) => trackKey(l.category) === c).length;
     lines.push(`  [${i + 1}] ${CATEGORY_LABEL[c] || c}   (${n} lab${n === 1 ? '' : 's'})`);
   });
   lines.push('', 'Type  labs <#>  to open a track (e.g. labs 1).');
@@ -57,8 +61,8 @@ export function buildTrackList(labs, categories) {
 }
 
 export function buildTrackLabs(labs, category) {
-  const list = labs.filter((l) => l.category === category);
-  const label = CATEGORY_LABEL[category] || category;
+  const list = labs.filter((l) => trackKey(l.category) === trackKey(category));
+  const label = CATEGORY_LABEL[trackKey(category)] || category;
   const lines = [label.toUpperCase(), '='.repeat(label.length), ''];
   list.forEach((l, i) => lines.push(`  [${i + 1}] ${l.title}`));
   lines.push('', 'Type  lab info <#>  for details,  lab start <#>  to begin,  back  for tracks.');
@@ -70,7 +74,11 @@ export function resolveTrack(categories, token) {
   const n = parseInt(token, 10);
   if (!Number.isNaN(n) && n >= 1 && n <= categories.length) return categories[n - 1];
   const q = (token || '').toLowerCase();
-  return categories.find((c) => c.includes(q) || (CATEGORY_LABEL[c] || '').toLowerCase().includes(q)) || null;
+  // Match the merged track key, its label, or a raw category inside the track
+  // (e.g. `labs portblast` still opens Security & Blue Team).
+  return categories.find((c) =>
+    c.includes(q) || (CATEGORY_LABEL[c] || '').toLowerCase().includes(q) || trackKey(q) === c,
+  ) || null;
 }
 
 export function buildSearchResults(labs, term) {

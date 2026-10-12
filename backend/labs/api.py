@@ -6,9 +6,10 @@ always comes from the session cookie or the guest cookie, never from the request
 one student cannot touch another's session. Responses use the *_public_dict() views, which omit
 environment ids and provider internals.
 
-Labs are **open to everyone during development**, signed in or not: an anonymous visitor gets a
-guest id (see `auth.deps`) that scopes their own sessions. `_check_lab_entitlement` below is the one
-place the paid gate goes when billing lands.
+Labs are **open to everyone for the free tier** (see FREE_LAB_IDS), signed in or not:
+an anonymous visitor gets a guest id (see `auth.deps`) that scopes their own sessions.
+Every other lab requires an active subscription, enforced by `_check_lab_entitlement`
+below — guests can never satisfy it, so there is no trial counter to game.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ from sqlalchemy import select
 
 import db
 from auth.deps import require_user_id, resolve_user_id, resolve_visitor_id
+from billing import is_subscribed
 from db_models import LabCompletion
 from labs.registry import get_lab, list_labs
 from labs.sessions import LabError, service
@@ -63,19 +65,30 @@ MAX_FINDINGS_BYTES = 16 * 1024
 
 _STATUS = {"not_found": 404, "invalid": 400, "unavailable": 503}
 
-#: Planned: a free trial may start this many labs, after which a subscription is required.
-TRIAL_LAB_STARTS = 10
+
+#: Labs anyone may start, signed in or not — the free-tier showcase.
+#: Keyed by lab ID (the identifier the API routes on), not slug.
+FREE_LAB_IDS = frozenset({"net-vlan-001", "py-basics-001"})
 
 
-def _check_lab_entitlement(owner_id: str) -> None:
-    """Whether this caller may start another lab. Open to all during development.
+def _check_lab_entitlement(owner_id: str, lab_id: str) -> None:
+    """Whether this caller may start this lab.
 
-    When labs become a paid feature this is the single check to implement: count the owner's lab
-    starts, allow the first TRIAL_LAB_STARTS, and otherwise require an active subscription (which
-    also means requiring a real account, since a guest id is per browser and free to discard).
-    Raise HTTPException(402/403) to refuse; the client already surfaces the `detail` message.
+    Free-tier labs are open to everyone, guest or signed in. Every other lab
+    requires an active subscription — `is_subscribed` also covers owners and
+    trialing subscriptions, and never raises. Guests can never be subscribed
+    (a `guest:` id matches no account), so they are limited to the free tier
+    by construction; there is no trial counter to game.
+    Raise HTTPException(402) to refuse; the client surfaces `detail`.
     """
-    return None
+    if lab_id in FREE_LAB_IDS:
+        return
+    if is_subscribed(owner_id):
+        return
+    raise HTTPException(
+        status_code=status.HTTP_402_PAYMENT_REQUIRED,
+        detail="This lab needs a subscription — upgrade to unlock all 38 labs.",
+    )
 
 
 def _http(err: LabError) -> HTTPException:
@@ -166,7 +179,7 @@ async def start_lab(lab_id: str, owner_id: str = Depends(resolve_visitor_id)) ->
     # lab_id is looked up server-side; the client cannot pass an image, target or provider.
     if get_lab(lab_id) is None:
         raise HTTPException(status_code=404, detail="Lab not found.")
-    _check_lab_entitlement(owner_id)
+    _check_lab_entitlement(owner_id, lab_id)
     _check_start_rate(owner_id)
     try:
         session = await service.start(lab_id, owner_id)

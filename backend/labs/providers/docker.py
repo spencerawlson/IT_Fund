@@ -205,6 +205,38 @@ class DockerLabProvider(LabProvider):
                 pass  # already gone / daemon hiccup: still a no-op for the caller
 
         await asyncio.to_thread(_destroy)
+
+    async def reap_orphans(self, max_age_minutes: int = 120) -> int:
+        """Destroy lab containers older than max_age_minutes, by label.
+
+        Covers the restart gap: `_sessions` is in-memory, so a backend restart
+        orphans containers no worker tracks anymore. Labels (`rtc=labs`) make
+        this safe across workers — anything this old has outlived every lab's
+        max_runtime_minutes. Idempotent; returns the number removed.
+        """
+        def _reap() -> int:
+            client = self._client_or_raise()
+            cutoff = _now() - timedelta(minutes=max_age_minutes)
+            removed = 0
+            for container in client.containers.list(all=True, filters={"label": "rtc=labs"}):
+                try:
+                    created = container.attrs.get("Created", "")
+                    # Docker timestamps: "2026-10-12T11:30:00.123456789Z"
+                    ts = created[:26] + "+00:00" if created.endswith("Z") else created
+                    born = datetime.fromisoformat(ts)
+                    if born.tzinfo is None:
+                        born = born.replace(tzinfo=timezone.utc)
+                    if born < cutoff:
+                        container.remove(force=True)
+                        removed += 1
+                except Exception:
+                    continue  # never let one bad container stop the sweep
+            return removed
+
+        try:
+            return await asyncio.to_thread(_reap)
+        except Exception:
+            return 0
         self._last_used.pop(environment_id, None)
 
     async def validate_objective(

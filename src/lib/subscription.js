@@ -86,8 +86,9 @@ export function isDeckFree(deckId) {
   return FREE_DECKS.has(deckId);
 }
 
-/** Two showcase labs are free: networking fundamentals + a real Docker container lab. */
-const FREE_LABS = new Set(['vlan-inter-vlan-routing', 'py-basics-001']);
+/** Two showcase labs are free: networking fundamentals + a real Docker container lab.
+    Keyed by lab ID (the identifier the /labs/:labId route matches on), not slug. */
+const FREE_LABS = new Set(['net-vlan-001', 'py-basics-001']);
 
 export function isLabFree(labId) {
   return FREE_LABS.has(labId);

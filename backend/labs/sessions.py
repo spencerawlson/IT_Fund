@@ -28,6 +28,10 @@ CREATING, READY, RUNNING, VALIDATING, COMPLETED, FAILED, EXPIRED, DESTROYING, DE
 #: starts are open to anonymous visitors, and session storage is in-memory.
 MAX_LIVE_SESSIONS_PER_OWNER = 5
 
+#: Live *Docker* sessions one owner may hold at once. Containers cost real RAM/CPU
+#: (512MB each), so this is tighter than the general cap. Mock sessions are cheap.
+MAX_LIVE_DOCKER_SESSIONS_PER_OWNER = 3
+
 
 class LabError(Exception):
     """Carries a code the API maps to an HTTP status: not_found, unavailable, invalid."""
@@ -155,6 +159,18 @@ class SessionService:
                    if s.user_id == user_id and s.status in (CREATING, READY, RUNNING, VALIDATING))
         if live >= MAX_LIVE_SESSIONS_PER_OWNER:
             raise LabError("invalid", f"You already have {MAX_LIVE_SESSIONS_PER_OWNER} labs open. Exit one first.")
+        # Docker containers cost real host resources: cap those separately and tighter.
+        if lab.environment.provider == "docker":
+            def _is_live_docker(s) -> bool:
+                if not (s.user_id == user_id and s.status in (CREATING, READY, RUNNING, VALIDATING)):
+                    return False
+                other = get_lab(s.lab_id)
+                return other is not None and other.environment.provider == "docker"
+
+            if sum(1 for s in self._sessions.values() if _is_live_docker(s)) >= MAX_LIVE_DOCKER_SESSIONS_PER_OWNER:
+                raise LabError("invalid",
+                               f"You already have {MAX_LIVE_DOCKER_SESSIONS_PER_OWNER} live container labs open. "
+                               "Exit one first.")
         provider = self._provider_for(lab.environment.provider)
         env = await provider.create_session(lab, user_id)
         now = _now()

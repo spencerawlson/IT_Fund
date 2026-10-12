@@ -1,5 +1,9 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+
+import logging
+
+log = logging.getLogger(__name__)
 #The AI Tutor
 import ai_tutor
 
@@ -109,6 +113,19 @@ from contextlib import asynccontextmanager  # noqa: E402
 async def lifespan(app):
     if IS_PRODUCTION:
         _run_migrations()
+    # Sweep orphaned lab containers: _sessions is in-memory, so a restart leaves
+    # containers no worker tracks. Labeled + age-gated, so this is safe to run
+    # in every worker (idempotent).
+    try:
+        from labs.sessions import service as _lab_service
+
+        _docker = _lab_service._providers.get("docker")
+        if _docker is not None:
+            _reaped = await _docker.reap_orphans()
+            if _reaped:
+                log.warning("reaped %d orphaned lab containers on startup", _reaped)
+    except Exception:
+        log.exception("lab orphan reaper failed on startup")
     yield
 
 
