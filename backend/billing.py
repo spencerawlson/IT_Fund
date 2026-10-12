@@ -8,6 +8,7 @@ Env vars (never hardcoded):
   STRIPE_WEBHOOK_SECRET — signing secret for /billing/webhook (whsec_...).
   STRIPE_PRICE_ID       — the $19/mo recurring Price id (price_...).
   BILLING_APP_URL       — where to send users after checkout/cancel (default: https://www.road2cissp.com).
+  BILLING_OWNER_EMAILS  — comma-separated emails with full access, never billed (the owner's accounts).
 
 Subscription state lives in the `subscriptions` table and is written ONLY by the
 Stripe webhook — client input is never trusted for access decisions. Gate premium
@@ -56,8 +57,33 @@ def _require_stripe():
     return stripe
 
 
+def _owner_emails() -> set[str]:
+    """Email addresses that always have full access (the owner's accounts)."""
+    raw = os.environ.get("BILLING_OWNER_EMAILS", "")
+    return {e.strip().lower() for e in raw.split(",") if e.strip()}
+
+
+def _user_email(user_id: str) -> str | None:
+    try:
+        with db.SessionLocal() as s:
+            from db_models import User
+
+            user = s.get(User, user_id)
+            return user.email.lower() if user and user.email else None
+    except Exception:
+        return None
+
+
+def is_owner(user_id: str) -> bool:
+    """True when the user is the site owner (full access, never billed)."""
+    email = _user_email(user_id)
+    return bool(email and email in _owner_emails())
+
+
 def is_subscribed(user_id: str) -> bool:
     """True when the user has an active (or trialing) subscription. Never raises."""
+    if is_owner(user_id):
+        return True
     try:
         with db.SessionLocal() as s:
             row = s.get(Subscription, user_id)
@@ -139,6 +165,8 @@ def create_checkout(user_id: str = Depends(require_user_id)) -> dict:
 @router.get("/status")
 def subscription_status(user_id: str = Depends(require_user_id)) -> dict:
     """Return the caller's subscription state for the frontend paywall."""
+    if is_owner(user_id):
+        return {"subscribed": True, "status": "owner", "current_period_end": None}
     _require_stripe()
     with db.SessionLocal() as s:
         row = s.get(Subscription, user_id)

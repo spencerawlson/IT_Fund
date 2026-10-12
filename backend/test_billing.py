@@ -141,6 +141,16 @@ def test_is_subscribed_active_and_trialing():
     assert billing.is_subscribed(uid) is False
 
 
+def test_owner_bypass_never_billed(monkeypatch):
+    monkeypatch.setenv("BILLING_OWNER_EMAILS", "owner@example.com, second@example.com")
+    _, owner_uid = _signed_in(sub="owner1", email="Owner@Example.com")  # case-insensitive
+    _, other_uid = _signed_in(sub="other1", email="other@example.com")
+    assert billing.is_owner(owner_uid) is True
+    assert billing.is_subscribed(owner_uid) is True  # no subscription row needed
+    assert billing.is_owner(other_uid) is False
+    assert billing.is_subscribed(other_uid) is False
+
+
 # ---------- auth + 503 gating ----------
 
 

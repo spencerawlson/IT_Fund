@@ -17,7 +17,7 @@ const FEATURES = [
 const FAQS = [
   {
     q: 'Can I cancel anytime?',
-    a: 'Yes. Cancel in one click from your account page — no emails, no phone calls, no retention gauntlet. You keep premium access until the end of your billing period.',
+    a: 'Yes. Cancel in one click from your account page — no emails, no phone calls, no retention gauntlet. You keep full access until the end of your billing period.',
   },
   {
     q: 'What happens to my progress if I cancel?',
@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: 'What exactly is free?',
-    a: 'One sample lesson, 50 flashcards, one hands-on lab, and all marketing pages — no account or payment needed. Everything beyond that is premium.',
+    a: 'One sample lesson, 50 flashcards, one hands-on lab, and all marketing pages — no account or payment needed. Everything beyond that needs the subscription.',
   },
   {
     q: 'Is this enough to pass Security+ or CISSP?',
@@ -86,7 +86,7 @@ export default function Pricing() {
         {/* Plan card */}
         <section className="mx-auto max-w-xl pb-16">
           <Card level={2} padding="lg" className="text-center">
-            <p className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">Premium</p>
+            <p className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">Subscription</p>
             <p className="mt-3">
               <span className="text-[3rem] font-bold leading-none tracking-tight text-ink-1">$19</span>
               <span className="text-body text-ink-2"> / month</span>
@@ -115,7 +115,7 @@ export default function Pricing() {
 
         {/* Features */}
         <section className="pb-16">
-          <h2 className="text-center text-title font-bold tracking-tight text-ink-1">What premium unlocks</h2>
+          <h2 className="text-center text-title font-bold tracking-tight text-ink-1">What the subscription unlocks</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <Card key={title} level={1} padding="lg">
