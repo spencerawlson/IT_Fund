@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BookOpen, FlaskConical, Target, RefreshCw, Check, X, Loader2 } from 'lucide-react';
 import { Button, Card } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
+import { useSubscription } from '@/lib/subscription';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -36,6 +37,7 @@ const FAQS = [
 export default function Pricing() {
   useDocumentTitle('Pricing · Road to CISSP');
   const { isAuthenticated } = useAuth();
+  const { subscribed } = useSubscription();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
@@ -99,10 +101,14 @@ export default function Pricing() {
               ))}
             </ul>
             <div className="mt-8">
-              <Button size="lg" onClick={subscribe} disabled={busy} className="w-full sm:w-auto">
-                {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
-                {busy ? 'Starting checkout…' : isAuthenticated ? 'Subscribe — $19/mo' : 'Sign in to subscribe'}
-              </Button>
+              {subscribed ? (
+                <p className="text-body font-semibold text-success">You have full access — enjoy the labs.</p>
+              ) : (
+                <Button size="lg" onClick={subscribe} disabled={busy} className="w-full sm:w-auto">
+                  {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
+                  {busy ? 'Starting checkout…' : isAuthenticated ? 'Subscribe — $19/mo' : 'Sign in to subscribe'}
+                </Button>
+              )}
               {error && (
                 <p className="mt-3 flex items-center justify-center gap-2 text-small text-error">
                   <X size={15} aria-hidden="true" /> {error}
