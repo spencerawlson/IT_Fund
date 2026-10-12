@@ -250,8 +250,11 @@ html[data-theme="dark"] {
   --danger-rgb: 255 69 58;
   --info-rgb: 10 132 255;
   /* Page base and glass fills: pure black with #1C1C1E frosted panels.
-     Tints (--bg-tint-*) are inherited from :root; they stay ultra-subtle on black. */
+     Ambient tints: barely-there navy/teal radials. They stay extremely subtle
+     on black so the Apple dark aesthetic holds while the background breathes. */
   --bg-base: #000000;
+  --bg-tint-1: radial-gradient(closest-side, rgba(22, 40, 61, 0.5), transparent);
+  --bg-tint-2: radial-gradient(closest-side, rgba(23, 59, 67, 0.42), transparent);
   --surface-1: rgba(28, 28, 30, 0.55);
   --surface-2: rgba(28, 28, 30, 0.65);
   --surface-3: rgba(28, 28, 30, 0.7);
@@ -325,6 +328,33 @@ html[data-theme="dark"] .glass-3 {
 }
 
 @keyframes pop { 0% { transform: scale(0.97); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* ---- Ultra-subtle ambient background ------------------------------------
+   Two tint layers breathe by crossfading opacity on a 240s cycle, offset by
+   half a cycle so one is always rising while the other falls. 0% == 100%, so
+   the loop has no visible restart. Opacity-only animation: GPU-composited,
+   no layout or paint cost per frame, no JS loops.
+   Disabled via html[data-ambient="off"] (user preference) or
+   prefers-reduced-motion (static background instead). */
+@keyframes ambient-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.ambient-tint {
+  animation: ambient-breathe 240s ease-in-out infinite;
+  will-change: opacity;
+}
+.ambient-tint-b {
+  animation-delay: -120s;
+}
+html[data-ambient="off"] .ambient-tint {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ambient-tint {
+    animation: none;
+  }
+}
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes rise { 0% { transform: translateY(8px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 

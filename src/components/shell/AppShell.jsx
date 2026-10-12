@@ -9,6 +9,7 @@ import { useAcademy } from '@/lib/academy';
 import { continueLearning } from '@/lib/progress/engine';
 import { cn } from '@/lib/utils';
 import { useTutorPanel } from './TutorContext';
+import AmbientToggle from '@/components/AmbientToggle';
 
 // Which URLs light up each item. Lessons, courses and paths all count as "Learn".
 const LEARN = /^\/academy\/(courses|lessons|paths)(\/|$)|^\/academy\/(?!roadmap|review)[^/]+$/;
@@ -139,6 +140,7 @@ export default function AppShell() {
           </nav>
           <div className="mt-auto space-y-1 border-t border-black/[0.07] pt-3">
             <TutorButton />
+            <AmbientToggle />
             <AccountMenu />
           </div>
         </div>
