@@ -44,6 +44,12 @@ def _stripe():
     import stripe
 
     stripe.api_key = key
+    # Fail fast on network trouble: without this, a blackholed route (e.g. broken
+    # IPv6 on the host) hangs checkout for minutes instead of erroring in seconds.
+    try:
+        stripe.default_http_client = stripe.http_client.RequestsClient(timeout=10)
+    except Exception:
+        pass
     return stripe
 
 
