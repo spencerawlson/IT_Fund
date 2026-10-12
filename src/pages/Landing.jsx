@@ -46,6 +46,47 @@ const STEPS = [
   { n: '3', title: 'Pass', text: 'Timed practice exams tell you exactly when you\u2019re ready for the real thing.' },
 ];
 
+// The certification road, in the order learners actually take it. Depth badges
+// are honest: "Exam sim" only where a timed simulator ships, otherwise the
+// track's real contents (lessons + labs + cards).
+const CERT_ROAD = [
+  {
+    code: 'SY0-701', name: 'Security+', tag: 'Start here',
+    detail: 'Our flagship: 500+ flashcards, 40 lessons, hands-on labs.',
+    exam: true,
+  },
+  {
+    code: 'N10-009', name: 'Network+', tag: null,
+    detail: 'Networking lessons, subnetting practice, and routing labs.',
+    exam: false,
+  },
+  {
+    code: 'Linux+', name: 'Linux+', tag: null,
+    detail: 'Linux lessons and terminal labs — the skills certs assume you have.',
+    exam: false,
+  },
+  {
+    code: 'CS0-003', name: 'CySA+', tag: null,
+    detail: '160 flashcards, 8 lessons, blue-team labs.',
+    exam: true,
+  },
+  {
+    code: 'SAA-C03', name: 'AWS Solutions Architect', tag: null,
+    detail: '198 flashcards, 11 lessons, architecture scenarios.',
+    exam: true,
+  },
+  {
+    code: 'SCS-C02', name: 'AWS Security Specialty', tag: null,
+    detail: '161 flashcards, 10 lessons, cloud security labs.',
+    exam: true,
+  },
+  {
+    code: 'CISSP', name: 'CISSP', tag: 'The capstone',
+    detail: 'All 8 domains, timed exam engine, 19 deep-dive lessons.',
+    exam: true,
+  },
+];
+
 export default function Landing() {
   useDocumentTitle('Road to CISSP — From IT fundamentals to cloud expert');
   const { isAuthenticated, isLoadingAuth } = useAuth();
@@ -61,7 +102,8 @@ export default function Landing() {
         <span className="text-body font-bold tracking-tight">Road to CISSP</span>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" to="/labs">Labs</Button>
-          <Button variant="secondary" size="sm" to="/signin">Sign in</Button>
+          <Button variant="ghost" size="sm" to="/signin">Sign in</Button>
+          <Button size="sm" to="/signin">Create free account</Button>
         </div>
       </header>
 
@@ -119,6 +161,48 @@ export default function Landing() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Certification road */}
+        <section className="pb-16 sm:pb-20" aria-label="Certifications">
+          <p className="text-center text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">
+            The road
+          </p>
+          <h2 className="mt-2 text-center text-title font-bold text-ink-1">
+            Every cert on the way to CISSP
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-center text-body text-ink-2">
+            One subscription covers the whole journey — from your first
+            certification to the capstone.
+          </p>
+          <ol className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {CERT_ROAD.map((c) => (
+              <li key={c.code} className="glass-2 rounded-card relative p-5">
+                {c.tag && (
+                  <span className="absolute right-4 top-4 text-caption font-semibold uppercase tracking-wider text-action">
+                    {c.tag}
+                  </span>
+                )}
+                <p className="font-mono text-caption text-ink-3">{c.code}</p>
+                <h3 className="mt-1 text-body font-semibold text-ink-1">{c.name}</h3>
+                <p className="mt-1.5 text-small text-ink-2">{c.detail}</p>
+                <p className="mt-3 flex items-center gap-1.5 text-caption text-ink-2">
+                  {c.exam ? (
+                    <>
+                      <Check size={14} className="shrink-0 text-success" aria-hidden="true" /> Timed exam simulator
+                    </>
+                  ) : (
+                    <>
+                      <BookOpen size={14} className="shrink-0 text-ink-3" aria-hidden="true" /> Lessons, labs &amp; flashcards
+                    </>
+                  )}
+                </p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-6 text-center text-small text-ink-3">
+            Plus skills tracks: Python, Docker, Kubernetes, Terraform, SQL, and more.
+          </p>
         </section>
 
         {/* How it works */}

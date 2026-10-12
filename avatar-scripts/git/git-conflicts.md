@@ -26,10 +26,10 @@ automatically — but overlapping edits it leaves to you, because only a human
 knows which version is correct. That restraint is a feature, not a failure.
 
 Git marks the file with three delimiters. Everything between <<<<<<< and
-======= is your current branch's version. Everything between ======= and
->>>>>>> is the incoming version. Your job: edit the region down to the
-correct final result — keeping one side, the other, or a blend of both — and
-delete all three markers. All three. This very project learned that lesson
+======= is your current branch's version. Everything between ======= and the
+closing >>>>>>> line is the incoming version. Your job: edit the region down
+to the correct final result — keeping one side, the other, or a blend of
+both — and delete all three markers. All three. This very project learned that lesson
 the hard way: a file committed with the markers still in it breaks the code.
 A pre-commit hook that scans for <<<<<<< is cheap insurance against exactly
 that.
