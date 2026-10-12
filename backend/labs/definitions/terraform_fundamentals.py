@@ -105,10 +105,11 @@ TERRAFORM_FUNDAMENTALS_LAB = LabDefinition(
     slug="terraform-fundamentals",
     title="Terraform Fundamentals: The IaC Workflow",
     description=(
-        "Master the complete Terraform workflow on a realistic webapp stack (VPC, subnets, "
-        "security group, EC2, S3): init, validate, plan, apply, inspect state and outputs, "
+        "Master the core Terraform workflow on a realistic webapp stack (VPC, subnets, "
+        "security group, EC2, S3): init, validate, plan, inspect the planned state, "
         "configure variables and workspaces, find and fix a misconfigured security group rule, "
-        "then destroy everything. The core Infrastructure as Code loop, end to end."
+        "then clean up. The sandbox has no AWS API access, so apply/destroy stop at the plan "
+        "stage — exactly where a careful engineer reviews before touching real infrastructure."
     ),
     # NOTE: "devops" is not yet in LabCategory (models.py); the registry does not
     # validate categories at runtime, but models.py may want the Literal extended.
@@ -117,7 +118,11 @@ TERRAFORM_FUNDAMENTALS_LAB = LabDefinition(
     estimated_minutes=45,
     shell="terraform_cli",
     environment=LabEnvironmentConfig(
-        provider="mock",
+        # Docker image road-to-cissp/iac is published on FedSer: real terraform 1.9.8
+        # + tfsec with an offline provider mirror. init/validate/plan/tfsec run for
+        # real; there is no AWS API in the sandbox, so apply/destroy objectives are
+        # framed around the saved plan (the honest boundary).
+        provider="docker",
         image="road-to-cissp/iac:latest",
         workdir="/home/student/infra",
         idle_timeout_minutes=20,
@@ -158,22 +163,22 @@ TERRAFORM_FUNDAMENTALS_LAB = LabDefinition(
         ),
         LabObjective(
             id="apply",
-            label="Apply the configuration",
+            label="Confirm the plan is safe to apply",
             validator="tf_applied",
-            description="Provision the 7 resources: apply the saved plan, or run apply and confirm.",
+            description="No AWS API in the sandbox: review the saved plan the way a careful engineer does before apply — 7 adds, no surprises.",
             hints=[
-                "terraform apply tfplan — applies exactly the saved plan.",
-                "Or terraform apply and type yes at the prompt; -auto-approve skips it.",
+                "terraform show -json tfplan | python3 -c \"import json,sys; d=json.load(sys.stdin); print([c['type'] for c in d['resource_changes']])\"",
+                "Every change should be type 'create'; anything else deserves investigation.",
             ],
         ),
         LabObjective(
             id="state-outputs",
-            label="Inspect state and outputs",
+            label="Inspect the planned outputs",
             validator="tf_state_inspected",
-            description="See what Terraform tracks: state list, outputs, and show.",
+            description="See what Terraform would track: planned values and outputs from the plan file.",
             hints=[
-                "terraform state list — the 7 resource addresses Terraform manages.",
-                "terraform output — vpc_id, web_public_ip, logs_bucket. Try terraform show too.",
+                "terraform show -json tfplan | python3 -m json.tool | grep -A5 '\"planned_values\"'",
+                "terraform output needs real state; the plan JSON shows the would-be outputs instead.",
             ],
         ),
         LabObjective(
@@ -190,20 +195,20 @@ TERRAFORM_FUNDAMENTALS_LAB = LabDefinition(
             id="fix-misconfig",
             label="Find and fix the open SSH rule",
             validator="tf_misconfiguration_fixed",
-            description="The web security group allows SSH from 0.0.0.0/0. Restrict it and redeploy.",
+            description="The web security group allows SSH from 0.0.0.0/0. Restrict it to 10.0.0.0/8 and re-plan to prove the fix.",
             hints=[
-                "edit main.tf — the simulated editor restricts SSH to 10.0.0.0/8.",
-                "terraform plan shows 1 change; terraform apply deploys it.",
+                "sed -i 's|0.0.0.0/0|10.0.0.0/8|' main.tf — then grep the SSH ingress block to confirm.",
+                "terraform plan shows the 1-line change; tfsec should go quiet on it.",
             ],
         ),
         LabObjective(
             id="destroy",
-            label="Destroy the infrastructure",
+            label="Clean up the lab workspace",
             validator="tf_destroyed",
-            description="Tear down all 7 resources. Always clean up.",
+            description="No cloud resources were created, so there is nothing to destroy — leave no trace locally instead.",
             hints=[
-                "terraform destroy — type yes at the prompt, or -auto-approve.",
-                "terraform state list afterwards errors: no state, nothing to manage.",
+                "rm -rf .terraform .terraform.lock.hcl tfplan — the working directory returns to just main.tf.",
+                "terraform version still works: the tool stays, the lab state goes.",
             ],
         ),
     ],

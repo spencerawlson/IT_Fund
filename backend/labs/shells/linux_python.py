@@ -25,7 +25,7 @@ HOST = 'analyst'
 LOGFILE = '/var/log/auth.log'
 ATTACKER_IP = '203.0.113.66'
 BENIGN_IP = '10.0.0.5'
-SCAN_TARGET = '10.0.0.8'
+SCAN_TARGET = '127.0.0.1'  # matches the docker-backed lab (alerts API on localhost:8080)
 OPEN_PORTS = [22, 80, 443]
 API_URL = 'http://localhost:8080/api/alerts'
 
@@ -349,8 +349,8 @@ def _help(lab=None) -> CommandResult:
         '                               extract unique source IPs\n'
         '  python3 -c "import urllib.request, json; print(json.load(urllib.request.urlopen(\'http://localhost:8080/api/alerts\')))"\n'
         '                               query the alerts API\n'
-        '  python3 -c "import socket; [print(p) for p in [22,80,443,3306,8080] if socket.socket().connect_ex((\'10.0.0.8\', p)) == 0]"\n'
-        '                               port-scan 10.0.0.8 with sockets\n'
+        '  python3 -c "import socket; [print(p) for p in [22,80,443,3306,8080] if socket.socket().connect_ex((\'127.0.0.1\', p)) == 0]"\n'
+        '                               port-scan localhost with sockets\n'
         '  cat auth.log | grep PATTERN auth.log | ls | pwd | whoami | clear | help\n'
         'Goal: automate the triage — count, extract, query, scan.'
     ))

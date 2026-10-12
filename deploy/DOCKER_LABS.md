@@ -1,9 +1,30 @@
 # Docker-backed labs — FedSer runbook
 
-The first lab runs for real: **Python Scripting Basics** (`py-basics-001`) now
-executes in a hardened per-session container instead of simulating. Learners get
-real `python3`, real output — and attest each objective with "I did this" in the
-workspace (the server no longer fabricates findings for this lab).
+Twelve labs now run for real in hardened per-session containers instead of
+simulating. Learners get real tools, real output — and attest each objective
+with "I did this" in the workspace (the server no longer fabricates findings
+for these labs).
+
+| Lab | Image |
+|---|---|
+| py-basics-001 — Python Scripting Basics | road-to-cissp/python-basics |
+| py-automation-001 — Automate with Python | road-to-cissp/python-automation |
+| py-netauto-001 — Python for Network Automation | road-to-cissp/python-netauto |
+| sec-logtriage-001 — Log Triage: Brute-Force Investigation | road-to-cissp/log-triage |
+| sec-c2beacon-001 — C2 Beacon Hunt | road-to-cissp/log-triage |
+| sec-dns-typo-001 — DNS Tunneling & Typosquatting | road-to-cissp/log-triage |
+| sec-ransomware-001 — Ransomware over SMB | road-to-cissp/log-triage |
+| cyber-nmap-001 — Service Enumeration with Nmap | road-to-cissp/security-tools |
+| cyber-portblast-001 — PortBlast: Full Assessment Workflow | road-to-cissp/portblast-lab |
+| cloud-aws-audit-001 — Cloud Security Audit with the AWS CLI | road-to-cissp/cloudshell |
+| cloud-terraform-001 — Terraform: Provision & Secure Infrastructure | road-to-cissp/iac |
+| terraform-fundamentals-001 — Terraform Fundamentals | road-to-cissp/iac |
+
+The remaining 26 labs stay simulated on purpose: 12 networking labs emulate
+Cisco IOS (no container equivalent), 5 need real cloud credentials, 2 need
+Docker-in-Docker (incompatible with the hardened provider), and 7 are bespoke
+simulator workbenches (SIEM, vuln-management, IAM, pentest methodology, Linux
+terminal) where the simulation *is* the pedagogy.
 
 ## One-time setup (on FedSer)
 
@@ -15,9 +36,10 @@ cd ~/IT_Fund && git pull
 sudo systemctl enable --now docker
 docker info >/dev/null && echo "daemon OK"
 
-# 3. Build the lab image (local-only, ~1-2 min first time)
-cd ~/IT_Fund/backend/labs/images && ./build.sh python
-# expect: road-to-cissp/python-basics:latest (plus -automation, -netauto tags)
+# 3. Build all lab images (local-only, ~5-10 min first time)
+cd ~/IT_Fund/backend/labs/images && ./build.sh
+# expect: road-to-cissp/python-basics, python-automation, python-netauto,
+#   log-triage, security-tools, portblast-lab, cloudshell, iac (:latest)
 
 # 4. Opt in
 printf '\nLAB_DOCKER_ENABLED=1\n' >> ~/.config/itfund/backend.env
@@ -57,6 +79,14 @@ curl -s https://api.road2cissp.com/health
 
 ## Notes
 
+- `cyber-nmap-001` and `cyber-portblast-001` keep their `target.lab` hostname: the
+  provider maps it to 127.0.0.1 via `extra_hosts` (see `LabEnvironmentConfig`),
+  where the image runs real sshd/nginx/http services on unprivileged ports.
+  Scan with `nmap -Pn -sT target.lab` (raw sockets are dropped by the hardening).
+- Terraform labs (`cloud-terraform-001`, `terraform-fundamentals-001`) run real
+  `terraform init/validate/plan` and `tfsec` offline; the sandbox has no AWS API,
+  so apply/destroy objectives are framed around the saved plan — the last human
+  gate before a real apply. This is stated in the lab descriptions, not hidden.
 - Labs naming `provider="docker"` fail with "unavailable" while
   `LAB_DOCKER_ENABLED=0`. There is no silent fallback to simulation — this is
   deliberate, so a half-configured host can't quietly serve fake labs.

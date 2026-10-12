@@ -21,7 +21,8 @@ PYTHON_NETAUTO_LAB = LabDefinition(
     estimated_minutes=25,
     shell="linux_python",
     environment=LabEnvironmentConfig(
-        provider="mock",
+        # Docker image road-to-cissp/python-netauto is published on FedSer.
+        provider="docker",
         image="road-to-cissp/python-netauto:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,

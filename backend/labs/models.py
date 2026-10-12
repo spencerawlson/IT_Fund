@@ -44,6 +44,10 @@ class LabEnvironmentConfig:
     # can write to (their home). The mock provider ignores it. Defaults to the
     # historical value so existing behaviour is unchanged.
     workdir: str = "/root"
+    # Extra /etc/hosts entries for the container, e.g. {"target.lab": "127.0.0.1"}.
+    # Lets labs keep stable target hostnames when the "remote" target is really
+    # a service inside the same container. Ignored by the mock provider.
+    extra_hosts: dict = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

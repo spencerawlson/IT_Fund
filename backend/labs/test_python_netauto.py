@@ -8,13 +8,16 @@ if str(backend_dir) not in sys.path:
 
 import asyncio
 
+from labs.providers.mock import MockLabProvider
 from labs.registry import get_lab
 from labs.sessions import SessionService
 from labs.shells import linux_python
 
 
 def _run(lab_id, cmds):
-    svc = SessionService()
+    # The lab is docker-backed in production; inject the mock for the docker
+    # provider name so these tests exercise lab content without a daemon.
+    svc = SessionService(providers={"mock": MockLabProvider(), "docker": MockLabProvider()})
     s = asyncio.run(svc.start(lab_id, "u1"))
     last = None
     for c in cmds:

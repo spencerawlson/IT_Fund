@@ -8,13 +8,16 @@ if str(backend_dir) not in sys.path:
 
 import asyncio
 
+from labs.providers.mock import MockLabProvider
 from labs.registry import get_lab
 from labs.sessions import SessionService
 from labs.shells import linux_python
 
 
 def _run(cmds):
-    svc = SessionService()
+    # The lab is docker-backed in production; inject the mock for the docker
+    # provider name so these tests exercise lab content without a daemon.
+    svc = SessionService(providers={"mock": MockLabProvider(), "docker": MockLabProvider()})
     s = asyncio.run(svc.start("py-automation-001", "u1"))
     for c in cmds:
         s, _ = asyncio.run(svc.exec_command(s.id, "u1", c))
@@ -27,7 +30,7 @@ def test_python_lab_completes_with_hinted_oneliners():
         "python3 -c \"print(sum(1 for l in open('auth.log') if 'Failed' in l))\"",
         "python3 -c \"import re; print(set(re.findall(r'\\d+\\.\\d+\\.\\d+\\.\\d+', open('auth.log').read())))\"",
         "python3 -c \"import urllib.request, json; print(json.load(urllib.request.urlopen('http://localhost:8080/api/alerts')))\"",
-        "python3 -c \"import socket; [print(p) for p in [22,80,443,3306,8080] if socket.socket().connect_ex(('10.0.0.8', p)) == 0]\"",
+        "python3 -c \"import socket; [print(p) for p in [22,80,443,3306,8080] if socket.socket().connect_ex(('127.0.0.1', p)) == 0]\"",
     ])
     assert s.status == "COMPLETED"
     assert all(s.progress.values())
@@ -38,6 +41,7 @@ def test_lab_definition_is_registered():
     assert lab.shell == "linux_python"
     assert lab.category == "python"
     assert len(lab.objectives) == 5
+    assert lab.environment.provider == "docker"
 
 
 def test_version_reports_simulated_interpreter():

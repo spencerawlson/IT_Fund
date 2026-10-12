@@ -14,7 +14,7 @@ PYTHON_AUTOMATION_LAB = LabDefinition(
     description=(
         "The same brute-force triage you did by hand — now automated. Use Python one-liners "
         "to count failed SSH logins in auth.log, extract the unique attacker IPs, query the "
-        "alerts API, and port-scan the suspect host with sockets. The lab the py-automation "
+        "alerts API, and port-scan localhost with sockets. The lab the py-automation "
         "deck has been waiting for."
     ),
     category="python",
@@ -22,7 +22,10 @@ PYTHON_AUTOMATION_LAB = LabDefinition(
     estimated_minutes=25,
     shell="linux_python",
     environment=LabEnvironmentConfig(
-        provider="mock",
+        # Docker image road-to-cissp/python-automation is published on FedSer.
+        # The alerts API runs on 127.0.0.1:8080 inside the container, so the
+        # port-scan objective targets localhost (the mock's 10.0.0.8 was simulated).
+        provider="docker",
         image="road-to-cissp/python-automation:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,
@@ -31,7 +34,7 @@ PYTHON_AUTOMATION_LAB = LabDefinition(
     ),
     targets=[
         LabTarget(hostname="auto01", role="Your automation workstation"),
-        LabTarget(hostname="10.0.0.8", role="Suspect host to port-scan"),
+        LabTarget(hostname="127.0.0.1", role="Localhost — the alerts API listens here"),
     ],
     objectives=[
         LabObjective(id="py-version", label="Verify Python is available", validator="py_version",
@@ -45,8 +48,8 @@ PYTHON_AUTOMATION_LAB = LabDefinition(
         LabObjective(id="query-api", label="Query the alerts API from Python",
                      validator="py_api_called",
                      hints=["urllib.request.urlopen('http://localhost:8080/api/alerts') + json.load — see help for the full one-liner"]),
-        LabObjective(id="port-scan", label="Port-scan 10.0.0.8 with Python sockets",
+        LabObjective(id="port-scan", label="Port-scan localhost with Python sockets",
                      validator="py_scan_done",
-                     hints=["socket.socket().connect_ex(('10.0.0.8', port)) returns 0 when the port is open — see help"]),
+                     hints=["socket.socket().connect_ex(('127.0.0.1', port)) returns 0 when the port is open — try 8080, the alerts API port"]),
     ],
 )

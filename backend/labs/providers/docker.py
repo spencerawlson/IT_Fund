@@ -128,6 +128,9 @@ class DockerLabProvider(LabProvider):
                 cap_drop=["ALL"],
                 security_opt=["no-new-privileges:true"],
                 tmpfs={"/tmp": "size=64m,mode=1777"},
+                # Stable target hostnames (e.g. target.lab -> 127.0.0.1) for labs
+                # whose "remote" target is a service inside the same container.
+                extra_hosts=(env_cfg.extra_hosts or None),
                 labels={"rtc": "labs", "rtc.lab": lab.id, "rtc.owner": owner},
             )
             return container

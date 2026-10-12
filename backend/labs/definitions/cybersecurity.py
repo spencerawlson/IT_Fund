@@ -15,12 +15,16 @@ NMAP_ENUMERATION_LAB = LabDefinition(
     difficulty="beginner",
     estimated_minutes=25,
     environment=LabEnvironmentConfig(
-        provider="mock",
+        # Docker image road-to-cissp/security-tools is published on FedSer: real
+        # sshd (2222), nginx (8080) and http.server (8000) on loopback. target.lab
+        # resolves to 127.0.0.1 via extra_hosts; scan unprivileged (-Pn -sT).
+        provider="docker",
         image="road-to-cissp/security-tools:latest",
         workdir="/home/student",  # used only by a real provider, never sent to the client
         idle_timeout_minutes=15,
         max_runtime_minutes=45,
         deny_internet_egress=True,
+        extra_hosts={"target.lab": "127.0.0.1"},
     ),
     targets=[
         LabTarget(hostname="target.lab", role="Intentionally vulnerable training target", intentionally_vulnerable=True)
@@ -73,12 +77,16 @@ PORTBLAST_COMPARISON_LAB = LabDefinition(
     difficulty="intermediate",
     estimated_minutes=45,
     environment=LabEnvironmentConfig(
-        provider="mock",
+        # Docker image road-to-cissp/portblast-lab is published on FedSer: the real
+        # PortBlast tool plus the security-tools target services on loopback.
+        # target.lab resolves to 127.0.0.1 via extra_hosts (scope-gated, as in the mock).
+        provider="docker",
         image="road-to-cissp/portblast-lab:latest",
         workdir="/home/student",
         idle_timeout_minutes=20,
         max_runtime_minutes=60,
         deny_internet_egress=True,
+        extra_hosts={"target.lab": "127.0.0.1"},
     ),
     targets=[
         LabTarget(hostname="target.lab", role="Authorized vulnerable training target", intentionally_vulnerable=True)
@@ -116,7 +124,9 @@ LOG_TRIAGE_LAB = LabDefinition(
     estimated_minutes=20,
     shell="linux_logs",
     environment=LabEnvironmentConfig(
-        provider="mock",
+        # Docker image road-to-cissp/log-triage is published on FedSer: the real
+        # /var/log/auth.log, investigated with real cat/grep/tail.
+        provider="docker",
         image="road-to-cissp/log-triage:latest",
         workdir="/home/analyst",
         idle_timeout_minutes=15,
