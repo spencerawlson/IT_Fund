@@ -17,6 +17,8 @@ node_modules
 dist
 dist-ssr
 *.local
+# fail2ban lab seed overrides Vite's *.local convention — this one is a real config
+!backend/labs/images/seeds/linux-audit-001/jail.local
 
 # Editor directories and files
 .vscode/*

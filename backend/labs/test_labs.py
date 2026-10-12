@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
+from unittest import mock
 
 os.environ["COOKIE_INSECURE"] = "1"  # allow the session cookie over http in tests
 
@@ -32,6 +33,18 @@ def setup_function():
     labs_api._check_start_rate.clear()
     labs_api._check_exec_rate.clear()
     sessions_mod.service._providers["mock"]._envs.clear()
+    # These tests exercise session mechanics (cookies, isolation, completion),
+    # not billing: act as a subscribed user so entitlement never interferes.
+    # Billing itself is covered by test_lab_entitlement below.
+    setup_function._patcher = mock.patch.object(labs_api, "is_subscribed", return_value=True)
+    setup_function._patcher.start()
+
+
+def teardown_function():
+    patcher = getattr(setup_function, "_patcher", None)
+    if patcher:
+        patcher.stop()
+        setup_function._patcher = None
 
 
 def _user(uid: str):

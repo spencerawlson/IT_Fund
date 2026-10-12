@@ -1,0 +1,6 @@
+# Practice jail.local — TODO: fill in the blanks, then decide the ban list.
+[sshd]
+enabled = true
+# bantime  =
+# findtime =
+# maxretry =
