@@ -23,16 +23,16 @@ ARG TRIVY_VERSION=v0.75.0
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates curl \
  && rm -rf /var/lib/apt/lists/* \
- && curl -fsSL -o /tmp/trivy.tar.gz \
+ && curl -fsSL -o "/tmp/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" \
       "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" \
  && curl -fsSL -o /tmp/trivy_checksums.txt \
-      "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_checksums.txt" \
+      "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_checksums.txt" \
  && grep "trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz$" /tmp/trivy_checksums.txt > /tmp/trivy.sha256 \
  && test -s /tmp/trivy.sha256 \
  && (cd /tmp && sha256sum -c trivy.sha256) \
- && tar -xzf /tmp/trivy.tar.gz -C /usr/local/bin trivy \
+ && tar -xzf "/tmp/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" -C /usr/local/bin trivy \
  && chmod 755 /usr/local/bin/trivy \
- && rm -rf /tmp/trivy.tar.gz /tmp/trivy_checksums.txt /tmp/trivy.sha256 \
+ && rm -rf "/tmp/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" /tmp/trivy_checksums.txt /tmp/trivy.sha256 \
  && trivy --version
 
 # Non-root lab user (the DockerLabProvider drops all capabilities anyway).
