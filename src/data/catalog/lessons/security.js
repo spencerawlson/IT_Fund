@@ -117,10 +117,20 @@ export default {
       {
         heading: 'Malware families',
         body: [
-          'A worm self-replicates across networks without user action, which is why worms spread explosively. A virus needs a host file and a user action to spread. A Trojan disguises itself as legitimate software; remote access Trojans (RATs) give the attacker control of the machine.',
-          'Ransomware encrypts files and demands payment. Offline or immutable, tested backups are the key recovery control. A rootkit hides deep in the operating system to conceal itself and other malware; kernel rootkits can evade normal tools, so reimaging is often the safest fix. A logic bomb is code that triggers on a condition or date, often planted by an insider.',
-          'Fileless malware runs in memory using legitimate tools such as PowerShell, leaving few files on disk for antivirus to find. EDR behaviour monitoring catches what file scanning misses.',
-          'A botnet is a network of compromised machines under an attacker\'s command via command-and-control (C2) servers, used for DDoS, spam and credential stuffing.',
+          'The families differ in how they arrive, how they hide, and what they do next — and the exam tests exactly those distinctions. The colours group them by behaviour: warm for self-spreaders, cool for the stealthy, and its own alarm colour for extortion.',
+          { stack: {
+            title: 'Malware families',
+            items: [
+              { badge: 'Worm', name: 'Worm', tag: 'self-replicates', tone: 4, does: 'Copies itself across networks with no user action at all — it scans, exploits and moves on its own, which is why worms spread explosively. Patch aggressively and segment the network so one host cannot reach them all.', examples: 'WannaCry (2017) rode the EternalBlue SMB flaw' },
+              { badge: 'Virus', name: 'Virus', tag: 'needs host + click', tone: 4, does: 'Attaches to a host file and needs a user to open or run it before it can spread — no host, no action, no infection. Classic antivirus signatures and not opening untrusted attachments are the core defences.', examples: 'Worm spreads itself; a virus needs your help' },
+              { badge: 'Trojan', name: 'Trojan (incl. RAT — Remote Access Trojan)', tag: 'disguised as legit', tone: 3, does: 'Pretends to be useful software while hiding a malicious payload. A RAT goes further: it hands the attacker interactive remote control of the machine, as if they were at the keyboard.', examples: 'Verify downloads; allow-list applications' },
+              { badge: 'Ransom', name: 'Ransomware', tag: 'encrypts for payment', tone: 5, does: 'Encrypts files (often after stealing them first — double extortion) and demands payment for the key. The key recovery control is offline or immutable backups that are actually tested; paying funds the next campaign.', examples: 'Offline + tested backups = recovery' },
+              { badge: 'Rootkit', name: 'Rootkit', tag: 'hides deep in the OS', tone: 1, does: 'Burrows into the operating system — kernel rootkits sit below the very tools that would detect them — to conceal itself and other malware. When it is kernel-level, cleaning is a gamble: reimage from known-good media.', examples: 'If it owns the kernel, reimage, don\'t clean' },
+              { badge: 'Logic', name: 'Logic bomb', tag: 'trigger-based', tone: 3, does: 'Dormant malicious code that fires on a condition or date — a deleted admin account, a contract end date. Often planted by an insider with legitimate access, so code review and prompt offboarding matter.', examples: 'Insider-threat classic' },
+              { badge: 'Fileless', name: 'Fileless malware', tag: 'runs in memory', tone: 2, does: 'Lives in RAM and abuses legitimate tools like PowerShell and WMI, leaving almost nothing on disk for traditional antivirus to scan. File scanning misses it; EDR behaviour monitoring catches what it does.', examples: 'AV sees files — EDR sees behaviour' },
+              { badge: 'Botnet', name: 'Botnet', tag: 'C2-controlled army', tone: 7, does: 'A network of compromised machines taking orders from command-and-control (C2) servers — rented out for DDoS, spam and credential stuffing. Defend by blocking known C2 at the edge, patching, and hunting for regular beaconing traffic.', examples: 'C2 = command-and-control' },
+            ],
+          } },
         ],
       },
       {

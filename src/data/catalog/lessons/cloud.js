@@ -21,8 +21,26 @@ export default {
       {
         heading: 'Service and deployment models',
         body: [
-          'In IaaS (infrastructure as a service) the provider runs hardware, virtualisation and facilities, and the customer manages the operating system and everything above it. PaaS adds the OS and runtime to the provider\'s side. Serverless or FaaS, such as AWS Lambda or Azure Functions, is a form of PaaS: you deploy functions and the provider runs and scales the servers. In SaaS the provider runs the whole application.',
-          'Deployment models: public cloud, private cloud, community cloud (shared by organisations with common needs) and hybrid cloud, a mix of on-premises or private and public cloud working together.',
+          'The three service models are a sliding scale of who manages what: the further up the stack you rent, the less you operate — and the less you control.',
+          { stack: {
+            title: 'Cloud service models: who manages what',
+            items: [
+              { badge: 'IaaS', name: 'IaaS — Infrastructure as a Service', tag: 'you manage: OS and up', tone: 2, does: 'The provider runs the hardware, virtualisation and facilities; you manage the operating system, runtime, middleware, data and applications. Most control, most responsibility — including patching the OS yourself.', examples: 'EC2, Azure VMs — exam: you patch the OS' },
+              { badge: 'PaaS', name: 'PaaS — Platform as a Service', tag: 'you manage: code and data', tone: 4, does: 'The provider adds the OS, runtime and middleware to its side; you deploy code and data. You stop patching servers but keep owning the application, its configuration and its vulnerabilities.', examples: 'App Service, Elastic Beanstalk — exam: you never touch the OS' },
+              { badge: 'FaaS', name: 'FaaS — Function as a Service', tag: 'you manage: functions only', tone: 5, does: 'Serverless: a step past PaaS. You deploy single functions; the provider runs, scales and bills them by the millisecond. No servers to think about — but mind cold starts, execution timeouts and lock-in.', examples: 'Lambda, Azure Functions — exam: billed per invocation' },
+              { badge: 'SaaS', name: 'SaaS — Software as a Service', tag: 'you manage: data and users', tone: 6, does: 'The provider runs the whole application; you configure it and own your data, users and access. Least operational burden — but a misconfigured sharing setting is still your breach, not theirs.', examples: 'Microsoft 365, Salesforce — exam: you still own data and access' },
+            ],
+          } },
+          'Deployment is a separate question from service model: where the cloud physically lives and who it is shared with.',
+          { stack: {
+            title: 'Cloud deployment models',
+            items: [
+              { badge: 'Pub', name: 'Public cloud', tag: 'provider-owned', tone: 1, does: 'Compute sold to anyone over the internet on shared infrastructure. Cheapest and most elastic; you share the building with strangers, isolated by the provider\'s controls.', examples: 'Startups, dev/test, elastic web workloads' },
+              { badge: 'Priv', name: 'Private cloud', tag: 'single tenant', tone: 2, does: 'Cloud infrastructure operated solely for one organisation, on-premises or hosted. More control and isolation — but you carry the capacity planning that public cloud was meant to remove.', examples: 'Regulated data, strict residency rules' },
+              { badge: 'Comm', name: 'Community cloud', tag: 'shared by a sector', tone: 3, does: 'Shared by several organisations with common concerns — hospitals, government agencies, research consortia. Splits cost and compliance effort among members with similar needs.', examples: 'Healthcare, government, research groups' },
+              { badge: 'Hyb', name: 'Hybrid cloud', tag: 'mixed', tone: 4, does: 'On-premises or private cloud working together with public cloud: burst to public for peak demand, keep regulated data at home. The model most real enterprises actually run.', examples: 'Sensitive data local, burst to public' },
+            ],
+          } },
         ],
       },
       {
@@ -42,9 +60,10 @@ export default {
     ],
     cheatSheet: [
       ['NIST 800-145', '5 characteristics: self-service, network access, pooling, elasticity, measured'],
-      ['IaaS', 'Customer manages the OS and up'],
-      ['PaaS / FaaS', 'Provider runs OS and runtime / functions (Lambda)'],
-      ['SaaS', 'Customer still owns data, users, access'],
+      ['IaaS — Infrastructure as a Service', 'Customer manages the OS and up'],
+      ['PaaS — Platform as a Service', 'Provider runs OS and runtime'],
+      ['FaaS — Function as a Service', 'Serverless functions, e.g. Lambda'],
+      ['SaaS — Software as a Service', 'Customer still owns data, users, access'],
       ['Hybrid / community', 'On-prem + public / shared by a sector'],
       ['Shared responsibility', 'Provider: of the cloud; customer: in the cloud'],
       ['CapEx → OpEx', 'Pay as you go'],

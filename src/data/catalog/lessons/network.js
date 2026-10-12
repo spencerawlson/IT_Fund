@@ -339,8 +339,18 @@ export default {
       {
         heading: 'DNS records',
         body: [
-          'DNS translates names into addresses. An A record maps a name to an IPv4 address and AAAA to IPv6. A CNAME makes one name an alias for another; a CNAME cannot sit at the zone apex (example.com itself), which is why many providers offer an ALIAS record type.',
-          'MX records name a domain\'s mail servers, each with a preference value where lower is preferred. PTR records do reverse lookups (IP to name) in the in-addr.arpa (IPv4) or ip6.arpa zones. TXT records hold free text, which email security relies on: SPF, DKIM and DMARC policies all live in TXT records, as do domain-verification strings.',
+          'DNS translates names into addresses, but "translates" covers several different jobs: forward lookups, aliases, mail routing, reverse lookups, and policy text. Each job has its own record type, and the exam expects you to match them without hesitation.',
+          { stack: {
+            title: 'DNS record types',
+            items: [
+              { badge: 'A', name: 'A — Address', tag: 'forward', tone: 2, does: 'Maps a hostname to its IPv4 address. The workhorse record: when you type a name into a browser, this is usually what comes back.', examples: 'The most queried record type' },
+              { badge: 'AAAA', name: 'AAAA — IPv6 Address', tag: 'forward', tone: 2, does: 'Maps a hostname to its IPv6 address. Four As because an IPv6 address is 128 bits — four times the 32 bits of IPv4.', examples: '128-bit address, four As' },
+              { badge: 'CNAME', name: 'CNAME — Canonical Name', tag: 'alias', tone: 3, does: 'Makes one name an alias pointing at another name, which then resolves through its own A or AAAA record. A CNAME cannot sit at the zone apex (example.com itself) — that is why many providers offer an ALIAS record type.', examples: 'Never at the apex' },
+              { badge: 'MX', name: 'MX — Mail Exchange', tag: 'mail', tone: 6, does: 'Names the servers that accept mail for a domain. Each MX record carries a preference value, and lower is preferred: mail tries the lowest first and falls through the list.', examples: 'Lower preference wins' },
+              { badge: 'PTR', name: 'PTR — Pointer', tag: 'reverse', tone: 1, does: 'Reverse lookup: maps an IP address back to a name. PTR records live in the special in-addr.arpa (IPv4) and ip6.arpa zones, and mail servers check them to fight spam.', examples: 'IP to name, in-addr.arpa' },
+              { badge: 'TXT', name: 'TXT — Text', tag: 'policy', tone: 5, does: 'Holds free-form text. Email security lives here: SPF, DKIM and DMARC policies are all TXT records, as are the domain-verification strings services ask you to publish.', examples: 'SPF, DKIM, DMARC live here' },
+            ],
+          } },
         ],
       },
       {
@@ -353,7 +363,20 @@ export default {
       {
         heading: 'Wi-Fi standards and channels',
         body: [
-          'Wi-Fi 6 is 802.11ax; Wi-Fi 6E extends it into the 6 GHz band, and Wi-Fi 7 is 802.11be. In the 2.4 GHz band only channels 1, 6 and 11 do not overlap (in the US), so plan access points on those three to avoid co-channel and adjacent-channel interference.',
+          'The 802.11 amendments arrived roughly one era at a time, each trading band, speed or cleverness for the next leap. The Wi-Fi Alliance later numbered them retroactively: 802.11n became Wi-Fi 4, and everything after follows the same count — which is what the exam now uses.',
+          { stack: {
+            title: 'Wi-Fi standards',
+            items: [
+              { badge: 'a', name: '802.11a', tag: '5 GHz · 54 Mbps', tone: 1, does: 'The first 5 GHz standard (1999), using OFDM. Fast for its day but never widely adopted — early 5 GHz radios were expensive, and 802.11b won the market instead.', examples: '\'a\' is for above: the band above 2.4 GHz' },
+              { badge: 'b', name: '802.11b', tag: '2.4 GHz · 11 Mbps', tone: 2, does: 'The original mainstream Wi-Fi (1999): 2.4 GHz, 11 Mbps, DSSS. Longest range of the legacy standards, but it shares 2.4 GHz with microwaves, Bluetooth and cordless phones, so interference is a way of life.', examples: 'b = basic: the 11 Mbps basement' },
+              { badge: 'g', name: '802.11g', tag: '2.4 GHz · 54 Mbps', tone: 3, does: 'Brought 54 Mbps OFDM speeds to the 2.4 GHz band (2003). Backward compatible with 802.11b — but a mixed network slows to b rates whenever a b client joins.', examples: 'g speed, b band; b clients drag it down' },
+              { badge: 'n', name: '802.11n — Wi-Fi 4', tag: '2.4/5 GHz · ~600 Mbps', tone: 4, does: 'The first MIMO standard (2009): multiple antennas and spatial streams, 40 MHz channel bonding, and operation on both bands. Frame aggregation cut overhead. Theoretical ceiling around 600 Mbps with four streams.', examples: 'n = new antennas: first MIMO' },
+              { badge: 'ac', name: '802.11ac — Wi-Fi 5', tag: '5 GHz · ~6.9 Gbps', tone: 5, does: '5 GHz only (2013), with wider 80 and 160 MHz channels, 256-QAM denser modulation, beamforming, and downlink MU-MIMO — one access point talking to several clients at once instead of round-robin.', examples: '5 GHz only — the exam loves that' },
+              { badge: 'ax', name: '802.11ax — Wi-Fi 6', tag: '2.4/5 GHz · ~9.6 Gbps', tone: 6, does: 'Efficiency over raw speed (2019). OFDMA splits a channel into resource units so many clients share one transmission — carpooling instead of one car per lane. Adds uplink MU-MIMO, BSS coloring to shrug off neighbouring networks, 1024-QAM, and target wake time for IoT battery life. Wi-Fi 6E is the same standard extended into the clean 6 GHz band.', examples: '6E = 6 GHz band' },
+              { badge: 'be', name: '802.11be — Wi-Fi 7', tag: '2.4/5/6 GHz · ~46 Gbps', tone: 7, does: 'Multi-link operation (2024): a client connects on 2.4, 5 and 6 GHz simultaneously for throughput and resilience. Adds 320 MHz channels and 4096-QAM, pushing the theoretical ceiling near 46 Gbps.', examples: 'MLO: three bands at once' },
+            ],
+          } },
+          'In the 2.4 GHz band only channels 1, 6 and 11 do not overlap (in the US), so plan access points on those three to avoid co-channel and adjacent-channel interference.',
           'The SSID is simply the network\'s name. Hiding it is not a security control: the name still appears in client probes.',
         ],
       },
@@ -390,6 +413,9 @@ export default {
       ['TXT', 'SPF, DKIM, DMARC, verification'],
       ['DORA', 'Discover, Offer, Request, Acknowledge'],
       ['DHCP relay / IP helper', 'Forwards DHCP broadcasts across subnets'],
+      ['802.11a / b / g', '5 GHz 54 Mbps / 2.4 GHz 11 Mbps / 2.4 GHz 54 Mbps'],
+      ['802.11n (Wi-Fi 4)', 'First MIMO, dual-band, ~600 Mbps'],
+      ['802.11ac (Wi-Fi 5)', '5 GHz only, downlink MU-MIMO, ~6.9 Gbps'],
       ['802.11ax / be', 'Wi-Fi 6 / Wi-Fi 7 (6E adds 6 GHz)'],
       ['1, 6, 11', 'Non-overlapping 2.4 GHz channels (US)'],
       ['WPA3 (SAE)', 'Current Wi-Fi security; WEP/WPA broken'],

@@ -33,6 +33,22 @@ export default {
           'After any topology change, the network is converging until every router again has an up-to-date, loop-free view. Fast convergence and good summarization (advertising many prefixes as one) are what keep large networks stable.',
         ],
       },
+      {
+        heading: 'The routing protocols at a glance',
+        body: [
+          'Every dynamic protocol is an answer to the same question — how do routers agree on paths without a human drawing the map — but the answers differ in algorithm, metric and scale. Colour groups the families: IGPs (Interior Gateway Protocols) run inside one organization; BGP, the lone EGP (Exterior Gateway Protocol), stitches organizations together.',
+          { stack: {
+            title: 'Routing protocols compared',
+            items: [
+              { badge: 'RIP', name: 'RIP — Routing Information Protocol', tag: 'distance-vector', tone: 3, does: 'The classic IGP that routes by rumour: neighbours advertise their whole table, and the best path is the fewest hops. Hop count is the metric, and 15 hops is the maximum — 16 means unreachable, which caps RIP at small networks.', examples: '15 hops max — 16 is unreachable; AD 120' },
+              { badge: 'OSPF', name: 'OSPF — Open Shortest Path First', tag: 'link-state', tone: 2, does: 'The open-standard link-state IGP. Every router learns the full topology and runs Dijkstra\'s shortest-path-first algorithm. The metric is cost, derived from bandwidth (reference bandwidth divided by interface bandwidth); lowest cost wins. Large networks are divided into areas to contain flooding.', examples: 'Cost from bandwidth; AD 110; areas scale it' },
+              { badge: 'EIGRP', name: 'EIGRP — Enhanced Interior Gateway Routing Protocol', tag: 'hybrid', tone: 4, does: 'Cisco-originated IGP that behaves like an advanced distance-vector protocol. Its composite metric weighs bandwidth and delay by default. The DUAL algorithm pre-computes feasible successors, giving very fast convergence — and it is the most trusted dynamic IGP at AD 90.', examples: 'AD 90 — most trusted dynamic IGP' },
+              { badge: 'IS-IS', name: 'IS-IS — Intermediate System to Intermediate System', tag: 'link-state', tone: 2, does: 'The other link-state IGP, born in the OSI world and favoured by large service providers. Instead of OSPF-style areas it uses levels: Level 1 routes inside an area, Level 2 forms the inter-area backbone, and L1/L2 routers speak both.', examples: 'Levels, not areas: L1 inside, L2 between' },
+              { badge: 'BGP', name: 'BGP — Border Gateway Protocol', tag: 'path-vector', tone: 7, does: 'The EGP that runs the internet itself. BGP does not measure links — it exchanges paths as sequences of autonomous system numbers (the AS-path) and applies policy to choose. It rides TCP 179, and its trust differs by side: eBGP is AD 20, iBGP is AD 200.', examples: 'AS-path metric; eBGP 20, iBGP 200; TCP 179' },
+            ],
+          } },
+        ],
+      },
     ],
     cheatSheet: [
       ['Longest-prefix match', 'Most specific route (largest mask) wins first'],
