@@ -7,8 +7,19 @@ terraform {
   }
 }
 
+# --- Road to CISSP lab stanza: offline-friendly provider settings ---
+# The sandbox has no internet egress, so the AWS provider is told to skip
+# credential/account validation. Dummy credentials come from the environment
+# (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY). `terraform init` uses the
+# pre-seeded plugin mirror; `tfsec`, `validate` and `plan` run fully offline.
+# `apply` needs real AWS credentials and network, and is out of scope here.
 provider "aws" {
-  region = "us-east-1"
+  region                      = "us-east-1"
+  access_key                  = "lab"
+  secret_key                  = "lab"
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+  skip_requesting_account_id  = true
 }
 
 resource "aws_s3_bucket" "assets" {
@@ -44,19 +55,4 @@ resource "aws_instance" "app" {
   tags = {
     Name = "globomantics-app"
   }
-}
-
-# --- Road to CISSP lab stanza: offline-friendly provider settings ---
-# The sandbox has no internet egress, so the AWS provider is told to skip
-# credential/account validation. Dummy credentials come from the environment
-# (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY). `terraform init` uses the
-# pre-seeded plugin mirror; `tfsec`, `validate` and `plan` run fully offline.
-# `apply` needs real AWS credentials and network, and is out of scope here.
-provider "aws" {
-  region                      = "us-east-1"
-  access_key                  = "lab"
-  secret_key                  = "lab"
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
 }
