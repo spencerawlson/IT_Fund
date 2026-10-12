@@ -45,6 +45,16 @@ IMAGE_DOCKERFILE = {
     "siem-hunting": None,  # mock lab simulates the SIEM; no image built
     "vuln-lab": None,  # mock lab simulates the scanner; no image built
     "linux-terminal": None,  # mock lab simulates the shell; no image built
+    "wireshark": "Dockerfile.wireshark",
+    "webapp": "Dockerfile.webapp",
+    "gitleaks": "Dockerfile.gitleaks",
+    "trivy": "Dockerfile.trivy",
+    "iac-policy": "Dockerfile.iac-policy",
+    "python-tools": "Dockerfile.python-tools",
+    # Dockerfiles are created directly on FedServ (see images/README.md);
+    # definitions still reference the images, and build.sh builds them there.
+    "linux-admin": None,
+    "linux-admin-hardening": None,
 }
 
 IMAGE_RE = re.compile(r'image="(road-to-cissp/([\w-]+)):latest"')
@@ -284,7 +294,11 @@ def test_no_real_credentials_in_images():
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
-        assert "AKIA" not in text, f"{path.name}: looks like a real AWS key id"
+        # AKIAIOSFODNN7EXAMPLE is AWS's own documented example key (never real);
+        # anything else shaped like a key id is rejected.
+        scrubbed = text.replace("AKIAIOSFODNN7EXAMPLE", "")
+        assert "AKIA" not in scrubbed, f"{path.name}: looks like a real AWS key id"
         for match in re.finditer(r'AWS_SECRET_ACCESS_KEY=(\S+)', text):
-            assert match.group(1) in ("lab-fake-key", "lab"), (
+            # AWS's documented example secret (never real), plus the lab fakes.
+            assert match.group(1) in ("lab-fake-key", "lab", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"), (
                 f"{path.name}: unexpected AWS secret value")

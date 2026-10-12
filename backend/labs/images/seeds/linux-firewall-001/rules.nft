@@ -1,0 +1,27 @@
+#!/usr/sbin/nft -f
+# Host firewall policy for sysadmin01 — TODO: complete this ruleset.
+# Nothing here is enforced by the kernel (unprivileged container);
+# check-firewall validates it statically.
+
+flush ruleset
+
+table inet filter {
+    chain input {
+        # TODO: default-deny policy belongs here
+        type filter hook input priority 0;
+
+        # TODO: allow loopback
+
+        # TODO: allow established/related
+
+        # TODO: allow management SSH (tcp dport 2222 from 10.0.2.0/24)
+
+        # TODO: (optional) log dropped packets
+    }
+
+    chain output {
+        type filter hook output priority 0;
+        # TODO: default policy for outbound — what should it be?
+        # TODO: allow web egress (tcp dport 80, 443)
+    }
+}

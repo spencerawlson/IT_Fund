@@ -1,0 +1,92 @@
+# Seeded dpkg status for the Trivy lab (sec-trivy-001).
+#
+# This is a deliberately stale Ubuntu 20.04 (focal) package set — the kind of
+# thing you inherit when a base image has not been rebuilt in a while. Trivy
+# matches these versions against its vulnerability DB and reports real CVEs,
+# including:
+#   - zlib1g 1:1.2.11.dfsg-2ubuntu1.2 -> CVE-2022-37434 (CRITICAL)
+#   - openssl 1.1.1f-1ubuntu2         -> CVE-2020-1971, CVE-2021-3449, CVE-2021-3450 (HIGH)
+#   - bash 5.0-6ubuntu1.1            -> CVE-2019-18276 (HIGH)
+
+Package: libc6
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 12935
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Architecture: amd64
+Multi-Arch: same
+Source: glibc
+Version: 2.31-0ubuntu9.2
+Depends: libgcc-s1
+Description: GNU C Library: Shared libraries
+ Contains the standard libraries that are used by nearly all programs on
+ the system.
+
+Package: zlib1g
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 87
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Architecture: amd64
+Multi-Arch: same
+Source: zlib
+Version: 1:1.2.11.dfsg-2ubuntu1.2
+Depends: libc6 (>= 2.14)
+Description: compression library - runtime
+ zlib is a library implementing the DEFLATE compression method found
+ in gzip and PKZIP.
+
+Package: libssl1.1
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 4014
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Architecture: amd64
+Multi-Arch: same
+Source: openssl
+Version: 1.1.1f-1ubuntu2
+Depends: libc6 (>= 2.25), debconf (>= 0.5) | debconf-2.0
+Description: Secure Sockets Layer toolkit - shared libraries
+ This package is part of the OpenSSL project's implementation of the SSL
+ and TLS cryptographic protocols for secure communication over the Internet.
+
+Package: openssl
+Status: install ok installed
+Priority: optional
+Section: utils
+Installed-Size: 1685
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Architecture: amd64
+Version: 1.1.1f-1ubuntu2
+Depends: libc6 (>= 2.15), libssl1.1 (>= 1.1.1)
+Description: Secure Sockets Layer toolkit - cryptographic utility
+ This package is part of the OpenSSL project's implementation of the SSL
+ and TLS cryptographic protocols for secure communication over the Internet.
+
+Package: bash
+Status: install ok installed
+Priority: required
+Section: shells
+Installed-Size: 1623
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Architecture: amd64
+Version: 5.0-6ubuntu1.1
+Depends: base-files (>= 2.1.12), debianutils (>= 2.15)
+Description: GNU Bourne Again SHell
+ Bash is an sh-compatible command language interpreter.
+
+Package: coreutils
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 17416
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Architecture: amd64
+Version: 8.30-3ubuntu2
+Depends: libacl1 (>= 2.2.23), libattr1 (>= 1:2.4.44), libc6 (>= 2.28), libgmp10, libselinux1 (>= 3.1~)
+Description: GNU core utilities
+ This package contains the basic file, shell and text manipulation
+ utilities which are expected to exist on every operating system.

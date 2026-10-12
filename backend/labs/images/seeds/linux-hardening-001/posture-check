@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""Posture checker for linux-hardening-001.
+
+Inspects the real state of the student's home directory and reports PASS/FAIL per
+hardening check, exactly like an audit script would on a production host.
+Fix every FAIL until you see POSTURE: HARDENED.
+"""
+import os
+import re
+import stat
+import subprocess
+
+HOME = os.path.expanduser("~")
+results = []
+
+
+def check(name, ok, detail):
+    results.append((name, bool(ok), detail))
+
+
+# 1. SSH daemon hardened
+ssh_cfg = os.path.join(HOME, "ssh-lab", "sshd_config")
+text = open(ssh_cfg).read() if os.path.exists(ssh_cfg) else ""
+low = text.lower()
+pw_off = bool(re.search(r"^passwordauthentication\s+no", low, re.M))
+port_ok = bool(re.search(r"^port\s+2222", low, re.M))
+check("ssh_hardened", pw_off and port_ok,
+      "PasswordAuthentication no + Port 2222" if (pw_off and port_ok) else "sshd_config still weak")
+
+
+# 2. Contractors sudoers delegation restricted (no blanket NOPASSWD ALL)
+contractors = os.path.join(HOME, "sysroot", "etc", "sudoers.d", "contractors")
+ctext = open(contractors).read() if os.path.exists(contractors) else ""
+bad = bool(re.search(r"NOPASSWD\s*:\s*ALL", ctext)) or "ALL=(ALL) NOPASSWD" in ctext
+check("sudoers_restricted", ctext.strip() != "" and not bad,
+      "contractors delegation is least-privilege" if (ctext.strip() and not bad)
+      else "contractors still has blanket NOPASSWD: ALL")
+
+
+# 3. Secret file locked down
+secret = os.path.join(HOME, "permissions-lab", "secret.txt")
+mode = stat.S_IMODE(os.stat(secret).st_mode) if os.path.exists(secret) else 0
+check("secret_perms", mode == 0o600, f"secret.txt is {oct(mode)}" if mode != 0o600 else "secret.txt is 0600")
+
+
+# 4. No world-writable helper binary
+tool = os.path.join(HOME, "bin", "tool")
+tmode = stat.S_IMODE(os.stat(tool).st_mode) if os.path.exists(tool) else 0
+check("bin_perms", tmode != 0 and not (tmode & 0o022),
+      f"~/bin/tool is {oct(tmode)}" if (tmode & 0o022) else "~/bin/tool is not world-writable")
+
+
+# 5. Firewall ruleset passes the static review
+try:
+    out = subprocess.run(["/usr/local/bin/check-firewall"], capture_output=True, text=True, timeout=30)
+    fw_ok = "ALL CHECKS PASSED" in out.stdout
+    fw_detail = "check-firewall: ALL CHECKS PASSED" if fw_ok else "check-firewall still FAILs"
+except Exception as exc:  # noqa: BLE001
+    fw_ok, fw_detail = False, f"check-firewall error: {exc}"
+check("firewall_checked", fw_ok, fw_detail)
+
+
+# 6. No cron entries pointing at world-writable locations (persistence weakness:
+#    any local user could replace the script and it would run on schedule).
+cron = os.path.join(HOME, "cron", "jobs.cron")
+cron_text = open(cron).read() if os.path.exists(cron) else ""
+weak = [l.strip() for l in cron_text.splitlines()
+        if l.strip() and not l.strip().startswith("#")
+        and ("/tmp/" in l or "/var/tmp/" in l or "/dev/shm/" in l)]
+check("cron_clean", not weak,
+      "crontab has no world-writable script paths" if not weak else f"weak entry still present: {weak[0][:60]}")
+
+
+passed = sum(1 for _, ok, _ in results if ok)
+for name, ok, detail in results:
+    print(f"CHECK {name}: {'PASS' if ok else 'FAIL'} - {detail}")
+print(f"SCORE: {passed}/{len(results)}")
+print("POSTURE: HARDENED" if passed == len(results) else "POSTURE: VULNERABLE")

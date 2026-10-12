@@ -1,0 +1,2 @@
+# DANGEROUS: overly broad contractor delegation. Restrict this before posture-check passes.
+contractors ALL=(ALL) NOPASSWD: ALL

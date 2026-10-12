@@ -1,0 +1,60 @@
+# road-to-cissp IaC-policy lab image.
+# Serves: iac-policy-001 (Terraform Policy as Code).
+#
+# Real tfsec (v1.28.14) + real conftest (v0.71.0), both checksum-verified,
+# against seeded Terraform with policy violations (unencrypted S3, SSH open
+# to the world, missing tags) plus OPA policies in policy/*.rego. The learner
+# fixes main.tf until both tools go green — fully offline, no AWS credentials.
+#
+# NOTE: Dockerfile.iac already carries terraform+tfsec for cloud-terraform-001,
+# but existing files are frozen, so this image re-pins the same versions
+# standalone instead of extending it. (An alternative would be
+# FROM road-to-cissp/iac:latest + conftest; the standalone build keeps every
+# binary pin visible in this file and avoids tag-drift coupling.) Terraform
+# itself is deliberately NOT installed: tfsec and conftest parse HCL directly,
+# so no `terraform init` (and no provider download) is needed — a good fit for
+# the lab network's denied internet egress.
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="Road to CISSP - IaC policy lab" \
+      org.opencontainers.image.description="Real tfsec + conftest with seeded Terraform violations (offline)"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+ARG TFSEC_VERSION=v1.28.14
+ARG CONFTEST_VERSION=v0.71.0
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/* \
+ && curl -fsSL -o /usr/local/bin/tfsec \
+      "https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64" \
+ && curl -fsSL -o /tmp/tfsec_checksums.txt \
+      "https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec_checksums.txt" \
+ && grep "tfsec-linux-amd64$" /tmp/tfsec_checksums.txt > /tmp/tfsec.sha256 \
+ && test -s /tmp/tfsec.sha256 \
+ && (cd /usr/local/bin && sha256sum -c /tmp/tfsec.sha256) \
+ && curl -fsSL -o /tmp/conftest.tar.gz \
+      "https://github.com/open-policy-agent/conftest/releases/download/${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION#v}_Linux_x86_64.tar.gz" \
+ && curl -fsSL -o /tmp/conftest_checksums.txt \
+      "https://github.com/open-policy-agent/conftest/releases/download/${CONFTEST_VERSION}/checksums.txt" \
+ && grep "conftest_${CONFTEST_VERSION#v}_Linux_x86_64.tar.gz$" /tmp/conftest_checksums.txt > /tmp/conftest.sha256 \
+ && test -s /tmp/conftest.sha256 \
+ && (cd /tmp && sha256sum -c conftest.sha256) \
+ && tar -xzf /tmp/conftest.tar.gz -C /usr/local/bin conftest \
+ && chmod 755 /usr/local/bin/tfsec /usr/local/bin/conftest \
+ && rm -rf /tmp/conftest.tar.gz /tmp/conftest_checksums.txt /tmp/conftest.sha256 \
+            /tmp/tfsec_checksums.txt /tmp/tfsec.sha256 \
+ && tfsec --version && conftest --version
+
+# Non-root lab user (the DockerLabProvider drops all capabilities anyway).
+RUN useradd -m -s /bin/bash analyst
+
+# Seeded lab workspace: violating Terraform + OPA policies.
+COPY seeds/iac-policy-001 /home/analyst/policy-lab
+RUN chown -R analyst:analyst /home/analyst/policy-lab
+
+USER analyst
+WORKDIR /home/analyst
+# No entrypoint needed: the provider starts lab containers with `sleep infinity`.
+CMD ["sleep", "infinity"]

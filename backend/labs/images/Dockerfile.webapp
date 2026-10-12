@@ -1,0 +1,38 @@
+# road-to-cissp vulnerable-webapp lab image.
+# Serves: sec-webapp-001 (Web App Testing: SQLi & XSS).
+#
+# A tiny IN-HOUSE Flask app (see seeds/sec-webapp-001/app.py) that is
+# INTENTIONALLY vulnerable: /search?q= is injectable (UNION-based SQLi works
+# against its SQLite user table) and /comment reflects name/msg unescaped
+# (reflected XSS). It binds 127.0.0.1:5000 ONLY — loopback, never exposed off
+# the container — and the lab adds target.lab -> 127.0.0.1 via extra_hosts so
+# learners attack it from the same container shell with curl/python.
+FROM python:3.12.7-slim-bookworm
+
+LABEL org.opencontainers.image.title="Road to CISSP - vulnerable web app lab" \
+      org.opencontainers.image.description="Intentionally vulnerable Flask training app on loopback only (SQLi + reflected XSS)"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    WEBAPP_DB=/home/analyst/webapp.db
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/* \
+ && pip install --no-cache-dir Flask==3.1.0
+
+RUN useradd -m -s /bin/bash analyst
+
+COPY seeds/sec-webapp-001/app.py /opt/webapp/app.py
+COPY seeds/sec-webapp-001/entrypoint.sh /entrypoint.sh
+RUN chown -R analyst:analyst /opt/webapp \
+ && chmod 755 /entrypoint.sh \
+ && chmod 644 /opt/webapp/app.py
+
+USER analyst
+WORKDIR /home/analyst
+ENTRYPOINT ["/entrypoint.sh"]
+# The entrypoint boots the Flask app on 127.0.0.1:5000 in the background,
+# then execs the provider's `sleep infinity` as PID 1.
+CMD ["sleep", "infinity"]

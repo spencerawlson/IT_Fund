@@ -1,0 +1,3 @@
+#!/bin/bash
+# Helper tool — currently world-writable (mode 777). Fix that.
+echo "tool ok"

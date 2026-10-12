@@ -17,6 +17,26 @@ hardened container per session). Build them on the VM that runs the backend
 | `road-to-cissp/portblast-lab` | cyber-portblast-001 | security-tools + the real `portblast` orchestrated scanner |
 | `road-to-cissp/cloudshell` | cloud-aws-audit-001 | real `aws` CLI (1.46.1) vs a local moto API (5.2.3) seeded with the misconfigured account |
 | `road-to-cissp/iac` | cloud-terraform-001 | real terraform 1.9.8 + tfsec v1.28.14, pre-seeded provider mirror (offline) |
+| `road-to-cissp/wireshark` | tools-wireshark-001 | real tshark + seeded pcaps |
+| `road-to-cissp/webapp` | sec-webapp-001 | in-house vulnerable Flask app on loopback (seeded SQLi/XSS) |
+| `road-to-cissp/gitleaks` | sec-gitleaks-001 | real gitleaks + seeded repo with committed secrets |
+| `road-to-cissp/trivy` | sec-trivy-001 | real trivy (rootfs scan) + seeded vulnerable rootfs |
+| `road-to-cissp/iac-policy` | iac-policy-001 | real tfsec + conftest + seeded violating Terraform |
+| `road-to-cissp/python-tools` | py-loganalysis-001, py-sqli-001, py-semgrep-001 | real python3/sqlite3/semgrep + seeded datasets |
+| `road-to-cissp/linux-admin` | linux-users-001 … linux-audit-001 (039–045) | Debian + openssh/cron/supervisor/fail2ban/nftables tooling; Dockerfile created on FedServ (see below) |
+| `road-to-cissp/linux-admin-hardening` | linux-hardening-001 (046) | linux-admin + misconfigured seeds + posture-check; Dockerfile created on FedServ (see below) |
+
+### `linux-admin` images: Dockerfile created on FedServ
+
+The two `Dockerfile.linux-admin*` files are not in this repo — the environment
+used to author them refused the write, so they are created directly on FedServ
+from the content in the Phase 3 report before running `./build.sh`. The lab
+definitions, seeds, validators, and `build.sh` entries are all committed; only
+the two Dockerfiles are provisioned out-of-band. Once present, build normally:
+
+```bash
+./build.sh linux-admin && ./build.sh linux-admin-hardening
+```
 
 Design rules, kept for every image:
 

@@ -1,0 +1,14 @@
+# Practice sudoers.d (~/sysroot/etc/sudoers.d)
+#
+# Write one file per delegation here, e.g. a file named "deploy" containing:
+#
+#   deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart app
+#
+# Rules of the craft:
+#   - one file per purpose, named after the user or role (never edit sudoers itself)
+#   - least privilege: name exact commands, never ALL unless you mean it
+#   - mode 0440 (root-readable only) — sudo refuses to read anything else
+#   - ALWAYS validate with: visudo -c -f <file>  (look for "parsed OK")
+#
+# On a real host this directory is /etc/sudoers.d and you edit as root.
+# Here it lives in the practice root because the container is unprivileged.

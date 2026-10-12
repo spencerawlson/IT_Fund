@@ -1,0 +1,31 @@
+# road-to-cissp Wireshark/tshark lab image.
+# Serves: tools-wireshark-001 (Wireshark / tshark Packet Analysis).
+#
+# Real tshark plus seeded, hand-built .pcap files (see
+# seeds/tools-wireshark-001/gen_pcap.py): a mixed capture with ARP, DNS, a full
+# HTTP login TCP stream carrying cleartext credentials, a TLS ClientHello,
+# ICMP, and DNS-TXT exfiltration — plus a focused DNS-tunneling capture.
+# Learners run real tshark filters, follow TCP streams, and carve evidence.
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="Road to CISSP - Wireshark/tshark lab" \
+      org.opencontainers.image.description="Real tshark with seeded pcap captures for packet-analysis training"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends tshark ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash analyst
+
+COPY seeds/tools-wireshark-001/capture.pcap seeds/tools-wireshark-001/dns-exfil.pcap /home/analyst/
+COPY seeds/tools-wireshark-001/README /home/analyst/CAPTURES.txt
+RUN chown analyst:analyst /home/analyst/capture.pcap /home/analyst/dns-exfil.pcap \
+        /home/analyst/CAPTURES.txt \
+ && chmod 644 /home/analyst/capture.pcap /home/analyst/dns-exfil.pcap /home/analyst/CAPTURES.txt
+
+USER analyst
+WORKDIR /home/analyst
+# The provider starts lab containers with `sleep infinity`; no services to boot.
+CMD ["sleep", "infinity"]

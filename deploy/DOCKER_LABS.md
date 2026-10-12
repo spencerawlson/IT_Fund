@@ -1,7 +1,7 @@
 # Docker-backed labs — FedServ runbook
 
-Twelve labs now run for real in hardened per-session containers instead of
-simulating. Learners get real tools, real output — and attest each objective
+Twenty-eight labs now run for real in hardened per-session containers instead
+of simulating. Learners get real tools, real output — and attest each objective
 with "I did this" in the workspace (the server no longer fabricates findings
 for these labs).
 
@@ -19,6 +19,22 @@ for these labs).
 | cloud-aws-audit-001 — Cloud Security Audit with the AWS CLI | road-to-cissp/cloudshell |
 | cloud-terraform-001 — Terraform: Provision & Secure Infrastructure | road-to-cissp/iac |
 | terraform-fundamentals-001 — Terraform Fundamentals | road-to-cissp/iac |
+| linux-users-001 — Linux Users, Groups & sudo | road-to-cissp/linux-admin |
+| linux-permissions-001 — Permissions & ACLs | road-to-cissp/linux-admin |
+| linux-ssh-001 — SSH Hardening | road-to-cissp/linux-admin |
+| linux-firewall-001 — Host Firewall | road-to-cissp/linux-admin |
+| linux-services-001 — Service Troubleshooting | road-to-cissp/linux-admin |
+| linux-cron-001 — Cron & Automation | road-to-cissp/linux-admin |
+| linux-audit-001 — Audit Logs & fail2ban | road-to-cissp/linux-admin |
+| linux-hardening-001 — Hardening Capstone | road-to-cissp/linux-admin-hardening |
+| tools-wireshark-001 — Wireshark / tshark Packet Analysis | road-to-cissp/wireshark |
+| sec-webapp-001 — Web Application Testing | road-to-cissp/webapp |
+| sec-gitleaks-001 — Secret Scanning with Gitleaks | road-to-cissp/gitleaks |
+| sec-trivy-001 — Container Image Scanning with Trivy | road-to-cissp/trivy |
+| iac-policy-001 — Terraform Policy as Code | road-to-cissp/iac-policy |
+| py-loganalysis-001 — Python Log Analysis | road-to-cissp/python-tools |
+| py-sqli-001 — SQL Injection: Find & Fix | road-to-cissp/python-tools |
+| py-semgrep-001 — Static Analysis with Semgrep | road-to-cissp/python-tools |
 
 The remaining 26 labs stay simulated on purpose: 12 networking labs emulate
 Cisco IOS (no container equivalent), 5 need real cloud credentials, 2 need
@@ -39,7 +55,9 @@ docker info >/dev/null && echo "daemon OK"
 # 3. Build all lab images (local-only, ~5-10 min first time)
 cd ~/IT_Fund/backend/labs/images && ./build.sh
 # expect: road-to-cissp/python-basics, python-automation, python-netauto,
-#   log-triage, security-tools, portblast-lab, cloudshell, iac (:latest)
+#   log-triage, security-tools, portblast-lab, cloudshell, iac, wireshark,
+#   webapp, gitleaks, trivy, iac-policy, python-tools, linux-admin,
+#   linux-admin-hardening (:latest)
 
 # 4. Opt in
 printf '\nLAB_DOCKER_ENABLED=1\n' >> ~/.config/itfund/backend.env
@@ -78,6 +96,27 @@ curl -s https://api.road2cissp.com/health
    attestation off the lab's public `environment.live` flag automatically.
 
 ## Notes
+
+- **Phase 3 images `linux-admin` and `linux-admin-hardening`:** their Dockerfiles
+  (`backend/labs/images/Dockerfile.linux-admin`,
+  `backend/labs/images/Dockerfile.linux-admin-hardening`) are created directly
+  on FedServ — copy the contents from the Phase 3 report, then run
+  `./build.sh linux-admin && ./build.sh linux-admin-hardening`.
+- Linux labs (039–046) run on an unprivileged container, so the honest
+  boundaries are stated in each lab description: user/group/shadow edits apply
+  to a practice root (`~/sysroot`) with byte-identical file formats; sshd runs
+  on high port 2222 as the student user; supervisord replaces systemd (it
+  cannot run as PID 1 unprivileged); cron runs under a crontab-compatible
+  scheduler; fail2ban proves its filter with the real `fail2ban-regex` but
+  cannot enforce bans; nft/iptables binaries are present for inspection but the
+  kernel refuses enforcement without CAP_NET_ADMIN, so the firewall lab is
+  write-and-verify with static review plus packet simulation.
+- `sec-trivy-001` scans via `trivy rootfs` against a seeded vulnerable rootfs —
+  `trivy image` needs the Docker socket, which the hardened provider never
+  exposes. This is stated in the lab.
+- `sec-webapp-001` serves its vulnerable app on loopback only
+  (`target.lab` → 127.0.0.1); the image is intentionally vulnerable by design
+  and never exposed beyond the session container.
 
 - `cyber-nmap-001` and `cyber-portblast-001` keep their `target.lab` hostname: the
   provider maps it to 127.0.0.1 via `extra_hosts` (see `LabEnvironmentConfig`),

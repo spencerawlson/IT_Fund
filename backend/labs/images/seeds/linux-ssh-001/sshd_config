@@ -1,0 +1,16 @@
+# STARTER sshd_config — deliberately weak. Harden it for this lab.
+# This sshd runs as the unprivileged student user (host keys live in
+# ~/ssh-lab/host_keys because the student cannot read /etc/ssh).
+
+Port 22
+PasswordAuthentication yes
+PubkeyAuthentication yes
+PermitRootLogin yes
+X11Forwarding yes
+PrintMotd no
+
+HostKey /home/student/ssh-lab/host_keys/ssh_host_ed25519_key
+HostKey /home/student/ssh-lab/host_keys/ssh_host_rsa_key
+HostKey /home/student/ssh-lab/host_keys/ssh_host_ecdsa_key
+PidFile /home/student/ssh-lab/sshd.pid
+AuthorizedKeysFile .ssh/authorized_keys

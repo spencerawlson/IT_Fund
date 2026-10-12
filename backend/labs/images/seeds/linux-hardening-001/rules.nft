@@ -1,0 +1,13 @@
+#!/usr/sbin/nft -f
+# WEAK STARTER: default-accept and no SSH restriction. Rewrite this properly.
+flush ruleset
+
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy accept;
+        tcp dport 22 accept
+    }
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}

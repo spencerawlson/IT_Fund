@@ -47,6 +47,17 @@ case "$only" in
         build portblast-lab Dockerfile.portblast --build-arg "BASE_TAG=$TAG"
         build cloudshell Dockerfile.cloudshell
         build iac Dockerfile.iac
+        # Phase 3 images.
+        # NOTE: Dockerfile.linux-admin and Dockerfile.linux-admin-hardening are
+        # created on FedServ (see deploy/DOCKER_LABS.md); the definitions
+        # reference road-to-cissp/linux-admin:latest and
+        # road-to-cissp/linux-admin-hardening:latest.
+        build wireshark Dockerfile.wireshark
+        build webapp Dockerfile.webapp
+        build gitleaks Dockerfile.gitleaks
+        build trivy Dockerfile.trivy
+        build iac-policy Dockerfile.iac-policy
+        build python-tools Dockerfile.python-tools
         ;;
     python)   build python Dockerfile.python python-basics python-automation python-netauto ;;
     log-triage) build log-triage Dockerfile.logtriage ;;
@@ -54,7 +65,15 @@ case "$only" in
     portblast-lab) build portblast-lab Dockerfile.portblast --build-arg "BASE_TAG=$TAG" ;;
     cloudshell) build cloudshell Dockerfile.cloudshell ;;
     iac)      build iac Dockerfile.iac ;;
-    *) echo "unknown image: $only (try: all, python, log-triage, security-tools, portblast-lab, cloudshell, iac)" >&2; exit 1 ;;
+    wireshark) build wireshark Dockerfile.wireshark ;;
+    webapp)   build webapp Dockerfile.webapp ;;
+    gitleaks) build gitleaks Dockerfile.gitleaks ;;
+    trivy)    build trivy Dockerfile.trivy ;;
+    iac-policy) build iac-policy Dockerfile.iac-policy ;;
+    python-tools) build python-tools Dockerfile.python-tools ;;
+    linux-admin) build linux-admin Dockerfile.linux-admin ;;
+    linux-admin-hardening) build linux-admin-hardening Dockerfile.linux-admin-hardening ;;
+    *) echo "unknown image: $only (try: all, python, log-triage, security-tools, portblast-lab, cloudshell, iac, wireshark, webapp, gitleaks, trivy, iac-policy, python-tools, linux-admin, linux-admin-hardening)" >&2; exit 1 ;;
 esac
 
 echo

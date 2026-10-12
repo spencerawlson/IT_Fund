@@ -1,0 +1,38 @@
+# road-to-cissp gitleaks lab image.
+# Serves: sec-gitleaks-001 (Secret Scanning with gitleaks).
+#
+# Pinned gitleaks binary plus a seeded git repo (/home/analyst/leaky-repo,
+# built deterministically by seeds/sec-gitleaks-001/seed_repo.sh) whose
+# history contains CLEARLY FAKE example secrets (AWS key pair, Stripe key,
+# Slack token, GitHub PAT, RSA private key — all EXAMPLE/FAKE-shaped and
+# marked fake in comments). Learners run real `gitleaks detect`, triage the
+# findings, remediate, and install a pre-commit hook.
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="Road to CISSP - gitleaks lab" \
+      org.opencontainers.image.description="Real gitleaks with a seeded leaky git repo (fake secrets) for secret-scanning training"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    GITLEAKS_VERSION=8.30.1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends git ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/* \
+ && curl -fsSL -o /tmp/gitleaks.tar.gz \
+      "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+ && tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks \
+ && rm /tmp/gitleaks.tar.gz \
+ && chmod 755 /usr/local/bin/gitleaks \
+ && gitleaks version
+
+RUN useradd -m -s /bin/bash analyst
+
+COPY seeds/sec-gitleaks-001/seed_repo.sh /usr/local/bin/seed-leaky-repo
+RUN chmod 755 /usr/local/bin/seed-leaky-repo \
+ && /usr/local/bin/seed-leaky-repo \
+ && chown -R analyst:analyst /home/analyst/leaky-repo
+
+USER analyst
+WORKDIR /home/analyst
+# The provider starts lab containers with `sleep infinity`; nothing to boot.
+CMD ["sleep", "infinity"]

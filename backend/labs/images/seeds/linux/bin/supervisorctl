@@ -1,0 +1,4 @@
+#!/bin/bash
+# Convenience wrapper: points supervisorctl at the student's supervisord config
+# so plain `supervisorctl status` works in the lab container.
+exec /usr/bin/supervisorctl -c /home/student/supervisord.conf "$@"

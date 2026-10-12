@@ -1,0 +1,4 @@
+Q3 access review — draft
+Alice (auditor) needs read-only access to this file, but she is not in our
+group. Use an ACL: setfacl -m u:alice:r-- report.txt
+Do NOT chmod the file open to everyone.

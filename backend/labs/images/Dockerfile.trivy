@@ -1,0 +1,54 @@
+# road-to-cissp Trivy lab image.
+# Serves: sec-trivy-001 (Container Image Scanning with Trivy).
+#
+# Real trivy (v0.75.0, checksum-verified) + a real vulnerability DB downloaded
+# at IMAGE BUILD time (FedServ has internet at build; the lab network itself
+# denies egress, so the baked-in DB is what the learner gets).
+#
+# HONESTY: `trivy image` needs the Docker socket or a registry pull, both of
+# which the hardened lab provider forbids. This lab runs `trivy rootfs`
+# against a seeded vulnerable rootfs TARBALL (seeds/sec-trivy-001) — the same
+# scanner, the same DB, no live image scan. The lab definition says so.
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="Road to CISSP - Trivy lab" \
+      org.opencontainers.image.description="Real trivy with pre-downloaded vulnerability DB (rootfs scans)"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    # Keep the vuln DB inside the lab user's home so the non-root scanner can read it.
+    TRIVY_CACHE_DIR=/home/analyst/.cache/trivy
+
+ARG TRIVY_VERSION=v0.75.0
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/* \
+ && curl -fsSL -o /tmp/trivy.tar.gz \
+      "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" \
+ && curl -fsSL -o /tmp/trivy_checksums.txt \
+      "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_checksums.txt" \
+ && grep "trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz$" /tmp/trivy_checksums.txt > /tmp/trivy.sha256 \
+ && test -s /tmp/trivy.sha256 \
+ && (cd /tmp && sha256sum -c trivy.sha256) \
+ && tar -xzf /tmp/trivy.tar.gz -C /usr/local/bin trivy \
+ && chmod 755 /usr/local/bin/trivy \
+ && rm -rf /tmp/trivy.tar.gz /tmp/trivy_checksums.txt /tmp/trivy.sha256 \
+ && trivy --version
+
+# Non-root lab user (the DockerLabProvider drops all capabilities anyway).
+RUN useradd -m -s /bin/bash analyst \
+ && mkdir -p /home/analyst/.cache/trivy \
+ && chown -R analyst:analyst /home/analyst
+
+# Seeded vulnerable rootfs tarball the learner scans.
+COPY seeds/sec-trivy-001/vuln-rootfs.tar.gz /home/analyst/vuln-rootfs.tar.gz
+# Bake the vulnerability DB into the image NOW (build has internet; the lab
+# network denies egress, so a first-run download would fail).
+RUN chown analyst:analyst /home/analyst/vuln-rootfs.tar.gz \
+ && su analyst -s /bin/bash -c "trivy image --download-db-only" \
+ && chown -R analyst:analyst /home/analyst
+
+USER analyst
+WORKDIR /home/analyst
+# No entrypoint needed: the provider starts lab containers with `sleep infinity`.
+CMD ["sleep", "infinity"]

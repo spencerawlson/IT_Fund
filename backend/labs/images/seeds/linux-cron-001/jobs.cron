@@ -1,0 +1,4 @@
+# Crontab for the cron lab — TODO: add your two jobs below.
+# Format: minute hour day-of-month month day-of-week command
+# Example (commented out):
+# * * * * * /home/student/cron/heartbeat.sh >> /home/student/cron/out/heartbeat.log 2>&1

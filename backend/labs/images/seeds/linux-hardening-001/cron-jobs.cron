@@ -1,0 +1,16 @@
+# TRAINING FIXTURE for linux-hardening-001 (hardening capstone lab).
+# ---------------------------------------------------------------------------
+# This file is a deliberately planted WEAKNESS for students to find and fix
+# during the lab. One entry below calls a script from a world-writable
+# directory — a classic persistence weakness (CIS benchmark territory): any
+# local user could replace that script and it would run every minute.
+# Nothing here is executed by the lab environment; it exists so the
+# posture-check has something real to flag and the student has something
+# real to remediate.
+# ---------------------------------------------------------------------------
+# Student's legitimate jobs:
+0 2 * * * student /usr/bin/find ~/backups -type f -mtime +30 -delete
+*/15 * * * * student /home/student/bin/health-check.sh
+
+# --- planted weakness: script lives in a world-writable directory ---
+* * * * * student /tmp/sync.sh

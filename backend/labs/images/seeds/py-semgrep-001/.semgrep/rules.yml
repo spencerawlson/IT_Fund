@@ -1,0 +1,35 @@
+# Custom rules for py-semgrep-001. ERROR = fix now, WARNING = fix soon.
+rules:
+  - id: tools.hardcoded-secret
+    languages: [python]
+    severity: ERROR
+    message: "Hardcoded secret in source. Load it from an environment variable or a secrets manager."
+    patterns:
+      - pattern: $VAR = "..."
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: (?i).*(api[_-]?key|password|passwd|secret|token).*
+
+  - id: tools.subprocess-shell-true
+    languages: [python]
+    severity: ERROR
+    message: "subprocess with shell=True on a composed command allows shell injection. Use a list of args and shell=False."
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.run(..., shell=True, ...)
+          - pattern: subprocess.call(..., shell=True, ...)
+          - pattern: subprocess.Popen(..., shell=True, ...)
+
+  - id: tools.weak-md5
+    languages: [python]
+    severity: WARNING
+    message: "MD5 is broken for password hashing. Use hashlib.sha256 or, better, bcrypt/argon2."
+    patterns:
+      - pattern: hashlib.md5(...)
+
+  - id: tools.unsafe-yaml-load
+    languages: [python]
+    severity: WARNING
+    message: "yaml.load without a Loader can execute arbitrary code. Use yaml.safe_load."
+    patterns:
+      - pattern: yaml.load(...)

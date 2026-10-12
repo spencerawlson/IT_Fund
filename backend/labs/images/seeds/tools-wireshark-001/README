@@ -1,0 +1,20 @@
+Seeded captures for the Wireshark/tshark lab (tools-wireshark-001).
+
+capture.pcap — mixed traffic inside the fictional 10.10.10.0/24 lab network:
+  * workstation 10.10.10.5  (analyst's view of a "victim" host)
+  * web server  10.10.10.20  (intranet.lan — cleartext HTTP login!)
+  * dns/gateway 10.10.10.1
+  * 10.10.10.30:443          (TLS ClientHello — where does it go?)
+  Look for: ARP, DNS, TCP, HTTP, TLS, ICMP — then follow the HTTP login
+  TCP stream (tshark -z follow,tcp,ascii,0), spot the cleartext credentials,
+  and find the DNS-TXT exfiltration to exfil.evil-dns.net.
+
+dns-exfil.pcap — a focused DNS-tunneling capture: TXT queries carrying
+base64-looking data chunks to data.exfil.evil-dns.net, with a little
+ordinary DNS noise mixed in.
+
+Useful tshark invocations:
+  tshark -r capture.pcap -q -z io,phs            # protocol hierarchy
+  tshark -r capture.pcap -Y dns -T fields -e dns.qry.name -e dns.qry.type
+  tshark -r capture.pcap -q -z follow,tcp,ascii,0 # follow the login stream
+  tshark -r capture.pcap -Y http -T fields -e http.authorization

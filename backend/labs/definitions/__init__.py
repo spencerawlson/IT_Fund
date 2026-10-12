@@ -20,6 +20,19 @@ from labs.definitions.linux_terminal import LINUX_TERMINAL_LAB
 from labs.definitions.python_basics import PYTHON_BASICS_LAB
 from labs.definitions.python_lab import PYTHON_AUTOMATION_LAB
 from labs.definitions.python_netauto import PYTHON_NETAUTO_LAB
+from labs.definitions.linux_admin import (
+    LINUX_USERS_LAB,
+    LINUX_PERMISSIONS_LAB,
+    LINUX_SSH_LAB,
+    LINUX_FIREWALL_LAB,
+    LINUX_SERVICES_LAB,
+    LINUX_CRON_LAB,
+    LINUX_AUDIT_LAB,
+    LINUX_HARDENING_LAB,
+)
+from labs.definitions.sectools import WIRESHARK_LAB, WEBAPP_LAB, GITLEAKS_LAB
+from labs.definitions.devops_tools import TRIVY_LAB, IAC_POLICY_LAB
+from labs.definitions.python_tools import PY_LOGANALYSIS_LAB, PY_SQLI_LAB, PY_SEMGREP_LAB
 from labs.definitions.networking import (
     ACL_LAB,
     BGP_LAB,
@@ -74,4 +87,20 @@ ALL_LABS = [
     PYTHON_NETAUTO_LAB,
     PYTHON_AUTOMATION_LAB,
     LINUX_TERMINAL_LAB,
+    LINUX_USERS_LAB,
+    LINUX_PERMISSIONS_LAB,
+    LINUX_SSH_LAB,
+    LINUX_FIREWALL_LAB,
+    LINUX_SERVICES_LAB,
+    LINUX_CRON_LAB,
+    LINUX_AUDIT_LAB,
+    LINUX_HARDENING_LAB,
+    WIRESHARK_LAB,
+    WEBAPP_LAB,
+    GITLEAKS_LAB,
+    TRIVY_LAB,
+    IAC_POLICY_LAB,
+    PY_LOGANALYSIS_LAB,
+    PY_SQLI_LAB,
+    PY_SEMGREP_LAB,
 ]

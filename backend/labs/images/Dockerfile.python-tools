@@ -1,0 +1,44 @@
+# road-to-cissp Python tools lab image.
+# Serves: py-loganalysis-001, py-sqli-001, py-semgrep-001 (one image, one tag).
+#
+# Real python3 + sqlite3 CLI + semgrep (pinned) with the three labs' seeds.
+# No services to boot: the entrypoint just execs the CMD (sleep infinity),
+# keeping the ENTRYPOINT/CMD shape identical to the other lab images.
+FROM python:3.12.7-slim-bookworm
+
+LABEL org.opencontainers.image.title="Road to CISSP - Python tools lab" \
+      org.opencontainers.image.description="Real python3, sqlite3 and semgrep with seeds for the Python tools labs"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    SEMGREP_SEND_METRICS=off
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends sqlite3 grep sed gawk curl less ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Pinned so builds are reproducible; semgrep needs network at build time only
+# (the labs run it fully offline against local rule files).
+RUN pip install --no-cache-dir semgrep==1.180.0
+
+# Non-root lab user (the DockerLabProvider drops all capabilities anyway).
+RUN useradd -m -s /bin/bash analyst
+
+# Seed files for the three labs.
+COPY seeds/py-loganalysis-001/auth.log /home/analyst/loganalysis/auth.log
+COPY seeds/py-sqli-001/ /home/analyst/sqli/
+COPY seeds/py-semgrep-001/ /home/analyst/semgrep/
+COPY seeds/python-tools/entrypoint.sh /entrypoint.sh
+
+# Build the sqlite seed db deterministically, then hand everything to the analyst.
+RUN python3 /home/analyst/sqli/make_seed_db.py \
+ && rm /home/analyst/sqli/make_seed_db.py \
+ && chown -R analyst:analyst /home/analyst \
+ && chmod 644 /home/analyst/loganalysis/auth.log \
+ && chmod 755 /entrypoint.sh
+
+USER analyst
+WORKDIR /home/analyst
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["sleep", "infinity"]

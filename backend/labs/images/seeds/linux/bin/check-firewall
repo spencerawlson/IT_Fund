@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""Static firewall ruleset reviewer for linux-firewall-001.
+
+The hardened lab provider forbids CAP_NET_ADMIN, so the kernel cannot enforce nft/iptables
+rules in this container. This tool does what a senior engineer does before applying a ruleset
+on a real host: it validates the SYNTAX and SEMANTICS of ~/firewall/rules.nft statically,
+including a first-match packet simulation (--test-packet).
+
+Usage:
+    check-firewall                        review ~/firewall/rules.nft
+    check-firewall --test-packet "dport=2222 src=10.0.2.5"
+"""
+import os
+import re
+import sys
+
+RULES = os.path.expanduser("~/firewall/rules.nft")
+
+
+def load():
+    if not os.path.exists(RULES):
+        print(f"error: {RULES} does not exist yet")
+        sys.exit(2)
+    with open(RULES) as f:
+        return f.read()
+
+
+CHECKS = []
+
+
+def check(name, doc):
+    def deco(fn):
+        CHECKS.append((name, doc, fn))
+        return fn
+    return deco
+
+
+@check("default_deny", "input chain has 'policy drop'")
+def _c_default_deny(text):
+    return bool(re.search(r"policy\s+drop", text, re.I)), "default-deny policy present"
+
+
+@check("no_blanket_accept", "no 'policy accept' or bare accept-all rule")
+def _c_no_accept(text):
+    if re.search(r"policy\s+accept", text, re.I):
+        return False, "found 'policy accept' — default must be deny"
+    for line in text.splitlines():
+        s = line.strip()
+        if s and not s.startswith("#") and re.fullmatch(r"accept\s*;?", s, re.I):
+            return False, f"bare accept-all rule: {s}"
+    return True, "no blanket accept"
+
+
+@check("loopback", "loopback traffic accepted")
+def _c_loopback(text):
+    t = text.lower()
+    return ("lo" in t and "accept" in t), "loopback accepted"
+
+
+@check("established", "established/related connections accepted")
+def _c_established(text):
+    t = text.lower()
+    return ("established" in t and "accept" in t), "established/related accepted"
+
+
+@check("mgmt_ssh", "management SSH (tcp dport 2222) accepted")
+def _c_ssh(text):
+    t = text.lower()
+    return ("2222" in t and "accept" in t), "tcp dport 2222 accepted"
+
+
+@check("web_egress", "HTTP/HTTPS egress allowed")
+def _c_web(text):
+    t = text.lower()
+    ok = ("80" in t or "http" in t) and ("443" in t or "https" in t) and "accept" in t
+    return ok, "web egress allowed"
+
+
+@check("balanced_braces", "braces are balanced")
+def _c_braces(text):
+    body = "\n".join(l for l in text.splitlines() if not l.strip().startswith("#"))
+    depth = 0
+    for ch in body:
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+        if depth < 0:
+            return False, "unbalanced: closing brace without opener"
+    return depth == 0, "braces balanced" if depth == 0 else "unbalanced: missing closing brace"
+
+
+def simulate(text, spec):
+    """Tiny first-match simulator over accept/drop rules mentioning dport."""
+    pkt = dict(kv.split("=", 1) for kv in spec.split() if "=" in kv)
+    dport = pkt.get("dport", "")
+    src = pkt.get("src", "")
+    rules = []
+    for line in text.splitlines():
+        s = line.strip().rstrip(";")
+        if not s or s.startswith("#"):
+            continue
+        m = re.search(r"dport\s+(\d+)", s)
+        verdict = "accept" if re.search(r"\baccept\b", s, re.I) else ("drop" if re.search(r"\bdrop\b", s, re.I) else None)
+        if m and verdict:
+            rules.append((m.group(1), verdict, s))
+    for port, verdict, rule in rules:
+        if port == dport:
+            print(f"packet dport={dport} src={src}: {verdict.upper()}  (matched: {rule.strip()})")
+            return
+    policy = "DROP" if re.search(r"policy\s+drop", text, re.I) else "ACCEPT"
+    print(f"packet dport={dport} src={src}: {policy}  (no rule matched; default policy)")
+
+
+def main():
+    args = sys.argv[1:]
+    text = load()
+    if args[:1] == ["--test-packet"] and len(args) == 2:
+        simulate(text, args[1])
+        return
+    if args[:1] == ["--help"] or (args and args[0].startswith("-") and args[0] != "--test-packet"):
+        print(__doc__)
+        return
+    passed = 0
+    for name, doc, fn in CHECKS:
+        try:
+            ok, msg = fn(text)
+        except Exception as exc:  # noqa: BLE001
+            ok, msg = False, f"checker error: {exc}"
+        print(f"CHECK {name}: {'PASS' if ok else 'FAIL'} - {msg}")
+        passed += ok
+    print(f"SCORE: {passed}/{len(CHECKS)}")
+    if passed == len(CHECKS):
+        print("ALL CHECKS PASSED")
+    else:
+        print("Fix the FAIL lines above and re-run check-firewall.")
+
+
+if __name__ == "__main__":
+    main()

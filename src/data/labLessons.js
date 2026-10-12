@@ -36,11 +36,14 @@ export const LAB_FOR_LESSON = {
 
   // Linux
   'lx-cli': 'linux-terminal-001',
-  'lx-perms': 'linux-terminal-001',
-  'lx-users': 'linux-terminal-001',
-  'lx-bash': 'linux-terminal-001',
-  'lx-logs': 'linux-terminal-001',
+  'lx-perms': 'linux-permissions-001',
+  'lx-users': 'linux-users-001',
+  'lx-bash': 'linux-cron-001',
+  'lx-logs': 'linux-audit-001',
   'lx-text': 'linux-terminal-001',
+  'lx-network': 'linux-ssh-001',
+  'lx-systemd': 'linux-services-001',
+  'lx-secure': 'linux-hardening-001',
 
   // Security+
   'sec-threats': 'cyber-nmap-001',
@@ -60,6 +63,7 @@ export const LAB_FOR_LESSON = {
   'cy-threat-actors': 'cyber-portblast-001',
   'cy-malware': 'sec-ransomware-001',
   'cy-linux': 'linux-terminal-001',
+  'cy-web': 'sec-webapp-001',
 
   // Cloud
   'cl-security': 'cloud-aws-audit-001',
@@ -89,6 +93,7 @@ export const LAB_FOR_LESSON = {
   'tf-core-workflow': 'terraform-fundamentals-001',
   'tf-resources': 'terraform-fundamentals-001',
   'tf-state-backends': 'terraform-fundamentals-001',
+  'tf-prod-security': 'iac-policy-001',
   'tf-prod-security': 'cloud-terraform-001',
 };
 
