@@ -48,10 +48,12 @@ export default function Practice() {
         <SectionHeader
           id="practice-ranges"
           title="Interactive labs"
-          description="The terminal is your way in. Type labs to list every lab, lab info <name> for details, then lab start <name> to begin. Labs run on real containers where the host supports it, and an identical simulation everywhere else."
+          description="The terminal is your way in. Type labs to browse the tracks, labs <#> to open one, then lab start <#> to begin. Labs run on real containers where the host supports it, and an identical simulation everywhere else."
           action={<Badge>beta</Badge>}
         />
-        <LabConsole />
+        <div className="rounded-2xl border border-white/10 bg-[#0d1219] p-2 shadow-2xl sm:p-3">
+          <LabConsole />
+        </div>
         <p className="mt-3 text-caption text-ink-3">
           New here? Type <code className="font-mono text-ink-2">help</code> to see every command.
         </p>

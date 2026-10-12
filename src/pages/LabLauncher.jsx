@@ -20,24 +20,26 @@ export default function LabLauncher() {
   const { banner, runner, readyKey } = useLabConsole({ startHint });
 
   return (
-    <div className="min-h-[100dvh] text-ink-1">
+    <div className="min-h-[100dvh] bg-[#070b12] text-ink-1">
       <header className="sticky top-0 z-30 px-3 pt-3 sm:px-6 sm:pt-5">
-        <div className="glass-1 mx-auto flex max-w-5xl items-center gap-3 rounded-card px-3 py-2 sm:px-4">
-          <FlaskConical size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
+        <div className="mx-auto flex max-w-5xl items-center gap-3 rounded-card border border-white/10 bg-[#0b0f16]/95 px-3 py-2 text-slate-100 shadow-lg sm:px-4">
+          <FlaskConical size={18} className="shrink-0 text-emerald-400" aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate text-body font-semibold">Interactive Lab</span>
           <Button size="sm" variant="ghost" to="/labs/progress">My progress</Button>
           <Button size="sm" variant="secondary" to="/practice">Exit</Button>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-3 py-4 sm:px-6">
-        <LabTerminal
-          key={readyKey}
-          runner={runner}
-          banner={banner}
-          prompt="roadtocissp@lab:~$ "
-        />
-        <p className="mt-3 text-caption text-ink-3">
-          Type <code className="font-mono text-ink-2">tracks</code> to browse by track, <code className="font-mono text-ink-2">labs</code> for titles, <code className="font-mono text-ink-2">lab start &lt;#&gt;</code> to begin. This is how real lab environments work — the terminal is your way in.
+        <div className="rounded-2xl border border-white/10 bg-[#0d1219] p-2 shadow-2xl sm:p-3">
+          <LabTerminal
+            key={readyKey}
+            runner={runner}
+            banner={banner}
+            prompt="roadtocissp@lab:~$ "
+          />
+        </div>
+        <p className="mt-3 text-caption text-slate-400">
+          Type <code className="font-mono text-slate-200">labs</code> to browse the tracks, <code className="font-mono text-slate-200">lab start &lt;#&gt;</code> to begin. This is how real lab environments work — the terminal is your way in.
         </p>
       </main>
     </div>
