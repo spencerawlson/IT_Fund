@@ -1,6 +1,6 @@
 """Stripe subscription billing: $19/mo for premium access.
 
-Free tier (no payment): 1 sample lesson, 50 flashcards, 1 lab, all marketing pages.
+Free tier (no payment): 3 sample lessons, 50 flashcards, 2 labs, all marketing pages.
 Everything else requires an active subscription.
 
 Env vars (never hardcoded):

@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: 'What exactly is free?',
-    a: 'One sample lesson, 50 flashcards, one hands-on lab, and all marketing pages — no account or payment needed. Everything beyond that needs the subscription.',
+    a: 'Three sample lessons, 50 flashcards, two hands-on labs, and all marketing pages — no account or payment needed. Everything beyond that needs the subscription.',
   },
   {
     q: 'Is this enough to pass Security+ or CISSP?',

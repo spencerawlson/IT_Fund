@@ -1,5 +1,5 @@
-// Subscription state for the paywall. Free tier: 1 sample lesson, 50 flashcards,
-// 1 lab, all marketing pages. Everything else needs an active subscription.
+// Subscription state for the paywall. Free tier: 3 sample lessons, 50 flashcards,
+// 2 labs, all marketing pages. Everything else needs an active subscription.
 //
 // useSubscription() calls GET /api/billing/status (cookie auth) and caches the
 // result for the session. When billing isn't configured server-side (503) the
@@ -69,8 +69,9 @@ export function useSubscription() {
 }
 
 // --- free-tier boundaries -------------------------------------------------
-// The free tier is positional: the first lesson, the first 50 cards of a track,
-// and the first lab are open; everything beyond needs a subscription.
+// The free tier is positional: the opening lessons of the three flagship tracks,
+// the first 50 cards of a track, and two showcase labs are open;
+// everything beyond needs a subscription.
 
 /** First deck of each track is the free sample (~50 cards). */
 const FREE_DECKS = new Set([
@@ -85,8 +86,8 @@ export function isDeckFree(deckId) {
   return FREE_DECKS.has(deckId);
 }
 
-/** First lab is the free sample. */
-const FREE_LABS = new Set(['vlan-inter-vlan-routing']);
+/** Two showcase labs are free: networking fundamentals + a real Docker container lab. */
+const FREE_LABS = new Set(['vlan-inter-vlan-routing', 'py-basics-001']);
 
 export function isLabFree(labId) {
   return FREE_LABS.has(labId);

@@ -16,8 +16,8 @@ import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const SAMPLE_QUESTIONS = 4;
 
-// Free-tier sample: this lesson's full content is open to everyone.
-const FREE_LESSON_ID = 'net-osi';
+// Free-tier samples: the opening lesson of each flagship track is open to everyone.
+const FREE_LESSON_IDS = new Set(['net-osi', 'sec-concepts', 'py-basics']);
 
 // Lessons that have a matching Visual Lab scenario ("Learn → See"). Deep-links straight to it.
 const VISUAL_LAB_FOR = {
@@ -44,7 +44,7 @@ export default function LessonView() {
     );
   }
 
-  if (!subLoading && !subscribed && lessonId !== FREE_LESSON_ID) {
+  if (!subLoading && !subscribed && !FREE_LESSON_IDS.has(lessonId)) {
     return (
       <PageContainer>
         <PageHeader breadcrumbs={[{ label: 'Home', to: '/' }]} title={lesson.title} />
