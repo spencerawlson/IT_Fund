@@ -13,7 +13,7 @@ export default function UpgradePrompt({ what = 'this content' }) {
       <h2 className="mt-4 text-heading font-semibold text-ink-1">Premium content</h2>
       <p className="mx-auto mt-2 max-w-md text-body text-ink-2">
         {what} is part of Premium — every track, all labs, and the exam simulators,
-        for $19/month. The free tier includes a sample lesson, 50 flashcards, and one lab.
+        for $19/month. The free tier includes 3 sample lessons, 50 flashcards, and 2 labs.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Button to="/pricing">See plans — $19/mo</Button>
