@@ -11,13 +11,15 @@ import useDocumentTitle from '@/hooks/useDocumentTitle';
 // navigates to the lab workspace; context passed via ?start=<id> shows the instruction without
 // auto-running it. Reuses LabTerminal with a local command runner (no backend session here).
 
-const CATEGORY_ORDER = ['networking', 'cloud', 'portblast', 'cybersecurity', 'python'];
+const CATEGORY_ORDER = ['networking', 'cloud', 'devops', 'portblast', 'cybersecurity', 'python', 'linux'];
 const CATEGORY_LABEL = {
   networking: 'Networking & Routing',
   cloud: 'Cloud & IaC',
+  devops: 'DevOps & IaC',
   cybersecurity: 'Security & Blue Team',
   portblast: 'Security & Blue Team',
   python: 'Python Automation',
+  linux: 'Linux',
 };
 
 function orderLabs(labs) {
@@ -94,10 +96,12 @@ export default function LabLauncher() {
     if (t === 'list' || t === 'labs') return 'labs            — list every lab, grouped by track.\nlabs <track>    — filter (e.g. labs networking, labs cloud, labs security).';
     return [
       'Interactive Lab — commands',
-      '  labs [track]        list available labs (optionally filter by track)',
+      '  tracks              browse lab tracks with lab counts',
+      '  labs [track]        list lab titles, optionally filtered by track',
+      '  search <keyword>    find labs by title or topic (e.g. search terraform)',
       '  lab list            same as labs',
-      '  lab info <name>     show a lab\'s mission and objectives',
-      '  lab start <name>    load a lab (accepts its slug or number)',
+      '  lab info <name|#>   show a lab\'s mission, difficulty and objective count',
+      '  lab start <name|#>   load a lab (accepts its slug or number)',
       '  clear               clear the screen',
       '  help [command]      this help, or help for one command',
       '',
@@ -105,10 +109,50 @@ export default function LabLauncher() {
     ].join('\n');
   };
 
+  const tracksText = () => {
+    const counts = {};
+    (labs || []).forEach((l) => { counts[l.category] = (counts[l.category] || 0) + 1; });
+    const lines = ['LAB TRACKS', '==========', ''];
+    orderLabs(labs || [])
+      .map((l) => l.category)
+      .filter((c, i, arr) => arr.indexOf(c) === i)
+      .forEach((c) => {
+        const label = CATEGORY_LABEL[c] || c;
+        lines.push(`  ${label} — ${counts[c]} lab${counts[c] === 1 ? '' : 's'}   (labs ${c})`);
+      });
+    lines.push('', `Type 'labs' for every title, or 'labs <track>' to browse one track.`);
+    return lines.join('\n');
+  };
+
+  const searchText = (term) => {
+    const q = (term || '').toLowerCase().trim();
+    if (!q) return `Usage: search <keyword> — e.g. search terraform`;
+    const hits = (labs || []).map((l, i) => ({ l, i })).filter(({ l }) =>
+      l.title.toLowerCase().includes(q) || l.slug.toLowerCase().includes(q) || (l.description || '').toLowerCase().includes(q),
+    );
+    if (!hits.length) return `No labs match "${term}". Type 'labs' to browse them all.`;
+    const lines = [`${hits.length} match${hits.length === 1 ? '' : 'es'} for "${term}":`, ''];
+    hits.forEach(({ l, i }) => lines.push(`  [${pad2(i + 1)}] ${l.title}   (${l.slug})`));
+    lines.push('', `Type  lab info <number>  for details,  lab start <number>  to begin.`);
+    return lines.join('\n');
+  };
+
   const banner = useMemo(() => {
     if (error) return [`Could not load labs: ${error}`];
     if (!labs) return ['Road to CISSP Interactive Lab', 'Loading lab catalogue...'];
-    const lines = ['Road to CISSP Interactive Lab', '=============================', '', listText()];
+    const lines = [
+      'Road to CISSP — Interactive Labs',
+      '=================================',
+      '',
+      `${labs.length} hands-on labs across ${new Set(labs.map((l) => l.category)).size} tracks.`,
+      '',
+      `Type  tracks          to browse by track`,
+      `Type  labs            to list every lab title`,
+      `Type  search <word>   to find a lab (e.g. search terraform)`,
+      `Type  lab start <#>   to launch one (e.g. lab start 07)`,
+      '',
+      `Type 'help' for all commands.`,
+    ];
     if (startHint && lookup[startHint.toLowerCase()]) {
       const l = lookup[startHint.toLowerCase()];
       lines.push('', 'Visual Lab scenario detected.', `Corresponding Interactive Lab: ${l.slug}`, '', `To begin, type:  lab start ${l.slug}`);
@@ -123,6 +167,8 @@ export default function LabLauncher() {
     if (!labs) return { output: 'Still loading the lab catalogue — try again in a moment.' };
     if (cmd === 'help' || cmd === '?') return { output: helpText(parts.slice(1).join(' ')) };
     if (cmd === 'labs') return { output: listText((parts[1] || '').toLowerCase()) };
+    if (cmd === 'tracks' || cmd === 'categories') return { output: tracksText() };
+    if (cmd === 'search' || cmd === 'find') return { output: searchText(parts.slice(1).join(' ')) };
     if (cmd === 'lab') {
       const sub = (parts[1] || '').toLowerCase();
       if (sub === 'list') return { output: listText() };
@@ -156,7 +202,7 @@ export default function LabLauncher() {
           prompt="roadtocissp@lab:~$ "
         />
         <p className="mt-3 text-caption text-ink-3">
-          Type <code className="font-mono text-ink-2">labs</code> to list, <code className="font-mono text-ink-2">lab start &lt;name&gt;</code> to begin. This is how real lab environments work — the terminal is your way in.
+          Type <code className="font-mono text-ink-2">tracks</code> to browse by track, <code className="font-mono text-ink-2">labs</code> for titles, <code className="font-mono text-ink-2">lab start &lt;#&gt;</code> to begin. This is how real lab environments work — the terminal is your way in.
         </p>
       </main>
     </div>
