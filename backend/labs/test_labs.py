@@ -94,8 +94,10 @@ def test_public_view_marks_live_labs_without_leaking_internals():
     # 2026-10-12: FedServ Docker daemon healthy — py-basics-001 is docker-backed
     # again, so it claims live.
     assert basics["environment"]["live"] is True
+    # cyber-nmap-001 went docker-backed too, so it claims live as well.
+    assert labs["cyber-nmap-001"]["environment"]["live"] is True
     # Simulated labs stay non-live...
-    assert labs["cyber-nmap-001"]["environment"]["live"] is False
+    assert labs["vuln-scanning-001"]["environment"]["live"] is False
     # ...and objectives carry their (opaque) validator keys so the UI can record
     # attested findings for live labs.
     by_id = {o["id"]: o for o in basics["objectives"]}
