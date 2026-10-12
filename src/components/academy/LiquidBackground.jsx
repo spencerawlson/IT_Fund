@@ -5,8 +5,8 @@ import React from 'react';
  *
  * Focus rationale: peripheral motion is an attention tax during study sessions,
  * and saturated colour competes with content for the eye. So this is a
- * theme-aware base with two ultra-subtle radial tints that *breathe* — a 240s
- * opacity crossfade so slow it reads as stillness, not motion.
+ * theme-aware base with two deep radial tints that *breathe* — a 36s opacity
+ * crossfade, slow enough to stay calm, visible enough to feel alive.
  *
  * The animation is pure CSS (no JS loops, opacity-only for GPU compositing),
  * goes static under prefers-reduced-motion, and can be disabled by the user

@@ -250,11 +250,11 @@ html[data-theme="dark"] {
   --danger-rgb: 255 69 58;
   --info-rgb: 10 132 255;
   /* Page base and glass fills: pure black with #1C1C1E frosted panels.
-     Ambient tints: barely-there navy/teal radials. They stay extremely subtle
-     on black so the Apple dark aesthetic holds while the background breathes. */
+     Ambient tints: deep navy/teal radials, visible as a living glow on black
+     while the near-black Apple aesthetic holds. */
   --bg-base: #000000;
-  --bg-tint-1: radial-gradient(closest-side, rgba(22, 40, 61, 0.5), transparent);
-  --bg-tint-2: radial-gradient(closest-side, rgba(23, 59, 67, 0.42), transparent);
+  --bg-tint-1: radial-gradient(closest-side, rgba(38, 68, 105, 0.55), transparent);
+  --bg-tint-2: radial-gradient(closest-side, rgba(36, 92, 104, 0.5), transparent);
   --surface-1: rgba(28, 28, 30, 0.55);
   --surface-2: rgba(28, 28, 30, 0.65);
   --surface-3: rgba(28, 28, 30, 0.7);
@@ -329,23 +329,24 @@ html[data-theme="dark"] .glass-3 {
 
 @keyframes pop { 0% { transform: scale(0.97); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-/* ---- Ultra-subtle ambient background ------------------------------------
-   Two tint layers breathe by crossfading opacity on a 240s cycle, offset by
+/* ---- Ambient background ---------------------------------------------------
+   Two tint layers breathe by crossfading opacity on a 36s cycle, offset by
    half a cycle so one is always rising while the other falls. 0% == 100%, so
-   the loop has no visible restart. Opacity-only animation: GPU-composited,
-   no layout or paint cost per frame, no JS loops.
+   the loop has no visible restart. Slow enough to stay calm, fast enough to
+   read as alive. Opacity-only animation: GPU-composited, no layout or paint
+   cost per frame, no JS loops.
    Disabled via html[data-ambient="off"] (user preference) or
    prefers-reduced-motion (static background instead). */
 @keyframes ambient-breathe {
-  0%, 100% { opacity: 0.55; }
+  0%, 100% { opacity: 0.45; }
   50% { opacity: 1; }
 }
 .ambient-tint {
-  animation: ambient-breathe 240s ease-in-out infinite;
+  animation: ambient-breathe 36s ease-in-out infinite;
   will-change: opacity;
 }
 .ambient-tint-b {
-  animation-delay: -120s;
+  animation-delay: -18s;
 }
 html[data-ambient="off"] .ambient-tint {
   animation: none;

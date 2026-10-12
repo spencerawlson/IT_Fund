@@ -1,8 +1,8 @@
 /**
- * Ambient background preference. Default ON; the animation itself is
- * ultra-subtle (240s opacity breath) and disabled entirely under
- * prefers-reduced-motion. Persisted in localStorage; applied as
- * `data-ambient` on <html> so CSS can switch without React re-rendering.
+ * Ambient background preference. Default ON; the animation itself is a slow
+ * 36s opacity breath, disabled entirely under prefers-reduced-motion.
+ * Persisted in localStorage; applied as `data-ambient` on <html> so CSS can
+ * switch without React re-rendering.
  */
 const KEY = 'itfund-ambient-bg';
 
