@@ -71,7 +71,7 @@ export function ChoiceStep({ step, color, onComplete, meta }) {
                       : undefined
               }
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-caption font-bold text-ink-2">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/15 bg-black/[0.03] text-caption font-bold text-ink-2">
                 {i + 1}
               </span>
               <RichText text={opt} />
@@ -150,7 +150,7 @@ export function OrderStep({ step, color, onComplete, meta }) {
                   <RichText text={item} className={codeClass} />
                 </button>
               ) : (
-                <div className="h-[50px] flex-1 rounded-control border border-dashed border-white/15 bg-white/[0.02]" />
+                <div className="h-[50px] flex-1 rounded-control border border-dashed border-black/15 bg-black/[0.03]" />
               )}
             </li>
           );

@@ -86,7 +86,7 @@ export default function DesignSystem() {
         </div>
       </Section>
 
-      <Section title="Accent" description="Amber is the only colour for primary actions and focus. Nothing decorative uses it.">
+      <Section title="Accent" description="Light purple is the only colour for primary actions; a deeper violet carries text accents and focus. Nothing decorative uses it.">
         <div className="glass-2 flex flex-wrap items-center gap-4 rounded-card p-6">
           <Button iconAfter={ArrowRight}>Continue learning</Button>
           <Button variant="secondary">Secondary</Button>
@@ -109,7 +109,7 @@ export default function DesignSystem() {
       </Section>
 
       <Section title="Type scale" description="Inter. Body text is 16px, lesson text 17px at no more than 70 characters per line.">
-        <div className="glass-2 divide-y divide-white/5 rounded-card px-6">
+        <div className="glass-2 divide-y divide-black/5 rounded-card px-6">
           {TYPE.map(({ cls, label, size, sample }) => (
             <div key={cls} className="grid gap-2 py-5 sm:grid-cols-[10rem_1fr] sm:items-baseline">
               <p className="text-caption text-ink-3">{label} · {size}</p>
@@ -122,15 +122,15 @@ export default function DesignSystem() {
       <Section title="Shape and spacing" description="Three radii and an 8px grid.">
         <div className="glass-2 flex flex-wrap items-end gap-6 rounded-card p-6">
           <div className="text-center">
-            <div className="h-12 w-28 rounded-control border border-white/15 bg-white/5" />
+            <div className="h-12 w-28 rounded-control border border-black/15 bg-black/[0.03]" />
             <p className="mt-2 text-caption text-ink-3">Control · 12px</p>
           </div>
           <div className="text-center">
-            <div className="h-20 w-32 rounded-card border border-white/15 bg-white/5" />
+            <div className="h-20 w-32 rounded-card border border-black/15 bg-black/[0.03]" />
             <p className="mt-2 text-caption text-ink-3">Card · 20px</p>
           </div>
           <div className="text-center">
-            <span className="inline-block rounded-full border border-white/15 bg-white/5 px-3 py-1 text-caption text-ink-2">Badge</span>
+            <span className="inline-block rounded-full border border-black/15 bg-black/[0.03] px-3 py-1 text-caption text-ink-2">Badge</span>
             <p className="mt-2 text-caption text-ink-3">Pill · badges only</p>
           </div>
           <div className="flex items-end gap-2">
@@ -144,12 +144,12 @@ export default function DesignSystem() {
         </div>
       </Section>
 
-      <h2 className="mt-24 border-t border-white/10 pt-10 text-title text-ink-1">Components</h2>
+      <h2 className="mt-24 border-t border-black/10 pt-10 text-title text-ink-1">Components</h2>
       <p className="mt-2 max-w-reading text-body text-ink-2">
-        Import from <code className="rounded bg-white/10 px-1.5 py-0.5 text-small">@/components/ui-glass</code>. Pages are rebuilt from these in Phase 4.
+        Import from <code className="rounded bg-black/[0.04] px-1.5 py-0.5 text-small">@/components/ui-glass</code>. Pages are rebuilt from these in Phase 4.
       </p>
 
-      <Section title="Button" description="Primary is amber and appears once per view. Secondary for alternatives, ghost for low-emphasis actions.">
+      <Section title="Button" description="Primary is light purple and appears once per view. Secondary for alternatives, ghost for low-emphasis actions.">
         <Card level={2} padding="lg" className="space-y-5">
           <div className="flex flex-wrap items-center gap-3">
             <Button icon={Play}>Start lesson</Button>
@@ -180,7 +180,7 @@ export default function DesignSystem() {
         </Card>
       </Section>
 
-      <Section title="Progress" description="Amber while in progress, green when complete. Always labelled for screen readers.">
+      <Section title="Progress" description="Violet while in progress, green when complete. Always labelled for screen readers.">
         <Card level={2} padding="lg" className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
           <div className="space-y-4">
             <ProgressBar value={0} label="Not started" />

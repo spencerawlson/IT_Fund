@@ -191,7 +191,7 @@ export function CourseDetail() {
             <section aria-labelledby="resources-heading">
               <SectionHeader id="resources-heading" title="Free resources" description="The lessons summarise these sources. Go deeper with the originals." />
               <Card level={2} padding="sm">
-                <ul className="divide-y divide-white/[0.06]">
+                <ul className="divide-y divide-black/[0.06]">
                   {resources.map((r) => <li key={r.id}><ListLink href={r.url} title={r.title} /></li>)}
                 </ul>
               </Card>

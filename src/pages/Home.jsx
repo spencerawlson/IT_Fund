@@ -62,7 +62,7 @@ export default function Home() {
             <EmptyState icon={SearchX} title="No concepts found" text="Try a shorter or different term, like “subnet” or “IAM”." />
           ) : (
             <Card level={2} padding="sm">
-              <ul className="divide-y divide-white/[0.06]">
+              <ul className="divide-y divide-black/[0.06]">
                 {searchResults.slice(0, MAX_RESULTS).map((r) => (
                   <li key={`${r.moduleId}-${r.id}`}>
                     <ListLink to={`/module/${r.moduleId}?concept=${encodeURIComponent(r.id)}`} title={r.term} text={r.summary} meta={r.moduleTitle} />
@@ -85,7 +85,7 @@ export default function Home() {
                 key={lvl}
                 onClick={() => setLevel(lvl)}
                 className={`rounded-full px-3 py-1 text-caption font-semibold transition ${
-                  level === lvl ? 'bg-white/15 text-ink-1' : 'bg-white/[0.06] text-ink-2 hover:text-ink-1'
+                  level === lvl ? 'bg-black/[0.05] text-ink-1' : 'bg-black/[0.06] text-ink-2 hover:text-ink-1'
                 }`}
               >
                 {lvl}
@@ -100,7 +100,7 @@ export default function Home() {
           ))}
         </div>
 
-        <footer className="mt-12 border-t border-white/5 pt-6 text-center text-caption text-ink-2">
+        <footer className="mt-12 border-t border-black/5 pt-6 text-center text-caption text-ink-2">
           Course 420-ZX6-UM · {modules.length} modules available · More coming soon
         </footer>
     </PageContainer>

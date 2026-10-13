@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 export function Tabs({ items, defaultValue, value, onValueChange, label, className }) {
   return (
     <TabsPrimitive.Root defaultValue={defaultValue ?? items[0]?.value} value={value} onValueChange={onValueChange} className={className}>
-      <TabsPrimitive.List aria-label={label} className="flex gap-1 overflow-x-auto border-b border-white/10 [scrollbar-width:none]">
+      <TabsPrimitive.List aria-label={label} className="flex gap-1 overflow-x-auto border-b border-black/10 [scrollbar-width:none]">
         {items.map((t) => (
           <TabsPrimitive.Trigger
             key={t.value}

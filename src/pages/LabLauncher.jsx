@@ -20,17 +20,17 @@ export default function LabLauncher() {
   const { banner, runner, readyKey } = useLabConsole({ startHint });
 
   return (
-    <div className="min-h-[100dvh] bg-[#070b12] text-ink-1">
+    <div className="min-h-[100dvh] bg-white text-ink-1">
       <header className="sticky top-0 z-30 px-3 pt-3 sm:px-6 sm:pt-5">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 rounded-card border border-white/10 bg-[#0b0f16]/95 px-3 py-2 text-ink-1 shadow-lg sm:px-4">
-          <FlaskConical size={18} className="shrink-0 text-emerald-400" aria-hidden="true" />
+        <div className="glass-1 mx-auto flex max-w-5xl items-center gap-3 rounded-card px-3 py-2 shadow-lg sm:px-4">
+          <FlaskConical size={18} className="shrink-0 text-action" aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate text-body font-semibold">Interactive Lab</span>
           <Button size="sm" variant="ghost" to="/labs/progress">My progress</Button>
           <Button size="sm" variant="secondary" to="/practice">Exit</Button>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-3 py-4 sm:px-6">
-        <div className="rounded-2xl border border-white/10 bg-[#0d1219] p-2 shadow-2xl sm:p-3">
+        <div className="glass-2 rounded-card p-2 shadow-xl sm:p-3">
           <LabTerminal
             key={readyKey}
             runner={runner}

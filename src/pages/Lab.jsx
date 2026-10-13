@@ -149,7 +149,7 @@ function Stage({ id, onBack }) {
   return (
     <div>
       <div className="mb-5 flex items-start gap-4">
-        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br ${k.grad}`}>
+        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-gradient-to-br ${k.grad}`}>
           {Icon ? <Icon size={22} className={k.icon} aria-hidden="true" /> : null}
         </span>
         <div className="min-w-0 flex-1">
@@ -164,15 +164,14 @@ function Stage({ id, onBack }) {
       </div>
 
       {NOTES[id] && (
-        <div className="mb-4 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2.5 text-caption text-ink-2">
+        <div className="mb-4 rounded-xl border border-black/10 bg-black/[0.06] px-4 py-2.5 text-caption text-ink-2">
           {NOTES[id]}
         </div>
       )}
 
-      {/* The visualization renders on a dark "screen": the 3D models, animations and terminals are
-          dark by design, and the hands-on tools were authored for a dark surface. The page around it
-          stays light. */}
-      <div className="rounded-2xl border border-black/10 bg-[#0b1020] p-4 text-ink-1 shadow-[0_18px_50px_-18px_rgba(76,29,149,0.35)] sm:p-6">
+      {/* The visualization renders on a white stage that matches the page. Only the
+          terminals keep their Solarized dark surface; everything else is light. */}
+      <div className="rounded-2xl border border-black/10 bg-white p-4 text-ink-1 shadow-[0_18px_50px_-18px_rgba(76,29,149,0.35)] sm:p-6">
         <ErrorBoundary key={id} label="This visualization">
           {is3D(id) ? (
             <div className="h-[440px] w-full sm:h-[560px]">
@@ -211,7 +210,7 @@ function Stage({ id, onBack }) {
           <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Related flashcards</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {refs.map((r) => (
-              <Link key={r.moduleId + r.concept} to={`/module/${r.moduleId}`} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-caption transition hover:border-white/25 hover:bg-white/[0.12]">
+              <Link key={r.moduleId + r.concept} to={`/module/${r.moduleId}`} className="flex items-center gap-2 rounded-lg border border-black/10 bg-black/[0.06] px-3 py-1.5 text-caption transition hover:border-black/25 hover:bg-black/[0.12]">
                 <span className="font-semibold text-ink-1">{r.moduleTitle}</span>
                 <span className="text-ink-2">· {r.concept}</span>
                 <span className="text-blue-400">→</span>

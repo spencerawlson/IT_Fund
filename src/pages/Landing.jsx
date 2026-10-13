@@ -210,8 +210,8 @@ export default function Landing() {
           <h2 className="text-center text-title font-bold text-ink-1">How it works</h2>
           <div className="mx-auto mt-8 grid max-w-4xl gap-4 sm:grid-cols-3">
             {STEPS.map((s) => (
-              <div key={s.n} className="rounded-card border border-white/10 p-5 text-center">
-                <p className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-heading font-bold text-ink-1">
+              <div key={s.n} className="rounded-card border border-black/10 p-5 text-center">
+                <p className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.04] text-heading font-bold text-ink-1">
                   {s.n}
                 </p>
                 <h3 className="mt-3 text-body font-semibold text-ink-1">{s.title}</h3>
@@ -244,7 +244,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 py-6">
+      <footer className="border-t border-black/10 py-6">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6">
           <span className="text-caption text-ink-3">Road to CISSP — learn IT by doing it.</span>
           <div className="flex gap-4 text-caption text-ink-3">

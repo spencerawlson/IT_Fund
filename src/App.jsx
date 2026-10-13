@@ -128,7 +128,7 @@ function App() {
         <Router>
           <ScrollToTop />
           {/* isolate: keeps the -z-10 background above the body but below every page. */}
-          <div className="relative isolate min-h-screen text-white">
+          <div className="relative isolate min-h-screen bg-white text-ink-1">
             <LiquidBackground />
             <TutorProvider>
               {/* Last line of defence: a crash below here shows a message, not a blank page. */}

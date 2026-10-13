@@ -33,7 +33,7 @@ export default class ErrorBoundary extends React.Component {
 
     return (
       <div className="rounded-xl border border-rose-500/30 bg-rose-500/[0.04] p-5 text-sm">
-        <div className="flex items-center gap-2 font-semibold text-rose-300">
+        <div className="flex items-center gap-2 font-semibold text-danger">
           <AlertTriangle size={16} />
           {this.props.label ? `${this.props.label} failed to load` : 'Something went wrong'}
         </div>
@@ -42,13 +42,13 @@ export default class ErrorBoundary extends React.Component {
           The rest of the page still works. This panel hit an error while rendering.
         </p>
 
-        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-black/40 px-3 py-2 text-[11px] leading-5 text-rose-200/80">
+        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-danger/20 bg-rose-50 px-3 py-2 text-[11px] leading-5 text-danger">
           {error?.message ?? String(error)}
         </pre>
 
         <button
           onClick={this.handleRetry}
-          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-ink-1 transition hover:bg-white/5"
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-black/10 px-3 py-1.5 text-xs font-semibold text-ink-1 transition hover:bg-black/[0.03]"
         >
           <RotateCcw size={13} /> Try again
         </button>

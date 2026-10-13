@@ -27,9 +27,9 @@ export default function CICDAnimation() {
   return (
     <div>
       {/* Stage */}
-      <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] sm:h-72">
+      <div className="relative h-64 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50 sm:h-72">
         {/* Track line */}
-        <div className="absolute left-[10%] right-[10%] top-1/2 h-px -translate-y-1/2 bg-white/10" />
+        <div className="absolute left-[10%] right-[10%] top-1/2 h-px -translate-y-1/2 bg-black/[0.04]" />
 
         {/* Stage boxes */}
         {STAGES.map((s, i) => {
@@ -43,11 +43,11 @@ export default function CICDAnimation() {
                   ? 'border-green-500/60 bg-green-500/15 shadow-lg shadow-green-500/20'
                   : isDone
                     ? 'border-blue-500/30 bg-blue-500/10'
-                    : 'border-white/10 bg-white/[0.06]'
+                    : 'border-black/10 bg-black/[0.06]'
               }`}
               style={{ left: `${s.left}%` }}
             >
-              <p className={`text-[11px] font-bold ${isActive ? 'text-green-300' : isDone ? 'text-blue-300' : 'text-ink-3'}`}>{s.label}</p>
+              <p className={`text-[11px] font-bold ${isActive ? 'text-green-700' : isDone ? 'text-blue-700' : 'text-ink-3'}`}>{s.label}</p>
               <p className="text-[9px] text-ink-3">{s.sub}</p>
             </div>
           );
@@ -60,7 +60,7 @@ export default function CICDAnimation() {
           transition={{ duration: 1.4, ease: 'easeInOut' }}
         >
           <div className="flex flex-col items-center rounded-lg border border-amber-500/50 bg-amber-500/15 px-2.5 py-1 shadow-lg">
-            <span className="text-xs font-bold text-amber-300">v{step + 1}.0</span>
+            <span className="text-xs font-bold text-amber-700">v{step + 1}.0</span>
           </div>
         </motion.div>
 
@@ -71,8 +71,8 @@ export default function CICDAnimation() {
       </div>
 
       {/* Note */}
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-        <p className="font-semibold text-white">{current.label}: {current.sub}</p>
+      <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+        <p className="font-semibold text-ink-1">{current.label}: {current.sub}</p>
         <p className="text-ink-3">{current.note}</p>
       </div>
 
@@ -80,14 +80,14 @@ export default function CICDAnimation() {
       <div className="mt-4 flex items-center gap-3">
         <button
           onClick={toggle}
-          className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+          className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]"
         >
           {playing && step < STAGES.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STAGES.length - 1 ? 'Pause' : 'Play'}
         </button>
         <button
           onClick={reset}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5"
+          className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]"
         >
           <RotateCcw size={15} /> Restart
         </button>
@@ -99,7 +99,7 @@ export default function CICDAnimation() {
               aria-label={`Go to step ${i + 1}`}
               className="flex h-8 items-center px-0.5"
             >
-              <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-green-400' : 'w-1.5 bg-white/20'}`} />
+              <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-green-400' : 'w-1.5 bg-black/[0.06]'}`} />
             </button>
           ))}
         </div>

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 const PAD = { none: '', sm: 'p-4', md: 'p-5 sm:p-6', lg: 'p-6 sm:p-8' };
 
-const LINKED = 'block transition-[border-color,background-color] hover:border-white/20 hover:bg-white/[0.04]';
+const LINKED = 'block transition-[border-color,background-color] hover:border-violet-700/20 hover:bg-violet-50/60';
 
 /**
  * Glass panel. `level` 1 = card/nav, 2 = reading surface, 3 = menu/dialog.
@@ -51,5 +51,5 @@ export function CardHeader({ title, description, eyebrow, trailing, as: Heading 
 
 /** Bottom row of a card, separated by a hairline. */
 export function CardFooter({ className, children }) {
-  return <div className={cn('mt-5 flex items-center justify-between gap-4 border-t border-white/[0.08] pt-4', className)}>{children}</div>;
+  return <div className={cn('mt-5 flex items-center justify-between gap-4 border-t border-black/[0.08] pt-4', className)}>{children}</div>;
 }

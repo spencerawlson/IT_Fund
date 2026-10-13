@@ -106,16 +106,17 @@ const LabTerminal = forwardRef(function LabTerminal(
     }
   };
 
-  // Classic green-on-black terminal: commands bright green, output green, banner dim green, errors red.
+  // Solarized terminal: green output on the deep blue-green base, brighter green for
+  // commands, Solarized muted text for the banner, and a readable red for errors.
   const colour = (kind) =>
-    kind === 'cmd' ? 'text-emerald-200'
-      : kind === 'err' ? 'text-red-400'
-        : kind === 'sys' ? 'text-emerald-300/60'
-          : 'text-emerald-400';
+    kind === 'cmd' ? 'text-terminal-bright'
+      : kind === 'err' ? 'text-terminal-error'
+        : kind === 'sys' ? 'text-terminal-muted'
+          : 'text-terminal-text';
 
   return (
     <div
-      className="h-[26rem] overflow-y-auto rounded-xl border border-black/20 bg-[#0a0e14] p-4 font-mono text-[13px] leading-relaxed shadow-inner sm:h-[30rem]"
+      className="h-[26rem] overflow-y-auto rounded-xl border border-terminal-border bg-terminal-bg p-4 font-mono text-[13px] leading-relaxed shadow-inner sm:h-[30rem]"
       onClick={() => inputRef.current?.focus()}
       role="log"
       aria-live="polite"
@@ -123,13 +124,13 @@ const LabTerminal = forwardRef(function LabTerminal(
     >
       {lines.map((l, i) => (
         <div key={i} className={`whitespace-pre-wrap break-words ${colour(l.kind)}`}>
-          {l.kind === 'cmd' ? <><span className="text-emerald-400">{l.prompt || prompt}</span>{l.text}</> : (l.text || ' ')}
+          {l.kind === 'cmd' ? <><span className="text-terminal-text">{l.prompt || prompt}</span>{l.text}</> : (l.text || ' ')}
         </div>
       ))}
 
       {!disabled ? (
         <form onSubmit={submit} className="flex items-center">
-          <span className="whitespace-pre text-emerald-400">{prompt}</span>
+          <span className="whitespace-pre text-terminal-text">{prompt}</span>
           <input
             ref={inputRef}
             value={input}
@@ -141,11 +142,11 @@ const LabTerminal = forwardRef(function LabTerminal(
             autoCapitalize="off"
             autoCorrect="off"
             aria-label="Terminal command"
-            className="ml-1 min-w-0 flex-1 bg-transparent text-emerald-200 caret-emerald-400 outline-none disabled:opacity-60"
+            className="ml-1 min-w-0 flex-1 bg-transparent text-terminal-bright caret-terminal-bright outline-none disabled:opacity-60"
           />
         </form>
       ) : (
-        <div className="text-ink-3">— session ended —</div>
+        <div className="text-terminal-muted">— session ended —</div>
       )}
       <div ref={endRef} />
     </div>

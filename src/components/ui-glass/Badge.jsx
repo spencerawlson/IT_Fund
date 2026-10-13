@@ -6,7 +6,7 @@ import { STATUS } from '@/lib/progress/engine';
 // Badges carry a fixed meaning. Tone is never decorative: neutral for facts (difficulty,
 // duration), the status tones only for state.
 const TONE = {
-  neutral: 'border-white/15 bg-white/[0.06] text-ink-2',
+  neutral: 'border-black/10 bg-black/[0.03] text-ink-2',
   success: 'border-success/30 bg-success/10 text-success',
   warning: 'border-warning/30 bg-warning/10 text-warning',
   danger: 'border-danger/30 bg-danger/10 text-danger',

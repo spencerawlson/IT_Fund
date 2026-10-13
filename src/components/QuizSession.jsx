@@ -66,7 +66,7 @@ export default function QuizSession({ module, onComplete }) {
         <p className="mt-1 text-sm text-ink-2">{pct}% correct</p>
         <button
           onClick={restart}
-          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-white/15"
+          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-black/[0.04] px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]"
         >
           <RotateCcw size={15} /> Retry Quiz
         </button>
@@ -91,7 +91,7 @@ export default function QuizSession({ module, onComplete }) {
         </span>
         <span className="text-blue-400">{answers.filter((a, i) => a === questions[i].correct).length} correct</span>
       </div>
-      <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-black/[0.04]">
         <div
           className="h-full rounded-full bg-action transition-all"
           style={{ width: `${(index / questions.length) * 100}%` }}
@@ -104,11 +104,11 @@ export default function QuizSession({ module, onComplete }) {
           {current.options.map((opt, i) => {
             const isSel = selected === i;
             const isAnswer = i === current.correct;
-            let cls = 'border-white/10 bg-white/[0.06] hover:bg-white/[0.12] text-ink-2';
+            let cls = 'border-black/10 bg-black/[0.06] hover:bg-black/[0.12] text-ink-2';
             if (showFeedback) {
-              if (isAnswer) cls = 'border-green-500/40 bg-green-500/10 text-green-300';
-              else if (isSel) cls = 'border-red-500/40 bg-red-500/10 text-red-300';
-              else cls = 'border-white/5 bg-white/[0.06] text-ink-2';
+              if (isAnswer) cls = 'border-green-600/40 bg-green-500/10 text-green-800';
+              else if (isSel) cls = 'border-red-600/40 bg-red-500/10 text-red-800';
+              else cls = 'border-black/5 bg-black/[0.06] text-ink-2';
             }
             return (
               <button
@@ -126,7 +126,7 @@ export default function QuizSession({ module, onComplete }) {
         </div>
 
         {showFeedback && (
-          <div className={`mt-4 rounded-xl border p-4 text-sm ${isCorrect ? 'border-green-500/30 bg-green-500/[0.07] text-green-300' : 'border-amber-500/30 bg-amber-500/[0.07] text-amber-200'}`}>
+          <div className={`mt-4 rounded-xl border p-4 text-sm ${isCorrect ? 'border-green-600/30 bg-green-500/[0.07] text-green-800' : 'border-amber-600/30 bg-amber-500/[0.07] text-amber-800'}`}>
             <p className="font-semibold">{isCorrect ? '✓ Correct!' : '✗ Not quite.'}</p>
             <p className="mt-1 text-ink-2">{current.explanation}</p>
             {isCorrect && (

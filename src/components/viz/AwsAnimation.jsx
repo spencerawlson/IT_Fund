@@ -30,14 +30,14 @@ export default function AwsAnimation() {
 
   return (
     <div>
-      <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] sm:h-72">
+      <div className="relative h-64 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50 sm:h-72">
         <div className="absolute inset-y-0 left-0 right-0 flex items-center">
           {LANES.map((lane, idx) => (
-            <div key={lane.label} className="relative h-full w-1/5 border-r border-white/5 last:border-none">
+            <div key={lane.label} className="relative h-full w-1/5 border-r border-black/5 last:border-none">
               <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-ink-3">{lane.label}</div>
               {idx < visibleCount && (
-                <div className="absolute bottom-3 inset-x-2 rounded-lg border border-white/15 bg-white/[0.06] px-2 py-2">
-                  <p className="text-[10px] font-bold text-white">{current.badge}</p>
+                <div className="absolute bottom-3 inset-x-2 rounded-lg border border-black/15 bg-black/[0.06] px-2 py-2">
+                  <p className="text-[10px] font-bold text-ink-1">{current.badge}</p>
                   <p className="text-[9px] text-ink-3">{current.label}</p>
                 </div>
               )}
@@ -50,29 +50,29 @@ export default function AwsAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-        <p className="font-semibold text-white">{current.label}</p>
+      <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+        <p className="font-semibold text-ink-1">{current.label}</p>
         <p className="text-ink-3">{current.note}</p>
       </div>
 
       <div className="mt-4 flex items-center gap-3">
-        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
+        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]">
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-orange-400' : 'w-1.5 bg-white/20'}`} /></button>
+            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-orange-400' : 'w-1.5 bg-black/[0.06]'}`} /></button>
           ))}
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-ink-3">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Edge → ALB → compute</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">IAM + WAF + GuardDuty</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1"><HelpCircle size={10}/> Edge → ALB → compute</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1">IAM + WAF + GuardDuty</span>
       </div>
     </div>
   );

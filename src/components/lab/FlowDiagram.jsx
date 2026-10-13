@@ -9,10 +9,10 @@ import { Play, Pause, RotateCcw, ArrowRight, Check } from 'lucide-react';
 
 const ACCENTS = {
   slate: { ring: 'ring-ink-3/60', text: 'text-ink-1', dot: 'bg-ink-2', line: 'bg-ink-3', glow: 'shadow-[0_0_22px_-2px_rgba(142,142,147,0.7)]', chip: 'border-ink-3/30 bg-ink-3/10 text-ink-1' },
-  blue: { ring: 'ring-blue-400/70', text: 'text-blue-200', dot: 'bg-blue-400', line: 'bg-blue-400', glow: 'shadow-[0_0_22px_-2px_rgba(96,165,250,0.8)]', chip: 'border-blue-400/30 bg-blue-400/10 text-blue-200' },
-  teal: { ring: 'ring-teal-400/70', text: 'text-teal-200', dot: 'bg-teal-400', line: 'bg-teal-400', glow: 'shadow-[0_0_22px_-2px_rgba(45,212,191,0.8)]', chip: 'border-teal-400/30 bg-teal-400/10 text-teal-200' },
-  amber: { ring: 'ring-amber-400/70', text: 'text-amber-200', dot: 'bg-amber-400', line: 'bg-amber-400', glow: 'shadow-[0_0_22px_-2px_rgba(251,191,36,0.8)]', chip: 'border-amber-400/30 bg-amber-400/10 text-amber-200' },
-  rose: { ring: 'ring-rose-400/70', text: 'text-rose-200', dot: 'bg-rose-400', line: 'bg-rose-400', glow: 'shadow-[0_0_22px_-2px_rgba(251,113,133,0.8)]', chip: 'border-rose-400/30 bg-rose-400/10 text-rose-200' },
+  blue: { ring: 'ring-blue-400/70', text: 'text-blue-700', dot: 'bg-blue-400', line: 'bg-blue-400', glow: 'shadow-[0_0_22px_-2px_rgba(96,165,250,0.8)]', chip: 'border-blue-400/30 bg-blue-400/10 text-blue-700' },
+  teal: { ring: 'ring-teal-400/70', text: 'text-teal-700', dot: 'bg-teal-400', line: 'bg-teal-400', glow: 'shadow-[0_0_22px_-2px_rgba(45,212,191,0.8)]', chip: 'border-teal-400/30 bg-teal-400/10 text-teal-700' },
+  amber: { ring: 'ring-amber-400/70', text: 'text-amber-700', dot: 'bg-amber-400', line: 'bg-amber-400', glow: 'shadow-[0_0_22px_-2px_rgba(251,191,36,0.8)]', chip: 'border-amber-400/30 bg-amber-400/10 text-amber-700' },
+  rose: { ring: 'ring-rose-400/70', text: 'text-rose-700', dot: 'bg-rose-400', line: 'bg-rose-400', glow: 'shadow-[0_0_22px_-2px_rgba(251,113,133,0.8)]', chip: 'border-rose-400/30 bg-rose-400/10 text-rose-700' },
 };
 const accentOf = (name) => ACCENTS[name] || ACCENTS.slate;
 
@@ -42,10 +42,10 @@ export default function FlowDiagram({ nodes, tags = [] }) {
   return (
     <div>
       {/* Rail */}
-      <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-[#0e1524] to-[#0a0e16] px-4 py-8 sm:px-8">
+      <div className="relative rounded-2xl border border-black/10 bg-gradient-to-b from-white to-violet-50 px-4 py-8 sm:px-8">
         <div className="relative mx-auto flex max-w-3xl items-start justify-between">
           {/* Base track + animated progress fill, centered on the node icons (top-7 = icon center). */}
-          <div className="pointer-events-none absolute left-[7%] right-[7%] top-7 h-0.5 -translate-y-1/2 rounded-full bg-white/10" />
+          <div className="pointer-events-none absolute left-[7%] right-[7%] top-7 h-0.5 -translate-y-1/2 rounded-full bg-black/[0.04]" />
           <motion.div
             className={`pointer-events-none absolute left-[7%] top-7 h-0.5 -translate-y-1/2 rounded-full ${a.line}`}
             initial={false}
@@ -67,9 +67,9 @@ export default function FlowDiagram({ nodes, tags = [] }) {
                 aria-label={n.title}
               >
                 <span
-                  className={`flex h-14 w-14 items-center justify-center rounded-full border bg-[#0b1120] transition-all duration-300 ${
+                  className={`flex h-14 w-14 items-center justify-center rounded-full border bg-white transition-all duration-300 ${
                     isActive ? `${na.ring} ring-2 ${na.glow} scale-110 border-transparent`
-                      : done ? 'border-white/20' : 'border-white/10 opacity-55'
+                      : done ? 'border-black/20' : 'border-black/10 opacity-55'
                   }`}
                 >
                   {done ? <Check size={20} className={na.text} aria-hidden="true" />
@@ -86,7 +86,7 @@ export default function FlowDiagram({ nodes, tags = [] }) {
                     />
                   )}
                 </span>
-                <span className={`text-[11px] font-semibold leading-tight sm:text-xs ${isActive ? 'text-white' : done ? 'text-ink-2' : 'text-ink-3'}`}>
+                <span className={`text-[11px] font-semibold leading-tight sm:text-xs ${isActive ? 'text-ink-1' : done ? 'text-ink-2' : 'text-ink-3'}`}>
                   {n.title}
                 </span>
               </button>
@@ -113,11 +113,11 @@ export default function FlowDiagram({ nodes, tags = [] }) {
         </motion.div>
 
         <div className="flex items-center gap-2 sm:flex-col">
-          <button onClick={toggle} className="flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/15">
+          <button onClick={toggle} className="flex w-full items-center justify-center gap-2 rounded-lg bg-black/[0.04] px-3 py-2 text-xs font-semibold text-ink-1 transition hover:bg-black/[0.05]">
             {step >= last ? <RotateCcw size={14} /> : playing ? <Pause size={14} /> : <Play size={14} />}
             {step >= last ? 'Replay' : playing ? 'Pause' : 'Play'}
           </button>
-          <button onClick={restart} className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-ink-2 transition hover:bg-white/5">
+          <button onClick={restart} className="flex w-full items-center justify-center gap-2 rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold text-ink-2 transition hover:bg-black/[0.03]">
             <RotateCcw size={14} /> Restart
           </button>
         </div>
@@ -127,7 +127,7 @@ export default function FlowDiagram({ nodes, tags = [] }) {
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-ink-3">
           <ArrowRight size={12} className="text-ink-3" aria-hidden="true" />
           {tags.map((t) => (
-            <span key={t} className="rounded-md border border-white/10 bg-white/5 px-2 py-1">{t}</span>
+            <span key={t} className="rounded-md border border-black/10 bg-black/[0.03] px-2 py-1">{t}</span>
           ))}
         </div>
       )}

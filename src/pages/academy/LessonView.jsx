@@ -165,7 +165,7 @@ export default function LessonView() {
         {c.architecture && (
           <Section id="architecture" title="Architecture">
             <figure>
-              <pre className="overflow-x-auto rounded-control border border-white/10 bg-black/30 p-5 font-mono text-small leading-relaxed text-ink-1">{c.architecture.diagram}</pre>
+              <pre className="overflow-x-auto rounded-control border border-terminal-border bg-terminal-bg p-5 font-mono text-small leading-relaxed text-terminal-text">{c.architecture.diagram}</pre>
               <figcaption className="mt-3 text-small text-ink-2">{c.architecture.caption}</figcaption>
             </figure>
           </Section>
@@ -189,7 +189,7 @@ export default function LessonView() {
               <thead className="sr-only">
                 <tr><th scope="col">Term</th><th scope="col">Meaning</th></tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.08]">
+              <tbody className="divide-y divide-black/[0.08]">
                 {c.cheatSheet.map(([term, meaning]) => (
                   <tr key={term}>
                     <th scope="row" className="w-2/5 py-3 pr-4 align-top font-semibold text-ink-1">{term}</th>
@@ -226,7 +226,7 @@ export default function LessonView() {
         <section id="resources" aria-labelledby="resources-title" className="mt-10 scroll-mt-28">
           <h2 id="resources-title" className="text-heading text-ink-1">Resources</h2>
           <Card level={2} padding="sm" className="mt-4">
-            <ul className="divide-y divide-white/[0.06]">
+            <ul className="divide-y divide-black/[0.06]">
               {lesson.resources.map((r) => (
                 <li key={r.id}><ListLink href={r.url} title={r.title} /></li>
               ))}
@@ -235,7 +235,7 @@ export default function LessonView() {
         </section>
       )}
 
-      <nav aria-label="Lesson navigation" className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6">
+      <nav aria-label="Lesson navigation" className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-6">
         {prev ? (
           <Button to={lessonHref(prev)} variant="ghost" icon={ArrowLeft}>Lesson {prev.number}</Button>
         ) : <span />}
@@ -272,13 +272,19 @@ function CodeBlock({ code }) {
     }
   };
   return (
-    <div className="mt-3 overflow-hidden rounded-control border border-white/10 bg-black/30">
-      <div className="flex justify-end border-b border-white/[0.06] px-2 py-1.5">
-        <Button variant="ghost" size="sm" icon={copied ? Check : Copy} onClick={copy} aria-live="polite">
+    <div className="mt-3 overflow-hidden rounded-control border border-terminal-border bg-terminal-bg">
+      <div className="flex justify-end border-b border-terminal-border px-2 py-1.5">
+        <button
+          type="button"
+          onClick={copy}
+          aria-live="polite"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-control px-3 text-small font-semibold text-terminal-muted transition-colors hover:bg-white/10 hover:text-terminal-bright"
+        >
+          {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
           {copied ? 'Copied' : 'Copy code'}
-        </Button>
+        </button>
       </div>
-      <pre className="overflow-x-auto p-4 font-mono text-small leading-relaxed text-ink-1">{code}</pre>
+      <pre className="overflow-x-auto p-4 font-mono text-small leading-relaxed text-terminal-text">{code}</pre>
     </div>
   );
 }

@@ -2,11 +2,11 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 
 const ACCENT_CLS = {
-  rose: 'border-rose-500/30 bg-rose-500/[0.06] text-rose-300',
-  amber: 'border-amber-500/30 bg-amber-500/[0.06] text-amber-300',
-  blue: 'border-blue-500/30 bg-blue-500/[0.06] text-blue-300',
-  purple: 'border-purple-500/30 bg-purple-500/[0.06] text-purple-300',
-  emerald: 'border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-300',
+  rose: 'border-rose-500/30 bg-rose-500/[0.06] text-rose-700',
+  amber: 'border-amber-500/30 bg-amber-500/[0.06] text-amber-700',
+  blue: 'border-blue-500/30 bg-blue-500/[0.06] text-blue-700',
+  purple: 'border-purple-500/30 bg-purple-500/[0.06] text-purple-700',
+  emerald: 'border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-700',
 };
 
 export const BREAK_SCENARIOS = [
@@ -36,7 +36,7 @@ export default function BreakItControls({ scenarios = BREAK_SCENARIOS, scenario,
               type="button"
               onClick={() => onScenarioChange(s.id)}
               className={`flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition ${
-                active ? 'border-white/20 bg-white/10 text-white' : 'border-white/10 bg-white/[0.06] text-ink-2 hover:bg-white/5'
+                active ? 'border-black/20 bg-black/[0.04] text-ink-1' : 'border-black/10 bg-black/[0.06] text-ink-2 hover:bg-black/[0.03]'
               }`}
               title={s.description}
             >

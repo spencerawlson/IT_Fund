@@ -111,10 +111,10 @@ function HeroVisual() {
         </div>
 
         {/* Real lab terminal strip */}
-        <div className="mt-3 rounded-control bg-[#0b1020] p-3 font-mono text-[11px] leading-relaxed">
-          <div className="text-emerald-300"><span className="text-emerald-400">student@lab:~$</span> show ip route</div>
-          <div className="text-emerald-400/80">O&nbsp;&nbsp;&nbsp;10.2.2.0/24 [110/2] via 192.0.2.2</div>
-          <div className="text-emerald-400/80">C&nbsp;&nbsp;&nbsp;10.1.1.0/24 is directly connected</div>
+        <div className="mt-3 rounded-control border border-terminal-border bg-terminal-bg p-3 font-mono text-[11px] leading-relaxed">
+          <div className="text-terminal-bright"><span className="text-terminal-text">student@lab:~$</span> show ip route</div>
+          <div className="text-terminal-text">O&nbsp;&nbsp;&nbsp;10.2.2.0/24 [110/2] via 192.0.2.2</div>
+          <div className="text-terminal-text">C&nbsp;&nbsp;&nbsp;10.1.1.0/24 is directly connected</div>
         </div>
       </div>
     </div>

@@ -48,7 +48,7 @@ export default function RoutingScenario({ scenario }) {
 
   return (
     <div>
-      <div className="rounded-xl border border-white/10 bg-[#070a12]">
+      <div className="rounded-xl border border-black/10 bg-white">
         <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="h-auto w-full" role="img" aria-label={scenario.title}>
           {/* links */}
           {links.map((l) => {
@@ -56,7 +56,7 @@ export default function RoutingScenario({ scenario }) {
             const down = linkDown(l.a, l.b);
             return (
               <line key={`${l.a}-${l.b}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-                stroke={down ? ACCENT.down : '#1e2a3a'} strokeWidth={down ? 3 : 2}
+                stroke={down ? ACCENT.down : '#CBD5E1'} strokeWidth={down ? 3 : 2}
                 strokeDasharray={down ? '6 6' : undefined} />
             );
           })}
@@ -80,11 +80,11 @@ export default function RoutingScenario({ scenario }) {
                   <circle cx={p.x} cy={p.y} r="26" fill={color} opacity="0.18" />
                 )}
                 {isHost ? (
-                  <rect x={p.x - 20} y={p.y - 14} width="40" height="28" rx="5" fill="#0b1120" stroke={color} strokeWidth="2" />
+                  <rect x={p.x - 20} y={p.y - 14} width="40" height="28" rx="5" fill="#FFFFFF" stroke={color} strokeWidth="2" />
                 ) : (
-                  <circle cx={p.x} cy={p.y} r="18" fill="#0b1120" stroke={color} strokeWidth="2.5" />
+                  <circle cx={p.x} cy={p.y} r="18" fill="#FFFFFF" stroke={color} strokeWidth="2.5" />
                 )}
-                <text x={p.x} y={p.y + (isHost ? 4 : 34)} textAnchor="middle" fontSize="12" fontWeight="600" fill="#cbd5e1">{n.label}</text>
+                <text x={p.x} y={p.y + (isHost ? 4 : 34)} textAnchor="middle" fontSize="12" fontWeight="600" fill="#111111">{n.label}</text>
                 {n.sub && <text x={p.x} y={p.y + (isHost ? 18 : 48)} textAnchor="middle" fontSize="10" fill="#64748b">{n.sub}</text>}
               </g>
             );
@@ -97,7 +97,7 @@ export default function RoutingScenario({ scenario }) {
         <motion.div key={step} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-lg border border-violet-400/30 bg-violet-400/10 px-4 py-3">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-bold text-violet-200">{cur.title}</p>
+            <p className="text-sm font-bold text-violet-700">{cur.title}</p>
             <span className="ml-auto text-[11px] text-ink-3">Step {step + 1} / {steps.length}</span>
           </div>
           <p className="mt-1.5 text-sm leading-relaxed text-ink-1">{cur.text}</p>
@@ -105,14 +105,14 @@ export default function RoutingScenario({ scenario }) {
         <div className="flex items-center gap-2 sm:flex-col">
           <div className="flex gap-2">
             <button onClick={() => { setPlaying(false); setStep((s) => Math.max(0, s - 1)); }} aria-label="Previous step"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-ink-2 hover:bg-white/10"><ChevronLeft size={16} /></button>
-            <button onClick={toggle} className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/15" aria-label={playing ? 'Pause' : 'Play'}>
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 text-ink-2 hover:bg-black/[0.04]"><ChevronLeft size={16} /></button>
+            <button onClick={toggle} className="flex h-9 w-9 items-center justify-center rounded-lg bg-black/[0.04] text-ink-1 hover:bg-black/[0.05]" aria-label={playing ? 'Pause' : 'Play'}>
               {step >= last ? <RotateCcw size={15} /> : playing ? <Pause size={15} /> : <Play size={15} />}
             </button>
             <button onClick={() => { setPlaying(false); setStep((s) => Math.min(last, s + 1)); }} aria-label="Next step"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-ink-2 hover:bg-white/10"><ChevronRight size={16} /></button>
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 text-ink-2 hover:bg-black/[0.04]"><ChevronRight size={16} /></button>
           </div>
-          <button onClick={() => { setStep(0); setPlaying(true); }} className="flex items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-ink-2 hover:bg-white/5">
+          <button onClick={() => { setStep(0); setPlaying(true); }} className="flex items-center justify-center gap-2 rounded-lg border border-black/10 px-3 py-1.5 text-xs font-semibold text-ink-2 hover:bg-black/[0.03]">
             <RotateCcw size={13} /> Restart
           </button>
         </div>
@@ -122,7 +122,7 @@ export default function RoutingScenario({ scenario }) {
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         {steps.map((_, i) => (
           <button key={i} onClick={() => { setPlaying(false); setStep(i); }} aria-label={`Go to step ${i + 1}`} className="flex h-6 items-center px-0.5">
-            <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-violet-400' : 'w-1.5 bg-white/20'}`} />
+            <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-violet-400' : 'w-1.5 bg-black/[0.06]'}`} />
           </button>
         ))}
       </div>

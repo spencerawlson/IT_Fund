@@ -28,7 +28,7 @@ function StepMarker({ n, done, current }) {
     <span
       className={cn(
         'relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-small font-semibold',
-        done ? 'border-success/40 bg-[#0b1f1a] text-success' : current ? 'border-action bg-[#1f1706] text-action' : 'border-white/15 bg-[var(--bg-base)] text-ink-2',
+        done ? 'border-success/40 bg-white text-success' : current ? 'border-action bg-action/10 text-action' : 'border-black/15 bg-[var(--bg-base)] text-ink-2',
       )}
     >
       {done ? <Check size={16} aria-hidden="true" /> : n}
@@ -70,7 +70,7 @@ export default function CisspRoadmap() {
       <section aria-labelledby="steps-heading">
         <SectionHeader id="steps-heading" title="The seven steps" description={`A step counts as done at ${READY_PCT}% mastery of its lessons.`} />
         <ol className="relative space-y-4">
-          <span aria-hidden="true" className="absolute bottom-4 left-[17px] top-4 w-px bg-white/10" />
+          <span aria-hidden="true" className="absolute bottom-4 left-[17px] top-4 w-px bg-black/[0.04]" />
           {steps.map((step) => (
             <li key={step.step} className="flex gap-4">
               <StepMarker n={step.step} done={step.pct >= READY_PCT} current={step.step === currentStep} />
@@ -94,7 +94,7 @@ export default function CisspRoadmap() {
                     return (
                       <React.Fragment key={`${t}-${tier}`}>
                         {i > 0 && ', '}
-                        <Link to={courseHref(COURSES.find((c) => c.trackId === t))} className="text-ink-1 underline decoration-white/20 underline-offset-4 hover:decoration-white/60">
+                        <Link to={courseHref(COURSES.find((c) => c.trackId === t))} className="text-ink-1 underline decoration-black/30 underline-offset-4 hover:decoration-black/30">
                           {track.title} {label}
                         </Link>
                       </React.Fragment>
@@ -120,7 +120,7 @@ export default function CisspRoadmap() {
           }
         />
         <Card level={2} padding="sm">
-          <ul className="divide-y divide-white/[0.06]">
+          <ul className="divide-y divide-black/[0.06]">
             {domains.map((d) => (
               <li key={d.id} className="px-3 py-4">
                 <div className="flex items-baseline justify-between gap-4">
@@ -137,7 +137,7 @@ export default function CisspRoadmap() {
                   <ul className="mt-2 space-y-1 text-small">
                     {d.capstone && (
                       <li>
-                        <Link to={`/academy/cissp/deck/${d.capstone.id}?mode=learn`} className="font-semibold text-ink-1 underline decoration-white/20 underline-offset-4 hover:decoration-white/60">
+                        <Link to={`/academy/cissp/deck/${d.capstone.id}?mode=learn`} className="font-semibold text-ink-1 underline decoration-black/30 underline-offset-4 hover:decoration-black/30">
                           Capstone: {d.capstone.title}
                         </Link>
                       </li>
@@ -166,7 +166,7 @@ export default function CisspRoadmap() {
             <li>Pass without the experience and you become an Associate of ISC2, with 6 years to earn it.</li>
             <li>Start with ISC2 Certified in Cybersecurity (CC): its official training and first exam attempt are free.</li>
           </ul>
-          <ul className="-mx-3 mt-5 divide-y divide-white/[0.06] border-t border-white/[0.06]">
+          <ul className="-mx-3 mt-5 divide-y divide-black/[0.06] border-t border-black/[0.06]">
             {['cissp-outline', 'isc2-cc', 'isc2-ethics'].map((id) => (
               <li key={id}><ListLink href={RESOURCES[id].url} title={RESOURCES[id].title} /></li>
             ))}

@@ -8,11 +8,11 @@ import useDocumentTitle from '@/hooks/useDocumentTitle';
 const ICONS = { Shield, GitBranch, Activity, Lock, Container, DollarSign };
 const accentCls = {
   rose: 'border-rose-500/30 bg-rose-500/[0.06] text-danger',
-  indigo: 'border-indigo-500/30 bg-indigo-500/[0.06] text-indigo-200',
+  indigo: 'border-indigo-500/30 bg-indigo-500/[0.06] text-indigo-700',
   emerald: 'border-emerald-500/30 bg-emerald-500/[0.06] text-success',
-  amber: 'border-amber-500/30 bg-amber-500/[0.06] text-amber-200',
-  sky: 'border-sky-500/30 bg-sky-500/[0.06] text-sky-200',
-  violet: 'border-violet-500/30 bg-violet-500/[0.06] text-violet-200',
+  amber: 'border-amber-500/30 bg-amber-500/[0.06] text-amber-700',
+  sky: 'border-sky-500/30 bg-sky-500/[0.06] text-sky-700',
+  violet: 'border-violet-500/30 bg-violet-500/[0.06] text-violet-700',
 };
 
 export default function LearningPath() {
@@ -32,7 +32,7 @@ export default function LearningPath() {
         </Link>
 
         <div className="mb-8">
-          <div className="flex items-center gap-2 text-sm font-semibold text-indigo-400">
+          <div className="flex items-center gap-2 text-sm font-semibold text-indigo-600">
             <Map size={16} /> Architect Path
           </div>
           <h1 className="mt-3 text-2xl font-bold sm:text-3xl">Learning Path</h1>
@@ -65,7 +65,7 @@ export default function LearningPath() {
                         const m = moduleById[mid];
                         if (!m) return null;
                         return (
-                          <Link key={mid} to={`/module/${m.id}`} className="rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-caption text-ink-2 transition hover:bg-white/[0.12]">
+                          <Link key={mid} to={`/module/${m.id}`} className="rounded-lg border border-black/10 bg-black/[0.08] px-2 py-1 text-caption text-ink-2 transition hover:bg-black/[0.12]">
                             {m.number}. {m.title}
                           </Link>
                         );
@@ -77,7 +77,7 @@ export default function LearningPath() {
                     <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Labs</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {p.labIds.map((lab) => (
-                        <Link key={lab} to={`/lab?item=${lab}`} className="rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-caption text-ink-2 capitalize transition hover:bg-white/[0.12]">
+                        <Link key={lab} to={`/lab?item=${lab}`} className="rounded-lg border border-black/10 bg-black/[0.08] px-2 py-1 text-caption text-ink-2 capitalize transition hover:bg-black/[0.12]">
                           {lab.replace('-', ' ')}
                         </Link>
                       ))}
@@ -99,7 +99,7 @@ export default function LearningPath() {
                     <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Backing Sources</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {p.sourcePdfs.map((pdf) => (
-                        <span key={pdf} className="rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-caption text-ink-2">
+                        <span key={pdf} className="rounded-lg border border-black/10 bg-black/[0.08] px-2 py-1 text-caption text-ink-2">
                           {pdf}
                         </span>
                       ))}
@@ -112,9 +112,9 @@ export default function LearningPath() {
                         const m = moduleById[mid];
                         if (!m) return null;
                         return (
-                          <Link key={mid} to={`/module/${m.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 transition hover:bg-white/[0.12]">
+                          <Link key={mid} to={`/module/${m.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-black/10 bg-black/[0.06] px-3 py-2 transition hover:bg-black/[0.12]">
                             <span className="text-caption text-ink-2">{m.number}. {m.title}</span>
-                            <BookOpen size={12} className="text-indigo-300" />
+                            <BookOpen size={12} className="text-indigo-700" />
                           </Link>
                         );
                       })}

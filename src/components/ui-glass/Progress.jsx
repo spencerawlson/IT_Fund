@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 const clamp = (v) => Math.max(0, Math.min(100, Math.round(v || 0)));
 
 /**
- * Progress bar. Amber while in progress, green when complete: the fill is the only
+ * Progress bar. Violet while in progress, green when complete: the fill is the only
  * coloured element. `label` is required for screen readers; `showValue` prints the percentage.
  */
 export function ProgressBar({ value, label, showValue = true, size = 'md', className }) {
@@ -17,7 +17,7 @@ export function ProgressBar({ value, label, showValue = true, size = 'md', class
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={label}
-        className={cn('flex-1 overflow-hidden rounded-full bg-white/10', size === 'sm' ? 'h-1.5' : 'h-2')}
+        className={cn('flex-1 overflow-hidden rounded-full bg-black/[0.04]', size === 'sm' ? 'h-1.5' : 'h-2')}
       >
         <div className={cn('h-full rounded-full transition-[width] duration-500', v === 100 ? 'bg-success' : 'bg-action')} style={{ width: `${v}%` }} />
       </div>

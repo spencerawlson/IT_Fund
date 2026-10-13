@@ -84,12 +84,12 @@ export default function TutorChat({ trackId, trackTitle, open, onOpenChange, col
           className="glass-3 animate-rise fixed inset-x-3 bottom-3 z-50 flex max-h-[78dvh] flex-col rounded-card sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[400px]"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
         >
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-black/10 px-4 py-3">
             <p className="flex items-center gap-2 text-sm font-bold text-ink-1">
-              <Sparkles size={16} className="text-amber-300" /> AI tutor
+              <Sparkles size={16} className="text-action" /> AI tutor
               {trackTitle && <span className="font-medium text-ink-2">· {trackTitle}</span>}
             </p>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close tutor" className="rounded-full p-1.5 text-ink-2 transition hover:bg-white/10 hover:text-ink-1">
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close tutor" className="rounded-full p-1.5 text-ink-2 transition hover:bg-black/[0.04] hover:text-ink-1">
               <X size={18} />
             </button>
           </div>
@@ -100,7 +100,7 @@ export default function TutorChat({ trackId, trackTitle, open, onOpenChange, col
                 <p className="text-ink-2">Ask anything about what you’re studying. Try:</p>
                 <div className="mt-3 flex flex-col gap-2">
                   {starters.map((s) => (
-                    <button key={s} type="button" onClick={() => send(s)} className="rounded-control border border-white/15 bg-white/5 px-3.5 py-2.5 text-left text-sm text-ink-1 transition hover:bg-white/10">
+                    <button key={s} type="button" onClick={() => send(s)} className="rounded-control border border-black/15 bg-black/[0.03] px-3.5 py-2.5 text-left text-sm text-ink-1 transition hover:bg-black/[0.04]">
                       {s}
                     </button>
                   ))}
@@ -109,11 +109,11 @@ export default function TutorChat({ trackId, trackTitle, open, onOpenChange, col
             )}
             {turns.map((t, i) =>
               t.role === 'user' ? (
-                <div key={i} className="ml-8 rounded-control rounded-br-md border border-white/15 px-3.5 py-2.5 text-ink-1" style={{ background: `${color}33` }}>
+                <div key={i} className="ml-8 rounded-control rounded-br-md border border-black/10 px-3.5 py-2.5 text-ink-1" style={{ background: `${color}33` }}>
                   {t.content}
                 </div>
               ) : (
-                <div key={i} className="mr-4 rounded-control rounded-bl-md border border-white/10 bg-white/[0.06] px-3.5 py-2.5 text-ink-1">
+                <div key={i} className="mr-4 rounded-control rounded-bl-md border border-black/10 bg-black/[0.03] px-3.5 py-2.5 text-ink-1">
                   {t.content ? <TutorText text={t.content} /> : <Thinking />}
                 </div>
               )
@@ -126,7 +126,7 @@ export default function TutorChat({ trackId, trackTitle, open, onOpenChange, col
               e.preventDefault();
               send(input);
             }}
-            className="flex items-center gap-2 border-t border-white/10 p-3"
+            className="flex items-center gap-2 border-t border-black/10 p-3"
           >
             <input
               autoFocus
@@ -135,7 +135,7 @@ export default function TutorChat({ trackId, trackTitle, open, onOpenChange, col
               maxLength={1500}
               placeholder="Ask a question…"
               aria-label="Ask the tutor a question"
-              className="min-w-0 flex-1 rounded-control border border-white/15 bg-black/30 px-3.5 py-3 text-base text-ink-1 outline-none placeholder:text-ink-2 focus:border-white/40 sm:text-sm"
+              className="min-w-0 flex-1 rounded-control border border-black/15 bg-white px-3.5 py-3 text-base text-ink-1 outline-none placeholder:text-ink-2 focus:border-action/50 sm:text-sm"
             />
             {streaming ? (
               <button type="button" onClick={() => abortRef.current?.abort()} aria-label="Stop" className="glass-btn rounded-control p-3" style={{ '--tint': '#64748B' }}>

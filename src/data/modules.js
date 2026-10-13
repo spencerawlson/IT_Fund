@@ -1,17 +1,17 @@
 export const categoryColors = {
-  Networking: { pill: 'bg-blue-500/15 text-blue-300 border-blue-500/30', dot: '#3B82F6', glow: 'shadow-blue-500/20' },
-  OS: { pill: 'bg-teal-500/15 text-teal-300 border-teal-500/30', dot: '#06B6D4', glow: 'shadow-teal-500/20' },
-  Storage: { pill: 'bg-amber-500/15 text-amber-300 border-amber-500/30', dot: '#F59E0B', glow: 'shadow-amber-500/20' },
-  Hardware: { pill: 'bg-purple-500/15 text-purple-300 border-purple-500/30', dot: '#A855F7', glow: 'shadow-purple-500/20' },
-  Cloud: { pill: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30', dot: '#6366F1', glow: 'shadow-indigo-500/20' },
-  Security: { pill: 'bg-rose-500/15 text-rose-300 border-rose-500/30', dot: '#F43F5E', glow: 'shadow-rose-500/20' },
+  Networking: { pill: 'bg-blue-500/15 text-blue-700 border-blue-500/30', dot: '#3B82F6', glow: 'shadow-blue-500/20' },
+  OS: { pill: 'bg-teal-500/15 text-teal-700 border-teal-500/30', dot: '#06B6D4', glow: 'shadow-teal-500/20' },
+  Storage: { pill: 'bg-amber-500/15 text-amber-700 border-amber-500/30', dot: '#F59E0B', glow: 'shadow-amber-500/20' },
+  Hardware: { pill: 'bg-purple-500/15 text-purple-700 border-purple-500/30', dot: '#A855F7', glow: 'shadow-purple-500/20' },
+  Cloud: { pill: 'bg-indigo-500/15 text-indigo-700 border-indigo-500/30', dot: '#6366F1', glow: 'shadow-indigo-500/20' },
+  Security: { pill: 'bg-rose-500/15 text-rose-700 border-rose-500/30', dot: '#F43F5E', glow: 'shadow-rose-500/20' },
 };
 
 export const levelColors = {
-  Beginner: { pill: 'bg-green-500/15 text-green-300 border-green-500/30', dot: '#22C55E' },
-  Intermediate: { pill: 'bg-blue-500/15 text-blue-300 border-blue-500/30', dot: '#3B82F6' },
-  Advanced: { pill: 'bg-amber-500/15 text-amber-300 border-amber-500/30', dot: '#F59E0B' },
-  Expert: { pill: 'bg-rose-500/15 text-rose-300 border-rose-500/30', dot: '#F43F5E' },
+  Beginner: { pill: 'bg-green-500/15 text-green-700 border-green-500/30', dot: '#22C55E' },
+  Intermediate: { pill: 'bg-blue-500/15 text-blue-700 border-blue-500/30', dot: '#3B82F6' },
+  Advanced: { pill: 'bg-amber-500/15 text-amber-700 border-amber-500/30', dot: '#F59E0B' },
+  Expert: { pill: 'bg-rose-500/15 text-rose-700 border-rose-500/30', dot: '#F43F5E' },
 };
 
 export const levelOrder = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];

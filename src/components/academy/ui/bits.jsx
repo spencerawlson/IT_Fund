@@ -70,7 +70,7 @@ export function Prerequisites({ items }) {
                   ) : (
                     <Circle size={16} className="mt-1 shrink-0 text-ink-3" aria-hidden="true" />
                   )}
-                  <Link to={p.to} className="text-ink-1 underline decoration-white/20 underline-offset-4 hover:decoration-white/60">
+                  <Link to={p.to} className="text-ink-1 underline decoration-black/30 underline-offset-4 hover:decoration-black/30">
                     {p.label}
                   </Link>
                   <span className="sr-only">{p.met ? '(completed)' : '(not completed)'}</span>
@@ -89,7 +89,7 @@ function LinkList({ items }) {
   return items.map((item, i) => (
     <React.Fragment key={item.to}>
       {i > 0 && (i === items.length - 1 ? ' and ' : ', ')}
-      <Link to={item.to} className="font-semibold text-ink-1 underline decoration-white/20 underline-offset-4 hover:decoration-white/60">
+      <Link to={item.to} className="font-semibold text-ink-1 underline decoration-black/30 underline-offset-4 hover:decoration-black/30">
         {item.label}
       </Link>
     </React.Fragment>

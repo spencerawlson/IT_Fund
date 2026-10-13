@@ -36,7 +36,7 @@ export default function RegistryEditor() {
                 key={s}
                 onClick={() => setActive(s)}
                 className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-                  active === s ? 'bg-white/10 text-ink-1' : 'border-white/10 bg-white/[0.06] text-ink-2 hover:bg-white/[0.12]'
+                  active === s ? 'bg-black/[0.04] text-ink-1' : 'border-black/10 bg-black/[0.06] text-ink-2 hover:bg-black/[0.12]'
                 }`}
               >
                 {isWin ? 'Windows Registry' : 'Linux Config'}
@@ -91,7 +91,7 @@ export default function RegistryEditor() {
                       <p className="text-sm font-semibold text-ink-1">{k.name}</p>
                       <span className="text-caption text-ink-2">{active === 'windows' ? 'REG' : 'PATH'}</span>
                     </div>
-                    <p className="text-caption text-indigo-300">{k.path}</p>
+                    <p className="text-caption text-indigo-700">{k.path}</p>
                     <p className="mt-1 text-caption text-ink-2">{k.desc}</p>
                   </div>
                 ))}
@@ -115,7 +115,7 @@ export default function RegistryEditor() {
             </section>
 
             <section className="rounded-control border border-amber-500/20 bg-amber-500/[0.04] p-5">
-              <div className="flex items-center gap-2 text-caption font-semibold uppercase tracking-wider text-amber-300">
+              <div className="flex items-center gap-2 text-caption font-semibold uppercase tracking-wider text-amber-700">
                 <Shield size={14} /> Cautions
               </div>
               <ul className="mt-2 list-disc space-y-1 pl-4 text-caption text-ink-2">

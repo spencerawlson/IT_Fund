@@ -35,15 +35,15 @@ export default function EncryptionAnimation() {
 
   return (
     <div>
-      <div className="relative h-72 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14]">
+      <div className="relative h-72 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50">
         {/* sender */}
         <div className="absolute left-[12%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
           <p className="text-[10px] font-bold text-ink-3">SENDER</p>
-          <div className={`mt-1 rounded-lg border px-3 py-2 font-mono text-sm font-bold ${senderEncrypted ? 'border-amber-500/50 bg-amber-500/10 text-amber-300' : 'border-blue-500/40 bg-blue-500/10 text-blue-300'}`}>
+          <div className={`mt-1 rounded-lg border px-3 py-2 font-mono text-sm font-bold ${senderEncrypted ? 'border-amber-500/50 bg-amber-500/10 text-amber-700' : 'border-blue-500/40 bg-blue-500/10 text-blue-700'}`}>
             {senderText}
           </div>
           {step === 1 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-1 flex items-center justify-center gap-1 text-[10px] text-amber-400">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-1 flex items-center justify-center gap-1 text-[10px] text-amber-600">
               <KeyRound size={11} /> + key → encrypt
             </motion.div>
           )}
@@ -59,18 +59,18 @@ export default function EncryptionAnimation() {
         {/* receiver */}
         <div className="absolute left-[88%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
           <p className="text-[10px] font-bold text-ink-3">RECEIVER</p>
-          <div className={`mt-1 rounded-lg border px-3 py-2 font-mono text-sm font-bold ${receiverDecrypted ? 'border-teal-500/50 bg-teal-500/10 text-teal-300' : 'border-ink-3/40 bg-white/[0.06] text-ink-3'}`}>
+          <div className={`mt-1 rounded-lg border px-3 py-2 font-mono text-sm font-bold ${receiverDecrypted ? 'border-teal-500/50 bg-teal-500/10 text-teal-700' : 'border-ink-3/40 bg-black/[0.06] text-ink-3'}`}>
             {step >= 3 ? receiverText : '—'}
           </div>
           {step === 4 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-1 flex items-center justify-center gap-1 text-[10px] text-teal-400">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-1 flex items-center justify-center gap-1 text-[10px] text-teal-600">
               <KeyRound size={11} /> + key → decrypt
             </motion.div>
           )}
         </div>
 
         {/* wire */}
-        <div className="absolute left-[18%] right-[18%] top-1/2 h-px -translate-y-1/2 bg-white/10" />
+        <div className="absolute left-[18%] right-[18%] top-1/2 h-px -translate-y-1/2 bg-black/[0.04]" />
 
         {/* moving ciphertext */}
         {onWire && (
@@ -81,7 +81,7 @@ export default function EncryptionAnimation() {
             animate={{ left: step === 2 ? '50%' : '82%', opacity: [0, 1, 1, 1] }}
             transition={{ duration: 1.8, times: [0, 0.1, 0.5, 1], ease: 'easeInOut' }}
           >
-            <div className="rounded-md border border-amber-500/60 bg-amber-500/15 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-300 shadow">
+            <div className="rounded-md border border-amber-500/60 bg-amber-500/15 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-700 shadow">
               {CIPHER}
             </div>
           </motion.div>
@@ -92,22 +92,22 @@ export default function EncryptionAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-        <p className="font-semibold text-white">{current.phase}</p>
+      <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+        <p className="font-semibold text-ink-1">{current.phase}</p>
         <p className="text-ink-3">{current.note}</p>
       </div>
 
       <div className="mt-4 flex items-center gap-3">
-        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
+        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]">
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-amber-400' : 'w-1.5 bg-white/20'}`} /></button>
+            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-amber-400' : 'w-1.5 bg-black/[0.06]'}`} /></button>
           ))}
         </div>
       </div>

@@ -218,7 +218,7 @@ function Complete({ deck, state, tries, onRetry }) {
     <div className="animate-pop text-center">
       <span
         className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full border ${
-          passed ? 'border-success/40 bg-success/15 text-success' : 'border-white/15 bg-white/10 text-ink-1'
+          passed ? 'border-success/40 bg-success/15 text-success' : 'border-black/15 bg-black/[0.04] text-ink-1'
         }`}
       >
         {passed ? <Check size={40} aria-hidden="true" /> : <RotateCcw size={34} aria-hidden="true" />}

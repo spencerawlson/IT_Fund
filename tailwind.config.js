@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
@@ -34,6 +33,17 @@ module.exports = {
   				DEFAULT: 'rgb(var(--action-rgb) / <alpha-value>)',
   				hover: 'rgb(var(--action-hover-rgb) / <alpha-value>)',
   				ink: 'rgb(var(--action-ink-rgb) / <alpha-value>)',
+  				surface: 'rgb(var(--action-surface-rgb) / <alpha-value>)',
+  				'surface-hover': 'rgb(var(--action-surface-hover-rgb) / <alpha-value>)',
+  				'surface-ink': 'rgb(var(--action-surface-ink-rgb) / <alpha-value>)',
+  			},
+  			terminal: {
+  				bg: 'var(--terminal-bg)',
+  				border: 'var(--terminal-border)',
+  				text: 'rgb(var(--terminal-text-rgb) / <alpha-value>)',
+  				bright: 'rgb(var(--terminal-bright-rgb) / <alpha-value>)',
+  				muted: 'rgb(var(--terminal-muted-rgb) / <alpha-value>)',
+  				error: 'rgb(var(--terminal-error-rgb) / <alpha-value>)',
   			},
   			focus: 'rgb(var(--focus-rgb) / <alpha-value>)',
   			success: 'rgb(var(--success-rgb) / <alpha-value>)',

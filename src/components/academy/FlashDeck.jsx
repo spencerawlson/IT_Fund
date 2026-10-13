@@ -65,7 +65,7 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone, m
           ))}
         </span>
       </div>
-      <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-black/[0.04]">
         <div className="h-full rounded-full bg-action transition-all" style={{ width: `${(done / cards.length) * 100}%` }} />
       </div>
 

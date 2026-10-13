@@ -36,14 +36,14 @@ export default function AutoScalingAnimation() {
   return (
     <div>
       {/* Stage */}
-      <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] p-5 sm:h-72">
+      <div className="relative h-64 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50 p-5 sm:h-72">
         {/* Load meter */}
         <div>
           <div className="mb-1.5 flex items-center justify-between text-[11px]">
             <span className="font-semibold text-ink-3">CPU LOAD</span>
-            <span className="font-bold text-white">{current.load}%</span>
+            <span className="font-bold text-ink-1">{current.load}%</span>
           </div>
-          <div className="relative h-3 overflow-hidden rounded-full bg-white/10">
+          <div className="relative h-3 overflow-hidden rounded-full bg-black/[0.04]">
             <motion.div
               className={`h-full rounded-full ${loadColor(current.load)}`}
               animate={{ width: `${current.load}%` }}
@@ -63,7 +63,7 @@ export default function AutoScalingAnimation() {
         <div className="mt-6">
           <div className="mb-2 flex items-center justify-between text-[11px]">
             <span className="font-semibold text-ink-3">INSTANCES</span>
-            <span className="font-bold text-white">{current.count} running</span>
+            <span className="font-bold text-ink-1">{current.count} running</span>
           </div>
           <div className="flex items-end gap-3">
             <AnimatePresence>
@@ -77,8 +77,8 @@ export default function AutoScalingAnimation() {
                   className="flex h-24 w-20 flex-col items-center justify-center rounded-xl border border-blue-500/40 bg-blue-500/10"
                 >
                   <div className="h-7 w-7 rounded-full border border-green-500/50 bg-green-500/20" />
-                  <p className="mt-2 text-[11px] font-bold text-blue-300">Srv {i + 1}</p>
-                  <p className="text-[9px] text-green-400">active</p>
+                  <p className="mt-2 text-[11px] font-bold text-blue-700">Srv {i + 1}</p>
+                  <p className="text-[9px] text-green-600">active</p>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -86,7 +86,7 @@ export default function AutoScalingAnimation() {
             {Array.from({ length: MAX - current.count }).map((_, i) => (
               <div
                 key={`empty-${i}`}
-                className="flex h-24 w-20 items-center justify-center rounded-xl border border-dashed border-white/10"
+                className="flex h-24 w-20 items-center justify-center rounded-xl border border-dashed border-black/10"
               >
                 <span className="text-[10px] text-ink-3">idle</span>
               </div>
@@ -101,8 +101,8 @@ export default function AutoScalingAnimation() {
       </div>
 
       {/* Note */}
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-        <p className="font-semibold text-white">{current.label}</p>
+      <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+        <p className="font-semibold text-ink-1">{current.label}</p>
         <p className="text-ink-3">{current.note}</p>
       </div>
 
@@ -110,14 +110,14 @@ export default function AutoScalingAnimation() {
       <div className="mt-4 flex items-center gap-3">
         <button
           onClick={toggle}
-          className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+          className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]"
         >
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
         <button
           onClick={reset}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5"
+          className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]"
         >
           <RotateCcw size={15} /> Restart
         </button>
@@ -129,7 +129,7 @@ export default function AutoScalingAnimation() {
               aria-label={`Go to step ${i + 1}`}
               className="flex h-8 items-center px-0.5"
             >
-              <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-white/20'}`} />
+              <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-black/[0.06]'}`} />
             </button>
           ))}
         </div>

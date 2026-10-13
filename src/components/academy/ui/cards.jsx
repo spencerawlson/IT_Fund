@@ -175,7 +175,7 @@ export function ModuleList({ state, course }) {
               <div className="min-w-0">
                 <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Module {module.number} · {module.level}</p>
                 <h3 className="mt-1 text-heading text-ink-1">
-                  <Link to={moduleHref(module)} className="hover:underline hover:decoration-white/40 hover:underline-offset-4">{module.title}</Link>
+                  <Link to={moduleHref(module)} className="hover:underline hover:decoration-black/30 hover:underline-offset-4">{module.title}</Link>
                 </h3>
                 <p className="mt-1 text-small text-ink-2">{meta(module.summary, `${module.lessons.length} lessons`, formatMinutes(module.minutes))}</p>
               </div>

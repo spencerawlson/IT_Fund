@@ -37,9 +37,9 @@ export default function SubnetCalculator() {
   }, [ip, prefix]);
 
   const Row = ({ label, value, accent }) => (
-    <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3">
+    <div className="flex items-center justify-between rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3">
       <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">{label}</span>
-      <span className={`font-mono text-sm font-semibold ${accent || 'text-white'}`}>{value}</span>
+      <span className={`font-mono text-sm font-semibold ${accent || 'text-ink-1'}`}>{value}</span>
     </div>
   );
 
@@ -54,7 +54,7 @@ export default function SubnetCalculator() {
             value={ip}
             onChange={(e) => setIp(e.target.value)}
             placeholder="192.168.1.150"
-            className="mt-1.5 w-full rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2.5 font-mono text-sm text-white outline-none focus:border-blue-500/50"
+            className="mt-1.5 w-full rounded-lg border border-black/10 bg-black/[0.08] px-3 py-2.5 font-mono text-sm text-ink-1 outline-none focus:border-blue-500/50"
           />
         </div>
         <div>
@@ -72,7 +72,7 @@ export default function SubnetCalculator() {
               <button
                 key={p}
                 onClick={() => setPrefix(p)}
-                className={`rounded px-2 py-0.5 font-mono text-xs transition ${prefix === p ? 'bg-blue-500/20 text-blue-300' : 'bg-white/5 text-ink-3 hover:text-white'}`}
+                className={`rounded px-2 py-0.5 font-mono text-xs transition ${prefix === p ? 'bg-blue-500/20 text-blue-700' : 'bg-black/[0.03] text-ink-3 hover:text-ink-1'}`}
               >
                 /{p}
               </button>
@@ -82,32 +82,32 @@ export default function SubnetCalculator() {
       </div>
 
       {!result ? (
-        <div className="mt-6 rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+        <div className="mt-6 rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700">
           Enter a valid IPv4 address — four octets, each 0–255.
         </div>
       ) : (
         <>
           <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
-            <Row label="Network Address" value={intToIp(result.network)} accent="text-blue-300" />
-            <Row label="Broadcast Address" value={intToIp(result.broadcast)} accent="text-rose-300" />
+            <Row label="Network Address" value={intToIp(result.network)} accent="text-blue-700" />
+            <Row label="Broadcast Address" value={intToIp(result.broadcast)} accent="text-rose-700" />
             <Row label="Subnet Mask" value={intToIp(result.mask)} />
             <Row label="Wildcard Mask" value={intToIp(result.wildcard)} />
-            <Row label="First Usable Host" value={intToIp(result.firstHost)} accent="text-teal-300" />
-            <Row label="Last Usable Host" value={intToIp(result.lastHost)} accent="text-teal-300" />
+            <Row label="First Usable Host" value={intToIp(result.firstHost)} accent="text-teal-700" />
+            <Row label="Last Usable Host" value={intToIp(result.lastHost)} accent="text-teal-700" />
             <Row label="Total Addresses" value={result.totalHosts.toLocaleString()} />
-            <Row label="Usable Hosts" value={result.usableHosts.toLocaleString()} accent="text-amber-300" />
+            <Row label="Usable Hosts" value={result.usableHosts.toLocaleString()} accent="text-amber-700" />
           </div>
 
-          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.06] p-4">
+          <div className="mt-6 rounded-lg border border-black/10 bg-black/[0.06] p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">Binary Breakdown</p>
             <div className="mt-3 space-y-1.5 font-mono text-[11px] leading-relaxed">
-              <p><span className="text-ink-3">IP        </span><span className="text-white">{toBinary(result.ipInt)}</span></p>
-              <p><span className="text-ink-3">Mask      </span><span className="text-blue-300">{toBinary(result.mask)}</span></p>
-              <p><span className="text-ink-3">Network   </span><span className="text-teal-300">{toBinary(result.network)}</span></p>
-              <p><span className="text-ink-3">Broadcast </span><span className="text-rose-300">{toBinary(result.broadcast)}</span></p>
+              <p><span className="text-ink-3">IP        </span><span className="text-ink-1">{toBinary(result.ipInt)}</span></p>
+              <p><span className="text-ink-3">Mask      </span><span className="text-blue-700">{toBinary(result.mask)}</span></p>
+              <p><span className="text-ink-3">Network   </span><span className="text-teal-700">{toBinary(result.network)}</span></p>
+              <p><span className="text-ink-3">Broadcast </span><span className="text-rose-700">{toBinary(result.broadcast)}</span></p>
             </div>
             <p className="mt-3 text-[11px] leading-relaxed text-ink-3">
-              The first <span className="text-blue-300">{prefix}</span> bits define the network portion; the remaining <span className="text-amber-300">{32 - prefix}</span> bits identify individual hosts within it.
+              The first <span className="text-blue-700">{prefix}</span> bits define the network portion; the remaining <span className="text-amber-700">{32 - prefix}</span> bits identify individual hosts within it.
             </p>
           </div>
         </>

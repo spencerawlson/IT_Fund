@@ -20,7 +20,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     const height = mount.clientHeight || 500;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#0a0e14');
+    scene.background = new THREE.Color('#F8F7FF');
 
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
     camera.position.set(...cameraPos);
@@ -49,11 +49,11 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = envTexture;
-    scene.fog = new THREE.Fog(0x0a0e14, 40, 82);
+    scene.fog = new THREE.Fog(0xf8f7ff, 40, 82);
 
     // Lights — the environment handles soft ambient, so direct lights shape and rim the model.
     scene.add(new THREE.AmbientLight(0xffffff, 0.22));
-    scene.add(new THREE.HemisphereLight(0xbcd0ff, 0x0a0e14, 0.35));
+    scene.add(new THREE.HemisphereLight(0xbcd0ff, 0xe7e3f2, 0.5));
     const key = new THREE.DirectionalLight(0xffffff, 1.35);
     key.position.set(14, 22, 12);
     key.castShadow = true;
@@ -75,7 +75,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     scene.add(rim);
 
     // Grid floor + a shadow-catching plane so models drop soft contact shadows.
-    const grid = new THREE.GridHelper(60, 60, 0x223247, 0x141a24);
+    const grid = new THREE.GridHelper(60, 60, 0xb6a8e0, 0xd9d4ea);
     grid.position.y = -2;
     scene.add(grid);
     const ground = new THREE.Mesh(
@@ -211,26 +211,26 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     <div className="relative h-full w-full overflow-hidden rounded-xl">
       <div ref={mountRef} className="h-full w-full" />
       {rendererFailed && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] p-6">
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-black/10 bg-white/[0.06] p-6">
           <div className="text-center text-sm text-ink-3">
-            <p className="font-semibold text-white">Visual preview unavailable</p>
+            <p className="font-semibold text-ink-1">Visual preview unavailable</p>
             <p className="mt-2">This lab requires hardware acceleration or WebGL support.</p>
           </div>
         </div>
       )}
       {info && !rendererFailed && (
         <div
-          className="pointer-events-none absolute z-10 max-w-[220px] rounded-lg border border-blue-500/40 bg-black/55 backdrop-blur-xl px-3 py-2 text-xs shadow-xl"
+          className="pointer-events-none absolute z-10 max-w-[220px] rounded-lg border border-blue-600/30 bg-white/85 backdrop-blur-xl px-3 py-2 text-xs shadow-xl"
           style={{
             left: Math.min(info.x + 14, info.cw - 230),
             top: Math.min(info.y + 14, info.ch - 70),
           }}
         >
-          <p className="font-bold text-blue-300">{info.label}</p>
+          <p className="font-bold text-blue-700">{info.label}</p>
           <p className="mt-0.5 leading-relaxed text-ink-2">{info.desc}</p>
         </div>
       )}
-      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-black/40 px-2 py-1 text-[10px] text-ink-3">
+      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-black/10 bg-white/80 px-2 py-1 text-[10px] text-ink-2">
         Drag to rotate · Scroll to zoom · Click parts for info
       </div>
     </div>

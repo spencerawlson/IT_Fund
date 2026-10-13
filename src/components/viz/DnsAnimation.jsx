@@ -42,11 +42,11 @@ export default function DnsAnimation() {
     return (
       <div
         className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border px-3 py-2 text-center transition-colors ${
-          active ? 'border-blue-500/60 bg-blue-500/15 shadow-lg shadow-blue-500/20' : 'border-white/15 bg-white/[0.08]'
+          active ? 'border-blue-500/60 bg-blue-500/15 shadow-lg shadow-blue-500/20' : 'border-black/15 bg-black/[0.08]'
         }`}
         style={{ left: `${NODES[id].x}%`, top: `${NODES[id].y}%` }}
       >
-        <p className={`text-[11px] font-bold ${active ? 'text-blue-300' : 'text-ink-2'}`}>{label}</p>
+        <p className={`text-[11px] font-bold ${active ? 'text-blue-700' : 'text-ink-2'}`}>{label}</p>
         <p className="text-[9px] text-ink-3">{sub}</p>
       </div>
     );
@@ -54,7 +54,7 @@ export default function DnsAnimation() {
 
   return (
     <div>
-      <div className="relative h-72 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14]">
+      <div className="relative h-72 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50">
         <svg className="absolute inset-0 h-full w-full" style={{ pointerEvents: 'none' }}>
           <line x1="8%" y1="50%" x2="42%" y2="50%" stroke="rgba(255,255,255,0.08)" />
           <line x1="42%" y1="50%" x2="86%" y2="18%" stroke="rgba(255,255,255,0.06)" />
@@ -75,7 +75,7 @@ export default function DnsAnimation() {
           animate={{ left: `${to.x}%`, top: `${to.y}%`, opacity: [0, 1, 1, 1] }}
           transition={{ duration: 1.8, times: [0, 0.1, 0.5, 1], ease: 'easeInOut' }}
         >
-          <div className="rounded-md border border-amber-500/60 bg-amber-500/15 px-2 py-1 text-[10px] font-bold text-amber-300 shadow">
+          <div className="rounded-md border border-amber-500/60 bg-amber-500/15 px-2 py-1 text-[10px] font-bold text-amber-700 shadow">
             {current.label}
           </div>
         </motion.div>
@@ -85,22 +85,22 @@ export default function DnsAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-        <p className="font-semibold text-white">{current.label}</p>
+      <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+        <p className="font-semibold text-ink-1">{current.label}</p>
         <p className="text-ink-3">{current.note}</p>
       </div>
 
       <div className="mt-4 flex items-center gap-3">
-        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
+        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]">
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-white/20'}`} /></button>
+            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-black/[0.06]'}`} /></button>
           ))}
         </div>
       </div>

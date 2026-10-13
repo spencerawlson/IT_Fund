@@ -85,7 +85,7 @@ export default function Tracks() {
                   <p className="text-ink-2">Modules</p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {t.modules.map((id) => (
-                      <Link key={id} to={`/module/${id}`} className="rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.12]">
+                      <Link key={id} to={`/module/${id}`} className="rounded-md border border-black/10 bg-black/[0.06] px-2 py-1 transition hover:border-black/25 hover:bg-black/[0.12]">
                         {resolveTitle(id)}
                       </Link>
                     ))}
@@ -95,7 +95,7 @@ export default function Tracks() {
                   <p className="text-ink-2">Labs</p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {t.labs.map((id) => (
-                      <Link key={id} to={`/lab?item=${id}`} className="rounded-md border border-white/10 bg-white/[0.06] px-2 py-1 transition hover:border-white/25 hover:bg-white/[0.12]">
+                      <Link key={id} to={`/lab?item=${id}`} className="rounded-md border border-black/10 bg-black/[0.06] px-2 py-1 transition hover:border-black/25 hover:bg-black/[0.12]">
                         {id}
                       </Link>
                     ))}

@@ -94,7 +94,7 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
           )}
         </div>
       </div>
-      <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-black/[0.04]">
         <div className="h-full rounded-full bg-action transition-all" style={{ width: `${(index / questions.length) * 100}%` }} />
       </div>
 
@@ -105,11 +105,11 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
         </h2>
         <div className="mt-5 space-y-2.5">
           {q.options.map((opt, i) => {
-            let style = 'glass-2 hover:border-white/30';
+            let style = 'glass-2 hover:border-black/30';
             if (picked !== null) {
               if (i === q.correct) style = 'border-emerald-500/60 bg-emerald-500/10';
               else if (i === picked) style = 'border-rose-500/60 bg-rose-500/10';
-              else style = 'border-white/5 bg-white/[0.01] opacity-60';
+              else style = 'border-black/5 bg-black/[0.03] opacity-60';
             }
             return (
               <button
@@ -118,7 +118,7 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
                 disabled={picked !== null}
                 className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm text-ink-1 transition ${style}`}
               >
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white/10 text-caption font-bold text-ink-2">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-black/[0.04] text-caption font-bold text-ink-2">
                   {i + 1}
                 </span>
                 <RichText text={opt} />

@@ -24,7 +24,7 @@ export function BitsWidget({ color, onValue }) {
               style={
                 bits[i]
                   ? { background: color, borderColor: 'rgba(255,255,255,0.35)', boxShadow: `0 6px 20px -6px ${color}, inset 0 1px 0 rgba(255,255,255,0.45)` }
-                  : { background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)', color: 'rgb(148 163 184)' }
+                  : { background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)', color: 'rgb(147 161 161)' }
               }
             >
               {bits[i]}
@@ -123,12 +123,12 @@ export function HashWidget({ color, onValue }) {
         id="hash-input"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        className="mt-1.5 w-full rounded-xl border border-white/15 bg-black/30 px-3 py-3 font-mono text-base text-ink-1 outline-none focus:border-white/40"
+        className="mt-1.5 w-full rounded-xl border border-black/15 bg-white px-3 py-3 font-mono text-base text-ink-1 shadow-inner outline-none focus:border-action/50"
       />
       <p className="mt-4 text-caption font-semibold uppercase tracking-wider text-ink-2">SHA-256</p>
-      <p className="mt-1.5 break-all rounded-xl bg-black/30 p-3 font-mono text-small leading-relaxed sm:text-sm">
+      <p className="mt-1.5 break-all rounded-xl border border-terminal-border bg-terminal-bg p-3 font-mono text-small leading-relaxed sm:text-sm">
         {[...hash].map((c, i) => (
-          <span key={i} style={{ color: original && c !== original[i] ? color : 'rgb(148 163 184)' }}>{c}</span>
+          <span key={i} style={{ color: original && c !== original[i] ? color : 'rgb(147 161 161)' }}>{c}</span>
         ))}
       </p>
       <p className="mt-2 text-caption text-ink-2">
@@ -140,7 +140,7 @@ export function HashWidget({ color, onValue }) {
 
 function Readout({ label, value, big = false, mono = false }) {
   return (
-    <div className="rounded-control border border-white/10 bg-black/20 px-2 py-2.5">
+    <div className="rounded-control border border-black/10 bg-black/[0.03] px-2 py-2.5">
       <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">{label}</p>
       <p className={`mt-0.5 truncate font-bold text-ink-1 ${big ? 'text-xl sm:text-2xl' : 'text-sm sm:text-base'} ${mono ? 'font-mono' : ''}`}>{value}</p>
     </div>

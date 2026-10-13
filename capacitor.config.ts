@@ -27,8 +27,8 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
   },
   android: {
-    // Allow the WebView to use the app's dark theme without flashing white.
-    backgroundColor: '#070A12',
+    // Match the app's white light theme so the WebView never flashes dark.
+    backgroundColor: '#FFFFFF',
   },
 };
 

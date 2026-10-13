@@ -16,11 +16,11 @@ const STEPS = [
 ];
 
 const colorMap = {
-  blue: 'border-blue-500/50 bg-blue-500/15 text-blue-300',
-  teal: 'border-teal-500/50 bg-teal-500/15 text-teal-300',
-  green: 'border-green-500/50 bg-green-500/15 text-green-300',
-  amber: 'border-amber-500/50 bg-amber-500/15 text-amber-300',
-  red: 'border-red-500/50 bg-red-500/15 text-red-300',
+  blue: 'border-blue-500/50 bg-blue-500/15 text-blue-700',
+  teal: 'border-teal-500/50 bg-teal-500/15 text-teal-700',
+  green: 'border-green-500/50 bg-green-500/15 text-green-700',
+  amber: 'border-amber-500/50 bg-amber-500/15 text-amber-700',
+  red: 'border-red-500/50 bg-red-500/15 text-red-700',
 };
 
 export default function TcpAnimation() {
@@ -46,19 +46,19 @@ export default function TcpAnimation() {
   return (
     <div>
       {/* Stage */}
-      <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] sm:h-72">
+      <div className="relative h-64 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50 sm:h-72">
         {/* Endpoints */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 rounded-xl border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-center">
-          <p className="text-[11px] font-bold text-blue-300">CLIENT</p>
+          <p className="text-[11px] font-bold text-blue-700">CLIENT</p>
           <p className="mt-0.5 text-[10px] text-ink-3">192.168.1.10</p>
         </div>
         <div className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-teal-500/40 bg-teal-500/10 px-3 py-2 text-center">
-          <p className="text-[11px] font-bold text-teal-300">SERVER</p>
+          <p className="text-[11px] font-bold text-teal-700">SERVER</p>
           <p className="mt-0.5 text-[10px] text-ink-3">93.184.216.34</p>
         </div>
 
         {/* Line */}
-        <div className="absolute left-[18%] right-[18%] top-1/2 h-px -translate-y-1/2 bg-white/10" />
+        <div className="absolute left-[18%] right-[18%] top-1/2 h-px -translate-y-1/2 bg-black/[0.04]" />
 
         {/* Packet */}
         {current.dir !== 'none' && (
@@ -87,7 +87,7 @@ export default function TcpAnimation() {
             animate={{ opacity: 1, scale: 1 }}
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-green-500/40 bg-green-500/10 px-5 py-2 text-center"
           >
-            <p className="text-sm font-bold text-green-300">{current.label}</p>
+            <p className="text-sm font-bold text-green-700">{current.label}</p>
             <p className="text-[10px] text-ink-3">{current.sub}</p>
           </motion.div>
         )}
@@ -99,17 +99,17 @@ export default function TcpAnimation() {
 
       {/* Concept + controls */}
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-          <p className="font-semibold text-white">{current.label}</p>
+        <div className="rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+          <p className="font-semibold text-ink-1">{current.label}</p>
           <p className="text-ink-3">{current.note}</p>
           <p className="mt-1.5 text-ink-2">{current.explain}</p>
         </div>
         <div className="flex sm:flex-col items-center gap-2">
-          <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/15">
+          <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-3 py-2 text-xs font-semibold text-ink-1 transition hover:bg-black/[0.05]">
             {playing && step < STEPS.length - 1 ? <Pause size={14} /> : <Play size={14} />}
             {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
           </button>
-          <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-ink-2 transition hover:bg-white/5">
+          <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold text-ink-2 transition hover:bg-black/[0.03]">
             <RotateCcw size={14} /> Restart
           </button>
         </div>
@@ -117,17 +117,17 @@ export default function TcpAnimation() {
 
       {/* Quick legend */}
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-ink-3">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> SYN = request connection</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">ACK = acknowledgement</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">PSH = send data now</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">FIN = close connection</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">seq/ack = ordering numbers</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1"><HelpCircle size={10}/> SYN = request connection</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1">ACK = acknowledgement</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1">PSH = send data now</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1">FIN = close connection</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1">seq/ack = ordering numbers</span>
       </div>
 
       {/* Scrubber */}
       <div className="mt-4 flex items-center gap-1.5">
         {STEPS.map((_, i) => (
-          <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-white/20'}`} /></button>
+          <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-blue-400' : 'w-1.5 bg-black/[0.06]'}`} /></button>
         ))}
       </div>
     </div>

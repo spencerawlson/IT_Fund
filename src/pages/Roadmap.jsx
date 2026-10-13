@@ -53,7 +53,7 @@ export default function Roadmap() {
             A guided route through every layer of the IT, networking, cloud, and security curriculum — from first
             principles to expert system design.
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-4 py-2.5">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-black/10 bg-black/[0.08] px-4 py-2.5">
             <span className="text-caption uppercase tracking-wider text-ink-2">Overall Progress</span>
             <span className="text-lg font-bold text-success">{overallPct}%</span>
           </div>
@@ -61,7 +61,7 @@ export default function Roadmap() {
 
         {/* Timeline */}
         <div className="relative">
-          <div className="absolute left-[18px] top-2 bottom-2 w-px bg-white/10" />
+          <div className="absolute left-[18px] top-2 bottom-2 w-px bg-black/[0.04]" />
           <div className="space-y-6">
             {PHASES.map((phase) => {
               const phaseMods = phase.ids.map((id) => modules.find((m) => m.id === id)).filter(Boolean);
@@ -72,7 +72,7 @@ export default function Roadmap() {
               return (
                 <div key={phase.n} className="relative pl-12">
                   <div
-                    className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 ${done ? 'border-emerald-500/50 bg-emerald-500/15' : 'border-white/15 bg-black/40 backdrop-blur-md'}`}
+                    className={`absolute left-0 top-1.5 flex h-9 w-9 items-center justify-center rounded-full border-2 ${done ? 'border-emerald-500/50 bg-emerald-500/15' : 'border-black/15 bg-white shadow-sm'}`}
                   >
                     {done ? (
                       <CheckCircle2 size={18} className="text-success" />
@@ -88,7 +88,7 @@ export default function Roadmap() {
                       </div>
                       <p className="shrink-0 text-lg font-bold" style={{ color: phase.color }}>{phasePct}%</p>
                     </div>
-                    <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/10">
+                    <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-black/[0.04]">
                       <div className="h-full rounded-full transition-all" style={{ width: `${phasePct}%`, backgroundColor: phase.color }} />
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -99,7 +99,7 @@ export default function Roadmap() {
                           <Link
                             key={m.id}
                             to={`/module/${m.id}`}
-                            className="group flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-caption transition hover:border-white/25 hover:bg-white/[0.12]"
+                            className="group flex items-center gap-2 rounded-lg border border-black/10 bg-black/[0.06] px-3 py-1.5 text-caption transition hover:border-black/25 hover:bg-black/[0.12]"
                           >
                             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: lvl.dot }} />
                             <span className="font-semibold text-ink-1">{m.title}</span>
@@ -126,7 +126,7 @@ export default function Roadmap() {
               const lvl = levelColors[c.level] || levelColors.Beginner;
               return (
                 <div key={c.name} className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5">
+                  <div className="flex items-center gap-2 rounded-lg border border-black/10 bg-black/[0.06] px-3 py-1.5">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: lvl.dot }} />
                     <span className="text-caption font-semibold text-ink-1">{c.name}</span>
                     <span className="text-caption text-ink-2">{c.level}</span>

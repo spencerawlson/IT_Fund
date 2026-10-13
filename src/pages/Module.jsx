@@ -86,7 +86,7 @@ export default function Module() {
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-4">
             <div
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-control border border-white/10"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-control border border-black/10"
               style={{ backgroundColor: `${cat.dot}15`, color: cat.dot }}
             >
               <Icon size={28} />
@@ -102,19 +102,19 @@ export default function Module() {
 
         {/* Progress detail */}
         <div className="mt-5 flex flex-wrap gap-3 text-caption">
-          <div className="rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2">
+          <div className="rounded-lg border border-black/10 bg-black/[0.08] px-3 py-2">
             <span className="text-ink-2">Flashcards: </span>
             <span className="font-semibold text-ink-1">
               {progress.flashcards ? `${progress.flashcards.known}/${progress.flashcards.total}` : 'Not started'}
             </span>
           </div>
-          <div className="rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2">
+          <div className="rounded-lg border border-black/10 bg-black/[0.08] px-3 py-2">
             <span className="text-ink-2">Quiz best: </span>
             <span className="font-semibold text-ink-1">
               {progress.quiz ? `${progress.quiz.bestScore}/${progress.quiz.total}` : 'Not attempted'}
             </span>
           </div>
-          <div className="rounded-lg border border-white/10 bg-white/[0.08] px-3 py-2">
+          <div className="rounded-lg border border-black/10 bg-black/[0.08] px-3 py-2">
             <span className="text-ink-2">Concepts: </span>
             <span className="font-semibold text-ink-1">{module.concepts.length}</span>
           </div>
@@ -132,7 +132,7 @@ export default function Module() {
                   <Link
                     key={l.labId}
                     to={`/lab?item=${l.labId}`}
-                    className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-caption transition hover:border-white/25 hover:bg-white/[0.12]"
+                    className="flex items-center gap-2 rounded-lg border border-black/10 bg-black/[0.06] px-3 py-1.5 text-caption transition hover:border-black/25 hover:bg-black/[0.12]"
                   >
                     <span className="font-semibold text-ink-1">{l.label}</span>
                     <span className="text-blue-400">→</span>
@@ -155,7 +155,7 @@ export default function Module() {
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition ${
-                  active ? 'bg-white/10 text-ink-1 shadow-sm' : 'text-ink-2 hover:text-ink-1'
+                  active ? 'bg-black/[0.04] text-ink-1 shadow-sm' : 'text-ink-2 hover:text-ink-1'
                 }`}
               >
                 <TabIcon size={16} /> {t.label}

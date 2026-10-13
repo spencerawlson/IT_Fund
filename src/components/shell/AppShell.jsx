@@ -108,7 +108,7 @@ export default function AppShell() {
 
   return (
     <div className="min-h-screen text-ink-1">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-control focus:bg-action focus:px-4 focus:py-2 focus:text-action-ink">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-control focus:bg-action-surface focus:px-4 focus:py-2 focus:text-action-surface-ink">
         Skip to content
       </a>
 

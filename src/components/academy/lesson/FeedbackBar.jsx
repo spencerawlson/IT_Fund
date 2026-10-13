@@ -48,7 +48,7 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
   }, [primary]);
 
   const tone =
-    status === 'correct' ? 'border-success/40' : status === 'wrong' ? 'border-danger/40' : status === 'revealed' ? 'border-warning/40' : 'border-white/10';
+    status === 'correct' ? 'border-success/40' : status === 'wrong' ? 'border-danger/40' : status === 'revealed' ? 'border-warning/40' : 'border-black/10';
   const label = status === 'idle' ? 'Check' : status === 'wrong' ? 'Try again' : 'Continue';
 
   return (
@@ -87,7 +87,7 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
         )}
         <div className="flex gap-2">
           {status === 'wrong' && onReveal && (
-            <button type="button" onClick={onReveal} className="rounded-control border border-white/15 bg-white/5 px-4 py-3.5 text-sm font-semibold text-ink-2 transition hover:bg-white/10">
+            <button type="button" onClick={onReveal} className="rounded-control border border-black/15 bg-black/[0.03] px-4 py-3.5 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.04]">
               Show answer
             </button>
           )}

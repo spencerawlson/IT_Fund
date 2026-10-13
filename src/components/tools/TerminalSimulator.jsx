@@ -280,44 +280,44 @@ export default function TerminalSimulator() {
 
   return (
     <div>
-      <div className="mb-4 inline-flex rounded-lg border border-white/10 bg-white/[0.06] p-1">
+      <div className="mb-4 inline-flex rounded-lg border border-black/10 bg-black/[0.03] p-1">
         <button
           onClick={() => switchMode('bash')}
-          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'bash' ? 'bg-white/10 text-white' : 'text-ink-3 hover:text-white'}`}
+          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'bash' ? 'bg-action-surface text-action-surface-ink' : 'text-ink-2 hover:text-ink-1'}`}
         >
           <TerminalSquare size={14} /> Bash
         </button>
         <button
           onClick={() => switchMode('ps')}
-          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'ps' ? 'bg-white/10 text-white' : 'text-ink-3 hover:text-white'}`}
+          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition ${mode === 'ps' ? 'bg-action-surface text-action-surface-ink' : 'text-ink-2 hover:text-ink-1'}`}
         >
           <Command size={14} /> PowerShell
         </button>
       </div>
 
       <div
-        className="h-[420px] overflow-y-auto rounded-xl border border-white/10 bg-black/55 backdrop-blur-xl p-4 font-mono text-[13px] leading-relaxed"
+        className="h-[420px] overflow-y-auto rounded-xl border border-terminal-border bg-terminal-bg p-4 font-mono text-[13px] leading-relaxed shadow-inner"
         onClick={() => inputRef.current?.focus()}
       >
-        <p className="mb-2 text-ink-3">
+        <p className="mb-2 text-terminal-muted">
           {mode === 'bash' ? 'Ubuntu 22.04 LTS — type `help` to see commands.' : 'Windows PowerShell — type `help` to see commands.'}
         </p>
         {blocks.map((b, i) => {
           if (b.type === 'cmd') {
             return (
               <div key={i} className="whitespace-pre-wrap break-words">
-                <span className="text-teal-400">{b.prompt}</span>
-                <span className="text-white">{b.text}</span>
+                <span className="text-terminal-text">{b.prompt}</span>
+                <span className="text-terminal-bright">{b.text}</span>
               </div>
             );
           }
           if (b.type === 'out') {
-            return <div key={i} className="whitespace-pre-wrap break-words text-ink-1">{b.text}</div>;
+            return <div key={i} className="whitespace-pre-wrap break-words text-terminal-text">{b.text}</div>;
           }
           return null;
         })}
         <form onSubmit={submit} className="flex items-center">
-          <span className="whitespace-pre text-teal-400">{prompt(cwd, mode)}</span>
+          <span className="whitespace-pre text-terminal-text">{prompt(cwd, mode)}</span>
           <input
             ref={inputRef}
             value={input}
@@ -326,7 +326,7 @@ export default function TerminalSimulator() {
             autoFocus
             spellCheck={false}
             autoComplete="off"
-            className="ml-1 flex-1 bg-transparent text-white caret-teal-400 outline-none"
+            className="ml-1 flex-1 bg-transparent text-terminal-bright caret-terminal-bright outline-none"
           />
         </form>
         <div ref={endRef} />

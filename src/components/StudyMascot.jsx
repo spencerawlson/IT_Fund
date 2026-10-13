@@ -115,7 +115,7 @@ export default function StudyMascot({ conceptId, moduleId, color = '#7dd3fc', cl
               <button
                 type="button"
                 onClick={() => setRevealed(true)}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-caption font-semibold text-ink-1 transition hover:bg-white/10"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-3 py-1.5 text-caption font-semibold text-ink-1 transition hover:bg-black/[0.04]"
               >
                 <Eye size={13} /> Reveal answer
               </button>

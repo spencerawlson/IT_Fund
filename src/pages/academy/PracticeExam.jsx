@@ -91,7 +91,7 @@ function StartScreen({ history }) {
                 </div>
                 <span className={cn(
                   'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-small font-semibold',
-                  a.passed ? 'border-success/40 bg-success/15 text-success' : 'border-white/15 bg-white/5 text-ink-2',
+                  a.passed ? 'border-success/40 bg-success/15 text-success' : 'border-black/15 bg-black/[0.03] text-ink-2',
                 )}>
                   {a.passed ? <Check size={14} aria-hidden="true" /> : <X size={14} aria-hidden="true" />}
                   {a.passed ? 'Passed' : 'Not yet'}
@@ -177,7 +177,7 @@ function RunningExam({ exam }) {
             aria-pressed={flagged}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-control px-3 py-1.5 text-small font-semibold transition-colors',
-              flagged ? 'bg-warning/15 text-warning' : 'text-ink-2 hover:bg-white/5 hover:text-ink-1',
+              flagged ? 'bg-warning/15 text-warning' : 'text-ink-2 hover:bg-black/[0.03] hover:text-ink-1',
             )}
           >
             <Flag size={14} aria-hidden="true" />{flagged ? 'Flagged' : 'Flag for review'}
@@ -215,7 +215,7 @@ function RunningExam({ exam }) {
                     'flex cursor-pointer items-start gap-3 rounded-control border px-4 py-3 text-body transition-colors',
                     selected
                       ? 'border-action/60 bg-action/10 text-ink-1'
-                      : 'glass-2 border-white/10 text-ink-1 hover:border-white/30',
+                      : 'glass-2 border-black/10 text-ink-1 hover:border-black/30',
                   )}
                 >
                   <input
@@ -264,8 +264,8 @@ function RunningExam({ exam }) {
                   i === exam.index
                     ? 'bg-action text-action-ink'
                     : answered
-                      ? 'bg-white/10 text-ink-1 hover:bg-white/15'
-                      : 'bg-white/5 text-ink-3 hover:bg-white/10',
+                      ? 'bg-black/[0.04] text-ink-1 hover:bg-black/[0.05]'
+                      : 'bg-black/[0.03] text-ink-3 hover:bg-black/[0.04]',
                   isFlagged && i !== exam.index && 'ring-1 ring-warning/70',
                 )}
               >
@@ -297,7 +297,7 @@ function ReportScreen({ exam }) {
       <Card level={2} padding="lg" className="mt-6 text-center">
         <span className={cn(
           'mx-auto flex h-16 w-16 items-center justify-center rounded-full border',
-          result.passed ? 'border-success/40 bg-success/15 text-success' : 'border-white/15 bg-white/10 text-ink-1',
+          result.passed ? 'border-success/40 bg-success/15 text-success' : 'border-black/15 bg-black/[0.04] text-ink-1',
         )}>
           {result.passed ? <Check size={32} aria-hidden="true" /> : <X size={30} aria-hidden="true" />}
         </span>
@@ -311,7 +311,7 @@ function ReportScreen({ exam }) {
 
       <h2 className="mt-10 text-heading text-ink-1">Per-domain breakdown</h2>
       <Card level={2} padding="md" className="mt-4">
-        <ul className="divide-y divide-white/[0.06]">
+        <ul className="divide-y divide-black/[0.06]">
           {CISSP_DOMAINS.map((d) => {
             const pd = result.perDomain[d.id];
             return (

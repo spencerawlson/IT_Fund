@@ -59,7 +59,7 @@ export function EmptyState({ icon: Icon, title, text, action, to, className }) {
   return (
     <div className={cn('glass-2 mx-auto max-w-md rounded-card p-8 text-center', className)}>
       {Icon && (
-        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-control border border-white/10 bg-white/[0.04] text-ink-2">
+        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-control border border-black/10 bg-black/[0.03] text-ink-2">
           <Icon size={22} aria-hidden="true" />
         </span>
       )}
@@ -91,7 +91,7 @@ export function Stat({ label, value, icon: Icon }) {
 export function IconTile({ icon: Icon, color, size = 'md' }) {
   const box = size === 'lg' ? 'h-14 w-14' : 'h-11 w-11';
   return (
-    <span className={cn('flex shrink-0 items-center justify-center rounded-control border border-white/10 bg-white/[0.06] text-ink-1', box)}>
+    <span className={cn('flex shrink-0 items-center justify-center rounded-control border border-black/10 bg-black/[0.03] text-ink-1', box)}>
       <Icon size={size === 'lg' ? 26 : 20} style={color ? { color } : undefined} aria-hidden="true" />
     </span>
   );
@@ -102,7 +102,7 @@ export function IconTile({ icon: Icon, color, size = 'md' }) {
  * `to` for in-app routes, `href` for external links (new tab, marked with an icon).
  */
 export function ListLink({ to, href, title, text, meta }) {
-  const classes = 'block rounded-control px-3 py-3 transition-colors hover:bg-white/[0.05]';
+  const classes = 'block rounded-control px-3 py-3 transition-colors hover:bg-black/[0.04]';
   const body = (
     <>
       <span className="flex items-center gap-2 text-body font-semibold text-ink-1">

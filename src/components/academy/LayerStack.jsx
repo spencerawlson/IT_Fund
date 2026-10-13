@@ -24,11 +24,11 @@ export default function LayerStack({ stack }) {
   return (
     <figure className="space-y-5 pt-1">
       {title && <figcaption className="text-small font-semibold text-ink-2">{title}</figcaption>}
-      <ol className="overflow-hidden rounded-control border border-white/10" aria-label={title}>
+      <ol className="overflow-hidden rounded-control border border-black/10" aria-label={title}>
         {rows.map((r) => (
           <li
             key={r.name}
-            className={`grid grid-cols-[3rem_1fr] items-start gap-x-4 gap-y-1 border-b border-white/[0.06] px-4 py-3 last:border-b-0 ${cols}`}
+            className={`grid grid-cols-[3rem_1fr] items-start gap-x-4 gap-y-1 border-b border-black/[0.06] px-4 py-3 last:border-b-0 ${cols}`}
             style={{ background: `${r.color}14`, boxShadow: `inset 4px 0 0 ${r.color}` }}
           >
             <span

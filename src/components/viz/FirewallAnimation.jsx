@@ -46,26 +46,26 @@ export default function FirewallAnimation() {
 
   return (
     <div>
-      <div className="relative h-80 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#080d18] via-[#0c1220] to-[#070b14] sm:h-96">
+      <div className="relative h-80 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white via-violet-50 to-white sm:h-96">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(99,102,241,0.06)_1px,transparent_0)] bg-[length:22px_22px]" />
 
         <div className="absolute left-[8%] top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-center backdrop-blur">
-          <p className="text-[11px] font-bold text-sky-300">CLIENT</p>
+          <p className="text-[11px] font-bold text-sky-700">CLIENT</p>
         </div>
 
         <div className="absolute left-[38%] top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-amber-500/60 bg-amber-500/15 px-3 py-2.5 text-center shadow-2xl shadow-amber-500/20 backdrop-blur">
           <div className="flex items-center justify-center gap-2">
-            <Shield size={16} className="text-amber-300" />
-            <p className="text-[11px] font-bold text-amber-200 tracking-wide">FIREWALL</p>
+            <Shield size={16} className="text-amber-700" />
+            <p className="text-[11px] font-bold text-amber-700 tracking-wide">FIREWALL</p>
           </div>
-          <p className="mt-1 text-[10px] text-amber-300/80">{ordered ? 'rule-order active' : 'stateful inspection'}</p>
+          <p className="mt-1 text-[10px] text-amber-700/80">{ordered ? 'rule-order active' : 'stateful inspection'}</p>
         </div>
 
         <div className="absolute left-[88%] top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-center backdrop-blur">
-          <p className="text-[11px] font-bold text-emerald-300">SERVER</p>
+          <p className="text-[11px] font-bold text-emerald-700">SERVER</p>
         </div>
 
-        <div className="absolute left-[12%] right-[12%] top-1/2 h-px -translate-y-1/2 bg-white/10" />
+        <div className="absolute left-[12%] right-[12%] top-1/2 h-px -translate-y-1/2 bg-black/[0.04]" />
 
         <AnimatePresence>
           <motion.div
@@ -83,8 +83,8 @@ export default function FirewallAnimation() {
             <div
               className={`rounded-lg border px-3 py-1.5 text-center shadow-2xl backdrop-blur ${
                 current.verdict === 'allow'
-                  ? 'border-emerald-500/70 bg-emerald-500/20 text-emerald-300 shadow-[0_10px_25px_rgba(16,185,129,0.25)]'
-                  : 'border-rose-500/70 bg-rose-500/20 text-rose-300 shadow-[0_10px_25px_rgba(244,63,94,0.25)]'
+                  ? 'border-emerald-500/70 bg-emerald-500/20 text-emerald-700 shadow-[0_10px_25px_rgba(16,185,129,0.25)]'
+                  : 'border-rose-500/70 bg-rose-500/20 text-rose-700 shadow-[0_10px_25px_rgba(244,63,94,0.25)]'
               }`}
             >
               <p className="text-[11px] font-bold">{current.proto}/{current.port}</p>
@@ -102,7 +102,7 @@ export default function FirewallAnimation() {
         >
           <span
             className={`rounded-md px-2.5 py-1 text-[11px] font-bold ${
-              current.verdict === 'allow' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'
+              current.verdict === 'allow' ? 'bg-emerald-500/20 text-emerald-700' : 'bg-rose-500/20 text-rose-700'
             }`}
           >
             {current.verdict === 'allow' ? 'ALLOW' : 'DROP'}
@@ -115,19 +115,19 @@ export default function FirewallAnimation() {
       </div>
 
       {note && (
-        <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-200">
-          <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><span className="text-rose-400">⚠</span> Failure mode</span>
+        <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-700">
+          <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><span className="text-rose-600">⚠</span> Failure mode</span>
           <span className="text-ink-2">{note}</span>
         </div>
       )}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+        <div className="rounded-xl border border-black/10 bg-black/[0.06] p-4">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">Rules (top-down)</p>
           <div className="mt-2 space-y-1 font-mono text-xs">
             {RULES.map((r, i) => (
               <div key={i} className="flex items-center gap-2">
-                <span className={`w-14 text-[11px] font-bold ${r.action === 'ALLOW' ? 'text-emerald-400' : 'text-rose-400'}`}>{r.action}</span>
+                <span className={`w-14 text-[11px] font-bold ${r.action === 'ALLOW' ? 'text-emerald-600' : 'text-rose-600'}`}>{r.action}</span>
                 <span className="text-ink-2">tcp/{r.port}</span>
                 <span className="text-ink-3">— {r.desc}</span>
               </div>
@@ -135,8 +135,8 @@ export default function FirewallAnimation() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm sm:max-w-sm">
-          <p className="font-semibold text-white">
+        <div className="rounded-xl border border-black/10 bg-black/[0.06] px-4 py-3 text-sm sm:max-w-sm">
+          <p className="font-semibold text-ink-1">
             {current.proto}/{current.port} → {current.verdict === 'allow' ? 'ALLOWED' : 'DROPPED'}
           </p>
           <p className="text-ink-3">{current.note}</p>
@@ -146,11 +146,11 @@ export default function FirewallAnimation() {
       <BreakItControls scenarios={SCENARIOS} scenario={scenario} onScenarioChange={(id) => { setScenario(id); setStep(0); setPlaying(true); }} accent="amber" />
 
       <div className="mt-4 flex items-center gap-3">
-        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
+        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]">
           {playing && step < PACKETS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < PACKETS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto hidden items-center gap-2 sm:flex">

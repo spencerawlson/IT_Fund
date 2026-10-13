@@ -91,7 +91,7 @@ export default function SignIn() {
         <Card level={2} padding="lg" className="max-w-reading">
           <div className="flex items-center gap-4">
             {user.avatar_url ? (
-              <img src={user.avatar_url} alt="" className="h-12 w-12 rounded-full border border-white/10" />
+              <img src={user.avatar_url} alt="" className="h-12 w-12 rounded-full border border-black/10" />
             ) : (
               <IconTile icon={LogIn} />
             )}
@@ -135,7 +135,7 @@ export default function SignIn() {
             </Button>
           )}
         </div>
-        <div className="mt-6 border-t border-white/[0.08] pt-5">
+        <div className="mt-6 border-t border-black/[0.08] pt-5">
           <p className="flex items-center gap-2 text-small font-semibold text-ink-1">
             <ShieldCheck size={16} aria-hidden="true" /> What we store
           </p>

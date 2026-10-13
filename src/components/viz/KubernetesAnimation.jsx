@@ -8,7 +8,7 @@ const STEPS = [
     badge: 'Pipeline',
     note: 'Developer pushes code. CI pipeline runs lint, unit tests, and builds the container image.',
     log: ['➜ git push origin main', 'remote: CI build #4821 started', '➜ pipeline run --image web-app', 'lint .............. PASS', 'test .............. 124 passed', 'build ............. ok | 1.2s'],
-    statusColor: 'text-emerald-400',
+    statusColor: 'text-emerald-600',
     statusLabel: 'build.succeeded',
     metric: { cpu: '124m/500m', mem: '210Mi/1Gi', restarts: 0 },
     scenarioNote: { 'ci-fail': 'lint/test fails; image never built.', 'registry-down': 'Image build succeeds but registry push fails.', 'rollback-needed': 'Post-deploy alerts detect regression immediately.' },
@@ -18,7 +18,7 @@ const STEPS = [
     badge: 'Registry',
     note: 'Image is tagged and pushed to the registry. Deployment references new immutable tag.',
     log: ['➜ ko build --tag v2.4.1-3-gabc1234', 'Pushed registry.internal/web-app:v2.4.1-3', 'Digest: sha256:9e7c3...defa2', 'Policy: image signed + SBOM attached'],
-    statusColor: 'text-sky-400',
+    statusColor: 'text-sky-600',
     statusLabel: 'image.pushed',
     metric: { cpu: '98m/500m', mem: '186Mi/1Gi', restarts: 0 },
     scenarioNote: { 'ci-fail': 'No image to push due to earlier CI failure.', 'registry-down': 'Push times out; promotion halted.', 'rollback-needed': 'Image exists but is later found to be bad.' },
@@ -28,7 +28,7 @@ const STEPS = [
     badge: 'ReplicaSet',
     note: 'New ReplicaSet is created. Pods are rolled with maxSurge/maxUnavailable, progress monitored per pod.',
     log: ['➜ kubectl rollout status deploy/web-app -w', 'deployment.apps/web-app rolling out', 'ReplicaSet web-app-5d8b9 scaled up to 1', 'ReplicaSet web-app-7d4f scaled up to 2', 'ReplicaSet web-app-7d4f scaled up to 3'],
-    statusColor: 'text-amber-400',
+    statusColor: 'text-amber-600',
     statusLabel: 'RollingUpdate',
     metric: { cpu: '243m/500m', mem: '410Mi/1Gi', restarts: 1 },
     scenarioNote: { 'ci-fail': 'Not reached; upstream image missing.', 'registry-down': 'Pod creation blocked by image pull backoff.', 'rollback-needed': 'New ReplicaSet is stable until traffic shift.' },
@@ -38,7 +38,7 @@ const STEPS = [
     badge: 'Service',
     note: 'Service endpoints include only ready pods. Readiness probe passes; traffic is shifted gradually.',
     log: ['➜ kubectl get endpoints web-app', 'NAME       ENDPOINTS            PORTS', 'web-app    #####                name=port', '➜ kubectl describe pod web-app-7d4f', 'readiness probe succeeded on tcp socket 8080', 'Endpoints now 1/1 healthy'],
-    statusColor: 'text-emerald-400',
+    statusColor: 'text-emerald-600',
     statusLabel: 'Serving traffic',
     metric: { cpu: '243m/500m', mem: '410Mi/1Gi', restarts: 1 },
     scenarioNote: { 'ci-fail': 'Not reached.', 'registry-down': 'Pods stuck at ImagePullBackOff; no endpoints.', 'rollback-needed': 'Endpoints update succeeds, but SLO degrades.' },
@@ -48,7 +48,7 @@ const STEPS = [
     badge: 'Failure',
     note: 'New pod crashes repeatedly. Liveness probe restarts pod; after threshold the rollout is paused and traffic stays on old pods.',
     log: ['➜ kubectl get pods -w', 'NAME                READY   STATUS         RESTARTS   AGE', 'web-app-5d8b9      1/1     Running        0          5m', 'web-app-7d4f       0/1     CrashLoopBackOff  3         90s', 'Rollout paused: 3 restarts exceeded threshold', 'Endpoints preserved on ReplicaSet web-app-5d8b9'],
-    statusColor: 'text-red-400',
+    statusColor: 'text-red-600',
     statusLabel: 'paused: CrashLoopBackOff',
     metric: { cpu: '170m/500m', mem: '290Mi/1Gi', restarts: 3 },
     scenarioNote: { 'ci-fail': 'Not reached.', 'registry-down': 'CrashLoopBackOff from invalid image digest.', 'rollback-needed': 'Rollout undo is exactly the mitigation.' },
@@ -58,7 +58,7 @@ const STEPS = [
     badge: 'HPA',
     note: 'HPA sees elevated latency anomaly and proposes +1 replica, but ops performs kubectl rollout undo to last stable.',
     log: ['➜ kubectl get hpa web-app', 'NAME       REF              MIN   MAX   REPLICAS', 'web-app    Deployment/web-app 3    6     5', '➜ kubectl rollout undo deploy/web-app', 'deployment.apps/web-app rolled back', 'All pods Ready — healthy state restored.'],
-    statusColor: 'text-indigo-400',
+    statusColor: 'text-indigo-600',
     statusLabel: 'healthy',
     metric: { cpu: '387m/500m', mem: '520Mi/1Gi', restarts: 0 },
     scenarioNote: { 'ci-fail': 'Not reached.', 'registry-down': 'HPA raises count; unschedulable pods queue.', 'rollback-needed': 'Undo completes; old ReplicaSet scales back up.' },
@@ -92,14 +92,14 @@ export default function KubernetesAnimation() {
 
   return (
     <div>
-      <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] sm:h-72">
+      <div className="relative h-64 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50 sm:h-72">
         <div className="absolute inset-x-0 top-3 flex justify-center">
-          <span className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1 text-xs font-semibold text-white/80">{current.badge}</span>
+          <span className="rounded-full border border-black/10 bg-black/[0.08] px-3 py-1 text-xs font-semibold text-ink-2">{current.badge}</span>
         </div>
 
         <div className="absolute inset-y-0 left-0 right-0">
           {LANES.map((lane, idx) => (
-            <div key={lane.label} className="relative h-full border-r border-white/5 last:border-none" style={{ width: `${100/LANES.length}%` }}>
+            <div key={lane.label} className="relative h-full border-r border-black/5 last:border-none" style={{ width: `${100/LANES.length}%` }}>
               <div className="absolute inset-x-0 top-2 text-center text-[9px] font-semibold uppercase tracking-wider text-ink-3">{lane.label}</div>
               {idx < visibleCount && <div className="absolute right-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]" />}
             </div>
@@ -107,7 +107,7 @@ export default function KubernetesAnimation() {
         </div>
 
         <div className="absolute inset-x-0 bottom-2 flex items-center justify-between px-3 text-[10px] text-ink-3">
-          <span className={`inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.06] px-1.5 py-0.5 ${current.statusColor}`}>
+          <span className={`inline-flex items-center gap-1 rounded-md border border-black/10 bg-black/[0.06] px-1.5 py-0.5 ${current.statusColor}`}>
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
             {current.statusLabel}
           </span>
@@ -116,55 +116,55 @@ export default function KubernetesAnimation() {
       </div>
 
       {note && (
-        <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-200">
-          <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><span className="text-rose-400">⚠</span> Failure mode</span>
+        <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-700">
+          <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><span className="text-rose-600">⚠</span> Failure mode</span>
           <span className="text-ink-2">{note}</span>
         </div>
       )}
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-        <p className="font-semibold text-white">{current.label}</p>
+      <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+        <p className="font-semibold text-ink-1">{current.label}</p>
         <p className="text-ink-3">{current.note}</p>
       </div>
 
       <BreakItControls scenarios={SCENARIOS} scenario={scenario} onScenarioChange={(id) => { setScenario(id); setStep(0); setPlaying(true); }} />
 
       <div className="mt-4 flex items-center gap-3">
-        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
+        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]">
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-indigo-400' : 'w-1.5 bg-white/20'}`} /></button>
+            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-indigo-400' : 'w-1.5 bg-black/[0.06]'}`} /></button>
           ))}
         </div>
       </div>
 
-      <div className="mt-3 rounded-lg border border-white/10 bg-black/55 backdrop-blur-xl px-3 py-2.5 text-[11px] leading-5 text-ink-2">
-        <div className="flex items-center gap-2 text-ink-3">
+      <div className="mt-3 rounded-lg border border-terminal-border bg-terminal-bg px-3 py-2.5 font-mono text-[11px] leading-5 text-terminal-text shadow-inner">
+        <div className="flex items-center gap-2 text-terminal-muted">
           <Terminal size={12} />
           <span className="text-[10px] uppercase tracking-wider">terminal</span>
         </div>
         <div className="mt-2 space-y-0.5">
           {current.log.map((line, i) => (
-            <div key={i} className={i === 0 ? 'text-emerald-400/90' : 'text-ink-3'}>{line}</div>
+            <div key={i} className={i === 0 ? 'text-terminal-bright' : 'text-terminal-text'}>{line}</div>
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
-          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-ink-3"><Cpu size={10} /> cpu: {current.metric.cpu}</span>
-          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-ink-3"><MemoryStick size={10} /> mem: {current.metric.mem}</span>
-          <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-1.5 py-1 text-ink-3"><Activity size={10} /> restarts: {current.metric.restarts}</span>
+          <span className="inline-flex items-center gap-1 rounded border border-terminal-border bg-black/[0.06] px-1.5 py-1 text-terminal-muted"><Cpu size={10} /> cpu: {current.metric.cpu}</span>
+          <span className="inline-flex items-center gap-1 rounded border border-terminal-border bg-black/[0.06] px-1.5 py-1 text-terminal-muted"><MemoryStick size={10} /> mem: {current.metric.mem}</span>
+          <span className="inline-flex items-center gap-1 rounded border border-terminal-border bg-black/[0.06] px-1.5 py-1 text-terminal-muted"><Activity size={10} /> restarts: {current.metric.restarts}</span>
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-ink-3">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Deploy ↔ Service ↔ Probe</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><AlertTriangle size={10}/> CrashLoopBackOff + HPA</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">kubectl rollout undo</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1"><HelpCircle size={10}/> Deploy ↔ Service ↔ Probe</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1"><AlertTriangle size={10}/> CrashLoopBackOff + HPA</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1">kubectl rollout undo</span>
       </div>
     </div>
   );

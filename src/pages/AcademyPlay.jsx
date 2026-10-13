@@ -154,7 +154,7 @@ export default function AcademyPlay({ kind }) {
 
   const kicker = kind === 'boss' ? 'Module assessment' : kind === 'review' ? 'Review' : mode === 'quiz' ? 'Quiz' : 'Flashcards';
   const toggle = (active) =>
-    `rounded-control px-3 py-1.5 text-small font-semibold transition-colors ${active ? 'bg-white/10 text-ink-1' : 'text-ink-2 hover:text-ink-1'}`;
+    `rounded-control px-3 py-1.5 text-small font-semibold transition-colors ${active ? 'bg-black/[0.04] text-ink-1' : 'text-ink-2 hover:text-ink-1'}`;
 
   return (
     <main className="min-h-screen text-ink-1">
@@ -166,7 +166,7 @@ export default function AcademyPlay({ kind }) {
           <p className="text-small font-semibold text-ink-2">{kicker}</p>
           <h1 className="mt-1 text-title text-ink-1">{title}</h1>
           {deck && (
-            <div className="mt-4 inline-flex gap-1 rounded-control border border-white/10 p-1" role="group" aria-label="Mode">
+            <div className="mt-4 inline-flex gap-1 rounded-control border border-black/10 p-1" role="group" aria-label="Mode">
               <Link to="?mode=learn" onClick={restart} aria-current={mode === 'learn' ? 'page' : undefined} className={toggle(mode === 'learn')}>Flashcards</Link>
               <Link to="?mode=quiz" onClick={restart} aria-current={mode === 'quiz' ? 'page' : undefined} className={toggle(mode === 'quiz')}>Quiz</Link>
             </div>
@@ -197,7 +197,7 @@ function Results({ result, kind, mode, onRestart, backTo, meta, deck, track }) {
     <Card level={2} padding="lg" className="mx-auto max-w-md text-center">
       <span
         className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full border ${
-          failed ? 'border-white/15 bg-white/10 text-ink-1' : 'border-success/40 bg-success/15 text-success'
+          failed ? 'border-black/15 bg-black/[0.04] text-ink-1' : 'border-success/40 bg-success/15 text-success'
         }`}
       >
         {failed ? <X size={30} aria-hidden="true" /> : <Check size={32} aria-hidden="true" />}
@@ -219,7 +219,7 @@ function Results({ result, kind, mode, onRestart, backTo, meta, deck, track }) {
         <Button to={backTo} iconAfter={ArrowRight}>Continue</Button>
       </div>
       {labs.length > 0 && (
-        <div className="mt-8 border-t border-white/10 pt-6 text-left">
+        <div className="mt-8 border-t border-black/10 pt-6 text-left">
           <p className="flex items-center gap-2 text-small font-semibold text-ink-1">
             <FlaskConical size={16} className="text-action" aria-hidden="true" />
             Practice it hands-on
@@ -229,7 +229,7 @@ function Results({ result, kind, mode, onRestart, backTo, meta, deck, track }) {
               <li key={l.labId}>
                 <Link
                   to={`/labs/${l.labId}`}
-                  className="glass-2 flex items-center justify-between gap-3 rounded-control border border-white/10 px-4 py-3 transition-colors hover:border-white/25"
+                  className="glass-2 flex items-center justify-between gap-3 rounded-control border border-black/10 px-4 py-3 transition-colors hover:border-black/25"
                 >
                   <span>
                     <span className="block text-body font-semibold text-ink-1">{labTitle(l.labId)}</span>

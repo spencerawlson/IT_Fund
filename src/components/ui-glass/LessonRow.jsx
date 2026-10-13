@@ -9,7 +9,7 @@ function Marker({ status }) {
   const base = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border';
   if (status === 'completed') return <span className={cn(base, 'border-success/40 bg-success/15 text-success')}><Check size={16} aria-hidden="true" /></span>;
   if (status === 'in-progress') return <span className={cn(base, 'border-action bg-action/10')}><span className="h-2.5 w-2.5 rounded-full bg-action" /></span>;
-  return <span className={cn(base, 'border-white/30')} />;
+  return <span className={cn(base, 'border-black/30')} />;
 }
 
 /**
@@ -41,7 +41,7 @@ export function LessonRow({ number, title, status, minutes, to, current = false 
 
   if (!to) return <div className={classes}>{body}</div>;
   return (
-    <Link to={to} className={cn(classes, 'transition-colors hover:bg-white/[0.05]')} aria-current={current ? 'step' : undefined}>
+    <Link to={to} className={cn(classes, 'transition-colors hover:bg-black/[0.05]')} aria-current={current ? 'step' : undefined}>
       {body}
     </Link>
   );

@@ -3,12 +3,12 @@ import * as THREE from 'three';
 /**
  * makeLabel — a floating text label rendered as a camera-facing THREE.Sprite.
  *
- * Text is drawn on a canvas (white on a dark glassy pill) so labels stay crisp
+ * Text is drawn on a canvas (near-black on a white glassy pill) so labels stay crisp
  * and readable at any zoom. Sprites always face the camera and are drawn on top
  * (depthTest off) so they act as annotations rather than geometry.
  */
 export function makeLabel(text, opts = {}) {
-  const { height = 0.9, fontSize = 44, fg = '#ffffff' } = opts;
+  const { height = 0.9, fontSize = 44, fg = '#111111' } = opts;
 
   const font = `600 ${fontSize}px Inter, system-ui, -apple-system, sans-serif`;
   const padX = 34;
@@ -39,9 +39,9 @@ export function makeLabel(text, opts = {}) {
   ctx.lineTo(0, r);
   ctx.arcTo(0, 0, r, 0, r);
   ctx.closePath();
-  ctx.fillStyle = 'rgba(8,12,20,0.78)';
+  ctx.fillStyle = 'rgba(255,255,255,0.88)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(120,160,255,0.35)';
+  ctx.strokeStyle = 'rgba(76,29,149,0.25)';
   ctx.lineWidth = 2;
   ctx.stroke();
 

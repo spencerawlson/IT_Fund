@@ -45,7 +45,7 @@ function LabObjectives({ objectives, results, attestable = false, onAttest, busy
           <li key={o.id} className="flex gap-3">
             <span
               className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
-                passed ? 'border-success/40 bg-success/15 text-success' : 'border-white/15 text-ink-2'
+                passed ? 'border-success/40 bg-success/15 text-success' : 'border-black/15 text-ink-2'
               }`}
             >
               {passed ? <Check size={14} aria-hidden="true" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
@@ -61,7 +61,7 @@ function LabObjectives({ objectives, results, attestable = false, onAttest, busy
                 onClick={() => onAttest(o)}
                 disabled={busy}
                 title="You ran this step for real — record it as done"
-                className="shrink-0 self-start rounded-control border border-white/10 px-2 py-1 text-caption font-semibold text-ink-2 transition hover:border-white/25 hover:text-ink-1 disabled:opacity-50"
+                className="shrink-0 self-start rounded-control border border-black/10 px-2 py-1 text-caption font-semibold text-ink-2 transition hover:border-black/25 hover:text-ink-1 disabled:opacity-50"
               >
                 I did this
               </button>
@@ -388,8 +388,8 @@ export default function LabWorkspace() {
                       disabled={expired}
                       className={`rounded-control border px-2.5 py-1 text-caption font-semibold transition disabled:opacity-50 ${
                         activeDevice === d.hostname
-                          ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300'
-                          : 'border-white/10 text-ink-2 hover:border-white/25 hover:text-ink-1'
+                          ? 'border-emerald-600/40 bg-emerald-500/10 text-emerald-800'
+                          : 'border-black/10 text-ink-2 hover:border-black/25 hover:text-ink-1'
                       }`}
                     >
                       {d.hostname}

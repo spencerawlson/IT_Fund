@@ -117,14 +117,14 @@ export default function FlashcardSession({ module, onComplete }) {
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           <button
             onClick={restart}
-            className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-white/15"
+            className="inline-flex items-center gap-2 rounded-lg bg-black/[0.04] px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]"
           >
             <RotateCcw size={15} /> Run Again
           </button>
           {useSpeak && (
             <button
               onClick={() => speak(`You scored ${pct} percent, ${known} out of ${cards.length}`)}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.08] px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-white/[0.12]"
+              className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-black/[0.08] px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.12]"
             >
               <Volume2 size={15} /> {speaking ? 'Speaking…' : 'Read Result'}
             </button>
@@ -148,7 +148,7 @@ export default function FlashcardSession({ module, onComplete }) {
         </span>
         <span className="text-blue-400">{results.filter((r) => r.known).length} known</span>
       </div>
-      <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-black/[0.04]">
         <div
           className="h-full rounded-full bg-action transition-all"
           style={{ width: `${((index) / cards.length) * 100}%` }}
@@ -167,11 +167,11 @@ export default function FlashcardSession({ module, onComplete }) {
           </div>
           <div className="flip-back absolute inset-0 flex flex-col gap-3 overflow-y-auto rounded-control border border-blue-500/30 bg-gradient-to-br from-blue-500/[0.08] to-teal-500/[0.05] p-6">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-lg font-bold text-blue-300">{current.front}</h3>
+              <h3 className="text-lg font-bold text-blue-700">{current.front}</h3>
               {useSpeak && (
                 <button
                   onClick={(e) => { e.stopPropagation(); speak(current.back); }}
-                  className={`inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.08] px-2 py-1 text-caption text-ink-2 transition hover:bg-white/[0.12] ${speaking ? 'animate-pulse text-blue-300' : ''}`}
+                  className={`inline-flex items-center gap-1 rounded-lg border border-black/10 bg-black/[0.08] px-2 py-1 text-caption text-ink-2 transition hover:bg-black/[0.12] ${speaking ? 'animate-pulse text-blue-700' : ''}`}
                 >
                   <Volume2 size={14} /> {speaking ? 'Playing' : 'Read'}
                 </button>
@@ -182,10 +182,10 @@ export default function FlashcardSession({ module, onComplete }) {
                 <p className="text-caption text-ink-2">Answer options:</p>
                 <ul className="space-y-1 text-sm text-ink-2">
                   {current.opts.map((o, i) => (
-                    <li key={i} className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2">{o}</li>
+                    <li key={i} className="rounded-lg border border-black/10 bg-black/[0.06] px-3 py-2">{o}</li>
                   ))}
                 </ul>
-                <p className="text-caption text-ink-2">Answer: <span className="font-semibold text-blue-300">{current.back}</span></p>
+                <p className="text-caption text-ink-2">Answer: <span className="font-semibold text-blue-700">{current.back}</span></p>
               </div>
             ) : (
               <p className="text-sm leading-relaxed text-ink-2">{current.back}</p>
@@ -197,14 +197,14 @@ export default function FlashcardSession({ module, onComplete }) {
       <div className="mt-5 flex gap-3">
         <button
           onClick={() => handleAnswer(false)}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] py-3 text-sm font-semibold text-ink-2 transition hover:bg-white/[0.12]"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-black/10 bg-black/[0.06] py-3 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.12]"
         >
           <X size={16} /> Review Again
         </button>
         {useListen && (
           <button
             onClick={(e) => { e.stopPropagation(); toggleListen(); }}
-            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${listening ? 'border-rose-500/50 bg-rose-500/15 text-danger' : 'border-white/10 bg-white/[0.06] text-ink-2 hover:bg-white/[0.12]'}`}
+            className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${listening ? 'border-rose-500/50 bg-rose-500/15 text-danger' : 'border-black/10 bg-black/[0.06] text-ink-2 hover:bg-black/[0.12]'}`}
           >
             <Mic size={16} /> {listening ? 'Listening…' : 'Speak Answer'}
           </button>

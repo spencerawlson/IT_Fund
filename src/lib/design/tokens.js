@@ -1,22 +1,32 @@
-// Design tokens for the glass UI. The CSS variables in src/index.css must match these
-// values; tokens.test.js checks that, and checks text contrast on every glass level.
+// Design tokens for the light glass UI. The CSS variables in src/index.css must match
+// these values; tokens.test.js checks that, and checks text contrast on every glass level.
 
 /**
- * Text colours, brightest first. ink3 is the dimmest text allowed, and only on glass-2/glass-3:
- * on glass-1 (cards over the bright background) use ink1 or ink2.
+ * Text colours, darkest first. ink1 is the near-black used for headings and body copy;
+ * ink3 is the dimmest text allowed, and only on glass-2/glass-3.
  */
 export const INK = {
-  ink1: '#1E1B2E',
-  ink2: '#475569',
+  ink1: '#111111',
+  ink2: '#3D4451',
   ink3: '#5B6472',
 };
 
-/** The one accent (violet): every primary action and focus ring uses it, nothing else does. */
+/**
+ * The violet accent for text, icons, progress, and focus. It is intentionally deeper
+ * than the button fill so small elements remain legible on white.
+ */
 export const ACTION = {
   action: '#7C3AED',
   actionHover: '#6D28D9',
   actionInk: '#FFFFFF',
   focus: '#7C3AED',
+};
+
+/** Light-purple primary-button surface. Near-black text is used on this fill. */
+export const ACTION_SURFACE = {
+  surface: '#C4B5FD',
+  surfaceHover: '#A78BFA',
+  surfaceInk: '#1E1B2E',
 };
 
 /** Status colours. Used for meaning (passed, warning, error, note), never decoration. */
@@ -27,55 +37,28 @@ export const SEMANTIC = {
   info: '#2563EB',
 };
 
-/** Page base and the three glass fills ([r, g, b, alpha]). White-dominant light theme. */
-export const BASE = '#F7F6F3';
+/** Page base and the three glass fills ([r, g, b, alpha]). White is the dominant surface. */
+export const BASE = '#FFFFFF';
 export const SURFACES = {
-  'glass-1': [255, 255, 255, 0.55],
-  'glass-2': [255, 255, 255, 0.82],
-  'glass-3': [255, 255, 255, 0.92],
+  'glass-1': [255, 255, 255, 0.68],
+  'glass-2': [255, 255, 255, 0.88],
+  'glass-3': [255, 255, 255, 0.96],
 };
 
-/** Background tints: ultra-subtle static radial washes, as rendered by LiquidBackground.
- *  Peak [r, g, b] colour and opacity — each gradient fades to transparent. */
+/** Background tints: barely-there lavender and blue washes over the white page base. */
 export const TINTS = [
-  { color: '#6366F1', opacity: 0.055 },
-  { color: '#64748B', opacity: 0.075 },
+  { color: '#C4B5FD', opacity: 0.1 },
+  { color: '#BFDBFE', opacity: 0.08 },
 ];
 
-// ---- Apple-standard dark theme (mirrors html[data-theme="dark"] in src/index.css) ----
-
-/**
- * Dark text colours, brightest first. ink3 is the dimmest text allowed, and only on
- * glass-2/glass-3 — same rule as the light theme. All pass WCAG AA on the dark glass.
- */
-export const INK_DARK = {
-  ink1: '#FFFFFF',
-  ink2: '#AEAEB3',
-  ink3: '#8E8E93',
-};
-
-/** Dark accent: violet brightened for black backgrounds; white button text still passes AA. */
-export const ACTION_DARK = {
-  action: '#7F55F2',
-  actionHover: '#7C3AED',
-  actionInk: '#FFFFFF',
-  focus: '#7F55F2',
-};
-
-/** Dark status colours (Apple system dark palette). Used for meaning, never decoration. */
-export const SEMANTIC_DARK = {
-  success: '#30D158',
-  warning: '#FF9F0A',
-  danger: '#FF453A',
-  info: '#0A84FF',
-};
-
-/** Dark page base and the three glass fills ([r, g, b, alpha]): #1C1C1E frosted over pure black. */
-export const BASE_DARK = '#000000';
-export const SURFACES_DARK = {
-  'glass-1': [28, 28, 30, 0.55],
-  'glass-2': [28, 28, 30, 0.65],
-  'glass-3': [28, 28, 30, 0.7],
+/** Solarized terminal palette: deep blue-green base, Solarized green text. */
+export const TERMINAL = {
+  background: '#002B36',
+  border: '#073642',
+  text: '#859900',
+  brightText: '#AABD00',
+  mutedText: '#93A1A1',
+  error: '#FF6B68',
 };
 
 // ---- contrast maths (WCAG 2.x) ----
@@ -105,7 +88,7 @@ export function contrast(a, b) {
 
 /**
  * The backgrounds a glass panel can sit on: the plain base, each tint at peak strength, and
- * every pair of overlapping tints. The darkening overlay is ignored, so this errs bright.
+ * every pair of overlapping tints.
  */
 export function backgroundSamples() {
   const base = hexToRgb(BASE);
@@ -119,22 +102,4 @@ export function backgroundSamples() {
 export function worstContrast(textHex, surface) {
   const text = hexToRgb(textHex);
   return Math.min(...backgroundSamples().map((bg) => contrast(text, over(SURFACES[surface], bg))));
-}
-
-/** Dark backgrounds a glass panel can sit on: pure black, each tint at peak strength,
- *  and every pair of overlapping tints. */
-export function backgroundSamplesDark() {
-  const base = hexToRgb(BASE_DARK);
-  const paint = (tint, under) => over([...hexToRgb(tint.color), tint.opacity], under);
-  const singles = TINTS.map((t) => paint(t, base));
-  const pairs = TINTS.flatMap((a, i) => TINTS.slice(i + 1).map((b) => paint(b, paint(a, base))));
-  return [base, ...singles, ...pairs];
-}
-
-/** Lowest contrast of a text colour on a dark glass level, across every dark background sample. */
-export function worstContrastDark(textHex, surface) {
-  const text = hexToRgb(textHex);
-  return Math.min(
-    ...backgroundSamplesDark().map((bg) => contrast(text, over(SURFACES_DARK[surface], bg))),
-  );
 }

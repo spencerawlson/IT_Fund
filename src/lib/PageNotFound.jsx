@@ -33,7 +33,7 @@ export default function PageNotFound({}) {
         <div className="text-center space-y-6">
           <div className="space-y-2">
             <h1 className="text-7xl font-light text-ink-1/80">404</h1>
-            <div className="h-0.5 w-16 bg-white/20 mx-auto"></div>
+            <div className="h-0.5 w-16 bg-black/[0.06] mx-auto"></div>
           </div>
 
           <div className="space-y-3">

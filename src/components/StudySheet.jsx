@@ -35,7 +35,7 @@ export default function StudySheet({ concepts, index, moduleId, moduleTitle, col
         onClick={(e) => e.stopPropagation()}
         className="glass-3 animate-rise flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-3xl sm:rounded-card"
       >
-        <header className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-7">
+        <header className="flex items-start justify-between gap-3 border-b border-black/10 px-5 py-4 sm:px-7">
           <div className="min-w-0">
             <p className="text-caption font-bold uppercase tracking-[0.14em] text-ink-2">
               {moduleTitle} · {index + 1} / {concepts.length}
@@ -45,7 +45,7 @@ export default function StudySheet({ concepts, index, moduleId, moduleTitle, col
               <CategoryBadge category={concept.category} />
             </div>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 text-ink-2 transition hover:bg-white/10 hover:text-ink-1">
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 text-ink-2 transition hover:bg-black/[0.04] hover:text-ink-1">
             <X size={20} />
           </button>
         </header>
@@ -70,8 +70,8 @@ export default function StudySheet({ concepts, index, moduleId, moduleTitle, col
             </div>
           )}
           {note.tip && (
-            <div className="mt-3 rounded-control border border-amber-300/30 bg-amber-300/[0.07] p-4">
-              <p className="mb-1 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em] text-amber-200">
+            <div className="mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-4">
+              <p className="mb-1 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em] text-action-hover">
                 <Lightbulb size={13} /> Exam tip
               </p>
               <p className="text-sm leading-relaxed text-ink-1">
@@ -93,12 +93,12 @@ export default function StudySheet({ concepts, index, moduleId, moduleTitle, col
           />
         </div>
 
-        <footer className="flex gap-2 border-t border-white/10 px-5 py-3 pb-safe sm:px-7">
+        <footer className="flex gap-2 border-t border-black/10 px-5 py-3 pb-safe sm:px-7">
           <button
             type="button"
             onClick={() => onNavigate(index - 1)}
             disabled={index === 0}
-            className="inline-flex items-center gap-1 rounded-control border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-ink-2 transition hover:bg-white/10 disabled:opacity-35"
+            className="inline-flex items-center gap-1 rounded-control border border-black/15 bg-black/[0.03] px-4 py-3 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.04] disabled:opacity-35"
           >
             <ChevronLeft size={16} /> Previous
           </button>

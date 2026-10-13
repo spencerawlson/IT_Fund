@@ -132,7 +132,7 @@ export default function Challenge() {
                     key={cat}
                     onClick={() => setCategory(cat)}
                     className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
-                      category === cat ? 'border-rose-500/50 bg-rose-500/10' : 'border-white/10 bg-white/[0.06] hover:bg-white/[0.12]'
+                      category === cat ? 'border-rose-500/50 bg-rose-500/10' : 'border-black/10 bg-black/[0.06] hover:bg-black/[0.12]'
                     }`}
                   >
                     <Icon size={18} className={category === cat ? 'text-danger' : 'text-ink-2'} />
@@ -144,7 +144,7 @@ export default function Challenge() {
                 );
               })}
             </div>
-            <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-caption text-ink-2">
+            <div className="mt-5 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-caption text-ink-2">
               <p>• CLI Fix: type the exact command (case-insensitive, quotes ignored).</p>
               <p>• Subnetting &amp; Firewall: pick the correct option.</p>
               <p>• Score = 100 + 2 × seconds remaining. Timeout = 0 points.</p>
@@ -164,9 +164,9 @@ export default function Challenge() {
             {/* status bar */}
             <div className="mb-4 flex items-center justify-between text-caption">
               <span className="text-ink-2">Challenge {idx + 1} / {queue.length}</span>
-              <span className="font-semibold text-amber-300">Score: {totalScore}</span>
+              <span className="font-semibold text-amber-700">Score: {totalScore}</span>
             </div>
-            <div className="mb-5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div className="mb-5 h-1.5 w-full overflow-hidden rounded-full bg-black/[0.04]">
               <div
                 className={`h-full rounded-full transition-all ${timeLeft <= 10 ? 'bg-rose-500' : 'bg-amber-400'}`}
                 style={{ width: `${timePct}%` }}
@@ -176,7 +176,7 @@ export default function Challenge() {
             {/* challenge card */}
             <div className="rounded-control glass-1 p-6">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.08] px-2.5 py-1 text-caption font-bold uppercase tracking-wider text-ink-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-black/[0.08] px-2.5 py-1 text-caption font-bold uppercase tracking-wider text-ink-2">
                   <TypeIcon size={12} /> {meta.label}
                 </span>
                 <span className={`inline-flex items-center gap-1 text-caption font-semibold ${timeLeft <= 10 ? 'text-danger' : 'text-ink-2'}`}>
@@ -203,7 +203,7 @@ export default function Challenge() {
                     spellCheck={false}
                     autoComplete="off"
                     placeholder="Type the command…"
-                    className="w-full rounded-lg border border-white/10 bg-black/55 backdrop-blur-xl px-3 py-2.5 font-mono text-sm text-ink-1 outline-none focus:border-rose-500/50"
+                    className="w-full rounded-lg border border-black/15 bg-white px-3 py-2.5 font-mono text-sm text-ink-1 shadow-inner outline-none focus:border-rose-500/50"
                   />
                   <button
                     type="submit"
@@ -222,7 +222,7 @@ export default function Challenge() {
                       key={i}
                       onClick={() => setSelected(i)}
                       className={`rounded-lg border px-3 py-2.5 text-left text-sm transition ${
-                        selected === i ? 'border-rose-500/60 bg-rose-500/10 text-ink-1' : 'border-white/10 bg-white/[0.06] text-ink-2 hover:bg-white/[0.12]'
+                        selected === i ? 'border-rose-500/60 bg-rose-500/10 text-ink-1' : 'border-black/10 bg-black/[0.06] text-ink-2 hover:bg-black/[0.12]'
                       }`}
                     >
                       {opt}
@@ -244,7 +244,7 @@ export default function Challenge() {
                   <div className={`flex items-center gap-2 rounded-lg border p-3 ${wasCorrect ? 'border-green-500/30 bg-green-500/10' : 'border-rose-500/30 bg-rose-500/10'}`}>
                     {wasCorrect ? <CheckCircle2 size={18} className="text-green-400" /> : <XCircle size={18} className="text-danger" />}
                     <div>
-                      <p className={`text-sm font-bold ${wasCorrect ? 'text-green-300' : 'text-danger'}`}>
+                      <p className={`text-sm font-bold ${wasCorrect ? 'text-green-700' : 'text-danger'}`}>
                         {wasCorrect ? 'Correct!' : timedOut ? 'Time’s up!' : 'Not quite.'}
                       </p>
                       <p className="text-caption text-ink-2">
@@ -256,19 +256,19 @@ export default function Challenge() {
                   {/* reveal correct for mc */}
                   {current.type !== 'cli' && !wasCorrect && (
                     <p className="mt-3 text-caption text-ink-2">
-                      Correct answer: <span className="font-semibold text-green-300">{current.options[current.correct]}</span>
+                      Correct answer: <span className="font-semibold text-green-700">{current.options[current.correct]}</span>
                     </p>
                   )}
                   {current.type === 'cli' && !wasCorrect && (
                     <p className="mt-3 text-caption text-ink-2">
-                      Accepted: <span className="font-mono font-semibold text-green-300">{current.accepts[0]}</span>
+                      Accepted: <span className="font-mono font-semibold text-green-700">{current.accepts[0]}</span>
                     </p>
                   )}
                   <p className="mt-2 text-caption leading-relaxed text-ink-2">{current.explanation}</p>
 
                   <button
                     onClick={next}
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-white/15"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]"
                   >
                     {idx + 1 >= queue.length ? 'See results' : 'Next challenge'} →
                   </button>
@@ -290,7 +290,7 @@ export default function Challenge() {
               {results.map((r, i) => {
                 const ch = CHALLENGES.find((c) => c.id === r.id);
                 return (
-                  <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-caption">
+                  <div key={i} className="flex items-center gap-2 rounded-lg border border-black/10 bg-black/[0.06] px-3 py-2 text-caption">
                     {r.correct ? <CheckCircle2 size={14} className="text-green-400" /> : <XCircle size={14} className="text-danger" />}
                     <span className="flex-1 truncate text-ink-2">{ch.prompt}</span>
                     <span className="font-semibold text-ink-2">{r.points}</span>
@@ -307,7 +307,7 @@ export default function Challenge() {
               </button>
               <button
                 onClick={() => setPhase('intro')}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-white/[0.12]"
+                className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-black/[0.08] px-5 py-2.5 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.12]"
               >
                 Change track
               </button>

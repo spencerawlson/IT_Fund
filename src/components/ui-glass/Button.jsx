@@ -4,11 +4,11 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const VARIANT = {
-  // The only amber element on a screen: one primary action per view.
+  // One light-purple primary action per view, with near-black text for contrast.
   primary:
-    'bg-action text-action-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_6px_20px_-8px_rgb(var(--action-rgb)/0.6)] hover:bg-action-hover',
-  secondary: 'border border-white/15 bg-white/[0.06] text-ink-1 hover:border-white/25 hover:bg-white/10',
-  ghost: 'text-ink-2 hover:bg-white/[0.06] hover:text-ink-1',
+    'border border-violet-700/15 bg-action-surface text-action-surface-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.55),0_6px_20px_-8px_rgb(var(--action-rgb)/0.45)] hover:bg-action-surface-hover',
+  secondary: 'border border-black/10 bg-white/70 text-ink-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:border-violet-700/20 hover:bg-violet-50',
+  ghost: 'text-ink-2 hover:bg-black/[0.04] hover:text-ink-1',
 };
 
 const SIZE = {

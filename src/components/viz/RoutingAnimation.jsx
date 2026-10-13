@@ -44,7 +44,7 @@ export default function RoutingAnimation() {
 
   return (
     <div>
-      <div className="relative h-64 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#0d1320] to-[#0a0e14] sm:h-72">
+      <div className="relative h-64 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white to-violet-50 sm:h-72">
         <svg className="absolute inset-0 h-full w-full" style={{ pointerEvents: 'none' }}>
           {PATHS.map(([a, b], idx) => {
             const A = NODES.find(n => n.id === a);
@@ -77,12 +77,12 @@ export default function RoutingAnimation() {
               <div
                 key={node.id}
                 className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border px-3 py-2 text-center backdrop-blur transition ${
-                  isDown ? 'border-red-500/60 bg-red-500/15 shadow-lg shadow-red-500/20' : isRouter ? 'border-teal-300/60 bg-teal-500/15 shadow-lg shadow-teal-500/20' : 'border-white/20 bg-white/10'
+                  isDown ? 'border-red-500/60 bg-red-500/15 shadow-lg shadow-red-500/20' : isRouter ? 'border-teal-300/60 bg-teal-500/15 shadow-lg shadow-teal-500/20' : 'border-black/20 bg-black/[0.04]'
                 }`}
                 style={{ left: `${node.x}%`, top: `${node.y}%` }}
               >
-                <p className={`text-[11px] font-bold ${isDown ? 'text-red-300' : isRouter ? 'text-teal-200' : 'text-ink-1'}`}>{node.label}</p>
-                {isRouter && <p className="text-[10px] text-teal-300/80">{isDown ? 'OFFLINE' : saturate ? 'PAT FULL' : tunnelDown ? 'VPN DOWN' : 'NAT + route'}</p>}
+                <p className={`text-[11px] font-bold ${isDown ? 'text-red-700' : isRouter ? 'text-teal-700' : 'text-ink-1'}`}>{node.label}</p>
+                {isRouter && <p className="text-[10px] text-teal-700/80">{isDown ? 'OFFLINE' : saturate ? 'PAT FULL' : tunnelDown ? 'VPN DOWN' : 'NAT + route'}</p>}
               </div>
             );
           })}
@@ -94,37 +94,37 @@ export default function RoutingAnimation() {
       </div>
 
       {note && (
-        <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-200">
+        <div className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-4 py-2.5 text-xs text-rose-700">
           <span className="mr-1 inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-[10px]"><AlertTriangle size={10} /> Failure mode</span>
           <span className="text-ink-2">{note}</span>
         </div>
       )}
 
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm">
-        <p className="font-semibold text-white">{current.label}</p>
+      <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.06] px-4 py-3 text-sm">
+        <p className="font-semibold text-ink-1">{current.label}</p>
         <p className="text-ink-3">{current.note}</p>
       </div>
 
       <BreakItControls scenarios={BREAK_SCENARIOS} scenario={scenario} onScenarioChange={(id) => { setScenario(id); setStep(0); setPlaying(true); }} />
 
       <div className="mt-4 flex items-center gap-3">
-        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
+        <button onClick={toggle} className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]">
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
-        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5">
+        <button onClick={reset} className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]">
           <RotateCcw size={15} /> Restart
         </button>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-teal-400' : 'w-1.5 bg-white/20'}`} /></button>
+            <button key={i} onClick={() => setStep(i)} aria-label={`Go to step ${i + 1}`} className="flex h-8 items-center px-0.5"><span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-teal-400' : 'w-1.5 bg-black/[0.06]'}`} /></button>
           ))}
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-ink-3">
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1"><HelpCircle size={10}/> Routing table lookup</span>
-        <span className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.06] px-2 py-1">NAT + VPN protections</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1"><HelpCircle size={10}/> Routing table lookup</span>
+        <span className="inline-flex items-center gap-1 rounded border border-black/10 bg-black/[0.06] px-2 py-1">NAT + VPN protections</span>
       </div>
     </div>
   );

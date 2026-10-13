@@ -64,7 +64,7 @@ const MD = {
   ul: (props) => <ul className="mb-2 list-disc space-y-1 pl-5 last:mb-0" {...props} />,
   ol: (props) => <ol className="mb-2 list-decimal space-y-1 pl-5 last:mb-0" {...props} />,
   strong: (props) => <strong className="font-semibold text-ink-1" {...props} />,
-  code: (props) => <code className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[0.9em] text-amber-200" {...props} />,
+  code: (props) => <code className="rounded border border-violet-700/10 bg-violet-100 px-1.5 py-0.5 font-mono text-[0.9em] text-violet-900" {...props} />,
   a: ({ children }) => <span className="underline">{children}</span>,
 };
 
@@ -80,14 +80,14 @@ export function Thinking() {
   return (
     <span className="inline-flex items-center gap-1" aria-label="Tutor is thinking">
       {[0, 1, 2].map((i) => (
-        <span key={i} className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-200" style={{ animationDelay: `${i * 0.2}s` }} />
+        <span key={i} className="h-1.5 w-1.5 animate-pulse rounded-full bg-action" style={{ animationDelay: `${i * 0.2}s` }} />
       ))}
     </span>
   );
 }
 
 export const pillClass =
-  'inline-flex items-center justify-center gap-1.5 rounded-control border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-ink-2 transition hover:bg-white/10 disabled:opacity-50';
+  'inline-flex items-center justify-center gap-1.5 rounded-control border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-ink-2 shadow-sm transition hover:border-violet-700/20 hover:bg-violet-50 disabled:opacity-50';
 
 /**
  * Tutor buttons plus the streamed answer. `actions` = [{ mode, label }]; `context` is sent
@@ -117,9 +117,9 @@ export default function TutorAssist({ actions, context, className = '', answerCl
               run(a.mode);
             }}
             disabled={loading && active === a.mode}
-            className={`${pillClass} ${active === a.mode ? 'border-amber-300/40 bg-amber-300/10 text-amber-100' : ''}`}
+            className={`${pillClass} ${active === a.mode ? 'border-action/40 bg-action/10 text-action-hover' : ''}`}
           >
-            <Sparkles size={15} className="text-amber-300" /> {a.label}
+            <Sparkles size={15} className="text-action" /> {a.label}
           </button>
         ))}
         {loading && (
@@ -129,8 +129,8 @@ export default function TutorAssist({ actions, context, className = '', answerCl
         )}
       </div>
       {active && (
-        <div className={`animate-rise mt-3 rounded-control border border-amber-300/25 bg-amber-300/[0.06] p-3.5 text-sm leading-relaxed text-ink-1 ${answerClassName}`} aria-live="polite">
-          <p className="mb-1.5 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em] text-amber-200">
+        <div className={`animate-rise mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-3.5 text-sm leading-relaxed text-ink-1 ${answerClassName}`} aria-live="polite">
+          <p className="mb-1.5 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em] text-action-hover">
             <Sparkles size={12} /> AI tutor
           </p>
           {error ? <p className="text-danger">{error}</p> : text ? <TutorText text={text} /> : <Thinking />}

@@ -42,7 +42,7 @@ export default function LoadBalancerAnimation() {
 
   return (
     <div>
-      <div className="relative h-80 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-[#080d18] via-[#0c1220] to-[#070b14] sm:h-96">
+      <div className="relative h-80 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white via-violet-50 to-white sm:h-96">
         {/* Background grid */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(99,102,241,0.06)_1px,transparent_0)] bg-[length:22px_22px]" />
 
@@ -54,14 +54,14 @@ export default function LoadBalancerAnimation() {
 
         {/* Client */}
         <div className="absolute left-[3%] top-1/2 -translate-y-1/2 rounded-xl border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-center backdrop-blur">
-          <p className="text-xs font-bold text-sky-300">CLIENT</p>
+          <p className="text-xs font-bold text-sky-700">CLIENT</p>
           <p className="mt-0.5 text-[10px] text-ink-3">internet / app</p>
         </div>
 
         {/* Load Balancer */}
         <div className="absolute left-[38%] top-[14%] -translate-x-1/2 rounded-xl border border-indigo-500/60 bg-indigo-500/15 px-4 py-3 text-center shadow-2xl shadow-indigo-500/20 backdrop-blur">
-          <p className="text-[11px] font-bold text-indigo-200 tracking-wide">LOAD BALANCER</p>
-          <p className="mt-1 text-[10px] text-indigo-300/80">round-robin</p>
+          <p className="text-[11px] font-bold text-indigo-700 tracking-wide">LOAD BALANCER</p>
+          <p className="mt-1 text-[10px] text-indigo-700/80">round-robin</p>
         </div>
 
         {/* Servers */}
@@ -76,15 +76,15 @@ export default function LoadBalancerAnimation() {
                   ? 'border-red-500/50 bg-red-500/10 shadow-[0_0_25px_rgba(239,68,68,0.15)]'
                   : isTarget
                     ? 'border-emerald-500/50 bg-emerald-500/10 shadow-[0_0_25px_rgba(16,185,129,0.15)]'
-                    : 'border-white/10 bg-white/[0.06]'
+                    : 'border-black/10 bg-black/[0.06]'
               }`}
               style={{ top: `${top}%` }}
             >
               <div className="flex items-center justify-center gap-2">
-                <div className={`h-2 w-2 rounded-full ${isFailed ? 'bg-red-500 animate-pulse' : isTarget ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-white/30'}`} />
-                <p className={`text-[11px] font-bold ${isFailed ? 'text-red-300' : 'text-ink-1'}`}>{SERVER_NAMES[i]}</p>
+                <div className={`h-2 w-2 rounded-full ${isFailed ? 'bg-red-500 animate-pulse' : isTarget ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-black/30'}`} />
+                <p className={`text-[11px] font-bold ${isFailed ? 'text-red-700' : 'text-ink-1'}`}>{SERVER_NAMES[i]}</p>
               </div>
-              <p className={`mt-0.5 text-[10px] ${isFailed ? 'text-red-400/80' : 'text-ink-3'}`}>
+              <p className={`mt-0.5 text-[10px] ${isFailed ? 'text-red-600/80' : 'text-ink-3'}`}>
                 {isFailed ? 'unhealthy' : isTarget ? 'handling' : 'idle'}
               </p>
             </div>
@@ -112,8 +112,8 @@ export default function LoadBalancerAnimation() {
           transition={{ duration: 2, times: [0, 0.15, 0.6, 1], ease: 'easeInOut' }}
         >
           <div className="flex flex-col items-center rounded-lg border border-amber-500/70 bg-amber-500/20 px-2.5 py-1 text-center shadow-[0_10px_25px_rgba(245,158,11,0.25)] backdrop-blur">
-            <span className="text-[10px] font-bold text-amber-200">REQ</span>
-            <span className="text-[9px] text-amber-300/70">{targetServer}</span>
+            <span className="text-[10px] font-bold text-amber-700">REQ</span>
+            <span className="text-[9px] text-amber-700/70">{targetServer}</span>
           </div>
         </motion.div>
 
@@ -123,8 +123,8 @@ export default function LoadBalancerAnimation() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.06] p-4">
-        <p className="font-semibold text-white">{current.label}</p>
+      <div className="mt-4 rounded-xl border border-black/10 bg-black/[0.06] p-4">
+        <p className="font-semibold text-ink-1">{current.label}</p>
         <p className="mt-1 text-sm text-ink-3">{current.note}</p>
         <div className="mt-3 flex items-center gap-4 text-xs text-ink-3">
           <span>Servers: {SERVER_NAMES.filter((_, i) => failed !== i).length}/{SERVER_NAMES.length} healthy</span>
@@ -136,14 +136,14 @@ export default function LoadBalancerAnimation() {
       <div className="mt-4 flex items-center gap-3">
         <button
           onClick={toggle}
-          className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+          className="flex items-center gap-2 rounded-lg bg-black/[0.04] px-4 py-2 text-sm font-semibold text-ink-1 transition hover:bg-black/[0.05]"
         >
           {playing && step < STEPS.length - 1 ? <Pause size={15} /> : <Play size={15} />}
           {playing && step < STEPS.length - 1 ? 'Pause' : 'Play'}
         </button>
         <button
           onClick={reset}
-          className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-white/5"
+          className="flex items-center gap-2 rounded-lg border border-black/10 px-4 py-2 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.03]"
         >
           <RotateCcw size={15} /> Restart
         </button>
@@ -155,7 +155,7 @@ export default function LoadBalancerAnimation() {
               aria-label={`Go to step ${i + 1}`}
               className="flex h-8 items-center px-0.5"
             >
-              <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-indigo-400' : 'w-1.5 bg-white/20 hover:bg-white/40'}`} />
+              <span className={`block h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-indigo-400' : 'w-1.5 bg-black/20'}`} />
             </button>
           ))}
         </div>

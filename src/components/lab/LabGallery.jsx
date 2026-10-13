@@ -5,10 +5,10 @@ import { ArrowRight } from 'lucide-react';
 // premium cards grouped by category, with a kind filter. Selecting a card opens it in the stage.
 
 export const KINDS = {
-  '3d': { label: '3D model', dot: 'bg-teal-400', pill: 'border-teal-400/30 bg-teal-400/10 text-teal-300', grad: 'from-teal-500/30 to-cyan-500/10', icon: 'text-teal-300' },
-  anim: { label: 'Animated', dot: 'bg-blue-400', pill: 'border-blue-400/30 bg-blue-400/10 text-blue-300', grad: 'from-blue-500/30 to-indigo-500/10', icon: 'text-blue-300' },
-  tool: { label: 'Interactive', dot: 'bg-amber-400', pill: 'border-amber-400/30 bg-amber-400/10 text-amber-300', grad: 'from-amber-500/30 to-orange-500/10', icon: 'text-amber-300' },
-  flow: { label: 'Walkthrough', dot: 'bg-violet-400', pill: 'border-violet-400/30 bg-violet-400/10 text-violet-300', grad: 'from-violet-500/30 to-fuchsia-500/10', icon: 'text-violet-300' },
+  '3d': { label: '3D model', dot: 'bg-teal-400', pill: 'border-teal-400/30 bg-teal-400/10 text-teal-700', grad: 'from-teal-500/30 to-cyan-500/10', icon: 'text-teal-700' },
+  anim: { label: 'Animated', dot: 'bg-blue-400', pill: 'border-blue-400/30 bg-blue-400/10 text-blue-700', grad: 'from-blue-500/30 to-indigo-500/10', icon: 'text-blue-700' },
+  tool: { label: 'Interactive', dot: 'bg-amber-400', pill: 'border-amber-400/30 bg-amber-400/10 text-amber-700', grad: 'from-amber-500/30 to-orange-500/10', icon: 'text-amber-700' },
+  flow: { label: 'Walkthrough', dot: 'bg-violet-400', pill: 'border-violet-400/30 bg-violet-400/10 text-violet-700', grad: 'from-violet-500/30 to-fuchsia-500/10', icon: 'text-violet-700' },
 };
 
 const FILTERS = [['all', 'All'], ['3d', '3D'], ['anim', 'Animated'], ['tool', 'Interactive'], ['flow', 'Walkthroughs']];
@@ -20,11 +20,11 @@ function Tile({ subject, onSelect }) {
     <button
       type="button"
       onClick={() => onSelect(subject.id)}
-      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+      className="group relative overflow-hidden rounded-2xl border border-black/10 bg-black/[0.03] p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-black/25 hover:bg-black/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/25"
     >
       <div className={`pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-gradient-to-br ${k.grad} opacity-50 blur-2xl transition-opacity duration-300 group-hover:opacity-100`} />
       <div className="relative flex items-center justify-between gap-2">
-        <span className={`flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br ${k.grad}`}>
+        <span className={`flex h-11 w-11 items-center justify-center rounded-xl border border-black/10 bg-gradient-to-br ${k.grad}`}>
           {Icon ? <Icon size={20} className={k.icon} aria-hidden="true" /> : null}
         </span>
         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${k.pill}`}>
@@ -62,7 +62,7 @@ export default function LabGallery({ subjects, categories, onSelect }) {
             type="button"
             onClick={() => setFilter(id)}
             className={`rounded-full border px-3.5 py-1.5 text-small font-semibold transition ${
-              filter === id ? 'border-white/25 bg-white/10 text-ink-1' : 'border-white/10 text-ink-2 hover:border-white/20 hover:text-ink-1'
+              filter === id ? 'border-black/25 bg-black/[0.04] text-ink-1' : 'border-black/10 text-ink-2 hover:border-black/20 hover:text-ink-1'
             }`}
           >
             {label}
@@ -75,7 +75,7 @@ export default function LabGallery({ subjects, categories, onSelect }) {
           <section key={cat} aria-labelledby={`cat-${cat}`}>
             <div className="mb-3 flex items-center gap-3">
               <h2 id={`cat-${cat}`} className="text-caption font-semibold uppercase tracking-wider text-ink-2">{cat}</h2>
-              <span className="h-px flex-1 bg-white/10" />
+              <span className="h-px flex-1 bg-black/[0.04]" />
               <span className="text-caption text-ink-3">{list.length}</span>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
