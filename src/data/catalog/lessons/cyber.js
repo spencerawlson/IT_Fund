@@ -1423,4 +1423,192 @@ export default {
       ['Vuln metrics', 'MTTR for exposed criticals, aging'],
     ],
   },
+
+  'secplus-cloud-scenarios': {
+    overview: [
+      'Cloud security is the discipline of controlling what you no longer own: the provider owns the hypervisor and the building, you own everything you configure — and misconfiguration is the number one breach cause. The scenarios in this lesson are the calls cloud engineers actually make — the public bucket with anonymous downloads, the drifted Terraform state, the serverless function with an admin role, the single region that is not a DR plan.',
+      'This lesson covers shared responsibility in practice, IaC discipline, container and Kubernetes hardening, identity in the cloud, multi-cloud visibility, and data residency. If the trivia decks taught you the vocabulary, these scenarios teach you the reflexes.',
+    ],
+    learn: [
+      {
+        heading: 'Your half of the shared model',
+        body: [
+          'Shared responsibility is a boundary, not a blur: the provider secures the hypervisor, the building, and the managed service — you secure your configurations, your identities, your data, and your code. Nearly every headline cloud breach is a customer-side misconfiguration: a public bucket, an open security group, a committed key.',
+          'Guardrails beat guidance: SCPs, organization policies, and CI checks make the safe path the default. Relying on every engineer remembering every setting is how 300 open security groups happen. Default-deny and automated remediation turn policy into physics.',
+          'Shadow cloud is the enemy of the model: workloads in personal accounts have no logging, no SSO, no offboarding. Bring them under the organization or shut them down — invisible infrastructure is unprotected infrastructure.',
+        ],
+      },
+      {
+        heading: 'IaC, containers, and ephemeral discipline',
+        body: [
+          'Infrastructure as code only works if the code is the truth: hotfixes that bypass the pipeline become permanent drift, and the next deploy surprises everyone. Reconcile every change into code, scan it before apply, and treat the plan output as a security review.',
+          'Containers and serverless trade servers for supply chains: minimal base images, signed artifacts, non-root runtimes, and per-function IAM roles. Ephemeral does not mean invisible — scan functions like any code and scope roles to the exact APIs called.',
+          'Kubernetes concentrates privilege: cluster-admin for a CI bot is a standing takeover waiting for a leaked token. Namespace-scoped roles, admission policies, and signed images keep the orchestrator from becoming the attacker’s.',
+        ],
+      },
+      {
+        heading: 'Identity, visibility, and residency',
+        body: [
+          'Cloud identity is the new perimeter: wildcard trust policies, stale IAM users, and disabled audit logging are the cloud equivalents of open doors. Scope trusts to named principals, deprovision on HR events, and never cut logging to save money.',
+          'You cannot protect what you cannot enumerate: multi-cloud without aggregated inventory and consistent tagging is three blind spots. A CSPM or CMDB with enforced tagging turns sprawl into something you can actually defend.',
+          'Data residency is decided by contracts and regulators, not latency: when the agreement says EU, the region choice is compliance. Encryption does not override residency — the law cares where the bits sleep.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Shared responsibility', 'Provider: platform; you: config, identity, data'],
+      ['#1 cloud breach cause', 'Misconfiguration, not zero-days'],
+      ['IaC drift', 'Reconcile hotfixes into code'],
+      ['Serverless IAM', 'Per-function least privilege'],
+      ['Containers', 'Non-root, minimal base, signed images'],
+      ['K8s CI', 'Namespace-scoped roles, no cluster-admin'],
+      ['Metadata service', 'IMDSv2 (token) beats IMDSv1'],
+      ['Shadow cloud', 'No logging, no SSO = invisible risk'],
+      ['Trust policy *', 'Open door — scope to named principals'],
+      ['Cross-account 3rd party', 'External ID stops confused deputy'],
+      ['Backups', 'Separate account + Object Lock immutability'],
+      ['Residency', 'Contracts decide region, not latency'],
+    ],
+  },
+
+  'secplus-netarch-scenarios': {
+    overview: [
+      'Network architecture is the discipline of deciding what can reach what — and proving it. Every scenario in this lesson is a design call with real stakes: the flat /16 that let an attacker cross to the domain controllers in 40 minutes, the vendor who got a full-tunnel VPN for one database, the OT network reachable from the helpdesk for convenience.',
+      'This lesson covers segmentation and microsegmentation, zero trust and ZTNA, SD-WAN and SASE choices, wireless hardening, OT boundaries, and the inspection points that make forensics possible. If the trivia decks taught you the components, these scenarios teach you the trade-offs.',
+    ],
+    learn: [
+      {
+        heading: 'Segmentation is the blast-radius control',
+        body: [
+          'Lateral movement speed is a network-design metric: on a flat network, one phished laptop becomes a domain compromise. Tiered segmentation — user, server, management — with firewall-enforced flows turns a breach into a contained incident instead of a tour.',
+          'Microsegmentation takes it to the workload: per-host or per-service policies so a compromised web tier cannot reach the database tier directly. Each layer reaches only the next; skipping tiers is how breaches become disasters.',
+          'Special networks get special treatment: OT behind a boundary, IoT on its own VLAN with no LAN path, voice separated from data, guests nowhere near payment systems. Segmentation by function, not by optimism.',
+        ],
+      },
+      {
+        heading: 'Zero trust and the death of the trusted network',
+        body: [
+          'VPNs trust the network; zero trust verifies every request: identity plus device posture, per application, every time. Migrating remote access from concentrators to ZTNA shrinks the blast radius from the whole network to the one app.',
+          'Bastions concentrate privilege and must be hardened like it: MFA, per-admin accounts, session recording, source allow-listing. The jump host is the keys to the kingdom — treat it accordingly.',
+          'NAC only works when it can say no: monitor-mode forever is a dashboard, not a control. Pilot on one segment, define the exception policy, then enforce in stages.',
+        ],
+      },
+      {
+        heading: 'Design choices with price tags',
+        body: [
+          'SD-WAN versus MPLS is threat-model plus cost: encrypted overlay with central policy can replace private circuits, but unencrypted SD-WAN is just the internet. Backhaul versus local breakout is the same math — policy must follow the traffic, not the 2010 diagram.',
+          'Wireless is a physical-layer promise: WPA2-PSK shared across 200 people has no attribution and brutal rotation. Enterprise 802.1X with per-user credentials fixes both — and rogue APs get found by WIDS, not by luck.',
+          'Inspect where it matters: IDS in detect-first mode before inline blocking, packet capture or flow data at the edge, DNS forced through your resolvers. Firewall logs are the bouncer’s diary; forensics needs the actual traffic.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Flat /16', 'One failure domain — segment'],
+      ['Vendor access', 'Per-app ZTNA, time-boxed'],
+      ['VPN creds phished', 'Migrate to ZTNA + posture'],
+      ['OT on corporate LAN', 'Isolate: DMZ or data diode'],
+      ['Guest + POS same VLAN', 'Separate SSID/VLAN, PCI failure'],
+      ['Shared WPA2 PSK', '802.1X per-user credentials'],
+      ['IPS inline day one', 'Detect-mode first, then stage blocking'],
+      ['DMZ → DB direct', 'Tier: web → app → DB only'],
+      ['Bastion', 'MFA + per-admin + session recording'],
+      ['Unmanaged IPv6', 'Manage it or disable it'],
+      ['DNS beaconing', 'Force resolvers, inspect'],
+      ['East-west blind', 'Microsegmentation / host firewalls'],
+    ],
+  },
+
+  'secplus-dataprotect-scenarios': {
+    overview: [
+      'Data protection is the discipline of treating data according to what it is worth: classification first, then encryption, keys, and DLP that follow the classification instead of fighting the business. The scenarios in this lesson are the calls that decide whether a lost laptop is a hardware expense or a breach notification.',
+      'This lesson covers classification-driven handling, encryption choices and key management, TLS and certificate lifecycle, DLP tuning, tokenization versus masking, and the end-of-life of data — retention, sanitization, and the paper nobody thinks about.',
+    ],
+    learn: [
+      {
+        heading: 'Classify first, then protect',
+        body: [
+          'Controls follow classification: public, internal, confidential, restricted — each with handling rules. Without classes, every file gets the same treatment, which means the crown jewels get the same treatment as the lunch menu.',
+          'Logs, backups, and analytics inherit sensitivity: PII in logs shipped to a vendor is PII at the vendor. Scrub, mask, or tokenize at the boundary — the data’s classification travels with it.',
+          'Retention is a schedule with a legal-hold process, not a sentiment: keep what law and business require, defensibly delete the rest. Every retained byte is discoverable and breachable.',
+        ],
+      },
+      {
+        heading: 'Encryption is key management',
+        body: [
+          'Encryption without key protection is decoration: keys belong in a KMS or HSM with access controls and audit, never in config files beside the data. Rotation must be scheduled and automated — five-year-old keys are standing risk.',
+          'TLS is negotiated, so the server must remove the weak options: TLS 1.0/1.1 and 3DES go, in stages with compatibility monitoring. Attackers pick the weakest cipher you still offer.',
+          'Certificates are a lifecycle, not a purchase: automate issuance and renewal, or they expire at 3 AM on a holiday. Self-signed certs train users to click through warnings — issue from a trusted CA instead.',
+        ],
+      },
+      {
+        heading: 'DLP, tokens, and the human layer',
+        body: [
+          'DLP that blocks legitimate work teaches circumvention: tune by classification and user context, provide approved paths, and the control gets obeyed instead of bypassed. Blunt DLP is just a suggestion with extra steps.',
+          'Tokenization beats encryption for stored card data: no PAN in your systems means no PAN in your scope. Masking keeps format for display; anonymization removes linkability for analytics — choose by whether the value must come back.',
+          'Endpoints and paper are data too: full-disk encryption plus MDM remote wipe for the stolen laptop, badge-release printing for the PII on the shared printer, blocked-by-default USB with approved encrypted drives.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['No classification', 'Controls are guesswork'],
+      ['PII in logs to vendor', 'Mask/tokenize at the boundary'],
+      ['TLS 1.0 negotiated', 'Attacker picks weakest — disable'],
+      ['Keys in config', 'KMS/HSM + audit + rotation'],
+      ['Stolen laptop', 'FDE + MDM wipe = hardware loss'],
+      ['Card storage', 'Tokenize — never hold the PAN'],
+      ['DLP blocks real work', 'Tune by context, provide paths'],
+      ['Old keys', 'Scheduled automated rotation'],
+      ['Offsite tapes', 'Encrypt before they leave'],
+      ['Decommissioned drives', 'NIST 800-88: clear/purge/destroy'],
+      ['Cert expiry', 'Automate with ACME'],
+      ['MD5 passwords', 'Argon2/bcrypt/scrypt + salt'],
+    ],
+  },
+
+  'secplus-resilience-scenarios': {
+    overview: [
+      'Resilience is the discipline of assuming failure and being boring about recovery: backups that survive the compromise, sites that match the RTO, and plans that have been tested instead of admired. Every scenario in this lesson is a recovery call — the night the ransomware found the online backups, the generator that had never been load-tested, the DR plan written for a datacenter that no longer exists.',
+      'This lesson covers the 3-2-1 rule and immutable backups, RTO/RPO as architecture requirements, site types, high availability, power, and the testing cadence that turns plans into capability.',
+    ],
+    learn: [
+      {
+        heading: 'Backups must survive the disaster',
+        body: [
+          '3-2-1 is the floor: three copies, two media, one offsite. A backup sharing fate with production — same SAN, same account, same building — is a copy, not a recovery plan. Offsite means a different risk zone.',
+          'Ransomware hunts backups first: online, writable copies die in the same night as production. Immutability — Object Lock, air gaps, offline tape — puts recovery outside the attacker’s reach.',
+          'A backup without a tested restore is a prayer: scheduled restore tests prove the read, not just the write. Corruption, missing keys, and wrong procedures only surface when you actually restore.',
+        ],
+      },
+      {
+        heading: 'RTO and RPO are architecture requirements',
+        body: [
+          'RTO and RPO are not aspirations — they size the architecture: a one-hour RPO needs sub-hourly backups; a two-hour RTO cannot be met by a cold site. Every resilience design starts from these two numbers.',
+          'Site types follow the RTO: hot is running, warm is ready, cold is a building. The cheaper the site, the longer the recovery — match the site to the number the business signed, not the budget you wish you had.',
+          'High availability is math, not marketing: single servers, single ISPs, single load balancers, and single masters are all single points of failure. Nines are delivered by redundancy, not optimism.',
+        ],
+      },
+      {
+        heading: 'Test everything, document the order',
+        body: [
+          'Plans rot: staff leave, systems migrate, vendors change. Tabletop exercises graduate to simulations to full failovers on a cadence — an untested plan describes a world that no longer exists.',
+          'Power is a chain: UPS bridges exactly the generator’s start time plus margin, and generators must be load-tested under real load. The chain is only as strong as its untested link.',
+          'Changes need backout plans and incidents need owners: every change ships with a tested rollback, every post-mortem action item gets an owner and a deadline. Repeat root causes are a management failure wearing a technical costume.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['3-2-1', '3 copies, 2 media, 1 offsite'],
+      ['Ransomware + backups', 'Immutable/offline copies only'],
+      ['Untested restore', 'A prayer, not a plan'],
+      ['RPO 1h', 'Sub-hourly backups required'],
+      ['Cold site + 2h RTO', 'Fiction — use warm/hot'],
+      ['Generator', 'Monthly load tests'],
+      ['UPS vs generator', 'Bridge the gap with margin'],
+      ['Single ISP/LB/master', 'Single point of failure'],
+      ['Snapshots', 'Not backups — same fate'],
+      ['DNS failover', 'Lower TTLs before cutover'],
+      ['Bus factor of one', 'Cross-train + runbooks'],
+      ['Repeat root cause', 'Post-mortem process broken'],
+    ],
+  },
 };
