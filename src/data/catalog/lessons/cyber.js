@@ -1611,4 +1611,219 @@ export default {
       ['Repeat root cause', 'Post-mortem process broken'],
     ],
   },
+  'secplus-concepts-scenarios': {
+    overview: [
+      'General security concepts are the vocabulary of every security decision: zero trust, control categories, AAA, defense in depth. The exam tests whether you can apply them to messy real situations, not just recite them.',
+      'This lesson covers zero-trust migration decisions, classifying controls by type and function, AAA in real designs, and the human and physical controls that surround the technology.',
+    ],
+    learn: [
+      {
+        heading: 'Zero trust in practice',
+        body: [
+          'Zero trust assumes breach and verifies explicitly: identity becomes the perimeter. The most defensible migration starts with strong identity (MFA everywhere) before re-architecting networks.',
+          'Microsegmentation, continuous validation, and least-privilege access are the implementation levers. Start with the crown jewels — do not try to segment everything on day one.',
+        ],
+      },
+      {
+        heading: 'Control categories and functions',
+        body: [
+          'Controls are classified by nature — technical, administrative (managerial), physical — and by function: preventive stops, detective finds, corrective fixes, plus deterrent, directive, and compensating. Gap analysis must cover all types.',
+          'When the ideal control is impossible (legacy systems, budget), compensating controls reduce risk to an acceptable, documented level: isolate plus monitor.',
+        ],
+      },
+      {
+        heading: 'People and physical controls',
+        body: [
+          'Separation of duties, mandatory vacations, dual control, and job rotation are detective and preventive controls against fraud and single-person dependency.',
+          'Physical controls fail at the weakest door: badge readers mean nothing beside a propped side door. Every entry is the perimeter.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Zero trust first move', 'Strong identity (MFA) before network rework'],
+      ['Control natures', 'Technical, administrative/managerial, physical'],
+      ['Control functions', 'Preventive, detective, corrective (+ deterrent, directive, compensating)'],
+      ['AAA', 'Authentication, authorization, accounting — all three legs'],
+      ['Implicit deny', 'Default deny; explicit, documented allows'],
+      ['Separation of duties', 'No single person creates and releases'],
+      ['Mandatory vacation', 'Detective control against fraud'],
+      ['Dual control', 'Two-person rule; no unilateral overrides'],
+      ['Defense in depth', 'Different layers, not duplicate boxes'],
+      ['Security through obscurity', 'Never a primary control'],
+      ['Deception', 'Honeytokens where no legitimate user goes'],
+      ['Data owner', 'Business side classifies; IT implements'],
+    ],
+  },
+  'secplus-crypto-scenarios': {
+    overview: [
+      'Cryptography decisions show up everywhere: how data moves, how passwords are stored, how identities are proven. The exam tests judgment — choosing the right mechanism for the situation — more than math.',
+      'This lesson covers protocol and algorithm choices, PKI lifecycle failures, key management and recovery, and the operational side of crypto: rotation, revocation, and agility.',
+    ],
+    learn: [
+      {
+        heading: 'Choosing the right mechanism',
+        body: [
+          'Match the tool to the job: TLS 1.2+ for data in transit, AES-256 for bulk data at rest, asymmetric crypto for key exchange and signatures. Hybrid encryption — symmetric data key wrapped asymmetrically — is the standard pattern.',
+          'Passwords need slow, salted, memory-hard hashing (bcrypt, Argon2, scrypt). Fast hashes like SHA-256 are built for attackers. Tokens need unpredictability from a CSPRNG, not hashing.',
+        ],
+      },
+      {
+        heading: 'PKI that survives reality',
+        body: [
+          'Certificates expire: automate issuance and renewal (ACME) with alerting. Wildcards trade simplicity for blast radius; SAN certs suit distinct names. Self-signed certs in production train users to click through warnings.',
+          'Revocation needs a working story: OCSP stapling gives clients fresh proof without per-user queries. Monitor Certificate Transparency logs for misissued certs on your domains.',
+        ],
+      },
+      {
+        heading: 'Keys, recovery, and agility',
+        body: [
+          'Key recovery must survive departure and compromise: M-of-N escrow means no single custodian can abuse or lose the keys. Rotate on schedule and on events (departures, suspected compromise).',
+          'Crypto agility — knowing where each algorithm is used and being able to swap — is the defensible answer to quantum and to the next broken cipher. Inventory first, panic never.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Bulk encryption', 'AES-256 (symmetric); RSA only for keys'],
+      ['Password storage', 'bcrypt/Argon2/scrypt — slow, salted'],
+      ['Key agreement, no prior secret', 'ECDHE with authentication'],
+      ['Integrity + authenticity', 'HMAC, not plain hash'],
+      ['Cert expiry', 'Automate (ACME) + alerting'],
+      ['Wildcard risk', 'One key compromise hits all subdomains'],
+      ['Self-signed in prod', 'Deploy internal CA instead'],
+      ['Key recovery', 'M-of-N escrow'],
+      ['CBC without MAC', 'Padding-oracle bait; use AES-GCM'],
+      ['Unauthenticated DH', 'MITM-trivial; authenticate it'],
+      ['Secrets', 'Vault + runtime injection, never in repos'],
+      ['Quantum posture', 'Crypto agility + inventory'],
+    ],
+  },
+  'secplus-risk-scenarios': {
+    overview: [
+      'Risk management turns security into business language: dollars, probabilities, and decisions. The exam tests whether you can do the math and then make the call — accept, mitigate, transfer, or avoid.',
+      'This lesson covers quantitative analysis (SLE, ALE, ARO), qualitative triage, risk ownership and registers, and the economics of controls.',
+    ],
+    learn: [
+      {
+        heading: 'The math that decides',
+        body: [
+          'ALE = SLE × ARO. A control is justified when its cost is less than the ALE reduction it delivers. Work the numbers before the sticker price decides for you.',
+          'Quantitative analysis speaks to boards in dollars; qualitative (red/yellow/green) is faster for triage. Use each where it fits — and aggregate correlated lows on one asset, because three lows can equal a high.',
+        ],
+      },
+      {
+        heading: 'Owning and treating risk',
+        body: [
+          'Risk owners are business owners with budget authority — unowned risks are unmanaged risks. The four treatments: mitigate, transfer (insurance, outsourcing), accept (signed, time-bound), avoid (retire the asset).',
+          'Acceptance is formal: named owner, compensating controls, expiry date. Transfer moves financial impact, never accountability — the breach is still yours.',
+        ],
+      },
+      {
+        heading: 'Keeping risk alive',
+        body: [
+          'Risk registers are reviewed quarterly and after major changes, fed by threat intel and control testing — continuous assessment, not an annual ritual.',
+          'Track time-to-remediate by severity with escalation. New regulations, vendor breaches, and key-person findings all flow into the same register.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['ALE', 'SLE × ARO'],
+      ['Control justified when', 'Cost < ALE reduction'],
+      ['Inherent vs residual', 'Before vs after controls'],
+      ['Risk treatments', 'Mitigate, transfer, accept, avoid'],
+      ['Transfer', 'Moves cost, not accountability'],
+      ['Acceptance', 'Signed, named owner, expiry date'],
+      ['KRI', 'Early-warning metric with a threshold'],
+      ['Risk owner', 'Business head with budget'],
+      ['Aggregation', 'Correlated lows can equal a high'],
+      ['Register cadence', 'Quarterly + after major changes'],
+      ['Appetite vs tolerance', 'How much risk vs acceptable variance'],
+      ['Avoidance', 'Retire what you cannot defend'],
+    ],
+  },
+  'secplus-governance-scenarios': {
+    overview: [
+      'Governance is how security gets authority: policies with teeth, audits with scope, and compliance that maps to real obligations. The exam tests whether you can navigate the machinery — and know its limits.',
+      'This lesson covers the policy hierarchy, audit types and evidence, regulatory applicability, and privacy roles — plus the honest truth that compliance is a floor, not a ceiling.',
+    ],
+    learn: [
+      {
+        heading: 'Policies, audits, evidence',
+        body: [
+          'Policy states the requirement (executive-approved), standards name the specific rules, procedures give the steps. Audits need precise scope — systems, period, criteria — and tamper-evident evidence, not screenshots.',
+          'External audits serve relying parties (SOC 2 Type II for enterprise deals); internal audit serves management readiness. Respond to findings with owner-dated remediation plans.',
+        ],
+      },
+      {
+        heading: 'Regulations in context',
+        body: [
+          'Applicability follows the data: EU residents trigger GDPR, patient records trigger HIPAA with BAAs, card data triggers PCI DSS. Reduce scope first — tokenization can make most of PCI fall away.',
+          'Breach clocks start at awareness: GDPR gives 72 hours, which is why notification runbooks pre-assign owners and templates.',
+        ],
+      },
+      {
+        heading: 'Privacy and the ceiling',
+        body: [
+          'Data minimization and purpose limitation are the privacy defaults: collect only what the purpose needs, use it only for that purpose. Controller decides the why, processor handles the how — the DPA must reflect reality.',
+          'Passing audits is necessary but not sufficient: keep hardening beyond the checklist, because auditors sample and attackers do not.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Policy / standard / procedure', 'Requirement / specific rule / steps'],
+      ['External vs internal audit', 'Relying parties vs management'],
+      ['Good evidence', 'Tamper-evident, tool-generated'],
+      ['GDPR trigger', 'EU data subjects, wherever you sit'],
+      ['Breach clock', 'Starts at awareness (72h GDPR)'],
+      ['HIPAA', 'PHI + signed BAAs down the chain'],
+      ['PCI scope cut', 'Tokenization / P2PE'],
+      ['SOC 2 Type II', 'Operating effectiveness over time'],
+      ['Data minimization', 'Collect only what the purpose needs'],
+      ['Purpose limitation', 'No silent repurposing'],
+      ['Controller vs processor', 'Decides why vs handles how'],
+      ['Compliance', 'Floor, not ceiling'],
+    ],
+  },
+  'secplus-thirdparty-scenarios': {
+    overview: [
+      'Your security now depends on other companies: their breaches become your breach notifications. The exam tests whether you can govern the supply chain — assess, contract, and exit.',
+      'This lesson covers vendor assessment, contract instruments, fourth parties, concentration risk, and continuity: the exit strategy you prove before you need it.',
+    ],
+    learn: [
+      {
+        heading: 'Assess before you sign',
+        body: [
+          'Assess vendors while you have leverage: SOC 2 Type II or equivalent evidence, read the exceptions and scope — not just the opinion letter. Scale the review to data access and criticality.',
+          'Fourth parties are your risk too: require disclosure and approval rights over subprocessors. Open source gets the same treatment — SBOM and vulnerability monitoring.',
+        ],
+      },
+      {
+        heading: 'Contract the protections',
+        body: [
+          'MSA for master terms, SOW for the work, SLA for measurable performance. Demand data ownership with return-and-destroy on exit, breach-notification windows, and right-to-audit for critical vendors.',
+          'SLA credits are rebates, not recovery: negotiate termination rights for chronic misses. Use renewals to raise the bar.',
+        ],
+      },
+      {
+        heading: 'Plan the exit',
+        body: [
+          'A tested exit strategy — proven data export, migration path, contractual cooperation — is proven before it is needed. Tier vendors by BIA impact and reassess on acquisitions.',
+          'Shared responsibility: the provider secures the cloud, you secure what you put in it. Misconfigured storage is always your breach.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Onboarding gate', 'Security evidence before signing'],
+      ['Read the SOC 2', 'Period, exceptions, scope — not just the letter'],
+      ['MSA / SOW / SLA', 'Terms / work / measurable performance'],
+      ['Data clause', 'You own it; return + certified destroy on exit'],
+      ['Fourth parties', 'Disclosure + approval rights'],
+      ['Breach notice', 'Contracted window (e.g., 72h)'],
+      ['SLA credits', 'Rebates, not continuity — get exit rights'],
+      ['BIA → vendors', 'Tier by RTO/RPO impact'],
+      ['Exit strategy', 'Tested export before you need it'],
+      ['Shared responsibility', 'You own data, access, config'],
+      ['Reassess on', 'Acquisition, renewal, breach'],
+      ['Due diligence scale', 'Risk-based, not one-size-fits-all'],
+    ],
+  },
 };
