@@ -1045,4 +1045,194 @@ export default {
       ['SLA needs', 'Levels, measurement, remedies'],
     ],
   },
+
+  'secplus-soc-scenarios': {
+    overview: [
+      'Security operations is the discipline of turning signals into decisions under pressure. Every scenario in this lesson is a judgement call an analyst actually faces: an alert that could be nothing or everything, a noisy rule everyone has learned to ignore, a user who swears they were “just browsing”. The right move is rarely the technical one first — it is the operational one: contain, verify, escalate, communicate.',
+      'This lesson covers SIEM triage and correlation, alert tuning, SOAR playbooks, log pipelines and retention, threat hunting hypotheses, and the handoffs and metrics that keep a SOC honest. If the fundamentals decks taught you the vocabulary, these scenarios teach you the reflexes.',
+    ],
+    learn: [
+      {
+        heading: 'Triage: contain first, investigate second',
+        body: [
+          'Triage answers one question: is this malicious, and is it still active? Until you know, the defensible posture is containment — disable the account, isolate the host, revoke the sessions. Investigation then proceeds without the attacker watching or spreading. Every minute of authenticated attacker access is potential data loss.',
+          'Impossible travel is physics, not policy: an account in two places at once is compromised until proven otherwise, and no manager’s assurance overrides it. Push bombing, lateral movement to a domain controller, and beaconing all share the same tell — machine behaviour that no human explanation justifies. Verify after containment, never before.',
+          'Correlation is why SIEMs exist: a failed login from a new country means little alone, but failed login followed by success from that country followed by a large download is a pattern. Train yourself to read combinations, not alerts.',
+        ],
+      },
+      {
+        heading: 'Tuning, pipelines, and honest metrics',
+        body: [
+          'Alert fatigue is a process failure with a technical fix: noisy rules need precision, not deletion. Narrow the rule’s scope — require an admin logon, exclude known-good sources, add correlation — then measure for two weeks. Bulk-closing is a culture problem that tuning alone will not fix.',
+          'The log pipeline is invisible until it breaks: collectors and forwarders, parsing, normalisation, hot/warm/cold retention. A silent EPS drop or an unparsed feed after a firmware upgrade is a detection outage — treat it like one, fix the parser, and backfill from raw logs so the gap stays searchable.',
+          'Measure outcomes, not noise: true-positive rate, mean time to detect and respond to full recovery, and repeat causes. Alert volume measures how loud the SOC is; MTTD/MTTR measures how good it is.',
+        ],
+      },
+      {
+        heading: 'Hunting, handoffs, and the human layer',
+        body: [
+          'Threat hunting starts from a hypothesis and a baseline: enumerate a mechanism across the fleet and investigate the outliers. Stack-counting scheduled tasks or WMI subscriptions works because legitimate activity repeats thousands of times — attackers hide in the rare deviations.',
+          'Shift handoffs are where investigations die. A good handoff documents the timeline, the IoCs, what was blocked, and crucially what was not yet checked — persistence, lateral movement — with explicit next steps. Unstated assumptions become missed follow-ups.',
+          'SOAR earns its keep on high-volume, low-judgment work: phishing triage, enrichment, ticketing, IoC blocking. New automations graduate from alert-only to human-in-the-loop to autonomous by blast radius — a false positive in an auto-isolation playbook is an outage you caused yourself.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Triage order', 'Contain → investigate → recover'],
+      ['Impossible travel', 'Two places at once = compromise until proven otherwise'],
+      ['Push bombing', 'Many prompts then an approval; kill the session'],
+      ['Correlation', 'Weak signals compose into strong indicators'],
+      ['Alert tuning', 'Narrow scope, measure, never just delete'],
+      ['Silent EPS drop', 'Ingestion gap — a detection outage'],
+      ['Retention tiers', 'Hot 90d / warm months / cold compliance archive'],
+      ['Hunting method', 'Hypothesis + baseline + outlier investigation'],
+      ['SOAR graduation', 'Alert-only → human-in-loop → autonomous'],
+      ['Good handoff', 'Timeline, IoCs, open questions, next steps'],
+      ['MTTD / MTTR', 'Measure to full recovery, not containment'],
+      ['NTP', 'Clock sync is a security control for correlation'],
+    ],
+  },
+
+  'secplus-hardening-vuln': {
+    overview: [
+      'Hardening and vulnerability management are where security meets the calendar: every patch competes with uptime, every baseline competes with convenience, and every exception competes with memory. The scenarios in this lesson are the calls a security engineer actually makes — which finding gets the emergency window, what to do about the system that can never be patched, how to answer “are we getting safer?”',
+      'This lesson covers patch prioritization by exposure and exploitability, secure baselines and drift, asset discovery, compensating controls for unpatchable systems, exception discipline, and the metrics that prove a vulnerability program works.',
+    ],
+    learn: [
+      {
+        heading: 'Prioritize by exposure, not by severity alone',
+        body: [
+          'CVSS measures the vulnerability; risk measures the vulnerability in your environment. An internet-facing RCE with a public exploit outranks a critical on an isolated host with no exploit — exposure plus exploitability beats the number. KEV-listed items and crown-jewel adjacency are tiebreakers.',
+          'Emergency change exists for exactly this: a publicly exploited edge vulnerability cannot wait for Friday’s change board. But emergencies need discipline too — staged rings, tested rollback, and clear communication, or the patch becomes its own outage.',
+          'SLAs must encode risk to be real: internet-facing criticals in days, internal highs in weeks, everything tracked with owners and dates. “Everything is critical” means nothing is.',
+        ],
+      },
+      {
+        heading: 'Baselines, drift, and the unpatchable',
+        body: [
+          'A secure baseline is an approved, locked-down configuration every system is compared against — CIS benchmarks or STIGs as the template, enforced as code. Drift is the constant enemy: “needed for troubleshooting” changes accumulate until the fleet no longer matches the standard. Alert on drift and require tracked, temporary exceptions.',
+          'Some systems can never be patched: the XP box running the press, the bankrupt vendor’s thermostat, the EOL ERP. The playbook is the same every time — isolate on a dedicated segment, allow only the traffic the function needs, monitor the segment, and document the risk exception with a review date.',
+          'Golden images, CI guardrails, and default-deny cloud settings make the secure state the default. Repeat misconfigurations — the third public bucket, the same 40 missing patches on every new VM — are guardrail failures, not training failures.',
+        ],
+      },
+      {
+        heading: 'Exceptions, assets, and honest measurement',
+        body: [
+          'Vulnerability exceptions are time-boxed risk acceptances: written, signed at the right authority level, with compensating controls and an expiry. When the compensating control dies or the review lapses, the exception dies with it. Verbal acceptance evaporates at the first incident.',
+          'Unknown assets are unpatched assets. Discovery must be continuous and reconciled against the CMDB, because scans only see what they are pointed at. Decommissioned servers still powered on and domain-joined are attacker infrastructure waiting to happen — isolate, verify dependencies, then wipe and remove properly.',
+          'Answer “are we getting safer?” with outcomes: mean time to remediate for exposed criticals, exception aging, repeat findings. Closed-ticket counts reward closing easy findings; the board needs to know how fast the dangerous ones die.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Prioritization', 'Exposure + exploitability + asset value, not CVSS alone'],
+      ['Emergency change', 'For exploited edge vulns; still needs rings and rollback'],
+      ['Unpatchable systems', 'Segment, allow-list, monitor, document exception'],
+      ['Baseline drift', 'Enforce as code; alert; exceptions tracked and temporary'],
+      ['Golden images', 'Rebuild monthly in a pipeline, scan before promote'],
+      ['Vuln exceptions', 'Written, signed, compensating control, expiring'],
+      ['Discovery', 'Continuous scans reconciled against the CMDB'],
+      ['Zombie servers', 'Isolate → verify deps → wipe → remove from domain'],
+      ['Default creds', 'Prioritize by blast radius; runbook for new devices'],
+      ['Vuln SLAs', 'Time-boxed by risk; every finding gets an owner'],
+      ['Board metrics', 'MTTR on KEV/exposed, exception aging, repeats'],
+      ['Public buckets', 'Block-public-access default + CI check'],
+    ],
+  },
+
+  'secplus-secops-tooling': {
+    overview: [
+      'Tools don’t secure anything — operated tools do. EDR that nobody tunes, NAC that quarantines the wrong laptops, DLP that blocks the legal team into demanding its removal: every control in this lesson is powerful and every one fails when it is misconfigured, unscoped, or trusted blindly. The scenarios are about operating the stack, not buying it.',
+      'This lesson covers EDR triage and tamper response, NAC and network access decisions, DLP tuning, identity lifecycle and privileged access operations, and the automation discipline that keeps SOAR from becoming an outage machine.',
+    ],
+    learn: [
+      {
+        heading: 'EDR: trust the telemetry, isolate on tradecraft',
+        body: [
+          'EDR asks “what did this process just do?” — parent-child relationships, command lines, network egress. Rundll32 sideloading a DLL from Downloads with outbound traffic is living-off-the-land tradecraft no user explanation overrides. When the agent itself is tampered with — service disabled, logs cleared — that is not a glitch; isolate immediately.',
+          'EDR is a per-platform configuration, not one control: server workloads need their own memory-scanning and behavioral policies, tested with adversary emulation. And when the attacker owns local admin, local logs are not the system of record — real-time forwarding to the SIEM is what preserves evidence.',
+          'Coverage gaps are findings about the control, not the user: a DLP that didn’t fire on a browser upload means the policy scope or agent health failed. Verify scope and health before blaming anyone.',
+        ],
+      },
+      {
+        heading: 'NAC and DLP: enforce, but keep the business working',
+        body: [
+          'NAC gates on identity plus health: patched, compliant, authenticated. Agentless profiling with fingerprinting gives unmanageable devices — sensors, cameras, BYOD — a segmented home instead of blind trust. Quarantine loops are usually telemetry mismatches: validate what the health check actually measures before bypassing the control.',
+          'Guest networks are untrusted by definition: the control that matters is isolation — separate VLAN, client isolation, no corporate routes — not the strength of the captive portal. A pen tester pivoting from guest to corporate LAN means segmentation failed, not onboarding.',
+          'DLP dies the day it blocks legitimate work permanently. Tune the patterns, scope exceptions narrowly with approval — legal’s contract workflow, not the whole legal department — because a bypassed control protects nothing.',
+        ],
+      },
+      {
+        heading: 'Identity operations and automation discipline',
+        body: [
+          'Identity lifecycle runs on the HR system of record: joiner, mover, leaver with role-based templates and same-day revocation. Manual spreadsheets are where orphaned accounts are born — and orphaned privileged accounts are attacker persistence. Ancient service accounts get scoped, replaced with least-privilege managed identities, and retired with a rollback window.',
+          'Privileged access is vaulted, just-in-time, session-recorded, and break-glass only under dual control with mandatory rotation after. Session recording is the accountability half of elevation; skipping it “for speed” turns JIT into standing privilege with extra steps.',
+          'Automate high-volume, low-judgment work first — phishing triage, enrichment, IoC blocking — and graduate new playbooks from alert-only to human-in-the-loop to autonomous by blast radius. Full auto-remediation on day one turns the first false positive into the outage you caused.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['EDR tamper + log clear', 'Isolate — tradecraft, not a glitch'],
+      ['LOLBins', 'Judge parent-child + location + egress, not the binary'],
+      ['NAC quarantine loop', 'Check telemetry mismatch before bypassing'],
+      ['Guest Wi-Fi', 'Isolate completely; onboarding strength is secondary'],
+      ['DLP tuning', 'Narrow exceptions with approval, never blanket disables'],
+      ['JML', 'HR system of record drives provision/deprovision'],
+      ['Orphaned accounts', 'Top insider vector; fix the feed, not just the accounts'],
+      ['PAM', 'Vault, rotate, JIT, session-recorded'],
+      ['Break-glass', 'Dual control, logged, mandatory rotation after'],
+      ['SOAR order', 'Alert-only → human-in-loop → autonomous'],
+      ['Federation', 'One identity, one MFA policy, one kill switch'],
+      ['USB control', 'Enforced GPO/MDM + monitoring + approved exceptions'],
+    ],
+  },
+
+  'secplus-ir-scenarios': {
+    overview: [
+      'Incident response is the exam’s hardest domain because it is the job’s hardest phase: decisions with incomplete information, a clock running, and stakeholders pulling in opposite directions. The scenarios in this lesson run the full NIST lifecycle — preparation through lessons learned — the way it actually unfolds, including the parts nobody puts in the playbook: the CEO who wants to chat with the attackers, the 40-person bridge where nothing gets decided, the scribe who stops taking notes.',
+      'This lesson covers scoping before action, evidence handling and chain of custody, containment strategies including cloud, the forensics-vs-business tension, legal and notification duties, command structure, and the post-incident work that decides whether it happens again.',
+    ],
+    learn: [
+      {
+        heading: 'Scope first, preserve as you go',
+        body: [
+          'The first move in any incident is scoping: how many, how far, patient zero, the vector. Reimaging before scoping destroys evidence without stopping the spread — you will reimage the same machines twice. Declare the incident, assemble the team, establish out-of-band communications, then act.',
+          'Evidence handling starts at minute one: capture volatile data in order of volatility — memory and network state before disk — because a rootkit lives in RAM and a powered-off box is a dead end. Hash at acquisition, document every handler, and keep images off shared folders: chain of custody is what makes evidence admissible.',
+          'Forensics and the business are not enemies when the plan predates the incident: image the CFO’s laptop, hand over a loaner, and the presentation happens on time. Litigation holds override retention schedules — automated purges during an investigation are spoliation.',
+        ],
+      },
+      {
+        heading: 'Contain by the environment you are in',
+        body: [
+          'Containment stops the bleeding: isolate affected hosts now, but do not power off yet — memory evidence dies with the power. Short-term containment buys time; long-term containment is hardened fixes while operating. Eradication must be verified before recovery, or you restore into the same vulnerability.',
+          'Cloud containment targets identity, not hosts: revoke sessions and keys, attach deny-all policies, snapshot resources for forensics before terminating anything. On-prem instincts applied to the cloud miss the actual control plane.',
+          'The ransomware order of operations is fixed: contain, preserve evidence during eradication, then restore from known-good backups in the right sequence — identity and core infrastructure before business apps. Paying the ransom and restoring early are both business-legal decisions, never technical shortcuts.',
+        ],
+      },
+      {
+        heading: 'Command, communicate, and actually learn',
+        body: [
+          'Incidents are managed, not meeting’d: one incident commander, defined roles — operations, communications, legal liaison, scribe — and observers on a listen-only channel. The scribe’s timeline is the legal record, the notification evidence, and the lessons-learned input; scribing is the actual work.',
+          'External communication runs through legal with a holding statement: acknowledge the investigation promptly, never deny what you have not verified. Breach notification clocks start at discovery and do not wait for a complete investigation.',
+          'Lessons learned is a phase, not a meeting: blameless by rule, focused on systems not people, and every recommendation gets an owner, a deadline, and a verification check. The same vector succeeding twice means the review failed — track it.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['First move', 'Declare, scope, out-of-band comms — then act'],
+      ['Order of volatility', 'RAM/network state → disk → logs'],
+      ['Chain of custody', 'Documented handlers; no shared folders'],
+      ['Litigation hold', 'Suspends purges; spoliation is worse than the breach'],
+      ['Ransomware order', 'Contain → eradicate (preserve evidence) → restore'],
+      ['Restore order', 'Identity/infra first, then business apps'],
+      ['Cloud containment', 'Revoke sessions/keys, deny-all, snapshot'],
+      ['War room', 'One commander, defined roles, scribe, listen-only observers'],
+      ['External comms', 'Holding statement via legal; never deny unverified'],
+      ['Notification', 'Clock starts at discovery; runs parallel to investigation'],
+      ['Tabletop value', 'Tests people and plan: comms, roles, authorities'],
+      ['Lessons learned', 'Blameless, owner + date + verification per item'],
+      ['IR metrics', 'MTTD/MTTR to full recovery; repeat causes'],
+      ['Forensic readiness', 'Centralized tested logging before you need it'],
+    ],
+  },
 };
