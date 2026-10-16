@@ -1235,4 +1235,192 @@ export default {
       ['Forensic readiness', 'Centralized tested logging before you need it'],
     ],
   },
+
+  'secplus-threat-scenarios': {
+    overview: [
+      'Threats don’t arrive labeled. The scenarios in this lesson are the calls a defender actually makes when the evidence is partial: two incidents land the same week — are they one actor or two? Credentials are used from a foreign IP with no malware in sight — what vector do you chase? A trusted vendor’s update turns malicious overnight. The wrong attribution sends the response down the wrong road, and the wrong vector keeps the real door open.',
+      'This lesson covers threat-actor profiling (APT vs e-crime vs insider vs hacktivist), initial-access identification (exposed services, trusted relationships, physical media, supply chain), and the structural fixes that remove whole attack classes — network segmentation for vendors, MFA for remote access, and the discipline of never merging incidents by timing alone.',
+    ],
+    learn: [
+      {
+        heading: 'Attribution: dwell, tooling, and objectives',
+        body: [
+          'Attribution starts from three signals: how long they stayed, how sophisticated their tooling was, and what they wanted. Eleven months of slow IP theft with custom tools and no ransom note is espionage; loud, fast double extortion is e-crime. The two can hit the same week and still be different actors — timing is the weakest attribution signal there is.',
+          'Insiders leave access logs instead of malware: authorized credentials at odd hours, data touched that matches no project, no phishing email to find. When the technical trail is empty but the access trail isn’t, test the human vector before chasing the technical one.',
+          'Hacktivists want an audience, not assets: defacement is loud by design. Ransomware crews want money fast. Nation-states want persistence and quiet. Match the response to the motive — a graffiti incident doesn’t need a full data-breach response, and a wiper doesn’t negotiate.',
+        ],
+      },
+      {
+        heading: 'Initial access: find the real door',
+        body: [
+          'Attackers take the easiest path in: exposed RDP with weak credentials needs no phishing, a hijacked vendor mailbox needs no exploit, a labeled USB in the parking lot needs no zero-day. Forensics should identify the actual vector, because the fix for the wrong vector leaves the real door open.',
+          'Trusted relationships are attack surface: vendor VPNs, OAuth grants, shared update channels. The structural fix is always the same — replace standing trust with temporary, scoped, expiring access. A vendor that needs support access gets just-in-time access, not a permanent tunnel.',
+          'Living-off-the-land techniques (PowerShell, WMI, legitimate cloud services) defeat file-based defenses by having no file to find. When the evidence shows no binary, detection moves to behavior: command-line logging, process trees, and anomaly detection.',
+        ],
+      },
+      {
+        heading: 'Ecosystems, not lone wolves',
+        body: [
+          'Modern attacks are supply chains: initial-access brokers sell footholds, affiliates deploy ransomware, and the two may never meet. Defending only the ransomware phase misses the business model — killing initial access (phishing, exposed services, valid accounts) starves the whole chain.',
+          'Supply-chain compromise inverts trust: the signed update, the vendor’s VPN, the managed service. When multiple customers fall the same day with one common vendor, contain the vendor’s access first and verify out-of-band — the compromised channel can’t be the verification channel.',
+          'Mergers, acquisitions, and “temporary” connections are attack vectors with paperwork: acquired networks without your baselines must stay isolated behind strict controls until they meet your standards. “Temporary” flat connections become permanent with none of your controls.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Attribution signals', 'Dwell time + tooling + objectives'],
+      ['APT vs ransomware', 'Slow quiet theft vs loud fast extortion'],
+      ['Insider tell', 'Access logs, not malware'],
+      ['Easiest path rule', 'Attackers take the cheapest vector'],
+      ['BEC defense', 'Out-of-band verify changed payment details'],
+      ['Vendor access', 'Just-in-time, scoped, expiring — never standing'],
+      ['Supply chain', 'Contain vendor access, verify out-of-band'],
+      ['LOLBins', 'No binary = behavioral detection'],
+      ['Access brokers', 'Defend initial access, not just ransomware'],
+      ['Smishing target', 'The person; fleet-wide response'],
+      ['Typosquat response', 'Takedown + resets + warn + watch variants'],
+      ['M&A networks', 'Isolate until baselines are met'],
+    ],
+  },
+
+  'secplus-malware-scenarios': {
+    overview: [
+      'Malware announces itself by behavior, not by name. The scenarios in this lesson are the identifications an analyst actually makes: a worm that needs no user, a RAT with a human behind it, a rootkit that makes every tool lie, ransomware that already stole the data before it encrypted. The right identification drives the right response — and the wrong one wastes the response on the wrong layer.',
+      'This lesson covers malware identification from behavior (worms, fileless, RATs, rootkits, keyloggers, trojans, spyware), ransomware variants and the double-extortion reality, persistence below the OS, and the containment choices each type demands — network segmentation for worms, memory forensics for fileless, rebuild-from-gold for rootkits.',
+    ],
+    learn: [
+      {
+        heading: 'Identify from behavior, not signatures',
+        body: [
+          'Self-propagation without user action is a worm: the response is a network action (segmentation) before a host action, because cleaning hosts on a flat network just re-infects them. Malicious behavior with no file on disk is fileless: signature AV has nothing to find, so the response is memory forensics plus behavioral EDR.',
+          'Interactive behavior — windows moving, files browsed in odd order — means a RAT with a live operator, not automated malware. Isolation plus memory capture, and every credential typed on that host is burned. Polymorphic strains that change every infection defeat static signatures by design: judge what code does, not what it looks like.',
+          'Persistence below the OS (firmware, bootkits) survives every reinstall: when cleaning fails repeatedly, the fix is reflash from trusted media or hardware replacement. Tools running on a compromised OS can lie — trust must come from outside the compromised environment.',
+        ],
+      },
+      {
+        heading: 'Ransomware: the extortion reality',
+        body: [
+          'Double extortion defeats the “we have backups” defense: the data was stolen before it was encrypted, and payment doesn’t un-steal it. The response is restore plus legal and notification process — never payment as a plan. A wallet with no identification mechanism and no communication channel is a wiper in costume: there is no recovery path, so don’t pay.',
+          'Ransomware hunts backups first: a backup server that’s domain-joined and reachable is just another target. “Offline” must mean truly isolated — air-gapped or immutable, on separate credentials. And check for public decryptors before paying or rebuilding; free, tested decryption beats both.',
+          'Paying marks you as willing to pay and funds the next attack. Direct negotiation by executives creates legal exposure (sanctions risk) and worse terms — route all contact through counsel and the IR firm.',
+        ],
+      },
+      {
+        heading: 'Containment by malware type',
+        body: [
+          'Shared vectors need fleet-wide responses: a keylogger on a shared terminal burns every credential typed there; adware bundled fleet-wide is a data-exfiltration incident, not a nuisance ticket. Scope the response to the blast radius, not the single machine.',
+          'Reinfection means the vector is still alive: a shared USB with an autorun payload, a trojanized installer still in use. Clean the vector before the hosts — mopping with the tap running just floods again. And time your defenses to adversary timing: holiday-weekend attacks assume skeleton crews.',
+          'Unpatchable and unmanaged devices (IoT cameras, legacy terminals) become attacker infrastructure: when firmware can’t be fixed, segmentation is the compensating control. Isolate them on dedicated VLANs with only required traffic allowed.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Worm', 'Self-propagates: contain at network layer'],
+      ['Fileless', 'RAM only: memory forensics + behavioral EDR'],
+      ['RAT tell', 'Interactive behavior = live operator'],
+      ['Rootkit', 'OS lies: boot from known-good media'],
+      ['Double extortion', 'Data stolen first: payment buys nothing'],
+      ['Wiper vs ransomware', 'No comms channel = destruction'],
+      ['Reinfection', 'Vector still alive: kill it first'],
+      ['Shared terminal keylogger', 'Every typed credential burned'],
+      ['Backup target', 'Air-gapped/immutable, separate creds'],
+      ['Polymorphic', 'Judge behavior, not bytes'],
+      ['Public decryptor', 'Check No More Ransom before paying'],
+      ['IoT compromise', 'Segment: dedicated VLAN, minimal traffic'],
+    ],
+  },
+
+  'secplus-social-web-scenarios': {
+    overview: [
+      'The human and the application are the two softest targets, and attackers work both. The scenarios in this lesson are the judgments defenders actually make: a perfectly personalized email to the CFO, a helpdesk call armed with LinkedIn facts, a login form that answers “user not found” a little too helpfully, a coupon that applies twice when double-clicked. Each one pairs the social technique with the technical control that defeats it.',
+      'This lesson covers phishing variants (spear, whaling, vishing, smishing, quishing), pretexting and helpdesk verification, credential attacks (spraying, stuffing, enumeration), and the OWASP-class application flaws as incident scenarios — injection, XSS, IDOR, XXE, SSRF, race conditions, and insecure uploads — with the structural fixes for each.',
+    ],
+    learn: [
+      {
+        heading: 'Engineered trust: verify out-of-band',
+        body: [
+          'Every social attack manufactures trust plus urgency: the accurate board-meeting details in the phish, the employee ID recited to the helpdesk, the “fraud department” demanding an instant wire. The defense is always the same motion — terminate the contact and re-establish it through a channel the attacker doesn’t control.',
+          'Public facts are not authentication: names, IDs, and manager names from LinkedIn make pretexting convincing but prove nothing. Helpdesk verification must rely on secrets or callbacks to numbers on file. And some rules must be absolute: MFA codes are never spoken aloud, to anyone, for any reason.',
+          'Password managers are phishing detectors: refusal to autofill on a lookalike domain is the signal. Teach staff that the manager’s silence plus a slightly-off URL is the whole verdict — no further investigation needed before closing the tab.',
+        ],
+      },
+      {
+        heading: 'Credential attacks: beyond lockouts',
+        body: [
+          'Password spraying stays under lockout thresholds by design — a few attempts per user across thousands of users. Account lockouts won’t catch it; MFA plus behavioral throttling will. And any account that authenticated during the spray window gets treated as compromised.',
+          'Distinct error messages (“user not found” vs “wrong password”) are account-enumeration oracles that feed targeted phishing. The secure pattern is ambiguous responses (“if an account exists, we’ve emailed it”) plus throttling — helpful to users, useless to attackers.',
+          'Credential stuffing uses real passwords from other breaches: the defense is MFA plus breach-corpus monitoring, because the passwords are correct and lockouts won’t save reused credentials.',
+        ],
+      },
+      {
+        heading: 'Application flaws as incidents',
+        body: [
+          'Injection is a code/data boundary failure: concatenated SQL, reflected input, unescaped ticket content. The structural fixes are parameterized queries and output encoding — blacklists and escaping are bypassable. WAFs are speed bumps, not fixes.',
+          'Authorization failures (IDOR, missing function-level checks) are the most common “logged-in but looking at someone else’s data” incidents: every object fetch must verify ownership server-side. Never trust the parameter, the hidden field, or the client.',
+          'State-changing actions must be POST with anti-CSRF tokens, uploads must be content-validated and stored outside the web root, and XML parsers must not resolve external entities. Each of these is a secure-defaults failure — the fix is making the safe behavior the default, not a per-case decision.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Spear/whaling', 'Verify via trusted channel, never the message'],
+      ['Pretexting', 'Public facts ≠ authentication'],
+      ['MFA codes', 'Never spoken aloud, ever'],
+      ['Password manager silence', 'Phishing signal: close the tab'],
+      ['Spraying', 'MFA + behavioral throttling, not lockouts'],
+      ['Enumeration', 'Ambiguous errors + throttling'],
+      ['Stored XSS', 'Output encode + HttpOnly cookies'],
+      ['IDOR', 'Server-side ownership check every fetch'],
+      ['XXE/SSRF', 'Disable external entities'],
+      ['Race condition', 'Server-side atomicity'],
+      ['Uploads', 'Content validation, outside web root'],
+      ['CSRF', 'POST + anti-CSRF tokens on mutations'],
+    ],
+  },
+
+  'secplus-vuln-scenarios': {
+    overview: [
+      'Vulnerability management is where security meets the calendar: every patch competes with uptime, every scan lies a little, and every “critical” needs context. The scenarios in this lesson are the calls a security engineer actually makes — which of 4,000 findings is real, what to do when there is no patch, how to answer a researcher, and how to tell whether the program is actually working.',
+      'This lesson covers scan interpretation (false positives, credentialed vs unauthenticated, scan integrity), risk-based prioritization (CVSS vs exposure vs exploitability, KEV), zero-day and unpatchable-system response with compensating controls, coordinated disclosure and bug bounties, and the metrics that prove a vulnerability program works.',
+    ],
+    learn: [
+      {
+        heading: 'Scans lie: verify before you patch',
+        body: [
+          'Unauthenticated scans guess from banners; credentialed scans verify from package managers. Treating 4,000 banner matches as findings burns the quarter on ghosts — verify the detection method before reopening the work. And a scan whose credentials expired mid-run is worse than no scan: it reports confidence it doesn’t have.',
+          'Stale plugins flag patched systems; version detection misreads backported fixes. The discipline is: reproduce the finding with current, credentialed data before scheduling the work. Re-patching a patched system is pure waste.',
+          'Discovery is part of scanning: 60 unknown devices on a scan means shadow IT, and unknown assets are unpatched assets. Quarantine first to a discovery VLAN, identify owners, then onboard or remove.',
+        ],
+      },
+      {
+        heading: 'Risk, not just severity',
+        body: [
+          'CVSS measures the vulnerability; risk measures the vulnerability in your environment. An internet-facing 7.5 with a public exploit outranks an isolated 9.8 — exposure plus exploitability beats the number. KEV-listed items and crown-jewel adjacency are the tiebreakers.',
+          'Zero-days invert the order: when no patch exists, compensating controls become the patch — restrict management interfaces, deploy IPS signatures, increase monitoring — then patch the hour it drops. Waiting unprotected for the vendor is not a strategy.',
+          'Unpatchable systems (medical devices, EOL industrial gear) get the standard treatment every time: dedicated segment, allowlisted traffic only, monitoring, and a documented risk exception with a review date. “We’ll replace it someday” is not a control.',
+        ],
+      },
+      {
+        heading: 'Disclosure, bounties, and honest measurement',
+        body: [
+          'Coordinated disclosure is a contract: acknowledge promptly, validate, fix within the window, credit the researcher. Ghosting a good-faith reporter converts an ally into full disclosure — and a public one. Treat external reports like free pen tests.',
+          'Risk acceptance is a decision with paperwork and an expiry: written, signed at the right authority level, with compensating controls and a review date. Silent ignoring is not acceptance — it’s negligence with better branding.',
+          'Measure outcomes, not activity: mean time to remediate for exposed criticals, exception aging, repeat findings. When closed-ticket counts look great while MTTR climbs, the program is optimizing easy wins — re-anchor leadership reporting on risk-weighted metrics.',
+        ],
+      },
+    ],
+    cheatSheet: [
+      ['Banner findings', 'Verify with credentialed scan'],
+      ['Dead scan creds', 'Results invalid: fix creds, re-run'],
+      ['CVSS vs risk', 'Severity ≠ exposure; KEV breaks ties'],
+      ['Zero-day', 'Compensating controls now, patch at drop'],
+      ['Unpatchable', 'Segment + allowlist + dated exception'],
+      ['Shadow IT', 'Quarantine, identify, onboard or remove'],
+      ['Disclosure', 'Acknowledge, validate, fix, credit'],
+      ['Risk acceptance', 'Written, signed, time-boxed'],
+      ['Dangling DNS', 'Delete dead records; audit continuously'],
+      ['Hardcoded secrets', 'Rotate + audit usage + CI scanning'],
+      ['Public bucket + GETs', 'Exposure + access = breach'],
+      ['Vuln metrics', 'MTTR for exposed criticals, aging'],
+    ],
+  },
 };
