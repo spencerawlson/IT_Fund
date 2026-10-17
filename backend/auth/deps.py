@@ -1,7 +1,9 @@
 """Shared auth resolution used by both the auth routes and the labs API.
 
 The caller is always derived here from the request, never from a body or path parameter.
-The session cookie is the only credential: demo bearer tokens were removed with the demo auth.
+The credential is the session cookie (website) or the same server-side session id sent as
+`Authorization: Bearer <token>` (native apps, which get it from /auth/native/exchange because
+cookies don't flow from the app's origin). Both resolve through the same hashed session table.
 
 Two levels:
   - `require_user_id` for anything that needs a real account (progress sync).
@@ -23,10 +25,20 @@ from auth.sessions import COOKIE_NAME, cookie_kwargs, user_for_session
 GUEST_COOKIE = "rtc_guest"
 GUEST_PREFIX = "guest:"
 _GUEST_TOKEN = re.compile(r"\A[A-Za-z0-9_-]{22,64}\Z")
+#: Native apps can't keep the guest cookie (cross-site), so they send their guest token here.
+GUEST_HEADER = "X-RTC-Guest"
+
+
+def bearer_token(request: Request) -> str | None:
+    auth = request.headers.get("authorization", "")
+    scheme, _, token = auth.partition(" ")
+    if scheme.lower() != "bearer":
+        return None
+    return token.strip() or None
 
 
 def resolve_user_id(request: Request) -> str | None:
-    raw = request.cookies.get(COOKIE_NAME)
+    raw = request.cookies.get(COOKIE_NAME) or bearer_token(request)
     if not raw:
         return None
     with db.SessionLocal() as s:
@@ -59,7 +71,7 @@ def resolve_visitor_id(request: Request, response: Response) -> str:
     uid = resolve_user_id(request)
     if uid:
         return uid
-    raw = request.cookies.get(GUEST_COOKIE) or ""
+    raw = request.cookies.get(GUEST_COOKIE) or request.headers.get(GUEST_HEADER) or ""
     if not _GUEST_TOKEN.match(raw):
         raw = secrets.token_urlsafe(24)
     response.set_cookie(GUEST_COOKIE, raw, **cookie_kwargs())

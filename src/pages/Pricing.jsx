@@ -110,7 +110,7 @@ export default function Pricing() {
                 </Button>
               )}
               {error && (
-                <p className="mt-3 flex items-center justify-center gap-2 text-small text-error">
+                <p className="mt-3 flex items-center justify-center gap-2 text-small text-danger">
                   <X size={15} aria-hidden="true" /> {error}
                 </p>
               )}

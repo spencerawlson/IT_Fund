@@ -66,5 +66,17 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<!-- Sign-in deep link: com.road2cissp.app://auth/callback?code=... (src/lib/native.js) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.road2cissp.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.road2cissp.app</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

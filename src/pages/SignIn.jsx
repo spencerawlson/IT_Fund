@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
@@ -55,7 +56,7 @@ function SubscriptionSection() {
             </Button>
             <Button variant="ghost" size="sm" onClick={refresh}>Refresh status</Button>
           </div>
-          {error && <p className="mt-3 text-small text-error">{error}</p>}
+          {error && <p className="mt-3 text-small text-danger">{error}</p>}
           <p className="mt-3 text-small text-ink-3">Update payment method or cancel anytime from the Stripe portal.</p>
         </>
       ) : (
@@ -79,6 +80,8 @@ function SubscriptionSection() {
 export default function SignIn() {
   useDocumentTitle('Sign in · Road to CISSP');
   const { isAuthenticated, isLoadingAuth, user, signInWith, signOut } = useAuth();
+  const [params] = useSearchParams();
+  const oauthFailed = params.get('error') === 'oauth';
 
   if (isLoadingAuth) {
     return <PageContainer><p className="text-ink-2">Loading…</p></PageContainer>;
@@ -126,6 +129,11 @@ export default function SignIn() {
         description="Sign in to save your progress across devices. It’s optional — everything works without an account, with your progress kept in this browser."
       />
       <Card level={2} padding="lg" className="max-w-reading">
+        {oauthFailed && (
+          <p role="alert" className="mb-4 text-small text-danger">
+            Sign-in didn&apos;t complete. Please try again.
+          </p>
+        )}
         <div className="flex flex-col gap-3">
           <Button size="lg" icon={LogIn} onClick={() => signInWith('google')}>Continue with Google</Button>
           <Button size="lg" variant="secondary" icon={LogIn} onClick={() => signInWith('github')}>Continue with GitHub</Button>

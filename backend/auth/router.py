@@ -9,10 +9,12 @@ import os
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse, RedirectResponse
+from pydantic import BaseModel
 
 import db
+from auth import native
 from auth import oauth as oauth_mod
-from auth.deps import require_user_id
+from auth.deps import bearer_token, require_user_id
 from auth.identity import OAuthIdentity, upsert_identity
 from auth.sessions import COOKIE_NAME, cookie_kwargs, create_session, delete_session
 from db_models import User
@@ -52,8 +54,16 @@ def dev_login():
 
 
 @router.get("/{provider}/login")
-async def login(provider: str, request: Request):
+async def login(provider: str, request: Request, client: str | None = None, code_challenge: str | None = None):
     _check_provider(provider)
+    # Native apps run OAuth in the system browser and get the result back via a deep link (see
+    # auth/native.py). Remember the PKCE challenge across the provider round-trip; clear any stale one
+    # so a later website login never redirects into the app.
+    request.session.pop("native_challenge", None)
+    if client == "native":
+        if not native.valid_challenge(code_challenge):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code_challenge.")
+        request.session["native_challenge"] = code_challenge
     redirect_uri = f"{APP_ORIGIN}/api/auth/{provider}/callback"
     return await oauth_mod.client(provider).authorize_redirect(request, redirect_uri)
 
@@ -62,11 +72,21 @@ async def login(provider: str, request: Request):
 async def callback(provider: str, request: Request):
     if provider not in PROVIDERS:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown provider.")
+    challenge = request.session.pop("native_challenge", None)
     try:
         info = await oauth_mod.fetch_identity(provider, request)
     except Exception:
         # Bad/expired state, denied consent, etc. Send the user back to sign-in, not a 500.
+        if challenge:
+            return RedirectResponse(f"{native.NATIVE_REDIRECT}?error=oauth", status_code=status.HTTP_302_FOUND)
         return RedirectResponse(f"{FRONTEND_URL}/signin?error=oauth", status_code=status.HTTP_302_FOUND)
+    if challenge:
+        # Native app: no cookie here (the system browser is not the app). Hand off a one-time code.
+        with db.SessionLocal() as s:
+            user = upsert_identity(s, info)
+            code = native.create_code(s, user.id, challenge)
+            s.commit()
+        return RedirectResponse(f"{native.NATIVE_REDIRECT}?code={code}", status_code=status.HTTP_302_FOUND)
     with db.SessionLocal() as s:
         user = upsert_identity(s, info)
         raw = create_session(s, user.id)
@@ -76,9 +96,27 @@ async def callback(provider: str, request: Request):
     return resp
 
 
+class NativeExchange(BaseModel):
+    code: str
+    code_verifier: str
+
+
+@router.post("/native/exchange")
+def native_exchange(body: NativeExchange):
+    """Swap a one-time code + PKCE verifier for a session token (native apps only)."""
+    with db.SessionLocal() as s:
+        user_id = native.redeem_code(s, body.code, body.code_verifier)
+        if user_id is None:
+            s.commit()  # keep the deletion: a code is never redeemable twice
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code.")
+        raw = create_session(s, user_id)
+        s.commit()
+    return {"token": raw}
+
+
 @router.post("/logout")
 def logout(request: Request):
-    raw = request.cookies.get(COOKIE_NAME)
+    raw = request.cookies.get(COOKIE_NAME) or bearer_token(request)
     if raw:
         with db.SessionLocal() as s:
             delete_session(s, raw)

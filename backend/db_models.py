@@ -63,6 +63,21 @@ class AuthSession(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class NativeAuthCode(Base):
+    """One-time code handing a finished OAuth login from the system browser to the native app.
+
+    The app deep link carries only the code; redeeming it also needs the PKCE verifier the app kept,
+    so an app that intercepts the link cannot use it. Only the code's hash is stored, it lives
+    60 seconds and is deleted on first use.
+    """
+    __tablename__ = "native_auth_codes"
+
+    code_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    code_challenge: Mapped[str] = mapped_column(String(128))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class Progress(Base):
     __tablename__ = "progress"
 

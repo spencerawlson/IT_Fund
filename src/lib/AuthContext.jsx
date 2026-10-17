@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { disableServerSync, enableServerSync, flushServerSync } from '@/lib/progress/sync';
+import { clearNativeToken, initNativeShell, isNative, nativeSignIn } from '@/lib/native';
 
 // Session-cookie auth (C3). Sign-in is OAuth-only and optional: an anonymous visitor is a normal
 // state, never an error, and is never redirected. The server session lives in an HttpOnly cookie,
 // so there is no token in JavaScript. When signed in, progress syncs to the server.
+// The iOS/Android apps can't use that cookie, so they sign in through the system browser and hold
+// a session token instead (src/lib/native.js); everything below works the same either way.
 const AuthContext = createContext(null);
 
 // Hosted backend target (e.g. https://api.road2cissp.com/api in production).
@@ -37,6 +40,18 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
+  // Native apps: deep-link sign-in, back button, status bar, splash.
+  useEffect(() => {
+    let cleanup = () => {};
+    initNativeShell({
+      onAuth: (result) => {
+        if (result === 'signed-in') loadUser();
+        else window.location.assign('/signin?error=oauth');
+      },
+    }).then((c) => { cleanup = c; });
+    return () => cleanup();
+  }, []);
+
   const isAuthenticated = !!user;
 
   // Turn server sync on when signed in, off when signed out.
@@ -61,6 +76,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signInWith = (provider) => {
+    if (isNative()) {
+      nativeSignIn(provider);
+      return;
+    }
     window.location.href = `${API_BASE}/auth/${provider}/login`;
   };
 
@@ -70,6 +89,7 @@ export const AuthProvider = ({ children }) => {
     } catch {
       // ignore; clear locally regardless
     }
+    clearNativeToken();
     await flushServerSync();
     setUser(null);
   };
