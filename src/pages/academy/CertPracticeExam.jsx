@@ -158,7 +158,7 @@ function RunningExam({ exam, cfg, certId }) {
     <div>
       <div aria-live="polite" className="sr-only">{announce}</div>
 
-      <div className="sticky top-0 z-10 -mx-4 bg-[var(--bg-base)]/90 px-4 py-3 backdrop-blur sm:-mx-8 sm:px-8">
+      <div className="sticky top-safe z-10 -mx-4 bg-[var(--bg-base)]/90 px-4 py-3 backdrop-blur sm:-mx-8 sm:px-8">
         <div className="flex items-center justify-between gap-3">
           <p className="text-small font-semibold text-ink-2 tabular-nums">
             Question {exam.index + 1} <span className="text-ink-3">of {exam.questions.length}</span>

@@ -203,8 +203,22 @@
   }
 }
 
+/* Native shells draw under the status bar (viewport-fit=cover). Keep the page below it, and paint a
+   strip behind the status bar so content scrolling up never shows through the clock. 0 in browsers. */
+body { padding-top: env(safe-area-inset-top, 0px); }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg-base);
+  z-index: 50;
+}
+
 @layer utilities {
   .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+  /* Sticky headers stick just below the status bar instead of under it. */
+  .top-safe { top: env(safe-area-inset-top, 0px); }
   .animate-pop { animation: pop 0.25s ease-out; }
   .animate-shake { animation: shake 0.3s ease; }
   .animate-rise { animation: rise 0.28s ease-out; }

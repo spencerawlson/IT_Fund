@@ -147,7 +147,7 @@ export default function AppShell() {
       </header>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-40 px-3 pt-3 lg:hidden">
+      <header className="sticky top-safe z-40 px-3 pt-3 lg:hidden">
         <div className="glass-1 flex h-14 items-center justify-between gap-2 rounded-card pl-3 pr-1.5">
           {searchOpen ? (
             <>
