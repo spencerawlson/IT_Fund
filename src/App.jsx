@@ -11,6 +11,7 @@ import ScrollToTop from './components/ScrollToTop';
 import LiquidBackground from '@/components/academy/LiquidBackground';
 import GlobalTutorChat from '@/components/academy/tutor/GlobalTutorChat';
 import { CelebrationHost } from '@/components/Celebration';
+import AcronymTooltips from '@/components/AcronymTooltips';
 import AppShell from '@/components/shell/AppShell';
 import { TutorProvider } from '@/components/shell/TutorContext';
 // Add page imports here
@@ -139,6 +140,9 @@ function App() {
                 <GlobalTutorChat />
               </ErrorBoundary>
               <CelebrationHost />
+              <ErrorBoundary label="Acronyms">
+                <AcronymTooltips />
+              </ErrorBoundary>
             </TutorProvider>
           </div>
         </Router>
