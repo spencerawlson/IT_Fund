@@ -44,6 +44,25 @@ jobs:
       - run: npm test
       - run: npm run build
 
+  mobile-layout:
+    name: Mobile layout (Chromium + WebKit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Install phone browsers (Chromium for Android, WebKit for iOS)
+        run: npx playwright-core install --with-deps chromium webkit
+      - name: Phone-size checks (overflow, header, acronym underlines, tap-to-explain)
+        run: |
+          npx vite preview --port 4319 --strictPort &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:4319/ && break; sleep 1; done
+          npm run mobile-check
+
   backend:
     name: Backend (pytest)
     runs-on: ubuntu-latest
