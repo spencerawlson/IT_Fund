@@ -98,12 +98,16 @@ export default function Landing() {
   return (
     <div className="min-h-screen text-ink-1">
       {/* Nav */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-        <span className="text-body font-bold tracking-tight">Road to CISSP</span>
-        <div className="flex items-center gap-2">
+      <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
+        <span className="whitespace-nowrap text-body font-bold tracking-tight">Road to CISSP</span>
+        {/* Phones get one primary "Sign in" (both buttons open /signin); wider screens show both. */}
+        <div className="flex items-center gap-1 whitespace-nowrap sm:gap-2">
           <Button variant="ghost" size="sm" to="/labs">Labs</Button>
-          <Button variant="ghost" size="sm" to="/signin">Sign in</Button>
-          <Button size="sm" to="/signin">Create free account</Button>
+          <Button variant="ghost" size="sm" to="/signin" className="hidden sm:inline-flex">Sign in</Button>
+          <Button size="sm" to="/signin">
+            <span className="sm:hidden">Sign in</span>
+            <span className="hidden sm:inline">Create free account</span>
+          </Button>
         </div>
       </header>
 

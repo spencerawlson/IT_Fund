@@ -15,6 +15,10 @@ app = FastAPI(title="ITFund Auth API", version="0.1.0")
 import os
 
 _origins = [o.strip() for o in os.environ.get("APP_ORIGINS", "http://localhost:5173,http://localhost:5188").split(",") if o.strip()]
+# The Capacitor iOS/Android apps serve the bundled frontend from these fixed origins and call the
+# API cross-origin, so they are always allowed regardless of APP_ORIGINS.
+NATIVE_APP_ORIGINS = ["capacitor://localhost", "https://localhost"]
+_origins += [o for o in NATIVE_APP_ORIGINS if o not in _origins]
 
 app.add_middleware(
     CORSMiddleware,

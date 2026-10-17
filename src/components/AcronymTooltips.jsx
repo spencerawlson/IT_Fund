@@ -117,15 +117,18 @@ export default function AcronymTooltips() {
       setTip(null);
     };
 
-    // Repaint underlines whenever the page content changes (debounced). Close the tooltip if the
-    // word it explains left the page (e.g. tapping an acronym inside a link navigated away).
+    // Repaint underlines when the page content changes: at most once per 150ms, and never later
+    // than ~300ms after the first change, even while a busy phone keeps mutating the DOM (a
+    // restarting debounce or an unbounded idle wait delayed underlines by seconds on app launch).
+    // Close the tooltip if the word it explains left the page (e.g. a tapped link navigated away).
     let timer = 0;
     const schedule = () => {
       if (currentRef.current && !currentRef.current.node.isConnected) hide();
-      clearTimeout(timer);
+      if (timer) return;
       timer = setTimeout(() => {
-        const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
-        idle(paintHighlights);
+        timer = 0;
+        if (window.requestIdleCallback) window.requestIdleCallback(paintHighlights, { timeout: 150 });
+        else paintHighlights();
       }, 150);
     };
     paintHighlights();
