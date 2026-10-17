@@ -294,8 +294,12 @@ html[data-ambient="off"] .ambient-tint {
 }
 
 /* Acronym explanations (src/components/AcronymTooltips.jsx): dotted underline + help cursor on hover. */
+/* Longhands, not the `text-decoration` shorthand: Safari/WebKit rejects the shorthand with a style
+   and color, which silently dropped every underline on iOS. */
 ::highlight(acronym) {
-  text-decoration: underline dotted rgb(var(--action-rgb) / 0.6);
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: rgb(var(--action-rgb) / 0.6);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
 }
