@@ -14,7 +14,7 @@ if str(backend_dir) not in sys.path:
 
 import pytest
 from fastapi.responses import RedirectResponse
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient as _TestClient
 
 import db
 import main
@@ -36,6 +36,12 @@ class _FakeProvider:
 
 async def _fake_fetch(provider, request):
     return OAuthIdentity("google", "g-7", "native@example.com", True, "Nat", None)
+
+
+def TestClient(app):
+    # https, like a real browser: the OAuth session cookie is Secure unless COOKIE_INSECURE=1 was set
+    # before main was first imported, which depends on test order.
+    return _TestClient(app, base_url="https://testserver")
 
 
 @pytest.fixture

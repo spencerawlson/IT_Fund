@@ -7,11 +7,17 @@ process"), taking the whole backend down behind a healthy Cloudflare tunnel
 (HTTP 502). _run_migrations now serializes Postgres workers with a
 session-level advisory lock.
 """
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, text
 
 import main
+
+# The newest migration, read from the scripts so adding a migration doesn't break these tests.
+HEAD = ScriptDirectory.from_config(Config(str(Path(__file__).resolve().parent / "alembic.ini"))).get_current_head()
 
 
 def _alembic_version(url):
@@ -28,7 +34,7 @@ def test_run_migrations_is_idempotent(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", url)
     main._run_migrations()
     main._run_migrations()  # second run: no-op, no error
-    assert _alembic_version(url) == "9363864b178c"
+    assert _alembic_version(url) == HEAD
 
 
 def test_run_migrations_takes_advisory_lock_on_postgres(monkeypatch):
@@ -60,4 +66,4 @@ def test_run_migrations_skips_lock_off_postgres(tmp_path, monkeypatch):
     with patch("sqlalchemy.create_engine") as mock_create:
         main._run_migrations()
     mock_create.assert_not_called()
-    assert _alembic_version(url) == "9363864b178c"
+    assert _alembic_version(url) == HEAD
