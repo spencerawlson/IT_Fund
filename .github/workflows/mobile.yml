@@ -1,0 +1,102 @@
+name: Mobile builds
+
+# Builds the Capacitor shells. iOS needs Xcode, so it runs on a macOS runner (free for public repos):
+# it builds for the Simulator (no Apple signing needed), installs and launches the app on a
+# simulated iPhone, and uploads a screenshot plus the .app. Android builds a debug APK you can
+# sideload. Only runs when mobile-related files change, or on demand from the Actions tab.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - 'android/**'
+      - 'capacitor.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mobile.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The bundled app has no same-origin /api, so it must call the API origin directly.
+  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.road2cissp.com/api' }}
+
+jobs:
+  ios:
+    name: iOS (Simulator build + launch)
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync ios
+
+      - name: Build for iOS Simulator (unsigned)
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tail -n 40
+          test -d ios/build/Build/Products/Debug-iphonesimulator/App.app
+
+      - name: Launch on a simulated iPhone and screenshot
+        run: |
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for r in d if 'iOS' in r for x in d[r] if x['name'].startswith('iPhone')))")
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" ios/build/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl launch "$DEVICE" com.road2cissp.app
+          sleep 20
+          xcrun simctl io "$DEVICE" screenshot ios-launch.png
+          # The app must still be running (a crash on launch would have killed it).
+          xcrun simctl spawn "$DEVICE" launchctl list | grep -q com.road2cissp.app
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-simulator
+          path: |
+            ios-launch.png
+            ios/build/Build/Products/Debug-iphonesimulator/App.app
+          if-no-files-found: ignore
+
+  android:
+    name: Android (debug APK)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Assemble debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk

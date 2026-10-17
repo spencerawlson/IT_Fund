@@ -103,19 +103,6 @@ export default function AcronymTooltips() {
   useEffect(() => {
     if (supportsHighlights()) document.documentElement.classList.add('has-acronym-highlights');
 
-    // Repaint underlines whenever the page content changes (debounced).
-    let timer = 0;
-    const schedule = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
-        idle(paintHighlights);
-      }, 150);
-    };
-    paintHighlights();
-    const observer = new MutationObserver(schedule);
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-
     const show = (hit) => {
       const cur = currentRef.current;
       if (cur && cur.node === hit.node && cur.start === hit.start) return;
@@ -130,6 +117,21 @@ export default function AcronymTooltips() {
       setTip(null);
     };
 
+    // Repaint underlines whenever the page content changes (debounced). Close the tooltip if the
+    // word it explains left the page (e.g. tapping an acronym inside a link navigated away).
+    let timer = 0;
+    const schedule = () => {
+      if (currentRef.current && !currentRef.current.node.isConnected) hide();
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
+        idle(paintHighlights);
+      }, 150);
+    };
+    paintHighlights();
+    const observer = new MutationObserver(schedule);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+
     let frame = 0;
     const onMove = (e) => {
       if (e.pointerType !== 'mouse') return;
@@ -141,11 +143,12 @@ export default function AcronymTooltips() {
         else hide();
       });
     };
-    // Touch and pen: tap an acronym to explain it, tap anywhere else to dismiss.
+    // Touch and pen: tap an acronym to explain it, tap anywhere else to dismiss. A tap on a link or
+    // button only does what the control does (hover still explains those with a mouse).
     const onTap = (e) => {
       if (e.pointerType === 'mouse') return;
       const hit = acronymAt(e.clientX, e.clientY);
-      if (hit) show(hit);
+      if (hit && !hit.node.parentElement?.closest('a,button,[role="button"],[role="tab"]')) show(hit);
       else hide();
     };
     const onKey = (e) => e.key === 'Escape' && hide();
