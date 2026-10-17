@@ -188,17 +188,28 @@ def test_logtriage_seeds_match_mock_shells():
 def test_iac_main_tf_matches_mock_plus_offline_stanza():
     from labs.shells import terraform
     content = (SEEDS_DIR / "iac" / "main.tf").read_text(encoding="utf-8")
-    # The mock's config with the provider pinned to the simulated version...
-    expected_prefix = terraform.MAIN_TF.replace(
-        'version = "~> 5.0"', 'version = "5.31.0"').rstrip("\n") + "\n"
-    assert content.startswith(expected_prefix)
-    # ...plus the offline-lab stanza (dummy creds + skip flags)...
+    # The mock's terraform{} block with the provider pinned to the simulated
+    # version ("Installing hashicorp/aws v5.31.0")...
+    terraform_block = terraform.MAIN_TF.split('provider "aws"')[0].replace(
+        'version = "~> 5.0"', 'version = "5.31.0"')
+    assert content.startswith(terraform_block)
+    # ...with the offline-lab stanza merged into the mock's single provider
+    # block. Two default `provider "aws"` blocks are rejected by terraform
+    # (it broke the iac image build), so the stanza must extend the existing
+    # block, never append a second one.
+    assert content.count('provider "aws"') == 1, \
+        "duplicate provider blocks break terraform"
+    assert "offline-friendly provider settings" in content
+    assert 'access_key' in content and 'secret_key' in content
     assert "skip_credentials_validation = true" in content
     assert "skip_metadata_api_check     = true" in content
     assert "skip_requesting_account_id  = true" in content
     # ...and the lab's insecure SSH ingress tfsec must flag.
     assert 'cidr_blocks = ["0.0.0.0/0"]' in content
     assert re.search(r"from_port\s+=\s+22", content), "insecure SSH ingress must survive"
+    # The resources are the mock's, unchanged.
+    mock_resources = terraform.MAIN_TF.split('resource "aws_s3_bucket"', 1)[1]
+    assert mock_resources in content
 
 
 def test_gen_seeds_is_idempotent():
