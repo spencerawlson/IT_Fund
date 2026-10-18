@@ -8,7 +8,6 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
-import LiquidBackground from '@/components/academy/LiquidBackground';
 import GlobalTutorChat from '@/components/academy/tutor/GlobalTutorChat';
 import { CelebrationHost } from '@/components/Celebration';
 import AcronymTooltips from '@/components/AcronymTooltips';
@@ -128,9 +127,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
-          {/* isolate: keeps the -z-10 background above the body but below every page. */}
           <div className="relative isolate min-h-screen bg-white text-ink-1">
-            <LiquidBackground />
             <TutorProvider>
               {/* Last line of defence: a crash below here shows a message, not a blank page. */}
               <ErrorBoundary label="Page">

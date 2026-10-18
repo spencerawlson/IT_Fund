@@ -45,12 +45,6 @@ export const SURFACES = {
   'glass-3': [255, 255, 255, 0.96],
 };
 
-/** Background tints: barely-there lavender and blue washes over the white page base. */
-export const TINTS = [
-  { color: '#C4B5FD', opacity: 0.1 },
-  { color: '#BFDBFE', opacity: 0.08 },
-];
-
 /** Solarized terminal palette: deep blue-green base, Solarized green text. */
 export const TERMINAL = {
   background: '#002B36',
@@ -86,16 +80,9 @@ export function contrast(a, b) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/**
- * The backgrounds a glass panel can sit on: the plain base, each tint at peak strength, and
- * every pair of overlapping tints.
- */
+/** The background a glass panel can sit on: the plain white page base. */
 export function backgroundSamples() {
-  const base = hexToRgb(BASE);
-  const paint = (tint, under) => over([...hexToRgb(tint.color), tint.opacity], under);
-  const singles = TINTS.map((t) => paint(t, base));
-  const pairs = TINTS.flatMap((a, i) => TINTS.slice(i + 1).map((b) => paint(b, paint(a, base))));
-  return [base, ...singles, ...pairs];
+  return [hexToRgb(BASE)];
 }
 
 /** Lowest contrast of a text colour on a glass level, across every background sample. */

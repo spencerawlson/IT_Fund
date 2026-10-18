@@ -47,7 +47,7 @@ and 49 unused npm deps were pruned in the production-readiness pass). Auth is OA
 - Content lives in `src/data/academy/<track>.js` (cards are `[question, answer, explanation?, wrongOptions?]`); tiers, CISSP domains, roadmap steps, and free resources are in `meta.js`.
 - Card ids are position-based (`<deckId>-<index>`): append new cards, don't reorder, or learners lose progress on them.
 - Guided lessons (`/academy/:trackId/lesson/:deckId`, Brilliant style) mix each deck's questions with hands-on puzzles from `src/data/academy/interactive.js` (order / numeric / widget: bits, cidr, hash).
-- Styling: two glass systems are in use — legacy `.glass`/`.glass-strong`/`.glass-btn` and the newer `.glass-1`/`.glass-2`/`.glass-3` (see `src/index.css`). Prefer the numbered system for new work. `LiquidBackground` lives in `components/academy/`; pages using it need a `relative isolate` root.
+- Styling: two glass systems are in use — legacy `.glass`/`.glass-strong`/`.glass-btn` and the newer `.glass-1`/`.glass-2`/`.glass-3` (see `src/index.css`). Prefer the numbered system for new work. The page background is a plain static white (the animated ambient background was removed 2026-10-18 at Spencer's request); the app root in `App.jsx` is `relative isolate`.
 - Game state (XP, streak, Leitner boxes, bosses, badges) is in `src/lib/academy.js`, stored in localStorage key `itfund-academy-v1`.
 
 ## AI tutor (OpenAI)

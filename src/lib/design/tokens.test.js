@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { ACTION, ACTION_SURFACE, BASE, INK, SEMANTIC, SURFACES, TERMINAL, TINTS, contrast, hexToRgb, worstContrast } from './tokens';
+import { ACTION, ACTION_SURFACE, BASE, INK, SEMANTIC, SURFACES, TERMINAL, contrast, hexToRgb, worstContrast } from './tokens';
 
 const css = readFileSync(new URL('../../index.css', import.meta.url), 'utf8');
 const cssVar = (name) => css.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1].trim();
@@ -17,14 +17,6 @@ describe('design tokens', () => {
     for (const [name, [r, g, b, a]] of Object.entries(SURFACES)) {
       expect(cssVar(`surface-${name.slice(-1)}`), name).toBe(`rgba(${r}, ${g}, ${b}, ${a})`);
     }
-    TINTS.forEach(({ color, opacity }, i) => {
-      // --bg-tint-N: radial-gradient(closest-side, rgba(r, g, b, a), transparent)
-      const m = css.match(new RegExp(`--bg-tint-${i + 1}:\\s*radial-gradient\\(closest-side,\\s*rgba\\((\\d+),\\s*(\\d+),\\s*(\\d+),\\s*([\\d.]+)\\),\\s*transparent\\)`));
-      expect(m, `bg-tint-${i + 1} gradient`).not.toBeNull();
-      const [r, g, b] = hexToRgb(color);
-      expect([m[1], m[2], m[3]].join(' '), `bg-tint-${i + 1} colour`).toBe(`${r} ${g} ${b}`);
-      expect(m[4], `bg-tint-${i + 1} opacity`).toBe(String(opacity));
-    });
   });
 
   it('all text colours pass WCAG AA (4.5:1) on reading and overlay glass', () => {

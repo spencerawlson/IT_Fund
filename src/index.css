@@ -63,14 +63,12 @@
     --warning-rgb: 180 83 9;
     --danger-rgb: 185 28 28;
     --info-rgb: 37 99 235;
-    /* Page base, glass fills (1 cards/nav, 2 reading, 3 menus/dialogs) and background tints.
-       White prevails; only a whisper of lavender/blue separates the glass from the page. */
+    /* Page base and glass fills (1 cards/nav, 2 reading, 3 menus/dialogs).
+       White prevails; the page background is a plain static white. */
     --bg-base: #FFFFFF;
     --surface-1: rgba(255, 255, 255, 0.68);
     --surface-2: rgba(255, 255, 255, 0.88);
     --surface-3: rgba(255, 255, 255, 0.96);
-    --bg-tint-1: radial-gradient(closest-side, rgba(196, 181, 253, 0.1), transparent);
-    --bg-tint-2: radial-gradient(closest-side, rgba(191, 219, 254, 0.08), transparent);
     /* Solarized terminal: the one intentionally dark surface in the product. */
     --terminal-bg: #002B36;
     --terminal-border: #073642;
@@ -226,33 +224,6 @@ body::before {
 
 @keyframes pop { 0% { transform: scale(0.97); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-/* ---- Ambient background ---------------------------------------------------
-   Two tint layers breathe by crossfading opacity on a 36s cycle, offset by
-   half a cycle so one is always rising while the other falls. 0% == 100%, so
-   the loop has no visible restart. Slow enough to stay calm, fast enough to
-   read as alive. Opacity-only animation: GPU-composited, no layout or paint
-   cost per frame, no JS loops.
-   Disabled via html[data-ambient="off"] (user preference) or
-   prefers-reduced-motion (static background instead). */
-@keyframes ambient-breathe {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 1; }
-}
-.ambient-tint {
-  animation: ambient-breathe 36s ease-in-out infinite;
-  will-change: opacity;
-}
-.ambient-tint-b {
-  animation-delay: -18s;
-}
-html[data-ambient="off"] .ambient-tint {
-  animation: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .ambient-tint {
-    animation: none;
-  }
-}
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes rise { 0% { transform: translateY(8px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
