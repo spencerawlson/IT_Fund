@@ -168,7 +168,8 @@ function Intro({ deck, track, steps, resumeAt, onStart, onRestart }) {
       <h1 className="mt-1 text-title text-ink-1">{deck.title}</h1>
       <p className="mt-3 text-lesson text-ink-2">{deck.summary}</p>
 
-      <Card level={2} className="mt-6">
+      <VideoExplainer className="mt-6" />
+      <Card level={2} className="mt-4">
         <ul className="space-y-3 text-body text-ink-1">
           <li className="flex gap-3">
             <Check size={18} className="mt-1 shrink-0 text-ink-2" aria-hidden="true" />
@@ -190,7 +191,6 @@ function Intro({ deck, track, steps, resumeAt, onStart, onRestart }) {
         </ul>
         <p className="mt-4 text-small text-ink-2">You can leave at any time; your place is saved.</p>
       </Card>
-      <VideoExplainer className="mt-4" />
       {deck.resources.length > 0 && (
         <p className="mt-4 text-small text-ink-2">Based on: {deck.resources.map((r) => r.title).join(' · ')}</p>
       )}
