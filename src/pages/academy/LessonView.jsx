@@ -13,6 +13,7 @@ import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import VideoExplainer from '@/components/academy/lesson/VideoExplainer';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const SAMPLE_QUESTIONS = 4;
@@ -100,6 +101,8 @@ export default function LessonView() {
       </div>
 
       <PrereqNotice className="mb-8 max-w-reading" items={prereqItems} />
+
+      <VideoExplainer className="mb-8 max-w-reading" />
 
       {VISUAL_LAB_FOR[lesson.id] && (
         <Card level={2} padding="sm" className="mb-8 max-w-reading">
