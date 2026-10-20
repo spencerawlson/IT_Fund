@@ -12,6 +12,7 @@ import RichText from '../RichText';
 import { Button, Card, ProgressBar } from '@/components/ui-glass';
 import { ACTION } from '@/lib/design/tokens';
 import { ChoiceStep, OrderStep, NumericStep, WidgetStep } from './steps';
+import VideoExplainer from './VideoExplainer';
 
 const STEP_COMPONENTS = { choice: ChoiceStep, order: OrderStep, numeric: NumericStep, widget: WidgetStep };
 const CARDS = new Map(allCards.map((c) => [c.id, c]));
@@ -189,6 +190,7 @@ function Intro({ deck, track, steps, resumeAt, onStart, onRestart }) {
         </ul>
         <p className="mt-4 text-small text-ink-2">You can leave at any time; your place is saved.</p>
       </Card>
+      <VideoExplainer className="mt-4" />
       {deck.resources.length > 0 && (
         <p className="mt-4 text-small text-ink-2">Based on: {deck.resources.map((r) => r.title).join(' · ')}</p>
       )}
