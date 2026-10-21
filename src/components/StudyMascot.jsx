@@ -2,57 +2,27 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Sparkles, HelpCircle, RefreshCw, X, Eye } from 'lucide-react';
 import { getMascotItems, MASCOT_NAME } from '@/data/mascotFacts';
 
-/** Cipher, the study buddy: a tiny SVG robot who pops in with a fun fact or a pop-quiz prompt.
- *  Moods are drawn, except `pointing`, which animates a small tapping arm: it exists to
- *  draw the eye to something on the page, and stays calm enough for study screens. */
+/** Cipher, the study buddy: the rendered robot portrait (public/cipher-mascot.jpg).
+ *  Previously a flat SVG with drawn moods; Spencer approved the rendered look on
+ *  2026-10-20, so the portrait is now one fixed happy/waving expression. The
+ *  `mood` and `blink` props stay for API compatibility — only `pointing` still
+ *  changes behaviour (a gentle bob, via the mascot-point animation), since the
+ *  photo cannot change face or blink. The white-background portrait sits in a
+ *  white rounded tile, which reads as intentional on the light theme. */
 export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blink = false }) {
-  // Mood is drawn, not animated: celebrating gets a party hat, raised arms and a
-  // big grin; thinking looks sideways with a flat mouth; happy/encouraging smile.
-  // `pointing` is the exception: same encouraging face, plus a tapping arm.
-  const pupils = mood === 'thinking'
-    ? { left: [28, 33], right: [40, 33] }
-    : { left: [26, 33], right: [38, 33] };
-  const mouth = {
-    neutral: <path d="M26 40 Q32 44 38 40" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />,
-    happy: <path d="M24 39 Q32 47 40 39" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />,
-    encouraging: <path d="M27 40 Q32 43.5 37 40" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />,
-    thinking: <path d="M28 41.5 L36 41.5" stroke={color} strokeWidth="2.5" strokeLinecap="round" />,
-    celebrating: <path d="M23 39 Q32 49 41 39" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" />,
-    pointing: <path d="M27 40 Q32 43.5 37 40" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />,
-  }[mood] || null;
+  void color;
+  void blink;
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={`${MASCOT_NAME} the study mascot`}>
-      {mood === 'celebrating' && (
-        <g>
-          <line x1="15" y1="30" x2="7" y2="17" stroke={color} strokeWidth="3" strokeLinecap="round" />
-          <line x1="49" y1="30" x2="57" y2="17" stroke={color} strokeWidth="3" strokeLinecap="round" />
-          <polygon points="32,1 23,17 41,17" fill={color} opacity="0.9" />
-          <circle cx="32" cy="3.5" r="2.6" fill="#f472b6" />
-        </g>
-      )}
-      <line x1="32" y1="12" x2="32" y2="20" stroke={color} strokeWidth="3" strokeLinecap="round" />
-      <circle cx="32" cy="9" r="4" fill={color} opacity="0.9" />
-      <rect x="13" y="20" width="38" height="28" rx="11" fill="#1e293b" stroke={color} strokeWidth="2.5" />
-      <rect x="13" y="20" width="38" height="28" rx="11" fill={color} opacity="0.08" />
-      <circle cx="25" cy="32" r="5" fill="#fff" />
-      <circle cx="39" cy="32" r="5" fill="#fff" />
-      <g className={blink ? 'mascot-blink' : undefined}>
-        <circle cx={pupils.left[0]} cy={pupils.left[1]} r="2.4" fill="#0f172a" />
-        <circle cx={pupils.right[0]} cy={pupils.right[1]} r="2.4" fill="#0f172a" />
-        <circle cx={pupils.left[0] + 1} cy={pupils.left[1] - 1} r="0.9" fill="#fff" />
-        <circle cx={pupils.right[0] + 1} cy={pupils.right[1] - 1} r="0.9" fill="#fff" />
-      </g>
-      {mouth}
-      {mood === 'pointing' && (
-        <g className="mascot-point" aria-hidden="true">
-          <line x1="50" y1="38" x2="59" y2="34" stroke={color} strokeWidth="3" strokeLinecap="round" />
-          <line x1="59" y1="34" x2="63" y2="32" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
-          <circle cx="59" cy="34" r="2.8" fill={color} />
-        </g>
-      )}
-      <rect x="22" y="48" width="20" height="9" rx="4.5" fill="#1e293b" stroke={color} strokeWidth="2" />
-      <circle cx="32" cy="52.5" r="2" fill={color} />
-    </svg>
+    <img
+      src="/cipher-mascot.jpg"
+      alt=""
+      role="img"
+      aria-label={`${MASCOT_NAME} the study mascot`}
+      width={size}
+      height={size}
+      className={mood === 'pointing' ? 'mascot-point' : undefined}
+      style={{ borderRadius: 14, background: '#fff', objectFit: 'cover', display: 'block' }}
+    />
   );
 }
 

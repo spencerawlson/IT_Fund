@@ -20,10 +20,10 @@ describe('Celebration', () => {
     expect(html).toContain('aria-label="Dismiss celebration"');
   });
 
-  it('renders the celebrating Cipher with a party hat', () => {
+  it('renders the celebrating Cipher portrait', () => {
     const html = renderToString(<Celebration celebration={party} onClose={() => {}} />);
     expect(html).toContain('aria-label="Cipher the study mascot"');
-    expect(html).toContain('<polygon');
+    expect(html).toContain('cipher-mascot.jpg');
   });
 
   it('labels each kind accessibly', () => {

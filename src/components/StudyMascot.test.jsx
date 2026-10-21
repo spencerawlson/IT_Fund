@@ -47,9 +47,10 @@ describe('StudyMascot', () => {
 });
 
 describe('MascotArt pointing mood', () => {
-  it('renders the tapping arm and an encouraging face', () => {
+  it('renders the portrait with the pointing animation', () => {
     const html = renderToString(<MascotArt mood="pointing" />);
     expect(html).toContain('mascot-point');
+    expect(html).toContain('cipher-mascot.jpg');
     expect(html).toContain('aria-label="Cipher the study mascot"');
   });
 

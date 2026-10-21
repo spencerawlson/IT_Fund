@@ -5,35 +5,28 @@ import { MascotArt, MascotReaction } from './StudyMascot';
 import ProgressRing from './ProgressRing';
 
 describe('MascotArt moods', () => {
-  it('renders neutral by default (the calm lesson look)', () => {
+  // Since 2026-10-20 Cipher is the rendered portrait, not the drawn SVG: every
+  // mood renders the same happy/waving portrait; only `pointing` animates.
+  it('renders the portrait by default (the calm lesson look)', () => {
     const html = renderToString(<MascotArt />);
     expect(html).toContain('aria-label="Cipher the study mascot"');
-    expect(html).not.toContain('<polygon');
+    expect(html).toContain('cipher-mascot.jpg');
     expect(html).not.toContain('mascot-blink');
+    expect(html).not.toContain('mascot-point');
   });
 
-  it('celebrating mood wears a party hat and raises its arms', () => {
-    const html = renderToString(<MascotArt mood="celebrating" />);
-    expect(html).toContain('<polygon');
-    // arms: two raised lines outside the head box
-    expect(html).toContain('x1="15" y1="30" x2="7" y2="17"');
-    expect(html).toContain('x1="49" y1="30" x2="57" y2="17"');
+  it('renders the same portrait for celebrating, thinking, happy and encouraging', () => {
+    for (const mood of ['celebrating', 'thinking', 'happy', 'encouraging']) {
+      const html = renderToString(<MascotArt mood={mood} />);
+      expect(html).toContain('cipher-mascot.jpg');
+      expect(html).not.toContain('<polygon');
+    }
   });
 
-  it('thinking mood looks sideways with a flat mouth', () => {
-    const html = renderToString(<MascotArt mood="thinking" />);
-    expect(html).toContain('cx="28" cy="33"');
-    expect(html).toContain('M28 41.5 L36 41.5');
-  });
-
-  it('blink wraps the pupils in the blink group when enabled', () => {
+  it('blink is accepted but no longer animates the portrait', () => {
     const html = renderToString(<MascotArt blink />);
-    expect(html).toContain('mascot-blink');
-  });
-
-  it('happy and encouraging moods smile', () => {
-    expect(renderToString(<MascotArt mood="happy" />)).toContain('M24 39 Q32 47 40 39');
-    expect(renderToString(<MascotArt mood="encouraging" />)).toContain('M27 40 Q32 43.5 37 40');
+    expect(html).toContain('cipher-mascot.jpg');
+    expect(html).not.toContain('mascot-blink');
   });
 });
 
