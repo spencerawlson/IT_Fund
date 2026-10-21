@@ -12,7 +12,7 @@ export default function CipherNote({ text, className = '' }) {
     <Card level={2} className={className}>
       <div className="flex items-start gap-4">
         <span className="shrink-0" aria-hidden="true">
-          <MascotArt size={52} mood="pointing" />
+          <MascotArt size={64} mood="pointing" />
         </span>
         <div>
           <p className="text-caption font-bold uppercase tracking-[0.14em] text-ink-2">Cipher points out</p>

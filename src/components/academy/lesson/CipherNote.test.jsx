@@ -8,7 +8,7 @@ describe('CipherNote', () => {
     const html = renderToString(<CipherNote text="A camera is detective, not preventive." />);
     expect(html).toContain('aria-label="Cipher the study mascot"');
     expect(html).toContain('mascot-point');
-    expect(html).toContain('cipher-mascot-presenting.jpg');
+    expect(html).toContain('cipher-mascot-point-right.jpg');
     expect(html).toContain('Cipher points out');
     expect(html).toContain('A camera is detective, not preventive.');
   });

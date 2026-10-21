@@ -6,12 +6,16 @@ import { getMascotItems, MASCOT_NAME } from '@/data/mascotFacts';
  *  Previously a flat SVG with drawn moods; Spencer approved the rendered look on
  *  2026-10-20, so the portrait is now one fixed happy/waving expression. The
  *  `mood` and `blink` props stay for API compatibility and now pick the motion
- *  and, for `pointing`, the pose: pointing shows the both-arms-presenting
- *  portrait (public/cipher-mascot-presenting.jpg) with the wave; celebrating
- *  spins the portrait; everything else idles with a gentle bob. The photo's
- *  arms cannot move on their own — new poses are new renders, not animation.
- *  White-background portraits sit in white rounded tiles, which read as
- *  intentional on the light theme. */
+ *  and, for `pointing`, the pose: pointing shows Spencer's right-pointing
+ *  portrait (public/cipher-mascot-point-right.jpg) — Cipher sits left of the
+ *  content and points right at it. The left-pointing portrait
+ *  (public/cipher-mascot-point-left.jpg) is staged for mirrored layouts; no
+ *  right-side Cipher slot exists yet. Celebrating spins the portrait;
+ *  everything else idles with a gentle bob. The photo's arms cannot move on
+ *  their own — new poses are new renders, not animation. Pointing poses are
+ *  3:2 landscape, so they use `contain` (a square `cover` crop would cut the
+ *  pointing arm off). White-background portraits sit in white rounded tiles,
+ *  which read as intentional on the light theme. */
 export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blink = false }) {
   void color;
   void blink;
@@ -19,14 +23,14 @@ export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blin
   const animation = pointing ? 'mascot-point' : mood === 'celebrating' ? 'mascot-spin' : 'mascot-idle';
   return (
     <img
-      src={pointing ? '/cipher-mascot-presenting.jpg' : '/cipher-mascot.jpg'}
+      src={pointing ? '/cipher-mascot-point-right.jpg' : '/cipher-mascot.jpg'}
       alt=""
       role="img"
       aria-label={`${MASCOT_NAME} the study mascot`}
       width={size}
       height={size}
       className={animation}
-      style={{ borderRadius: 14, background: '#fff', objectFit: 'cover', display: 'block' }}
+      style={{ borderRadius: 14, background: '#fff', objectFit: pointing ? 'contain' : 'cover', display: 'block' }}
     />
   );
 }
