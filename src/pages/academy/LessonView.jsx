@@ -14,6 +14,8 @@ import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engi
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import VideoExplainer from '@/components/academy/lesson/VideoExplainer';
+import CipherNote from '@/components/academy/lesson/CipherNote';
+import { getCipherNote } from '@/data/cipherNotes';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const SAMPLE_QUESTIONS = 4;
@@ -187,7 +189,9 @@ export default function LessonView() {
         )}
 
         {c.cheatSheet?.length > 0 && (
-          <Section id="cheat-sheet" title="Cheat sheet">
+          <>
+            <CipherNote text={getCipherNote(lesson.id)} />
+            <Section id="cheat-sheet" title="Cheat sheet">
             <table className="w-full text-left text-body">
               <thead className="sr-only">
                 <tr><th scope="col">Term</th><th scope="col">Meaning</th></tr>
@@ -201,7 +205,8 @@ export default function LessonView() {
                 ))}
               </tbody>
             </table>
-          </Section>
+            </Section>
+          </>
         )}
       </Card>
 

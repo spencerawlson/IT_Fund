@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import StudyMascot from './StudyMascot';
+import { MascotArt } from './StudyMascot';
 import * as facts from '@/data/mascotFacts';
 
 afterEach(() => {
@@ -42,5 +43,17 @@ describe('StudyMascot', () => {
     const html = renderToString(<StudyMascot conceptId="c1" moduleId="m1" />);
     expect(html).toContain('Another one');
     expect(html).toContain('Dismiss mascot');
+  });
+});
+
+describe('MascotArt pointing mood', () => {
+  it('renders the tapping arm and an encouraging face', () => {
+    const html = renderToString(<MascotArt mood="pointing" />);
+    expect(html).toContain('mascot-point');
+    expect(html).toContain('aria-label="Cipher the study mascot"');
+  });
+
+  it('does not render the arm for other moods', () => {
+    expect(renderToString(<MascotArt mood="happy" />)).not.toContain('mascot-point');
   });
 });

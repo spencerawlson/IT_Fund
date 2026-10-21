@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Sparkles, HelpCircle, RefreshCw, X, Eye } from 'lucide-react';
 import { getMascotItems, MASCOT_NAME } from '@/data/mascotFacts';
 
-/** Cipher, the study buddy: a tiny SVG robot who pops in with a fun fact or a pop-quiz prompt. */
+/** Cipher, the study buddy: a tiny SVG robot who pops in with a fun fact or a pop-quiz prompt.
+ *  Moods are drawn, except `pointing`, which animates a small tapping arm: it exists to
+ *  draw the eye to something on the page, and stays calm enough for study screens. */
 export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blink = false }) {
   // Mood is drawn, not animated: celebrating gets a party hat, raised arms and a
   // big grin; thinking looks sideways with a flat mouth; happy/encouraging smile.
+  // `pointing` is the exception: same encouraging face, plus a tapping arm.
   const pupils = mood === 'thinking'
     ? { left: [28, 33], right: [40, 33] }
     : { left: [26, 33], right: [38, 33] };
@@ -15,6 +18,7 @@ export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blin
     encouraging: <path d="M27 40 Q32 43.5 37 40" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />,
     thinking: <path d="M28 41.5 L36 41.5" stroke={color} strokeWidth="2.5" strokeLinecap="round" />,
     celebrating: <path d="M23 39 Q32 49 41 39" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" />,
+    pointing: <path d="M27 40 Q32 43.5 37 40" stroke={color} strokeWidth="2.5" strokeLinecap="round" fill="none" />,
   }[mood] || null;
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={`${MASCOT_NAME} the study mascot`}>
@@ -39,6 +43,13 @@ export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blin
         <circle cx={pupils.right[0] + 1} cy={pupils.right[1] - 1} r="0.9" fill="#fff" />
       </g>
       {mouth}
+      {mood === 'pointing' && (
+        <g className="mascot-point" aria-hidden="true">
+          <line x1="50" y1="38" x2="59" y2="34" stroke={color} strokeWidth="3" strokeLinecap="round" />
+          <line x1="59" y1="34" x2="63" y2="32" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx="59" cy="34" r="2.8" fill={color} />
+        </g>
+      )}
       <rect x="22" y="48" width="20" height="9" rx="4.5" fill="#1e293b" stroke={color} strokeWidth="2" />
       <circle cx="32" cy="52.5" r="2" fill={color} />
     </svg>
