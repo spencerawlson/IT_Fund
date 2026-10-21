@@ -11,6 +11,7 @@ describe('MascotArt moods', () => {
     const html = renderToString(<MascotArt />);
     expect(html).toContain('aria-label="Cipher the study mascot"');
     expect(html).toContain('cipher-mascot.jpg');
+    expect(html).toContain('mascot-idle');
     expect(html).not.toContain('mascot-blink');
     expect(html).not.toContain('mascot-point');
   });

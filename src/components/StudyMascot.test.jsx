@@ -54,7 +54,9 @@ describe('MascotArt pointing mood', () => {
     expect(html).toContain('aria-label="Cipher the study mascot"');
   });
 
-  it('does not render the arm for other moods', () => {
-    expect(renderToString(<MascotArt mood="happy" />)).not.toContain('mascot-point');
+  it('does not render the pointing animation for other moods — they idle instead', () => {
+    const html = renderToString(<MascotArt mood="happy" />);
+    expect(html).not.toContain('mascot-point');
+    expect(html).toContain('mascot-idle');
   });
 });

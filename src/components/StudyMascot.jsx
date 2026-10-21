@@ -5,10 +5,10 @@ import { getMascotItems, MASCOT_NAME } from '@/data/mascotFacts';
 /** Cipher, the study buddy: the rendered robot portrait (public/cipher-mascot.jpg).
  *  Previously a flat SVG with drawn moods; Spencer approved the rendered look on
  *  2026-10-20, so the portrait is now one fixed happy/waving expression. The
- *  `mood` and `blink` props stay for API compatibility — only `pointing` still
- *  changes behaviour (a gentle bob, via the mascot-point animation), since the
- *  photo cannot change face or blink. The white-background portrait sits in a
- *  white rounded tile, which reads as intentional on the light theme. */
+ *  `mood` and `blink` props stay for API compatibility — `pointing` gets the
+ *  stronger wave, every other mood gets a gentle idle bob, so the portrait is
+ *  never a dead image. The white-background portrait sits in a white rounded
+ *  tile, which reads as intentional on the light theme. */
 export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blink = false }) {
   void color;
   void blink;
@@ -20,7 +20,7 @@ export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blin
       aria-label={`${MASCOT_NAME} the study mascot`}
       width={size}
       height={size}
-      className={mood === 'pointing' ? 'mascot-point' : undefined}
+      className={mood === 'pointing' ? 'mascot-point' : 'mascot-idle'}
       style={{ borderRadius: 14, background: '#fff', objectFit: 'cover', display: 'block' }}
     />
   );

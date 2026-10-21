@@ -232,9 +232,15 @@ body::before {
 .mascot-blink { transform-box: fill-box; transform-origin: center; animation: mascot-blink 4.6s ease-in-out infinite; }
 @keyframes mascot-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
 
-/* Cipher's pointing arm: a small, calm tap. Gentle by design — study screens stay calm. */
-.mascot-point { transform-box: fill-box; transform-origin: left center; animation: mascot-point 2.4s ease-in-out infinite; }
-@keyframes mascot-point { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+/* Cipher's pointing arm: a visible wave — the old 1.5px tap was invisible at
+   portrait size, so pointing now lifts and tilts. Every other Cipher gets the
+   gentler idle bob below. Both stay slow and small: alive, not distracting. */
+.mascot-point { transform-origin: center; animation: mascot-point 2.4s ease-in-out infinite; }
+@keyframes mascot-point { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-3deg); } }
+
+/* Cipher's idle motion: a soft bob so the portrait is never a dead image. */
+.mascot-idle { transform-origin: center; animation: mascot-idle 3.2s ease-in-out infinite; }
+@keyframes mascot-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
 
 .streak-ignited { animation: ignite 1.4s ease-out 1; filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.65)); }
 @keyframes ignite {
@@ -265,7 +271,7 @@ body::before {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-pop, .animate-shake, .animate-rise { animation: none; }
-  .mascot-blink, .mascot-point, .streak-ignited, .count-pop, .ring-complete { animation: none; }
+  .mascot-blink, .mascot-point, .mascot-idle, .streak-ignited, .count-pop, .ring-complete { animation: none; }
 }
 
 /* Acronym explanations (src/components/AcronymTooltips.jsx): dotted underline + help cursor on hover. */
