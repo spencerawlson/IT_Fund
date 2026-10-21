@@ -47,11 +47,17 @@ describe('StudyMascot', () => {
 });
 
 describe('MascotArt pointing mood', () => {
-  it('renders the portrait with the pointing animation', () => {
+  it('renders the both-arms-presenting portrait with the pointing animation', () => {
     const html = renderToString(<MascotArt mood="pointing" />);
     expect(html).toContain('mascot-point');
-    expect(html).toContain('cipher-mascot.jpg');
+    expect(html).toContain('cipher-mascot-presenting.jpg');
     expect(html).toContain('aria-label="Cipher the study mascot"');
+  });
+
+  it('celebrating spins the portrait', () => {
+    const html = renderToString(<MascotArt mood="celebrating" />);
+    expect(html).toContain('mascot-spin');
+    expect(html).toContain('cipher-mascot.jpg');
   });
 
   it('does not render the pointing animation for other moods — they idle instead', () => {

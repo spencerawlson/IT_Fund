@@ -5,22 +5,27 @@ import { getMascotItems, MASCOT_NAME } from '@/data/mascotFacts';
 /** Cipher, the study buddy: the rendered robot portrait (public/cipher-mascot.jpg).
  *  Previously a flat SVG with drawn moods; Spencer approved the rendered look on
  *  2026-10-20, so the portrait is now one fixed happy/waving expression. The
- *  `mood` and `blink` props stay for API compatibility — `pointing` gets the
- *  stronger wave, every other mood gets a gentle idle bob, so the portrait is
- *  never a dead image. The white-background portrait sits in a white rounded
- *  tile, which reads as intentional on the light theme. */
+ *  `mood` and `blink` props stay for API compatibility and now pick the motion
+ *  and, for `pointing`, the pose: pointing shows the both-arms-presenting
+ *  portrait (public/cipher-mascot-presenting.jpg) with the wave; celebrating
+ *  spins the portrait; everything else idles with a gentle bob. The photo's
+ *  arms cannot move on their own — new poses are new renders, not animation.
+ *  White-background portraits sit in white rounded tiles, which read as
+ *  intentional on the light theme. */
 export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blink = false }) {
   void color;
   void blink;
+  const pointing = mood === 'pointing';
+  const animation = pointing ? 'mascot-point' : mood === 'celebrating' ? 'mascot-spin' : 'mascot-idle';
   return (
     <img
-      src="/cipher-mascot.jpg"
+      src={pointing ? '/cipher-mascot-presenting.jpg' : '/cipher-mascot.jpg'}
       alt=""
       role="img"
       aria-label={`${MASCOT_NAME} the study mascot`}
       width={size}
       height={size}
-      className={mood === 'pointing' ? 'mascot-point' : 'mascot-idle'}
+      className={animation}
       style={{ borderRadius: 14, background: '#fff', objectFit: 'cover', display: 'block' }}
     />
   );
