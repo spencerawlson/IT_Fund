@@ -115,3 +115,110 @@ TOPOLOGY_LAB = LabDefinition(
         ),
     ],
 )
+
+
+# --------------------------------------------------------------------------
+# Level 2 — redundant core (two switches, dual uplinks). Same validators.
+# --------------------------------------------------------------------------
+_CORE_DEVICES = ["pc1", "pc2", "sw1", "sw2", "r1"]
+_CORE_LINKS = [
+    ["pc1", "sw1"], ["pc2", "sw2"],   # a host on each access switch
+    ["sw1", "sw2"],                     # inter-switch cross-link
+    ["sw1", "r1"], ["sw2", "r1"],       # dual uplink to the router
+]
+
+TOPOLOGY_CORE_LAB = LabDefinition(
+    id="net-topology-002",
+    slug="build-a-redundant-core",
+    title="Build a Redundant Core",
+    description=(
+        "Wire a network that survives a cut cable. Two access switches each carry a host, cross-link "
+        "the switches, and give the router a dual uplink — one to each switch — so no single link is a "
+        "single point of failure. Your wiring is checked against the target design."
+    ),
+    category="networking",
+    difficulty="intermediate",
+    estimated_minutes=12,
+    shell=None,
+    workbench="topology",
+    environment=LabEnvironmentConfig(provider="mock"),
+    targets=[
+        LabTarget(hostname="pc1", role="Workstation"),
+        LabTarget(hostname="pc2", role="Workstation"),
+        LabTarget(hostname="sw1", role="Access switch"),
+        LabTarget(hostname="sw2", role="Access switch"),
+        LabTarget(hostname="r1", role="Core router"),
+    ],
+    objectives=[
+        LabObjective(id="place-devices", label="Place every device on the board",
+                     validator="topology_devices_placed", args={"devices": _CORE_DEVICES},
+                     description="Add PC1, PC2, SW1, SW2 and R1.",
+                     hints=["Both switches and both PCs plus the core router."]),
+        LabObjective(id="cable", label="Cable the redundant core",
+                     validator="topology_cabled", args={"links": _CORE_LINKS},
+                     description="PC1→SW1, PC2→SW2, SW1↔SW2, and a dual uplink SW1→R1 and SW2→R1.",
+                     hints=["Each PC hangs off its own switch.",
+                            "Cross-link the two switches so they can reach each other directly.",
+                            "The router uplinks to BOTH switches — that's the redundancy."]),
+        LabObjective(id="tidy", label="No stray cables",
+                     validator="topology_clean", args={"links": _CORE_LINKS},
+                     description="The build should match the design exactly — no extra links.",
+                     hints=["Keep only the six designed cables."]),
+    ],
+)
+
+
+# --------------------------------------------------------------------------
+# Level 3 — DMZ segmentation (internet, firewall, DMZ server, inside LAN).
+# --------------------------------------------------------------------------
+_DMZ_DEVICES = ["inet", "fw1", "r1", "sw1", "sw2", "web1", "pc1"]
+_DMZ_LINKS = [
+    ["inet", "fw1"],                   # internet into the firewall
+    ["fw1", "r1"],                      # firewall to the edge router
+    ["r1", "sw1"], ["r1", "sw2"],       # router to the DMZ switch and the inside switch
+    ["sw1", "web1"],                    # DMZ: public web server
+    ["sw2", "pc1"],                     # inside LAN: workstation
+]
+
+TOPOLOGY_DMZ_LAB = LabDefinition(
+    id="net-topology-003",
+    slug="segment-a-dmz",
+    title="Segment a DMZ",
+    description=(
+        "Design a perimeter the way a security team would: the internet enters through a firewall, the "
+        "firewall feeds an edge router, and the router splits into two segments — a DMZ switch holding "
+        "the public web server, and an inside switch holding the workstation. Keep the DMZ and the "
+        "inside LAN on separate switches. Your wiring is checked against the target design."
+    ),
+    category="networking",
+    difficulty="advanced",
+    estimated_minutes=15,
+    shell=None,
+    workbench="topology",
+    environment=LabEnvironmentConfig(provider="mock"),
+    targets=[
+        LabTarget(hostname="inet", role="Internet / upstream cloud"),
+        LabTarget(hostname="fw1", role="Perimeter firewall"),
+        LabTarget(hostname="r1", role="Edge router"),
+        LabTarget(hostname="sw1", role="DMZ switch"),
+        LabTarget(hostname="sw2", role="Inside switch"),
+        LabTarget(hostname="web1", role="DMZ web server"),
+        LabTarget(hostname="pc1", role="Inside workstation"),
+    ],
+    objectives=[
+        LabObjective(id="place-devices", label="Place every device on the board",
+                     validator="topology_devices_placed", args={"devices": _DMZ_DEVICES},
+                     description="Add the internet, firewall, router, both switches, the web server and the workstation.",
+                     hints=["Seven devices in all."]),
+        LabObjective(id="cable", label="Wire the perimeter and both segments",
+                     validator="topology_cabled", args={"links": _DMZ_LINKS},
+                     description="INET→FW1→R1, then R1→SW1 (DMZ) and R1→SW2 (inside); WEB1→SW1, PC1→SW2.",
+                     hints=["Traffic enters INET → FW1 → R1.",
+                            "The router fans out to two switches: SW1 is the DMZ, SW2 is inside.",
+                            "The web server lives on the DMZ switch; the workstation on the inside switch."]),
+        LabObjective(id="tidy", label="Keep the segments clean",
+                     validator="topology_clean", args={"links": _DMZ_LINKS},
+                     description="No extra cables — especially nothing that bridges the DMZ to the inside LAN.",
+                     hints=["Don't cable WEB1 and PC1 to the same switch, and don't cross the two switches."]),
+    ],
+)
