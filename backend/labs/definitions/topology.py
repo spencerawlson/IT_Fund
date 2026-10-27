@@ -90,6 +90,23 @@ def _connected(links, a, b):
     return b in _reachable(_adjacency(links), a)
 
 
+def _l2_reachable(links, start, l3):
+    """Devices reachable from `start` WITHOUT routing through an L3 device — i.e.
+    the Layer-2 broadcast domain. An L3 device (router/firewall) can be reached,
+    but traffic does not pass through it at Layer 2, so its far side is excluded."""
+    adj = _adjacency(links)
+    seen, stack = {start}, [start]
+    while stack:
+        node = stack.pop()
+        if node in l3 and node != start:
+            continue  # reachable, but don't forward L2 frames through it
+        for nb in adj.get(node, set()):
+            if nb not in seen:
+                seen.add(nb)
+                stack.append(nb)
+    return seen
+
+
 @validator("topology_reaches")
 def topology_reaches(args, findings):
     a, b = args.get("from"), args.get("to")
@@ -112,6 +129,23 @@ def topology_redundant_path(args, findings):
             name = "–".join(cut)
             return False, f"Not fault-tolerant: cutting {name} isolates {b} from {a}. Add a second, independent path.", None
     return True, f"Fault-tolerant: {a} keeps reaching {b} even if any single cable is cut.", None
+
+
+@validator("topology_l2_separated")
+def topology_l2_separated(args, findings):
+    """Two hosts must sit in SEPARATE Layer-2 broadcast domains: any traffic
+    between them has to cross an L3 device (a router/firewall), as inter-VLAN
+    segmentation requires. Fails if a switch-only path links them."""
+    a, b = args.get("from"), args.get("to")
+    l3 = set(args.get("l3_devices") or [])
+    links = _link_set(findings.get("links"))
+    if b in _l2_reachable(links, a, l3):
+        barrier = ", ".join(sorted(l3)) or "a router"
+        return False, (
+            f"{a} and {b} share a Layer-2 broadcast domain. Segment them so traffic between them "
+            f"must cross {barrier} — don't cable (or bridge) their switches together."
+        ), None
+    return True, f"{a} and {b} are in separate broadcast domains — isolated at Layer 2.", None
 
 
 @validator("topology_connected")
@@ -406,5 +440,57 @@ TOPOLOGY_STP_LAB = LabDefinition(
                      description="The switches must form a tree — no cable closes a loop.",
                      hints=["A ring (SW1–SW2–SW3–SW1) is a loop; drop one of its cables.",
                             "Connected + no loop over three switches means exactly two cables."]),
+    ],
+)
+
+
+# --------------------------------------------------------------------------
+# Level 6 — broadcast-domain segmentation. Both PCs reach the router, but they
+# must sit in SEPARATE Layer-2 domains (traffic between them crosses R1), as
+# inter-VLAN segmentation requires. Cabling the switches together fails it.
+# --------------------------------------------------------------------------
+_SEG_DEVICES = ["pc1", "pc2", "sw1", "sw2", "r1"]
+
+TOPOLOGY_SEG_LAB = LabDefinition(
+    id="net-topology-006",
+    slug="separate-the-broadcast-domains",
+    title="Separate the Broadcast Domains",
+    description=(
+        "Two departments, one router. Give each PC a path to R1, but keep them in separate Layer-2 "
+        "broadcast domains so traffic between them must pass through the router — the whole point of "
+        "segmenting with VLANs. Put the hosts on different switches and do NOT bridge those switches "
+        "together, or they share one domain."
+    ),
+    category="networking",
+    difficulty="intermediate",
+    estimated_minutes=12,
+    shell=None,
+    workbench="topology",
+    environment=LabEnvironmentConfig(provider="mock"),
+    targets=[
+        LabTarget(hostname="pc1", role="Department A workstation"),
+        LabTarget(hostname="pc2", role="Department B workstation"),
+        LabTarget(hostname="sw1", role="Department A switch"),
+        LabTarget(hostname="sw2", role="Department B switch"),
+        LabTarget(hostname="r1", role="Gateway router"),
+    ],
+    objectives=[
+        LabObjective(id="place-devices", label="Place every device on the board",
+                     validator="topology_devices_placed", args={"devices": _SEG_DEVICES},
+                     description="Add both PCs, both switches and R1.",
+                     hints=["One switch per department."]),
+        LabObjective(id="pc1-reaches", label="Department A reaches the gateway",
+                     validator="topology_reaches", args={"from": "pc1", "to": "r1"},
+                     description="PC1 must have a path to R1.",
+                     hints=["PC1 → SW1 → R1."]),
+        LabObjective(id="pc2-reaches", label="Department B reaches the gateway",
+                     validator="topology_reaches", args={"from": "pc2", "to": "r1"},
+                     description="PC2 must have a path to R1.",
+                     hints=["PC2 → SW2 → R1."]),
+        LabObjective(id="segmented", label="The two departments are segmented at Layer 2",
+                     validator="topology_l2_separated", args={"from": "pc1", "to": "pc2", "l3_devices": ["r1"]},
+                     description="PC1 and PC2 must be in separate broadcast domains (traffic crosses R1).",
+                     hints=["Each PC on its own switch, both switches uplinking only to R1.",
+                            "Do NOT cable SW1 to SW2 — that merges the two domains."]),
     ],
 )

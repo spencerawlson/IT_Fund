@@ -13,6 +13,7 @@ from labs.definitions.pentesting import PENTEST_METHODOLOGY_LAB
 from labs.definitions.web_pentest import SEC_PENTEST_WEB_LAB
 from labs.definitions.topology import (
     TOPOLOGY_LAB, TOPOLOGY_CORE_LAB, TOPOLOGY_DMZ_LAB, TOPOLOGY_FT_LAB, TOPOLOGY_STP_LAB,
+    TOPOLOGY_SEG_LAB,
 )
 from labs.definitions.terraform_fundamentals import TERRAFORM_FUNDAMENTALS_LAB
 from labs.definitions.terraform_k8s_docker import TERRAFORM_K8S_DOCKER_LAB
@@ -63,6 +64,7 @@ ALL_LABS = [
     TOPOLOGY_DMZ_LAB,
     TOPOLOGY_FT_LAB,
     TOPOLOGY_STP_LAB,
+    TOPOLOGY_SEG_LAB,
     K8S_FUNDAMENTALS_LAB,
     TERRAFORM_FUNDAMENTALS_LAB,
     TERRAFORM_K8S_DOCKER_LAB,
