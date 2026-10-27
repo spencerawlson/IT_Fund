@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Check, X, Lock, RotateCcw, Clock, FlaskConical, ShieldCheck, SearchX, TerminalSquare } from 'lucide-react';
 import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
+import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
+import { getMission } from '@/data/missions';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
 import { useSubscription, isLabFree } from '@/lib/subscription';
@@ -35,7 +37,7 @@ const resultFor = (results, id) => results.find((r) => r.objective_id === id);
 /** Objectives with live pass/fail from the last validation.
  *  Live-execution labs (real containers) can't fabricate findings, so each open objective
  *  gets an "I did this" attestation button that records the finding and re-validates. */
-function LabObjectives({ objectives, results, attestable = false, onAttest, busy = false }) {
+function LabObjectives({ objectives, results, attestable = false, onAttest, busy = false, labelFor }) {
   return (
     <ol className="space-y-2">
       {objectives.map((o) => {
@@ -51,7 +53,7 @@ function LabObjectives({ objectives, results, attestable = false, onAttest, busy
               {passed ? <Check size={14} aria-hidden="true" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-body text-ink-1">{o.label}</span>
+              <span className="block text-body text-ink-1">{labelFor ? labelFor(o) : o.label}</span>
               {r && !passed && <span className="block text-small text-ink-2">{r.message}</span>}
               {!r && o.hints?.[0] && <span className="block text-small text-ink-2">Hint: {o.hints[0]}</span>}
             </span>
@@ -341,6 +343,7 @@ export default function LabWorkspace() {
   const prompt = lab.terminal?.prompt || 'student@lab:~$ ';
   // In mission mode the banner is a short boot log; otherwise the lab's own banner.
   const target0 = lab.targets?.[0]?.hostname || 'target.lab';
+  const mission = getMission(lab);
   const banner = gameMode
     ? ['[ MISSION CONSOLE v1 ]', 'establishing uplink ............ OK',
        `routing to ${target0} ............ ONLINE`,
@@ -366,24 +369,28 @@ export default function LabWorkspace() {
 
       <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr]">
         <div className="space-y-4">
-          <Card level={2}>
-            <h1 className="text-heading text-ink-1">{lab.title}</h1>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <Badge>{lab.difficulty}</Badge>
-              <Badge>{lab.estimated_minutes} min</Badge>
-              {lab.environment?.deny_internet_egress && <Badge icon={ShieldCheck}>isolated</Badge>}
-            </div>
-            <p className="mt-3 text-small text-ink-2">{lab.description}</p>
-          </Card>
+          {gameMode ? (
+            <MissionBrief mission={mission} />
+          ) : (
+            <Card level={2}>
+              <h1 className="text-heading text-ink-1">{lab.title}</h1>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Badge>{lab.difficulty}</Badge>
+                <Badge>{lab.estimated_minutes} min</Badge>
+                {lab.environment?.deny_internet_egress && <Badge icon={ShieldCheck}>isolated</Badge>}
+              </div>
+              <p className="mt-3 text-small text-ink-2">{lab.description}</p>
+            </Card>
+          )}
           <Card level={2}>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-heading text-ink-1">Objectives</h2>
+              <h2 className="text-heading text-ink-1">{gameMode ? 'Mission Objectives' : 'Objectives'}</h2>
               <span className="text-small text-ink-2">{passedCount}/{total}</span>
             </div>
             <ProgressBar value={total ? Math.round((passedCount / total) * 100) : 0} label="Objectives complete" showValue={false} />
             {/* Scrollable so a long mission (e.g. the 9-step Docker+SIEM lab) never overflows the card. */}
             <div className="mt-4 max-h-[22rem] overflow-y-auto pr-1 [scrollbar-width:thin]">
-              <LabObjectives objectives={lab.objectives} results={results} attestable={isLive} onAttest={attest} busy={busy} />
+              <LabObjectives objectives={lab.objectives} results={results} attestable={isLive} onAttest={attest} busy={busy} labelFor={gameMode ? ((o) => mission.beats?.[o.id] || o.label) : undefined} />
             </div>
           </Card>
         </div>
@@ -463,7 +470,10 @@ export default function LabWorkspace() {
             </Card>
           )}
 
-          {(done || expired || error) && (
+          {done && gameMode && (
+            <MissionDossier lab={lab} mission={mission} results={results} findings={session.findings} />
+          )}
+          {((done && !gameMode) || expired || error) && (
             <Card level={2} className={done ? 'border-success/30' : ''}>
               {done && <p className="flex items-center gap-2 text-body font-semibold text-success"><Check size={18} aria-hidden="true" /> Lab complete. Every objective validated.</p>}
               {expired && <p className="flex items-center gap-2 text-body font-semibold text-warning"><Clock size={18} aria-hidden="true" /> This session expired. Reset to continue.</p>}
