@@ -63,6 +63,57 @@ def topology_clean(args, findings):
     return False, f"Remove the extra cable(s): {pretty}.", None
 
 
+# ---- graph-property validators (open-ended: structure, not an exact design) ----
+
+def _adjacency(links):
+    adj = {}
+    for a, b in _link_set(links):
+        adj.setdefault(a, set()).add(b)
+        adj.setdefault(b, set()).add(a)
+    return adj
+
+
+def _reachable(adj, start):
+    seen, stack = set(), [start]
+    while stack:
+        node = stack.pop()
+        if node in seen:
+            continue
+        seen.add(node)
+        stack.extend(adj.get(node, set()) - seen)
+    return seen
+
+
+def _connected(links, a, b):
+    if a == b:
+        return True
+    return b in _reachable(_adjacency(links), a)
+
+
+@validator("topology_reaches")
+def topology_reaches(args, findings):
+    a, b = args.get("from"), args.get("to")
+    if _connected(findings.get("links"), a, b):
+        return True, f"{a} can reach {b} through the network.", None
+    return False, f"{a} cannot reach {b} yet — trace a cabled path between them.", None
+
+
+@validator("topology_redundant_path")
+def topology_redundant_path(args, findings):
+    """Two edge-disjoint paths between a and b: cutting any single cable still
+    leaves them connected (the pair is 2-edge-connected). Any design that
+    achieves this passes — there is no single 'correct' wiring."""
+    a, b = args.get("from"), args.get("to")
+    links = _link_set(findings.get("links"))
+    if not _connected(links, a, b):
+        return False, f"{a} and {b} aren't connected yet — build a path first.", None
+    for cut in links:
+        if not _connected(links - {cut}, a, b):
+            name = "–".join(cut)
+            return False, f"Not fault-tolerant: cutting {name} isolates {b} from {a}. Add a second, independent path.", None
+    return True, f"Fault-tolerant: {a} keeps reaching {b} even if any single cable is cut.", None
+
+
 _DEVICES = ["pc1", "pc2", "sw1", "r1"]
 _LINKS = [["pc1", "sw1"], ["pc2", "sw1"], ["sw1", "r1"]]
 
@@ -164,6 +215,56 @@ TOPOLOGY_CORE_LAB = LabDefinition(
                      validator="topology_clean", args={"links": _CORE_LINKS},
                      description="The build should match the design exactly — no extra links.",
                      hints=["Keep only the six designed cables."]),
+        LabObjective(id="fault-tolerant", label="Prove the core survives a cut cable",
+                     validator="topology_redundant_path", args={"from": "sw1", "to": "r1"},
+                     description="SW1 must still reach R1 if any single cable is cut.",
+                     hints=["The direct SW1→R1 uplink plus the SW1→SW2→R1 path is what makes it redundant."]),
+    ],
+)
+
+
+# --------------------------------------------------------------------------
+# Level 4 — open-ended: make R1 reachable from PC1, fault-tolerantly. There is
+# no single 'correct' wiring; any 2-edge-connected design between SW1 and R1
+# passes. Validated by graph properties, not an exact link list.
+# --------------------------------------------------------------------------
+_FT_DEVICES = ["pc1", "sw1", "sw2", "r1"]
+
+TOPOLOGY_FT_LAB = LabDefinition(
+    id="net-topology-004",
+    slug="make-the-core-fault-tolerant",
+    title="Make the Core Fault-Tolerant",
+    description=(
+        "No blueprint this time — just a goal. Wire PC1 through to the router R1, and make the switch "
+        "core fault-tolerant so a single cut cable can't isolate SW1 from R1. How you achieve the "
+        "redundancy is up to you; any design with two independent paths through the core passes."
+    ),
+    category="networking",
+    difficulty="advanced",
+    estimated_minutes=12,
+    shell=None,
+    workbench="topology",
+    environment=LabEnvironmentConfig(provider="mock"),
+    targets=[
+        LabTarget(hostname="pc1", role="Workstation"),
+        LabTarget(hostname="sw1", role="Core switch"),
+        LabTarget(hostname="sw2", role="Core switch"),
+        LabTarget(hostname="r1", role="Core router"),
+    ],
+    objectives=[
+        LabObjective(id="place-devices", label="Place every device on the board",
+                     validator="topology_devices_placed", args={"devices": _FT_DEVICES},
+                     description="Add PC1, SW1, SW2 and R1.",
+                     hints=["Two switches give you the second path."]),
+        LabObjective(id="reach", label="PC1 reaches the router",
+                     validator="topology_reaches", args={"from": "pc1", "to": "r1"},
+                     description="Cable a working path from PC1 all the way to R1.",
+                     hints=["PC1 → a switch → … → R1."]),
+        LabObjective(id="redundant", label="The SW1–R1 core survives any single cut",
+                     validator="topology_redundant_path", args={"from": "sw1", "to": "r1"},
+                     description="Build two independent paths between SW1 and R1.",
+                     hints=["A direct SW1→R1 link AND an SW1→SW2→R1 path is one way.",
+                            "Cutting any one cable must still leave SW1 able to reach R1."]),
     ],
 )
 
