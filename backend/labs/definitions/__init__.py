@@ -11,6 +11,7 @@ from labs.definitions.cybersecurity import LOG_TRIAGE_LAB, NMAP_ENUMERATION_LAB,
 from labs.definitions.kubernetes import K8S_FUNDAMENTALS_LAB
 from labs.definitions.pentesting import PENTEST_METHODOLOGY_LAB
 from labs.definitions.web_pentest import SEC_PENTEST_WEB_LAB
+from labs.definitions.topology import TOPOLOGY_LAB
 from labs.definitions.terraform_fundamentals import TERRAFORM_FUNDAMENTALS_LAB
 from labs.definitions.terraform_k8s_docker import TERRAFORM_K8S_DOCKER_LAB
 from labs.definitions.terraform_aws import TERRAFORM_AWS_LAB
@@ -55,6 +56,7 @@ ALL_LABS = [
     VULN_SCANNING_LAB,
     PENTEST_METHODOLOGY_LAB,
     SEC_PENTEST_WEB_LAB,
+    TOPOLOGY_LAB,
     K8S_FUNDAMENTALS_LAB,
     TERRAFORM_FUNDAMENTALS_LAB,
     TERRAFORM_K8S_DOCKER_LAB,
