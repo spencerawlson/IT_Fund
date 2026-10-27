@@ -9,8 +9,8 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from labs.definitions.topology import (
-    TOPOLOGY_LAB, TOPOLOGY_CORE_LAB, TOPOLOGY_DMZ_LAB, TOPOLOGY_FT_LAB, TOPOLOGY_STP_LAB,
-    _DEVICES, _LINKS, _CORE_DEVICES, _CORE_LINKS, _DMZ_DEVICES, _DMZ_LINKS, _FT_DEVICES, _STP_SWITCHES,
+    TOPOLOGY_LAB, TOPOLOGY_CORE_LAB, TOPOLOGY_DMZ_LAB, TOPOLOGY_FT_LAB, TOPOLOGY_STP_LAB, TOPOLOGY_SEG_LAB,
+    _DEVICES, _LINKS, _CORE_DEVICES, _CORE_LINKS, _DMZ_DEVICES, _DMZ_LINKS, _FT_DEVICES, _STP_SWITCHES, _SEG_DEVICES,
 )
 from labs.registry import LABS
 from labs.validators import VALIDATORS
@@ -98,7 +98,7 @@ def test_extra_levels_registered_and_solvable(lab_id, devices, links):
 
 
 def test_each_topology_level_has_unique_id():
-    ids = [TOPOLOGY_LAB.id, TOPOLOGY_CORE_LAB.id, TOPOLOGY_DMZ_LAB.id, TOPOLOGY_FT_LAB.id, TOPOLOGY_STP_LAB.id]
+    ids = [TOPOLOGY_LAB.id, TOPOLOGY_CORE_LAB.id, TOPOLOGY_DMZ_LAB.id, TOPOLOGY_FT_LAB.id, TOPOLOGY_STP_LAB.id, TOPOLOGY_SEG_LAB.id]
     assert len(ids) == len(set(ids))
 
 
@@ -195,3 +195,33 @@ def test_stp_level_solvable_as_a_line():
     for o in lab.objectives:
         passed, msg, _e = VALIDATORS[o.validator](o.args, solution)
         assert passed, f"net-topology-005/{o.id}: {msg}"
+
+
+# --- Layer-2 segmentation (level 6) ---
+
+def test_l2_separated_passes_when_router_is_the_only_bridge():
+    # pc1-sw1-r1, pc2-sw2-r1: the only path between the PCs crosses the L3 router.
+    f = _findings(links=[["pc1", "sw1"], ["sw1", "r1"], ["pc2", "sw2"], ["sw2", "r1"]])
+    passed, _m, _e = VALIDATORS["topology_l2_separated"]({"from": "pc1", "to": "pc2", "l3_devices": ["r1"]}, f)
+    assert passed
+
+
+def test_l2_separated_fails_when_switches_are_bridged():
+    # Cabling sw1-sw2 merges the two broadcast domains.
+    f = _findings(links=[["pc1", "sw1"], ["sw1", "r1"], ["pc2", "sw2"], ["sw2", "r1"], ["sw1", "sw2"]])
+    passed, msg, _e = VALIDATORS["topology_l2_separated"]({"from": "pc1", "to": "pc2", "l3_devices": ["r1"]}, f)
+    assert not passed and "broadcast domain" in msg.lower()
+
+
+def test_seg_level_solvable_and_rejects_bridging():
+    lab = LABS["net-topology-006"]
+    assert lab.workbench == "topology"
+    good = _findings(devices=_SEG_DEVICES, links=[["pc1", "sw1"], ["sw1", "r1"], ["pc2", "sw2"], ["sw2", "r1"]])
+    for o in lab.objectives:
+        passed, msg, _e = VALIDATORS[o.validator](o.args, good)
+        assert passed, f"net-topology-006/{o.id}: {msg}"
+    # bridging the switches must break only the segmentation objective
+    bridged = _findings(devices=_SEG_DEVICES, links=good["links"] + [["sw1", "sw2"]])
+    seg = next(o for o in lab.objectives if o.validator == "topology_l2_separated")
+    passed, _m, _e = VALIDATORS[seg.validator](seg.args, bridged)
+    assert not passed
