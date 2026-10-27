@@ -4,6 +4,7 @@ import { Check, X, Lock, RotateCcw, Clock, FlaskConical, ShieldCheck, SearchX, T
 import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
+import TopologyBuilder from '@/components/labs/TopologyBuilder';
 import { getMission } from '@/data/missions';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
@@ -460,13 +461,27 @@ export default function LabWorkspace() {
             </Card>
           ) : (
             <Card level={2}>
-              <h2 className="text-heading text-ink-1">Record your findings</h2>
-              <p className="mt-1 text-small text-ink-2">
-                Mark the configuration state you achieved. &ldquo;Check my work&rdquo; validates the result.
-              </p>
-              <div className="mt-4">
-                <NetworkWorkbench draft={draft} setDraft={setDraft} />
-              </div>
+              {lab.workbench === 'topology' ? (
+                <>
+                  <h2 className="text-heading text-ink-1">Build the network</h2>
+                  <p className="mt-1 text-small text-ink-2">
+                    Place each device, then click two of them to run a cable. &ldquo;Check my work&rdquo; validates the wiring.
+                  </p>
+                  <div className="mt-4">
+                    <TopologyBuilder draft={draft} setDraft={setDraft} targets={lab.targets} gameMode={gameMode} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-heading text-ink-1">Record your findings</h2>
+                  <p className="mt-1 text-small text-ink-2">
+                    Mark the configuration state you achieved. &ldquo;Check my work&rdquo; validates the result.
+                  </p>
+                  <div className="mt-4">
+                    <NetworkWorkbench draft={draft} setDraft={setDraft} />
+                  </div>
+                </>
+              )}
             </Card>
           )}
 

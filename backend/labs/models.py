@@ -65,6 +65,9 @@ class LabDefinition:
     #: Which simulated shell drives this lab's terminal (see labs/shells). None = no terminal
     #: (the lab uses another workbench). E.g. "linux_recon", "cisco_ios", "linux_net".
     shell: str | None = None
+    #: For non-terminal labs, which browser workbench the client renders. None = the default
+    #: config checklist (NetworkWorkbench). E.g. "topology" = the cabling/topology builder.
+    workbench: str | None = None
 
     def public_dict(self) -> dict[str, Any]:
         """Serialisable view safe to send to the browser: no image, no provider internals.
@@ -82,6 +85,7 @@ class LabDefinition:
             "category": self.category,
             "difficulty": self.difficulty,
             "estimated_minutes": self.estimated_minutes,
+            "workbench": self.workbench,
             "environment": {
                 "idle_timeout_minutes": self.environment.idle_timeout_minutes,
                 "max_runtime_minutes": self.environment.max_runtime_minutes,
