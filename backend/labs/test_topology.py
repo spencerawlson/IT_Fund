@@ -9,8 +9,8 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from labs.definitions.topology import (
-    TOPOLOGY_LAB, TOPOLOGY_CORE_LAB, TOPOLOGY_DMZ_LAB,
-    _DEVICES, _LINKS, _CORE_DEVICES, _CORE_LINKS, _DMZ_DEVICES, _DMZ_LINKS,
+    TOPOLOGY_LAB, TOPOLOGY_CORE_LAB, TOPOLOGY_DMZ_LAB, TOPOLOGY_FT_LAB,
+    _DEVICES, _LINKS, _CORE_DEVICES, _CORE_LINKS, _DMZ_DEVICES, _DMZ_LINKS, _FT_DEVICES,
 )
 from labs.registry import LABS
 from labs.validators import VALIDATORS
@@ -98,7 +98,7 @@ def test_extra_levels_registered_and_solvable(lab_id, devices, links):
 
 
 def test_each_topology_level_has_unique_id():
-    ids = [TOPOLOGY_LAB.id, TOPOLOGY_CORE_LAB.id, TOPOLOGY_DMZ_LAB.id]
+    ids = [TOPOLOGY_LAB.id, TOPOLOGY_CORE_LAB.id, TOPOLOGY_DMZ_LAB.id, TOPOLOGY_FT_LAB.id]
     assert len(ids) == len(set(ids))
 
 
@@ -107,3 +107,55 @@ def test_dmz_rejects_bridging_the_segments():
     bad = _DMZ_LINKS + [["web1", "sw2"]]
     passed, _m, _e = VALIDATORS["topology_clean"]({"links": _DMZ_LINKS}, _findings(links=bad))
     assert not passed
+
+
+# --- graph-property validators (open-ended levels) ---
+
+def test_reaches_follows_a_multi_hop_path():
+    f = _findings(links=[["pc1", "sw1"], ["sw1", "r1"]])
+    passed, _m, _e = VALIDATORS["topology_reaches"]({"from": "pc1", "to": "r1"}, f)
+    assert passed
+
+
+def test_reaches_fails_when_no_path():
+    f = _findings(links=[["pc1", "sw1"], ["sw2", "r1"]])  # two disjoint islands
+    passed, _m, _e = VALIDATORS["topology_reaches"]({"from": "pc1", "to": "r1"}, f)
+    assert not passed
+
+
+def test_redundant_path_fails_on_a_single_chain():
+    # One path sw1-r1: cutting it isolates them.
+    f = _findings(links=[["sw1", "r1"]])
+    passed, msg, _e = VALIDATORS["topology_redundant_path"]({"from": "sw1", "to": "r1"}, f)
+    assert not passed
+    assert "fault-tolerant" in msg.lower()
+
+
+def test_redundant_path_passes_with_two_independent_paths():
+    # Direct link + a detour through sw2 => 2-edge-connected.
+    f = _findings(links=[["sw1", "r1"], ["sw1", "sw2"], ["sw2", "r1"]])
+    passed, _m, _e = VALIDATORS["topology_redundant_path"]({"from": "sw1", "to": "r1"}, f)
+    assert passed
+
+
+def test_fault_tolerant_level_is_solvable_many_ways():
+    lab = LABS["net-topology-004"]
+    assert lab.workbench == "topology"
+    # A solution that is NOT the hinted one still passes (open-ended): a ring.
+    solution = _findings(
+        devices=_FT_DEVICES,
+        links=[["pc1", "sw1"], ["sw1", "r1"], ["r1", "sw2"], ["sw2", "sw1"]],
+    )
+    for o in lab.objectives:
+        passed, msg, _e = VALIDATORS[o.validator](o.args, solution)
+        assert passed, f"net-topology-004/{o.id}: {msg}"
+
+
+def test_core_level_now_checks_redundancy():
+    lab = LABS["net-topology-002"]
+    assert any(o.validator == "topology_redundant_path" for o in lab.objectives)
+    # The designed core satisfies every objective, redundancy included.
+    f = _findings(devices=_CORE_DEVICES, links=_CORE_LINKS)
+    for o in lab.objectives:
+        passed, msg, _e = VALIDATORS[o.validator](o.args, f)
+        assert passed, f"net-topology-002/{o.id}: {msg}"
