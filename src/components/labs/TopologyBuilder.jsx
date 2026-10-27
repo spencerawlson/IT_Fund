@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Monitor, Network, Router, Server, X, Cable } from 'lucide-react';
+import { Monitor, Network, Router, Server, Shield, Cloud, X, Cable } from 'lucide-react';
 
 // Phase 4 of the game layer (docs/GAME_LAB_DESIGN.md): the cabling puzzle.
 // The learner places devices and runs cables; the graph is written into the
@@ -9,6 +9,8 @@ import { Monitor, Network, Router, Server, X, Cable } from 'lucide-react';
 
 const iconFor = (role = '') => {
   const r = role.toLowerCase();
+  if (r.includes('firewall')) return Shield;
+  if (r.includes('internet') || r.includes('cloud') || r.includes('upstream')) return Cloud;
   if (r.includes('router') || r.includes('gateway')) return Router;
   if (r.includes('switch')) return Network;
   if (r.includes('server')) return Server;
