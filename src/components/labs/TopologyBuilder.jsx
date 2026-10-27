@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Monitor, Network, Router, Server, Shield, Cloud, X, Cable } from 'lucide-react';
+import { Monitor, Network, Router, Server, Shield, Cloud, X, Cable, Box, Square } from 'lucide-react';
+import NetworkScene3D from './NetworkScene3D';
 
 // Phase 4 of the game layer (docs/GAME_LAB_DESIGN.md): the cabling puzzle.
 // The learner places devices and runs cables; the graph is written into the
@@ -23,6 +24,7 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
   const devices = draft.devices || [];
   const links = draft.links || [];
   const [selected, setSelected] = useState(null); // id of the device awaiting a cable partner
+  const [view, setView] = useState('2d'); // '2d' = editable board, '3d' = read-only scene
 
   const placedSet = new Set(devices);
   const available = targets.filter((t) => !placedSet.has(t.hostname));
@@ -91,7 +93,30 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
         )}
       </div>
 
+      {/* View toggle: 2D is the editable board, 3D is a read-only scene. */}
+      <div className="flex items-center gap-1.5">
+        {[['2d', Square, '2D'], ['3d', Box, '3D']].map(([v, Icon, label]) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setView(v)}
+            aria-pressed={view === v}
+            className={`flex items-center gap-1 rounded-control border px-2 py-1 text-caption font-semibold transition ${
+              view === v
+                ? (gameMode ? 'border-terminal-bright/50 text-terminal-bright' : 'border-action/50 text-action')
+                : (gameMode ? 'border-terminal-border text-terminal-muted' : 'border-black/10 text-ink-3')
+            }`}
+          >
+            <Icon size={13} aria-hidden="true" /> {label}
+          </button>
+        ))}
+        {view === '3d' && (
+          <span className={`text-caption ${gameMode ? 'text-terminal-muted' : 'text-ink-3'}`}>read-only view — edit in 2D</span>
+        )}
+      </div>
+
       {/* Board */}
+      {view === '2d' ? (
       <div
         className={`relative h-80 w-full overflow-hidden rounded-xl border ${
           gameMode ? 'crt border-terminal-border bg-terminal-bg' : 'border-black/10 bg-black/5'
@@ -156,6 +181,11 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
           );
         })}
       </div>
+      ) : (
+        <div className={`h-80 w-full overflow-hidden rounded-xl border ${gameMode ? 'border-terminal-border' : 'border-black/10'}`}>
+          <NetworkScene3D devices={devices} links={links} roleById={roleById} />
+        </div>
+      )}
 
       {/* Cable list */}
       {links.length > 0 && (
