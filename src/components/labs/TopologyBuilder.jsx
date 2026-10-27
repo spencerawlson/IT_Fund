@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Monitor, Network, Router, Server, Shield, Cloud, X, Cable, Box, Square } from 'lucide-react';
+import { Monitor, Network, Router, Server, Shield, Cloud, X, Cable, Box, Square, Trash2 } from 'lucide-react';
 import NetworkScene3D from './NetworkScene3D';
 
 // Phase 4 of the game layer (docs/GAME_LAB_DESIGN.md): the cabling puzzle.
@@ -112,6 +112,17 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
         ))}
         {view === '3d' && (
           <span className={`text-caption ${gameMode ? 'text-terminal-muted' : 'text-ink-3'}`}>read-only view — edit in 2D</span>
+        )}
+        {view === '2d' && (devices.length > 0 || links.length > 0) && (
+          <button
+            type="button"
+            onClick={() => { setSelected(null); commit({ devices: [], links: [] }); }}
+            className={`ml-auto flex items-center gap-1 rounded-control border px-2 py-1 text-caption font-semibold transition ${
+              gameMode ? 'border-terminal-border text-terminal-muted hover:text-terminal-bright' : 'border-black/10 text-ink-3 hover:border-black/25 hover:text-ink-1'
+            }`}
+          >
+            <Trash2 size={13} aria-hidden="true" /> Clear board
+          </button>
         )}
       </div>
 
