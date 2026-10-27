@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
-import NetworkScene3D, { layoutPositions, styleFor } from './NetworkScene3D';
+import NetworkScene3D, { layoutPositions, styleFor, radiusFor } from './NetworkScene3D';
 
 describe('layoutPositions', () => {
   it('places every device at a distinct point', () => {
@@ -13,6 +13,15 @@ describe('layoutPositions', () => {
 
   it('centres a single device', () => {
     expect(layoutPositions(['solo'])).toEqual({ solo: { x: 0, y: 1, z: 0 } });
+  });
+
+  it('spaces larger topologies on a wider ring', () => {
+    expect(radiusFor(3)).toBeLessThan(radiusFor(7)); // more devices => bigger ring
+    expect(radiusFor(2)).toBeGreaterThanOrEqual(9);   // a floor so tiny nets aren't cramped
+    // nodes on the wider ring really are farther from centre
+    const small = layoutPositions(['a', 'b', 'c']).a;
+    const big = layoutPositions(['a', 'b', 'c', 'd', 'e', 'f', 'g']).a;
+    expect(Math.hypot(big.x, big.z)).toBeGreaterThan(Math.hypot(small.x, small.z));
   });
 });
 

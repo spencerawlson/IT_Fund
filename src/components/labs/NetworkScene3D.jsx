@@ -9,7 +9,9 @@ import { makeLabel } from '@/components/three/labels';
 // ModelViewer, which degrades gracefully where WebGL is unavailable (and under
 // SSR the WebGL effect never runs, so this is safe to render anywhere).
 
-const RADIUS = 10;
+// The ring radius grows with the device count so a big topology (a 7-node DMZ)
+// spaces out as cleanly as a 3-node LAN instead of overlapping.
+export const radiusFor = (n) => Math.max(9, n * 2.2);
 
 // Colour + shape per device role. Kept deliberately simple (typed blocks, not
 // the detailed single-device models) so a whole network reads clearly at a glance.
@@ -36,10 +38,11 @@ export function styleFor(role = '') {
 export function layoutPositions(devices) {
   const pos = {};
   const n = devices.length;
+  const radius = radiusFor(n);
   devices.forEach((id, i) => {
     if (n === 1) { pos[id] = { x: 0, y: 1, z: 0 }; return; }
     const a = (i / n) * 2 * Math.PI - Math.PI / 2;
-    pos[id] = { x: RADIUS * Math.cos(a), y: 1, z: RADIUS * Math.sin(a) };
+    pos[id] = { x: radius * Math.cos(a), y: 1, z: radius * Math.sin(a) };
   });
   return pos;
 }
@@ -82,5 +85,8 @@ function buildScene(devices, links, roleById) {
 
 export default function NetworkScene3D({ devices = [], links = [], roleById = {} }) {
   const build = useCallback((scene) => buildScene(devices, links, roleById)(scene), [devices, links, roleById]);
-  return <ModelViewer buildScene={build} cameraPos={[16, 14, 16]} target={[0, 1, 0]} />;
+  // Pull the camera back as the ring grows so the whole network stays framed.
+  const r = radiusFor(devices.length);
+  const dist = r * 1.5 + 6;
+  return <ModelViewer buildScene={build} cameraPos={[dist, dist * 0.85, dist]} target={[0, 1, 0]} />;
 }
