@@ -121,6 +121,62 @@
     transform: rotateY(180deg);
   }
 }
+/* ---------- Mission Console (game mode for labs) ----------
+   A Hacknet-flavoured CRT skin for the lab terminal. It only redefines the
+   --terminal-* variables (so LabTerminal recolours with no code change) and
+   layers decorative CRT effects. All effects are decorative and honour
+   prefers-reduced-motion. See docs/GAME_LAB_DESIGN.md. */
+.mission-console {
+  --terminal-bg: #04100a;
+  --terminal-border: #0c3b24;
+  --terminal-text-rgb: 61 220 132;   /* phosphor green */
+  --terminal-bright-rgb: 170 255 190; /* bright green for typed commands */
+  --terminal-muted-rgb: 90 150 120;   /* dim green for the boot/banner lines */
+  --terminal-error-rgb: 255 120 90;   /* amber-red */
+  position: relative;
+}
+/* Scanlines + bloom, painted over the terminal without catching clicks. */
+.mission-console .crt {
+  position: relative;
+  text-shadow: 0 0 6px rgb(var(--terminal-text-rgb) / 0.45);
+  box-shadow: inset 0 0 70px rgb(var(--terminal-text-rgb) / 0.08), 0 0 24px rgb(0 0 0 / 0.6);
+}
+.mission-console .crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    rgb(0 0 0 / 0.22) 0px,
+    rgb(0 0 0 / 0.22) 1px,
+    transparent 2px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+  z-index: 2;
+}
+.mission-console .crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(120% 120% at 50% 0%, transparent 60%, rgb(0 0 0 / 0.45));
+  z-index: 2;
+}
+.mission-console .crt-flicker {
+  animation: crt-flicker 3.2s infinite steps(60);
+}
+@keyframes crt-flicker {
+  0%, 97%, 100% { opacity: 1; }
+  98% { opacity: 0.86; }
+  99% { opacity: 0.94; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mission-console .crt-flicker { animation: none; }
+}
 /* ---------- Liquid glass (Academy) ---------- */
 @layer components {
   /* Frosted, refractive panel: translucent white fill over the white page, soft depth. */

@@ -54,6 +54,7 @@ case "$only" in
         # road-to-cissp/linux-admin-hardening:latest.
         build wireshark Dockerfile.wireshark
         build webapp Dockerfile.webapp
+        build pentest-web Dockerfile.pentest-web
         build gitleaks Dockerfile.gitleaks
         build trivy Dockerfile.trivy
         build iac-policy Dockerfile.iac-policy
@@ -67,13 +68,14 @@ case "$only" in
     iac)      build iac Dockerfile.iac ;;
     wireshark) build wireshark Dockerfile.wireshark ;;
     webapp)   build webapp Dockerfile.webapp ;;
+    pentest-web) build pentest-web Dockerfile.pentest-web ;;
     gitleaks) build gitleaks Dockerfile.gitleaks ;;
     trivy)    build trivy Dockerfile.trivy ;;
     iac-policy) build iac-policy Dockerfile.iac-policy ;;
     python-tools) build python-tools Dockerfile.python-tools ;;
     linux-admin) build linux-admin Dockerfile.linux-admin ;;
     linux-admin-hardening) build linux-admin-hardening Dockerfile.linux-admin-hardening ;;
-    *) echo "unknown image: $only (try: all, python, log-triage, security-tools, portblast-lab, cloudshell, iac, wireshark, webapp, gitleaks, trivy, iac-policy, python-tools, linux-admin, linux-admin-hardening)" >&2; exit 1 ;;
+    *) echo "unknown image: $only (try: all, python, log-triage, security-tools, portblast-lab, cloudshell, iac, wireshark, webapp, pentest-web, gitleaks, trivy, iac-policy, python-tools, linux-admin, linux-admin-hardening)" >&2; exit 1 ;;
 esac
 
 echo

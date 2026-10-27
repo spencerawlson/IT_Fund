@@ -111,6 +111,19 @@ export default function LabWorkspace() {
   const [busy, setBusy] = useState(false);
   const [epoch, setEpoch] = useState(0); // bumped on reset to remount the terminal (clear its buffer)
   const [activeDevice, setActiveDevice] = useState(null); // which device console is active (multi-device labs)
+  // Mission mode: a Hacknet-flavoured CRT skin over the same real terminal (see
+  // docs/GAME_LAB_DESIGN.md). Per-viewer preference; storage may be unavailable
+  // (private windows), so every access is guarded.
+  const [gameMode, setGameMode] = useState(() => {
+    try { return localStorage.getItem('rtc-lab-gamemode') === '1'; } catch { return false; }
+  });
+  const toggleGameMode = useCallback(() => {
+    setGameMode((on) => {
+      const next = !on;
+      try { localStorage.setItem('rtc-lab-gamemode', next ? '1' : '0'); } catch { /* ignore */ }
+      return next;
+    });
+  }, []);
   const destroyed = useRef(false);
   const termRef = useRef(null);
 
@@ -324,8 +337,15 @@ export default function LabWorkspace() {
   const expired = session.status === 'EXPIRED';
   const relatedLessons = LESSONS_FOR_LAB[labId] || [];
 
-  const banner = lab.terminal?.banner || [];
+  const labBanner = lab.terminal?.banner || [];
   const prompt = lab.terminal?.prompt || 'student@lab:~$ ';
+  // In mission mode the banner is a short boot log; otherwise the lab's own banner.
+  const target0 = lab.targets?.[0]?.hostname || 'target.lab';
+  const banner = gameMode
+    ? ['[ MISSION CONSOLE v1 ]', 'establishing uplink ............ OK',
+       `routing to ${target0} ............ ONLINE`,
+       `objectives: ${total} · clearance: ${lab.difficulty}`, 'type `help` for available operations', '']
+    : labBanner;
   // Console tabs only for shells that support `connect <device>` (e.g. Cisco IOS labs).
   const devices = lab.terminal?.multi_device ? (lab.targets || []) : [];
 
@@ -370,11 +390,23 @@ export default function LabWorkspace() {
 
         <div className="space-y-4">
           {usesTerminal ? (
-            <Card level={2}>
+            <Card level={2} className={gameMode ? 'mission-console' : undefined}>
               <div className="mb-3 flex items-center gap-2">
-                <TerminalSquare size={18} className="text-ink-2" aria-hidden="true" />
-                <h2 className="text-heading text-ink-1">Terminal</h2>
-                <span className="ml-auto text-caption text-ink-3">{isLive ? 'live container — real commands, real output' : 'simulated — nothing is really executed'}</span>
+                <TerminalSquare size={18} className={gameMode ? 'text-terminal-bright' : 'text-ink-2'} aria-hidden="true" />
+                <h2 className={`text-heading ${gameMode ? 'font-mono text-terminal-bright' : 'text-ink-1'}`}>{gameMode ? 'Mission Console' : 'Terminal'}</h2>
+                <span className={`text-caption ${gameMode ? 'text-terminal-muted' : 'text-ink-3'}`}>{isLive ? 'live container — real commands, real output' : 'simulated — nothing is really executed'}</span>
+                <button
+                  type="button"
+                  onClick={toggleGameMode}
+                  aria-pressed={gameMode}
+                  className={`ml-auto rounded-control border px-2.5 py-1 text-caption font-semibold transition ${
+                    gameMode
+                      ? 'border-terminal-bright/40 text-terminal-bright hover:border-terminal-bright/70'
+                      : 'border-black/10 text-ink-2 hover:border-black/25 hover:text-ink-1'
+                  }`}
+                >
+                  {gameMode ? 'Exit mission mode' : 'Mission mode'}
+                </button>
               </div>
               {devices.length > 1 && (
                 <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -397,8 +429,9 @@ export default function LabWorkspace() {
                   ))}
                 </div>
               )}
+              <div className={gameMode ? 'crt crt-flicker overflow-hidden rounded-xl' : undefined}>
               <LabTerminal
-                key={`${session.id}:${epoch}`}
+                key={`${session.id}:${epoch}:${gameMode ? 'g' : 'p'}`}
                 ref={termRef}
                 sessionId={session.id}
                 runner={runner}
@@ -409,6 +442,7 @@ export default function LabWorkspace() {
                 onError={setError}
                 onPrompt={onPrompt}
               />
+              </div>
               <p className="mt-3 text-caption text-ink-3">
                 {isLive ? (
                   <>Run each step for real in the container, then press <span className="font-semibold text-ink-1">I did this</span> on the objective and check your work.</>

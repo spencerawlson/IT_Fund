@@ -77,7 +77,7 @@ jobs:
         working-directory: backend
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt pytest
+          pip install -r requirements.txt -r requirements-dev.txt pytest
       - name: Run tests (SQLite, like local dev)
         working-directory: backend
         run: python -m pytest -q
