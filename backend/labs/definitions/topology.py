@@ -114,6 +114,46 @@ def topology_redundant_path(args, findings):
     return True, f"Fault-tolerant: {a} keeps reaching {b} even if any single cable is cut.", None
 
 
+@validator("topology_connected")
+def topology_connected(args, findings):
+    nodes = list(args.get("devices") or [])
+    if len(nodes) <= 1:
+        return True, "Nothing to connect.", None
+    reach = _reachable(_adjacency(findings.get("links")), nodes[0])
+    missing = [n for n in nodes if n not in reach]
+    if missing:
+        return False, f"Not one network yet: {', '.join(missing)} can't reach {nodes[0]}.", None
+    return True, "Every device is part of one connected network.", None
+
+
+@validator("topology_no_loop")
+def topology_no_loop(args, findings):
+    """No cycle among the given devices (a Layer-2 switch loop). Union-find: a
+    link whose endpoints are already connected closes a loop."""
+    nodes = set(args.get("devices") or [])
+    links = _link_set(findings.get("links"))
+    if nodes:
+        links = {(a, b) for (a, b) in links if a in nodes and b in nodes}
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for a, b in links:
+        ra, rb = find(a), find(b)
+        if ra == rb:
+            return False, (
+                f"Switching loop: {a}–{b} closes a cycle. Without STP that's a broadcast storm — "
+                "remove a link so the switches form a tree."
+            ), None
+        parent[ra] = rb
+    return True, "Loop-free: the switched paths form a tree.", None
+
+
 _DEVICES = ["pc1", "pc2", "sw1", "r1"]
 _LINKS = [["pc1", "sw1"], ["pc2", "sw1"], ["sw1", "r1"]]
 
@@ -321,5 +361,50 @@ TOPOLOGY_DMZ_LAB = LabDefinition(
                      validator="topology_clean", args={"links": _DMZ_LINKS},
                      description="No extra cables — especially nothing that bridges the DMZ to the inside LAN.",
                      hints=["Don't cable WEB1 and PC1 to the same switch, and don't cross the two switches."]),
+    ],
+)
+
+
+# --------------------------------------------------------------------------
+# Level 5 — the switching-loop lesson: connect all three switches, but WITHOUT
+# a loop (no STP here). Connected + acyclic over N switches == a spanning tree.
+# --------------------------------------------------------------------------
+_STP_SWITCHES = ["sw1", "sw2", "sw3"]
+
+TOPOLOGY_STP_LAB = LabDefinition(
+    id="net-topology-005",
+    slug="break-the-switching-loop",
+    title="Break the Switching Loop",
+    description=(
+        "Three switches must all talk to each other — but a switched LAN with no spanning-tree "
+        "protocol cannot tolerate a loop: cable them in a ring and broadcasts circle forever "
+        "(a broadcast storm). Connect all three switches so every one is reachable, with no loop. "
+        "This is exactly the problem STP was invented to solve."
+    ),
+    category="networking",
+    difficulty="intermediate",
+    estimated_minutes=10,
+    shell=None,
+    workbench="topology",
+    environment=LabEnvironmentConfig(provider="mock"),
+    targets=[
+        LabTarget(hostname="sw1", role="Access switch"),
+        LabTarget(hostname="sw2", role="Access switch"),
+        LabTarget(hostname="sw3", role="Access switch"),
+    ],
+    objectives=[
+        LabObjective(id="place-devices", label="Place all three switches",
+                     validator="topology_devices_placed", args={"devices": _STP_SWITCHES},
+                     description="Add SW1, SW2 and SW3.",
+                     hints=["Three switches, no hosts needed for this one."]),
+        LabObjective(id="connected", label="Every switch can reach every other",
+                     validator="topology_connected", args={"devices": _STP_SWITCHES},
+                     description="All three switches must be in one connected network.",
+                     hints=["Two cables are enough to connect three switches in a line."]),
+        LabObjective(id="no-loop", label="No switching loop",
+                     validator="topology_no_loop", args={"devices": _STP_SWITCHES},
+                     description="The switches must form a tree — no cable closes a loop.",
+                     hints=["A ring (SW1–SW2–SW3–SW1) is a loop; drop one of its cables.",
+                            "Connected + no loop over three switches means exactly two cables."]),
     ],
 )

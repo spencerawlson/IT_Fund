@@ -9,8 +9,8 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from labs.definitions.topology import (
-    TOPOLOGY_LAB, TOPOLOGY_CORE_LAB, TOPOLOGY_DMZ_LAB, TOPOLOGY_FT_LAB,
-    _DEVICES, _LINKS, _CORE_DEVICES, _CORE_LINKS, _DMZ_DEVICES, _DMZ_LINKS, _FT_DEVICES,
+    TOPOLOGY_LAB, TOPOLOGY_CORE_LAB, TOPOLOGY_DMZ_LAB, TOPOLOGY_FT_LAB, TOPOLOGY_STP_LAB,
+    _DEVICES, _LINKS, _CORE_DEVICES, _CORE_LINKS, _DMZ_DEVICES, _DMZ_LINKS, _FT_DEVICES, _STP_SWITCHES,
 )
 from labs.registry import LABS
 from labs.validators import VALIDATORS
@@ -98,7 +98,7 @@ def test_extra_levels_registered_and_solvable(lab_id, devices, links):
 
 
 def test_each_topology_level_has_unique_id():
-    ids = [TOPOLOGY_LAB.id, TOPOLOGY_CORE_LAB.id, TOPOLOGY_DMZ_LAB.id, TOPOLOGY_FT_LAB.id]
+    ids = [TOPOLOGY_LAB.id, TOPOLOGY_CORE_LAB.id, TOPOLOGY_DMZ_LAB.id, TOPOLOGY_FT_LAB.id, TOPOLOGY_STP_LAB.id]
     assert len(ids) == len(set(ids))
 
 
@@ -159,3 +159,39 @@ def test_core_level_now_checks_redundancy():
     for o in lab.objectives:
         passed, msg, _e = VALIDATORS[o.validator](o.args, f)
         assert passed, f"net-topology-002/{o.id}: {msg}"
+
+
+# --- connectivity + switching-loop validators (level 5) ---
+
+def test_connected_requires_all_devices_in_one_component():
+    ok = _findings(links=[["sw1", "sw2"], ["sw2", "sw3"]])
+    passed, _m, _e = VALIDATORS["topology_connected"]({"devices": _STP_SWITCHES}, ok)
+    assert passed
+    split = _findings(links=[["sw1", "sw2"]])  # sw3 dangling
+    passed, msg, _e = VALIDATORS["topology_connected"]({"devices": _STP_SWITCHES}, split)
+    assert not passed and "sw3" in msg
+
+
+def test_no_loop_passes_on_a_tree_fails_on_a_ring():
+    tree = _findings(links=[["sw1", "sw2"], ["sw2", "sw3"]])
+    passed, _m, _e = VALIDATORS["topology_no_loop"]({"devices": _STP_SWITCHES}, tree)
+    assert passed
+    ring = _findings(links=[["sw1", "sw2"], ["sw2", "sw3"], ["sw3", "sw1"]])
+    passed, msg, _e = VALIDATORS["topology_no_loop"]({"devices": _STP_SWITCHES}, ring)
+    assert not passed and "loop" in msg.lower()
+
+
+def test_no_loop_only_considers_the_named_devices():
+    # A loop that runs through a device OUTSIDE the named set is not counted.
+    f = _findings(links=[["sw1", "sw2"], ["sw2", "r1"], ["r1", "sw1"]])
+    passed, _m, _e = VALIDATORS["topology_no_loop"]({"devices": ["sw1", "sw2"]}, f)
+    assert passed  # only sw1-sw2 is within the set; no loop among the named switches
+
+
+def test_stp_level_solvable_as_a_line():
+    lab = LABS["net-topology-005"]
+    assert lab.workbench == "topology"
+    solution = _findings(devices=_STP_SWITCHES, links=[["sw1", "sw2"], ["sw2", "sw3"]])
+    for o in lab.objectives:
+        passed, msg, _e = VALIDATORS[o.validator](o.args, solution)
+        assert passed, f"net-topology-005/{o.id}: {msg}"
