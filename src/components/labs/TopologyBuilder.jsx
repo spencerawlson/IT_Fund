@@ -92,7 +92,7 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
       {/* Board */}
       <div
         className={`relative h-80 w-full overflow-hidden rounded-xl border ${
-          gameMode ? 'crt border-terminal-border bg-terminal-bg' : 'border-black/10 bg-black/[0.02]'
+          gameMode ? 'crt border-terminal-border bg-terminal-bg' : 'border-black/10 bg-black/5'
         }`}
         role="group"
         aria-label="Network topology board"
