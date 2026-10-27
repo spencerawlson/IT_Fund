@@ -205,6 +205,7 @@ class DockerLabProvider(LabProvider):
                 pass  # already gone / daemon hiccup: still a no-op for the caller
 
         await asyncio.to_thread(_destroy)
+        self._last_used.pop(environment_id, None)
 
     async def reap_orphans(self, max_age_minutes: int = 120) -> int:
         """Destroy lab containers older than max_age_minutes, by label.
@@ -237,7 +238,6 @@ class DockerLabProvider(LabProvider):
             return await asyncio.to_thread(_reap)
         except Exception:
             return 0
-        self._last_used.pop(environment_id, None)
 
     async def validate_objective(
         self, environment_id: str, lab: LabDefinition, objective_id: str, findings: dict[str, Any]

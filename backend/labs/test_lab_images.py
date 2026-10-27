@@ -47,6 +47,7 @@ IMAGE_DOCKERFILE = {
     "linux-terminal": None,  # mock lab simulates the shell; no image built
     "wireshark": "Dockerfile.wireshark",
     "webapp": "Dockerfile.webapp",
+    "pentest-web": "Dockerfile.pentest-web",
     "gitleaks": "Dockerfile.gitleaks",
     "trivy": "Dockerfile.trivy",
     "iac-policy": "Dockerfile.iac-policy",

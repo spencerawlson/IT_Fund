@@ -19,6 +19,7 @@ hardened container per session). Build them on the VM that runs the backend
 | `road-to-cissp/iac` | cloud-terraform-001 | real terraform 1.9.8 + tfsec v1.28.14, pre-seeded provider mirror (offline) |
 | `road-to-cissp/wireshark` | tools-wireshark-001 | real tshark + seeded pcaps |
 | `road-to-cissp/webapp` | sec-webapp-001 | in-house vulnerable Flask app on loopback (seeded SQLi/XSS) |
+| `road-to-cissp/pentest-web` | sec-pentest-web-001 | in-house vulnerable Flask target on loopback (SQLi auth-bypass + UNION, reflected XSS, IDOR, command injection) attacked with real nmap/curl/sqlmap |
 | `road-to-cissp/gitleaks` | sec-gitleaks-001 | real gitleaks + seeded repo with committed secrets |
 | `road-to-cissp/trivy` | sec-trivy-001 | real trivy (rootfs scan) + seeded vulnerable rootfs |
 | `road-to-cissp/iac-policy` | iac-policy-001 | real tfsec + conftest + seeded violating Terraform |

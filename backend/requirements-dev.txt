@@ -1,0 +1,5 @@
+# Test-only dependencies (not needed to run the FastAPI backend).
+# Flask is the dependency of the intentionally-vulnerable lab target
+# (labs/images/seeds/sec-pentest-web-001/app.py and sec-webapp-001/app.py);
+# the labs' live-exploitation tests import it. Pinned to the image's version.
+Flask==3.1.0
