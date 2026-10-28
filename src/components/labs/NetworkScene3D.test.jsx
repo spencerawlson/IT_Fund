@@ -1,7 +1,8 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
-import NetworkScene3D, { layoutPositions, builderFor, radiusFor } from './NetworkScene3D';
+import NetworkScene3D, { layoutPositions, radiusFor } from './NetworkScene3D';
+import { modelKeyFor, fallbackBuilderFor, modelUrl } from '@/components/three/deviceModels';
 
 describe('layoutPositions', () => {
   it('places every device at a distinct point', () => {
@@ -16,22 +17,32 @@ describe('layoutPositions', () => {
   });
 
   it('spaces larger topologies on a wider ring', () => {
-    expect(radiusFor(3)).toBeLessThan(radiusFor(7)); // more devices => bigger ring
-    expect(radiusFor(2)).toBeGreaterThanOrEqual(14);  // a floor so tiny nets aren't cramped
+    expect(radiusFor(3)).toBeLessThan(radiusFor(7));
+    expect(radiusFor(2)).toBeGreaterThanOrEqual(14);
     const small = layoutPositions(['a', 'b', 'c']).a;
     const big = layoutPositions(['a', 'b', 'c', 'd', 'e', 'f', 'g']).a;
     expect(Math.hypot(big.x, big.z)).toBeGreaterThan(Math.hypot(small.x, small.z));
   });
 });
 
-describe('builderFor', () => {
-  it('maps each role to the right Visual-Lab model builder', () => {
-    expect(builderFor('Access switch').name).toBe('buildSwitch');
-    expect(builderFor('Gateway router').name).toBe('buildSwitch');
-    expect(builderFor('DMZ web server').name).toBe('buildRack');
-    expect(builderFor('Perimeter firewall').name).toBe('buildLoadBalancer');
-    expect(builderFor('Internet / upstream cloud').name).toBe('buildVpc');
-    expect(builderFor('Workstation').name).toBe('buildMotherboard');
+describe('device model mapping', () => {
+  it('maps each role to the right GLB asset key', () => {
+    expect(modelKeyFor('Access switch')).toBe('switch');
+    expect(modelKeyFor('Gateway router')).toBe('router');
+    expect(modelKeyFor('DMZ web server')).toBe('server');
+    expect(modelKeyFor('Perimeter firewall')).toBe('firewall');
+    expect(modelKeyFor('Internet / upstream cloud')).toBe('cloud');
+    expect(modelKeyFor('Workstation')).toBe('pc');
+  });
+
+  it('serves assets from /models', () => {
+    expect(modelUrl('router')).toMatch(/models\/router\.glb$/);
+  });
+
+  it('has a procedural fallback builder for every role', () => {
+    for (const role of ['switch', 'router', 'server', 'firewall', 'cloud', 'host']) {
+      expect(typeof fallbackBuilderFor(role)).toBe('function');
+    }
   });
 });
 
