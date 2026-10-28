@@ -26,10 +26,22 @@ const FORCE = process.argv.includes('--force');
 // match }. We only accept a model whose TITLE contains a keyword, so e.g. the
 // switch can't silently become a router. Tune these if a pick looks wrong.
 const SPECS = {
-  switch: { queries: ['network switch', 'ethernet switch', 'switch'], words: ['switch'] },
-  router: { queries: ['wifi router', 'router'], words: ['router'] },
+  // "switch" alone matches Nintendo Switch / light switch — require a network
+  // word in the title and reject the look-alikes. If nothing matches, the
+  // procedural Switch3D rack chassis (a real switch) is used as the fallback.
+  switch: {
+    queries: ['network switch', 'ethernet switch', 'cisco switch', 'rack switch'],
+    words: ['network', 'ethernet'],
+    reject: ['nintendo', 'joy', 'console', 'game', 'light', 'toggle', 'lever'],
+  },
+  router: {
+    queries: ['wifi router', 'network router', 'router'],
+    words: ['router'],
+    prefer: ['wifi', 'network', 'wireless', 'internet'],
+    reject: ['wood', 'woodworking', 'power tool', 'cnc'],
+  },
   server: { queries: ['server', 'server rack', 'data server'], words: ['server'] },
-  firewall: { queries: ['firewall', 'security appliance'], words: ['firewall'] },
+  firewall: { queries: ['firewall', 'brick wall', 'shield', 'security shield', 'wall'], words: ['firewall', 'wall', 'shield'] },
   cloud: { queries: ['cloud', 'cloud icon'], words: ['cloud'] },
   pc: { queries: ['desktop computer', 'computer tower', 'pc'], words: ['computer', 'pc', 'desktop', 'tower'] },
 };
@@ -73,14 +85,16 @@ async function search(key, query) {
   return results;
 }
 
-// Higher is better: a title that matches the device type dominates, then CC0
-// over CC-BY. A result whose title doesn't match at all scores below zero.
-function score(r, words) {
+// Higher is better. A reject word disqualifies outright (e.g. "Nintendo Switch").
+// A required word must appear in the title; a prefer word boosts; CC0 beats CC-BY.
+function score(r, spec) {
   const title = String(pick(r, ['Title', 'title', 'name']) || '').toLowerCase();
   const lic = String(pick(r, ['Licence', 'License', 'license']) || '').toUpperCase();
-  const titleMatch = words.some((w) => title.includes(w));
+  if ((spec.reject || []).some((w) => title.includes(w))) return -1000;
+  const titleMatch = spec.words.some((w) => title.includes(w));
+  const preferMatch = (spec.prefer || []).some((w) => title.includes(w));
   const licScore = lic.includes('CC0') ? 2 : (lic.includes('CC-BY') || lic.includes('CCBY')) ? 1 : 0;
-  return (titleMatch ? 100 : -100) + licScore;
+  return (titleMatch ? 100 : -100) + (preferMatch ? 50 : 0) + licScore;
 }
 
 async function downloadGlb(url) {
@@ -113,7 +127,7 @@ async function main() {
     for (const query of spec.queries) {
       try {
         for (const r of await search(key, query)) {
-          const s = score(r, spec.words);
+          const s = score(r, spec);
           if (s > 0 && glbUrlOf(r)) candidates.push({ r, s, query });
         }
       } catch (e) { /* try next query */ }
