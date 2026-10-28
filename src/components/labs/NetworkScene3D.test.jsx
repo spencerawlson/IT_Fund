@@ -1,7 +1,8 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
-import NetworkScene3D, { layoutPositions, styleFor, radiusFor } from './NetworkScene3D';
+import NetworkScene3D, { layoutPositions, radiusFor } from './NetworkScene3D';
+import { modelKeyFor, fallbackBuilderFor, modelUrl } from '@/components/three/deviceModels';
 
 describe('layoutPositions', () => {
   it('places every device at a distinct point', () => {
@@ -12,24 +13,36 @@ describe('layoutPositions', () => {
   });
 
   it('centres a single device', () => {
-    expect(layoutPositions(['solo'])).toEqual({ solo: { x: 0, y: 1, z: 0 } });
+    expect(layoutPositions(['solo'])).toEqual({ solo: { x: 0, y: 0, z: 0 } });
   });
 
   it('spaces larger topologies on a wider ring', () => {
-    expect(radiusFor(3)).toBeLessThan(radiusFor(7)); // more devices => bigger ring
-    expect(radiusFor(2)).toBeGreaterThanOrEqual(9);   // a floor so tiny nets aren't cramped
-    // nodes on the wider ring really are farther from centre
+    expect(radiusFor(3)).toBeLessThan(radiusFor(7));
+    expect(radiusFor(2)).toBeGreaterThanOrEqual(14);
     const small = layoutPositions(['a', 'b', 'c']).a;
     const big = layoutPositions(['a', 'b', 'c', 'd', 'e', 'f', 'g']).a;
     expect(Math.hypot(big.x, big.z)).toBeGreaterThan(Math.hypot(small.x, small.z));
   });
 });
 
-describe('styleFor', () => {
-  it('maps roles to the right shape', () => {
-    expect(styleFor('Gateway router').shape).toBe('box');
-    expect(styleFor('Internet / upstream cloud').shape).toBe('sphere');
-    expect(styleFor('Perimeter firewall').color).toBe(0xdc2626);
+describe('device model mapping', () => {
+  it('maps each role to the right GLB asset key', () => {
+    expect(modelKeyFor('Access switch')).toBe('switch');
+    expect(modelKeyFor('Gateway router')).toBe('router');
+    expect(modelKeyFor('DMZ web server')).toBe('server');
+    expect(modelKeyFor('Perimeter firewall')).toBe('firewall');
+    expect(modelKeyFor('Internet / upstream cloud')).toBe('cloud');
+    expect(modelKeyFor('Workstation')).toBe('pc');
+  });
+
+  it('serves assets from /models', () => {
+    expect(modelUrl('router')).toMatch(/models\/router\.glb$/);
+  });
+
+  it('has a procedural fallback builder for every role', () => {
+    for (const role of ['switch', 'router', 'server', 'firewall', 'cloud', 'host']) {
+      expect(typeof fallbackBuilderFor(role)).toBe('function');
+    }
   });
 });
 

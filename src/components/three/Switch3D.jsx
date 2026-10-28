@@ -35,7 +35,7 @@ function addInstanced(scene, geo, mat, positions) {
   return mesh;
 }
 
-function buildSwitch(scene) {
+export function buildSwitch(scene) {
   const parts = [];
 
   // Chassis

@@ -32,7 +32,7 @@ function addCyl(scene, parts, o) {
   return mesh;
 }
 
-function buildMotherboard(scene) {
+export function buildMotherboard(scene) {
   const parts = [];
 
   // PCB

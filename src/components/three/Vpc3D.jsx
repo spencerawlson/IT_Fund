@@ -68,7 +68,7 @@ function addLine(scene, a, b, color = 0x475569) {
   scene.add(mesh);
 }
 
-function buildVpc(scene) {
+export function buildVpc(scene) {
   const parts = [];
 
   // VPC boundary (wireframe only — visual, not clickable)
