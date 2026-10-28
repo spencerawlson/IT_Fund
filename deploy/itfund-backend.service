@@ -13,6 +13,12 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=%h/IT_Fund/backend
 EnvironmentFile=%h/.config/itfund/backend.env
+# Enable real container labs (hardened DockerLabProvider). This overrides the
+# env file, so labs go live on the next `systemctl --user restart` without
+# editing backend.env. It still requires a reachable Docker daemon AND the
+# images built (backend/labs/images/build.sh); until then, provider="docker"
+# labs report "unavailable" — mock labs are unaffected.
+Environment=LAB_DOCKER_ENABLED=1
 ExecStart=%h/IT_Fund/backend/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8001 --workers 2
 Restart=on-failure
 RestartSec=5

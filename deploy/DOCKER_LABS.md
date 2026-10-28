@@ -56,14 +56,18 @@ docker info >/dev/null && echo "daemon OK"
 cd ~/IT_Fund/backend/labs/images && ./build.sh
 # expect: road-to-cissp/python-basics, python-automation, python-netauto,
 #   log-triage, security-tools, portblast-lab, cloudshell, iac, wireshark,
-#   webapp, gitleaks, trivy, iac-policy, python-tools, linux-admin,
+#   webapp, pentest-web, gitleaks, trivy, iac-policy, python-tools, linux-admin,
 #   linux-admin-hardening (:latest)
 
-# 4. Opt in
+# 4. Opt in.
+# The systemd unit (deploy/itfund-backend.service) now sets LAB_DOCKER_ENABLED=1
+# itself, so a fresh unit install already enables it. This env line is only
+# needed if you run the backend some other way (not via that unit).
 printf '\nLAB_DOCKER_ENABLED=1\n' >> ~/.config/itfund/backend.env
 chmod 600 ~/.config/itfund/backend.env
 
-# 5. Restart the backend
+# 5. Restart the backend (re-copy the unit first if it changed):
+#    cp deploy/itfund-backend.service ~/.config/systemd/user/ && systemctl --user daemon-reload
 systemctl --user restart itfund-backend
 systemctl --user status itfund-backend --no-pager | head -5
 curl -s https://api.road2cissp.com/health
