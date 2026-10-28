@@ -1,11 +1,4 @@
 {
-  "switch": {
-    "title": "Switch",
-    "author": "sugamo",
-    "licence": "CC-BY 3.0",
-    "source": "https://poly.pizza",
-    "query": "network switch"
-  },
   "router": {
     "title": "Modern Router",
     "author": "J-Toastie",
@@ -19,6 +12,13 @@
     "licence": "CC-BY 3.0",
     "source": "https://poly.pizza",
     "query": "server"
+  },
+  "firewall": {
+    "title": "Wall",
+    "author": "Quaternius",
+    "licence": "CC0 1.0",
+    "source": "https://poly.pizza",
+    "query": "wall"
   },
   "cloud": {
     "title": "Cloud",
