@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Monitor, Network, Router, Server, Shield, Cloud, X, Cable, Box, Square, Trash2 } from 'lucide-react';
 import NetworkScene3D from './NetworkScene3D';
+import { MODEL_CREDIT_LINE } from '@/data/modelCredits';
 
 // Phase 4 of the game layer (docs/GAME_LAB_DESIGN.md): the cabling puzzle.
 // The learner places devices and runs cables; the graph is written into the
@@ -193,8 +194,11 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
         })}
       </div>
       ) : (
-        <div className={`h-80 w-full overflow-hidden rounded-xl border ${gameMode ? 'border-terminal-border' : 'border-black/10'}`}>
-          <NetworkScene3D devices={devices} links={links} roleById={roleById} />
+        <div>
+          <div className={`h-80 w-full overflow-hidden rounded-xl border ${gameMode ? 'border-terminal-border' : 'border-black/10'}`}>
+            <NetworkScene3D devices={devices} links={links} roleById={roleById} />
+          </div>
+          <p className={`mt-1.5 text-[10px] leading-tight ${gameMode ? 'text-terminal-muted' : 'text-ink-3'}`}>{MODEL_CREDIT_LINE}</p>
         </div>
       )}
 

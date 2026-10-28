@@ -1,0 +1,37 @@
+{
+  "switch": {
+    "title": "Switch",
+    "author": "sugamo",
+    "licence": "CC-BY 3.0",
+    "source": "https://poly.pizza",
+    "query": "network switch"
+  },
+  "router": {
+    "title": "Modern Router",
+    "author": "J-Toastie",
+    "licence": "CC-BY 3.0",
+    "source": "https://poly.pizza",
+    "query": "wifi router"
+  },
+  "server": {
+    "title": "server rack",
+    "author": "Jeremy Eyring",
+    "licence": "CC-BY 3.0",
+    "source": "https://poly.pizza",
+    "query": "server"
+  },
+  "cloud": {
+    "title": "Cloud",
+    "author": "Quaternius",
+    "licence": "CC0 1.0",
+    "source": "https://poly.pizza",
+    "query": "cloud"
+  },
+  "pc": {
+    "title": "Computer",
+    "author": "CreativeTrio",
+    "licence": "CC0 1.0",
+    "source": "https://poly.pizza",
+    "query": "desktop computer"
+  }
+}
