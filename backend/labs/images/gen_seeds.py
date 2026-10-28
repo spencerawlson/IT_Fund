@@ -30,7 +30,9 @@ from labs.shells import linux_logs, linux_python, terraform  # noqa: E402
 def write(path: Path, lines: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     # \n-joined + trailing newline, exactly like the mock's "\n".join() reads.
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # newline="\n" so the seeds are LF on every platform — the default (None)
+    # translates \n to \r\n on Windows, which breaks the byte-exact seed tests.
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {path.relative_to(HERE)} ({len(lines)} lines)")
 
 
@@ -41,7 +43,7 @@ def main() -> None:
     write(seeds / "python" / "auth.log", linux_python.AUTH_LOG)
     write(seeds / "python" / "notes.txt", linux_python.NOTES_TXT)
     (seeds / "python" / "switch.cfg").write_text(
-        linux_python.SWITCH_CFG + "\n", encoding="utf-8")
+        linux_python.SWITCH_CFG + "\n", encoding="utf-8", newline="\n")
     print("wrote seeds/python/switch.cfg")
 
     # --- log-triage labs (sec-logtriage-001 uses linux_logs; the blue-team
@@ -84,7 +86,7 @@ def main() -> None:
         "labs/shells/terraform.py MAIN_TF provider block changed: "
         "update the offline-stanza merge above")
     main_tf = main_tf.replace(_mock_provider_block, _offline_provider_block, 1)
-    (seeds / "iac" / "main.tf").write_text(main_tf, encoding="utf-8")
+    (seeds / "iac" / "main.tf").write_text(main_tf, encoding="utf-8", newline="\n")
     print("wrote seeds/iac/main.tf")
 
     print("done.")
