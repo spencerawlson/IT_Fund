@@ -1,1 +1,7 @@
+# Blobs are stored LF, but autocrlf=true was converting them to CRLF on Windows
+# checkout, which broke line-ending-sensitive tests (the lab seed byte-for-byte
+# comparisons). Force LF on checkout everywhere so the working tree matches the
+# repo on every platform.
+* text=auto eol=lf
+# Windows batch files need CRLF.
 *.bat text eol=crlf
