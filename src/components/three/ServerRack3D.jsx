@@ -17,7 +17,7 @@ function addBox(scene, parts, o) {
   return mesh;
 }
 
-function buildRack(scene) {
+export function buildRack(scene) {
   const parts = [];
 
   // Build the rack in its own group so it can be lifted as one piece: the rack

@@ -49,7 +49,7 @@ const INSTANCES = [
   { x: 10, z: 5, healthy: true },
 ];
 
-function buildLoadBalancer(scene) {
+export function buildLoadBalancer(scene) {
   const parts = [];
   let pulseRing = null;
 

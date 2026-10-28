@@ -2,36 +2,38 @@ import React, { useCallback } from 'react';
 import * as THREE from 'three';
 import ModelViewer from '@/components/three/ModelViewer';
 import { makeLabel } from '@/components/three/labels';
+import { buildSwitch } from '@/components/three/Switch3D';
+import { buildRack } from '@/components/three/ServerRack3D';
+import { buildVpc } from '@/components/three/Vpc3D';
+import { buildLoadBalancer } from '@/components/three/LoadBalancer3D';
+import { buildMotherboard } from '@/components/three/Motherboard3D';
 
 // Phase 3 of the game layer (docs/GAME_LAB_DESIGN.md): a 3D view of the
-// topology the learner builds in TopologyBuilder. It is a read-only
-// visualization — editing stays in the 2D board — rendered through the shared
-// ModelViewer, which degrades gracefully where WebGL is unavailable (and under
-// SSR the WebGL effect never runs, so this is safe to render anywhere).
+// topology the learner builds in TopologyBuilder. Read-only — editing stays in
+// the 2D board. It renders the SAME detailed device models used in the Visual
+// Lab (Switch3D, ServerRack3D, …) rather than placeholder blocks, each dropped
+// into a group, auto-scaled to a uniform footprint and placed on a ring.
+// Rendered through the shared ModelViewer, which degrades gracefully where
+// WebGL is unavailable (and under SSR the WebGL effect never runs).
 
-// The ring radius grows with the device count so a big topology (a 7-node DMZ)
-// spaces out as cleanly as a 3-node LAN instead of overlapping.
-export const radiusFor = (n) => Math.max(9, n * 2.2);
+// Uniform footprint (world units) every device model is scaled to fit.
+const FOOTPRINT = 6;
 
-// Colour + shape per device role. Kept deliberately simple (typed blocks, not
-// the detailed single-device models) so a whole network reads clearly at a glance.
-const STYLE = {
-  router: { color: 0x7c3aed, shape: 'box', w: 3.4, h: 1.4, d: 3.4 },
-  switch: { color: 0x0ea5a4, shape: 'box', w: 4.0, h: 1.0, d: 2.4 },
-  server: { color: 0x334155, shape: 'box', w: 2.2, h: 3.2, d: 2.2 },
-  firewall: { color: 0xdc2626, shape: 'box', w: 2.6, h: 2.6, d: 1.2 },
-  cloud: { color: 0x3b82f6, shape: 'sphere', r: 1.9 },
-  host: { color: 0x64748b, shape: 'box', w: 2.4, h: 2.0, d: 2.4 },
-};
+// The ring radius grows with the device count so the (now full-size) models
+// don't collide; larger than the placeholder version because the meshes are big.
+export const radiusFor = (n) => Math.max(14, n * 3.4);
 
-export function styleFor(role = '') {
+// Role -> the Visual-Lab model builder that best represents it. Switches and
+// routers share the rack-appliance chassis; the firewall uses the appliance
+// model, the internet/cloud uses the VPC model, hosts use the board model.
+export function builderFor(role = '') {
   const r = role.toLowerCase();
-  if (r.includes('firewall')) return STYLE.firewall;
-  if (r.includes('internet') || r.includes('cloud') || r.includes('upstream')) return STYLE.cloud;
-  if (r.includes('router') || r.includes('gateway')) return STYLE.router;
-  if (r.includes('switch')) return STYLE.switch;
-  if (r.includes('server')) return STYLE.server;
-  return STYLE.host;
+  if (r.includes('server')) return buildRack;
+  if (r.includes('internet') || r.includes('cloud') || r.includes('upstream')) return buildVpc;
+  if (r.includes('firewall')) return buildLoadBalancer;
+  if (r.includes('switch')) return buildSwitch;
+  if (r.includes('router') || r.includes('gateway')) return buildSwitch;
+  return buildMotherboard; // workstation / host
 }
 
 /** Circular layout in the XZ plane. Pure (no THREE), so it is unit-testable. */
@@ -40,24 +42,42 @@ export function layoutPositions(devices) {
   const n = devices.length;
   const radius = radiusFor(n);
   devices.forEach((id, i) => {
-    if (n === 1) { pos[id] = { x: 0, y: 1, z: 0 }; return; }
+    if (n === 1) { pos[id] = { x: 0, y: 0, z: 0 }; return; }
     const a = (i / n) * 2 * Math.PI - Math.PI / 2;
-    pos[id] = { x: radius * Math.cos(a), y: 1, z: radius * Math.sin(a) };
+    pos[id] = { x: radius * Math.cos(a), y: 0, z: radius * Math.sin(a) };
   });
   return pos;
+}
+
+// Build a device model into a group, scale it to FOOTPRINT, centre it in XZ and
+// stand it on y=0 at `p`. Returns the scaled height, for label placement.
+function placeDevice(scene, build, p) {
+  const group = new THREE.Group();
+  build(group); // builders just .add() meshes; any returned parts/tick are ignored
+  const box = new THREE.Box3().setFromObject(group);
+  const size = new THREE.Vector3();
+  const center = new THREE.Vector3();
+  box.getSize(size);
+  box.getCenter(center);
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const s = FOOTPRINT / maxDim;
+  group.scale.setScalar(s);
+  group.position.set(p.x - center.x * s, -box.min.y * s, p.z - center.z * s);
+  scene.add(group);
+  return size.y * s;
 }
 
 function buildScene(devices, links, roleById) {
   return (scene) => {
     const pos = layoutPositions(devices);
 
-    // Cables first, so device blocks sit on top of them.
+    // Cables first, at mid height, so they read as links between the models.
     links.forEach(([a, b]) => {
       const pa = pos[a]; const pb = pos[b];
       if (!pa || !pb) return;
       const geom = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(pa.x, pa.y, pa.z),
-        new THREE.Vector3(pb.x, pb.y, pb.z),
+        new THREE.Vector3(pa.x, 2, pa.z),
+        new THREE.Vector3(pb.x, 2, pb.z),
       ]);
       scene.add(new THREE.Line(geom, new THREE.LineBasicMaterial({ color: 0x94a3b8 })));
     });
@@ -65,19 +85,22 @@ function buildScene(devices, links, roleById) {
     const parts = [];
     devices.forEach((id) => {
       const p = pos[id];
-      const s = styleFor(roleById[id] || '');
-      const geo = s.shape === 'sphere'
-        ? new THREE.SphereGeometry(s.r, 24, 16)
-        : new THREE.BoxGeometry(s.w, s.h, s.d);
-      const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-        color: s.color, roughness: 0.5, metalness: 0.3,
-      }));
-      mesh.position.set(p.x, p.y, p.z);
-      scene.add(mesh);
-      const label = makeLabel(id, { height: 0.9 });
-      label.position.set(p.x, p.y + (s.h ? s.h / 2 + 1.2 : (s.r || 1) + 1.2), p.z);
+      let height = FOOTPRINT;
+      try {
+        height = placeDevice(scene, builderFor(roleById[id] || ''), p);
+      } catch {
+        // If a model fails to build, fall back to a block so the scene still renders.
+        const mesh = new THREE.Mesh(
+          new THREE.BoxGeometry(3, 2, 3),
+          new THREE.MeshStandardMaterial({ color: 0x64748b }),
+        );
+        mesh.position.set(p.x, 1, p.z);
+        scene.add(mesh);
+      }
+      const label = makeLabel(id, { height: 1.1 });
+      label.position.set(p.x, Math.max(height, 2) + 1.6, p.z);
       scene.add(label);
-      parts.push({ mesh, label: id, desc: roleById[id] });
+      parts.push({ label: id, desc: roleById[id] });
     });
     return parts;
   };
@@ -87,6 +110,6 @@ export default function NetworkScene3D({ devices = [], links = [], roleById = {}
   const build = useCallback((scene) => buildScene(devices, links, roleById)(scene), [devices, links, roleById]);
   // Pull the camera back as the ring grows so the whole network stays framed.
   const r = radiusFor(devices.length);
-  const dist = r * 1.5 + 6;
-  return <ModelViewer buildScene={build} cameraPos={[dist, dist * 0.85, dist]} target={[0, 1, 0]} />;
+  const dist = r * 1.5 + 8;
+  return <ModelViewer buildScene={build} cameraPos={[dist, dist * 0.7, dist]} target={[0, 2, 0]} />;
 }
