@@ -46,7 +46,11 @@ jobs:
 
   mobile-layout:
     name: Mobile layout (Chromium + WebKit)
-    runs-on: ubuntu-latest
+    # Pinned to 24.04: ubuntu-latest moved to 26.04, whose apt package names
+    # (libicu74/libvpx9/libxml2/libx264-164) don't match what the pinned
+    # playwright-core@1.48.2 `install --with-deps` expects, so the browser
+    # install failed with exit 100. Keep this aligned with the Playwright pin.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
