@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Map, Trophy, CheckCircle2 } from 'lucide-react';
 import { modules, levelColors } from '@/data/modules';
 import { getOverallProgress } from '@/lib/progress';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const PHASES = [
   { n: 1, title: 'IT Fundamentals', desc: 'How computers work — binary, hardware, boot, and file systems.', color: '#A855F7', ids: ['it-fundamentals-internals', 'module-2', 'module-3'] },
@@ -30,12 +30,15 @@ const CERTS = [
 ];
 
 export default function Roadmap() {
-  useDocumentTitle('Roadmap · Road to CISSP');
   const overallPct = Math.round(modules.reduce((s, m) => s + getOverallProgress(m.id), 0) / modules.length);
 
   return (
     <div className="min-h-screen text-ink-1">
-
+      <Seo
+        title="Roadmap — how Road to CISSP takes you from zero to CISSP"
+        description="See the full Road to CISSP learning roadmap: the order of tracks, labs, and exams that carries you from IT fundamentals to CISSP readiness."
+        path="/roadmap"
+      />
       <div className="relative mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
           <ArrowLeft size={15} /> Practice

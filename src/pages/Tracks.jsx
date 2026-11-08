@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { modules } from '@/data/modules';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const TRACKS = [
   {
@@ -55,10 +55,13 @@ function resolveTitle(id) {
 }
 
 export default function Tracks() {
-  useDocumentTitle('Tracks · Road to CISSP');
   return (
     <div className="min-h-screen text-ink-1">
-
+      <Seo
+        title="Learning Tracks — networking, Security+, Linux, Python, cloud & CISSP"
+        description="Every Road to CISSP learning track in one place: pick networking, Security+, Linux, Python, cloud, or the CISSP capstone and work from fundamentals to mastery."
+        path="/tracks"
+      />
       <div className="relative mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/academy/courses" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
           <ArrowLeft size={15} /> Courses

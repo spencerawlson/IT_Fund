@@ -6,7 +6,7 @@ import { tracks, ROADMAP, CISSP_DOMAINS, decksForDomain, RESOURCES } from '@/dat
 import { COURSES, courseHref } from '@/data/catalog';
 import { useAcademy, mastery, grantBadge } from '@/lib/academy';
 import { cn } from '@/lib/utils';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const READY_PCT = 80;
 
@@ -37,7 +37,6 @@ function StepMarker({ n, done, current }) {
 }
 
 export default function CisspRoadmap() {
-  useDocumentTitle('CISSP Roadmap · Road to CISSP');
   const state = useAcademy();
   const domains = CISSP_DOMAINS.map((d) => ({ ...d, ...domainReadiness(state, d.id) }));
   const weighted = Math.round(domains.reduce((s, d) => s + d.pct * d.weight, 0) / 100);
@@ -51,6 +50,11 @@ export default function CisspRoadmap() {
 
   return (
     <PageContainer>
+      <Seo
+        title="CISSP Roadmap — your path from IT fundamentals to the CISSP"
+        description="The full Road to CISSP roadmap: the tracks, domains, and milestones that take you from networking and security fundamentals to CISSP-level mastery."
+        path="/academy/roadmap"
+      />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Road to CISSP' }]}
         title="Road to CISSP"
