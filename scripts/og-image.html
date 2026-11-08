@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Road to CISSP — OG image template (1200×630)</title>
+  <!--
+    Open-Graph / Twitter card source image (1200×630).
+
+    EXPORT STEPS:
+      1. Open this file in Chrome.
+      2. DevTools (F12) → Device Toolbar (Ctrl+Shift+M) → set a custom size 1200 × 630.
+         (or just screenshot the .card element — it is exactly 1200×630.)
+      3. DevTools → ⋮ menu → "Capture screenshot" (or Cmd/Ctrl+Shift+P → "Capture node screenshot"
+         on the .card element).
+      4. Save as  public/og-image.png.
+      5. In index.html, switch the two tags from /cipher-mascot.jpg to /og-image.png
+         and re-add  <meta property="og:image:width" content="1200"> / height 630.
+
+    Self-contained: no network, no external fonts (system stack), so the capture is deterministic.
+  -->
+  <style>
+    :root {
+      --ink: #0b1220;
+      --ink-2: #334155;
+      --accent: #2563eb;   /* calm blue */
+      --accent-2: #0ea5a4; /* emerald */
+      --line: rgba(15, 23, 42, 0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: #e5e9f2; }
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; }
+
+    .card {
+      position: relative;
+      width: 1200px; height: 630px;
+      background:
+        radial-gradient(120% 90% at 100% 0%, rgba(37, 99, 235, 0.10), transparent 55%),
+        radial-gradient(120% 90% at 0% 100%, rgba(14, 165, 164, 0.10), transparent 55%),
+        linear-gradient(180deg, #ffffff, #f6f8fc);
+      overflow: hidden;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 72px 80px;
+    }
+    /* faint grid, like the app's glass surfaces */
+    .card::before {
+      content: ""; position: absolute; inset: 0;
+      background-image: linear-gradient(var(--line) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 48px 48px; mask-image: radial-gradient(90% 90% at 50% 40%, #000 55%, transparent);
+    }
+    .row { position: relative; display: flex; align-items: center; gap: 18px; }
+    .mark {
+      width: 60px; height: 60px; border-radius: 16px; flex: none;
+      background: linear-gradient(140deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 30px -12px rgba(37, 99, 235, 0.6);
+    }
+    .brand { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
+    .brand span { color: var(--accent); }
+
+    .main { position: relative; }
+    h1 { font-size: 78px; line-height: 1.04; font-weight: 800; letter-spacing: -0.025em; color: var(--ink); max-width: 940px; }
+    h1 em { font-style: normal; background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    p.sub { margin-top: 26px; font-size: 30px; color: var(--ink-2); font-weight: 500; }
+
+    .foot { position: relative; display: flex; gap: 14px; flex-wrap: wrap; }
+    .chip { font-size: 22px; font-weight: 600; color: var(--ink-2);
+      border: 1px solid var(--line); background: rgba(255,255,255,0.7);
+      padding: 10px 18px; border-radius: 999px; }
+    .url { position: absolute; right: 80px; bottom: 72px; font-size: 24px; font-weight: 700; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="row">
+      <div class="mark" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      </div>
+      <div class="brand">Road to <span>CISSP</span></div>
+    </div>
+
+    <div class="main">
+      <h1>From IT fundamentals<br />to the <em>CISSP</em>.</h1>
+      <p class="sub">Networking · Security · Linux · Python · Cloud · Cybersecurity</p>
+    </div>
+
+    <div class="foot">
+      <div class="chip">800+ flashcards</div>
+      <div class="chip">Hands-on labs</div>
+      <div class="chip">3D visual explainers</div>
+      <div class="chip">Exam simulators</div>
+    </div>
+    <div class="url">road2cissp.com</div>
+  </div>
+</body>
+</html>
