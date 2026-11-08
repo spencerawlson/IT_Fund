@@ -44,7 +44,7 @@ import LabGallery, { KINDS } from '@/components/lab/LabGallery';
 import { LAB_FLOWS } from '@/data/labFlows';
 import { ROUTING_SCENARIOS } from '@/data/routingScenarios';
 import { getModulesForLab, NOTES, LAB_LABELS } from '@/data/labLinks';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 // Ordered categories for the gallery.
 const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Security', 'Data & Systems', 'DevOps'];
@@ -230,7 +230,6 @@ function Stage({ id, onBack }) {
 }
 
 export default function Lab() {
-  useDocumentTitle('Visual Lab · Road to CISSP');
   const [active, setActive] = useState(() => {
     const item = new URLSearchParams(window.location.search).get('item');
     return item && RENDERERS[resolveId(item)] ? resolveId(item) : null;
@@ -251,6 +250,11 @@ export default function Lab() {
 
   return (
     <div className="min-h-screen text-ink-1">
+      <Seo
+        title="Visual Lab — interactive 3D explainers for networking & security"
+        description="Explore networking, security, and systems concepts as interactive 3D models and animated diagrams — OSI, switches, routers, VPCs, routing protocols, and more."
+        path="/lab"
+      />
       <div ref={topRef} className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
           <ArrowLeft size={15} /> Practice
