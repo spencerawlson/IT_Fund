@@ -4,7 +4,7 @@ import { BookOpen, FlaskConical, Bot, Target, TerminalSquare, Award, ArrowRight,
 import { Button } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
-import NetworkDiagram from '@/components/landing/NetworkDiagram';
+import LandingBackground from '@/components/landing/LandingBackground';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
 // Signed-in visitors go straight to the app.
@@ -96,7 +96,8 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen text-ink-1">
+    <div className="relative isolate min-h-screen overflow-hidden text-ink-1">
+      <LandingBackground />
       <Seo
         title="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training"
         description="Go from IT fundamentals to the CISSP: 800+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free."
@@ -141,7 +142,6 @@ export default function Landing() {
           <p className="mt-4 text-caption text-ink-3">
             Sign up with Google or GitHub — no password needed.
           </p>
-          <NetworkDiagram className="mt-12 sm:mt-16" />
         </section>
 
         {/* Stats */}
