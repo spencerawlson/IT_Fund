@@ -4,6 +4,7 @@ import { BookOpen, FlaskConical, Bot, Target, TerminalSquare, Award, ArrowRight,
 import { Button } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
+import NetworkDiagram from '@/components/landing/NetworkDiagram';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
 // Signed-in visitors go straight to the app.
@@ -140,6 +141,7 @@ export default function Landing() {
           <p className="mt-4 text-caption text-ink-3">
             Sign up with Google or GitHub — no password needed.
           </p>
+          <NetworkDiagram className="mt-12 sm:mt-16" />
         </section>
 
         {/* Stats */}
