@@ -83,7 +83,7 @@ function mulberry32(seed) {
 
 const SCATTER = (() => {
   const rand = mulberry32(20260707);
-  return Array.from({ length: 70 }, (_, i) => ({
+  return Array.from({ length: 170 }, (_, i) => ({
     type: TYPES[i % TYPES.length],
     top: rand() * 99,              // %
     left: rand() * 99,             // %
