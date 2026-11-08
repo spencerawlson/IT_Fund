@@ -1,10 +1,10 @@
 import React from 'react';
 
 // Static decorative background for the landing page: soft brand-colour blobs
-// (CSS radial gradients) plus a few line-art IT devices placed with CSS so they
-// land reliably regardless of page height. (A single sliced SVG over the whole
-// tall page cropped them off the edges — that's why they weren't visible.)
-// Purely decorative: aria-hidden, pointer-events-none, no animation.
+// plus a dense field of small line-art IT devices, randomly scattered across the
+// whole page. The scatter is seeded (computed once, deterministic) so it is
+// stable across renders and SSR. Purely decorative: aria-hidden,
+// pointer-events-none, no animation.
 
 // Device glyph, drawn centred in a -26..26 box.
 function Glyph({ type }) {
@@ -17,7 +17,6 @@ function Glyph({ type }) {
           <line x1="-9" y1="-2" x2="9" y2="-2" />
           <line x1="-9" y1="8" x2="9" y2="8" />
           <circle cx="-11" cy="-12" r="1.6" fill="currentColor" stroke="none" />
-          <circle cx="-11" cy="-2" r="1.6" fill="currentColor" stroke="none" />
         </g>
       );
     case 'router':
@@ -27,7 +26,6 @@ function Glyph({ type }) {
           <path d="M-8 -4 V-16 M-8 -16 l-4 -4 M-8 -16 l4 -4" />
           <path d="M8 -4 V-16 M8 -16 l-4 -4 M8 -16 l4 -4" />
           <circle cx="-12" cy="4" r="1.8" fill="currentColor" stroke="none" />
-          <circle cx="-5" cy="4" r="1.8" fill="currentColor" stroke="none" />
         </g>
       );
     case 'switch':
@@ -70,37 +68,59 @@ function Glyph({ type }) {
   }
 }
 
-// One small SVG per device, positioned with CSS. `pos` = Tailwind position
-// classes; `cls` hides some on small screens to avoid crowding the hero text.
-const DEVICES = [
-  { type: 'server', pos: 'left-4 top-28 sm:left-10', size: 74, color: '#2563eb', cls: '' },
-  { type: 'router', pos: 'right-4 top-24 sm:right-10', size: 80, color: '#0ea5a4', cls: '' },
-  { type: 'database', pos: 'left-4 top-[20rem] sm:left-10', size: 76, color: '#2563eb', cls: 'hidden sm:block' },
-  { type: 'switch', pos: 'right-4 top-[21rem] sm:right-12', size: 80, color: '#0ea5a4', cls: 'hidden sm:block' },
-  { type: 'cloud', pos: 'left-6 top-[34rem] sm:left-16', size: 72, color: '#0ea5a4', cls: 'hidden sm:block' },
-  { type: 'laptop', pos: 'right-6 top-[35rem] sm:right-16', size: 72, color: '#334155', cls: 'hidden sm:block' },
-  { type: 'shield', pos: 'right-5 top-[12rem]', size: 60, color: '#2563eb', cls: 'hidden lg:block' },
-];
+const TYPES = ['server', 'router', 'switch', 'laptop', 'database', 'cloud', 'shield'];
+const COLORS = ['#2563eb', '#0ea5a4', '#334155'];
+
+// Seeded PRNG (mulberry32): a fixed scatter, computed once at module load.
+function mulberry32(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const SCATTER = (() => {
+  const rand = mulberry32(20260707);
+  return Array.from({ length: 70 }, (_, i) => ({
+    type: TYPES[i % TYPES.length],
+    top: rand() * 99,              // %
+    left: rand() * 99,             // %
+    size: 24 + Math.round(rand() * 14), // ~24–38px (about half the old 60–80)
+    color: COLORS[Math.floor(rand() * COLORS.length)],
+    opacity: 0.22 + rand() * 0.2,  // 0.22–0.42
+    rot: Math.round((rand() - 0.5) * 24), // slight tilt
+  }));
+})();
 
 export default function LandingBackground({ className = '' }) {
   return (
     <div className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden ${className}`} aria-hidden="true">
-      {/* soft colour blobs (CSS gradients, so no SVG cropping) */}
+      {/* soft colour blobs */}
       <div
         className="absolute -right-24 -top-24 h-[34rem] w-[34rem] rounded-full blur-2xl"
-        style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.22), rgba(37,99,235,0) 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.20), rgba(37,99,235,0) 70%)' }}
       />
       <div
-        className="absolute -left-32 top-[30rem] h-[38rem] w-[38rem] rounded-full blur-2xl"
-        style={{ background: 'radial-gradient(circle, rgba(14,165,164,0.20), rgba(14,165,164,0) 70%)' }}
+        className="absolute -left-32 top-[40rem] h-[38rem] w-[38rem] rounded-full blur-2xl"
+        style={{ background: 'radial-gradient(circle, rgba(14,165,164,0.18), rgba(14,165,164,0) 70%)' }}
       />
 
-      {/* line-art IT devices */}
-      {DEVICES.map(({ type, pos, size, color, cls }, i) => (
+      {/* scattered line-art IT devices */}
+      {SCATTER.map(({ type, top, left, size, color, opacity, rot }, i) => (
         <svg
           key={`${type}-${i}`}
-          className={`absolute ${pos} ${cls}`}
-          style={{ width: size, height: size, color, opacity: 0.5 }}
+          className="absolute"
+          style={{
+            top: `${top}%`,
+            left: `${left}%`,
+            width: size,
+            height: size,
+            color,
+            opacity,
+            transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+          }}
           viewBox="-26 -26 52 52"
           fill="none"
           stroke="currentColor"
