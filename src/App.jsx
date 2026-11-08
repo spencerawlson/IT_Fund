@@ -137,12 +137,12 @@ const AuthenticatedApp = () => {
 };
 
 
-function App() {
+function App({ RouterComponent = Router, routerProps = {}, initialAuth }) {
 
   return (
-    <AuthProvider>
+    <AuthProvider initialAuth={initialAuth}>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
+        <RouterComponent {...routerProps}>
           <ScrollToTop />
           <div className="relative isolate min-h-screen bg-white text-ink-1">
             <TutorProvider>
@@ -159,7 +159,7 @@ function App() {
               </ErrorBoundary>
             </TutorProvider>
           </div>
-        </Router>
+        </RouterComponent>
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>

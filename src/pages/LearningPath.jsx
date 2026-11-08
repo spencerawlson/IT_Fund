@@ -4,6 +4,7 @@ import { Shield, GitBranch, Activity, Lock, Container, DollarSign, Map, ArrowLef
 import { modules } from '@/data/modules';
 import { LEARNING_PRINCIPLES } from '@/data/learningPath';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const ICONS = { Shield, GitBranch, Activity, Lock, Container, DollarSign };
 const accentCls = {
@@ -25,6 +26,11 @@ export default function LearningPath() {
 
   return (
     <div className="min-h-screen text-ink-1">
+      <Seo
+        title="Learning path — six mental models · Road to CISSP"
+        description="Every module, lab, and PDF is tagged to these six mental models. Work through each principle to make cloud-native intuition second nature."
+        path="/learning-path"
+      />
 
       <div className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/academy/courses" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">

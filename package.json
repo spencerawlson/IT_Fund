@@ -5,14 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run build:ssr && npm run prerender && npm run check-prerender",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "test": "vitest run",
     "prepare": "git config core.hooksPath .githooks || true",
-    "mobile-check": "node scripts/mobile-check.mjs"
+    "mobile-check": "node scripts/mobile-check.mjs",
+    "build:ssr": "vite build --ssr src/entry-server.jsx --outDir dist-server",
+    "prerender": "node scripts/prerender.mjs",
+    "check-prerender": "node scripts/check-prerender.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
@@ -34,6 +37,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
+    "react-router": "^7.9.1",
     "react-router-dom": "^7.9.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",

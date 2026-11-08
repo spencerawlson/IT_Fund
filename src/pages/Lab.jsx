@@ -231,6 +231,9 @@ function Stage({ id, onBack }) {
 
 export default function Lab() {
   const [active, setActive] = useState(() => {
+    // Deep-link (?item=…) only exists in a browser; the server renders
+    // the subject list.
+    if (typeof window === 'undefined') return null;
     const item = new URLSearchParams(window.location.search).get('item');
     return item && RENDERERS[resolveId(item)] ? resolveId(item) : null;
   });

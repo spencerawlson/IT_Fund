@@ -14,7 +14,7 @@ export function PageHeader({ eyebrow, title, description, actions, breadcrumbs, 
   return (
     <header className={cn('mb-8', className)}>
       {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
-      {eyebrow && <p className="text-small font-semibold text-ink-2">{eyebrow}</p>}
+      {eyebrow && <div className="text-small font-semibold text-ink-2">{eyebrow}</div>}
       <h1 className={cn('text-title text-ink-1', eyebrow && 'mt-1')}>{title}</h1>
       {description && <p className="mt-3 max-w-reading text-body text-ink-2">{description}</p>}
       {actions && <div className="mt-6 flex flex-wrap gap-3">{actions}</div>}

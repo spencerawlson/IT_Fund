@@ -8,6 +8,7 @@ import { PATHS, getPath, getCourse, formatMinutes, pathMinutes } from '@/data/ca
 import { useAcademy } from '@/lib/academy';
 import { pathProgress, pathStatus } from '@/lib/progress/engine';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 // Paths you're on come first, then untouched ones, then finished ones. Paths without courses yet
 // are not listed.
@@ -22,6 +23,11 @@ export function PathsIndex() {
   const upcoming = PATHS.filter((p) => pathStatus(state, p) === 'coming-soon');
   return (
     <PageContainer>
+      <Seo
+        title="Career paths — role-based routes to the CISSP · Road to CISSP"
+        description="Each path is a set of courses toward a role. Every path is open from the start; its prerequisites tell you which background makes it easier."
+        path="/academy/paths"
+      />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Career paths' }]}
         title="Career paths"

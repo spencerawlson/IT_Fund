@@ -1,0 +1,28 @@
+# Road to CISSP
+
+> Learn IT by doing it — networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP. 800+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free; Pro is $19/month.
+
+## Key pages
+
+- [Home](https://www.road2cissp.com/): What Road to CISSP is, the certification road, and how it works.
+- [Pricing](https://www.road2cissp.com/pricing): One plan — Pro at $19/month unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators. Free tier with no account needed.
+- [CISSP roadmap](https://www.road2cissp.com/academy/roadmap): Seven steps that follow the path most successful candidates take, from IT foundations to the CISSP.
+- [Career paths](https://www.road2cissp.com/academy/paths): Role-based routes — each path chains the right courses, labs, and drills into one plan.
+- [Courses](https://www.road2cissp.com/academy/courses): Every course is a sequence of modules, and each module a sequence of lessons. Every course is open at every level.
+- [Badges](https://www.road2cissp.com/academy/badges): Badges awarded automatically as you study — streaks, deck mastery, and milestones.
+- [CISSP practice exam](https://www.road2cissp.com/academy/exam): Test-day simulator — 100 questions sampled from every track, weighted by the official CISSP domain weights, with a 3-hour timer.
+- [Library](https://www.road2cissp.com/library): Every module and concept, with study notes, flashcards and quizzes.
+- [Visual Lab](https://www.road2cissp.com/lab): Interactive 3D models, animated protocols, and hands-on tools — OSI, switches, routers, VPCs, and routing protocols.
+- [Interactive labs](https://www.road2cissp.com/labs): Hands-on labs in real terminals — networking, Linux, Python, and cloud.
+- [Practice](https://www.road2cissp.com/practice): Hands-on labs, timed challenges, and flashcards to use alongside your lessons.
+- [Tracks](https://www.road2cissp.com/tracks): Learning tracks that chain modules and visual labs into practical routes.
+- [Roadmap](https://www.road2cissp.com/roadmap): A guided route through every layer of the IT, networking, cloud, and security curriculum.
+- [Challenge mode](https://www.road2cissp.com/challenge): Timed drills — type the right command, pick the correct subnet mask, or build the right firewall rules against the clock.
+- [Learning path](https://www.road2cissp.com/learning-path): Six mental models every module, lab, and PDF is tagged to.
+- [Sign in](https://www.road2cissp.com/signin): Sign in to save progress across devices. Optional — everything works without an account.
+
+## Notes
+
+- The site is a single-page app; every page above is also served as static prerendered HTML.
+- The full sitemap is at https://www.road2cissp.com/sitemap.xml.
+- The free tier is real — start without an account or a credit card. Pro ($19/month) unlocks every track, 23+ hands-on labs, and the exam simulators.

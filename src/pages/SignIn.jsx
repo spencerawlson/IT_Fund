@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
+import Seo from '@/components/Seo';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription } from '@/lib/subscription';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
@@ -137,6 +138,11 @@ export default function SignIn() {
 
   return (
     <PageContainer>
+      <Seo
+        title="Sign in · Road to CISSP"
+        description="Sign in to save your progress across devices. It's optional — everything works without an account, with your progress kept in this browser."
+        path="/signin"
+      />
       <PageHeader
         title="Sign in to sync"
         description="Sign in to save your progress across devices. It’s optional — everything works without an account, with your progress kept in this browser."

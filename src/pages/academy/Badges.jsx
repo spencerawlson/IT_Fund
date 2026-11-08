@@ -3,6 +3,7 @@ import React from 'react';
 import { Award, Flame, Zap, Layers, Swords, Crown, ShieldCheck, Footprints, Lock } from 'lucide-react';
 import { Card, PageContainer, PageHeader, IconTile } from '@/components/ui-glass';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 import { BADGES, useAcademy } from '@/lib/academy';
 
 const ICONS = { Footprints, Flame, Zap, Layers, Swords, Crown, Award, ShieldCheck };
@@ -37,6 +38,11 @@ export default function Badges() {
 
   return (
     <PageContainer>
+      <Seo
+        title="Badges — study streaks and mastery · Road to CISSP"
+        description="Badges are awarded automatically as you study — keep the streak alive and master your decks."
+        path="/academy/badges"
+      />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Badges' }]}
         title="Badges"

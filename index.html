@@ -16,46 +16,50 @@
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training" />
     <meta property="og:description" content="Master networking, security, Python, cloud, and cybersecurity — flashcards, guided lessons, hands-on labs, and 3D visual explainers, from IT foundations to the CISSP." />
-    <!-- Stopgap brand image; replace with a designed 1200x630 /og-image.png (see SEO proposals). -->
-    <meta property="og:image" content="https://www.road2cissp.com/cipher-mascot.jpg" />
+    <meta property="og:image" content="https://www.road2cissp.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Road to CISSP — networking, security and cybersecurity training" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training" />
     <meta name="twitter:description" content="Master networking, security, Python, cloud, and cybersecurity — flashcards, guided lessons, hands-on labs, and 3D visual explainers, from IT foundations to the CISSP." />
-    <meta name="twitter:image" content="https://www.road2cissp.com/cipher-mascot.jpg" />
+    <meta name="twitter:image" content="https://www.road2cissp.com/og-image.png" />
     <meta name="twitter:image:alt" content="Road to CISSP — networking, security and cybersecurity training" />
 
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#FFFFFF" />
 
-    <!-- Site-wide structured data. The membership Product/Offer (with the price)
-         is injected on /pricing from the live Stripe price, so the price is
-         asserted in exactly one place (see src/pages/Pricing.jsx). -->
+    <!-- Site-wide structured data. One WebSite node (not @graph): its types
+         are readable by any consumer that only reads a top-level @type.
+         The membership Product/Offer (with the price) is injected on
+         /pricing from the live Stripe price, so the price is asserted in
+         exactly one place (see src/pages/Pricing.jsx). -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "Organization",
-            "@id": "https://www.road2cissp.com/#org",
-            "name": "Road to CISSP",
-            "url": "https://www.road2cissp.com/",
-            "logo": "https://www.road2cissp.com/favicon.svg"
-          },
-          {
-            "@type": "WebSite",
-            "@id": "https://www.road2cissp.com/#website",
-            "url": "https://www.road2cissp.com/",
-            "name": "Road to CISSP",
-            "description": "Networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP.",
-            "publisher": { "@id": "https://www.road2cissp.com/#org" },
-            "inLanguage": "en"
-          }
-        ]
+        "@type": "WebSite",
+        "@id": "https://www.road2cissp.com/#website",
+        "url": "https://www.road2cissp.com/",
+        "name": "Road to CISSP",
+        "description": "Networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP.",
+        "inLanguage": "en",
+        "publisher": {
+          "@type": "Organization",
+          "@id": "https://www.road2cissp.com/#org",
+          "name": "Road to CISSP",
+          "url": "https://www.road2cissp.com/",
+          "logo": "https://www.road2cissp.com/favicon.svg"
+        }
       }
     </script>
+
+    <!-- Analytics: Plausible (privacy-friendly, no cookies). The tag only
+         counts visits once a Plausible account exists for road2cissp.com
+         and the site is added there — until Spencer creates that account
+         it sends nothing useful. -->
+    <script defer data-domain="road2cissp.com" src="https://plausible.io/js/script.js"></script>
   </head>
   <body>
     <div id="root"></div>

@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import Seo from '@/components/Seo';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const domainById = Object.fromEntries(CISSP_DOMAINS.map((d) => [d.id, d]));
@@ -34,6 +35,11 @@ export default function PracticeExam() {
   if (!loading && !subscribed) {
     return (
       <main className="min-h-screen text-ink-1">
+        <Seo
+          title="CISSP practice exam — test-day simulator · Road to CISSP"
+          description="100 questions sampled from every track, weighted by the official CISSP domain weights. 3 hours on the clock — the timer survives a refresh."
+          path="/academy/exam"
+        />
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
           <UpgradePrompt what="The CISSP practice exam" />
         </div>
@@ -43,6 +49,11 @@ export default function PracticeExam() {
 
   return (
     <main className="min-h-screen text-ink-1">
+      <Seo
+        title="CISSP practice exam — test-day simulator · Road to CISSP"
+        description="100 questions sampled from every track, weighted by the official CISSP domain weights. 3 hours on the clock — the timer survives a refresh."
+        path="/academy/exam"
+      />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
         {!exam && <StartScreen history={examHistory(state)} />}
         {exam && !exam.finishedAt && <RunningExam key={exam.id} exam={exam} />}
@@ -61,7 +72,7 @@ function StartScreen({ history }) {
   return (
     <div>
       <Button to="/app" variant="ghost" size="sm" icon={ArrowLeft} className="-ml-3 mb-6">Home</Button>
-      <p className="text-small font-semibold text-ink-2">Test-day simulator</p>
+      <div className="text-small font-semibold text-ink-2">Test-day simulator</div>
       <h1 className="mt-1 text-title text-ink-1">CISSP practice exam</h1>
 
       <Card level={2} padding="lg" className="mt-6">

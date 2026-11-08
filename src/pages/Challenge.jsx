@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Timer, Play, RotateCcw, CheckCircle2, XCircle, Trophy, Terminal, Calculator, Shield, Zap } from 'lucide-react';
 import { CHALLENGES, TYPE_META } from '@/data/challenges';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const CHALLENGE_TIME = 45;
 const CATEGORIES = ['All', 'CLI Fix', 'Subnetting', 'Firewall'];
@@ -98,6 +99,11 @@ export default function Challenge() {
 
   return (
     <div className="min-h-screen text-ink-1">
+      <Seo
+        title="Challenge mode — timed drills · Road to CISSP"
+        description="Race the clock to type the right command, pick the correct subnet mask, or build the right firewall rules. Correct answers earn points — plus a bonus for every second left on the timer."
+        path="/challenge"
+      />
 
       <div className="relative mx-auto max-w-3xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">

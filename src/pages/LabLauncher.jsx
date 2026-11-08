@@ -5,6 +5,7 @@ import { Button } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { useLabConsole } from '@/components/labs/useLabConsole';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 // Terminal-first lab selection: the learner discovers and launches Interactive Labs by typing
 // (`tracks`, `labs`, `search <word>`, `lab start <name|NN>`, `lab info <name>`, `help`) rather
@@ -21,6 +22,11 @@ export default function LabLauncher() {
 
   return (
     <div className="min-h-[100dvh] bg-white text-ink-1">
+      <Seo
+        title="Interactive labs — hands-on terminals · Road to CISSP"
+        description="Hands-on labs in real terminals: networking, Linux, Python, and cloud. Type labs to browse the tracks and lab start <#> to begin."
+        path="/labs"
+      />
       <header className="sticky top-safe z-30 px-3 pt-3 sm:px-6 sm:pt-5">
         <div className="glass-1 mx-auto flex max-w-5xl items-center gap-3 rounded-card px-3 py-2 shadow-lg sm:px-4">
           <FlaskConical size={18} className="shrink-0 text-action" aria-hidden="true" />
@@ -30,6 +36,10 @@ export default function LabLauncher() {
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-3 py-4 sm:px-6">
+        {/* The terminal is the page for sighted users; give screen readers
+            (and search) the same heading and description. */}
+        <h1 className="sr-only">Interactive labs — hands-on terminals for networking, security, Linux, Python and cloud</h1>
+        <p className="sr-only">Hands-on labs in real terminals: networking, Linux, Python, and cloud. Type labs to browse the tracks and lab start &lt;#&gt; to begin.</p>
         <div className="glass-2 rounded-card p-2 shadow-xl sm:p-3">
           <LabTerminal
             key={readyKey}

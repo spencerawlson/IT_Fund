@@ -88,6 +88,41 @@ const CERT_ROAD = [
   },
 ];
 
+// FAQ, in the product's own words — the same copy as Pricing, SignIn, the
+// roadmap and the lab launcher. Rendered below and mirrored as FAQPage
+// JSON-LD on this page's <Seo> (single source of truth, no drift).
+const FAQS = [
+  {
+    q: 'Is Road to CISSP really free to start?',
+    a: 'Yes. Start free with no credit card — sign up with Google or GitHub, no password needed. Everything works without an account too, with your progress kept in this browser.',
+  },
+  {
+    q: 'What does Pro unlock?',
+    a: 'One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators — $19/month, cancel anytime. Your progress syncs across devices.',
+  },
+  {
+    q: 'What should I learn first?',
+    a: 'Start with the roadmap — a guided route through every layer of the IT, networking, cloud, and security curriculum, from first principles to exam day.',
+  },
+  {
+    q: 'How do the labs work?',
+    a: 'Hands-on labs run in real terminals. Type labs to browse the tracks and lab start <#> to begin — this is how real lab environments work.',
+  },
+  {
+    q: 'Which certifications does it cover?',
+    a: 'Security+ (SY0-701), Network+ (N10-009), Linux+ and CySA+ (CS0-003) — all the way to the CISSP.',
+  },
+];
+
+const FAQ_JSON_LD = {
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
 export default function Landing() {
   const { isAuthenticated, isLoadingAuth } = useAuth();
 
@@ -102,6 +137,7 @@ export default function Landing() {
         title="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training"
         description="Go from IT fundamentals to the CISSP: 800+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free."
         path="/"
+        jsonLd={FAQ_JSON_LD}
       />
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
@@ -120,9 +156,9 @@ export default function Landing() {
       {/* Hero */}
       <main className="mx-auto max-w-6xl px-4 sm:px-6">
         <section className="py-14 text-center sm:py-20">
-          <p className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">
+          <div className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">
             IT fundamentals → cloud expert
-          </p>
+          </div>
           <h1 className="mx-auto mt-4 max-w-3xl text-[clamp(2.25rem,2rem+3vw,3.75rem)] font-bold leading-[1.1] tracking-tight text-ink-1">
             Learn IT by doing it — all the way to CISSP.
           </h1>
@@ -226,6 +262,19 @@ export default function Landing() {
                 </p>
                 <h3 className="mt-3 text-body font-semibold text-ink-1">{s.title}</h3>
                 <p className="mt-1.5 text-small text-ink-2">{s.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="pb-16 sm:pb-20" aria-label="Frequently asked questions">
+          <h2 className="text-center text-title font-bold text-ink-1">Frequently asked questions</h2>
+          <div className="mx-auto mt-8 grid max-w-3xl gap-4">
+            {FAQS.map((f) => (
+              <div key={f.q} className="glass-2 rounded-card p-5">
+                <h3 className="text-body font-semibold text-ink-1">{f.q}</h3>
+                <p className="mt-1.5 text-small text-ink-2">{f.a}</p>
               </div>
             ))}
           </div>

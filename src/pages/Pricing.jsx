@@ -133,9 +133,9 @@ export default function Pricing() {
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6">
         <section className="py-14 text-center sm:py-20">
-          <p className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">
+          <div className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">
             One plan. Everything included.
-          </p>
+          </div>
           <h1 className="mx-auto mt-4 max-w-3xl text-[clamp(2.25rem,2rem+3vw,3.75rem)] font-bold leading-[1.1] tracking-tight text-ink-1">
             The only subscription you&apos;ll need, from first cert to CISSP.
           </h1>

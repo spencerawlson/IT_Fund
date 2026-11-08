@@ -3,6 +3,7 @@ import { ArrowRight, Box, Timer, ExternalLink } from 'lucide-react';
 import { Card, IconTile, PageContainer, PageHeader, SectionHeader, Badge } from '@/components/ui-glass';
 import LabConsole from '@/components/labs/LabConsole';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 // Hands-on practice beside the lesson path. Nothing here changes lesson progress.
 // Reference material (the modules) lives under Learn -> Concept library.
@@ -32,6 +33,11 @@ export default function Practice() {
   useDocumentTitle('Practice · Road to CISSP');
   return (
     <PageContainer>
+      <Seo
+        title="Practice — labs, drills and flashcards · Road to CISSP"
+        description="Hands-on labs to use alongside your lessons. Nothing here changes your lesson path."
+        path="/practice"
+      />
       <PageHeader
         title="Practice"
         description="Hands-on labs to use alongside your lessons. Nothing here changes your lesson path."

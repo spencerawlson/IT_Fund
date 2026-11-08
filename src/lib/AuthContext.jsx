@@ -13,10 +13,16 @@ const AuthContext = createContext(null);
 // Falls back to same-origin /api for local dev (Vite proxy) and the Vercel rewrite.
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
+export const AuthProvider = ({ children, initialAuth }) => {
+  // initialAuth is a prerender-only override: the server entry passes
+  // { user: null, isLoadingAuth: false, authChecked: true } so public
+  // pages render their content instead of the loading spinner. The
+  // client never passes it, so browser behaviour is unchanged.
+  const [user, setUser] = useState(initialAuth?.user ?? null);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(
+    initialAuth?.isLoadingAuth ?? true);
+  const [authChecked, setAuthChecked] = useState(
+    initialAuth?.authChecked ?? false);
   const syncing = useRef(false);
 
   const loadUser = async () => {
