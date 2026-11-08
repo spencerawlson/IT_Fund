@@ -9,7 +9,7 @@ from __future__ import annotations
 import secrets
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Base
@@ -125,3 +125,37 @@ class Subscription(Base):
     status: Mapped[str] = mapped_column(String(32), default="incomplete")
     current_period_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class AdminSession(Base):
+    """One admin-panel login session (Kay Ayiti model: password gate, no admin
+    accounts). Only the hash of the session token is stored, like auth_sessions.
+    """
+    __tablename__ = "admin_sessions"
+
+    id_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class AiTutorCall(Base):
+    """One AI tutor call, append-only. Written by ai_tutor._log_call for every
+    call that passes auth + rate limiting — success, cached answer, or upstream
+    error. cost_usd is computed from the explicit MODEL_PRICES table in
+    ai_tutor.py; None means the model has no listed price (shown as "unknown"),
+    0.0 means a cached answer (no new spend). No call history exists before
+    this table ships.
+    """
+    __tablename__ = "ai_tutor_calls"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    mode: Mapped[str] = mapped_column(String(32))
+    model: Mapped[str] = mapped_column(String(64))
+    prompt_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    completion_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    cached: Mapped[bool] = mapped_column(Boolean, default=False)
+    error: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)

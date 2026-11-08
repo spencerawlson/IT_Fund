@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import time
 from collections import OrderedDict, defaultdict, deque
@@ -23,6 +24,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from auth.deps import require_user_id
+
+log = logging.getLogger("ai_tutor")
 
 
 def _load_dotenv(path: Path = Path(__file__).with_name(".env")) -> None:
@@ -48,6 +51,57 @@ Mode = Literal["hint", "explain", "simplify", "example", "weakspots", "chat"]
 
 # Output budget per mode keeps answers short and costs predictable.
 MAX_TOKENS = {"hint": 150, "explain": 350, "simplify": 300, "example": 300, "weakspots": 500, "chat": 600}
+
+#: OpenAI list prices, USD per 1M tokens, as published 2026-11-08.
+#: Update when OpenAI changes list prices. A model missing here costs
+#: None ("unknown") — never a made-up figure.
+MODEL_PRICES = {
+    "gpt-4o-mini": {"input": 0.15, "output": 0.60},
+    "gpt-4o": {"input": 2.50, "output": 10.00},
+}
+
+
+def cost_usd(model: str, prompt_tokens, completion_tokens):
+    """USD cost of one tutor call from its token counts, or None when the
+    model has no listed price or the counts are unknown."""
+    prices = MODEL_PRICES.get(model)
+    if prices is None or prompt_tokens is None or completion_tokens is None:
+        return None
+    return round(
+        prompt_tokens * prices["input"] / 1_000_000
+        + completion_tokens * prices["output"] / 1_000_000,
+        6,
+    )
+
+
+def _log_call(user_id: str, req, model: str, usage, cached: bool, error: bool) -> None:
+    """Append one row to ai_tutor_calls. Logging must never break the answer:
+    any failure is warned and swallowed."""
+    try:
+        import db
+        from db_models import AiTutorCall
+
+        prompt_tokens = completion_tokens = None
+        if usage is not None:
+            prompt_tokens = getattr(usage, "prompt_tokens", None)
+            completion_tokens = getattr(usage, "completion_tokens", None)
+        cost = 0.0 if cached else cost_usd(model, prompt_tokens, completion_tokens)
+        with db.SessionLocal() as s:
+            s.add(
+                AiTutorCall(
+                    user_id=user_id,
+                    mode=req.mode,
+                    model=model,
+                    prompt_tokens=prompt_tokens,
+                    completion_tokens=completion_tokens,
+                    cost_usd=cost,
+                    cached=cached,
+                    error=error,
+                )
+            )
+            s.commit()
+    except Exception:
+        log.exception("ai tutor call logging failed for user %s", user_id)
 
 SYSTEM_PROMPT = """You are the AI tutor inside "Road to CISSP", a study app covering Python, \
 Network+, Security+, hands-on cybersecurity, cloud computing, AI engineering, and the CISSP.
@@ -193,20 +247,27 @@ def _sse(payload: dict) -> str:
     return f"data: {json.dumps(payload)}\n\n"
 
 
-def stream_answer(client, req: TutorReq, key: Optional[str]) -> Iterator[str]:
+def stream_answer(client, req: TutorReq, key: Optional[str], user_id: str) -> Iterator[str]:
     if key and key in _cache:
         yield _sse({"t": _cache[key], "cached": True})
         yield _sse({"done": True})
+        _log_call(user_id, req, MODEL, None, cached=True, error=False)
         return
     parts: list[str] = []
+    usage = None
     try:
         stream = client.chat.completions.create(
             model=MODEL,
             messages=build_messages(req),
             max_completion_tokens=MAX_TOKENS[req.mode],
             stream=True,
+            stream_options={"include_usage": True},
         )
         for chunk in stream:
+            # The final usage chunk carries no choices; capture it before skipping.
+            chunk_usage = getattr(chunk, "usage", None)
+            if chunk_usage is not None:
+                usage = chunk_usage
             if not chunk.choices:
                 continue
             delta = chunk.choices[0].delta.content
@@ -217,10 +278,12 @@ def stream_answer(client, req: TutorReq, key: Optional[str]) -> Iterator[str]:
         name = type(exc).__name__
         msg = "The tutor is busy right now. Try again in a moment." if "RateLimit" in name else "The tutor couldn't answer. Please try again."
         yield _sse({"error": msg})
+        _log_call(user_id, req, MODEL, None, cached=False, error=True)
         return
     if key and parts:
         _cache_put(key, "".join(parts))
     yield _sse({"done": True})
+    _log_call(user_id, req, MODEL, usage, cached=False, error=False)
 
 
 # ---------- routes ----------
@@ -239,7 +302,7 @@ def ai_tutor(body: TutorReq, user_id: str = Depends(require_user_id)):
     # Spend control: sign-in required, and the per-user limit can't be dodged by IP spoofing.
     check_rate(f"user:{user_id}")
     return StreamingResponse(
-        stream_answer(client, body, cache_key(body)),
+        stream_answer(client, body, cache_key(body), user_id),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

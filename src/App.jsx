@@ -30,6 +30,7 @@ import Pricing from './pages/Pricing';
 const Home = React.lazy(() => import('./pages/Home'));
 const Module = React.lazy(() => import('./pages/Module'));
 const Lab = React.lazy(() => import('./pages/Lab'));
+const Admin = React.lazy(() => import('./pages/admin/Admin'));
 const Roadmap = React.lazy(() => import('./pages/Roadmap'));
 const Challenge = React.lazy(() => import('./pages/Challenge'));
 const Tracks = React.lazy(() => import('./pages/Tracks'));
@@ -106,6 +107,8 @@ const AuthenticatedApp = () => {
         <Route path="/library" element={<Home />} />
         <Route path="/module/:moduleId" element={<Module />} />
         <Route path="/lab" element={<Lab />} />
+      {/* Admin: Spencer-only, password-gated, direct URL only — never in the nav. */}
+      <Route path="/admin" element={<Admin />} />
         <Route path="/tracks" element={<Tracks />} />
         <Route path="/roadmap" element={<Roadmap />} />
         <Route path="/challenge" element={<Challenge />} />

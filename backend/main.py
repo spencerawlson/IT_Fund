@@ -166,6 +166,13 @@ from billing import router as billing_router  # noqa: E402
 app.include_router(billing_router)
 app.include_router(billing_router, prefix="/api")
 
+# Admin panel (Spencer-only, password-gated). Both prefixes like the other
+# routers, so /api/admin/* works behind the /api rewrite.
+from admin import router as admin_router  # noqa: E402
+
+app.include_router(admin_router)
+app.include_router(admin_router, prefix="/api")
+
 # ---- routes ----
 @app.get("/health")
 def health():
