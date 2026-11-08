@@ -2,6 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Theme before first paint: apply the stored choice (or the OS
+         preference when nothing is stored) before the stylesheet loads, so
+         dark-mode visitors never flash the light theme. Mirrors the logic in
+         src/lib/theme.js — keep the two in sync. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('itfund-theme');
+          var theme = stored === 'dark' || stored === 'light'
+            ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#000000' : '#FFFFFF');
+        } catch (e) { /* storage unavailable: light default stands */ }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training</title>

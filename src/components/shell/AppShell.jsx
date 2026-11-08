@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Repeat, FlaskConical, Crown, Search, Sparkles, X, LogIn, User } from 'lucide-react';
 import Logo from '@/components/Logo';
+import ThemeToggle from '@/components/ThemeToggle';
 import { useAuth } from '@/lib/AuthContext';
 import { useTutorEnabled } from '@/components/academy/tutor/TutorAssist';
 import { getCourse, courseHref } from '@/data/catalog';
@@ -140,6 +141,10 @@ export default function AppShell() {
           <div className="mt-auto space-y-1 border-t border-black/[0.07] pt-3">
             <TutorButton />
             <AccountMenu />
+            <div className="flex items-center gap-3 rounded-control px-3 py-2.5 text-small font-semibold text-ink-2">
+              <ThemeToggle />
+              <span>Theme</span>
+            </div>
           </div>
         </div>
       </header>
@@ -163,6 +168,7 @@ export default function AppShell() {
                 <button type="button" onClick={() => setSearchOpen(true)} aria-label="Search concepts" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-black/[0.04]">
                   <Search size={20} aria-hidden="true" />
                 </button>
+                <ThemeToggle />
                 <TutorButton compact />
                 <AccountMenu compact />
               </div>

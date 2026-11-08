@@ -1,9 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { ACTION, ACTION_SURFACE, BASE, INK, SEMANTIC, SURFACES, TERMINAL, contrast, hexToRgb, worstContrast } from './tokens';
+import { ACTION, ACTION_SURFACE, BASE, DARK_ACTION, DARK_ACTION_SURFACE, DARK_BASE, DARK_INK, DARK_SEMANTIC, DARK_SURFACES, INK, SEMANTIC, SURFACES, TERMINAL, contrast, hexToRgb, worstContrast, worstDarkContrast } from './tokens';
 
 const css = readFileSync(new URL('../../index.css', import.meta.url), 'utf8');
 const cssVar = (name) => css.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1].trim();
+// Variables inside the html[data-theme="dark"] block (the first :root match is light).
+const darkBlock = css.match(/html\[data-theme="dark"\]\s*\{([\s\S]*?)\n  \}/)?.[1] ?? '';
+const darkCssVar = (name) => darkBlock.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1].trim();
 const rgbChannels = (hex) => hexToRgb(hex).join(' ');
 // ink1 -> ink-1, actionHover -> action-hover
 const kebab = (key) => key.replace(/([A-Z0-9])/g, (c) => `-${c.toLowerCase()}`);
@@ -45,9 +48,8 @@ describe('design tokens', () => {
 });
 
 describe('light-only presentation', () => {
-  it('uses a white page base and ships no dark-theme variable block', () => {
+  it('uses a white page base', () => {
     expect(BASE).toBe('#FFFFFF');
-    expect(css).not.toContain('html[data-theme="dark"]');
     expect(cssVar('bg-base')).toBe('#FFFFFF');
   });
 
@@ -68,5 +70,54 @@ describe('light-only presentation', () => {
     expect(cssVar('terminal-error-rgb')).toBe(rgbChannels(TERMINAL.error));
     expect(contrast(hexToRgb(TERMINAL.text), hexToRgb(TERMINAL.background))).toBeGreaterThanOrEqual(4.5);
     expect(contrast(hexToRgb(TERMINAL.mutedText), hexToRgb(TERMINAL.background))).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('dark theme (Instagram-style true black)', () => {
+  it('ships a dark variable block on a true-black page base', () => {
+    expect(DARK_BASE).toBe('#000000');
+    expect(css).toContain('html[data-theme="dark"]');
+    expect(darkCssVar('bg-base')).toBe(DARK_BASE);
+    expect(darkCssVar('background')).toBe('0 0% 0%');
+  });
+
+  it('dark index.css variables match tokens.js', () => {
+    for (const [key, hex] of Object.entries({ ...DARK_INK, ...DARK_ACTION, ...DARK_SEMANTIC })) {
+      expect(darkCssVar(`${kebab(key)}-rgb`), key).toBe(rgbChannels(hex));
+    }
+    for (const [name, [r, g, b, a]] of Object.entries(DARK_SURFACES)) {
+      expect(darkCssVar(`surface-${name.slice(-1)}`), name).toBe(`rgba(${r}, ${g}, ${b}, ${a})`);
+    }
+  });
+
+  it('the dark block does not touch the Solarized terminal palette', () => {
+    expect(darkBlock).not.toContain('--terminal-');
+  });
+
+  it('all dark text colours pass WCAG AA (4.5:1) on every dark glass level', () => {
+    for (const surface of ['glass-1', 'glass-2', 'glass-3']) {
+      for (const [key, hex] of Object.entries(DARK_INK)) {
+        expect(worstDarkContrast(hex, surface), `${key} on dark ${surface}`).toBeGreaterThanOrEqual(4.5);
+      }
+      expect(worstDarkContrast(DARK_ACTION.action, surface), `action on dark ${surface}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('dark status colours pass AA as text on dark reading glass', () => {
+    for (const [key, hex] of Object.entries(DARK_SEMANTIC)) {
+      expect(worstDarkContrast(hex, 'glass-2'), key).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('the dark primary button keeps its light-purple fill and near-black text readable', () => {
+    expect(darkCssVar('action-surface-rgb')).toBe(rgbChannels(DARK_ACTION_SURFACE.surface));
+    expect(darkCssVar('action-surface-hover-rgb')).toBe(rgbChannels(DARK_ACTION_SURFACE.surfaceHover));
+    expect(darkCssVar('action-surface-ink-rgb')).toBe(rgbChannels(DARK_ACTION_SURFACE.surfaceInk));
+    expect(contrast(hexToRgb(DARK_ACTION_SURFACE.surfaceInk), hexToRgb(DARK_ACTION_SURFACE.surface))).toBeGreaterThanOrEqual(4.5);
+    // The fill itself against a black card: the button must be visible on black.
+    expect(contrast(hexToRgb(DARK_ACTION_SURFACE.surface), hexToRgb(DARK_BASE))).toBeGreaterThanOrEqual(4.5);
+    // Bright-violet action text passes on black, and near-black text passes on it.
+    expect(contrast(hexToRgb(DARK_ACTION.action), hexToRgb(DARK_BASE))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(hexToRgb(DARK_ACTION.actionInk), hexToRgb(DARK_ACTION.action))).toBeGreaterThanOrEqual(4.5);
   });
 });

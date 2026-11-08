@@ -4,6 +4,7 @@ import { BookOpen, FlaskConical, Bot, Target, TerminalSquare, Award, ArrowRight,
 import { Button } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
+import ThemeToggle from '@/components/ThemeToggle';
 import LandingBackground from '@/components/landing/LandingBackground';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
@@ -144,6 +145,7 @@ export default function Landing() {
         <span className="whitespace-nowrap text-body font-bold tracking-tight">Road to CISSP</span>
         {/* Phones get one primary "Sign in" (both buttons open /signin); wider screens show both. */}
         <div className="flex items-center gap-1 whitespace-nowrap sm:gap-2">
+          <ThemeToggle />
           <Button variant="ghost" size="sm" to="/labs">Labs</Button>
           <Button variant="ghost" size="sm" to="/signin" className="hidden sm:inline-flex">Sign in</Button>
           <Button size="sm" to="/signin">

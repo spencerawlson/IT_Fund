@@ -55,6 +55,59 @@ export const TERMINAL = {
   error: '#FF6B68',
 };
 
+// ---- Dark theme (Instagram-style true black) ----
+// The CSS variables under html[data-theme="dark"] in src/index.css must match
+// these values; tokens.test.js checks that, and checks text contrast on every
+// dark glass level. The terminal palette above is NOT redeclared for dark:
+// Solarized stays exactly as-is in both themes.
+
+/** Dark text: white primary, Instagram-grey secondary, dimmest #A1A1AA
+ * (#737373 would fail AA on the dark glass — checked below). */
+export const DARK_INK = {
+  ink1: '#FFFFFF',
+  ink2: '#A8A8A8',
+  ink3: '#A1A1AA',
+};
+
+/**
+ * Dark violet accent: the light #7C3AED is 3.7:1 on black (fails AA);
+ * #A78BFA is 7.7:1. actionInk is near-black because white text on the
+ * bright violet fill is 2.7:1 (fails); near-black on it is 6.2:1.
+ */
+export const DARK_ACTION = {
+  action: '#A78BFA',
+  actionHover: '#C4B5FD',
+  actionInk: '#1E1B2E',
+  focus: '#A78BFA',
+};
+
+/**
+ * Primary-button surface, UNCHANGED in dark: the #C4B5FD fill is 11.4:1
+ * against a black card and 9.1:1 with its near-black text, so the button
+ * reads on black exactly as it does on white.
+ */
+export const DARK_ACTION_SURFACE = {
+  surface: '#C4B5FD',
+  surfaceHover: '#A78BFA',
+  surfaceInk: '#1E1B2E',
+};
+
+/** Status colours, brightened so they pass AA on the dark glass. */
+export const DARK_SEMANTIC = {
+  success: '#34D399',
+  warning: '#FBBF24',
+  danger: '#F87171',
+  info: '#60A5FA',
+};
+
+/** Dark page base and glass fills ([r, g, b, alpha]). True black dominates. */
+export const DARK_BASE = '#000000';
+export const DARK_SURFACES = {
+  'glass-1': [18, 18, 18, 0.68],
+  'glass-2': [28, 28, 30, 0.88],
+  'glass-3': [28, 28, 30, 0.96],
+};
+
 // ---- contrast maths (WCAG 2.x) ----
 
 export function hexToRgb(hex) {
@@ -85,8 +138,19 @@ export function backgroundSamples() {
   return [hexToRgb(BASE)];
 }
 
+/** The background a dark glass panel can sit on: the true-black page base. */
+export function darkBackgroundSamples() {
+  return [hexToRgb(DARK_BASE)];
+}
+
 /** Lowest contrast of a text colour on a glass level, across every background sample. */
 export function worstContrast(textHex, surface) {
   const text = hexToRgb(textHex);
   return Math.min(...backgroundSamples().map((bg) => contrast(text, over(SURFACES[surface], bg))));
+}
+
+/** Lowest contrast of a text colour on a dark glass level, over the black page base. */
+export function worstDarkContrast(textHex, surface) {
+  const text = hexToRgb(textHex);
+  return Math.min(...darkBackgroundSamples().map((bg) => contrast(text, over(DARK_SURFACES[surface], bg))));
 }

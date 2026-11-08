@@ -5,6 +5,7 @@ import { Button, Card } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription } from '@/lib/subscription';
 import Seo from '@/components/Seo';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -126,6 +127,7 @@ export default function Pricing() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
         <Link to="/" className="text-body font-bold tracking-tight">Road to CISSP</Link>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <Button variant="ghost" size="sm" to="/labs">Labs</Button>
           <Button variant="secondary" size="sm" to="/signin">Sign in</Button>
         </div>

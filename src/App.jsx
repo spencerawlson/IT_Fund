@@ -13,6 +13,7 @@ import { CelebrationHost } from '@/components/Celebration';
 import AcronymTooltips from '@/components/AcronymTooltips';
 import AppShell from '@/components/shell/AppShell';
 import { TutorProvider } from '@/components/shell/TutorContext';
+import { ThemeProvider } from '@/components/ThemeProvider';
 // Eager: the first-paint / common entry pages. Everything heavy or secondary is
 // lazy-loaded below so it doesn't bloat the initial bundle (the Three.js-backed
 // Visual Lab and lab workspace especially). Lazy routes render inside the
@@ -140,11 +141,12 @@ const AuthenticatedApp = () => {
 function App({ RouterComponent = Router, routerProps = {}, initialAuth }) {
 
   return (
+    <ThemeProvider>
     <AuthProvider initialAuth={initialAuth}>
       <QueryClientProvider client={queryClientInstance}>
         <RouterComponent {...routerProps}>
           <ScrollToTop />
-          <div className="relative isolate min-h-screen bg-white text-ink-1">
+          <div className="relative isolate min-h-screen bg-background text-ink-1">
             <TutorProvider>
               {/* Last line of defence: a crash below here shows a message, not a blank page. */}
               <ErrorBoundary label="Page">
@@ -163,6 +165,7 @@ function App({ RouterComponent = Router, routerProps = {}, initialAuth }) {
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
+    </ThemeProvider>
   )
 }
 

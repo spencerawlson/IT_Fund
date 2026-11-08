@@ -77,6 +77,76 @@
     --terminal-muted-rgb: 147 161 161;
     --terminal-error-rgb: 255 107 104;
   }
+
+  /* ---- Dark theme (Instagram-style true black) ----
+     Applied when <html> carries data-theme="dark" (set by the inline script
+     in index.html before first paint, then owned by ThemeProvider). The
+     terminal palette above is deliberately NOT redeclared here: Solarized
+     stays exactly as-is in both themes.
+     Values are mirrored in src/lib/design/tokens.js (DARK_*); tokens.test.js
+     checks the match and the text contrast on every dark glass level. */
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    /* True black page; near-black cards; #262626 dividers. */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 258 90% 84%;
+    --primary-foreground: 258 26% 14%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 66%;
+    --accent: 258 90% 73%;
+    --accent-foreground: 258 26% 14%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 7%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 258 90% 73%;
+    --chart-1: 258 90% 73%;
+    --chart-2: 199 89% 60%;
+    --chart-3: 160 84% 45%;
+    --chart-4: 291 64% 65%;
+    --chart-5: 0 84% 65%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 258 90% 84%;
+    --sidebar-primary-foreground: 258 26% 14%;
+    --sidebar-accent: 258 90% 73%;
+    --sidebar-accent-foreground: 258 26% 14%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 258 90% 73%;
+
+    /* Text: white primary, Instagram-grey secondary (#A8A8A8), dimmest #A1A1AA
+       (a darker grey would fail WCAG AA on the glass levels — checked in tokens.test.js). */
+    --ink-1-rgb: 255 255 255;
+    --ink-2-rgb: 168 168 168;
+    --ink-3-rgb: 161 161 170;
+    /* Violet, brightened for black: the light #7C3AED is 3.7:1 on black (fails
+       AA); #A78BFA is 7.7:1. The primary-button fill stays #C4B5FD in both
+       themes — 11.4:1 against a black card, 9.1:1 with its near-black text. */
+    --action-rgb: 167 139 250;
+    --action-hover-rgb: 196 181 253;
+    --action-ink-rgb: 30 27 46;
+    --action-surface-rgb: 196 181 253;
+    --action-surface-hover-rgb: 167 139 250;
+    --action-surface-ink-rgb: 30 27 46;
+    --focus-rgb: 167 139 250;
+    /* Status colours, brightened so they pass AA on the dark glass. */
+    --success-rgb: 52 211 153;
+    --warning-rgb: 251 191 36;
+    --danger-rgb: 248 113 113;
+    --info-rgb: 96 165 250;
+    /* Page base and glass fills. */
+    --bg-base: #000000;
+    --surface-1: rgba(18, 18, 18, 0.68);
+    --surface-2: rgba(28, 28, 30, 0.88);
+    --surface-3: rgba(28, 28, 30, 0.96);
+  }
 }
 
 @layer base {
@@ -254,6 +324,9 @@
     .glass, .glass-1 { background: #FFFFFF; }
     .glass-2 { background: #FDFCFF; }
     .glass-strong, .glass-3 { background: #FFFFFF; }
+    html[data-theme="dark"] .glass, html[data-theme="dark"] .glass-1 { background: #121212; }
+    html[data-theme="dark"] .glass-2 { background: #1C1C1E; }
+    html[data-theme="dark"] .glass-strong, html[data-theme="dark"] .glass-3 { background: #1C1C1E; }
   }
 }
 
@@ -332,6 +405,9 @@ body::before {
   .glass, .glass-1 { background: #FFFFFF; }
   .glass-strong, .glass-2 { background: #FDFCFF; }
   .glass-3 { background: #FFFFFF; }
+  html[data-theme="dark"] .glass, html[data-theme="dark"] .glass-1 { background: #121212; }
+  html[data-theme="dark"] .glass-strong, html[data-theme="dark"] .glass-2 { background: #1C1C1E; }
+  html[data-theme="dark"] .glass-3 { background: #1C1C1E; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -350,3 +426,181 @@ body::before {
   text-underline-offset: 3px;
 }
 html.acronym-hover, html.acronym-hover * { cursor: help !important; }
+
+/* ---------- Dark theme: glass + hardcoded-palette utilities ----------
+   Everything above that uses token classes (text-ink-1, .glass-1/2/3,
+   bg-action-surface) already follows the [data-theme="dark"] variables.
+   Two groups still need explicit dark rules, both scoped to the attribute so
+   light is untouched:
+
+   1. The glass classes paint literal white fills/borders/shadows.
+   2. A minority of components use Tailwind's literal palette for tints and
+      borders (border-black/10, bg-black/[0.04], text-blue-700). Those compile
+      to fixed colours, so they are remapped here instead of touching ~100
+      call sites. Unlayered on purpose: unlayered author styles beat
+      Tailwind's layered utilities, so these win without !important.
+
+   Deliberately NOT remapped: bg-black/50 and /60 (modal scrims — a dark scrim
+   is correct in both themes), saturated fills (bg-rose-500, bg-amber-400…)
+   and their translucent tints, and *-400 text colours, which all read on
+   black as-is. */
+
+/* ---- Glass, dark ---- */
+html[data-theme="dark"] .glass {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.06), transparent 60%),
+    linear-gradient(145deg, rgba(28, 28, 30, 0.72), rgba(18, 18, 18, 0.48));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 40px -14px rgba(0, 0, 0, 0.6);
+}
+html[data-theme="dark"] .glass-strong {
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.08), transparent 65%),
+    linear-gradient(145deg, rgba(28, 28, 30, 0.94), rgba(18, 18, 18, 0.86));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 50px -14px rgba(0, 0, 0, 0.65);
+}
+html[data-theme="dark"] .glass-hover:hover {
+  border-color: rgba(167, 139, 250, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 50px -14px rgba(0, 0, 0, 0.65);
+}
+/* The primary button keeps its light-purple fill in both themes (11.4:1 on a
+   black card); only its violet border is brightened for dark. */
+html[data-theme="dark"] .glass-btn {
+  border: 1px solid rgba(167, 139, 250, 0.35);
+}
+html[data-theme="dark"] .glass-1 {
+  background: linear-gradient(180deg, rgba(28, 28, 30, 0.86), var(--surface-1));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 30px -16px rgba(0, 0, 0, 0.6);
+}
+html[data-theme="dark"] .glass-2 {
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 40px -18px rgba(0, 0, 0, 0.6);
+}
+html[data-theme="dark"] .glass-3 {
+  background: var(--surface-3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.65);
+}
+
+/* ---- Borders and dividers: black tints become white tints at the same alpha.
+   White/10 over a #121212 card lands at #2A2A2A — Instagram's #262626 divider. ---- */
+html[data-theme="dark"] .border-black { border-color: rgb(255 255 255 / 0.15); }
+html[data-theme="dark"] .border-black\/5 { border-color: rgb(255 255 255 / 0.05); }
+html[data-theme="dark"] .border-black\/10 { border-color: rgb(255 255 255 / 0.1); }
+html[data-theme="dark"] .border-black\/15 { border-color: rgb(255 255 255 / 0.15); }
+html[data-theme="dark"] .border-black\/20, html[data-theme="dark"] .hover\:border-black\/20:hover, html[data-theme="dark"] .focus\:border-black\/20:focus { border-color: rgb(255 255 255 / 0.2); }
+html[data-theme="dark"] .border-black\/25, html[data-theme="dark"] .hover\:border-black\/25:hover { border-color: rgb(255 255 255 / 0.25); }
+html[data-theme="dark"] .border-black\/30, html[data-theme="dark"] .hover\:border-black\/30:hover { border-color: rgb(255 255 255 / 0.3); }
+html[data-theme="dark"] .divide-black > :not([hidden]) ~ :not([hidden]) { border-color: rgb(255 255 255 / 0.1); }
+html[data-theme="dark"] .divide-black\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgb(255 255 255 / 0.05); }
+
+/* ---- Black tints become white tints at the same alpha (hover states included).
+   bg-black/50 and /60 are modal scrims and stay black. ---- */
+html[data-theme="dark"] .bg-black\/\[0\.03\] { background-color: rgb(255 255 255 / 0.03); }
+html[data-theme="dark"] .bg-black\/\[0\.04\] { background-color: rgb(255 255 255 / 0.04); }
+html[data-theme="dark"] .bg-black\/\[0\.05\] { background-color: rgb(255 255 255 / 0.05); }
+html[data-theme="dark"] .bg-black\/\[0\.06\] { background-color: rgb(255 255 255 / 0.06); }
+html[data-theme="dark"] .bg-black\/\[0\.07\] { background-color: rgb(255 255 255 / 0.07); }
+html[data-theme="dark"] .bg-black\/\[0\.08\] { background-color: rgb(255 255 255 / 0.08); }
+html[data-theme="dark"] .bg-black\/\[0\.12\] { background-color: rgb(255 255 255 / 0.12); }
+html[data-theme="dark"] .hover\:bg-black\/\[0\.03\]:hover { background-color: rgb(255 255 255 / 0.03); }
+html[data-theme="dark"] .hover\:bg-black\/\[0\.04\]:hover { background-color: rgb(255 255 255 / 0.04); }
+html[data-theme="dark"] .hover\:bg-black\/\[0\.05\]:hover { background-color: rgb(255 255 255 / 0.05); }
+html[data-theme="dark"] .hover\:bg-black\/\[0\.12\]:hover { background-color: rgb(255 255 255 / 0.12); }
+html[data-theme="dark"] .bg-black\/5 { background-color: rgb(255 255 255 / 0.05); }
+html[data-theme="dark"] .hover\:bg-black\/5:hover { background-color: rgb(255 255 255 / 0.05); }
+html[data-theme="dark"] .bg-black\/20 { background-color: rgb(255 255 255 / 0.2); }
+html[data-theme="dark"] .bg-black\/30 { background-color: rgb(255 255 255 / 0.3); }
+
+/* ---- Solid white surfaces become near-black cards; high-alpha white panels
+   become dark panels at the same alpha. bg-white/10 is a subtle tint and stays. ---- */
+html[data-theme="dark"] .bg-white { background-color: #121212; }
+html[data-theme="dark"] .bg-white\/70 { background-color: rgb(28 28 30 / 0.7); }
+html[data-theme="dark"] .bg-white\/75 { background-color: rgb(28 28 30 / 0.75); }
+html[data-theme="dark"] .bg-white\/80 { background-color: rgb(28 28 30 / 0.8); }
+html[data-theme="dark"] .bg-white\/85 { background-color: rgb(28 28 30 / 0.85); }
+html[data-theme="dark"] .bg-white\/95 { background-color: rgb(28 28 30 / 0.95); }
+
+/* ---- Violet tints: light lavender panels become a violet tint on black. ---- */
+html[data-theme="dark"] .bg-violet-50 { background-color: rgb(167 139 250 / 0.12); }
+html[data-theme="dark"] .hover\:bg-violet-50:hover { background-color: rgb(167 139 250 / 0.12); }
+html[data-theme="dark"] .hover\:bg-violet-50\/60:hover { background-color: rgb(167 139 250 / 0.08); }
+html[data-theme="dark"] .bg-violet-100 { background-color: rgb(167 139 250 / 0.16); }
+html[data-theme="dark"] .bg-rose-50 { background-color: rgb(244 63 94 / 0.12); }
+html[data-theme="dark"] .border-violet-700\/10 { border-color: rgb(167 139 250 / 0.3); }
+html[data-theme="dark"] .border-violet-700\/15 { border-color: rgb(167 139 250 / 0.3); }
+html[data-theme="dark"] .border-violet-700\/20, html[data-theme="dark"] .hover\:border-violet-700\/20:hover { border-color: rgb(167 139 250 / 0.3); }
+html[data-theme="dark"] .hover\:border-violet-700\/25:hover { border-color: rgb(167 139 250 / 0.35); }
+html[data-theme="dark"] .text-violet-700 { color: #A78BFA; }
+
+/* ---- Gradients: white/violet-50 stops become near-black stops. ---- */
+html[data-theme="dark"] .from-white {
+  --tw-gradient-from: #121212 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(18 18 18 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+html[data-theme="dark"] .to-white { --tw-gradient-to: #000000 var(--tw-gradient-to-position); }
+html[data-theme="dark"] .to-violet-50 { --tw-gradient-to: #1E1B2E var(--tw-gradient-to-position); }
+html[data-theme="dark"] .via-violet-50 {
+  --tw-gradient-to: rgb(30 27 46 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), #1E1B2E var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+html[data-theme="dark"] .from-violet-50 {
+  --tw-gradient-from: rgb(167 139 250 / 0.12) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(167 139 250 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+/* ---- Accent text: the *-700 shades are too dark on black; lift them to *-300
+   (the *-400 shades already read on black and are left alone). ---- */
+html[data-theme="dark"] .text-amber-700 { color: #FCD34D; }
+html[data-theme="dark"] .text-blue-700 { color: #93C5FD; }
+html[data-theme="dark"] .text-rose-700 { color: #FDA4AF; }
+html[data-theme="dark"] .text-teal-700 { color: #5EEAD4; }
+html[data-theme="dark"] .text-indigo-700 { color: #A5B4FC; }
+html[data-theme="dark"] .text-green-700 { color: #86EFAC; }
+html[data-theme="dark"] .text-purple-700 { color: #D8B4FE; }
+html[data-theme="dark"] .text-red-700 { color: #FCA5A5; }
+html[data-theme="dark"] .text-emerald-700 { color: #6EE7B7; }
+html[data-theme="dark"] .text-sky-700 { color: #7DD3FC; }
+html[data-theme="dark"] .text-amber-700\/80 { color: rgb(252 211 77 / 0.8); }
+html[data-theme="dark"] .text-indigo-700\/80 { color: rgb(165 180 252 / 0.8); }
+html[data-theme="dark"] .text-teal-700\/80 { color: rgb(94 234 212 / 0.8); }
+html[data-theme="dark"] .text-rose-700\/80 { color: rgb(253 164 175 / 0.8); }
+html[data-theme="dark"] .text-purple-700\/80 { color: rgb(216 180 254 / 0.8); }
+html[data-theme="dark"] .text-rose-600 { color: #FB7185; }
+html[data-theme="dark"] .text-red-600 { color: #F87171; }
+html[data-theme="dark"] .text-red-600\/80 { color: rgb(248 113 113 / 0.8); }
+html[data-theme="dark"] .text-emerald-600 { color: #34D399; }
+html[data-theme="dark"] .text-amber-600 { color: #FBBF24; }
+html[data-theme="dark"] .text-indigo-600 { color: #818CF8; }
+html[data-theme="dark"] .text-teal-600 { color: #2DD4BF; }
+html[data-theme="dark"] .text-sky-600 { color: #38BDF8; }
+html[data-theme="dark"] .text-purple-600 { color: #C084FC; }
+html[data-theme="dark"] .text-orange-600 { color: #FB923C; }
+html[data-theme="dark"] .text-green-600 { color: #4ADE80; }
+html[data-theme="dark"] .text-green-800 { color: #86EFAC; }
+html[data-theme="dark"] .text-red-800 { color: #FCA5A5; }
+html[data-theme="dark"] .text-emerald-800 { color: #6EE7B7; }
+html[data-theme="dark"] .text-amber-800 { color: #FCD34D; }
+html[data-theme="dark"] .text-violet-900 { color: #DDD6FE; }
+
+/* ---- Link underlines: black decoration is invisible on black. ---- */
+html[data-theme="dark"] .decoration-black\/30, html[data-theme="dark"] .hover\:decoration-black\/30:hover { text-decoration-color: rgb(255 255 255 / 0.4); }
+
+/* ---- Solid colour buttons that carry token text (text-ink-1 becomes white in
+   dark, which fails AA on blue-500/rose-500): deepen the fill so white text
+   passes — blue-500 → blue-600 (5.3:1), rose-500 → rose-600 (4.8:1). ---- */
+html[data-theme="dark"] .bg-blue-500.text-ink-1 { background-color: #2563EB; }
+html[data-theme="dark"] .bg-rose-500.text-ink-1 { background-color: #E11D48; }
+html[data-theme="dark"] .hover\:bg-blue-600:hover { background-color: #1D4ED8; }
+html[data-theme="dark"] .hover\:bg-rose-400:hover { background-color: #BE123C; }
