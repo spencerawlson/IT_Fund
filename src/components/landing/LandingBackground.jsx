@@ -74,13 +74,13 @@ function Device({ type, c, o }) {
 
 // type, position, scale, colour, opacity — all kept to the edges, clear of the hero.
 const PLACEMENTS = [
-  { type: 'server', x: 150, y: 170, s: 1.9, c: '#2563eb', o: 0.16 },
-  { type: 'router', x: 1285, y: 150, s: 1.9, c: '#0ea5a4', o: 0.16 },
-  { type: 'cloud', x: 1180, y: 330, s: 1.7, c: '#2563eb', o: 0.14 },
-  { type: 'laptop', x: 120, y: 470, s: 1.7, c: '#334155', o: 0.13 },
-  { type: 'database', x: 240, y: 770, s: 2.0, c: '#2563eb', o: 0.15 },
-  { type: 'switch', x: 1250, y: 760, s: 2.0, c: '#0ea5a4', o: 0.16 },
-  { type: 'shield', x: 1320, y: 470, s: 1.6, c: '#0ea5a4', o: 0.14 },
+  { type: 'server', x: 160, y: 190, s: 2.4, c: '#2563eb', o: 0.5 },
+  { type: 'router', x: 1280, y: 160, s: 2.4, c: '#0ea5a4', o: 0.5 },
+  { type: 'cloud', x: 1175, y: 360, s: 2.2, c: '#2563eb', o: 0.45 },
+  { type: 'laptop', x: 130, y: 480, s: 2.2, c: '#334155', o: 0.42 },
+  { type: 'database', x: 250, y: 760, s: 2.5, c: '#2563eb', o: 0.48 },
+  { type: 'switch', x: 1245, y: 755, s: 2.5, c: '#0ea5a4', o: 0.5 },
+  { type: 'shield', x: 1325, y: 480, s: 2.1, c: '#0ea5a4', o: 0.45 },
 ];
 
 export default function LandingBackground({ className = '' }) {
@@ -89,11 +89,11 @@ export default function LandingBackground({ className = '' }) {
       <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 900">
         <defs>
           <radialGradient id="lb-blue" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#2563eb" stopOpacity="0.18" />
+            <stop offset="0" stopColor="#2563eb" stopOpacity="0.26" />
             <stop offset="1" stopColor="#2563eb" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="lb-emerald" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#0ea5a4" stopOpacity="0.16" />
+            <stop offset="0" stopColor="#0ea5a4" stopOpacity="0.24" />
             <stop offset="1" stopColor="#0ea5a4" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -110,7 +110,7 @@ export default function LandingBackground({ className = '' }) {
             fill="none"
             stroke={c}
             strokeOpacity={o}
-            strokeWidth="2"
+            strokeWidth="2.6"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
