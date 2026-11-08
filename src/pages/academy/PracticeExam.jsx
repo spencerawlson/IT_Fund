@@ -14,7 +14,35 @@ import { cn } from '@/lib/utils';
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import Seo from '@/components/Seo';
+import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+
+// FAQ, in the product's own words — rendered below and mirrored as FAQPage
+// JSON-LD on this page's <Seo> (single source of truth, no drift).
+const EXAM_FAQS = [
+  {
+    q: 'How does the practice exam work?',
+    a: `${EXAM_QUESTION_COUNT} questions sampled from every track, weighted by the official CISSP domain weights. You get ${EXAM_DURATION_MIN / 60} hours on the clock, and ${EXAM_PASS_PCT}% proficiency passes.`,
+    sources: [
+      { label: 'ISC2 CISSP', href: 'https://www.isc2.org/certifications/cissp' },
+    ],
+  },
+  {
+    q: 'Can I pause the exam?',
+    a: 'No — the timer survives a refresh, and closing the tab does not buy you time. One sitting, start to finish.',
+  },
+  {
+    q: 'Is the real CISSP like this?',
+    a: 'Not exactly. The real CISSP is computer-adaptive — it adjusts difficulty as you answer. This is fixed-length practice: a knowledge check with a per-domain breakdown, not a test-day prediction.',
+    sources: [
+      { label: 'ISC2 CISSP exam outline', href: 'https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline' },
+    ],
+  },
+  {
+    q: 'What happens after I finish?',
+    a: 'You get a per-domain breakdown showing exactly what to study next, and you can review every missed question with the correct answer. Retake it as often as you like.',
+  },
+];
 
 const domainById = Object.fromEntries(CISSP_DOMAINS.map((d) => [d.id, d]));
 
@@ -39,9 +67,13 @@ export default function PracticeExam() {
           title="CISSP practice exam — test-day simulator · Road to CISSP"
           description="100 questions sampled from every track, weighted by the official CISSP domain weights. 3 hours on the clock — the timer survives a refresh."
           path="/academy/exam"
+          jsonLd={faqJsonLd(EXAM_FAQS)}
         />
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
           <UpgradePrompt what="The CISSP practice exam" />
+          <div className="mt-10">
+            <FaqSection faqs={EXAM_FAQS} />
+          </div>
         </div>
       </main>
     );
@@ -53,6 +85,7 @@ export default function PracticeExam() {
         title="CISSP practice exam — test-day simulator · Road to CISSP"
         description="100 questions sampled from every track, weighted by the official CISSP domain weights. 3 hours on the clock — the timer survives a refresh."
         path="/academy/exam"
+        jsonLd={faqJsonLd(EXAM_FAQS)}
       />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
         {!exam && <StartScreen history={examHistory(state)} />}
@@ -112,6 +145,9 @@ function StartScreen({ history }) {
           ))}
         </ul>
       )}
+      <div className="mt-10">
+        <FaqSection faqs={EXAM_FAQS} />
+      </div>
     </div>
   );
 }

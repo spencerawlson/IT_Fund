@@ -203,6 +203,13 @@ export default function Pricing() {
               </Card>
             ))}
           </div>
+          <p className="mt-8 text-center text-small text-ink-2">
+            Before you book the exam, check the official objectives:{' '}
+            <a href="https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">CISSP exam outline — ISC2</a>
+            {', '}
+            <a href="https://www.comptia.org/certifications/security" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">Security+ exam objectives — CompTIA</a>
+            .
+          </p>
         </section>
       </main>
     </div>

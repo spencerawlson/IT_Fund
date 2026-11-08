@@ -7,8 +7,33 @@ import { COURSES, courseHref } from '@/data/catalog';
 import { useAcademy, mastery, grantBadge } from '@/lib/academy';
 import { cn } from '@/lib/utils';
 import Seo from '@/components/Seo';
+import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 
 const READY_PCT = 80;
+
+// FAQ, in the product's own words — rendered below and mirrored as FAQPage
+// JSON-LD on this page's <Seo> (single source of truth, no drift).
+const FAQS = [
+  {
+    q: 'How long does the roadmap take?',
+    a: 'The seven steps run about 1–2, 2–3, 2–3, 3–4, 3–4, 2–3, and 3–6 months — roughly a year and a half to two years at the suggested pace. Your pace is your own: a step counts as done at 80% mastery, whenever you get there.',
+  },
+  {
+    q: 'What does “ready” mean?',
+    a: '80% mastery in all eight CISSP domains. Each domain’s readiness is half its capstone lesson and half every earlier lesson tagged with it — so early study counts toward the exam.',
+  },
+  {
+    q: 'Do I have to follow the steps in order?',
+    a: 'No. Nothing is locked — every lesson can be opened at any time. The steps are the order most successful candidates take, and prerequisites are recommendations, not gates.',
+  },
+  {
+    q: 'What do I need to sit the CISSP itself?',
+    a: 'The CISSP needs five years of paid experience across two or more of its eight domains — or you can become an Associate of ISC2, with six years to earn the experience. The exam itself is the final step of this roadmap.',
+    sources: [
+      { label: 'ISC2 CISSP', href: 'https://www.isc2.org/certifications/cissp' },
+    ],
+  },
+];
 
 /** Half from the CISSP capstone deck for the domain, half from every other deck that feeds it. */
 function domainReadiness(state, domainId) {
@@ -54,6 +79,7 @@ export default function CisspRoadmap() {
         title="CISSP Roadmap — your path from IT fundamentals to the CISSP"
         description="The full Road to CISSP roadmap: the tracks, domains, and milestones that take you from networking and security fundamentals to CISSP-level mastery."
         path="/academy/roadmap"
+        jsonLd={faqJsonLd(FAQS)}
       />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Road to CISSP' }]}
@@ -177,6 +203,10 @@ export default function CisspRoadmap() {
           </ul>
         </Card>
       </section>
+
+      <div className="mt-14">
+        <FaqSection faqs={FAQS} />
+      </div>
     </PageContainer>
   );
 }

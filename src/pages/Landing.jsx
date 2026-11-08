@@ -278,6 +278,15 @@ export default function Landing() {
               </div>
             ))}
           </div>
+          <p className="mx-auto mt-8 max-w-3xl text-center text-small text-ink-2">
+            Exam details come straight from the vendors:{' '}
+            <a href="https://www.isc2.org/certifications/cissp" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">CISSP — ISC2</a>
+            {', '}
+            <a href="https://www.comptia.org/certifications/security" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">Security+ — CompTIA</a>
+            {', '}
+            <a href="https://www.comptia.org/certifications/network" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">Network+ — CompTIA</a>
+            .
+          </p>
         </section>
 
         {/* Final CTA */}

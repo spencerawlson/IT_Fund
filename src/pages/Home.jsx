@@ -6,9 +6,34 @@ import { getOverallProgress } from '@/lib/progress';
 import ModuleCard from '@/components/ModuleCard';
 import { Button, Card, EmptyState, ListLink, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
 import Seo from '@/components/Seo';
+import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 
 const LEVELS = ['All', ...levelOrder];
 const MAX_RESULTS = 40;
+
+// FAQ, in the product's own words — rendered below and mirrored as FAQPage
+// JSON-LD on this page's <Seo> (single source of truth, no drift).
+const FAQS = [
+  {
+    q: 'How do I find a concept?',
+    a: 'Use the search box — it searches every concept’s name, summary, and notes — or filter by level to browse one slice of the library at a time.',
+  },
+  {
+    q: 'What is a module?',
+    a: 'A module is a bundle of related concepts — for example, a networking module covers addressing, routing, and DNS. Each concept has a short summary and detailed study notes with examples.',
+    sources: [
+      { label: 'NIST CSRC Glossary', href: 'https://csrc.nist.gov/glossary' },
+    ],
+  },
+  {
+    q: 'Is the library the same as the courses?',
+    a: 'It is the same material, organized differently. Courses order the modules into a guided sequence; the library keeps every module available for reference and search.',
+  },
+  {
+    q: 'Do I need an account to use the library?',
+    a: 'No. Everything works without an account, with your progress kept in this browser. Sign in only if you want it synced across devices.',
+  },
+];
 
 function searchConcepts(query) {
   const q = query.trim().toLowerCase();
@@ -43,6 +68,7 @@ export default function Home() {
         title="Concept Library — networking, security, Linux, Python & cloud references"
         description="Browse the Road to CISSP concept library: quick-reference explainers across networking, security, Linux, Python, cloud, and the CISSP domains."
         path="/library"
+        jsonLd={faqJsonLd(FAQS)}
       />
       <PageHeader
         breadcrumbs={[{ label: 'Courses', to: '/academy/courses' }, { label: 'Concept library' }]}
@@ -107,6 +133,10 @@ export default function Home() {
         <footer className="mt-12 border-t border-black/5 pt-6 text-center text-caption text-ink-2">
           Course 420-ZX6-UM · {modules.length} modules available · More coming soon
         </footer>
+
+        <div className="mt-12">
+          <FaqSection faqs={FAQS} />
+        </div>
     </PageContainer>
   );
 }
