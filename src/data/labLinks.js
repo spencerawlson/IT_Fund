@@ -34,6 +34,11 @@ export const LAB_LABELS = {
   'system-architecture': 'System Architecture',
   'cloud-migration': 'Cloud Migration',
   'capacity-planning': 'Capacity Planning',
+  'proto-page-load': 'Load a Web Page — Packet Journey',
+  'proto-dns': 'DNS Deep Dive',
+  'proto-tcp': 'TCP Deep Dive',
+  'proto-tls': 'HTTPS / TLS Journey',
+  'packet-builder': 'Packet Builder',
 };
 
 export const NOTES = {
@@ -70,6 +75,11 @@ export const NOTES = {
   'system-architecture': 'Review resilience patterns: redundancy, zones, failover, and capacity planning.',
   'cloud-migration': 'See a phased migration from datacenter to cloud: assess, lift, shift, optimize.',
   'capacity-planning': 'Forecast holiday traffic, headroom, and burst capacity before peak load.',
+  'proto-page-load': 'Follow one page load packet by packet — DNS, TCP handshake, HTTP GET, 200 OK — decoded byte by byte.',
+  'proto-dns': 'Walk the DNS hierarchy from root to authoritative and learn the record types.',
+  'proto-tcp': 'Handshake, data and ACKs, a lost segment retransmitted, and the four-packet teardown.',
+  'proto-tls': 'ClientHello, certificate, key exchange, and encrypted application data — TLS 1.3 in one round trip.',
+  'packet-builder': 'Set real header fields and watch the actual bytes appear, checksums included.',
 };
 
 export const LAB_LINKS = [
@@ -163,6 +173,18 @@ export const LAB_LINKS = [
   { labId: 'capacity-planning', moduleId: 'site-reliability-engineering', concept: 'Capacity Planning' },
   { labId: 'capacity-planning', moduleId: 'cloud-architecture', concept: 'Auto-scaling' },
   { labId: 'capacity-planning', moduleId: 'cloud-architecture', concept: 'Multi-region' },
+  { labId: 'proto-page-load', moduleId: 'osi-protocols', concept: 'HTTP, HTTPS & SSH' },
+  { labId: 'proto-page-load', moduleId: 'osi-protocols', concept: 'Layer 7 - Application' },
+  { labId: 'proto-dns', moduleId: 'osi-protocols', concept: 'DNS' },
+  { labId: 'proto-dns', moduleId: 'cloud-dns-cdn', concept: 'DNS Hierarchy' },
+  { labId: 'proto-dns', moduleId: 'cloud-dns-cdn', concept: 'Record Types' },
+  { labId: 'proto-tcp', moduleId: 'osi-protocols', concept: 'Layer 4 — Transport' },
+  { labId: 'proto-tcp', moduleId: 'network-devices-tools', concept: 'TCP/UDP behavior' },
+  { labId: 'proto-tls', moduleId: 'cryptography-essentials', concept: 'SSL/TLS' },
+  { labId: 'proto-tls', moduleId: 'cloud-security', concept: 'Encryption in Transit' },
+  { labId: 'packet-builder', moduleId: 'osi-protocols', concept: 'Layer 3 - Network' },
+  { labId: 'packet-builder', moduleId: 'osi-protocols', concept: 'Layer 4 — Transport' },
+  { labId: 'packet-builder', moduleId: 'osi-protocols', concept: 'DNS' },
 ];
 
 export function getModulesForLab(labId) {

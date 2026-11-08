@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, Cpu, Network, ArrowRightLeft, Radio, Server, Shuffle, Gauge, Cloud, Layers,
   GitBranch, Calculator, TerminalSquare, Globe, Shield, KeyRound, Zap, CloudCog, Database,
-  Container, Lock, Route as RouteIcon, ShieldAlert, Search, Boxes,
+  Container, Lock, Route as RouteIcon, ShieldAlert, Search, Boxes, Wrench,
 } from 'lucide-react';
 // 3D scenes are code-split: three.js (~600 KB) only loads when a 3D subject is opened,
 // never as part of the initial bundle.
@@ -39,6 +39,9 @@ import RoutingAnimation from '@/components/viz/RoutingAnimation';
 import SecurityIncidentAnimation from '@/components/viz/SecurityIncidentAnimation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import FlowDiagram from '@/components/lab/FlowDiagram';
+import PacketJourney from '@/components/lab/PacketJourney';
+import PacketBuilder from '@/components/lab/PacketBuilder';
+import { getProtocolJourney } from '@/data/protocolJourneys';
 import RoutingScenario from '@/components/viz/RoutingScenario';
 import LabGallery, { KINDS } from '@/components/lab/LabGallery';
 import { LAB_FLOWS } from '@/data/labFlows';
@@ -61,6 +64,11 @@ const SUBJECTS = [
   { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
   { id: 'udp', category: 'Networking', kind: 'anim', icon: Radio, label: 'UDP Datagrams', blurb: 'See fire-and-forget delivery — fast, connectionless, and lossy.' },
   { id: 'dns', category: 'Networking', kind: 'anim', icon: Globe, label: 'DNS Resolution', blurb: 'Follow a name through root, TLD, and authoritative servers.' },
+  { id: 'proto-page-load', category: 'Networking', kind: 'flow', icon: Globe, label: 'Load a Web Page — Packet Journey', blurb: 'Follow one page load packet by packet: DNS, TCP handshake, HTTP GET, 200 OK — decoded byte by byte.' },
+  { id: 'proto-dns', category: 'Networking', kind: 'flow', icon: Search, label: 'DNS Deep Dive', blurb: 'Walk the DNS hierarchy — root, TLD, authoritative — and learn the record types.' },
+  { id: 'proto-tcp', category: 'Networking', kind: 'flow', icon: ArrowRightLeft, label: 'TCP Deep Dive', blurb: 'Handshake, data and ACKs, a lost segment retransmitted, and the four-packet goodbye.' },
+  { id: 'proto-tls', category: 'Networking', kind: 'flow', icon: Lock, label: 'HTTPS / TLS Journey', blurb: 'From a plain TCP connection to an encrypted one: ClientHello, certificate, and encrypted data.' },
+  { id: 'packet-builder', category: 'Networking', kind: 'tool', icon: Wrench, label: 'Packet Builder', blurb: 'Set real header fields and watch the actual bytes appear — DNS, TCP, and IPv4, with real checksums.' },
   { id: 'routing', category: 'Networking', kind: 'anim', icon: RouteIcon, label: 'Routing & NAT', blurb: 'Trace route lookup, forwarding, NAT, and VPN behavior.' },
   { id: 'subnet', category: 'Networking', kind: 'tool', icon: Calculator, label: 'Subnet Calculator', blurb: 'Enter an IP and CIDR to see network, broadcast, and host range.' },
   // Routing
@@ -117,6 +125,11 @@ const RENDERERS = {
   'system-architecture': () => <FlowDiagram {...LAB_FLOWS['system-architecture']} />,
   'cloud-migration': () => <FlowDiagram {...LAB_FLOWS['cloud-migration']} />,
   'capacity-planning': () => <FlowDiagram {...LAB_FLOWS['capacity-planning']} />,
+  'proto-page-load': () => <PacketJourney journey={getProtocolJourney('proto-page-load')} />,
+  'proto-dns': () => <PacketJourney journey={getProtocolJourney('proto-dns')} />,
+  'proto-tcp': () => <PacketJourney journey={getProtocolJourney('proto-tcp')} />,
+  'proto-tls': () => <PacketJourney journey={getProtocolJourney('proto-tls')} />,
+  'packet-builder': () => <PacketBuilder />,
   'rt-ospf-neighbor': () => <RoutingScenario scenario={ROUTING_SCENARIOS['rt-ospf-neighbor']} />,
   'rt-bgp-path': () => <RoutingScenario scenario={ROUTING_SCENARIOS['rt-bgp-path']} />,
   'rt-link-failure': () => <RoutingScenario scenario={ROUTING_SCENARIOS['rt-link-failure']} />,
@@ -129,6 +142,8 @@ const BUILD_IN_LAB = {
   'rt-ospf-neighbor': ['net-ospf-001'],
   'rt-bgp-path': ['net-bgp-001'],
   'rt-link-failure': ['net-ospf-tshoot-001'],
+  'proto-dns': ['net-dns-connectivity-001'],
+  'packet-builder': ['net-subnetting-001'],
   'python-lab': ['py-basics-001', 'py-netauto-001', 'py-automation-001'],
 };
 

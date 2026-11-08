@@ -29,6 +29,11 @@ const VISUAL_LAB_FOR = {
   'rt-bgp': 'rt-bgp-path',
   'rt-fundamentals': 'rt-link-failure',
   'rt-routing-troubleshooting': 'rt-link-failure',
+  'net-osi': 'proto-page-load',
+  'net-ports': 'proto-tcp',
+  'net-troubleshoot': 'proto-dns',
+  'net-ip-subnet': 'packet-builder',
+  'sec-crypto': 'proto-tls',
 };
 
 /** One lesson: reading on a glass-2 surface, then practice (the interactive lesson). */
