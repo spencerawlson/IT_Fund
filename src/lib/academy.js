@@ -370,10 +370,11 @@ export function scoreExam(questions, answers) {
 /** Start a new exam. The deadline timestamp is persisted: refreshes don't reset the clock. */
 export function startPracticeExam() {
   const { questions, quotas } = buildPracticeExam();
+  const now = Date.now(); // one timestamp: deadline - startedAt is then exactly the duration
   const exam = {
-    id: `exam-${Date.now()}`,
-    startedAt: Date.now(),
-    deadline: Date.now() + EXAM_DURATION_MIN * 60 * 1000,
+    id: `exam-${now}`,
+    startedAt: now,
+    deadline: now + EXAM_DURATION_MIN * 60 * 1000,
     questions,
     quotas,
     answers: {},
@@ -531,10 +532,11 @@ export function scoreSecplusExam(questions, answers) {
 /** Start a new Security+ exam. Stored as state.secplusExam so both exams can coexist. */
 export function startSecplusPracticeExam() {
   const { questions, quotas } = buildSecplusPracticeExam();
+  const now = Date.now(); // one timestamp: deadline - startedAt is then exactly the duration
   const exam = {
-    id: `secplus-exam-${Date.now()}`,
-    startedAt: Date.now(),
-    deadline: Date.now() + SECPLUS_EXAM_DURATION_MIN * 60 * 1000,
+    id: `secplus-exam-${now}`,
+    startedAt: now,
+    deadline: now + SECPLUS_EXAM_DURATION_MIN * 60 * 1000,
     questions,
     quotas,
     answers: {},
@@ -740,11 +742,12 @@ export function startCertPracticeExam(certId) {
   const cfg = CERT_EXAMS[certId];
   if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
   const { questions, quotas } = buildCertPracticeExam(certId);
+  const now = Date.now(); // one timestamp: deadline - startedAt is then exactly the duration
   const exam = {
-    id: `${certId}-exam-${Date.now()}`,
+    id: `${certId}-exam-${now}`,
     certId,
-    startedAt: Date.now(),
-    deadline: Date.now() + cfg.durationMin * 60 * 1000,
+    startedAt: now,
+    deadline: now + cfg.durationMin * 60 * 1000,
     questions,
     quotas,
     answers: {},

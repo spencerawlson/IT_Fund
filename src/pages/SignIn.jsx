@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
@@ -82,6 +82,19 @@ export default function SignIn() {
   const { isAuthenticated, isLoadingAuth, user, signInWith, signOut } = useAuth();
   const [params] = useSearchParams();
   const oauthFailed = params.get('error') === 'oauth';
+  // Which OAuth providers the server actually has configured, so we only show
+  // buttons that work. null = not yet known -> show both (optimistic fallback,
+  // so a slow/failed fetch never hides sign-in).
+  const [providers, setProviders] = useState(null);
+  useEffect(() => {
+    let live = true;
+    fetch(`${API_BASE}/auth/providers`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (live && d && Array.isArray(d.providers)) setProviders(d.providers); })
+      .catch(() => { /* keep fallback: show both */ });
+    return () => { live = false; };
+  }, []);
+  const showProvider = (p) => providers === null || providers.includes(p);
 
   if (isLoadingAuth) {
     return <PageContainer><p className="text-ink-2">Loading…</p></PageContainer>;
@@ -135,8 +148,15 @@ export default function SignIn() {
           </p>
         )}
         <div className="flex flex-col gap-3">
-          <Button size="lg" icon={LogIn} onClick={() => signInWith('google')}>Continue with Google</Button>
-          <Button size="lg" variant="secondary" icon={LogIn} onClick={() => signInWith('github')}>Continue with GitHub</Button>
+          {showProvider('google') && (
+            <Button size="lg" icon={LogIn} onClick={() => signInWith('google')}>Continue with Google</Button>
+          )}
+          {showProvider('github') && (
+            <Button size="lg" variant="secondary" icon={LogIn} onClick={() => signInWith('github')}>Continue with GitHub</Button>
+          )}
+          {providers && providers.length === 0 && (
+            <p className="text-small text-ink-2">Account sign-in is being set up — for now, everything works without an account.</p>
+          )}
           {import.meta.env.DEV && (
             <Button size="lg" variant="ghost" onClick={() => { window.location.href = '/api/auth/dev-login'; }}>
               Developer sign-in (local only)

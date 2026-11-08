@@ -151,3 +151,19 @@ def test_labs_work_with_session_cookie(monkeypatch):
     client.get("/api/auth/google/callback", follow_redirects=False)  # signs in, sets cookie
     r = client.post("/api/labs/cyber-nmap-001/start")  # no bearer token, cookie only
     assert r.status_code == 200 and r.json()["status"] == "RUNNING"
+
+
+def test_providers_endpoint_empty_by_default():
+    r = client.get("/api/auth/providers")
+    assert r.status_code == 200 and r.json() == {"providers": []}
+
+
+def test_providers_endpoint_reflects_configuration(monkeypatch):
+    monkeypatch.setattr(oauth_mod, "provider_configured", lambda p: p == "google")
+    r = client.get("/api/auth/providers")
+    assert r.status_code == 200 and r.json() == {"providers": ["google"]}
+
+
+def test_providers_endpoint_is_public_no_auth():
+    client.cookies.clear()
+    assert client.get("/api/auth/providers").status_code == 200
