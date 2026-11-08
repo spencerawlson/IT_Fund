@@ -53,7 +53,6 @@ export default function Practice() {
         <SectionHeader
           id="practice-ranges"
           title="Interactive labs"
-          description="The terminal is your way in. Type labs to browse the tracks, labs <#> to open one, then lab start <#> to begin. Labs run on real containers where the host supports it, and an identical simulation everywhere else."
           action={<Badge>beta</Badge>}
         />
         <div className="glass-2 rounded-card p-2 shadow-xl sm:p-3">
