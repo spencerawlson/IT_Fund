@@ -15,7 +15,7 @@ export function Tabs({ items, defaultValue, value, onValueChange, label, classNa
             key={t.value}
             value={t.value}
             className={cn(
-              '-mb-px shrink-0 border-b-2 border-transparent px-3 py-2.5 text-small font-semibold text-ink-2 transition-colors',
+              '-mb-px shrink-0 border-b-2 border-transparent px-3 py-3 text-small font-semibold text-ink-2 transition-colors',
               'hover:text-ink-1 data-[state=active]:border-action data-[state=active]:text-ink-1',
             )}
           >

@@ -175,7 +175,7 @@ function RunningExam({ exam, cfg, certId }) {
             onClick={() => toggleCertExamFlag(certId, q.id)}
             aria-pressed={flagged}
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-control px-3 py-1.5 text-small font-semibold transition-colors',
+              'inline-flex min-h-11 items-center gap-1.5 rounded-control px-3 py-1.5 text-small font-semibold transition-colors',
               flagged ? 'bg-warning/15 text-warning' : 'text-ink-2 hover:bg-black/[0.03] hover:text-ink-1',
             )}
           >
@@ -184,11 +184,11 @@ function RunningExam({ exam, cfg, certId }) {
           <p className="text-small text-ink-2 tabular-nums">{answeredCount} answered</p>
           {confirming ? (
             <span className="inline-flex items-center gap-2">
-              <button type="button" onClick={() => setConfirming(false)} className="rounded-control px-3 py-1.5 text-small font-semibold text-ink-2 hover:text-ink-1">Keep going</button>
+              <button type="button" onClick={() => setConfirming(false)} className="rounded-control min-h-11 px-3 py-1.5 text-small font-semibold text-ink-2 hover:text-ink-1">Keep going</button>
               <Button size="sm" variant="secondary" onClick={() => finishCertPracticeExam(certId)}>Submit exam</Button>
             </span>
           ) : (
-            <button type="button" onClick={() => setConfirming(true)} className="rounded-control px-3 py-1.5 text-small font-semibold text-ink-2 hover:text-danger">
+            <button type="button" onClick={() => setConfirming(true)} className="rounded-control min-h-11 px-3 py-1.5 text-small font-semibold text-ink-2 hover:text-danger">
               Finish early
             </button>
           )}

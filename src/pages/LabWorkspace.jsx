@@ -399,10 +399,10 @@ export default function LabWorkspace() {
         <div className="space-y-4">
           {usesTerminal ? (
             <Card level={2} className={gameMode ? 'mission-console' : undefined}>
-              <div className="mb-3 flex items-center gap-2">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
                 <TerminalSquare size={18} className={gameMode ? 'text-terminal-bright' : 'text-ink-2'} aria-hidden="true" />
                 <h2 className={`text-heading ${gameMode ? 'font-mono text-terminal-bright' : 'text-ink-1'}`}>{gameMode ? 'Mission Console' : 'Terminal'}</h2>
-                <span className={`text-caption ${gameMode ? 'text-terminal-muted' : 'text-ink-3'}`}>{isLive ? 'live container — real commands, real output' : 'simulated — nothing is really executed'}</span>
+                <span className={`hidden text-caption sm:inline ${gameMode ? 'text-terminal-muted' : 'text-ink-3'}`}>{isLive ? 'live container — real commands, real output' : 'simulated — nothing is really executed'}</span>
                 <button
                   type="button"
                   onClick={toggleGameMode}

@@ -42,12 +42,12 @@ export default function FlowDiagram({ nodes, tags = [] }) {
   return (
     <div>
       {/* Rail */}
-      <div className="relative rounded-2xl border border-black/10 bg-gradient-to-b from-white to-violet-50 px-4 py-8 sm:px-8">
+      <div className="relative rounded-2xl border border-black/10 bg-gradient-to-b from-white to-violet-50 px-3 py-8 sm:px-8">
         <div className="relative mx-auto flex max-w-3xl items-start justify-between">
-          {/* Base track + animated progress fill, centered on the node icons (top-7 = icon center). */}
-          <div className="pointer-events-none absolute left-[7%] right-[7%] top-7 h-0.5 -translate-y-1/2 rounded-full bg-black/[0.04]" />
+          {/* Base track + animated progress fill, centered on the node icons (top-[22px] on phones = h-11 centre, top-7 = h-14 centre from sm up). */}
+          <div className="pointer-events-none absolute left-[7%] right-[7%] top-[22px] h-0.5 -translate-y-1/2 rounded-full bg-black/[0.04] sm:top-7" />
           <motion.div
-            className={`pointer-events-none absolute left-[7%] top-7 h-0.5 -translate-y-1/2 rounded-full ${a.line}`}
+            className={`pointer-events-none absolute left-[7%] top-[22px] h-0.5 -translate-y-1/2 rounded-full sm:top-7 ${a.line}`}
             initial={false}
             animate={{ width: `${progress * 0.86}%` }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
@@ -67,7 +67,7 @@ export default function FlowDiagram({ nodes, tags = [] }) {
                 aria-label={n.title}
               >
                 <span
-                  className={`flex h-14 w-14 items-center justify-center rounded-full border bg-white transition-all duration-300 ${
+                  className={`flex h-11 w-11 items-center justify-center rounded-full border bg-white transition-all duration-300 sm:h-14 sm:w-14 ${
                     isActive ? `${na.ring} ring-2 ${na.glow} scale-110 border-transparent`
                       : done ? 'border-black/20' : 'border-black/10 opacity-55'
                   }`}
@@ -86,7 +86,7 @@ export default function FlowDiagram({ nodes, tags = [] }) {
                     />
                   )}
                 </span>
-                <span className={`text-[11px] font-semibold leading-tight sm:text-xs ${isActive ? 'text-ink-1' : done ? 'text-ink-2' : 'text-ink-3'}`}>
+                <span className={`text-[10px] font-semibold leading-tight sm:text-xs ${isActive ? 'text-ink-1' : done ? 'text-ink-2' : 'text-ink-3'}`}>
                   {n.title}
                 </span>
               </button>

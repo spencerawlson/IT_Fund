@@ -105,7 +105,7 @@ export default function StudyMascot({ conceptId, moduleId, color = '#7dd3fc', cl
               <button
                 type="button"
                 onClick={() => setRevealed(true)}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-3 py-1.5 text-caption font-semibold text-ink-1 transition hover:bg-black/[0.04]"
+                className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-3 py-1.5 text-caption font-semibold text-ink-1 transition hover:bg-black/[0.04]"
               >
                 <Eye size={13} /> Reveal answer
               </button>
@@ -115,7 +115,7 @@ export default function StudyMascot({ conceptId, moduleId, color = '#7dd3fc', cl
             <button
               type="button"
               onClick={another}
-              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-caption font-semibold text-ink-2 transition hover:text-ink-1"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 py-1 text-caption font-semibold text-ink-2 transition hover:text-ink-1"
             >
               <RefreshCw size={12} /> Another one
             </button>
@@ -123,7 +123,7 @@ export default function StudyMascot({ conceptId, moduleId, color = '#7dd3fc', cl
               type="button"
               onClick={() => setDismissed(true)}
               aria-label="Dismiss mascot"
-              className="ml-auto inline-flex items-center rounded-lg px-2 py-1 text-ink-3 transition hover:text-ink-1"
+              className="ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg px-2 py-1 text-ink-3 transition hover:text-ink-1"
             >
               <X size={14} />
             </button>

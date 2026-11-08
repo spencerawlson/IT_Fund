@@ -84,7 +84,7 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
                   type="button"
                   onClick={() => addDevice(t.hostname)}
                   title={t.role}
-                  className="flex items-center gap-1.5 rounded-control border border-black/10 px-2.5 py-1 text-caption font-semibold text-ink-2 transition hover:border-black/25 hover:text-ink-1"
+                  className="flex min-h-11 items-center gap-1.5 rounded-control border border-black/10 px-2.5 py-1 text-caption font-semibold text-ink-2 transition hover:border-black/25 hover:text-ink-1"
                 >
                   <Icon size={14} aria-hidden="true" /> {t.hostname}
                 </button>
@@ -102,7 +102,7 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
             type="button"
             onClick={() => setView(v)}
             aria-pressed={view === v}
-            className={`flex items-center gap-1 rounded-control border px-2 py-1 text-caption font-semibold transition ${
+            className={`flex min-h-11 items-center gap-1 rounded-control border px-2 py-1 text-caption font-semibold transition ${
               view === v
                 ? (gameMode ? 'border-terminal-bright/50 text-terminal-bright' : 'border-action/50 text-action')
                 : (gameMode ? 'border-terminal-border text-terminal-muted' : 'border-black/10 text-ink-3')
@@ -118,7 +118,7 @@ export default function TopologyBuilder({ draft, setDraft, targets = [], gameMod
           <button
             type="button"
             onClick={() => { setSelected(null); commit({ devices: [], links: [] }); }}
-            className={`ml-auto flex items-center gap-1 rounded-control border px-2 py-1 text-caption font-semibold transition ${
+            className={`ml-auto flex min-h-11 items-center gap-1 rounded-control border px-2 py-1 text-caption font-semibold transition ${
               gameMode ? 'border-terminal-border text-terminal-muted hover:text-terminal-bright' : 'border-black/10 text-ink-3 hover:border-black/25 hover:text-ink-1'
             }`}
           >

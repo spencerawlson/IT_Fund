@@ -12,7 +12,7 @@ const VARIANT = {
 };
 
 const SIZE = {
-  sm: 'min-h-9 gap-1.5 px-3 text-small',
+  sm: 'min-h-11 gap-1.5 px-3 text-small',
   md: 'min-h-11 gap-2 px-4 text-body',
   lg: 'min-h-12 gap-2 px-6 text-body',
 };

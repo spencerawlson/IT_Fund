@@ -192,6 +192,7 @@ export default function LessonView() {
           <>
             <CipherNote text={getCipherNote(lesson.id)} />
             <Section id="cheat-sheet" title="Cheat sheet">
+            <div className="overflow-x-auto">
             <table className="w-full text-left text-body">
               <thead className="sr-only">
                 <tr><th scope="col">Term</th><th scope="col">Meaning</th></tr>
@@ -205,6 +206,7 @@ export default function LessonView() {
                 ))}
               </tbody>
             </table>
+            </div>
             </Section>
           </>
         )}
@@ -286,7 +288,7 @@ function CodeBlock({ code }) {
           type="button"
           onClick={copy}
           aria-live="polite"
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-control px-3 text-small font-semibold text-terminal-muted transition-colors hover:bg-white/10 hover:text-terminal-bright"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-control px-3 text-small font-semibold text-terminal-muted transition-colors hover:bg-white/10 hover:text-terminal-bright"
         >
           {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
           {copied ? 'Copied' : 'Copy code'}

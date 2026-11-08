@@ -171,7 +171,7 @@ export default function FlashcardSession({ module, onComplete }) {
               {useSpeak && (
                 <button
                   onClick={(e) => { e.stopPropagation(); speak(current.back); }}
-                  className={`inline-flex items-center gap-1 rounded-lg border border-black/10 bg-black/[0.08] px-2 py-1 text-caption text-ink-2 transition hover:bg-black/[0.12] ${speaking ? 'animate-pulse text-blue-700' : ''}`}
+                  className={`inline-flex min-h-11 items-center gap-1 rounded-lg border border-black/10 bg-black/[0.08] px-2 py-1 text-caption text-ink-2 transition hover:bg-black/[0.12] ${speaking ? 'animate-pulse text-blue-700' : ''}`}
                 >
                   <Volume2 size={14} /> {speaking ? 'Playing' : 'Read'}
                 </button>

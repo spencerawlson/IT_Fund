@@ -154,7 +154,7 @@ export default function Module() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition ${
+                className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-1 py-2.5 text-xs font-semibold transition sm:gap-2 sm:text-sm ${
                   active ? 'bg-black/[0.04] text-ink-1 shadow-sm' : 'text-ink-2 hover:text-ink-1'
                 }`}
               >

@@ -68,7 +68,7 @@ export default function LabProgress() {
         {!labs && !error && <p className="text-ink-2">Loading…</p>}
         {labs && (
           <>
-            <div className="mb-6 grid grid-cols-3 gap-3">
+            <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
               <Card level={2} className="text-center">
                 <p className="text-heading text-ink-1">{doneCount}<span className="text-ink-3">/{labs.length}</span></p>
                 <p className="mt-1 text-caption text-ink-2">labs completed</p>
