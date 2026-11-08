@@ -1,15 +1,13 @@
 import React from 'react';
 
-// Static decorative vector background for the landing page: soft brand-colour
-// gradient blobs plus a few line-art IT devices (server, router, switch, laptop,
-// database, cloud, shield) scattered around the edges. No animation. Purely
-// decorative (aria-hidden, pointer-events-none); low opacity keeps text readable
-// and the devices sit clear of the centred hero copy.
+// Static decorative background for the landing page: soft brand-colour blobs
+// (CSS radial gradients) plus a few line-art IT devices placed with CSS so they
+// land reliably regardless of page height. (A single sliced SVG over the whole
+// tall page cropped them off the edges — that's why they weren't visible.)
+// Purely decorative: aria-hidden, pointer-events-none, no animation.
 
-// Each device is drawn centred on (0,0) in roughly a 48×48 box, as line art.
-// `c`/`o` are the accent colour/opacity for solid bits (LEDs).
-function Device({ type, c, o }) {
-  const led = { fill: c, fillOpacity: o, stroke: 'none' };
+// Device glyph, drawn centred in a -26..26 box.
+function Glyph({ type }) {
   switch (type) {
     case 'server':
       return (
@@ -18,8 +16,8 @@ function Device({ type, c, o }) {
           <line x1="-9" y1="-12" x2="9" y2="-12" />
           <line x1="-9" y1="-2" x2="9" y2="-2" />
           <line x1="-9" y1="8" x2="9" y2="8" />
-          <circle cx="-11" cy="-12" r="1.4" style={led} />
-          <circle cx="-11" cy="-2" r="1.4" style={led} />
+          <circle cx="-11" cy="-12" r="1.6" fill="currentColor" stroke="none" />
+          <circle cx="-11" cy="-2" r="1.6" fill="currentColor" stroke="none" />
         </g>
       );
     case 'router':
@@ -28,8 +26,8 @@ function Device({ type, c, o }) {
           <rect x="-20" y="-4" width="40" height="16" rx="3" />
           <path d="M-8 -4 V-16 M-8 -16 l-4 -4 M-8 -16 l4 -4" />
           <path d="M8 -4 V-16 M8 -16 l-4 -4 M8 -16 l4 -4" />
-          <circle cx="-12" cy="4" r="1.6" style={led} />
-          <circle cx="-5" cy="4" r="1.6" style={led} />
+          <circle cx="-12" cy="4" r="1.8" fill="currentColor" stroke="none" />
+          <circle cx="-5" cy="4" r="1.8" fill="currentColor" stroke="none" />
         </g>
       );
     case 'switch':
@@ -39,7 +37,7 @@ function Device({ type, c, o }) {
           {[-16, -10, -4, 2, 8, 14].map((x) => (
             <rect key={x} x={x} y="1" width="4" height="4" rx="0.8" />
           ))}
-          <circle cx="-18" cy="-4" r="1.4" style={led} />
+          <circle cx="-18" cy="-4" r="1.6" fill="currentColor" stroke="none" />
         </g>
       );
     case 'laptop':
@@ -72,52 +70,48 @@ function Device({ type, c, o }) {
   }
 }
 
-// type, position, scale, colour, opacity — all kept to the edges, clear of the hero.
-const PLACEMENTS = [
-  { type: 'server', x: 160, y: 190, s: 2.4, c: '#2563eb', o: 0.5 },
-  { type: 'router', x: 1280, y: 160, s: 2.4, c: '#0ea5a4', o: 0.5 },
-  { type: 'cloud', x: 1175, y: 360, s: 2.2, c: '#2563eb', o: 0.45 },
-  { type: 'laptop', x: 130, y: 480, s: 2.2, c: '#334155', o: 0.42 },
-  { type: 'database', x: 250, y: 760, s: 2.5, c: '#2563eb', o: 0.48 },
-  { type: 'switch', x: 1245, y: 755, s: 2.5, c: '#0ea5a4', o: 0.5 },
-  { type: 'shield', x: 1325, y: 480, s: 2.1, c: '#0ea5a4', o: 0.45 },
+// One small SVG per device, positioned with CSS. `pos` = Tailwind position
+// classes; `cls` hides some on small screens to avoid crowding the hero text.
+const DEVICES = [
+  { type: 'server', pos: 'left-4 top-28 sm:left-10', size: 74, color: '#2563eb', cls: '' },
+  { type: 'router', pos: 'right-4 top-24 sm:right-10', size: 80, color: '#0ea5a4', cls: '' },
+  { type: 'database', pos: 'left-4 top-[20rem] sm:left-10', size: 76, color: '#2563eb', cls: 'hidden sm:block' },
+  { type: 'switch', pos: 'right-4 top-[21rem] sm:right-12', size: 80, color: '#0ea5a4', cls: 'hidden sm:block' },
+  { type: 'cloud', pos: 'left-6 top-[34rem] sm:left-16', size: 72, color: '#0ea5a4', cls: 'hidden sm:block' },
+  { type: 'laptop', pos: 'right-6 top-[35rem] sm:right-16', size: 72, color: '#334155', cls: 'hidden sm:block' },
+  { type: 'shield', pos: 'right-5 top-[12rem]', size: 60, color: '#2563eb', cls: 'hidden lg:block' },
 ];
 
 export default function LandingBackground({ className = '' }) {
   return (
     <div className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden ${className}`} aria-hidden="true">
-      <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 900">
-        <defs>
-          <radialGradient id="lb-blue" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#2563eb" stopOpacity="0.26" />
-            <stop offset="1" stopColor="#2563eb" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id="lb-emerald" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#0ea5a4" stopOpacity="0.24" />
-            <stop offset="1" stopColor="#0ea5a4" stopOpacity="0" />
-          </radialGradient>
-        </defs>
+      {/* soft colour blobs (CSS gradients, so no SVG cropping) */}
+      <div
+        className="absolute -right-24 -top-24 h-[34rem] w-[34rem] rounded-full blur-2xl"
+        style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.22), rgba(37,99,235,0) 70%)' }}
+      />
+      <div
+        className="absolute -left-32 top-[30rem] h-[38rem] w-[38rem] rounded-full blur-2xl"
+        style={{ background: 'radial-gradient(circle, rgba(14,165,164,0.20), rgba(14,165,164,0) 70%)' }}
+      />
 
-        {/* soft colour blobs */}
-        <circle cx="1240" cy="140" r="430" fill="url(#lb-blue)" />
-        <circle cx="180" cy="820" r="460" fill="url(#lb-emerald)" />
-
-        {/* line-art IT devices, drawn at the edges, clear of the hero */}
-        {PLACEMENTS.map(({ type, x, y, s, c, o }, i) => (
-          <g
-            key={`${type}-${i}`}
-            transform={`translate(${x} ${y}) scale(${s})`}
-            fill="none"
-            stroke={c}
-            strokeOpacity={o}
-            strokeWidth="2.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <Device type={type} c={c} o={o} />
-          </g>
-        ))}
-      </svg>
+      {/* line-art IT devices */}
+      {DEVICES.map(({ type, pos, size, color, cls }, i) => (
+        <svg
+          key={`${type}-${i}`}
+          className={`absolute ${pos} ${cls}`}
+          style={{ width: size, height: size, color, opacity: 0.5 }}
+          viewBox="-26 -26 52 52"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <Glyph type={type} />
+        </svg>
+      ))}
     </div>
   );
 }
