@@ -55,7 +55,7 @@ export default function LabLauncher() {
         jsonLd={faqJsonLd(FAQS)}
       />
       <header className="sticky top-safe z-30 px-3 pt-3 sm:px-6 sm:pt-5">
-        <div className="glass-1 mx-auto flex max-w-5xl items-center gap-3 rounded-card px-3 py-2 shadow-lg sm:px-4">
+        <div className="glass-1 nav-solid mx-auto flex max-w-5xl items-center gap-3 rounded-card px-3 py-2 shadow-lg sm:px-4">
           <FlaskConical size={18} className="shrink-0 text-action" aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate text-body font-semibold">Interactive Lab</span>
           <Button size="sm" variant="ghost" to="/labs/progress">My progress</Button>

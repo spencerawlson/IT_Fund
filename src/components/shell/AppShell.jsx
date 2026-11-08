@@ -149,9 +149,9 @@ export default function AppShell() {
         </div>
       </header>
 
-      {/* Mobile top bar */}
+      {/* Mobile top bar: opaque pill, so scrolling content disappears cleanly behind it instead of ghosting through the frost. */}
       <header className="sticky top-safe z-40 px-3 pt-3 lg:hidden">
-        <div className="glass-1 flex h-14 items-center justify-between gap-2 rounded-card pl-3 pr-1.5">
+        <div className="glass-1 nav-solid flex h-14 items-center justify-between gap-2 rounded-card pl-3 pr-1.5">
           {searchOpen ? (
             <>
               <SearchForm autoFocus onDone={() => setSearchOpen(false)} className="flex-1" />
@@ -177,13 +177,14 @@ export default function AppShell() {
         </div>
       </header>
 
-      <main id="main" className="pb-28 lg:pb-12 lg:pl-[16.5rem]">
+      {/* Bottom clearance must clear the whole fixed tab bar (pill + safe area) with room to spare — pb-28 left ~8px, not enough. */}
+      <main id="main" className="pb-36 lg:pb-12 lg:pl-[16.5rem]">
         <Outlet />
       </main>
 
-      {/* Mobile bottom tab bar */}
+      {/* Mobile bottom tab bar: opaque pill, same reason as the top bar. */}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden">
-        <div className="glass-3 grid grid-cols-5 rounded-card p-1">
+        <div className="glass-3 nav-solid grid grid-cols-5 rounded-card p-1">
           {items.map(({ to, label, short, icon: Icon, match }) => {
             const active = match(pathname);
             return (

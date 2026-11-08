@@ -108,9 +108,9 @@ export default function LessonView() {
 
       {VISUAL_LAB_FOR[lesson.id] && (
         <Card level={2} padding="sm" className="mb-8 max-w-reading">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-small text-ink-2">See this concept animated, then configure it yourself.</p>
-            <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm" icon={Eye}>
+            <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm" icon={Eye} className="w-full justify-center sm:w-auto">
               Open in Visual Lab
             </Button>
           </div>
@@ -119,9 +119,9 @@ export default function LessonView() {
 
       {labForLesson(lesson.id) && (
         <Card level={2} padding="sm" className="mb-8 max-w-reading">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-small text-ink-2">Do it for real: a hands-on lab terminal for this lesson's skills.</p>
-            <Button to={`/labs/${labForLesson(lesson.id)}`} variant="primary" size="sm" icon={TerminalSquare}>
+            <Button to={`/labs/${labForLesson(lesson.id)}`} variant="primary" size="sm" icon={TerminalSquare} className="w-full justify-center sm:w-auto">
               Launch Lab
             </Button>
           </div>

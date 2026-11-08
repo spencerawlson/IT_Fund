@@ -94,3 +94,59 @@ describe('mobile responsiveness guards', () => {
     expect(s.match(/min-h-11/g)?.length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('dashboard card layouts (2026-11-08, phone screenshot)', () => {
+  it('navigation pills are opaque so scrolling content cannot ghost through them', () => {
+    const css = src('src/index.css');
+    expect(css).toContain('.glass-1.nav-solid,');
+    expect(css).toContain('.glass-3.nav-solid {');
+    expect(css).toContain('background: #ffffff;');
+  });
+
+  it('app shell header and tab bar use the opaque pill, and main clears the tab bar with room to spare', () => {
+    const s = src('src/components/shell/AppShell.jsx');
+    expect(s).toContain('glass-1 nav-solid flex h-14');
+    expect(s).toContain('glass-3 nav-solid grid grid-cols-5');
+    expect(s).toContain('pb-36 lg:pb-12');
+    expect(s).not.toContain('pb-28 lg:pb-12');
+  });
+
+  it('spaced-repetition hero stacks on phones with a full-width button', () => {
+    const s = src('src/pages/Academy.jsx');
+    expect(s).toContain('flex flex-col gap-4 sm:flex-row sm:items-center');
+    expect(s).toContain('className="w-full justify-center sm:w-auto">Start review');
+    // Copy untouched by the layout fix.
+    expect(s).toContain('Quick reps now beat relearning later. It only takes a few minutes.');
+  });
+
+  it('logo wordmark opts out of the acronym glossary (WebKit blanks gradient text under a highlight)', () => {
+    const s = src('src/components/Logo.jsx');
+    expect(s).toContain('data-no-glossary');
+    expect(s).toContain('bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent');
+  });
+
+  it('practice-exam cards stack on phones instead of squeezing the copy', () => {
+    for (const f of ['src/pages/academy/Courses.jsx', 'src/pages/CisspRoadmap.jsx']) {
+      const s = src(f);
+      expect(s).toContain('flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between');
+      expect(s).toContain('w-full shrink-0 justify-center sm:w-auto');
+    }
+  });
+
+  it('lesson lab cards stack on phones instead of squeezing the copy', () => {
+    const s = src('src/pages/academy/LessonView.jsx');
+    expect(s.match(/flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between/g)?.length).toBe(2);
+    expect(s).toContain('className="w-full justify-center sm:w-auto"');
+  });
+
+  it('focus-mode sticky headers use the opaque pill', () => {
+    for (const f of [
+      'src/pages/LabLauncher.jsx',
+      'src/pages/LabProgress.jsx',
+      'src/pages/LabWorkspace.jsx',
+      'src/components/academy/lesson/LessonPlayer.jsx',
+    ]) {
+      expect(src(f)).toContain('glass-1 nav-solid');
+    }
+  });
+});

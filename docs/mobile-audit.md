@@ -109,6 +109,54 @@ below the 44px bar. Fixed in this change:
     code-block header was `min-h-9` (36px). Fix: `min-h-11`. (Same file
     as fix 5; found by the post-fix re-audit grep.)
 
+## Dashboard card layouts (2026-11-08, phone screenshot of /app)
+
+Spencer's screenshot of the /app dashboard on his phone showed three defects the
+static audit above had missed — it was a scrolled viewport, so fixed/sticky
+chrome sat on top of card content, which the audit's at-rest reading never saw.
+
+Measured from the screenshot (1206×2622, iPhone 16 Pro, 3x): the sticky header
+pill is translucent glass-1 (86% white at top, 68% at bottom), the tab-bar pill
+is glass-3, and the page was scrolled ~18px — enough for the stats card's rank
+row to slide under the header pill and the UP NEXT title under the tab bar.
+The ReviewHero row was measured in code: at 430px the icon (56px) + gaps +
+"Start review" button (~185px) leave ~77px for the copy — one word per line.
+
+Fixes in this change:
+
+1. `src/index.css` — new `.nav-solid` (`.glass-1.nav-solid, .glass-3.nav-solid`,
+   solid `#ffffff`). Cards keep their frost; only navigation pills use it, so
+   scrolling content disappears cleanly behind a pill instead of ghosting
+   through and getting sliced mid-line at its edge.
+2. `src/components/shell/AppShell.jsx` — mobile header pill and tab-bar pill
+   both `nav-solid`; main bottom clearance `pb-28` (112px) → `pb-36` (144px).
+   The old clearance left ~8px over the real tab-bar height (~104px: ~70px
+   pill + ~34px safe area); 144px leaves ~40px. That is the real cause the
+   earlier pass missed: it measured the pill (64px assumed) but not the
+   safe-area padding, and it read the page at rest, never scrolled.
+3. `src/pages/Academy.jsx` — ReviewHero stacks on phones: icon + copy row at
+   full width, then a full-width "Start review" button below. Copy unchanged.
+   Desktop row identical.
+4. `src/components/Logo.jsx` — the wordmark opts out of the acronym glossary
+   (`data-no-glossary`). In the screenshot "CISSP" was invisible — only its
+   dotted acronym underline showed. The gradient-clipped text under a Custom
+   Highlight range blanks on WebKit; the brand mark is not a glossary term
+   anyway. `bg-clip-text` is used nowhere else in the app.
+5. Same row pattern, stacked on phones: the practice-exam cards in
+   `src/pages/academy/Courses.jsx` and `src/pages/CisspRoadmap.jsx` (text +
+   "Start practice exam" button) and the two lab cards in
+   `src/pages/academy/LessonView.jsx` (Visual Lab / Launch Lab).
+6. Same opaque-pill treatment for the focus-mode sticky headers in
+   `src/pages/LabLauncher.jsx`, `src/pages/LabProgress.jsx`,
+   `src/pages/LabWorkspace.jsx`, `src/components/academy/lesson/LessonPlayer.jsx`.
+
+Checked and left alone: StreakWidget (wraps; the card itself is fine — the
+header was the problem), the `due === 0` review card (text gets ~256px, heading
+fits), ContinueLearning's button row (`flex-wrap`, no squeeze), BadgeCard
+(icon + text only, no button), UpgradePrompt (centered, buttons wrap),
+PracticeExam sticky chrome (already 90% opaque, intentional bleed),
+LessonPlayer's fixed ActionBar (main already has `pb-72` clearance).
+
 ## Round 2 — checked and cleared (no fix needed)
 
 - `SubnetCalculator.jsx:103-107` — binary-breakdown lines look unbreakable

@@ -51,20 +51,24 @@ function StreakWidget({ state }) {
   );
 }
 
-/** When reviews are due, this takes the top hero slot so the reps actually happen. */
+/** When reviews are due, this takes the top hero slot so the reps actually happen.
+ *  Stacks on phones: a horizontal row squeezes the copy to one word per line
+ *  (icon + button leave ~77px for the text at 430px). Copy unchanged. */
 function ReviewHero({ due }) {
   return (
     <Card as="section" padding="lg" aria-labelledby="review-hero-heading" className="mt-6">
-      <div className="flex flex-wrap items-center gap-4">
-        <IconTile icon={Repeat} color="#f59e0b" size="lg" />
-        <div className="min-w-0 flex-1">
-          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Spaced repetition</p>
-          <h2 id="review-hero-heading" className="mt-1 text-heading text-ink-1">
-            {due} {due === 1 ? 'question is' : 'questions are'} due for review
-          </h2>
-          <p className="mt-1 text-small text-ink-2">Quick reps now beat relearning later. It only takes a few minutes.</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <IconTile icon={Repeat} color="#f59e0b" size="lg" />
+          <div className="min-w-0 flex-1">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Spaced repetition</p>
+            <h2 id="review-hero-heading" className="mt-1 text-heading text-ink-1">
+              {due} {due === 1 ? 'question is' : 'questions are'} due for review
+            </h2>
+            <p className="mt-1 text-small text-ink-2">Quick reps now beat relearning later. It only takes a few minutes.</p>
+          </div>
         </div>
-        <Button to="/academy/review" size="lg" icon={Play}>Start review</Button>
+        <Button to="/academy/review" size="lg" icon={Play} className="w-full justify-center sm:w-auto">Start review</Button>
       </div>
     </Card>
   );

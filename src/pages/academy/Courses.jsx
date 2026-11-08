@@ -210,12 +210,12 @@ export function CourseDetail() {
         <div className="min-w-0 space-y-12">
           {course.slug === 'security-fundamentals' && (
             <section aria-labelledby="secplus-exam-heading">
-              <Card level={2} padding="md" className="flex flex-wrap items-center justify-between gap-4">
+              <Card level={2} padding="md" className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <h2 id="secplus-exam-heading" className="text-heading text-ink-1">Security+ practice exam</h2>
                   <p className="mt-1 text-small text-ink-2">90 questions, 90 minutes, weighted by the official SY0-701 domain weights. 83% to pass.</p>
                 </div>
-                <Button to="/academy/security-plus/exam" icon={Timer} className="shrink-0">Start practice exam</Button>
+                <Button to="/academy/security-plus/exam" icon={Timer} className="w-full shrink-0 justify-center sm:w-auto">Start practice exam</Button>
               </Card>
             </section>
           )}

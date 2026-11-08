@@ -319,6 +319,14 @@
     border: 1px solid rgba(76, 29, 149, 0.12);
     box-shadow: 0 24px 60px -16px rgba(76, 29, 149, 0.22);
   }
+  /* Sticky/fixed navigation pills must be opaque: frosted glass lets scrolling
+     content ghost through and get sliced mid-line at the pill edge (seen on the
+     /app dashboard, 2026-11-08). Cards keep their frost; only nav pills use
+     this. Two-class selector so it wins over .glass-1/.glass-3 in this layer. */
+  .glass-1.nav-solid,
+  .glass-3.nav-solid {
+    background: #ffffff;
+  }
   /* Without backdrop blur, fall back to solid surfaces so text stays readable. */
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .glass, .glass-1 { background: #FFFFFF; }

@@ -36,12 +36,15 @@ export function LogoMark({ size = 32, className = '' }) {
   );
 }
 
-/** Mark plus the "Road to CISSP" wordmark. */
+/** Mark plus the "Road to CISSP" wordmark. The wordmark opts out of the
+ *  acronym glossary (data-no-glossary): on WebKit the Custom Highlight range
+ *  over gradient-clipped text blanks the "CISSP" glyphs, leaving only the
+ *  dotted underline — and a brand mark is not a glossary term to tap. */
 export default function Logo({ size = 34 }) {
   return (
     <span className="flex items-center gap-2">
       <LogoMark size={size} className="drop-shadow-[0_4px_12px_rgba(20,184,166,0.45)]" />
-      <span className="text-sm font-bold tracking-tight text-ink-1">
+      <span className="text-sm font-bold tracking-tight text-ink-1" data-no-glossary>
         Road to{' '}
         <span className="bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent">CISSP</span>
       </span>

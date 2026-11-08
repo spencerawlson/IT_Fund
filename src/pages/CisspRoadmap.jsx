@@ -88,12 +88,12 @@ export default function CisspRoadmap() {
       />
 
       <section aria-labelledby="exam-heading" className="mb-12">
-        <Card level={2} padding="md" className="flex flex-wrap items-center justify-between gap-4">
+        <Card level={2} padding="md" className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h2 id="exam-heading" className="text-heading text-ink-1">Practice exam</h2>
             <p className="mt-1 text-small text-ink-2">100 questions, 3 hours, weighted by the official domain weights. 70% to pass.</p>
           </div>
-          <Button to="/academy/exam" icon={Timer} className="shrink-0">Start practice exam</Button>
+          <Button to="/academy/exam" icon={Timer} className="w-full shrink-0 justify-center sm:w-auto">Start practice exam</Button>
         </Card>
       </section>
 
