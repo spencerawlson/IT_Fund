@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, FlaskConical, Target, RefreshCw, Check, X, Loader2 } from 'lucide-react';
 import { Button, Card } from '@/components/ui-glass';
@@ -35,21 +35,64 @@ const FAQS = [
 ];
 
 // FAQ rich-result structured data, generated from the FAQS shown on the page.
-const FAQ_JSONLD = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: FAQS.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.a },
-  })),
-};
+const FAQ_ENTITIES = FAQS.map((f) => ({
+  '@type': 'Question',
+  name: f.q,
+  acceptedAnswer: { '@type': 'Answer', text: f.a },
+}));
+
+// Fallback matches billing.PRICE_FALLBACK; replaced by the live Stripe price.
+const PRICE_FALLBACK = { display: '$19', interval: 'month', amount: '19.00', currency: 'USD' };
+const INTERVAL_LABEL = { month: 'month', year: 'year', week: 'week', day: 'day' };
+const INTERVAL_SHORT = { month: 'mo', year: 'yr', week: 'wk', day: 'day' };
 
 export default function Pricing() {
   const { isAuthenticated } = useAuth();
   const { subscribed } = useSubscription();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  // Single source of truth: the live Stripe price, so the page, the structured
+  // data, and the actual charge never drift. Falls back if billing is unconfigured.
+  const [price, setPrice] = useState(PRICE_FALLBACK);
+
+  useEffect(() => {
+    let live = true;
+    fetch(`${API_BASE}/billing/price`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => {
+        if (!live || !p) return;
+        setPrice({
+          display: p.display || PRICE_FALLBACK.display,
+          interval: p.interval || PRICE_FALLBACK.interval,
+          amount: p.unit_amount != null ? (p.unit_amount / 100).toFixed(2) : PRICE_FALLBACK.amount,
+          currency: (p.currency || 'usd').toUpperCase(),
+        });
+      })
+      .catch(() => { /* keep fallback */ });
+    return () => { live = false; };
+  }, []);
+
+  const intervalLabel = INTERVAL_LABEL[price.interval] || price.interval;
+  const intervalShort = INTERVAL_SHORT[price.interval] || price.interval;
+
+  const jsonLd = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'FAQPage', mainEntity: FAQ_ENTITIES },
+      {
+        '@type': 'Product',
+        name: 'Road to CISSP membership',
+        description: 'Full access: all learning tracks, 23+ hands-on labs, Security+ & CISSP exam simulators, and progress sync.',
+        offers: {
+          '@type': 'Offer',
+          price: price.amount,
+          priceCurrency: price.currency,
+          url: 'https://www.road2cissp.com/pricing',
+          availability: 'https://schema.org/InStock',
+        },
+      },
+    ],
+  }), [price.amount, price.currency]);
 
   const subscribe = async () => {
     if (!isAuthenticated) {
@@ -75,10 +118,10 @@ export default function Pricing() {
   return (
     <div className="min-h-screen text-ink-1">
       <Seo
-        title="Pricing — Road to CISSP membership, $19/month"
-        description="One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators. $19/month, cancel anytime. Free tier with no account needed."
+        title={`Pricing — Road to CISSP membership, ${price.display}/${intervalShort}`}
+        description={`One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators. ${price.display}/${intervalShort}, cancel anytime. Free tier with no account needed.`}
         path="/pricing"
-        jsonLd={FAQ_JSONLD}
+        jsonLd={jsonLd}
       />
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
         <Link to="/" className="text-body font-bold tracking-tight">Road to CISSP</Link>
@@ -106,8 +149,8 @@ export default function Pricing() {
           <Card level={2} padding="lg" className="text-center">
             <p className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">Subscription</p>
             <p className="mt-3">
-              <span className="text-[3rem] font-bold leading-none tracking-tight text-ink-1">$19</span>
-              <span className="text-body text-ink-2"> / month</span>
+              <span className="text-[3rem] font-bold leading-none tracking-tight text-ink-1">{price.display}</span>
+              <span className="text-body text-ink-2"> / {intervalLabel}</span>
             </p>
             <ul className="mx-auto mt-6 max-w-sm space-y-3 text-left">
               {['All learning tracks, zero to CISSP', 'All 23+ hands-on labs', 'Security+ & CISSP exam simulators', 'Progress sync across devices', 'New content every month'].map((f) => (
@@ -122,7 +165,7 @@ export default function Pricing() {
               ) : (
                 <Button size="lg" onClick={subscribe} disabled={busy} className="w-full sm:w-auto">
                   {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
-                  {busy ? 'Starting checkout…' : isAuthenticated ? 'Subscribe — $19/mo' : 'Sign in to subscribe'}
+                  {busy ? 'Starting checkout…' : isAuthenticated ? `Subscribe — ${price.display}/${intervalShort}` : 'Sign in to subscribe'}
                 </Button>
               )}
               {error && (

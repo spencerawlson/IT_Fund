@@ -317,3 +317,52 @@ def test_webhook_503_when_unconfigured():
     os.environ.pop("STRIPE_WEBHOOK_SECRET")
     r = _webhook_post({"type": "checkout.session.completed", "data": {"object": {}}})
     assert r.status_code == 503
+
+
+# ---------- GET /billing/price (single source of truth) ----------
+
+class _FakePrice:
+    retrieve_calls = []
+
+    @staticmethod
+    def retrieve(price_id):
+        _FakePrice.retrieve_calls.append(price_id)
+        return {"unit_amount": 1900, "currency": "usd", "recurring": {"interval": "month"}}
+
+
+fake_stripe.Price = _FakePrice
+
+
+def test_format_price_compact():
+    assert billing._format_price(1900, "usd") == "$19"
+    assert billing._format_price(999, "usd") == "$9.99"
+    assert billing._format_price(1900, "eur") == "€19"
+    assert billing._format_price(None, "usd") == ""
+
+
+def test_price_falls_back_without_stripe_key():
+    os.environ.pop("STRIPE_SECRET_KEY")
+    r = client.get("/api/billing/price")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["configured"] is False
+    assert body["display"] == "$19"  # page still renders a price
+
+
+def test_price_reads_live_stripe_when_configured():
+    r = client.get("/api/billing/price")
+    assert r.status_code == 200
+    body = r.json()
+    assert body == {
+        "configured": True,
+        "unit_amount": 1900,
+        "currency": "usd",
+        "interval": "month",
+        "display": "$19",
+    }
+    assert "price_fake" in _FakePrice.retrieve_calls
+
+
+def test_price_is_public_no_auth():
+    client.cookies.clear()
+    assert client.get("/api/billing/price").status_code == 200
