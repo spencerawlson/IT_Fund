@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Play, Swords, Check, Lock, SearchX, ArrowRight, Library, Route as RouteIcon, Map as MapIcon, Timer } from 'lucide-react';
 import { IconTile, PrereqNotice, Prerequisites } from '@/components/academy/ui/bits';
@@ -15,8 +15,19 @@ import {
   courseProgress, courseStatus, courseMinutesLeft, nextLessonInCourse, moduleProgress, moduleStatus, isModuleComplete,
   pathPrerequisites, lessonStatus,
 } from '@/lib/progress/engine';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
 import Seo from '@/components/Seo';
+
+const SITE = 'https://www.road2cissp.com';
+// schema.org BreadcrumbList from [{name, path?}]; the last crumb usually has no path.
+const breadcrumbLd = (items) => ({
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((it, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: it.name,
+    ...(it.path ? { item: `${SITE}${it.path}` } : {}),
+  })),
+});
 
 // Courses you're working on come first, then ones you haven't opened, then the ones you finished.
 const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
@@ -87,7 +98,23 @@ export function CourseDetail() {
   const { courseSlug } = useParams();
   const state = useAcademy();
   const course = getCourse(courseSlug);
-  useDocumentTitle(course ? `${course.title} · Road to CISSP` : 'Course · Road to CISSP');
+  const courseLd = useMemo(() => (course ? {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Course',
+        name: course.title,
+        description: course.description,
+        url: `${SITE}/academy/courses/${courseSlug}`,
+        provider: { '@type': 'Organization', name: 'Road to CISSP', '@id': `${SITE}/#org` },
+      },
+      breadcrumbLd([
+        { name: 'Home', path: '/' },
+        { name: 'Courses', path: '/academy/courses' },
+        { name: course.title },
+      ]),
+    ],
+  } : null), [course, courseSlug]);
   if (!course) return <CourseNotFound />;
 
   const next = nextLessonInCourse(state, course);
@@ -105,6 +132,12 @@ export function CourseDetail() {
 
   return (
     <PageContainer wide>
+      <Seo
+        title={`${course.title} · Road to CISSP`}
+        description={course.description}
+        path={`/academy/courses/${courseSlug}`}
+        jsonLd={courseLd}
+      />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Courses', to: '/academy/courses' }, { label: course.title }]}
         eyebrow={`${course.difficulty} course`}
@@ -213,7 +246,15 @@ export function ModuleDetail() {
   const state = useAcademy();
   const course = getCourse(courseSlug);
   const module = getModuleBySlug(courseSlug, moduleSlug);
-  useDocumentTitle(module ? `${module.title} · Road to CISSP` : 'Module · Road to CISSP');
+  const moduleLd = useMemo(() => ((course && module) ? {
+    '@context': 'https://schema.org',
+    '@graph': [breadcrumbLd([
+      { name: 'Home', path: '/' },
+      { name: 'Courses', path: '/academy/courses' },
+      { name: course.title, path: `/academy/courses/${courseSlug}` },
+      { name: module.title },
+    ])],
+  } : null), [course, module, courseSlug]);
 
   if (!course || !module) {
     return (
@@ -228,6 +269,12 @@ export function ModuleDetail() {
 
   return (
     <PageContainer>
+      <Seo
+        title={`${module.title} · Road to CISSP`}
+        description={module.summary}
+        path={`/academy/courses/${courseSlug}/${moduleSlug}`}
+        jsonLd={moduleLd}
+      />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: course.title, to: courseHref(course) }, { label: `Module ${module.number}` }]}
         eyebrow={`Module ${module.number} · ${module.level}`}
