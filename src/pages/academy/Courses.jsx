@@ -16,6 +16,7 @@ import {
   pathPrerequisites, lessonStatus,
 } from '@/lib/progress/engine';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 // Courses you're working on come first, then ones you haven't opened, then the ones you finished.
 const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
@@ -44,11 +45,15 @@ function LibraryTile({ to, icon: Icon, title, text }) {
 }
 
 export function CoursesIndex() {
-  useDocumentTitle('Courses · Road to CISSP');
   const state = useAcademy();
   const courses = [...COURSES].sort((a, b) => ORDER[courseStatus(state, a)] - ORDER[courseStatus(state, b)]);
   return (
     <PageContainer>
+      <Seo
+        title="Courses — guided tracks from IT fundamentals to the CISSP"
+        description="Work through structured courses across networking, Security+, Linux, Python, cloud, and the CISSP domains — lessons, cheat sheets, and hands-on labs in each."
+        path="/academy/courses"
+      />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Courses' }]}
         title="Courses"
