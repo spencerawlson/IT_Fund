@@ -53,6 +53,14 @@ def dev_login():
     return resp
 
 
+@router.get("/providers")
+def available_providers() -> dict:
+    """Public: which OAuth providers are actually configured on this server, so the
+    sign-in UI shows only buttons that work (an unconfigured provider 404s on login).
+    Declared before /{provider}/login so "providers" isn't matched as a provider."""
+    return {"providers": sorted(p for p in PROVIDERS if oauth_mod.provider_configured(p))}
+
+
 @router.get("/{provider}/login")
 async def login(provider: str, request: Request, client: str | None = None, code_challenge: str | None = None):
     _check_provider(provider)
