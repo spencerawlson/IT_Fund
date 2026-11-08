@@ -5,7 +5,7 @@ import { modules, levelOrder } from '@/data/modules';
 import { getOverallProgress } from '@/lib/progress';
 import ModuleCard from '@/components/ModuleCard';
 import { Button, Card, EmptyState, ListLink, PageContainer, PageHeader, SectionHeader } from '@/components/ui-glass';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const LEVELS = ['All', ...levelOrder];
 const MAX_RESULTS = 40;
@@ -26,7 +26,6 @@ function searchConcepts(query) {
 
 /** The concept library (the original module material), with search. Lives under Practice. */
 export default function Home() {
-  useDocumentTitle('Library · Road to CISSP');
   const [params, setParams] = useSearchParams();
   const query = params.get('q') || '';
   const [level, setLevel] = useState('All');
@@ -40,6 +39,11 @@ export default function Home() {
 
   return (
     <PageContainer wide>
+      <Seo
+        title="Concept Library — networking, security, Linux, Python & cloud references"
+        description="Browse the Road to CISSP concept library: quick-reference explainers across networking, security, Linux, Python, cloud, and the CISSP domains."
+        path="/library"
+      />
       <PageHeader
         breadcrumbs={[{ label: 'Courses', to: '/academy/courses' }, { label: 'Concept library' }]}
         title="Concept library"
