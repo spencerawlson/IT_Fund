@@ -13,34 +13,42 @@ import { CelebrationHost } from '@/components/Celebration';
 import AcronymTooltips from '@/components/AcronymTooltips';
 import AppShell from '@/components/shell/AppShell';
 import { TutorProvider } from '@/components/shell/TutorContext';
-// Add page imports here
-import Home from './pages/Home';
-import Module from './pages/Module';
-import Lab from './pages/Lab';
-import Roadmap from './pages/Roadmap';
-import Challenge from './pages/Challenge';
-import Tracks from './pages/Tracks';
-import LearningPath from './pages/LearningPath';
-import RegistryEditor from './pages/RegistryEditor';
+// Eager: the first-paint / common entry pages. Everything heavy or secondary is
+// lazy-loaded below so it doesn't bloat the initial bundle (the Three.js-backed
+// Visual Lab and lab workspace especially). Lazy routes render inside the
+// <Suspense> wrapper around <Routes>.
 import Academy from './pages/Academy';
 import AcademyTrack from './pages/AcademyTrack';
-import AcademyPlay from './pages/AcademyPlay';
 import CisspRoadmap from './pages/CisspRoadmap';
-import AcademyLesson from './pages/AcademyLesson';
-import { PathsIndex, PathDetail } from './pages/academy/Paths';
-import { CoursesIndex, CourseDetail, ModuleDetail } from './pages/academy/Courses';
-import LessonView from './pages/academy/LessonView';
-import Badges from './pages/academy/Badges';
-import PracticeExam from './pages/academy/PracticeExam';
-import SecplusPracticeExam from './pages/academy/SecplusPracticeExam';
-import CertPracticeExam from './pages/academy/CertPracticeExam';
 import Practice from './pages/Practice';
-import LabWorkspace from './pages/LabWorkspace';
-import LabLauncher from './pages/LabLauncher';
-import LabProgress from './pages/LabProgress';
 import Landing from './pages/Landing';
 import SignIn from './pages/SignIn';
 import Pricing from './pages/Pricing';
+
+// Lazy (code-split): heavy (Three.js) or secondary routes.
+const Home = React.lazy(() => import('./pages/Home'));
+const Module = React.lazy(() => import('./pages/Module'));
+const Lab = React.lazy(() => import('./pages/Lab'));
+const Roadmap = React.lazy(() => import('./pages/Roadmap'));
+const Challenge = React.lazy(() => import('./pages/Challenge'));
+const Tracks = React.lazy(() => import('./pages/Tracks'));
+const LearningPath = React.lazy(() => import('./pages/LearningPath'));
+const RegistryEditor = React.lazy(() => import('./pages/RegistryEditor'));
+const AcademyPlay = React.lazy(() => import('./pages/AcademyPlay'));
+const AcademyLesson = React.lazy(() => import('./pages/AcademyLesson'));
+const PathsIndex = React.lazy(() => import('./pages/academy/Paths').then((m) => ({ default: m.PathsIndex })));
+const PathDetail = React.lazy(() => import('./pages/academy/Paths').then((m) => ({ default: m.PathDetail })));
+const CoursesIndex = React.lazy(() => import('./pages/academy/Courses').then((m) => ({ default: m.CoursesIndex })));
+const CourseDetail = React.lazy(() => import('./pages/academy/Courses').then((m) => ({ default: m.CourseDetail })));
+const ModuleDetail = React.lazy(() => import('./pages/academy/Courses').then((m) => ({ default: m.ModuleDetail })));
+const LessonView = React.lazy(() => import('./pages/academy/LessonView'));
+const Badges = React.lazy(() => import('./pages/academy/Badges'));
+const PracticeExam = React.lazy(() => import('./pages/academy/PracticeExam'));
+const SecplusPracticeExam = React.lazy(() => import('./pages/academy/SecplusPracticeExam'));
+const CertPracticeExam = React.lazy(() => import('./pages/academy/CertPracticeExam'));
+const LabWorkspace = React.lazy(() => import('./pages/LabWorkspace'));
+const LabLauncher = React.lazy(() => import('./pages/LabLauncher'));
+const LabProgress = React.lazy(() => import('./pages/LabProgress'));
 
 // Dev-only design system preview; not bundled into production builds.
 const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
@@ -68,8 +76,16 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Render the main app
+  // Render the main app. Suspense covers the lazy (code-split) routes with a
+  // centered spinner while a route chunk loads.
   return (
+    <React.Suspense
+      fallback={(
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-ink-3 border-t-ink-1 rounded-full animate-spin"></div>
+        </div>
+      )}
+    >
     <Routes>
       {/* Pages inside the app shell: one sidebar (desktop) / tab bar (mobile) navigation. */}
       <Route element={<AppShell />}>
@@ -113,9 +129,10 @@ const AuthenticatedApp = () => {
       <Route path="/academy/:trackId/deck/:deckId" element={<AcademyPlay kind="deck" />} />
       <Route path="/academy/:trackId/boss/:tierId" element={<AcademyPlay kind="boss" />} />
       {DesignSystem && (
-        <Route path="/design" element={<React.Suspense fallback={null}><DesignSystem /></React.Suspense>} />
+        <Route path="/design" element={<DesignSystem />} />
       )}
     </Routes>
+    </React.Suspense>
   );
 };
 
