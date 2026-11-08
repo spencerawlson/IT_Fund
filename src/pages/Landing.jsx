@@ -3,7 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { BookOpen, FlaskConical, Bot, Target, TerminalSquare, Award, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
 // Signed-in visitors go straight to the app.
@@ -88,7 +88,6 @@ const CERT_ROAD = [
 ];
 
 export default function Landing() {
-  useDocumentTitle('Road to CISSP — From IT fundamentals to cloud expert');
   const { isAuthenticated, isLoadingAuth } = useAuth();
 
   if (!isLoadingAuth && isAuthenticated) {
@@ -97,6 +96,11 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen text-ink-1">
+      <Seo
+        title="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training"
+        description="Go from IT fundamentals to the CISSP: 800+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free."
+        path="/"
+      />
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
         <span className="whitespace-nowrap text-body font-bold tracking-tight">Road to CISSP</span>

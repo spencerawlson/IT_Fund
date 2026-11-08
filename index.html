@@ -4,17 +4,70 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training</title>
     <meta name="description" content="Road to CISSP — the go-to platform for networking, security, Python, cloud, and cybersecurity training. Thousands of flashcards, guided lessons, hands-on labs, and 3D visual explainers, from IT foundations to the CISSP." />
+    <link rel="canonical" href="https://www.road2cissp.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Road to CISSP" />
+    <meta property="og:url" content="https://www.road2cissp.com/" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training" />
     <meta property="og:description" content="Master networking, security, Python, cloud, and cybersecurity — flashcards, guided lessons, hands-on labs, and 3D visual explainers, from IT foundations to the CISSP." />
+    <!-- Stopgap brand image; replace with a designed 1200x630 /og-image.png (see SEO proposals). -->
+    <meta property="og:image" content="https://www.road2cissp.com/cipher-mascot.jpg" />
+    <meta property="og:image:alt" content="Road to CISSP — networking, security and cybersecurity training" />
+
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training" />
     <meta name="twitter:description" content="Master networking, security, Python, cloud, and cybersecurity — flashcards, guided lessons, hands-on labs, and 3D visual explainers, from IT foundations to the CISSP." />
+    <meta name="twitter:image" content="https://www.road2cissp.com/cipher-mascot.jpg" />
+    <meta name="twitter:image:alt" content="Road to CISSP — networking, security and cybersecurity training" />
+
     <link rel="manifest" href="/manifest.json" />
-    <title>Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training</title>
     <meta name="theme-color" content="#FFFFFF" />
+
+    <!-- Structured data: who the site is, and the site itself. Keep in sync with
+         the displayed plan price (see src/pages/Pricing.jsx). -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://www.road2cissp.com/#org",
+            "name": "Road to CISSP",
+            "url": "https://www.road2cissp.com/",
+            "logo": "https://www.road2cissp.com/favicon.svg"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://www.road2cissp.com/#website",
+            "url": "https://www.road2cissp.com/",
+            "name": "Road to CISSP",
+            "description": "Networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP.",
+            "publisher": { "@id": "https://www.road2cissp.com/#org" },
+            "inLanguage": "en"
+          },
+          {
+            "@type": "Product",
+            "name": "Road to CISSP membership",
+            "description": "Full access: all learning tracks, 23+ hands-on labs, Security+ & CISSP exam simulators, and progress sync.",
+            "brand": { "@id": "https://www.road2cissp.com/#org" },
+            "offers": {
+              "@type": "Offer",
+              "price": "19.00",
+              "priceCurrency": "USD",
+              "url": "https://www.road2cissp.com/pricing",
+              "availability": "https://schema.org/InStock"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

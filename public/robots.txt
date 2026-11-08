@@ -1,2 +1,5 @@
 User-agent: *
 Allow: /
+
+# Canonical host is www.road2cissp.com (apex 301-redirects here).
+Sitemap: https://www.road2cissp.com/sitemap.xml

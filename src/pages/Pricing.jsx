@@ -4,7 +4,7 @@ import { BookOpen, FlaskConical, Target, RefreshCw, Check, X, Loader2 } from 'lu
 import { Button, Card } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription } from '@/lib/subscription';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -34,8 +34,18 @@ const FAQS = [
   },
 ];
 
+// FAQ rich-result structured data, generated from the FAQS shown on the page.
+const FAQ_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
 export default function Pricing() {
-  useDocumentTitle('Pricing · Road to CISSP');
   const { isAuthenticated } = useAuth();
   const { subscribed } = useSubscription();
   const [busy, setBusy] = useState(false);
@@ -64,6 +74,12 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen text-ink-1">
+      <Seo
+        title="Pricing — Road to CISSP membership, $19/month"
+        description="One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators. $19/month, cancel anytime. Free tier with no account needed."
+        path="/pricing"
+        jsonLd={FAQ_JSONLD}
+      />
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
         <Link to="/" className="text-body font-bold tracking-tight">Road to CISSP</Link>
         <div className="flex items-center gap-2">
