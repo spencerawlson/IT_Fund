@@ -8,11 +8,11 @@ import Seo from '@/components/Seo';
 // Hands-on practice beside the lesson path. Nothing here changes lesson progress.
 // Reference material (the modules) lives under Learn -> Concept library.
 const PRACTICE = [
-  { to: '/lab', icon: Box, title: 'Visual Lab', text: 'Explore hardware in 3D and watch network protocols animate step by step.' },
-  { to: '/challenge', icon: Timer, title: 'Timed challenges', text: 'Type the right command, pick the subnet mask, build the firewall rules, against the clock.' },
+  { to: '/lab', icon: Box, title: 'Visual Lab' },
+  { to: '/challenge', icon: Timer, title: 'Timed challenges' },
 ];
 
-function Tile({ to, href, icon, title, text }) {
+function Tile({ to, href, icon, title }) {
   const inner = (
     <div className="flex items-start gap-4">
       <IconTile icon={icon} />
@@ -21,7 +21,6 @@ function Tile({ to, href, icon, title, text }) {
           {title}
           {href && <ExternalLink size={16} className="text-ink-2" aria-hidden="true" />}
         </span>
-        <span className="mt-1 block text-small text-ink-2">{text}</span>
       </span>
       <ArrowRight size={18} className="mt-1 shrink-0 text-ink-2" aria-hidden="true" />
     </div>
