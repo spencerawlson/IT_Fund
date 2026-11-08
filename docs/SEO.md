@@ -19,28 +19,30 @@ Canonical host: **https://www.road2cissp.com** (the apex `road2cissp.com` must
 
 ## Proposed (do deliberately)
 
-1. **Prerendering / SSG — the big lever.** This is a client-rendered SPA, so
-   non-JS crawlers (and some social scrapers) get an empty `#root`. Prerender the
-   static public routes to real HTML at build time. Options, lowest-risk first:
-   - `vite-react-ssg` or `vite-plugin-prerender` over the public route list
-     (`/`, `/pricing`, `/academy/roadmap`, `/library`, `/lab`, `/labs`, `/practice`,
-     `/tracks`, `/roadmap`, `/challenge`, `/learning-path`). Guard Three.js / auth
-     / `window` code so it no-ops during the prerender pass (jsdom has no WebGL).
-   - Verify each prerendered file has the right `<title>`/description baked in.
-   - Risk: the 3D (`ModelViewer`) and auth contexts must not throw server-side.
-     They already degrade without WebGL, but this needs a careful build + per-route
-     smoke check before shipping.
+1. **Prerendering / SSG — DEFERRED (decision 2026-11-07: measure in GSC first).**
+   This is a client-rendered SPA, so non-JS crawlers (and some social scrapers)
+   get an empty `#root`. Google renders JS, and we've optimized that path
+   (per-route `<Seo>`, JSON-LD, sitemap, canonicals), so the plan is to submit to
+   Search Console and only invest in SSG if GSC shows real indexing gaps.
+   - **A Puppeteer/Playwright prerender is NOT viable here**: Vercel builds with
+     plain `vite build` and has no headless browser, so it would break the deploy.
+   - The Vercel-safe option is a **Node SSG framework** (`vite-react-ssg` / `vike`)
+     over the public route list (`/`, `/pricing`, `/academy/roadmap`, `/library`,
+     `/lab`, `/labs`, `/practice`, `/tracks`, `/roadmap`, `/challenge`,
+     `/learning-path`). It renders in Node (no browser) but is an app-wide refactor:
+     guard every `window` / Three.js / `localStorage` / auth access for SSR. Needs a
+     careful build + per-route smoke check; spike it on `/` + `/pricing` first.
 2. **A real OG image.** `og:image` currently points at `/cipher-mascot.jpg` (a
    stopgap so cards aren't blank). Add a designed **1200×630 `public/og-image.png`**
    (logo + tagline "From IT fundamentals to the CISSP") and switch the two tags in
    `index.html` back to `/og-image.png` with explicit `og:image:width/height`.
-3. **Price single-source-of-truth.** The displayed price (`$19/mo`) is hardcoded in
-   `Pricing.jsx` AND asserted in `index.html` JSON-LD, decoupled from the actual
-   Stripe `STRIPE_PRICE_ID`. Expose a public `GET /api/billing/price` that returns
-   the live Price (amount/currency/interval) and render from it, so the page, the
-   structured data, and the charge can never drift.
-4. **Per-page meta on the remaining public routes** (academy roadmap, courses,
-   library, labs) via `<Seo>` — unique title + description each.
+3. ~~**Price single-source-of-truth.**~~ DONE — `GET /api/billing/price` returns
+   the live Stripe price; `Pricing.jsx` renders the page, structured data, and
+   button from it (fallback `$19`); the static Product/Offer was removed from
+   `index.html`.
+4. ~~**Per-page meta on the remaining public routes.**~~ DONE — `<Seo>` now covers
+   `/`, `/pricing`, `/academy/roadmap`, `/library`, `/tracks`, `/roadmap`. Still
+   worth adding to `/academy/courses` + `/lab`/`/labs` when convenient.
 5. **BreadcrumbList + Course JSON-LD** for `/academy/courses/*` once those routes
    prerender (rich results for course/breadcrumb).
 6. **Google Search Console + Bing Webmaster** — submit the sitemap, confirm the
