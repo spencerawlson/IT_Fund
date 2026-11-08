@@ -140,6 +140,47 @@ def _sync_from_subscription(user_id: str, sub) -> None:
     log.info("subscription synced: user=%s status=%s", user_id, sub["status"])
 
 
+#: Shown when the live Stripe price can't be read (local dev / billing unconfigured).
+#: The frontend uses this so the page never renders a blank or wrong price.
+PRICE_FALLBACK = {"configured": False, "display": "$19", "interval": "month"}
+
+
+def _format_price(unit_amount: int | None, currency: str) -> str:
+    """Cents + currency -> a compact display string: 1900/usd -> "$19", 999 -> "$9.99"."""
+    if unit_amount is None:
+        return ""
+    symbol = {"usd": "$", "eur": "€", "gbp": "£"}.get((currency or "").lower(), "")
+    dollars = unit_amount / 100
+    body = f"{dollars:.0f}" if unit_amount % 100 == 0 else f"{dollars:.2f}"
+    return f"{symbol}{body}"
+
+
+@router.get("/price")
+def plan_price() -> dict:
+    """Public: the live subscription price from Stripe, so the page, the structured
+    data, and the actual charge share one source. Falls back (never errors) when
+    Stripe isn't configured, so the pricing page always renders."""
+    stripe = _stripe()
+    price_id = os.environ.get("STRIPE_PRICE_ID")
+    if stripe is None or not price_id:
+        return dict(PRICE_FALLBACK)
+    try:
+        price = stripe.Price.retrieve(price_id)
+        unit = price.get("unit_amount")
+        currency = price.get("currency", "usd")
+        interval = (price.get("recurring") or {}).get("interval", "month")
+        return {
+            "configured": True,
+            "unit_amount": unit,
+            "currency": currency,
+            "interval": interval,
+            "display": _format_price(unit, currency),
+        }
+    except Exception:  # network/stripe error — fall back rather than break the page
+        log.exception("plan_price: could not read Stripe price %s", price_id)
+        return dict(PRICE_FALLBACK)
+
+
 @router.post("/checkout")
 def create_checkout(user_id: str = Depends(require_user_id)) -> dict:
     """Create a Stripe Checkout Session in subscription mode. Returns { checkout_url }."""

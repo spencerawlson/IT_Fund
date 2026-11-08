@@ -30,8 +30,9 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#FFFFFF" />
 
-    <!-- Structured data: who the site is, and the site itself. Keep in sync with
-         the displayed plan price (see src/pages/Pricing.jsx). -->
+    <!-- Site-wide structured data. The membership Product/Offer (with the price)
+         is injected on /pricing from the live Stripe price, so the price is
+         asserted in exactly one place (see src/pages/Pricing.jsx). -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -51,19 +52,6 @@
             "description": "Networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP.",
             "publisher": { "@id": "https://www.road2cissp.com/#org" },
             "inLanguage": "en"
-          },
-          {
-            "@type": "Product",
-            "name": "Road to CISSP membership",
-            "description": "Full access: all learning tracks, 23+ hands-on labs, Security+ & CISSP exam simulators, and progress sync.",
-            "brand": { "@id": "https://www.road2cissp.com/#org" },
-            "offers": {
-              "@type": "Offer",
-              "price": "19.00",
-              "priceCurrency": "USD",
-              "url": "https://www.road2cissp.com/pricing",
-              "availability": "https://schema.org/InStock"
-            }
           }
         ]
       }
