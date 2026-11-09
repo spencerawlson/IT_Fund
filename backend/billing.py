@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -144,6 +145,42 @@ def _sync_from_subscription(user_id: str, sub) -> None:
 #: The frontend uses this so the page never renders a blank or wrong price.
 PRICE_FALLBACK = {"configured": False, "display": "$19", "interval": "month"}
 
+#: Shape Ventoryn signs into a campaign link's utm_content param
+#: (ventoryn/signature.py: make_tag). Road to CISSP has no way to
+#: verify the signature itself (that key lives in Ventoryn) — it
+#: only ever passes through a tag that already matches Ventoryn's
+#: own shape, validated here, never trusted as proof by itself.
+_ATTRIBUTION_TAG_RE = re.compile(r"^vtn_[A-Za-z0-9_.-]{1,120}$")
+
+
+def _attribution_metadata(attribution_tag: str | None) -> dict:
+    """Ventoryn campaign-attribution metadata for a Checkout Session.
+    Empty when the tag is missing/invalid, or when this deployment has
+    no VENTORYN_SITE_ID configured — attribution is opt-in and never
+    blocks or alters checkout when unset."""
+    site_id = os.environ.get("VENTORYN_SITE_ID")
+    if not site_id or not attribution_tag or not _ATTRIBUTION_TAG_RE.match(attribution_tag):
+        return {}
+    return {"ventoryn_site_id": site_id, "ventoryn_tag": attribution_tag}
+
+
+def _record_attribution(user_id: str, attribution_tag: str) -> None:
+    """First-touch only: a user's recorded tag is never overwritten,
+    so a later visit through a different campaign can't steal credit
+    from the one that actually brought them in. Recorded regardless of
+    whether VENTORYN_SITE_ID is configured — it is Road to CISSP's own
+    record of how the visitor arrived, independent of whether the
+    Stripe metadata pass-through to Ventoryn is turned on."""
+    if not _ATTRIBUTION_TAG_RE.match(attribution_tag):
+        return
+    with db.SessionLocal() as s:
+        from db_models import User
+
+        user = s.get(User, user_id)
+        if user is not None and not user.attribution_tag:
+            user.attribution_tag = attribution_tag
+            s.commit()
+
 
 def _format_price(unit_amount: int | None, currency: str) -> str:
     """Cents + currency -> a compact display string: 1900/usd -> "$19", 999 -> "$9.99"."""
@@ -182,8 +219,14 @@ def plan_price() -> dict:
 
 
 @router.post("/checkout")
-def create_checkout(user_id: str = Depends(require_user_id)) -> dict:
-    """Create a Stripe Checkout Session in subscription mode. Returns { checkout_url }."""
+async def create_checkout(request: Request,
+                          user_id: str = Depends(require_user_id)) -> dict:
+    """Create a Stripe Checkout Session in subscription mode. Returns { checkout_url }.
+    An optional JSON body ``{"attribution_tag": "vtn_..."}`` carries a
+    Ventoryn campaign tag captured on the landing page; it is validated
+    for shape and passed through to Stripe metadata (see
+    _attribution_metadata) — never trusted as proof of attribution by
+    itself, and never required for checkout to work."""
     stripe = _require_stripe()
     price_id = os.environ.get("STRIPE_PRICE_ID")
     if not price_id:
@@ -191,6 +234,14 @@ def create_checkout(user_id: str = Depends(require_user_id)) -> dict:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Billing is not configured yet. Set STRIPE_PRICE_ID to enable subscriptions.",
         )
+    attribution_tag = None
+    try:
+        body = await request.json()
+        raw_tag = (body or {}).get("attribution_tag")
+        if isinstance(raw_tag, str) and _ATTRIBUTION_TAG_RE.match(raw_tag):
+            attribution_tag = raw_tag
+    except Exception:
+        pass  # no body, or not JSON — attribution is optional
     app_url = os.environ.get("BILLING_APP_URL", "https://www.road2cissp.com").rstrip("/")
     with db.SessionLocal() as s:
         from db_models import User
@@ -204,8 +255,10 @@ def create_checkout(user_id: str = Depends(require_user_id)) -> dict:
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=f"{app_url}/app?subscribed=1",
         cancel_url=f"{app_url}/pricing",
-        metadata={"user_id": user_id},
+        metadata={"user_id": user_id, **_attribution_metadata(attribution_tag)},
     )
+    if attribution_tag:
+        _record_attribution(user_id, attribution_tag)
     return {"checkout_url": session.url}
 
 
