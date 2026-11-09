@@ -4,6 +4,7 @@ import { BookOpen, FlaskConical, Target, RefreshCw, Check, X, Loader2 } from 'lu
 import { Button, Card } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription } from '@/lib/subscription';
+import { getAttributionTag } from '@/lib/attribution';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -103,9 +104,14 @@ export default function Pricing() {
     setBusy(true);
     setError(null);
     try {
+      const attributionTag = getAttributionTag();
       const res = await fetch(`${API_BASE}/billing/checkout`, {
         method: 'POST',
         credentials: 'include',
+        ...(attributionTag ? {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attribution_tag: attributionTag }),
+        } : {}),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || data.message || 'Checkout failed. Please try again.');

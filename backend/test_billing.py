@@ -199,6 +199,85 @@ def test_checkout_reuses_existing_customer():
     assert "customer_create" not in _calls  # no duplicate customer
 
 
+def _checkout(cookies, attribution_tag=None):
+    import json
+
+    if attribution_tag is None:
+        return client.post("/api/billing/checkout", cookies=cookies)
+    return client.post(
+        "/api/billing/checkout",
+        cookies=cookies,
+        content=json.dumps({"attribution_tag": attribution_tag}).encode(),
+        headers={"Content-Type": "application/json"},
+    )
+
+
+def test_checkout_passes_ventoryn_attribution_when_configured(monkeypatch):
+    monkeypatch.setenv("VENTORYN_SITE_ID", "site_road2cissp")
+    cookies, uid = _signed_in()
+    r = _checkout(cookies, attribution_tag="vtn_abc123.def456")
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"] == {
+        "user_id": uid,
+        "ventoryn_site_id": "site_road2cissp",
+        "ventoryn_tag": "vtn_abc123.def456",
+    }
+    with db.SessionLocal() as s:
+        from db_models import User
+
+        assert s.get(User, uid).attribution_tag == "vtn_abc123.def456"
+
+
+def test_checkout_ignores_attribution_without_site_id_configured():
+    # VENTORYN_SITE_ID is not set by default (setup_function only sets
+    # Stripe keys) — attribution metadata must stay off, never partially
+    # applied, but the tag is still recorded on the user's own row.
+    cookies, uid = _signed_in()
+    r = _checkout(cookies, attribution_tag="vtn_abc123.def456")
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"] == {"user_id": uid}
+    with db.SessionLocal() as s:
+        from db_models import User
+
+        assert s.get(User, uid).attribution_tag == "vtn_abc123.def456"
+
+
+def test_checkout_rejects_malformed_attribution_tag(monkeypatch):
+    monkeypatch.setenv("VENTORYN_SITE_ID", "site_road2cissp")
+    cookies, uid = _signed_in()
+    r = _checkout(cookies, attribution_tag="<script>alert(1)</script>")
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"] == {"user_id": uid}
+    with db.SessionLocal() as s:
+        from db_models import User
+
+        assert s.get(User, uid).attribution_tag is None
+
+
+def test_checkout_attribution_is_first_touch_only(monkeypatch):
+    monkeypatch.setenv("VENTORYN_SITE_ID", "site_road2cissp")
+    cookies, uid = _signed_in()
+    _checkout(cookies, attribution_tag="vtn_first.aaa111")
+    r = _checkout(cookies, attribution_tag="vtn_second.bbb222")
+    assert r.status_code == 200
+    # Later checkout calls still pass through whatever tag arrives (the
+    # frontend itself is first-touch — see attribution.test.js), but the
+    # user's own recorded tag never changes once set.
+    assert _calls["checkout_create"]["metadata"]["ventoryn_tag"] == "vtn_second.bbb222"
+    with db.SessionLocal() as s:
+        from db_models import User
+
+        assert s.get(User, uid).attribution_tag == "vtn_first.aaa111"
+
+
+def test_checkout_works_with_no_body_at_all():
+    # The existing no-body call path (pre-attribution) must keep working.
+    cookies, uid = _signed_in()
+    r = client.post("/api/billing/checkout", cookies=cookies)
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"] == {"user_id": uid}
+
+
 def test_checkout_503_without_price():
     cookies, _ = _signed_in()
     os.environ.pop("STRIPE_PRICE_ID")

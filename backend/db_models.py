@@ -33,6 +33,10 @@ class User(Base):
     email: Mapped[str | None] = mapped_column(String(320), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Ventoryn campaign attribution: the vtn_ tag from the first signed
+    # link that brought this visitor in (see backend/billing.py). First
+    # touch only — never overwritten. None for the vast majority of users.
+    attribution_tag: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
     identities: Mapped[list["Identity"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 

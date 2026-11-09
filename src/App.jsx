@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -14,6 +14,7 @@ import AcronymTooltips from '@/components/AcronymTooltips';
 import AppShell from '@/components/shell/AppShell';
 import { TutorProvider } from '@/components/shell/TutorContext';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { captureAttributionTag } from '@/lib/attribution';
 // Eager: the first-paint / common entry pages. Everything heavy or secondary is
 // lazy-loaded below so it doesn't bloat the initial bundle (the Three.js-backed
 // Visual Lab and lab workspace especially). Lazy routes render inside the
@@ -57,6 +58,13 @@ const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/Desi
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+
+  // Capture a Ventoryn campaign tag from the URL once per load,
+  // regardless of which page a signed link points to. First touch
+  // only — see src/lib/attribution.js.
+  useEffect(() => {
+    captureAttributionTag();
+  }, []);
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
