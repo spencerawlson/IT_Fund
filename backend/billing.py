@@ -153,15 +153,30 @@ PRICE_FALLBACK = {"configured": False, "display": "$19", "interval": "month"}
 _ATTRIBUTION_TAG_RE = re.compile(r"^vtn_[A-Za-z0-9_.-]{1,120}$")
 
 
+#: Road to CISSP's site id on Ventoryn. Every Checkout carries it so
+#: Ventoryn counts the sale as a paying customer (unattributed unless a
+#: campaign tag rides along). VENTORYN_SITE_ID overrides it; "off" (or
+#: anything that is not 24 hex chars) turns the metadata off.
+VENTORYN_SITE_ID_DEFAULT = "418e926be25e251d95badb9e"
+_VENTORYN_SITE_ID_RE = re.compile(r"^[0-9a-f]{24}$")
+
+
+def _ventoryn_site_id() -> str | None:
+    site_id = os.environ.get("VENTORYN_SITE_ID", VENTORYN_SITE_ID_DEFAULT).strip()
+    return site_id if _VENTORYN_SITE_ID_RE.match(site_id) else None
+
+
 def _attribution_metadata(attribution_tag: str | None) -> dict:
-    """Ventoryn campaign-attribution metadata for a Checkout Session.
-    Empty when the tag is missing/invalid, or when this deployment has
-    no VENTORYN_SITE_ID configured — attribution is opt-in and never
-    blocks or alters checkout when unset."""
-    site_id = os.environ.get("VENTORYN_SITE_ID")
-    if not site_id or not attribution_tag or not _ATTRIBUTION_TAG_RE.match(attribution_tag):
+    """Ventoryn metadata for a Checkout Session: the site id always
+    (unless turned off), plus the campaign tag when it is present and
+    well-formed. Never blocks or alters checkout itself."""
+    site_id = _ventoryn_site_id()
+    if not site_id:
         return {}
-    return {"ventoryn_site_id": site_id, "ventoryn_tag": attribution_tag}
+    meta = {"ventoryn_site_id": site_id}
+    if attribution_tag and _ATTRIBUTION_TAG_RE.match(attribution_tag):
+        meta["ventoryn_tag"] = attribution_tag
+    return meta
 
 
 def _record_attribution(user_id: str, attribution_tag: str) -> None:
