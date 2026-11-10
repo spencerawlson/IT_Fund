@@ -213,13 +213,13 @@ def _checkout(cookies, attribution_tag=None):
 
 
 def test_checkout_passes_ventoryn_attribution_when_configured(monkeypatch):
-    monkeypatch.setenv("VENTORYN_SITE_ID", "site_road2cissp")
+    monkeypatch.setenv("VENTORYN_SITE_ID", "aaaaaaaaaaaaaaaaaaaaaaaa")
     cookies, uid = _signed_in()
     r = _checkout(cookies, attribution_tag="vtn_abc123.def456")
     assert r.status_code == 200
     assert _calls["checkout_create"]["metadata"] == {
         "user_id": uid,
-        "ventoryn_site_id": "site_road2cissp",
+        "ventoryn_site_id": "aaaaaaaaaaaaaaaaaaaaaaaa",
         "ventoryn_tag": "vtn_abc123.def456",
     }
     with db.SessionLocal() as s:
@@ -228,10 +228,20 @@ def test_checkout_passes_ventoryn_attribution_when_configured(monkeypatch):
         assert s.get(User, uid).attribution_tag == "vtn_abc123.def456"
 
 
-def test_checkout_ignores_attribution_without_site_id_configured():
-    # VENTORYN_SITE_ID is not set by default (setup_function only sets
-    # Stripe keys) — attribution metadata must stay off, never partially
-    # applied, but the tag is still recorded on the user's own row.
+def test_checkout_always_carries_the_default_site_id():
+    # No VENTORYN_SITE_ID set: the Road to CISSP default is used, so
+    # Ventoryn counts every sale (attributed when a tag rides along).
+    cookies, uid = _signed_in()
+    r = _checkout(cookies)
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"] == {
+        "user_id": uid, "ventoryn_site_id": "418e926be25e251d95badb9e"}
+
+
+def test_checkout_ventoryn_metadata_can_be_turned_off(monkeypatch):
+    # "off" (or any malformed id) keeps Ventoryn metadata out entirely,
+    # but the tag is still recorded on the user's own row.
+    monkeypatch.setenv("VENTORYN_SITE_ID", "off")
     cookies, uid = _signed_in()
     r = _checkout(cookies, attribution_tag="vtn_abc123.def456")
     assert r.status_code == 200
@@ -243,11 +253,12 @@ def test_checkout_ignores_attribution_without_site_id_configured():
 
 
 def test_checkout_rejects_malformed_attribution_tag(monkeypatch):
-    monkeypatch.setenv("VENTORYN_SITE_ID", "site_road2cissp")
+    monkeypatch.setenv("VENTORYN_SITE_ID", "aaaaaaaaaaaaaaaaaaaaaaaa")
     cookies, uid = _signed_in()
     r = _checkout(cookies, attribution_tag="<script>alert(1)</script>")
     assert r.status_code == 200
-    assert _calls["checkout_create"]["metadata"] == {"user_id": uid}
+    assert _calls["checkout_create"]["metadata"] == {
+        "user_id": uid, "ventoryn_site_id": "aaaaaaaaaaaaaaaaaaaaaaaa"}
     with db.SessionLocal() as s:
         from db_models import User
 
@@ -255,7 +266,7 @@ def test_checkout_rejects_malformed_attribution_tag(monkeypatch):
 
 
 def test_checkout_attribution_is_first_touch_only(monkeypatch):
-    monkeypatch.setenv("VENTORYN_SITE_ID", "site_road2cissp")
+    monkeypatch.setenv("VENTORYN_SITE_ID", "aaaaaaaaaaaaaaaaaaaaaaaa")
     cookies, uid = _signed_in()
     _checkout(cookies, attribution_tag="vtn_first.aaa111")
     r = _checkout(cookies, attribution_tag="vtn_second.bbb222")
@@ -275,7 +286,8 @@ def test_checkout_works_with_no_body_at_all():
     cookies, uid = _signed_in()
     r = client.post("/api/billing/checkout", cookies=cookies)
     assert r.status_code == 200
-    assert _calls["checkout_create"]["metadata"] == {"user_id": uid}
+    assert _calls["checkout_create"]["metadata"] == {
+        "user_id": uid, "ventoryn_site_id": "418e926be25e251d95badb9e"}
 
 
 def test_checkout_503_without_price():
