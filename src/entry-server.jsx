@@ -52,14 +52,23 @@ export async function render(url) {
       {element}
     </SeoCollectorContext.Provider>,
   );
-  // Let the dynamic imports resolve.
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  // Pass 2: the real render, with lazy routes resolved.
-  const seoCollector = collector();
-  const html = renderToString(
-    <SeoCollectorContext.Provider value={seoCollector}>
-      {element}
-    </SeoCollectorContext.Provider>,
-  );
+  // Then render until the route's page has actually loaded (its <Seo>
+  // registered). One tick is not always enough: a lazy route that picks
+  // a named export (import(...).then(m => ...)) loads its chunk from disk
+  // and resolves a step later, so it still showed the Suspense fallback —
+  // /academy/paths failed the build that way. Bounded: a page with no
+  // <Seo> still fails loudly in scripts/prerender.mjs.
+  let seoCollector = collector();
+  let html = '';
+  for (let pass = 0; pass < 20; pass += 1) {
+    await new Promise((resolve) => setTimeout(resolve, pass === 0 ? 0 : 25));
+    seoCollector = collector();
+    html = renderToString(
+      <SeoCollectorContext.Provider value={seoCollector}>
+        {element}
+      </SeoCollectorContext.Provider>,
+    );
+    if (seoCollector.seo) break;
+  }
   return { html, seo: seoCollector.seo };
 }

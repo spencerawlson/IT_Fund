@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 
 // Per-route SEO for the SPA: sets the title, description, canonical, and the
 // Open Graph / Twitter tags that change per page, plus optional JSON-LD. No
