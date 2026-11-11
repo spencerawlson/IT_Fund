@@ -75,7 +75,7 @@ function ReviewHero({ due }) {
 }
 
 /** Home: the one next lesson, then review, then where you are on your path. */
-const LANDING_TITLE = 'Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training';
+const LANDING_TITLE = 'Road to CISSP — Networking, Security & Cloud Training';
 
 export default function Academy() {
   const state = useAcademy();
