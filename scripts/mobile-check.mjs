@@ -42,6 +42,13 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
   const context = await browser.newContext({ ...device, reducedMotion: 'reduce' });
   // Ambient background off: its CSS animation would make the pixel comparison meaningless.
   await context.addInitScript(() => { try { localStorage.setItem('itfund-ambient-bg', 'off'); } catch { /* ignore */ } });
+  // No backend runs here: answer the API at once as a signed-out visitor.
+  // Left to the preview proxy, each call hangs on a refused connection;
+  // WebKit keeps those sockets across navigations until its per-host pool
+  // is full, and every later page stays blank waiting for its own scripts.
+  await context.route('**/api/**', (route) => route.fulfill({
+    status: 401, contentType: 'application/json', body: '{"detail":"Not signed in"}',
+  }));
   const page = await context.newPage();
   const errors = [];
   const consoleErrors = [];
