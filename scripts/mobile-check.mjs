@@ -64,7 +64,10 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
     errors.length = 0;
     consoleErrors.length = 0;
     await page.goto(BASE + path, { waitUntil: 'load' });
-    await page.waitForTimeout(1200);
+    // Wait for the page to actually render (its <h1>), not a fixed delay:
+    // WebKit on a CI runner can take several seconds to boot the app.
+    await page.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(600);
     const m = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth - innerWidth,
       acronyms: CSS.highlights?.get('acronym')?.size ?? 0,
@@ -84,6 +87,7 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
   // line boxes — not the element height: buttons are 44px tall on purpose
   // (touch targets), which is not wrapping.
   await page.goto(BASE + '/', { waitUntil: 'load' });
+  await page.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
   await page.waitForTimeout(800);
   const header = await page.evaluate(() =>
     [...document.querySelectorAll('header span, header a')].filter((e) => e.offsetHeight).map((e) => {
@@ -109,9 +113,10 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
 
   // Tap a plain-text acronym: tooltip appears; tap elsewhere: it closes.
   await page.goto(BASE + '/app', { waitUntil: 'load' });
+  await page.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
   await page.waitForTimeout(1200);
   const pt = await page.evaluate(() => {
-    for (const r of CSS.highlights.get('acronym')) {
+    for (const r of CSS.highlights?.get('acronym') || []) {
       const b = r.getBoundingClientRect();
       if (b.width && b.top > 100 && b.bottom < innerHeight - 120 && !r.startContainer.parentElement.closest('a,button')) {
         return { t: r.toString(), x: b.left + b.width / 2, y: b.top + b.height / 2 };
