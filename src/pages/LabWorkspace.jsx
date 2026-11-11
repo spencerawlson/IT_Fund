@@ -8,6 +8,7 @@ import TopologyBuilder from '@/components/labs/TopologyBuilder';
 import { getMission } from '@/data/missions';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
+import { recordVerifiedLabCompletion } from '@/lib/academy';
 import { useSubscription, isLabFree } from '@/lib/subscription';
 import { LESSONS_FOR_LAB } from '@/data/labLessons';
 import UpgradePrompt from '@/components/UpgradePrompt';
@@ -211,11 +212,18 @@ export default function LabWorkspace() {
 
   // Record the completion (with its duration) the first time this session completes,
   // so the lab progress page can show per-lab times. History lives in this browser.
+  // Lab -> academy XP (Spencer's rule, 2026-11-11): only a SERVER-VERIFIED
+  // completion earns XP and marks the related lessons complete. An attested-only
+  // ("I did this") completion still shows as done in lab progress, but earns
+  // nothing and marks nothing — the session's `attested` flag is the gate.
   const recordedRef = useRef(new Set());
   useEffect(() => {
     if (session?.status === 'COMPLETED' && session.completed_at && !recordedRef.current.has(session.id)) {
       recordedRef.current.add(session.id);
-      recordLabCompletion(session.lab_id, session.started_at, session.completed_at);
+      recordLabCompletion(session.lab_id, session.started_at, session.completed_at, session.attested);
+      if (!session.attested) {
+        recordVerifiedLabCompletion(session.lab_id, LESSONS_FOR_LAB[session.lab_id] || []);
+      }
     }
   }, [session]);
 

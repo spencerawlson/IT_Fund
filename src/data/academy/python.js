@@ -14,7 +14,6 @@ export default {
         id: 'py-basics',
         title: 'Syntax & Data Types',
         summary: 'Variables, types, operators, and printing.',
-        cissp: [8],
         sources: ['py-tutorial', 'cs50p', 'py4e'],
         cards: [
           ['What does `type(3.0)` return?', "<class 'float'>", 'Any literal with a decimal point is a float.', ["<class 'int'>", "<class 'str'>", "<class 'decimal'>"]],
@@ -35,7 +34,6 @@ export default {
         id: 'py-flow',
         title: 'Control Flow & Functions',
         summary: 'if/elif/else, loops, and defining functions.',
-        cissp: [8],
         sources: ['py-tutorial', 'cs50p', 'automate'],
         cards: [
           ['What keyword starts an "else if" branch in Python?', 'elif', 'Python uses elif, not "else if" or "elseif".', ['elseif', 'else if', 'orif']],
@@ -55,7 +53,6 @@ export default {
         id: 'py-collections',
         title: 'Lists, Dicts, Sets & Tuples',
         summary: 'Core data structures and when to use each.',
-        cissp: [8],
         sources: ['py-tutorial', 'py4e', 'realpython'],
         cards: [
           ['Which collection is ordered and mutable?', 'list', 'Lists keep insertion order and support append, insert, and remove.', ['tuple', 'set', 'frozenset']],
@@ -77,7 +74,7 @@ export default {
         id: 'py-files-errors',
         title: 'Files, Errors & Modules',
         summary: 'Reading/writing files, exceptions, imports, and virtual environments.',
-        cissp: [8, 7],
+        cissp: [7],
         sources: ['automate', 'py-tutorial', 'realpython'],
         cards: [
           ['Why open files with `with open(path) as f:`?', 'The file is closed automatically, even on error', 'with uses a context manager that guarantees cleanup.', ['It reads faster', 'It locks the file for other users', 'It is required for text files']],
@@ -97,7 +94,6 @@ export default {
         id: 'py-oop',
         title: 'OOP & Pythonic Code',
         summary: 'Classes, dunder methods, generators, and decorators.',
-        cissp: [8],
         sources: ['realpython', 'py-tutorial', 'pep8'],
         cards: [
           ['What is `self` in a method?', 'The instance the method was called on', 'Python passes it explicitly as the first parameter.', ['The class itself', 'A reserved global', 'The parent class']],
@@ -117,7 +113,7 @@ export default {
         id: 'py-automation',
         title: 'Automation & APIs',
         summary: 'Scripting the OS, HTTP APIs, regex, and CSV/log parsing.',
-        cissp: [7, 8],
+        cissp: [7],
         sources: ['automate', 'realpython'],
         cards: [
           ['Which third-party library is the de facto standard for HTTP requests?', 'requests', 'requests.get(url, timeout=5).json(). Always set a timeout.', ['urllib3 only', 'httpd', 'socketserver']],
@@ -139,7 +135,6 @@ export default {
         id: 'py-concurrency',
         title: 'Concurrency & Performance',
         summary: 'Threads, processes, asyncio, the GIL, and profiling.',
-        cissp: [8],
         sources: ['realpython', 'py-tutorial'],
         cards: [
           ['What is the GIL?', 'A lock letting only one thread run Python bytecode at a time', 'CPython 3.13+ offers an experimental free-threaded build without it.', ['A garbage collector', 'A package manager', 'A type checker']],
@@ -158,7 +153,7 @@ export default {
         id: 'py-testing-packaging',
         title: 'Testing, Packaging & Quality',
         summary: 'pytest, mocking, packaging, and dependency security.',
-        cissp: [8, 6],
+        cissp: [6],
         sources: ['realpython', 'pep8'],
         cards: [
           ['What is the most popular Python test framework?', 'pytest', 'Plain assert statements plus fixtures and parametrisation.', ['unittest2', 'nose', 'jest']],

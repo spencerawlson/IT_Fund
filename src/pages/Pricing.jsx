@@ -12,7 +12,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const FEATURES = [
   { icon: BookOpen, title: 'Every track, every lesson', text: 'Networking, Security+, Linux, Python, Cloud, and the CISSP capstone — all flashcards, lessons, and cheat sheets.' },
-  { icon: FlaskConical, title: 'All 23+ hands-on labs', text: 'Real terminals: Cisco IOS, Linux triage, Python automation, cloud sandboxes. The free tier gets one; members get them all.' },
+  { icon: FlaskConical, title: 'All 23+ hands-on labs', text: 'Real terminals: Cisco IOS, Linux triage, Python automation, cloud sandboxes. The free tier gets two; members get them all.' },
   { icon: Target, title: 'Exam simulators', text: 'Timed Security+ and CISSP practice exams with domain-weighted scoring and per-domain breakdowns.' },
   { icon: RefreshCw, title: 'Progress that syncs', text: 'Streaks, XP, badges, and Leitner review saved to your account across every device.' },
 ];
@@ -27,8 +27,16 @@ const FAQS = [
     a: 'Nothing is deleted. Your streaks, XP, badges, and history stay on your account. You drop back to the free tier until you resubscribe.',
   },
   {
+    q: 'What if I want a refund?',
+    a: 'If this is your first subscription and you ask within 14 days of subscribing, you get your money back — email support@road2cissp.com with the date you subscribed. After that, refunds are decided case by case. A subscription refunded in full loses access and is cancelled, so you are not charged again.',
+  },
+  {
+    q: 'What happens if my payment fails?',
+    a: 'Your subscription goes past due and you keep full access for 7 days while you fix the payment — update your card in the Stripe Customer Portal, reached from your account page. After 7 days without a successful payment, access is revoked until you resubscribe.',
+  },
+  {
     q: 'What exactly is free?',
-    a: 'Three sample lessons, 50 flashcards, two hands-on labs, and all marketing pages — no account or payment needed. Everything beyond that needs the subscription.',
+    a: 'Five sample lessons, 57 flashcards, two hands-on labs, and all marketing pages — no account or payment needed. Everything beyond that needs the subscription.',
   },
   {
     q: 'Is this enough to pass Security+ or CISSP?',

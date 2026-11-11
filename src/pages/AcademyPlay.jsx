@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
-import { ArrowLeft, ArrowRight, RotateCcw, Check, X, Sparkles, Lock, SearchX, FlaskConical } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Check, X, Sparkles, Lock, SearchX, FlaskConical, Loader2 } from 'lucide-react';
 import { Button, Card, EmptyState } from '@/components/ui-glass';
 import { ACTION } from '@/lib/design/tokens';
 import FlashDeck from '@/components/academy/FlashDeck';
@@ -14,6 +14,7 @@ import {
 } from '@/lib/academy';
 import { isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
 import { useSubscription, isDeckFree } from '@/lib/subscription';
+import { getDeckCards, resolveCards } from '@/lib/content';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { getModule } from '@/data/catalog';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
@@ -60,26 +61,44 @@ export default function AcademyPlay({ kind }) {
   const color = ACTION.action;
 
   // Build the session once per round; progress updates must not reshuffle it mid-play.
-  const session = useMemo(() => {
-    if (kind === 'review') {
-      // Most urgent first (then shuffled for play), only from lessons the learner can open.
-      const due = shuffle(reviewQueue(state, REVIEW_BATCH));
-      // Nothing due yet: keep practising earlier lessons, weakest cards first.
-      return due.length ? { cards: due } : { cards: shuffle(pastLessonCards(state, null, LEARN_BATCH)), extra: true };
-    }
-    if (kind === 'boss' && tier) {
-      const pool = tier.decks.flatMap((d) => d.cards);
-      const earlierCards = assessmentReviewCards(state, getModule(`${track.id}:${tier.id}`), BOSS_EARLIER);
-      const earlier = earlierCards.map((card) => {
-        const source = getDeck(card.deckId);
-        return { ...buildQuestions([card], source.cards, 1)[0], earlier: source.title };
-      });
-      return { questions: shuffle([...buildQuestions(pool, pool, BOSS_LENGTH - earlier.length), ...earlier]) };
-    }
-    if (deck) {
-      return mode === 'quiz' ? { questions: buildQuestions(deck.cards, deck.cards, QUIZ_LENGTH) } : { cards: learnOrder(state, deck.cards) };
-    }
-    return null;
+  // Card bodies are resolved here (free decks are bundled; premium decks come
+  // from the entitled content API), so the session only ever holds full cards.
+  const [session, setSession] = useState(null);
+  const [loadError, setLoadError] = useState(null);
+  useEffect(() => {
+    let live = true;
+    setSession(null);
+    setLoadError(null);
+    (async () => {
+      try {
+        let built = null;
+        if (kind === 'review') {
+          // Most urgent first (then shuffled for play), only from lessons the learner can open.
+          // Cards the learner is not entitled to are dropped by resolveCards, never faked.
+          const due = shuffle(await resolveCards(reviewQueue(state, REVIEW_BATCH)));
+          // Nothing due yet: keep practising earlier lessons, weakest cards first.
+          built = due.length
+            ? { cards: due }
+            : { cards: shuffle(await resolveCards(pastLessonCards(state, null, LEARN_BATCH))), extra: true };
+        } else if (kind === 'boss' && tier) {
+          const pool = (await Promise.all(tier.decks.map((d) => getDeckCards(d.id)))).flat();
+          const earlierFull = await resolveCards(assessmentReviewCards(state, getModule(`${track.id}:${tier.id}`), BOSS_EARLIER));
+          const earlier = await Promise.all(earlierFull.map(async (card) => {
+            const source = getDeck(card.deckId);
+            const sourceCards = await getDeckCards(card.deckId);
+            return { ...buildQuestions([card], sourceCards, 1)[0], earlier: source.title };
+          }));
+          built = { questions: shuffle([...buildQuestions(pool, pool, BOSS_LENGTH - earlier.length), ...earlier]) };
+        } else if (deck) {
+          const cards = await getDeckCards(deck.id);
+          built = mode === 'quiz' ? { questions: buildQuestions(cards, cards, QUIZ_LENGTH) } : { cards: learnOrder(state, cards) };
+        }
+        if (live) setSession(built);
+      } catch (err) {
+        if (live) setLoadError(err);
+      }
+    })();
+    return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind, deckId, tierId, mode, round]);
 
@@ -122,6 +141,25 @@ export default function AcademyPlay({ kind }) {
     body = <EmptyState icon={SearchX} title="Not found" text="This quiz may have moved." to="/app" action="Back to Home" />;
   } else if (kind === 'deck' && deck && !subLoading && !subscribed && !isDeckFree(deck.id)) {
     body = <UpgradePrompt what={`The “${deck.title}” deck`} />;
+  } else if (loadError && (loadError.status === 401 || loadError.status === 402) && kind === 'deck' && deck) {
+    body = <UpgradePrompt what={`The “${deck.title}” deck`} />;
+  } else if (loadError) {
+    body = (
+      <Card level={2} padding="lg" className="mx-auto max-w-md text-center">
+        <h2 className="text-heading text-ink-1">Couldn’t load this session</h2>
+        <p className="mt-2 text-body text-ink-2">Check your connection and try again.</p>
+        <div className="mt-6 flex justify-center">
+          <Button variant="secondary" icon={RotateCcw} onClick={restart}>Retry</Button>
+        </div>
+      </Card>
+    );
+  } else if (!session) {
+    body = (
+      <div className="flex flex-col items-center py-16 text-center">
+        <Loader2 size={28} className="animate-spin text-action" aria-hidden="true" />
+        <p className="mt-4 text-body text-ink-2">Loading {deck?.title || 'your session'}…</p>
+      </div>
+    );
     // Lessons are all open; a module's assessment still waits until its lessons are passed, since
     // it is that module's final check and draws its questions from them.
   } else if (!result && kind === 'boss' && !isTierComplete(state, track, tierIndex)) {

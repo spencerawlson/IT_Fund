@@ -17,6 +17,11 @@ export const SeoCollectorContext = createContext(null);
 
 const SITE = 'https://www.road2cissp.com';
 
+// The site-wide default, matching the <meta name="robots"> in index.html.
+// Pages that pass no `robots` prop get this, so navigating away from a
+// noindex page (e.g. a 404) never leaves "noindex" behind in <head>.
+export const DEFAULT_ROBOTS = 'index, follow, max-image-preview:large';
+
 function upsertMeta(attr, key, content) {
   if (!content) return;
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);
@@ -44,11 +49,13 @@ function upsertLink(rel, href) {
  * @param {string} description  meta description (<=~160 chars)
  * @param {string} path         route path, e.g. "/pricing" (canonical = SITE + path)
  * @param {object} [jsonLd]     optional schema.org object injected as ld+json
+ * @param {string} [robots]     robots meta content, e.g. "noindex" for 404
+ *                              states (defaults to the site-wide index rule)
  */
-export default function Seo({ title, description, path = '/', jsonLd }) {
+export default function Seo({ title, description, path = '/', jsonLd, robots }) {
   const collector = useContext(SeoCollectorContext);
   if (typeof window === 'undefined' && collector) {
-    collector.register({ title, description, path, jsonLd });
+    collector.register({ title, description, path, jsonLd, robots: robots || DEFAULT_ROBOTS });
   }
 
   useEffect(() => {
@@ -56,6 +63,7 @@ export default function Seo({ title, description, path = '/', jsonLd }) {
     const url = `${SITE}${path}`;
     if (title) document.title = title;
     upsertMeta('name', 'description', description);
+    upsertMeta('name', 'robots', robots || DEFAULT_ROBOTS);
     upsertLink('canonical', url);
     upsertMeta('property', 'og:title', title);
     upsertMeta('property', 'og:description', description);
@@ -72,7 +80,7 @@ export default function Seo({ title, description, path = '/', jsonLd }) {
       document.head.appendChild(script);
     }
     return () => { if (script) script.remove(); };
-  }, [title, description, path, jsonLd]);
+  }, [title, description, path, jsonLd, robots]);
 
   return null;
 }

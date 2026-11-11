@@ -39,6 +39,19 @@ describe('mergeProgress', () => {
     expect(m.mastered).toEqual({ d1: true, d2: true });
   });
 
+  it('keeps verified labs and lab-marked lessons across a merge', () => {
+    // A cross-device sync must never un-complete a lesson or re-arm the
+    // one-time lab XP guard.
+    const a = { lessons: { l1: { best: 60, at: 5 } }, labs: {} };
+    const b = { lessons: { l1: { at: 9, via: 'lab' } }, labs: { 'py-basics-001': { verified: true, at: 9 } } };
+    const m = mergeProgress(a, b);
+    expect(m.lessons.l1).toEqual({ best: 60, at: 5, via: 'lab' }); // score kept, provenance kept
+    expect(m.labs['py-basics-001']).toEqual({ verified: true, at: 9 });
+    const m2 = mergeProgress(b, a);
+    expect(m2.lessons.l1.via).toBe('lab'); // order-independent
+    expect(m2.labs['py-basics-001'].verified).toBe(true);
+  });
+
   it('keeps the streak with the higher count, tie by later date', () => {
     expect(mergeProgress({ streak: { count: 3, last: '2026-01-03' } }, { streak: { count: 5, last: '2026-01-01' } }).streak.count).toBe(5);
     expect(mergeProgress({ streak: { count: 3, last: '2026-01-03' } }, { streak: { count: 3, last: '2026-01-09' } }).streak.last).toBe('2026-01-09');

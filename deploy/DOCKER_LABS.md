@@ -1,6 +1,6 @@
 # Docker-backed labs — FedServ runbook
 
-Twenty-eight labs now run for real in hardened per-session containers instead
+Twenty-nine labs now run for real in hardened per-session containers instead
 of simulating. Learners get real tools, real output — and attest each objective
 with "I did this" in the workspace (the server no longer fabricates findings
 for these labs).
@@ -29,6 +29,7 @@ for these labs).
 | linux-hardening-001 — Hardening Capstone | road-to-cissp/linux-admin-hardening |
 | tools-wireshark-001 — Wireshark / tshark Packet Analysis | road-to-cissp/wireshark |
 | sec-webapp-001 — Web Application Testing | road-to-cissp/webapp |
+| sec-pentest-web-001 — Web App Pentest: Full Exploitation Chain | road-to-cissp/pentest-web |
 | sec-gitleaks-001 — Secret Scanning with Gitleaks | road-to-cissp/gitleaks |
 | sec-trivy-001 — Container Image Scanning with Trivy | road-to-cissp/trivy |
 | iac-policy-001 — Terraform Policy as Code | road-to-cissp/iac-policy |
@@ -36,11 +37,13 @@ for these labs).
 | py-sqli-001 — SQL Injection: Find & Fix | road-to-cissp/python-tools |
 | py-semgrep-001 — Static Analysis with Semgrep | road-to-cissp/python-tools |
 
-The remaining 26 labs stay simulated on purpose: 12 networking labs emulate
-Cisco IOS (no container equivalent), 5 need real cloud credentials, 2 need
-Docker-in-Docker (incompatible with the hardened provider), and 7 are bespoke
-simulator workbenches (SIEM, vuln-management, IAM, pentest methodology, Linux
-terminal) where the simulation *is* the pedagogy.
+The remaining 32 labs stay simulated on purpose: 12 networking labs emulate
+Cisco IOS (no container equivalent), 6 are topology-builder workbenches, 5 are
+Terraform-for-cloud labs (AWS/Azure/GCP/Proxmox/K8s-Docker) that need real
+cloud accounts, 2 need Docker-in-Docker (incompatible with the hardened
+provider), and 7 are bespoke simulator workbenches (SIEM, vuln-management, IAM,
+pentest methodology, Linux terminal, AWS CLI fundamentals, Kubernetes) where the
+simulation *is* the pedagogy.
 
 ## One-time setup (on FedServ)
 
@@ -103,9 +106,9 @@ curl -s https://api.road2cissp.com/health
 
 - **Phase 3 images `linux-admin` and `linux-admin-hardening`:** their Dockerfiles
   (`backend/labs/images/Dockerfile.linux-admin`,
-  `backend/labs/images/Dockerfile.linux-admin-hardening`) are created directly
-  on FedServ — copy the contents from the Phase 3 report, then run
-  `./build.sh linux-admin && ./build.sh linux-admin-hardening`.
+  `backend/labs/images/Dockerfile.linux-admin-hardening`) are tracked in the repo
+  and built by `./build.sh` (all) — `linux-admin-hardening` FROMs `linux-admin`,
+  so it is built second. No out-of-band provisioning is needed.
 - Linux labs (039–046) run on an unprivileged container, so the honest
   boundaries are stated in each lab description: user/group/shadow edits apply
   to a practice root (`~/sysroot`) with byte-identical file formats; sshd runs

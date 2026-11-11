@@ -151,7 +151,7 @@ export default {
         id: 'lx-bash',
         title: 'Bash Scripting',
         summary: 'Variables, conditionals, loops, functions, and safe scripting.',
-        cissp: [8, 7],
+        cissp: [7],
         sources: ['tldr', 'comptia-linux'],
         cards: [
           ['What should the first line of a bash script be?', '`#!/usr/bin/env bash`', 'The shebang tells the kernel which interpreter to run. env finds bash via PATH, so it is portable.', ['`#bash`', '`use bash;`', '`#!/bin/bash` is the only correct form']],

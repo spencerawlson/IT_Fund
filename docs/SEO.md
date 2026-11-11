@@ -60,13 +60,17 @@ plain `vite build`:
   each H1 is a real direct answer; LabLauncher got a screen-reader `<h1>` +
   description (its UI is a terminal, so it had no heading at all).
 - **Known remaining audit findings** (measured with the ecosystem `analyze`
-  program against the built `dist/`, 2026-11-08 — site **100/100**, GEO
-  **89/100**, up from site 60/100, GEO 20/100, 11 findings): FAQ sections
+  program against the built `dist/` — build output only, NOT the live site —
+  2026-11-08 — site **100/100**, GEO **89/100**, up from site 60/100, GEO
+  20/100, 11 findings): FAQ sections
   exist only on `/` and `/pricing`, and outbound citations only on
   `/academy/roadmap` — the GEO audit flags those on the other pages (medium
   + low). Clearing them needs FAQ sections on 7+ more pages and external
   links on 8+ more, which is a visible content decision, not a code fix —
-  left for Spencer to call.
+  left for Spencer to call. (And the live site was serving byte-identical
+  home HTML for every route until the P0-2 catch-all fix, 2026-11-11, so
+  these dist/ scores never described the live site. Re-measure live after
+  the next deploy; see `scripts/live-check.mjs`.)
 
 ## Proposed (do deliberately)
 
@@ -81,9 +85,13 @@ plain `vite build`:
    button from it (fallback `$19`); the static Product/Offer was removed from
    `index.html`.
 4. ~~**Per-page meta on the remaining public routes.**~~ DONE — `<Seo>` now
-   covers all 16 sitemap routes.
-5. **BreadcrumbList + Course JSON-LD** for `/academy/courses/*` once those routes
-   prerender (rich results for course/breadcrumb).
+   covers every sitemap route (18 after `/signin` left the sitemap,
+   2026-11-11; 19 while it was still listed).
+5. **BreadcrumbList + Course JSON-LD** for `/academy/courses/*` — STILL OPEN,
+   and still blocked on the same precondition: those are dynamic SPA routes,
+   not prerendered pages, so there is no static HTML to attach the JSON-LD
+   to. Needs a routing decision first (prerender the course routes, or serve
+   the JSON-LD another way) — not a copy fix.
 6. **Google Search Console + Bing Webmaster** — submit the sitemap, confirm the
    www canonical, watch Core Web Vitals (the main JS bundle is large; see the
    build's chunk-size warning — code-split to improve LCP).

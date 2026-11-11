@@ -50,6 +50,23 @@ def test_one_visitor_cannot_hoard_live_sessions_over_http():
     assert TestClient(main.app).post("/api/labs/net-vlan-001/start").status_code == 200
 
 
+def test_global_docker_cap_survives_guest_cookie_rotation(monkeypatch):
+    """L-06 regression: guest ids are client-chosen cookies, so rotating the
+    cookie defeats the per-owner caps. The GLOBAL live-Docker cap must still
+    refuse once the limit is reached, no matter how many identities the
+    caller mints. (Cap lowered via monkeypatch so the test need not start 50
+    real sessions; the production value is MAX_LIVE_DOCKER_SESSIONS_GLOBAL.)"""
+    monkeypatch.setattr(sessions_mod, "MAX_LIVE_DOCKER_SESSIONS_GLOBAL", 3)
+    for _ in range(3):
+        browser = TestClient(main.app)  # fresh guest cookie each time
+        assert browser.post("/api/labs/py-basics-001/start").status_code == 200
+    rotated = TestClient(main.app)
+    r = rotated.post("/api/labs/py-basics-001/start")
+    assert r.status_code == 400 and "Too many live container labs" in r.json()["detail"]
+    # Mock labs are unaffected by the Docker cap: a new guest can still start one.
+    assert TestClient(main.app).post("/api/labs/net-vlan-001/start").status_code == 200
+
+
 def test_exiting_a_lab_frees_a_slot():
     ids = [client.post("/api/labs/net-vlan-001/start").json()["id"] for _ in range(MAX_LIVE_SESSIONS_PER_OWNER)]
     assert client.post("/api/labs/net-vlan-001/start").status_code == 400

@@ -12,6 +12,13 @@ Security posture (this endpoint runs untrusted learner input):
   - Network isolation: labs with `deny_internet_egress=True` (the default, and mandatory
     for cyber labs) are attached to an *internal-only* Docker network — no outbound
     internet, no route to the host's LAN. The learner's container cannot scan the host.
+    Each session gets its OWN network (created at start, deleted at destroy), so one
+    learner's container cannot reach another learner's container either; a reused
+    network whose `internal` flag mismatches the lab's requirement is refused.
+  - Exec timeout is enforced inside the container by coreutils `timeout(1)` (present
+    in every lab image: all bases are Debian/python slim, which ship coreutils), with
+    SIGKILL 5 s after the grace period — `asyncio.wait_for` alone cannot kill the
+    blocking exec thread, so it is only a backstop for a hung daemon.
   - The Docker socket is never exposed inside the container; learners cannot manage Docker.
   - Output of every exec is truncated (32 KB) so a runaway command can't flood memory.
   - The client never chooses the image, the command's working context, or the provider —
@@ -28,6 +35,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import secrets
 import shlex
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -40,6 +48,26 @@ from labs.validators import VALIDATORS
 MAX_OUTPUT_CHARS = 32 * 1024
 #: Seconds a single command may run before it is killed.
 EXEC_TIMEOUT_SECONDS = 60
+#: Grace period `timeout(1)` gives the command after SIGTERM before SIGKILL.
+EXEC_TIMEOUT_KILL_AFTER_SECONDS = 5
+#: Backstop for a hung daemon: `timeout(1)` should already have killed the
+#: command by EXEC_TIMEOUT_SECONDS + EXEC_TIMEOUT_KILL_AFTER_SECONDS; only a
+#: daemon that never returns trips this, and the message says so honestly.
+EXEC_WAIT_SECONDS = EXEC_TIMEOUT_SECONDS + EXEC_TIMEOUT_KILL_AFTER_SECONDS + 5
+
+#: Lab whose CTF flags are generated per session (L-01b). The provider injects
+#: them as container env vars at start and keeps the expected values server-side;
+#: the seed app reads them from the environment and ships no flag literals.
+CTF_FLAG_LAB_ID = "sec-pentest-web-001"
+
+
+def _new_ctf_flags() -> dict[str, str]:
+    """Fresh random flags for one pentest-web session (FLAG-<KIND>-<6 hex>)."""
+    return {
+        "sqli": f"FLAG-SQLI-{secrets.token_hex(3)}",
+        "idor": f"FLAG-IDOR-{secrets.token_hex(3)}",
+        "cmdi": f"FLAG-CMDI-{secrets.token_hex(3)}",
+    }
 
 
 def _now() -> datetime:
@@ -59,6 +87,10 @@ class DockerLabProvider(LabProvider):
         self._client_failed: str | None = None
         # environment_id -> last activity (for idle expiry)
         self._last_used: dict[str, datetime] = {}
+        # environment_id -> per-session Docker network name (deleted in destroy_session)
+        self._session_networks: dict[str, str] = {}
+        # environment_id -> expected per-session CTF flags (sec-pentest-web-001 only)
+        self._session_flags: dict[str, dict[str, str]] = {}
 
     # ---------- daemon access ----------
 
@@ -91,10 +123,33 @@ class DockerLabProvider(LabProvider):
             return None
         return container
 
-    def _ensure_network(self, client: Any, internal: bool) -> Any:
-        for net in client.networks.list(names=[self._network_name]):
+    def _ensure_network(self, client: Any, internal: bool, name: str | None = None) -> Any:
+        """Return the named network, creating it if absent.
+
+        Fail closed on reuse: if a network with that name already exists, its
+        `internal` flag must match the lab's requirement — a pre-existing
+        non-internal network must never silently give an egress-denied lab
+        internet access (L-04). A network whose flag cannot be verified is
+        refused for the same reason.
+        """
+        name = name or self._network_name
+        for net in client.networks.list(names=[name]):
+            attrs = getattr(net, "attrs", None)
+            existing = attrs.get("Internal") if isinstance(attrs, dict) else getattr(net, "internal", None)
+            if existing is None:
+                raise LabError(
+                    "unavailable",
+                    f"Docker network '{name}' exists but its internal flag could not be verified; "
+                    "refusing to reuse it.",
+                )
+            if bool(existing) != bool(internal):
+                raise LabError(
+                    "unavailable",
+                    f"Docker network '{name}' exists with internal={bool(existing)}, but this lab "
+                    f"requires internal={bool(internal)}; refusing to reuse it.",
+                )
             return net
-        return client.networks.create(self._network_name, internal=internal, labels={"rtc": "labs"})
+        return client.networks.create(name, internal=internal, labels={"rtc": "labs"})
 
     # ---------- LabProvider interface ----------
 
@@ -105,8 +160,24 @@ class DockerLabProvider(LabProvider):
             raise LabError("invalid", f"Lab '{lab.id}' has no container image configured.")
         env_cfg = lab.environment
         now = _now()
+        # One network per session (L-04): a random name, internal=<deny_egress>,
+        # deleted in destroy_session. Two sessions never share a network.
+        network_name = f"rtc-labs-{secrets.token_hex(6)}"
+        # Per-session CTF flags (L-01b): generated here, injected as env vars so
+        # the seed app can read them, and kept server-side for validation. The
+        # image itself ships no flag values.
+        session_flags = _new_ctf_flags() if lab.id == CTF_FLAG_LAB_ID else None
+        flag_env = (
+            {
+                "CTF_FLAG_SQLI": session_flags["sqli"],
+                "CTF_FLAG_IDOR": session_flags["idor"],
+                "CTF_FLAG_CMDI": session_flags["cmdi"],
+            }
+            if session_flags is not None
+            else None
+        )
 
-        def _create() -> Any:
+        def _create() -> tuple[Any, Any]:
             try:
                 client.images.get(image)
             except Exception:
@@ -114,7 +185,7 @@ class DockerLabProvider(LabProvider):
                     client.images.pull(image)
                 except Exception as exc:
                     raise LabError("unavailable", f"Lab image '{image}' is not available: {exc}")
-            network = self._ensure_network(client, internal=env_cfg.deny_internet_egress)
+            network = self._ensure_network(client, internal=env_cfg.deny_internet_egress, name=network_name)
             owner = hashlib.sha256(user_id.encode()).hexdigest()[:16]
             container = client.containers.run(
                 image,
@@ -122,6 +193,7 @@ class DockerLabProvider(LabProvider):
                 detach=True,
                 name=f"rtc-lab-{hashlib.sha256(str(now.timestamp()).encode()).hexdigest()[:12]}",
                 network=network.name,
+                environment=flag_env,
                 mem_limit=f"{env_cfg.memory_mb}m",
                 nano_cpus=int(env_cfg.cpu_limit * 1_000_000_000),
                 pids_limit=256,
@@ -133,10 +205,10 @@ class DockerLabProvider(LabProvider):
                 extra_hosts=(env_cfg.extra_hosts or None),
                 labels={"rtc": "labs", "rtc.lab": lab.id, "rtc.owner": owner},
             )
-            return container
+            return container, network
 
         try:
-            container = await asyncio.to_thread(_create)
+            container, network = await asyncio.to_thread(_create)
         except LabError:
             raise
         except Exception as exc:  # noqa: BLE001
@@ -151,6 +223,9 @@ class DockerLabProvider(LabProvider):
             internal={"container_id": container.id, "lab_id": lab.id},
         )
         self._last_used[env_id] = now
+        self._session_networks[env_id] = network.name
+        if session_flags is not None:
+            self._session_flags[env_id] = session_flags
         return env
 
     async def get_session(self, environment_id: str) -> LabEnvironment | None:
@@ -194,15 +269,25 @@ class DockerLabProvider(LabProvider):
 
     async def destroy_session(self, environment_id: str) -> None:
         # Idempotent: destroying an unknown or already-destroyed environment is a no-op.
+        network_name = self._session_networks.pop(environment_id, None)
+        self._session_flags.pop(environment_id, None)
 
         def _destroy() -> None:
             container = self._container(environment_id)
-            if container is None:
-                return
-            try:
-                container.remove(force=True)
-            except Exception:
-                pass  # already gone / daemon hiccup: still a no-op for the caller
+            if container is not None:
+                try:
+                    container.remove(force=True)
+                except Exception:
+                    pass  # already gone / daemon hiccup: still a no-op for the caller
+            # The per-session network goes with the session (L-04), even when
+            # the container is already gone; a failure here must not fail the
+            # destroy, so swallow it.
+            if network_name is not None:
+                try:
+                    client = self._client_or_raise()
+                    client.networks.get(network_name).remove()
+                except Exception:
+                    pass
 
         await asyncio.to_thread(_destroy)
         self._last_used.pop(environment_id, None)
@@ -251,7 +336,15 @@ class DockerLabProvider(LabProvider):
         fn = VALIDATORS.get(objective.validator)
         if fn is None:  # guarded at load time; belt and braces
             return ValidationResult(objective_id, False, "No validator configured.", None)
-        passed, message, evidence = fn(objective.args, findings)
+        # Per-session CTF flags (L-01b) are injected into a COPY of the findings
+        # for validation only — never stored in the session, never sent to the
+        # client. Validators that need them read `_session_flags`; without it
+        # they fail closed (no static fallback values exist anywhere).
+        effective = dict(findings)
+        flags = self._session_flags.get(environment_id)
+        if flags is not None:
+            effective["_session_flags"] = dict(flags)
+        passed, message, evidence = fn(objective.args, effective)
         return ValidationResult(objective_id, passed, message, evidence)
 
     async def exec_command(
@@ -278,8 +371,19 @@ class DockerLabProvider(LabProvider):
             container = self._container(environment_id)
             if container is None:
                 raise LabError("not_found", "Lab environment is gone. Start the lab again.")
+            # L-02: enforce the timeout INSIDE the container with coreutils
+            # `timeout(1)` — every lab image ships it (Debian/python-slim
+            # bases). `asyncio.wait_for` alone cannot kill the blocking
+            # exec thread, so without this the process would keep running
+            # after the timeout error. `timeout` exits 124 when it kills.
+            wrapped = [
+                "timeout",
+                f"--kill-after={EXEC_TIMEOUT_KILL_AFTER_SECONDS}",
+                str(EXEC_TIMEOUT_SECONDS),
+                *argv,
+            ]
             result = container.exec_run(
-                argv,
+                wrapped,
                 stdout=True,
                 stderr=True,
                 demux=True,
@@ -296,13 +400,27 @@ class DockerLabProvider(LabProvider):
             return code, text
 
         try:
-            code, text = await asyncio.wait_for(asyncio.to_thread(_exec), timeout=EXEC_TIMEOUT_SECONDS)
+            code, text = await asyncio.wait_for(asyncio.to_thread(_exec), timeout=EXEC_WAIT_SECONDS)
         except asyncio.TimeoutError:
-            raise LabError("invalid", f"Command timed out after {EXEC_TIMEOUT_SECONDS}s and was killed.")
+            # Only a hung daemon trips this: `timeout(1)` should already have
+            # killed the command at EXEC_TIMEOUT_SECONDS + kill-after. Say so
+            # honestly instead of claiming the process was killed.
+            raise LabError(
+                "unavailable",
+                f"Command did not return within {EXEC_WAIT_SECONDS}s; the in-container timeout "
+                f"should have killed it after {EXEC_TIMEOUT_SECONDS}s, but the daemon did not "
+                "confirm — the command may still be running.",
+            )
         except LabError:
             raise
         except Exception as exc:  # noqa: BLE001
             raise LabError("unavailable", f"Command failed: {exc}")
+
+        if code == 124:
+            raise LabError(
+                "invalid",
+                f"Command timed out after {EXEC_TIMEOUT_SECONDS}s and was killed.",
+            )
 
         self._last_used[environment_id] = _now()
         if len(text) > MAX_OUTPUT_CHARS:

@@ -1,9 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   setProgressAdapter,
-  buildSecplusPracticeExam,
   scoreSecplusExam,
-  secplusExamDomainQuotas,
   startSecplusPracticeExam,
   answerSecplusExamQuestion,
   toggleSecplusExamFlag,
@@ -11,24 +9,41 @@ import {
   finishSecplusPracticeExam,
   clearSecplusPracticeExam,
   secplusExamHistory,
-  SECPLUS_DECK_DOMAIN,
   SECPLUS_EXAM_QUESTION_COUNT,
   SECPLUS_EXAM_DURATION_MIN,
   SECPLUS_EXAM_PASS_PCT,
-  // CISSP engine must keep working untouched:
-  buildPracticeExam,
+  // CISSP scorer must keep working untouched:
   scoreExam,
-  examDomainQuotas,
-  EXAM_QUESTION_COUNT,
 } from './academy';
 import { memoryAdapter } from './progress/storage';
 import { SECURITY_PLUS_DOMAINS } from '../data/academy/meta';
+
+// Exam questions are built server-side now (backend/content.py); the client
+// only scores them and runs the timed session. Builder/quota/pool coverage
+// lives in backend/test_content.py. These tests use hand-built fixtures and
+// a mocked fetch so they never touch the network.
+
+function fakeQuestions(n, domains = [1, 2, 3, 4, 5]) {
+  return Array.from({ length: n }, (_, i) => ({
+    id: `q-${i}`,
+    domain: domains[i % domains.length],
+    card: { id: `c-${i}`, deckId: 'cy-concepts', trackId: 'security', q: `Question ${i}?`, a: `Answer ${i}`, e: `Why ${i}` },
+    options: [`Answer ${i}`, `Wrong A ${i}`, `Wrong B ${i}`, `Wrong C ${i}`],
+    correct: 0,
+  }));
+}
+
+function mockFetchExam(questions) {
+  const payload = { questions, quotas: {}, shortfalls: [] };
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => payload })));
+}
 
 let store;
 beforeEach(() => {
   store = memoryAdapter();
   setProgressAdapter(store);
 });
+afterEach(() => { vi.unstubAllGlobals(); });
 
 describe('SECURITY_PLUS_DOMAINS', () => {
   it('weights sum to 100 and match the SY0-701 outline', () => {
@@ -43,68 +58,9 @@ describe('SECURITY_PLUS_DOMAINS', () => {
   });
 });
 
-describe('secplusExamDomainQuotas', () => {
-  it('sums to 90 and approximates the SY0-701 weights (largest remainder)', () => {
-    const quotas = secplusExamDomainQuotas(90);
-    expect(Object.values(quotas).reduce((s, n) => s + n, 0)).toBe(90);
-    // 12% of 90 = 10.8, 22% = 19.8, 18% = 16.2, 28% = 25.2, 20% = 18.0
-    expect(quotas).toEqual({ 1: 11, 2: 20, 3: 16, 4: 25, 5: 18 });
-  });
-});
-
-describe('SECPLUS_DECK_DOMAIN', () => {
-  it('maps the Security+ decks to valid domains', () => {
-    const tagged = Object.entries(SECPLUS_DECK_DOMAIN).filter(([, v]) => v !== null);
-    expect(tagged.length).toBeGreaterThanOrEqual(17);
-    for (const [, id] of tagged) {
-      expect(id).toBeGreaterThanOrEqual(1);
-      expect(id).toBeLessThanOrEqual(5);
-    }
-  });
-
-  it('tags the expected decks in the right domains', () => {
-    expect(SECPLUS_DECK_DOMAIN['cy-crypto']).toBe(1);
-    expect(SECPLUS_DECK_DOMAIN['cy-concepts']).toBe(1);
-    expect(SECPLUS_DECK_DOMAIN['cy-threat-actors']).toBe(2);
-    expect(SECPLUS_DECK_DOMAIN['cy-malware']).toBe(2);
-    expect(SECPLUS_DECK_DOMAIN['cy-vulns']).toBe(2);
-    expect(SECPLUS_DECK_DOMAIN['cy-cloud-arch']).toBe(3);
-    expect(SECPLUS_DECK_DOMAIN['cy-net-arch']).toBe(3);
-    expect(SECPLUS_DECK_DOMAIN['cy-secure-proto']).toBe(3);
-    expect(SECPLUS_DECK_DOMAIN['cy-soc']).toBe(4);
-    expect(SECPLUS_DECK_DOMAIN['cy-detection']).toBe(4);
-    expect(SECPLUS_DECK_DOMAIN['cy-ir-forensics']).toBe(4);
-    expect(SECPLUS_DECK_DOMAIN['cy-risk']).toBe(5);
-    expect(SECPLUS_DECK_DOMAIN['cy-governance']).toBe(5);
-    expect(SECPLUS_DECK_DOMAIN['cy-frameworks']).toBe(5);
-  });
-});
-
-describe('buildSecplusPracticeExam', () => {
-  it('returns 90 questions with no shortfalls', () => {
-    const { questions, quotas, shortfalls } = buildSecplusPracticeExam();
-    expect(questions).toHaveLength(90);
-    expect(shortfalls).toEqual([]);
-    expect(Object.values(quotas).reduce((s, n) => s + n, 0)).toBe(90);
-  });
-
-  it('samples each domain at its quota and shuffles question order', () => {
-    const { questions, quotas } = buildSecplusPracticeExam();
-    const counts = {};
-    for (const q of questions) counts[q.domain] = (counts[q.domain] || 0) + 1;
-    for (const d of SECURITY_PLUS_DOMAINS) expect(counts[d.id]).toBe(quotas[d.id]);
-    // every question has 4 options with exactly one correct answer
-    for (const q of questions) {
-      expect(q.options).toHaveLength(4);
-      expect(q.correct).toBeGreaterThanOrEqual(0);
-      expect(q.correct).toBeLessThan(4);
-    }
-  });
-});
-
 describe('scoreSecplusExam', () => {
   it('grades a perfect paper as a pass at 83% threshold', () => {
-    const { questions } = buildSecplusPracticeExam({ count: 20 });
+    const questions = fakeQuestions(20);
     const answers = Object.fromEntries(questions.map((q) => [q.id, q.correct]));
     const result = scoreSecplusExam(questions, answers);
     expect(result.total).toBe(20);
@@ -115,7 +71,7 @@ describe('scoreSecplusExam', () => {
   });
 
   it('grades an empty paper as a fail', () => {
-    const { questions } = buildSecplusPracticeExam({ count: 20 });
+    const questions = fakeQuestions(20);
     const result = scoreSecplusExam(questions, {});
     expect(result.correct).toBe(0);
     expect(result.pct).toBe(0);
@@ -124,7 +80,7 @@ describe('scoreSecplusExam', () => {
   });
 
   it('applies the 83% pass threshold, not the CISSP 70%', () => {
-    const { questions } = buildSecplusPracticeExam({ count: 100 });
+    const questions = fakeQuestions(100);
     // answer 75 correctly -> 75% -> passes CISSP, fails Security+
     const answers = {};
     questions.forEach((q, i) => {
@@ -139,8 +95,9 @@ describe('scoreSecplusExam', () => {
 });
 
 describe('Security+ exam session', () => {
-  it('starts, answers, flags, and finishes independently of the CISSP exam', () => {
-    const exam = startSecplusPracticeExam();
+  it('starts, answers, flags, and finishes independently of the CISSP exam', async () => {
+    mockFetchExam(fakeQuestions(SECPLUS_EXAM_QUESTION_COUNT));
+    const exam = await startSecplusPracticeExam();
     expect(exam.id).toMatch(/^secplus-exam-/);
     expect(exam.questions).toHaveLength(SECPLUS_EXAM_QUESTION_COUNT);
     expect(exam.deadline - exam.startedAt).toBe(SECPLUS_EXAM_DURATION_MIN * 60 * 1000);
@@ -160,18 +117,10 @@ describe('Security+ exam session', () => {
     expect(history[0].id).toBe(exam.id);
   });
 
-  it('clears without recording', () => {
-    startSecplusPracticeExam();
+  it('clears without recording', async () => {
+    mockFetchExam(fakeQuestions(SECPLUS_EXAM_QUESTION_COUNT));
+    await startSecplusPracticeExam();
     clearSecplusPracticeExam();
     expect(secplusExamHistory(store.load())).toHaveLength(0);
-  });
-});
-
-describe('CISSP exam untouched', () => {
-  it('still builds 100-question exams with its own quotas', () => {
-    const { questions } = buildPracticeExam();
-    expect(questions).toHaveLength(EXAM_QUESTION_COUNT);
-    const quotas = examDomainQuotas();
-    expect(Object.values(quotas).reduce((s, n) => s + n, 0)).toBe(100);
   });
 });

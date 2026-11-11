@@ -93,8 +93,9 @@ export const LAB_FOR_LESSON = {
   'tf-core-workflow': 'terraform-fundamentals-001',
   'tf-resources': 'terraform-fundamentals-001',
   'tf-state-backends': 'terraform-fundamentals-001',
-  'tf-prod-security': 'iac-policy-001',
-  'tf-prod-security': 'cloud-terraform-001',
+  'tf-prod-security': 'cloud-terraform-001', // was duplicated with iac-policy-001: the
+  // lesson's arc is the safe CI pipeline (fmt -> plan -> scan -> review -> gated apply),
+  // which is what this lab runs; iac-policy-001 is the deeper policy-as-code dive.
 };
 
 /** Reverse index: lab ID → lesson IDs that point at it. Built once. */

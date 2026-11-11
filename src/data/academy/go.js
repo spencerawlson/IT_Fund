@@ -3,7 +3,7 @@
 // card ids are position-based, so reordering resets a learner's progress on them.
 //
 // Go track. A compiled, concurrent language: emphasise simplicity, explicit errors and goroutines.
-// cissp: [8] (Software Development Security) — a code track.
+// cissp: no deck in this track is tagged — Go syntax is not CISSP Domain 8 content.
 
 export default {
   id: 'go',
@@ -17,7 +17,6 @@ export default {
         id: 'go-basics',
         title: 'Basics & Tooling',
         summary: 'What Go is, modules, and the go command.',
-        cissp: [8],
         sources: ['go-tour', 'go-docs'],
         cards: [
           ['Is Go compiled or interpreted?', 'Compiled — to a single, statically-linked native binary', 'That self-contained binary is why Go is popular for deployment and containers.', ['Interpreted', 'Compiled to bytecode on a VM', 'Both, via JIT']],
@@ -36,7 +35,6 @@ export default {
         id: 'go-types',
         title: 'Variables, Types & Constants',
         summary: 'Declarations, zero values, and constants.',
-        cissp: [8],
         sources: ['go-tour', 'go-by-example'],
         cards: [
           ['What does `x := 5` do?', 'Declares and initialises x, inferring its type (short variable declaration)', 'It works only inside functions; use var at package level.', ['Compares x to 5', 'Declares a constant', 'Creates a pointer']],
@@ -55,7 +53,6 @@ export default {
         id: 'go-control-functions',
         title: 'Control Flow & Functions',
         summary: 'for, if, switch, multiple returns and defer.',
-        cissp: [8],
         sources: ['go-tour', 'go-by-example'],
         cards: [
           ['How many loop keywords does Go have?', 'One: for (it covers while and infinite loops too)', 'for cond {} is a while; for {} is infinite.', ['Three: for, while, do', 'Two: for and while', 'Zero; use recursion']],
@@ -76,7 +73,6 @@ export default {
         id: 'go-collections',
         title: 'Slices, Arrays & Maps',
         summary: 'Go\'s core data structures and the range loop.',
-        cissp: [8],
         sources: ['go-tour', 'go-by-example'],
         cards: [
           ['Array vs slice in Go?', 'An array has a fixed length that is part of its type; a slice is a dynamic view into an array', 'Slices are what you use almost everywhere.', ['They are identical', 'A slice is fixed-size', 'An array can grow']],
@@ -95,7 +91,6 @@ export default {
         id: 'go-structs-interfaces',
         title: 'Structs, Methods & Interfaces',
         summary: 'Composition over inheritance; implicit interfaces.',
-        cissp: [8],
         sources: ['go-tour', 'effective-go'],
         cards: [
           ['What is a struct?', 'A typed collection of named fields', 'Go has no classes; structs plus methods do the job.', ['A class with inheritance', 'A map', 'An interface']],
@@ -114,7 +109,6 @@ export default {
         id: 'go-errors',
         title: 'Errors & Error Handling',
         summary: 'Explicit errors, wrapping, and panic/recover.',
-        cissp: [8],
         sources: ['effective-go', 'go-by-example'],
         cards: [
           ['How does Go report most errors?', 'By returning an error value as the last return, which the caller checks', 'if err != nil { ... } is the core pattern.', ['By throwing exceptions', 'Via error codes only', 'It ignores errors']],
@@ -135,7 +129,6 @@ export default {
         id: 'go-concurrency',
         title: 'Goroutines & Channels',
         summary: 'Go\'s concurrency model and synchronisation.',
-        cissp: [8],
         sources: ['go-tour', 'effective-go', 'go-by-example'],
         cards: [
           ['What is a goroutine?', 'A lightweight thread managed by the Go runtime, started with the go keyword', 'Thousands can run cheaply; the scheduler multiplexes them onto OS threads.', ['An OS thread', 'A process', 'A coroutine you must resume manually']],
@@ -154,7 +147,6 @@ export default {
         id: 'go-stdlib-testing',
         title: 'Standard Library & Testing',
         summary: 'net/http, json, context, and the testing toolchain.',
-        cissp: [8],
         sources: ['go-docs', 'go-by-example', 'effective-go'],
         cards: [
           ['Which package builds HTTP servers and clients?', 'net/http', 'http.HandleFunc + http.ListenAndServe stand up a server in a few lines.', ['net/web', 'http/server', 'go/http']],

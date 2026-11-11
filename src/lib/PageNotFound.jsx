@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import Seo from '@/components/Seo';
 
 // Hosted backend target; same-origin /api fallback for local dev.
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -29,6 +30,14 @@ export default function PageNotFound({}) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 text-ink-1">
+      {/* Unknown routes serve HTTP 200 from the SPA shell (soft 404), so this
+          page must at least tell crawlers not to index it. */}
+      <Seo
+        title="Page not found · Road to CISSP"
+        description="This page does not exist on Road to CISSP. Head back to the learning tracks, labs, or practice exams."
+        path={location.pathname}
+        robots="noindex"
+      />
       <div className="max-w-md w-full glass-1 rounded-card p-8">
         <div className="text-center space-y-6">
           <div className="space-y-2">

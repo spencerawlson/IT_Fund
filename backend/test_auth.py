@@ -142,6 +142,18 @@ def test_dev_login_works_when_explicitly_enabled(monkeypatch):
     assert me.status_code == 200 and me.json()["display_name"] == "Owner"
 
 
+def test_dev_login_get_does_not_create_a_session(monkeypatch):
+    # dev-login is POST-only: a GET must never sign anyone in, even with the
+    # flag on. FastAPI answers a GET on a POST-only route with 405 (not 404 —
+    # the path exists, the method does not); either way no session is created.
+    monkeypatch.setenv("ALLOW_DEV_LOGIN", "1")
+    client.cookies.clear()
+    r = client.get("/api/auth/dev-login", follow_redirects=False)
+    assert r.status_code == 405
+    assert COOKIE_NAME not in r.cookies
+    assert client.get("/api/auth/me").status_code == 401
+
+
 def test_labs_work_with_session_cookie(monkeypatch):
     # This tests the auth layer (cookie → lab access), not billing: neutralize
     # entitlement so the premium lab starts.

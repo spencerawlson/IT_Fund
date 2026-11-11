@@ -6,13 +6,14 @@ import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
 import LandingBackground from '@/components/landing/LandingBackground';
+import { COUNTS } from '@/data/counts';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
 // Signed-in visitors go straight to the app.
 const FEATURES = [
   {
     icon: BookOpen,
-    title: '800+ flashcards, mapped to objectives',
+    title: `${COUNTS.totalCardsPlus} flashcards, mapped to objectives`,
     text: 'Every card tied to a real cert objective — IT fundamentals through CISSP domains. Learn, quiz, and boss-fight your way up.',
   },
   {
@@ -22,18 +23,18 @@ const FEATURES = [
   },
   {
     icon: Bot,
-    title: 'An AI tutor that knows the material',
-    text: 'Stuck on a concept? Get hints, explanations, and worked examples grounded in the actual lessons.',
+    title: 'An AI tutor, coming soon for members',
+    text: 'Stuck on a concept? Hints, explanations, and worked examples grounded in the question you are studying.',
   },
   {
     icon: Target,
     title: 'CISSP practice exams',
-    text: 'Timed exam engine with the real domains, adaptive review, and weak-spot analysis before test day.',
+    text: 'Timed exam engine with the real domains, spaced review, and per-domain score reports before test day.',
   },
   {
     icon: TerminalSquare,
     title: 'Linux & Python tracks',
-    text: 'Ten Linux decks and a full Python automation path — the hands-on skills certs assume you have.',
+    text: `${COUNTS.tracks.linux.decks} Linux decks and a full Python automation path — the hands-on skills certs assume you have.`,
   },
   {
     icon: Award,
@@ -54,7 +55,7 @@ const STEPS = [
 const CERT_ROAD = [
   {
     code: 'SY0-701', name: 'Security+', tag: 'Start here',
-    detail: 'Our flagship: 500+ flashcards, 40 lessons, hands-on labs.',
+    detail: `Our flagship: ${COUNTS.tracks.cyber.cardsPlus} flashcards, ${COUNTS.tracks.cyber.decks} lessons, hands-on labs.`,
     exam: true,
   },
   {
@@ -136,7 +137,7 @@ export default function Landing() {
       <LandingBackground />
       <Seo
         title="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training"
-        description="Go from IT fundamentals to the CISSP: 800+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free."
+        description={`Go from IT fundamentals to the CISSP: ${COUNTS.totalCardsPlus} objective-mapped flashcards, hands-on labs in real terminals, and timed exam simulators. Start free.`}
         path="/"
         jsonLd={FAQ_JSON_LD}
       />
@@ -147,6 +148,7 @@ export default function Landing() {
         <div className="flex items-center gap-1 whitespace-nowrap sm:gap-2">
           <ThemeToggle />
           <Button variant="ghost" size="sm" to="/labs">Labs</Button>
+          <Button variant="ghost" size="sm" to="/pricing" className="hidden sm:inline-flex">Pricing</Button>
           <Button variant="ghost" size="sm" to="/signin" className="hidden sm:inline-flex">Sign in</Button>
           <Button size="sm" to="/signin">
             <span className="sm:hidden">Sign in</span>
@@ -166,7 +168,7 @@ export default function Landing() {
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-body text-ink-2">
             Flashcards mapped to real cert objectives, hands-on labs with actual
-            terminals and tools, an AI tutor, and timed practice exams.
+            terminals and tools, and timed practice exams.
             Free to start, no credit card.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -185,10 +187,10 @@ export default function Landing() {
         {/* Stats */}
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Highlights">
           {[
-            ['800+', 'flashcards'],
-            ['20+', 'hands-on labs'],
+            [COUNTS.totalCardsPlus, 'flashcards'],
+            [COUNTS.labsPlus, 'hands-on labs'],
             ['8', 'CISSP domains'],
-            ['24/7', 'AI tutor'],
+            ['5', 'timed exam simulators'],
           ].map(([n, label]) => (
             <div key={label} className="glass-2 rounded-card px-4 py-5 text-center">
               <p className="text-heading font-bold text-ink-1">{n}</p>
@@ -320,6 +322,10 @@ export default function Landing() {
           <div className="flex gap-4 text-caption text-ink-3">
             <Link to="/labs" className="hover:text-ink-1">Labs</Link>
             <Link to="/library" className="hover:text-ink-1">Library</Link>
+            <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
+            <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
+            <Link to="/terms" className="hover:text-ink-1">Terms</Link>
+            <Link to="/contact" className="hover:text-ink-1">Contact</Link>
             <Link to="/signin" className="hover:text-ink-1">Sign in</Link>
           </div>
         </div>

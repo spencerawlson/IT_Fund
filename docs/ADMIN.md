@@ -17,6 +17,10 @@ never prerendered or linked from any prerendered page.
   `ADMIN_PASSWORD` — returns a generic 401 `Invalid password` with no hint.
 - No admin accounts, no sign-up, no password reset. To change the password,
   change the env var and restart the backend.
+- Brute-force protection: 5 failed logins per IP in 15 minutes, then every
+  further attempt (correct password included) gets 429 with `Retry-After`
+  until the window passes. Failed attempts are logged with IP + timestamp,
+  never the password.
 - Every `/admin/*` endpoint except login/status requires the session, including
   when called directly (curl, another origin). A normal learner session is NOT
   an admin session.

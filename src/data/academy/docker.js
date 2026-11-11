@@ -3,7 +3,8 @@
 // card ids are position-based, so reordering resets a learner's progress on them.
 //
 // Docker track. Containers end to end: images, Compose, and image/runtime security.
-// cissp: [8] (Software Development Security — build/ship pipeline, supply chain).
+// cissp: only docker-optimization-security is tagged [8] (non-root users, secrets,
+// image vulnerability scanning). The rest is container mechanics, not Domain 8.
 
 export default {
   id: 'docker',
@@ -17,7 +18,6 @@ export default {
         id: 'docker-basics',
         title: 'Containers & Docker Basics',
         summary: 'What containers are and how they differ from VMs.',
-        cissp: [8],
         sources: ['docker-docs', 'docker-get-started'],
         cards: [
           ['What is a container?', 'A lightweight, isolated process bundling an app with its dependencies, sharing the host kernel', 'Portable and consistent across machines.', ['A virtual machine', 'A physical server', 'A programming language']],
@@ -36,7 +36,6 @@ export default {
         id: 'docker-images',
         title: 'Images & the Dockerfile',
         summary: 'Building images with a Dockerfile and layers.',
-        cissp: [8],
         sources: ['docker-docs', 'docker-curriculum'],
         cards: [
           ['What is a Dockerfile?', 'A text recipe of instructions to build an image', 'Each instruction adds a layer.', ['A running container', 'A compose file', 'A registry']],
@@ -55,7 +54,6 @@ export default {
         id: 'docker-run',
         title: 'Running Containers',
         summary: 'run flags, ports, logs, exec and lifecycle.',
-        cissp: [8],
         sources: ['docker-docs', 'play-with-docker'],
         cards: [
           ['What does the `-d` flag do on docker run?', 'Runs the container detached (in the background)', 'Without it, the container runs in the foreground.', ['Deletes it after', 'Enables debug', 'Mounts a volume']],
@@ -76,7 +74,6 @@ export default {
         id: 'docker-data-net',
         title: 'Volumes & Networking',
         summary: 'Persisting data and connecting containers.',
-        cissp: [8],
         sources: ['docker-docs'],
         cards: [
           ['What is a Docker volume?', 'Docker-managed persistent storage that lives beyond a container\'s lifetime', 'The right way to persist data (databases, uploads).', ['A temporary layer', 'A network', 'An image tag']],
@@ -95,7 +92,6 @@ export default {
         id: 'docker-compose',
         title: 'Docker Compose',
         summary: 'Defining multi-container apps declaratively.',
-        cissp: [8],
         sources: ['docker-docs', 'docker-curriculum'],
         cards: [
           ['What problem does Docker Compose solve?', 'Defining and running multi-container apps from one YAML file', 'One command brings up the whole stack.', ['Building a single image', 'Replacing the daemon', 'Scaling clusters across hosts']],
@@ -114,7 +110,6 @@ export default {
         id: 'docker-registry',
         title: 'Registries & Image Lifecycle',
         summary: 'Tagging, pushing, pulling and distributing images.',
-        cissp: [8],
         sources: ['docker-docs'],
         cards: [
           ['What is a container registry?', 'A service that stores and distributes images (e.g. Docker Hub, GHCR, ECR)', 'push to upload, pull to download.', ['A running container', 'A build tool', 'A network']],
@@ -154,7 +149,6 @@ export default {
         id: 'docker-ops',
         title: 'Operations & Troubleshooting',
         summary: 'Health, limits, logs and cleanup.',
-        cissp: [8],
         sources: ['docker-docs'],
         cards: [
           ['What does a HEALTHCHECK instruction do?', 'Defines a command Docker runs to report whether the container is healthy', 'Orchestrators use it to restart or route around unhealthy containers.', ['Scans for CVEs', 'Limits memory', 'Exposes a port']],

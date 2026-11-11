@@ -72,7 +72,7 @@ FREE_LAB_IDS = frozenset({"net-vlan-001", "py-basics-001"})
 
 
 def _check_lab_entitlement(owner_id: str, lab_id: str) -> None:
-    """Whether this caller may start this lab.
+    """Whether this caller may start (or keep using) this lab.
 
     Free-tier labs are open to everyone, guest or signed in. Every other lab
     requires an active subscription — `is_subscribed` also covers owners and
@@ -87,8 +87,24 @@ def _check_lab_entitlement(owner_id: str, lab_id: str) -> None:
         return
     raise HTTPException(
         status_code=status.HTTP_402_PAYMENT_REQUIRED,
-        detail="This lab needs a subscription — upgrade to unlock all 38 labs.",
+        detail=f"This lab needs a subscription — upgrade to unlock all {len(list_labs())} labs.",
     )
+
+
+def _check_session_entitlement(session_id: str, owner_id: str) -> None:
+    """Re-check entitlement on an EXISTING session (billing F-05).
+
+    Start-time gating is not enough: a subscription can lapse mid-session
+    (cancelled, failed renewal, expired). Every read/mutating call on a
+    non-free lab re-checks `is_subscribed` and refuses with 402, so a
+    cancelled user keeps at most the session they already hold — they cannot
+    run, validate, reset, or even read it further. Free labs are exempt.
+    Raises LabError("not_found") when the session does not exist or is not
+    the caller's (indistinguishable 404, via service.get). DELETE is
+    deliberately NOT gated: exiting a lab must never be blocked.
+    """
+    session = service.get(session_id, owner_id)
+    _check_lab_entitlement(owner_id, session.lab_id)
 
 
 def _http(err: LabError) -> HTTPException:
@@ -141,6 +157,9 @@ def _record_completion(user_id: str | None, sess: dict[str, Any]) -> None:
                 session_id=sess["id"],
                 duration_seconds=duration,
                 completed_at=completed,
+                # L-01 provenance: True when the completion rests on client
+                # attestation ("I did this") rather than server-side evidence.
+                attested=bool(sess.get("attested", False)),
             ))
             s.commit()
     except Exception:  # noqa: BLE001 — history is best-effort; the lab already worked
@@ -157,6 +176,7 @@ def lab_history(user_id: str = Depends(require_user_id)) -> dict[str, Any]:
                 LabCompletion.lab_id,
                 LabCompletion.duration_seconds,
                 LabCompletion.completed_at,
+                LabCompletion.attested,
             )
             .where(LabCompletion.user_id == user_id)
             .order_by(LabCompletion.completed_at.desc())
@@ -168,6 +188,9 @@ def lab_history(user_id: str = Depends(require_user_id)) -> dict[str, Any]:
                 "lab_id": r.lab_id,
                 "duration_seconds": r.duration_seconds,
                 "completed_at": r.completed_at.isoformat(),
+                # L-01 provenance: attested completions rest on the learner's
+                # "I did this" claim, not on server-observed evidence.
+                "attested": bool(r.attested),
             }
             for r in rows
         ]
@@ -191,7 +214,9 @@ async def start_lab(lab_id: str, owner_id: str = Depends(resolve_visitor_id)) ->
 @router.get("/sessions/{session_id}")
 def get_session(session_id: str, owner_id: str = Depends(resolve_visitor_id)) -> dict[str, Any]:
     try:
-        return service.get(session_id, owner_id).public_dict()
+        session = service.get(session_id, owner_id)
+        _check_lab_entitlement(owner_id, session.lab_id)
+        return session.public_dict()
     except LabError as err:
         raise _http(err)
 
@@ -206,7 +231,11 @@ def record_findings(
     findings = body.get("findings", body) if isinstance(body, dict) else {}
     if len(json.dumps(findings, default=str)) > MAX_FINDINGS_BYTES:
         raise HTTPException(status_code=413, detail="Findings payload too large.")
+    # Trust boundary (L-01): sessions.record_findings only lets a client write
+    # free-form `notes`; validator-read keys are server-derived (mock labs) or
+    # explicit attestation, marked as such (Docker labs). See sessions.py.
     try:
+        _check_session_entitlement(session_id, owner_id)
         return service.record_findings(session_id, owner_id, findings).public_dict()
     except LabError as err:
         raise _http(err)
@@ -225,6 +254,7 @@ async def exec_in_session(
     if not isinstance(command, str):
         raise HTTPException(status_code=400, detail="command must be a string.")
     try:
+        _check_session_entitlement(session_id, owner_id)
         session, result = await service.exec_command(session_id, owner_id, command)
     except LabError as err:
         raise _http(err)
@@ -246,6 +276,7 @@ async def validate_session(
     user_id: str | None = Depends(resolve_user_id),
 ) -> dict[str, Any]:
     try:
+        _check_session_entitlement(session_id, owner_id)
         sess = (await service.validate(session_id, owner_id)).public_dict()
     except LabError as err:
         raise _http(err)
@@ -256,6 +287,7 @@ async def validate_session(
 @router.post("/sessions/{session_id}/reset")
 async def reset_session(session_id: str, owner_id: str = Depends(resolve_visitor_id)) -> dict[str, Any]:
     try:
+        _check_session_entitlement(session_id, owner_id)
         return (await service.reset(session_id, owner_id)).public_dict()
     except LabError as err:
         raise _http(err)

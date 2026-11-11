@@ -26,7 +26,13 @@ const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
 
 // ---------- lessons ----------
 
-export const isPassed = (state, lessonId) => (state.lessons?.[lessonId]?.best || 0) >= PASS_PCT;
+export const isPassed = (state, lessonId) => {
+  const entry = state.lessons?.[lessonId];
+  // A server-verified lab completion marks the lesson complete (via: 'lab')
+  // without a quiz score — see recordVerifiedLabCompletion in academy.js.
+  // Attested-only completions never write such an entry, so they cannot pass.
+  return entry?.via === 'lab' || (entry?.best || 0) >= PASS_PCT;
+};
 
 export function isStarted(state, lesson) {
   return !!state.lessons?.[lesson.id] || state.resume?.deckId === lesson.id || lesson.deck.cards.some((c) => state.cards?.[c.id]);

@@ -8,6 +8,15 @@ API layer (sessions, auth, entitlement, validation) is exercised without a
 daemon. DockerLabProvider itself is covered by labs/test_docker_provider.py,
 which constructs the provider directly and is unaffected by this alias.
 """
+import os
+
+# Test-only SESSION_SECRET. main.py refuses to boot without an explicitly set
+# secret unless ALLOW_DEV_SECRET=1, and the suite imports main in nearly every
+# file — so the suite supplies its own throwaway secret here rather than
+# depending on the dev fallback. Never a real secret; real deployments set
+# their own value in the host environment.
+os.environ.setdefault("SESSION_SECRET", "test-only-session-secret-not-for-production")
+
 import pytest
 
 from labs import sessions as sessions_mod

@@ -3,7 +3,8 @@
 // card ids are position-based, so reordering resets a learner's progress on them.
 //
 // C++ track. A compiled, systems language: emphasise the compile model, memory and modern RAII.
-// cissp: [8] (Software Development Security) — like Python, this is a code track.
+// cissp: only cpp-safety is tagged [8] (secure coding: UB, buffer overflows, ASan).
+// The rest of this code track is language trivia, not CISSP Domain 8.
 
 export default {
   id: 'cpp',
@@ -17,7 +18,6 @@ export default {
         id: 'cpp-basics',
         title: 'Basics & the Compile Model',
         summary: 'What C++ is, how a program is built, and hello world.',
-        cissp: [8],
         sources: ['learncpp', 'cpp-ref'],
         cards: [
           ['Is C++ compiled or interpreted?', 'Compiled — source is translated to machine code before it runs', 'A compiler (e.g. g++, clang++, MSVC) produces a native executable.', ['Interpreted line by line', 'Run on a virtual machine like Java', 'Both, at runtime']],
@@ -36,7 +36,6 @@ export default {
         id: 'cpp-types',
         title: 'Types, Variables & Operators',
         summary: 'Fundamental types, const, auto and operators.',
-        cissp: [8],
         sources: ['learncpp', 'cpp-ref'],
         cards: [
           ['Which type holds a whole number?', 'int', 'double/float hold decimals; char holds a single byte/character.', ['double', 'string', 'bool']],
@@ -55,7 +54,6 @@ export default {
         id: 'cpp-control-functions',
         title: 'Control Flow & Functions',
         summary: 'if/switch, loops, and defining functions.',
-        cissp: [8],
         sources: ['learncpp', 'cpp-ref'],
         cards: [
           ['Which loop runs its body at least once?', 'do { ... } while (cond);', 'The condition is checked after the body.', ['while', 'for', 'for-each']],
@@ -76,7 +74,6 @@ export default {
         id: 'cpp-pointers',
         title: 'Pointers, References & Memory',
         summary: 'Addresses, the stack/heap, and manual allocation.',
-        cissp: [8],
         sources: ['learncpp', 'cpp-ref', 'cpp-core'],
         cards: [
           ['What is a pointer?', 'A variable that stores the memory address of another object', 'Dereference it with * to read/write the pointee.', ['A copy of a value', 'A reference that cannot be null', 'A type of loop']],
@@ -95,7 +92,6 @@ export default {
         id: 'cpp-oop',
         title: 'Classes & OOP',
         summary: 'Encapsulation, constructors, inheritance and polymorphism.',
-        cissp: [8],
         sources: ['learncpp', 'cpp-core'],
         cards: [
           ['Default member access: class vs struct?', 'class members are private by default; struct members are public', 'Otherwise they are the same in C++.', ['Both private', 'Both public', 'class is public, struct is private']],
@@ -114,7 +110,6 @@ export default {
         id: 'cpp-stl',
         title: 'The Standard Library (STL)',
         summary: 'Containers, iterators, strings and algorithms.',
-        cissp: [8],
         sources: ['learncpp', 'cpp-ref', 'cpp-tour'],
         cards: [
           ['Which container is a dynamic, contiguous array?', 'std::vector', 'It grows as needed and is the default go-to container.', ['std::list', 'std::map', 'std::array']],
@@ -135,7 +130,6 @@ export default {
         id: 'cpp-raii',
         title: 'RAII & Smart Pointers',
         summary: 'Deterministic resource management and move semantics.',
-        cissp: [8],
         sources: ['cpp-core', 'learncpp', 'cpp-tour'],
         cards: [
           ['What is RAII?', 'Resource Acquisition Is Initialization: tie a resource\'s lifetime to an object\'s scope', "The destructor releases the resource automatically — C++'s core memory idiom.", ['A garbage collector', 'A design pattern for threads', 'Manual free() everywhere']],
@@ -154,7 +148,6 @@ export default {
         id: 'cpp-modern-templates',
         title: 'Templates & Modern C++',
         summary: 'Generics, lambdas, and C++11/17/20 features.',
-        cissp: [8],
         sources: ['cpp-ref', 'cpp-core', 'cpp-tour'],
         cards: [
           ['What is a template?', 'A blueprint that generates code for many types from one definition', 'e.g. template<typename T> T max(T a, T b).', ['A runtime generic (type erasure)', 'A macro', 'A base class']],

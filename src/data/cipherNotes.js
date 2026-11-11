@@ -13,6 +13,11 @@ const NOTES = {
     "Don't call a packet a frame: segments live at Layer 4, packets at Layer 3, frames at Layer 2, bits at Layer 1.",
 };
 
+/** Raw map, exported for scripts/export-content.mjs. The app must not import this map
+ * directly (it would bundle the premium note for net-switch-route); notes reach the
+ * UI through the lesson content payload (src/lib/content.js). */
+export const CIPHER_NOTES = NOTES;
+
 export function getCipherNote(lessonId) {
   return NOTES[lessonId] ?? null;
 }

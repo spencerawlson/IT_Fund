@@ -101,6 +101,11 @@ export default function LabProgress() {
                         <span className="inline-flex items-center gap-1.5">
                           <RotateCcw size={14} aria-hidden="true" /> last {formatDuration(p.lastSeconds)}
                         </span>
+                        {p.attested && (
+                          <span className="inline-flex items-center gap-1.5 text-ink-3" title="Completed by self-report ('I did this'), not server-verified — it shows as done but earned no XP.">
+                            Self-reported
+                          </span>
+                        )}
                       </p>
                     ) : (
                       <p className="mt-1.5 text-small text-ink-3">Not attempted yet</p>

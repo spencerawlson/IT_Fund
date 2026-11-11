@@ -17,7 +17,6 @@ export default {
         id: 'tf-iac-basics',
         title: 'IaC & Terraform Basics',
         summary: 'What Infrastructure as Code is, and where Terraform fits.',
-        cissp: [3],
         sources: ['tf-docs', 'tf-tutorials'],
         cards: [
           ['What is Infrastructure as Code (IaC)?', 'Managing infrastructure through machine-readable config files instead of manual clicks', 'The config is versioned, reviewed and reproducible like application code.', ['A programming language for apps', 'A cloud provider', 'A type of virtual machine']],
@@ -37,7 +36,6 @@ export default {
         id: 'tf-core-workflow',
         title: 'The Core Workflow',
         summary: 'init → plan → apply, plus fmt, validate and destroy.',
-        cissp: [3],
         sources: ['tf-docs', 'tf-tutorials'],
         cards: [
           ['What does `terraform init` do?', 'Initialises the working directory: downloads providers and sets up the backend', 'Run it first, and again whenever providers, modules or the backend change.', ['Creates the resources', 'Deletes the state', 'Formats your code']],
@@ -57,7 +55,6 @@ export default {
         id: 'tf-resources',
         title: 'Resources & Data Sources',
         summary: 'Resource blocks, references, dependencies and reading existing infra.',
-        cissp: [3],
         sources: ['tf-docs', 'tf-registry'],
         cards: [
           ['What are the two labels in `resource "aws_instance" "web" {}`?', 'The resource type (aws_instance) and a local name (web)', 'Together they form the address aws_instance.web.', ['Provider and region', 'Module and variable', 'Two tags']],
@@ -78,7 +75,6 @@ export default {
         id: 'tf-variables',
         title: 'Variables, Outputs & Locals',
         summary: 'Parameterise configs with inputs, locals and outputs.',
-        cissp: [3],
         sources: ['tf-docs', 'tf-up-running'],
         cards: [
           ['How do you declare an input variable?', 'A `variable "name" {}` block, optionally with type, default and description', 'Reference it as var.name.', ['A `local` block', 'An `output` block', 'A resource block']],
@@ -98,7 +94,6 @@ export default {
         id: 'tf-expressions',
         title: 'Expressions & Functions',
         summary: 'Conditionals, for-expressions, and built-in functions.',
-        cissp: [3],
         sources: ['tf-docs'],
         cards: [
           ['What is Terraform\'s ternary conditional syntax?', 'condition ? true_value : false_value', 'e.g. var.prod ? "m5.large" : "t3.micro".', ['if/else blocks', 'switch statements', 'cond(a, b, c)']],
@@ -117,7 +112,6 @@ export default {
         id: 'tf-state-backends',
         title: 'State & Backends',
         summary: 'Remote state, locking, and why state matters.',
-        cissp: [3],
         sources: ['tf-docs', 'tf-up-running'],
         cards: [
           ['Why should teams use remote state instead of a local file?', 'So everyone shares one source of truth and runs do not clobber each other', 'Local state on laptops diverges and leaks secrets.', ['It makes plans faster', 'It is required by HCL', 'To avoid writing providers']],
@@ -138,7 +132,6 @@ export default {
         id: 'tf-modules',
         title: 'Modules',
         summary: 'Reusable, composable infrastructure building blocks.',
-        cissp: [3],
         sources: ['tf-docs', 'tf-registry', 'tf-up-running'],
         cards: [
           ['What is a Terraform module?', 'A reusable container of .tf files called with inputs and returning outputs', 'Every config is itself the "root module".', ['A provider plugin', 'A single resource', 'A state file']],
@@ -157,7 +150,6 @@ export default {
         id: 'tf-meta-lifecycle',
         title: 'Meta-Arguments & Lifecycle',
         summary: 'count, for_each, lifecycle, dynamic blocks and provisioners.',
-        cissp: [3],
         sources: ['tf-docs'],
         cards: [
           ['What does the `count` meta-argument do?', 'Creates N copies of a resource, indexed count.index', 'Address them as <res>[0], <res>[1]…', ['Counts applies', 'Limits providers', 'Sets a timeout']],

@@ -91,7 +91,10 @@ export default function CisspRoadmap() {
         <Card level={2} padding="md" className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h2 id="exam-heading" className="text-heading text-ink-1">Practice exam</h2>
-            <p className="mt-1 text-small text-ink-2">100 questions, 3 hours, weighted by the official domain weights. 70% to pass.</p>
+            <p className="mt-1 text-small text-ink-2">100–150 questions (adaptive CAT), 3 hours, 700/1000 scaled score to pass. The simulator below is fixed-length practice, not the real exam.</p>
+            <p className="mt-2 text-small text-ink-2">
+              <a href={RESOURCES['cissp-outline'].url} target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">ISC2 CISSP exam outline</a>
+            </p>
           </div>
           <Button to="/academy/exam" icon={Timer} className="w-full shrink-0 justify-center sm:w-auto">Start practice exam</Button>
         </Card>

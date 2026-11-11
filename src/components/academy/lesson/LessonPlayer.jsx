@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { X, Check, Layers, ArrowRight, History, RotateCcw } from 'lucide-react';
+import { X, Check, Layers, ArrowRight, History, RotateCcw, Loader2 } from 'lucide-react';
 import {
   useAcademy, gradeCard, awardXp, completeLesson, checkDeckMastered, buildQuestions, XP,
   saveLessonProgress, clearLessonProgress,
 } from '@/lib/academy';
-import { allCards, getDeck } from '@/data/academy';
+import { getDeck } from '@/data/academy';
+import { getDeckContent, getDeckCards, resolveCards } from '@/lib/content';
 import { continueLearning, pastLessonCards, PASS_PCT } from '@/lib/progress/engine';
 import { playerHref } from '@/data/catalog';
 import RichText from '../RichText';
@@ -15,7 +16,6 @@ import { ChoiceStep, OrderStep, NumericStep, WidgetStep } from './steps';
 import VideoExplainer from './VideoExplainer';
 
 const STEP_COMPONENTS = { choice: ChoiceStep, order: OrderStep, numeric: NumericStep, widget: WidgetStep };
-const CARDS = new Map(allCards.map((c) => [c.id, c]));
 /** Questions from earlier lessons that open every lesson, so old material keeps coming back. */
 const WARMUP_COUNT = 4;
 
@@ -23,10 +23,13 @@ const WARMUP_COUNT = 4;
  * A lesson is planned as a list of small descriptors so it can be saved and resumed exactly:
  * w = warm-up card from an earlier lesson, p = puzzle, c = this lesson's card, r = retry of a missed card.
  */
-function planLesson(state, deck) {
-  const warmup = pastLessonCards(state, deck.id, WARMUP_COUNT).map((c) => ({ k: 'w', id: c.id }));
-  const questions = buildQuestions(deck.cards, deck.cards, deck.cards.length).map((q) => ({ k: 'c', id: q.card.id }));
-  const puzzles = (deck.puzzles || []).map((p) => ({ k: 'p', id: p.id }));
+// A lesson bundle: the deck's full cards + puzzles plus every card the plan can
+// reference (this lesson's warm-ups and any card ids a saved plan still points
+// at), with per-deck distractor pools. Built once per deck in the component.
+function planLesson(state, fullDeck, warmupCards) {
+  const warmup = warmupCards.map((c) => ({ k: 'w', id: c.id }));
+  const questions = buildQuestions(fullDeck.cards, fullDeck.cards, fullDeck.cards.length).map((q) => ({ k: 'c', id: q.card.id }));
+  const puzzles = (fullDeck.puzzles || []).map((p) => ({ k: 'p', id: p.id }));
   // The deck's hands-on puzzles are spread through its questions (the first one opens as a hook).
   const plan = [...warmup];
   const gap = puzzles.length > 1 ? Math.max(2, Math.floor(questions.length / puzzles.length)) : 0;
@@ -39,34 +42,77 @@ function planLesson(state, deck) {
   return plan;
 }
 
-function toStep(item, deck) {
-  if (item.k === 'p') return deck.puzzles.find((p) => p.id === item.id) || null;
-  const card = CARDS.get(item.id);
+function toStep(item, bundle) {
+  const { fullDeck, cardsById, cardsByDeck } = bundle;
+  if (item.k === 'p') return fullDeck.puzzles.find((p) => p.id === item.id) || null;
+  const card = cardsById.get(item.id);
   if (!card) return null; // content changed since this lesson was saved
   const source = getDeck(card.deckId);
-  const [q] = buildQuestions([card], source.cards, 1);
+  const pool = cardsByDeck.get(card.deckId) || fullDeck.cards;
+  const [q] = buildQuestions([card], pool, 1);
   const suffix = { c: '', r: '-review', w: '-warm' }[item.k];
   return { type: 'choice', ...q, id: `${card.id}${suffix}`, review: item.k === 'r', warmup: item.k === 'w', fromDeck: source.title };
 }
 
-const toSteps = (plan, deck) => plan.map((item) => toStep(item, deck)).filter(Boolean);
+const toSteps = (plan, bundle) => plan.map((item) => toStep(item, bundle)).filter(Boolean);
 
-function freshSession(state, deck) {
-  const plan = planLesson(state, deck);
-  return { plan, steps: toSteps(plan, deck), index: -1, tries: {}, retried: [] };
+function freshSession(state, bundle) {
+  const plan = planLesson(state, bundle.fullDeck, bundle.warmupCards);
+  return { plan, steps: toSteps(plan, bundle), index: -1, tries: {}, retried: [] };
 }
 
-function savedSession(state, deck) {
+function savedSession(state, bundle) {
   const saved = state.resume;
-  if (saved?.deckId !== deck.id || !saved.plan?.length) return null;
-  const steps = toSteps(saved.plan, deck);
+  if (saved?.deckId !== bundle.fullDeck.id || !saved.plan?.length) return null;
+  const steps = toSteps(saved.plan, bundle);
   if (!steps.length || saved.index >= steps.length) return null;
   return { plan: saved.plan, steps, index: -1, resumeAt: saved.index, tries: saved.tries || {}, retried: saved.retried || [] };
 }
 
 export default function LessonPlayer({ track, deck }) {
   const state = useAcademy();
-  const [session, setSession] = useState(() => savedSession(state, deck) || freshSession(state, deck));
+  // Card bodies for this lesson: free decks are bundled; premium decks come
+  // from the entitled content API. The session is built once the bundle
+  // lands (and rebuilt on retry); until then this is a loading state.
+  const [bundle, setBundle] = useState(null);
+  const [bundleError, setBundleError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [session, setSession] = useState(null);
+  useEffect(() => {
+    let live = true;
+    setBundle(null);
+    setBundleError(null);
+    setSession(null); // a new deck builds a new session; never reuse the old one
+    (async () => {
+      try {
+        const { cards, puzzles } = await getDeckContent(deck.id);
+        const fullDeck = { ...deck, cards, puzzles };
+        // Warm-ups for a fresh plan, plus every card id a saved plan still
+        // points at (card ids are `<deckId>-<index>`, so the deck is the id
+        // minus its trailing `-<index>`).
+        const warmupStubs = pastLessonCards(state, deck.id, WARMUP_COUNT);
+        const saved = state.resume?.deckId === deck.id ? state.resume.plan || [] : [];
+        const savedStubs = saved.filter((i) => i.k !== 'p').map((i) => ({ id: i.id, deckId: i.id.replace(/-\d+$/, '') }));
+        const extra = await resolveCards([...warmupStubs, ...savedStubs]);
+        const cardsById = new Map(cards.map((c) => [c.id, c]));
+        const cardsByDeck = new Map([[deck.id, cards]]);
+        for (const c of extra) {
+          cardsById.set(c.id, c);
+          if (!cardsByDeck.has(c.deckId)) cardsByDeck.set(c.deckId, await getDeckCards(c.deckId));
+        }
+        const next = { fullDeck, cardsById, cardsByDeck, warmupCards: extra.filter((c) => warmupStubs.some((w) => w.id === c.id)) };
+        if (!live) return;
+        setBundle(next);
+        setSession((prev) => prev ?? (savedSession(state, next) || freshSession(state, next)));
+      } catch (err) {
+        if (live) setBundleError(err);
+      }
+    })();
+    return () => { live = false; };
+    // The plan is fixed when the lesson opens; progress updates must not re-roll it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deck.id, reloadKey]);
+
   const [done, setDone] = useState(false);
   // One accent everywhere: selections, highlights and buttons use the action colour, not the course colour.
   const color = ACTION.action;
@@ -107,7 +153,7 @@ export default function LessonPlayer({ track, deck }) {
     const pct = vals.length ? Math.round((vals.filter(Boolean).length / vals.length) * 100) : 0;
     clearLessonProgress(deck.id);
     completeLesson(deck.id, pct);
-    checkDeckMastered(deck);
+    checkDeckMastered(bundle?.fullDeck || deck);
     if (pct >= 80) confetti({ particleCount: 140, spread: 75, origin: { y: 0.65 }, colors: [color, '#ffffff', '#FBBF24'] });
     setDone(true);
   };
@@ -115,9 +161,32 @@ export default function LessonPlayer({ track, deck }) {
   const start = () => setSession((s) => ({ ...s, index: s.resumeAt ?? 0, resumeAt: undefined }));
   const restart = () => {
     clearLessonProgress(deck.id);
-    setSession({ ...freshSession(state, deck), index: 0 });
+    if (!bundle) return;
+    setSession({ ...freshSession(state, bundle), index: 0 });
     setDone(false);
   };
+
+  if (!bundle) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center px-4 text-center">
+        {bundleError ? (
+          <>
+            <p className="text-title font-bold text-ink-1">Couldn’t load this lesson</p>
+            <p className="mt-2 text-body text-ink-2">Check your connection and try again.</p>
+            <div className="mt-6 flex gap-2">
+              <Button variant="secondary" icon={RotateCcw} onClick={() => setReloadKey((k) => k + 1)}>Retry</Button>
+              <Button to="/app">Exit lesson</Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Loader2 size={28} className="animate-spin text-action" aria-hidden="true" />
+            <p className="mt-4 text-body text-ink-2">Loading {deck.title}…</p>
+          </>
+        )}
+      </div>
+    );
+  }
 
   const progress = done ? 100 : index < 0 ? 0 : Math.round((index / steps.length) * 100);
 
@@ -186,7 +255,7 @@ function Intro({ deck, track, steps, resumeAt, onStart, onRestart }) {
           )}
           <li className="flex gap-3">
             <RotateCcw size={18} className="mt-1 shrink-0 text-ink-2" aria-hidden="true" />
-            <span>Missed questions come back at the end. Score {PASS_PCT}% on first tries to open the next lesson.</span>
+            <span>Missed questions come back at the end. Score {PASS_PCT}% on first tries to pass the lesson.</span>
           </li>
         </ul>
         <p className="mt-4 text-small text-ink-2">You can leave at any time; your place is saved.</p>
@@ -233,7 +302,7 @@ function Complete({ deck, state, tries, onRetry }) {
       </Card>
       <p className="mx-auto mt-5 max-w-sm text-body text-ink-2">
         {!passed
-          ? `You need ${PASS_PCT}% to open the next lesson. Study the flashcards or go again. Your answers so far already count towards review.`
+          ? `You need ${PASS_PCT}% to pass this lesson (passing every lesson opens the module assessment). Study the flashcards or go again. Your answers so far already count towards review.`
           : pct >= 80
             ? 'Excellent. These questions will come back on a later review day.'
             : 'Good work. The questions you missed will come back soon in your reviews.'}

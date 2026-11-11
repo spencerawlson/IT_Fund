@@ -4,7 +4,6 @@ import { getTrack, ROADMAP } from '@/data/academy';
 import { COURSE_META } from './courses';
 import { PATHS } from './paths';
 import { CERTIFICATIONS, SKILLS } from './certifications';
-import { LESSON_CONTENT } from './lessonContent';
 
 export { PATHS, CERTIFICATIONS, SKILLS };
 
@@ -35,8 +34,7 @@ function buildCourse(meta) {
       trackId: track.id,
       deck,
       minutes: lessonMinutes(deck),
-      content: LESSON_CONTENT[deck.id] || null,
-      resources: deck.resources,
+        resources: deck.resources,
     }));
     return {
       key,

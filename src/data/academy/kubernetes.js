@@ -3,7 +3,8 @@
 // card ids are position-based, so reordering resets a learner's progress on them.
 //
 // Kubernetes track. Orchestration end to end: workloads, networking, scaling and cluster security.
-// cissp: [8] (Software Development Security — deploy pipeline / platform).
+// cissp: only k8s-security is tagged [8] (RBAC, NetworkPolicy, Pod Security Standards).
+// The rest is orchestration mechanics, not CISSP Domain 8.
 
 export default {
   id: 'kubernetes',
@@ -17,7 +18,6 @@ export default {
         id: 'k8s-basics',
         title: 'Kubernetes Basics',
         summary: 'What Kubernetes is and how a cluster is shaped.',
-        cissp: [8],
         sources: ['k8s-docs', 'k8s-basics'],
         cards: [
           ['What is Kubernetes (K8s)?', 'A platform that orchestrates containers across a cluster of machines', 'It schedules, scales, heals and networks containerised workloads.', ['A container runtime', 'A programming language', 'A single server']],
@@ -36,7 +36,6 @@ export default {
         id: 'k8s-workloads',
         title: 'Pods & Workloads',
         summary: 'Pods, ReplicaSets and Deployments.',
-        cissp: [8],
         sources: ['k8s-docs', 'kube-by-example'],
         cards: [
           ['What does a Pod group together?', 'One or more containers that share network and storage, scheduled together', 'They share an IP and can talk over localhost.', ['Many unrelated apps', 'A whole node', 'Only one process ever']],
@@ -55,7 +54,6 @@ export default {
         id: 'k8s-config',
         title: 'Manifests, Namespaces & Config',
         summary: 'YAML objects, namespaces, ConfigMaps and Secrets.',
-        cissp: [8],
         sources: ['k8s-docs'],
         cards: [
           ['What four top-level fields does a K8s manifest have?', 'apiVersion, kind, metadata, spec', 'kind + apiVersion say what it is; spec is the desired state.', ['name, type, data, run', 'image, port, env, cmd', 'host, user, pass, db']],
@@ -76,7 +74,6 @@ export default {
         id: 'k8s-networking',
         title: 'Services & Networking',
         summary: 'Stable endpoints, DNS and Ingress.',
-        cissp: [8],
         sources: ['k8s-docs'],
         cards: [
           ['Why do Pods need a Service in front of them?', 'Pod IPs are ephemeral; a Service gives a stable virtual IP/name and load-balances to the pods', 'Clients target the Service, not individual pods.', ['Pods have no IPs', 'Services run the containers', 'For storage']],
@@ -95,7 +92,6 @@ export default {
         id: 'k8s-storage',
         title: 'Storage & Persistence',
         summary: 'Volumes, PersistentVolumes and claims.',
-        cissp: [8],
         sources: ['k8s-docs'],
         cards: [
           ['Why is a pod\'s container filesystem not enough for data?', 'It is ephemeral — lost when the pod is rescheduled or restarted', 'Persistent data needs a volume.', ['It is read-only', 'It is too small', 'It is encrypted']],
@@ -114,7 +110,6 @@ export default {
         id: 'k8s-deployments',
         title: 'Rollouts, Scaling & Probes',
         summary: 'Rolling updates, autoscaling and health checks.',
-        cissp: [8],
         sources: ['k8s-docs'],
         cards: [
           ['What does a rolling update do?', 'Replaces old pods with new ones gradually, keeping the app available', 'The default Deployment strategy.', ['Stops all pods, then starts new', 'Updates one node\'s OS', 'Deletes the Service']],
@@ -135,7 +130,6 @@ export default {
         id: 'k8s-operations',
         title: 'Workload Types & Operability',
         summary: 'StatefulSets, DaemonSets, Jobs and debugging.',
-        cissp: [8],
         sources: ['k8s-docs', 'kube-by-example'],
         cards: [
           ['When do you use a StatefulSet instead of a Deployment?', 'For apps needing stable identity and per-pod storage (databases, queues)', 'Pods get stable names (app-0, app-1) and their own PVCs.', ['For any web app', 'Never', 'Only for batch jobs']],

@@ -23,8 +23,12 @@ function save(state) {
   }
 }
 
-/** Record one completion. Returns the lab's updated record, or null if the timestamps are unusable. */
-export function recordLabCompletion(labId, startedAtIso, completedAtIso) {
+/** Record one completion. Returns the lab's updated record, or null if the timestamps are unusable.
+    `attested` records the completion's provenance (see LabCompletion.attested):
+    true when it rested on the learner's "I did this" claim rather than
+    server-side evidence. It is display-only here — XP is gated in
+    LabWorkspace via the session flag, not in this store. */
+export function recordLabCompletion(labId, startedAtIso, completedAtIso, attested = false) {
   if (!labId) return null;
   const start = new Date(startedAtIso).getTime();
   const end = new Date(completedAtIso).getTime();
@@ -37,6 +41,7 @@ export function recordLabCompletion(labId, startedAtIso, completedAtIso) {
     bestSeconds: prev.bestSeconds == null ? seconds : Math.min(prev.bestSeconds, seconds),
     lastSeconds: seconds,
     lastCompletedAt: completedAtIso,
+    attested: !!attested,
   };
   all[labId] = next;
   save(all);
@@ -53,13 +58,15 @@ export function getLabProgress() {
 
 /**
  * Aggregate server history rows into the same shape as the local map.
- * Rows: [{ lab_id, duration_seconds, completed_at }], newest first.
+ * Rows: [{ lab_id, duration_seconds, completed_at, attested }], newest first.
+ * `attested` is the latest completion's provenance (see recordLabCompletion):
+ * true when the latest run rested on attestation, not server evidence.
  */
 export function aggregateServerHistory(rows) {
   const map = {};
   for (const r of rows || []) {
     const e = map[r.lab_id] || (map[r.lab_id] = {
-      completions: 0, bestSeconds: null, lastSeconds: null, lastCompletedAt: null,
+      completions: 0, bestSeconds: null, lastSeconds: null, lastCompletedAt: null, attested: false,
     });
     e.completions += 1;
     e.bestSeconds = e.bestSeconds == null ? r.duration_seconds : Math.min(e.bestSeconds, r.duration_seconds);
@@ -67,6 +74,7 @@ export function aggregateServerHistory(rows) {
     if (e.lastSeconds == null) {
       e.lastSeconds = r.duration_seconds;
       e.lastCompletedAt = r.completed_at;
+      e.attested = !!r.attested;
     }
   }
   return map;

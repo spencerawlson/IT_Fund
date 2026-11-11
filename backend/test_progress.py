@@ -96,3 +96,16 @@ def test_write_rate_limit():
             break
         version = r.json()["version"]
     assert got_429
+
+
+def test_deeply_nested_payload_is_400_not_500():
+    # 10,000 levels of nesting: json.loads raises RecursionError, which must
+    # surface as a 400 (malformed payload), never a 500.
+    deep = b'{"state": ' + b'[' * 10000 + b']' * 10000 + b'}'
+    r = client.put(
+        "/api/academy/progress",
+        headers={"If-Match": "0", "Content-Type": "application/json"},
+        content=deep,
+        cookies=_signed_in(),
+    )
+    assert r.status_code == 400

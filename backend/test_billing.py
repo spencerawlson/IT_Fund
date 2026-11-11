@@ -2,6 +2,7 @@
 import os
 import sys
 import types
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 os.environ["COOKIE_INSECURE"] = "1"
@@ -30,6 +31,9 @@ class _FakeCustomer:
 
 
 class _FakeSubscription:
+    cancel_calls = []
+    cancel_mode = "ok"  # "ok" | "already_canceled" | "fail"
+
     @staticmethod
     def retrieve(sub_id):
         _calls["sub_retrieve"] = sub_id
@@ -40,6 +44,24 @@ class _FakeSubscription:
             "current_period_end": 1893456000,  # 2030-01-01
             "metadata": {},
         }
+
+    @staticmethod
+    def cancel(sub_id):
+        _FakeSubscription.cancel_calls.append(sub_id)
+        if _FakeSubscription.cancel_mode == "already_canceled":
+            raise RuntimeError("subscription already canceled")
+        if _FakeSubscription.cancel_mode == "fail":
+            raise RuntimeError("stripe down")
+        return {"id": sub_id, "status": "canceled"}
+
+
+class _FakeInvoice:
+    subscription = "sub_test_1"
+
+    @staticmethod
+    def retrieve(invoice_id):
+        _calls["invoice_retrieve"] = invoice_id
+        return types.SimpleNamespace(subscription=_FakeInvoice.subscription, id=invoice_id)
 
 
 class _FakePortalSession:
@@ -65,6 +87,7 @@ class _FakeWebhook:
 fake_stripe.checkout = types.SimpleNamespace(Session=_FakeCheckoutSession)
 fake_stripe.Customer = _FakeCustomer
 fake_stripe.Subscription = _FakeSubscription
+fake_stripe.Invoice = _FakeInvoice
 fake_stripe.billing_portal = types.SimpleNamespace(Session=_FakePortalSession)
 fake_stripe.Webhook = _FakeWebhook
 sys.modules["stripe"] = fake_stripe
@@ -94,6 +117,9 @@ def setup_function():
     db.init_db()
     _calls.clear()
     _FakeWebhook.mode = "ok"
+    _FakeSubscription.cancel_calls = []
+    _FakeSubscription.cancel_mode = "ok"
+    _FakeInvoice.subscription = "sub_test_1"
     for k, v in KEYS.items():
         os.environ[k] = v
 
@@ -112,14 +138,17 @@ def _signed_in(sub="u1", email="u1@example.com"):
     return {COOKIE_NAME: raw}, uid
 
 
-def _set_sub(uid, status="active", customer="cus_test_1"):
+def _set_sub(uid, status="active", customer="cus_test_1", current_period_end=None,
+             past_due_since=None, sub_id="sub_test_1"):
     with db.SessionLocal() as s:
         s.merge(
             Subscription(
                 user_id=uid,
                 stripe_customer_id=customer,
-                stripe_subscription_id="sub_test_1",
+                stripe_subscription_id=sub_id,
                 status=status,
+                current_period_end=current_period_end,
+                past_due_since=past_due_since,
             )
         )
         s.commit()
@@ -139,6 +168,52 @@ def test_is_subscribed_active_and_trialing():
     assert billing.is_subscribed(uid) is False
     _set_sub(uid, "past_due")
     assert billing.is_subscribed(uid) is False
+
+
+def test_is_subscribed_enforces_current_period_end():
+    # F-10: an active row whose period provably ended grants no access.
+    _, uid = _signed_in()
+    now = datetime.now(timezone.utc)
+    _set_sub(uid, "active", current_period_end=now - timedelta(days=1))
+    assert billing.is_subscribed(uid) is False
+    _set_sub(uid, "active", current_period_end=now + timedelta(days=30))
+    assert billing.is_subscribed(uid) is True
+    _set_sub(uid, "trialing", current_period_end=now - timedelta(days=1))
+    assert billing.is_subscribed(uid) is False
+    # Within the 5-minute clock-skew grace, a just-ended period still counts.
+    _set_sub(uid, "active", current_period_end=now - timedelta(minutes=2))
+    assert billing.is_subscribed(uid) is True
+    # No period end recorded (legacy row): the status alone decides.
+    _set_sub(uid, "active", current_period_end=None)
+    assert billing.is_subscribed(uid) is True
+
+
+def test_is_subscribed_past_due_seven_day_grace():
+    # Policy (2026-11-11): past_due keeps access for 7 days from the day it
+    # went past_due, then access is revoked.
+    _, uid = _signed_in()
+    now = datetime.now(timezone.utc)
+    _set_sub(uid, "past_due", past_due_since=now - timedelta(days=3))
+    assert billing.is_subscribed(uid) is True
+    _set_sub(uid, "past_due", past_due_since=now - timedelta(days=6, hours=23))
+    assert billing.is_subscribed(uid) is True
+    _set_sub(uid, "past_due", past_due_since=now - timedelta(days=8))
+    assert billing.is_subscribed(uid) is False
+    # No anchor (legacy row, never synced since the anchor shipped): fail closed.
+    _set_sub(uid, "past_due", past_due_since=None)
+    assert billing.is_subscribed(uid) is False
+
+
+def test_past_due_grace_flows_through_status_endpoint():
+    cookies, uid = _signed_in()
+    now = datetime.now(timezone.utc)
+    _set_sub(uid, "past_due", past_due_since=now - timedelta(days=1))
+    r = client.get("/api/billing/status", cookies=cookies)
+    assert r.json()["subscribed"] is True
+    assert r.json()["status"] == "past_due"
+    _set_sub(uid, "past_due", past_due_since=now - timedelta(days=8))
+    r = client.get("/api/billing/status", cookies=cookies)
+    assert r.json()["subscribed"] is False
 
 
 def test_owner_bypass_never_billed(monkeypatch):
@@ -167,10 +242,19 @@ def test_checkout_503_without_key():
     assert "STRIPE_SECRET_KEY" in r.json()["detail"]
 
 
-def test_status_503_without_key():
-    cookies, _ = _signed_in()
+def test_status_works_without_stripe_key():
+    # F-04: GET /billing/status is a local DB read — it must not require
+    # Stripe to be configured.
+    cookies, uid = _signed_in()
     os.environ.pop("STRIPE_SECRET_KEY")
-    assert client.get("/api/billing/status", cookies=cookies).status_code == 503
+    r = client.get("/api/billing/status", cookies=cookies)
+    assert r.status_code == 200
+    assert r.json() == {"subscribed": False, "status": "none", "current_period_end": None}
+    _set_sub(uid, "active")
+    r = client.get("/api/billing/status", cookies=cookies)
+    assert r.status_code == 200
+    assert r.json()["subscribed"] is True
+    assert r.json()["status"] == "active"
 
 
 # ---------- checkout ----------
@@ -298,6 +382,26 @@ def test_checkout_503_without_price():
     assert "STRIPE_PRICE_ID" in r.json()["detail"]
 
 
+def test_checkout_409_when_already_subscribed():
+    # F-07: an active subscriber must not get a second Checkout Session.
+    cookies, uid = _signed_in()
+    _set_sub(uid, "active")
+    r = client.post("/api/billing/checkout", cookies=cookies)
+    assert r.status_code == 409
+    assert "checkout_create" not in _calls  # no new Checkout Session
+
+
+def test_checkout_passes_idempotency_key_and_subscription_data():
+    # F-07 (idempotency key) + F-11 (user_id on the Subscription object).
+    cookies, uid = _signed_in()
+    r = client.post("/api/billing/checkout", cookies=cookies)
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:price_fake"
+    assert _calls["checkout_create"]["subscription_data"] == {
+        "metadata": {"user_id": uid, "ventoryn_site_id": "418e926be25e251d95badb9e"}
+    }
+
+
 # ---------- status ----------
 
 
@@ -314,6 +418,15 @@ def test_status_reflects_row():
     r = client.get("/api/billing/status", cookies=cookies)
     body = r.json()
     assert body["subscribed"] is True and body["status"] == "active"
+
+
+def test_status_reflects_expired_period_end():
+    # F-10: /billing/status applies the same period-end rule as is_subscribed.
+    cookies, uid = _signed_in()
+    _set_sub(uid, "active", current_period_end=datetime.now(timezone.utc) - timedelta(days=1))
+    r = client.get("/api/billing/status", cookies=cookies)
+    assert r.json()["subscribed"] is False
+    assert r.json()["status"] == "active"
 
 
 def test_status_requires_auth():
@@ -408,6 +521,303 @@ def test_webhook_503_when_unconfigured():
     os.environ.pop("STRIPE_WEBHOOK_SECRET")
     r = _webhook_post({"type": "checkout.session.completed", "data": {"object": {}}})
     assert r.status_code == 503
+
+
+def test_webhook_checkout_retrieve_failure_returns_5xx_then_retry_succeeds(monkeypatch):
+    # F-02: a Stripe failure mid-handling must return 5xx (so Stripe
+    # redelivers) — never a swallowed 200 — and the redelivery must
+    # activate the user once retrieve is healthy again.
+    _, uid = _signed_in()
+    orig_retrieve = _FakeSubscription.retrieve
+    state = {"fail": True}
+
+    def flaky_retrieve(sub_id):
+        if state["fail"]:
+            raise RuntimeError("stripe down")
+        return orig_retrieve(sub_id)
+
+    monkeypatch.setattr(_FakeSubscription, "retrieve", staticmethod(flaky_retrieve))
+    event = {
+        "id": "evt_retry_1",
+        "created": 1893456000,
+        "type": "checkout.session.completed",
+        "data": {"object": {"metadata": {"user_id": uid}, "subscription": "sub_test_1"}},
+    }
+    r = _webhook_post(event)
+    assert r.status_code == 503
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid) is None
+    assert billing.is_subscribed(uid) is False
+    state["fail"] = False
+    r = _webhook_post(event)
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "active"
+    assert billing.is_subscribed(uid) is True
+
+
+def test_webhook_db_failure_returns_5xx(monkeypatch):
+    # F-02: a DB failure inside _sync_from_subscription must return 5xx.
+    _, uid = _signed_in()
+
+    def failing_sync(user_id, sub, event_created=None):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(billing, "_sync_from_subscription", failing_sync)
+    r = _webhook_post(
+        {
+            "id": "evt_dbfail_1",
+            "created": 1893456000,
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_test_1",
+                    "customer": "cus_test_1",
+                    "status": "active",
+                    "current_period_end": 1893456000,
+                    "metadata": {"user_id": uid},
+                }
+            },
+        }
+    )
+    assert r.status_code == 503
+
+
+def test_webhook_stale_updated_after_deleted_stays_canceled():
+    # F-06: a delayed updated(active) older than the applied
+    # deleted(canceled) must not resurrect the subscription.
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    r = _webhook_post(
+        {
+            "id": "evt_del_1",
+            "created": 2000000000,
+            "type": "customer.subscription.deleted",
+            "data": {
+                "object": {
+                    "id": "sub_test_1",
+                    "customer": "cus_test_1",
+                    "status": "canceled",
+                    "current_period_end": None,
+                    "metadata": {"user_id": uid},
+                }
+            },
+        }
+    )
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "canceled"
+    r = _webhook_post(
+        {
+            "id": "evt_stale_1",
+            "created": 1000000000,
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_test_1",
+                    "customer": "cus_test_1",
+                    "status": "active",
+                    "current_period_end": 1893456000,
+                    "metadata": {"user_id": uid},
+                }
+            },
+        }
+    )
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "canceled"
+    assert billing.is_subscribed(uid) is False
+
+
+def test_webhook_duplicate_event_id_applied_once(monkeypatch):
+    # F-06: the same event id delivered twice must apply once.
+    _, uid = _signed_in()
+    orig_retrieve = _FakeSubscription.retrieve
+    retrieves = []
+
+    def counting_retrieve(sub_id):
+        retrieves.append(sub_id)
+        return orig_retrieve(sub_id)
+
+    monkeypatch.setattr(_FakeSubscription, "retrieve", staticmethod(counting_retrieve))
+    event = {
+        "id": "evt_dup_1",
+        "created": 1893456000,
+        "type": "checkout.session.completed",
+        "data": {"object": {"metadata": {"user_id": uid}, "subscription": "sub_test_1"}},
+    }
+    assert _webhook_post(event).status_code == 200
+    assert _webhook_post(event).status_code == 200
+    assert len(retrieves) == 1
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "active"
+
+
+def test_webhook_subscription_event_with_metadata_needs_no_existing_row():
+    # F-11: with user_id on the Subscription object (subscription_data),
+    # a subscription event applies without any pre-existing row — no
+    # customer-ID fallback lookup needed.
+    _, uid = _signed_in()
+    r = _webhook_post(
+        {
+            "id": "evt_meta_1",
+            "created": 1893456000,
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_test_1",
+                    "customer": "cus_new_1",
+                    "status": "active",
+                    "current_period_end": 1893456000,
+                    "metadata": {"user_id": uid},
+                }
+            },
+        }
+    )
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, uid)
+        assert row is not None and row.status == "active"
+        assert row.stripe_subscription_id == "sub_test_1"
+    assert billing.is_subscribed(uid) is True
+
+
+# ---------- past_due grace anchor + charge.refunded ----------
+
+
+def _past_due_event(uid, event_id, created, status="past_due"):
+    return {
+        "id": event_id,
+        "created": created,
+        "type": "customer.subscription.updated",
+        "data": {
+            "object": {
+                "id": "sub_test_1",
+                "customer": "cus_test_1",
+                "status": status,
+                "current_period_end": 1893456000,
+                "metadata": {"user_id": uid},
+            }
+        },
+    }
+
+
+def test_webhook_past_due_sets_grace_anchor_once_then_clears_on_recovery():
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    now = int(datetime.now(timezone.utc).timestamp())
+    r = _webhook_post(_past_due_event(uid, "evt_pd_1", now))
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, uid)
+        assert row.status == "past_due"
+        # SQLite returns naive datetimes; treat them as UTC (same caveat as
+        # billing._row_is_subscribed).
+        assert row.past_due_since.replace(tzinfo=timezone.utc) == datetime.fromtimestamp(now, tz=timezone.utc)
+    assert billing.is_subscribed(uid) is True  # inside the 7-day grace
+    # A second updated(past_due) must NOT reset the clock.
+    r = _webhook_post(_past_due_event(uid, "evt_pd_2", now + 86400))
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, uid)
+        assert row.past_due_since.replace(tzinfo=timezone.utc) == datetime.fromtimestamp(now, tz=timezone.utc)
+    # Recovery clears the anchor.
+    r = _webhook_post(_past_due_event(uid, "evt_pd_3", now + 172800, status="active"))
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, uid)
+        assert row.status == "active"
+        assert row.past_due_since is None
+
+
+def _refund_event(event_id, **charge):
+    base = {"id": "ch_test_1", "amount": 1900, "amount_refunded": 1900,
+            "invoice": "in_test_1", "customer": "cus_test_1"}
+    base.update(charge)
+    return {
+        "id": event_id,
+        "created": 1893456000,
+        "type": "charge.refunded",
+        "data": {"object": base},
+    }
+
+
+def test_webhook_charge_refunded_full_revokes_and_cancels():
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    event = _refund_event("evt_ref_1")
+    r = _webhook_post(event)
+    assert r.status_code == 200
+    assert _calls["invoice_retrieve"] == "in_test_1"
+    assert _FakeSubscription.cancel_calls == ["sub_test_1"]
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, uid)
+        assert row.status == "canceled"
+        assert row.current_period_end is not None
+    assert billing.is_subscribed(uid) is False
+    # Redelivery is a no-op (idempotent): no second cancel.
+    r = _webhook_post(event)
+    assert r.status_code == 200
+    assert _FakeSubscription.cancel_calls == ["sub_test_1"]
+
+
+def test_webhook_charge_refunded_partial_changes_nothing():
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    r = _webhook_post(_refund_event("evt_ref_partial", amount_refunded=1000))
+    assert r.status_code == 200
+    assert "invoice_retrieve" not in _calls
+    assert _FakeSubscription.cancel_calls == []
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "active"
+    assert billing.is_subscribed(uid) is True
+
+
+def test_webhook_charge_refunded_without_invoice_changes_nothing():
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    r = _webhook_post(_refund_event("evt_ref_noinv", invoice=None))
+    assert r.status_code == 200
+    assert _FakeSubscription.cancel_calls == []
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "active"
+
+
+def test_webhook_charge_refunded_does_not_revoke_a_resubscription():
+    # The learner resubscribed (new subscription id) after the old one was
+    # refunded: the refund for the OLD subscription must not touch the new one.
+    _, uid = _signed_in()
+    _set_sub(uid, "active", sub_id="sub_new_1")
+    r = _webhook_post(_refund_event("evt_ref_old"))
+    assert r.status_code == 200
+    assert _FakeSubscription.cancel_calls == []
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, uid)
+        assert row.status == "active"
+        assert row.stripe_subscription_id == "sub_new_1"
+    assert billing.is_subscribed(uid) is True
+
+
+def test_webhook_charge_refunded_already_canceled_in_stripe_still_revokes():
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    _FakeSubscription.cancel_mode = "already_canceled"
+    r = _webhook_post(_refund_event("evt_ref_ac"))
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "canceled"
+    assert billing.is_subscribed(uid) is False
+
+
+def test_webhook_charge_refunded_stripe_cancel_failure_returns_503():
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    _FakeSubscription.cancel_mode = "fail"
+    r = _webhook_post(_refund_event("evt_ref_fail"))
+    assert r.status_code == 503
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "active"  # nothing changed
+    assert billing.is_subscribed(uid) is True
 
 
 # ---------- GET /billing/price (single source of truth) ----------

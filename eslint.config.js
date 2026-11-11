@@ -6,7 +6,8 @@ import pluginUnusedImports from "eslint-plugin-unused-imports";
 
 export default [
   // Generated native-shell output (Capacitor copies the web build and its bridge into these).
-  { ignores: ["dist/**", "android/**/build/**", "android/app/src/main/assets/**", "ios/App/App/public/**", "ios/build/**"] },
+  // dist-server is the SSR bundle from `npm run build:ssr`: generated, never edited.
+  { ignores: ["dist/**", "dist-server/**", "android/**/build/**", "android/app/src/main/assets/**", "ios/App/App/public/**", "ios/build/**"] },
   {
     files: [
       "src/components/**/*.{js,mjs,cjs,jsx}",

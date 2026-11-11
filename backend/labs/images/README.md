@@ -24,16 +24,16 @@ hardened container per session). Build them on the VM that runs the backend
 | `road-to-cissp/trivy` | sec-trivy-001 | real trivy (rootfs scan) + seeded vulnerable rootfs |
 | `road-to-cissp/iac-policy` | iac-policy-001 | real tfsec + conftest + seeded violating Terraform |
 | `road-to-cissp/python-tools` | py-loganalysis-001, py-sqli-001, py-semgrep-001 | real python3/sqlite3/semgrep + seeded datasets |
-| `road-to-cissp/linux-admin` | linux-users-001 … linux-audit-001 (039–045) | Debian + openssh/cron/supervisor/fail2ban/nftables tooling; Dockerfile created on FedServ (see below) |
-| `road-to-cissp/linux-admin-hardening` | linux-hardening-001 (046) | linux-admin + misconfigured seeds + posture-check; Dockerfile created on FedServ (see below) |
+| `road-to-cissp/linux-admin` | linux-users-001 … linux-audit-001 (039–045) | Debian + openssh/cron/supervisor/fail2ban/nftables tooling |
+| `road-to-cissp/linux-admin-hardening` | linux-hardening-001 (046) | linux-admin + misconfigured seeds + posture-check |
 
-### `linux-admin` images: Dockerfile created on FedServ
+### `linux-admin` images
 
-The two `Dockerfile.linux-admin*` files are not in this repo — the environment
-used to author them refused the write, so they are created directly on FedServ
-from the content in the Phase 3 report before running `./build.sh`. The lab
-definitions, seeds, validators, and `build.sh` entries are all committed; only
-the two Dockerfiles are provisioned out-of-band. Once present, build normally:
+The two `Dockerfile.linux-admin*` files are tracked in this repo
+(`Dockerfile.linux-admin`, `Dockerfile.linux-admin-hardening`) and are built
+by `./build.sh` like every other image — `linux-admin-hardening` FROMs
+`linux-admin`, so build order matters (the `all` case builds linux-admin
+first). Build them individually with:
 
 ```bash
 ./build.sh linux-admin && ./build.sh linux-admin-hardening

@@ -19,6 +19,8 @@ import hmac
 import logging
 import os
 import secrets
+import time
+from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -35,6 +37,16 @@ ADMIN_COOKIE = "rtc_admin"
 ADMIN_SESSION_HOURS = 24
 #: Lessons count as passed at the same bar as the learner UI (src/lib/progress/engine.js).
 PASS_PCT = 70
+
+#: Admin-login brute-force limit: failed attempts per client IP in a window,
+#: then 429 with Retry-After. Module-level so tests can patch the window.
+#: In-memory, per process — prod runs `--workers 2`, so each worker has its
+#: own buckets and the effective limit is ~2x; a shared/DB-backed store is
+#: the follow-up (see P2-3). Successful login clears the caller's bucket.
+ADMIN_LOGIN_MAX_ATTEMPTS = 5
+ADMIN_LOGIN_WINDOW_SECONDS = 15 * 60
+
+_admin_login_attempts: dict[str, deque] = defaultdict(deque)
 
 
 def _now() -> datetime:
@@ -137,14 +149,49 @@ def require_admin(request: Request) -> None:
 # ---------- auth ----------
 
 
+def _client_ip(request: Request) -> str:
+    return request.client.host if request.client else "unknown"
+
+
+def _admin_login_retry_after(ip: str, now: float | None = None) -> int | None:
+    """Seconds until `ip` may try again, or None when under the limit."""
+    now = time.time() if now is None else now
+    q = _admin_login_attempts.get(ip)
+    if not q:
+        return None
+    while q and q[0] <= now - ADMIN_LOGIN_WINDOW_SECONDS:
+        q.popleft()
+    if len(q) < ADMIN_LOGIN_MAX_ATTEMPTS:
+        return None
+    return int(q[0] + ADMIN_LOGIN_WINDOW_SECONDS - now) + 1
+
+
+def _record_admin_login_failure(ip: str) -> None:
+    # Log IP + timestamp only — never the attempted password.
+    log.warning("admin login failed from %s at %s", ip, _now().isoformat())
+    _admin_login_attempts[ip].append(time.time())
+
+
 @router.post("/login")
-def admin_login(body: dict, response: Response) -> dict:
+def admin_login(body: dict, response: Response, request: Request) -> dict:
     """Password gate. Generic failure either way: never reveal whether the
-    password is unset or merely wrong."""
+    password is unset or merely wrong. Failed attempts are rate-limited per
+    IP (see ADMIN_LOGIN_MAX_ATTEMPTS): past the limit every attempt — right
+    password included — gets 429 until the window passes."""
+    ip = _client_ip(request)
+    retry_after = _admin_login_retry_after(ip)
+    if retry_after is not None:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts. Try again later.",
+            headers={"Retry-After": str(retry_after)},
+        )
     if not _password_ok(body.get("password") if isinstance(body, dict) else None):
+        _record_admin_login_failure(ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
         )
+    _admin_login_attempts.pop(ip, None)
     raw = _create_admin_session()
     response.set_cookie(ADMIN_COOKIE, raw, **_admin_cookie_kwargs())
     return {"ok": True}
@@ -253,9 +300,18 @@ def admin_accounts(q: str = "", page: int = 1, page_size: int = 25) -> dict:
     with db.SessionLocal() as s:
         query = s.query(User).filter(User.deleted_at.is_(None))
         if needle:
-            like = f"%{needle}%"
+            # Escape LIKE wildcards in the needle so q=% matches only accounts
+            # literally containing %, not every account (bound parameter, so
+            # this is wildcard abuse, not SQL injection — but escape anyway).
+            escaped = (
+                needle.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            )
+            like = f"%{escaped}%"
             query = query.filter(
-                or_(User.display_name.ilike(like), User.email.ilike(like))
+                or_(
+                    User.display_name.ilike(like, escape="\\"),
+                    User.email.ilike(like, escape="\\"),
+                )
             )
         total = query.count()
         users = (

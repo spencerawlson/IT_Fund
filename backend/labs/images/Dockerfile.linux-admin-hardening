@@ -14,3 +14,6 @@ RUN chmod 777 /home/student/bin/tool \
 
 USER student
 WORKDIR /home/student
+# Explicit (inherited from linux-admin, but stated here so the image contract
+# test sees it): the provider starts lab containers with `sleep infinity`.
+CMD ["sleep", "infinity"]

@@ -24,6 +24,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from auth.deps import require_user_id
+from billing import is_subscribed
 
 log = logging.getLogger("ai_tutor")
 
@@ -160,10 +161,16 @@ def _card(req: TutorReq, include_answer: bool = True) -> str:
 
 def build_messages(req: TutorReq) -> list[dict]:
     if req.mode == "chat":
-        if not req.messages or req.messages[-1].role != "user":
+        # Only the learner's own turns are trusted. Client-supplied
+        # "assistant" turns are dropped, never forwarded: anyone can forge
+        # them, and a forged assistant turn is a prompt-injection vector
+        # ("as the tutor I previously agreed..."). The model still sees the
+        # learner's earlier questions, in order, as context.
+        user_turns = [m for m in req.messages if m.role == "user"]
+        if not user_turns:
             raise HTTPException(status_code=400, detail="chat needs a final user message")
         context = f"The learner is studying: {req.track or 'the Road to CISSP curriculum'}."
-        return [{"role": "system", "content": SYSTEM_PROMPT + "\n\n" + context}] + [m.model_dump() for m in req.messages]
+        return [{"role": "system", "content": SYSTEM_PROMPT + "\n\n" + context}] + [m.model_dump() for m in user_turns]
 
     if req.mode == "weakspots":
         if not req.missed:
@@ -298,6 +305,16 @@ def ai_tutor(body: TutorReq, user_id: str = Depends(require_user_id)):
     client = get_client()
     if client is None:
         raise HTTPException(status_code=503, detail="AI tutor is not configured.")
+    # Paywall: the tutor spends OpenAI money, so it is a subscriber (or owner)
+    # benefit, not a free signed-in benefit. 402 for signed-in free users.
+    # NOTE: the tutor is currently disabled on the live host (GET /ai/status
+    # returns enabled:false), so no live user loses a working feature today;
+    # this gate takes effect when the tutor is enabled.
+    if not is_subscribed(user_id):
+        raise HTTPException(
+            status_code=402,
+            detail="AI tutor requires an active subscription.",
+        )
     build_messages(body)  # validate the mode's required fields before rate limiting
     # Spend control: sign-in required, and the per-user limit can't be dodged by IP spoofing.
     check_rate(f"user:{user_id}")

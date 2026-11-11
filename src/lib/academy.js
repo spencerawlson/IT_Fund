@@ -2,7 +2,7 @@
 // All state is local to the browser (localStorage), matching src/lib/progress.js.
 import { useSyncExternalStore } from 'react';
 import { localStorageAdapter } from './progress/storage';
-import { allDecks, allCards } from '../data/academy';
+import { fetchExam } from './content';
 import { CISSP_DOMAINS, SECURITY_PLUS_DOMAINS, SAA_DOMAINS, CYSA_DOMAINS, AWS_SECURITY_DOMAINS } from '../data/academy/meta';
 
 const KEY = 'itfund-academy-v1';
@@ -23,6 +23,10 @@ export const XP = {
   deckMastered: 100,
   puzzleSolved: 20,
   lessonComplete: 30,
+  // One verified lab completion per lab (see recordVerifiedLabCompletion).
+  // The amount is a tunable constant, not a policy: Spencer decided that
+  // only server-verified completions earn XP, not how much each is worth.
+  labComplete: 50,
   examPerCorrect: 1,
 };
 
@@ -51,7 +55,7 @@ export const BADGES = {
   'cissp-ready': { title: 'CISSP-Ready', desc: 'Reach 80% readiness in all 8 CISSP domains.', icon: 'ShieldCheck' },
 };
 
-const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null, exams: [], exam: null, secplusExams: [], secplusExam: null };
+const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null, exams: [], exam: null, secplusExams: [], secplusExam: null, labs: {} };
 
 let cache = null;
 // Persistence goes through an adapter (src/lib/progress/storage.js) so a server-backed store
@@ -171,6 +175,35 @@ export function completeLesson(deckId, pct) {
   write(withBadges(next));
 }
 
+/**
+ * Records a SERVER-VERIFIED lab completion (Spencer's rule, 2026-11-11):
+ * the first verified completion of a lab earns XP.labComplete once, and marks
+ * each related lesson complete. Callers must gate on the session's `attested`
+ * flag — attested-only ("I did this") completions never reach this function,
+ * so they earn no XP and mark nothing (see LabWorkspace).
+ *
+ * Lessons are marked with `{ at, via: 'lab' }` and NO quiz score: a lab
+ * completion is not a guided-lesson attempt, so it must not invent a
+ * "Best score 100%" (see engine.isPassed, which treats via:'lab' as passed).
+ * The lessonComplete bonus (30 XP) is still paid once per newly-marked
+ * lesson, shared with the guided lesson — a lesson completed by lab first
+ * earns nothing extra when its guided lesson is done later, and vice versa,
+ * so the total for a lab + its lesson is the same (80 XP) in either order.
+ * Returns false when the lab was already recorded verified (no double award).
+ */
+export function recordVerifiedLabCompletion(labId, lessonIds = []) {
+  const state = read();
+  if (state.labs?.[labId]?.verified) return false;
+  const at = Date.now();
+  let next = withXp({ ...state, labs: { ...state.labs, [labId]: { verified: true, at } } }, XP.labComplete);
+  for (const lessonId of lessonIds) {
+    if (next.lessons?.[lessonId]) continue; // already complete: keep its score
+    next = withXp({ ...next, lessons: { ...next.lessons, [lessonId]: { at, via: 'lab' } } }, XP.lessonComplete);
+  }
+  write(withBadges(next));
+  return true;
+}
+
 /** Awards the one-time bonus the first time every card in a deck reaches the top box. */
 export function checkDeckMastered(deck) {
   const state = read();
@@ -262,7 +295,7 @@ export function buildQuestions(cards, pool, count) {
     .map((card) => {
       // Prefer the card's own distractors; only scan the pool when they don't yield three.
       // This keeps the common case O(1) per card instead of O(pool) — the whole-pool scan
-      // dominates when building an exam one card at a time (see buildPracticeExam).
+      // dominates when sampling exam questions one at a time.
       const own = (card.wrong || []).filter((w, i, arr) => w !== card.a && arr.indexOf(w) === i);
       let wrong = own.slice(0, 3);
       if (wrong.length < 3) {
@@ -290,55 +323,8 @@ export const EXAM_DURATION_MIN = 180;
 export const EXAM_PASS_PCT = 70;
 export const EXAM_HISTORY_LIMIT = 20;
 
-/** Deck id -> primary CISSP domain id (first curated tag), derived from the data. */
-export const DECK_DOMAIN = Object.fromEntries(allDecks.map((d) => [d.id, (d.cissp || [])[0] || null]));
-
-/** Per-domain question quotas for an exam of `total` questions (largest remainder). */
-export function examDomainQuotas(total = EXAM_QUESTION_COUNT) {
-  const rows = CISSP_DOMAINS.map((d) => ({ id: d.id, exact: (d.weight / 100) * total, n: 0 }));
-  rows.forEach((r) => {
-    r.n = Math.floor(r.exact);
-  });
-  let remainder = total - rows.reduce((s, r) => s + r.n, 0);
-  const byFrac = [...rows].sort((a, b) => b.exact - b.n - (a.exact - a.n));
-  for (let i = 0; remainder > 0; i++, remainder--) byFrac[i % byFrac.length].n += 1;
-  return Object.fromEntries(rows.map((r) => [r.id, r.n]));
-}
-
-/**
- * Build one exam: domain-weighted sampling without replacement, option order and
- * question order shuffled. Returns { questions, quotas, shortfalls } where each
- * question is { id, domain, card, options, correct }.
- */
-export function buildPracticeExam({ count = EXAM_QUESTION_COUNT } = {}) {
-  const quotas = examDomainQuotas(count);
-  const byDomain = {};
-  for (const card of allCards) {
-    const dom = DECK_DOMAIN[card.deckId];
-    if (dom) (byDomain[dom] ??= []).push(card);
-  }
-  const picked = []; // [{ card, domain }]
-  const shortfalls = [];
-  for (const d of CISSP_DOMAINS) {
-    const pool = shuffle(byDomain[d.id] || []);
-    const take = pool.slice(0, quotas[d.id]);
-    take.forEach((card) => picked.push({ card, domain: d.id }));
-    if (take.length < quotas[d.id]) shortfalls.push(d.id);
-  }
-  if (shortfalls.length) {
-    const seen = new Set(picked.map((p) => p.card.id));
-    const missing = count - picked.length;
-    const rest = shuffle(allCards.filter((c) => !seen.has(c.id))).slice(0, missing);
-    rest.forEach((card) => picked.push({ card, domain: DECK_DOMAIN[card.deckId] || shortfalls[0] }));
-  }
-  const questions = shuffle(
-    picked.slice(0, count).map(({ card, domain }) => {
-      const q = buildQuestions([card], allCards, 1)[0];
-      return { id: card.id, domain, card, options: q.options, correct: q.correct };
-    }),
-  );
-  return { questions, quotas, shortfalls };
-}
+// Exam questions are built server-side (see backend/content.py) so the client
+// never sees the pools. startPracticeExam fetches one; scoreExam stays pure.
 
 /** Score a finished exam. answers: { [questionId]: chosenOptionIndex }. */
 export function scoreExam(questions, answers) {
@@ -368,8 +354,8 @@ export function scoreExam(questions, answers) {
 // ---------- exam session (persisted in academy state, so a refresh resumes) ----------
 
 /** Start a new exam. The deadline timestamp is persisted: refreshes don't reset the clock. */
-export function startPracticeExam() {
-  const { questions, quotas } = buildPracticeExam();
+export async function startPracticeExam() {
+  const { questions, quotas } = await fetchExam('cissp');
   const now = Date.now(); // one timestamp: deadline - startedAt is then exactly the duration
   const exam = {
     id: `exam-${now}`,
@@ -453,55 +439,6 @@ export const SECPLUS_EXAM_DURATION_MIN = 90;
 export const SECPLUS_EXAM_PASS_PCT = 83;
 export const SECPLUS_EXAM_HISTORY_LIMIT = 20;
 
-/** Deck id -> primary Security+ domain id (first curated tag), derived from the data. */
-export const SECPLUS_DECK_DOMAIN = Object.fromEntries(allDecks.map((d) => [d.id, (d.secplus || [])[0] || null]));
-
-/** Per-domain question quotas for a Security+ exam of `total` questions (largest remainder). */
-export function secplusExamDomainQuotas(total = SECPLUS_EXAM_QUESTION_COUNT) {
-  const rows = SECURITY_PLUS_DOMAINS.map((d) => ({ id: d.id, exact: (d.weight / 100) * total, n: 0 }));
-  rows.forEach((r) => {
-    r.n = Math.floor(r.exact);
-  });
-  let remainder = total - rows.reduce((s, r) => s + r.n, 0);
-  const byFrac = [...rows].sort((a, b) => b.exact - b.n - (a.exact - a.n));
-  for (let i = 0; remainder > 0; i++, remainder--) byFrac[i % byFrac.length].n += 1;
-  return Object.fromEntries(rows.map((r) => [r.id, r.n]));
-}
-
-/**
- * Build one Security+ exam: domain-weighted sampling without replacement, option
- * order and question order shuffled. Returns { questions, quotas, shortfalls }.
- */
-export function buildSecplusPracticeExam({ count = SECPLUS_EXAM_QUESTION_COUNT } = {}) {
-  const quotas = secplusExamDomainQuotas(count);
-  const byDomain = {};
-  for (const card of allCards) {
-    const dom = SECPLUS_DECK_DOMAIN[card.deckId];
-    if (dom) (byDomain[dom] ??= []).push(card);
-  }
-  const picked = []; // [{ card, domain }]
-  const shortfalls = [];
-  for (const d of SECURITY_PLUS_DOMAINS) {
-    const pool = shuffle(byDomain[d.id] || []);
-    const take = pool.slice(0, quotas[d.id]);
-    take.forEach((card) => picked.push({ card, domain: d.id }));
-    if (take.length < quotas[d.id]) shortfalls.push(d.id);
-  }
-  if (shortfalls.length) {
-    const seen = new Set(picked.map((p) => p.card.id));
-    const missing = count - picked.length;
-    const rest = shuffle(allCards.filter((c) => !seen.has(c.id))).slice(0, missing);
-    rest.forEach((card) => picked.push({ card, domain: SECPLUS_DECK_DOMAIN[card.deckId] || shortfalls[0] }));
-  }
-  const questions = shuffle(
-    picked.slice(0, count).map(({ card, domain }) => {
-      const q = buildQuestions([card], allCards, 1)[0];
-      return { id: card.id, domain, card, options: q.options, correct: q.correct };
-    }),
-  );
-  return { questions, quotas, shortfalls };
-}
-
 /** Score a finished Security+ exam. answers: { [questionId]: chosenOptionIndex }. */
 export function scoreSecplusExam(questions, answers) {
   const perDomain = {};
@@ -530,8 +467,8 @@ export function scoreSecplusExam(questions, answers) {
 // ---------- Security+ exam session (persisted separately from the CISSP exam) ----------
 
 /** Start a new Security+ exam. Stored as state.secplusExam so both exams can coexist. */
-export function startSecplusPracticeExam() {
-  const { questions, quotas } = buildSecplusPracticeExam();
+export async function startSecplusPracticeExam() {
+  const { questions, quotas } = await fetchExam('secplus');
   const now = Date.now(); // one timestamp: deadline - startedAt is then exactly the duration
   const exam = {
     id: `secplus-exam-${now}`,
@@ -649,57 +586,6 @@ export const CERT_EXAMS = {
 
 export const CERT_EXAM_HISTORY_LIMIT = 20;
 
-/** Per-domain question quotas for a cert exam (largest remainder). */
-export function certExamDomainQuotas(certId, total) {
-  const cfg = CERT_EXAMS[certId];
-  if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
-  const count = total || cfg.questionCount;
-  const rows = cfg.domains.map((d) => ({ id: d.id, exact: (d.weight / 100) * count, n: 0 }));
-  rows.forEach((r) => { r.n = Math.floor(r.exact); });
-  let remainder = count - rows.reduce((s, r) => s + r.n, 0);
-  const byFrac = [...rows].sort((a, b) => b.exact - b.n - (a.exact - a.n));
-  for (let i = 0; remainder > 0; i++, remainder--) byFrac[i % byFrac.length].n += 1;
-  return Object.fromEntries(rows.map((r) => [r.id, r.n]));
-}
-
-/**
- * Build one cert exam: domain-weighted sampling without replacement, option
- * order and question order shuffled. Returns { questions, quotas, shortfalls }.
- */
-export function buildCertPracticeExam(certId, { count } = {}) {
-  const cfg = CERT_EXAMS[certId];
-  if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
-  const total = count || cfg.questionCount;
-  const quotas = certExamDomainQuotas(certId, total);
-  const deckDomain = Object.fromEntries(allDecks.map((d) => [d.id, (d[cfg.tagKey] || [])[0] || null]));
-  const byDomain = {};
-  for (const card of allCards) {
-    const dom = deckDomain[card.deckId];
-    if (dom) (byDomain[dom] ??= []).push(card);
-  }
-  const picked = [];
-  const shortfalls = [];
-  for (const d of cfg.domains) {
-    const pool = shuffle(byDomain[d.id] || []);
-    const take = pool.slice(0, quotas[d.id]);
-    take.forEach((card) => picked.push({ card, domain: d.id }));
-    if (take.length < quotas[d.id]) shortfalls.push(d.id);
-  }
-  if (shortfalls.length) {
-    const seen = new Set(picked.map((p) => p.card.id));
-    const missing = total - picked.length;
-    const rest = shuffle(allCards.filter((c) => !seen.has(c.id))).slice(0, missing);
-    rest.forEach((card) => picked.push({ card, domain: deckDomain[card.deckId] || shortfalls[0] }));
-  }
-  const questions = shuffle(
-    picked.slice(0, total).map(({ card, domain }) => {
-      const q = buildQuestions([card], allCards, 1)[0];
-      return { id: card.id, domain, card, options: q.options, correct: q.correct };
-    }),
-  );
-  return { questions, quotas, shortfalls };
-}
-
 /** Score a finished cert exam. answers: { [questionId]: chosenOptionIndex }. */
 export function scoreCertExam(certId, questions, answers) {
   const cfg = CERT_EXAMS[certId];
@@ -738,10 +624,10 @@ function certExamMutate(certId, fn) {
 }
 
 /** Start a new practice exam for a cert. */
-export function startCertPracticeExam(certId) {
+export async function startCertPracticeExam(certId) {
   const cfg = CERT_EXAMS[certId];
   if (!cfg) throw new Error(`unknown cert exam: ${certId}`);
-  const { questions, quotas } = buildCertPracticeExam(certId);
+  const { questions, quotas } = await fetchExam(certId);
   const now = Date.now(); // one timestamp: deadline - startedAt is then exactly the duration
   const exam = {
     id: `${certId}-exam-${now}`,

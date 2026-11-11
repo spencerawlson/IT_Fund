@@ -120,6 +120,14 @@ export function CoursesIndex() {
 function CourseNotFound() {
   return (
     <PageContainer>
+      {/* Unknown course slugs serve HTTP 200 from the SPA shell (soft 404),
+          so this state must at least tell crawlers not to index it. */}
+      <Seo
+        title="Course not found · Road to CISSP"
+        description="This course does not exist on Road to CISSP. Browse all courses to find the track you were looking for."
+        path="/academy/courses"
+        robots="noindex"
+      />
       <EmptyState icon={SearchX} title="Course not found" text="It may have been renamed." to="/academy/courses" action="See all courses" />
     </PageContainer>
   );
