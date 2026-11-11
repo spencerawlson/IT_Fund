@@ -42,14 +42,32 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
   const context = await browser.newContext({ ...device, reducedMotion: 'reduce' });
   // Ambient background off: its CSS animation would make the pixel comparison meaningless.
   await context.addInitScript(() => { try { localStorage.setItem('itfund-ambient-bg', 'off'); } catch { /* ignore */ } });
+  // No backend runs here: answer the API at once as a signed-out visitor.
+  // Left to the preview proxy, each call hangs on a refused connection;
+  // WebKit keeps those sockets across navigations until its per-host pool
+  // is full, and every later page stays blank waiting for its own scripts.
+  await context.route('**/api/**', (route) => route.fulfill({
+    status: 401, contentType: 'application/json', body: '{"detail":"Not signed in"}',
+  }));
   const page = await context.newPage();
   const errors = [];
+  const consoleErrors = [];
   page.on('pageerror', (e) => errors.push(e.message));
+  // Console errors (failed module loads, CSP blocks) do not raise pageerror;
+  // keep them so a blank page says why. Proxy noise from the absent API is skipped.
+  page.on('console', (m) => { if (m.type() === 'error' && !/\/api\//.test(m.text())) consoleErrors.push(m.text()); });
+  // Which file failed: the console message alone does not name it.
+  page.on('response', (r) => { if (r.status() >= 400 && !/\/api\//.test(r.url())) consoleErrors.push(`HTTP ${r.status()} ${r.url().replace(BASE, '')}`); });
+  page.on('requestfailed', (r) => { if (!/\/api\//.test(r.url())) consoleErrors.push(`request failed ${r.url().replace(BASE, '')}: ${r.failure()?.errorText}`); });
 
   for (const path of PAGES) {
     errors.length = 0;
+    consoleErrors.length = 0;
     await page.goto(BASE + path, { waitUntil: 'load' });
-    await page.waitForTimeout(1200);
+    // Wait for the page to actually render (its <h1>), not a fixed delay:
+    // WebKit on a CI runner can take several seconds to boot the app.
+    await page.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(600);
     const m = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth - innerWidth,
       acronyms: CSS.highlights?.get('acronym')?.size ?? 0,
@@ -58,15 +76,33 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
     console.log(`  ${path}  overflow=${m.overflow}px acronyms=${m.acronyms} errors=${errors.length}`);
     if (m.overflow > 1) fail(`${engine} ${path}: page scrolls sideways by ${m.overflow}px`);
     if (errors.length) fail(`${engine} ${path}: page error: ${errors[0]}`);
-    if (!m.h1) fail(`${engine} ${path}: page did not render a heading`);
+    if (!m.h1) {
+      const seen = await page.evaluate(() => (document.body?.innerText || '').replace(/\s+/g, ' ').slice(0, 160));
+      fail(`${engine} ${path}: page did not render a heading — shows "${seen}"`
+        + (consoleErrors.length ? ` — console: ${consoleErrors.slice(0, 4).join(' | ')}` : ''));
+    }
   }
 
-  // Landing header: brand and buttons each on one line.
+  // Landing header: brand and buttons each on one line. Count the text's
+  // line boxes — not the element height: buttons are 44px tall on purpose
+  // (touch targets), which is not wrapping.
   await page.goto(BASE + '/', { waitUntil: 'load' });
+  await page.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
   await page.waitForTimeout(800);
   const header = await page.evaluate(() =>
-    [...document.querySelectorAll('header span, header a')].filter((e) => e.offsetHeight).map((e) => [e.innerText.trim(), e.getBoundingClientRect().height]));
-  for (const [text, h] of header) if (h > 40) fail(`${engine} landing header "${text}" wraps (${Math.round(h)}px tall)`);
+    [...document.querySelectorAll('header span, header a')].filter((e) => e.offsetHeight).map((e) => {
+      // Text only: an icon beside the label is its own box, not a second line.
+      const tops = new Set();
+      const walk = document.createTreeWalker(e, NodeFilter.SHOW_TEXT);
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+        if (!n.textContent.trim()) continue;
+        const r = document.createRange();
+        r.selectNodeContents(n);
+        for (const b of r.getClientRects()) if (b.width > 0) tops.add(Math.round(b.top));
+      }
+      return [e.innerText.trim(), tops.size];
+    }));
+  for (const [text, lines] of header) if (lines > 1) fail(`${engine} landing header "${text}" wraps (${lines} lines)`);
 
   // Underlines actually painted (WebKit once dropped them all).
   const drawn = await underlineDrawn(page);
@@ -77,9 +113,10 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
 
   // Tap a plain-text acronym: tooltip appears; tap elsewhere: it closes.
   await page.goto(BASE + '/app', { waitUntil: 'load' });
+  await page.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
   await page.waitForTimeout(1200);
   const pt = await page.evaluate(() => {
-    for (const r of CSS.highlights.get('acronym')) {
+    for (const r of CSS.highlights?.get('acronym') || []) {
       const b = r.getBoundingClientRect();
       if (b.width && b.top > 100 && b.bottom < innerHeight - 120 && !r.startContainer.parentElement.closest('a,button')) {
         return { t: r.toString(), x: b.left + b.width / 2, y: b.top + b.height / 2 };
