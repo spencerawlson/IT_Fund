@@ -125,6 +125,40 @@ const FAQ_JSON_LD = {
   })),
 };
 
+// The five official social profiles. Single source of truth for the footer
+// links below and the Organization sameAs in HOME_JSON_LD — one list, no drift.
+const SOCIAL_LINKS = [
+  { label: 'YouTube', href: 'https://www.youtube.com/@road2cissp' },
+  { label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61596190452892' },
+  { label: 'X', href: 'https://x.com/road2cissp' },
+  { label: 'Instagram', href: 'https://www.instagram.com/road2cissp/' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/road2cissp' },
+];
+
+// Homepage JSON-LD: WebSite + Organization (sameAs = the five social
+// profiles) + the FAQPage. The prerender script splits @graph nodes into
+// separate ld+json blocks in the static HTML (same pattern as Pricing).
+const HOME_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.road2cissp.com/#website',
+      url: 'https://www.road2cissp.com/',
+      name: 'Road to CISSP',
+      description: 'Go from IT fundamentals to the CISSP: objective-mapped flashcards, hands-on labs in real terminals, and timed exam simulators. Start free.',
+    },
+    {
+      '@type': 'Organization',
+      '@id': 'https://www.road2cissp.com/#organization',
+      name: 'Road to CISSP',
+      url: 'https://www.road2cissp.com/',
+      sameAs: SOCIAL_LINKS.map((s) => s.href),
+    },
+    FAQ_JSON_LD,
+  ],
+};
+
 export default function Landing() {
   const { isAuthenticated, isLoadingAuth } = useAuth();
 
@@ -139,7 +173,7 @@ export default function Landing() {
         title="Road to CISSP — Networking, Security & Cloud Training"
         description={`Go from IT fundamentals to the CISSP: ${COUNTS.totalCardsPlus} objective-mapped flashcards, hands-on labs in real terminals, and timed exam simulators. Start free.`}
         path="/"
-        jsonLd={FAQ_JSON_LD}
+        jsonLd={HOME_JSON_LD}
       />
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
@@ -327,6 +361,14 @@ export default function Landing() {
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>
             <Link to="/contact" className="hover:text-ink-1">Contact</Link>
             <Link to="/signin" className="hover:text-ink-1">Sign in</Link>
+          </div>
+        </div>
+        <div className="mx-auto mt-4 flex max-w-6xl flex-wrap items-center gap-4 px-4 sm:px-6">
+          <span className="text-caption text-ink-3">Follow us:</span>
+          <div className="flex flex-wrap gap-4 text-caption text-ink-3">
+            {SOCIAL_LINKS.map((s) => (
+              <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={`Road to CISSP on ${s.label}`} className="hover:text-ink-1">{s.label}</a>
+            ))}
           </div>
         </div>
       </footer>
