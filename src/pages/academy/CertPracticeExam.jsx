@@ -12,7 +12,40 @@ import {
 import { cn } from '@/lib/utils';
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import Seo from '@/components/Seo';
+import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+
+// FAQ, in the product's own words — rendered below and mirrored as FAQPage
+// JSON-LD on this page's <Seo> (single source of truth, no drift).
+// The "is the real exam like this?" answer is per-cert: the AWS exams are
+// multiple-choice / multiple-response, while CySA+ (like Security+) also
+// has performance-based questions this simulator does not include.
+function certFaqs(cfg) {
+  const realExam = {
+    'aws-saa': 'The real SAA-C03 is 65 scenario-based questions in 130 minutes — multiple-choice and multiple-response. This simulator samples the same domains and weights, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.',
+    cysa: 'The real CS0-003 is 85 questions in 165 minutes and includes performance-based questions — hands-on tasks in a simulated environment — which this simulator does not include. This is fixed-length practice: a knowledge check with a per-domain breakdown, not a test-day prediction.',
+    'aws-security': 'The real SCS-C02 is 65 scenario-based questions in 170 minutes — multiple-choice and multiple-response. This simulator samples the same domains and weights, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.',
+  }[cfg.certId] || 'This simulator samples the same domains and weights as the real exam, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.';
+  return [
+    {
+      q: 'How does the practice exam work?',
+      a: `${cfg.questionCount} questions. ${cfg.blurb} You get ${cfg.durationMin} minutes on the clock, and ${cfg.passPct}% proficiency passes this simulator.`,
+    },
+    {
+      q: 'Can I pause the exam?',
+      a: 'No — the timer survives a refresh, and closing the tab does not buy you time. One sitting, start to finish.',
+    },
+    {
+      q: `Is the real ${cfg.code} like this?`,
+      a: realExam,
+    },
+    {
+      q: 'What happens after I finish?',
+      a: 'You get a per-domain breakdown showing exactly what to study next, and you can review every missed question with the correct answer. Retake it as often as you like.',
+    },
+  ];
+}
 
 function fmtClock(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
@@ -28,6 +61,19 @@ export default function CertPracticeExam() {
   const state = useAcademy();
   useDocumentTitle(cfg ? `${cfg.title} Practice Exam · Road to CISSP` : 'Practice Exam · Road to CISSP');
   const { subscribed, loading } = useSubscription();
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState(null);
+  const handleStart = async () => {
+    setStarting(true);
+    setStartError(null);
+    try {
+      await startCertPracticeExam(certId);
+    } catch (err) {
+      setStartError(err);
+    } finally {
+      setStarting(false);
+    }
+  };
 
   if (!cfg) return <Navigate to="/academy" replace />;
 
@@ -36,8 +82,17 @@ export default function CertPracticeExam() {
   if (!loading && !subscribed) {
     return (
       <main className="min-h-screen text-ink-1">
+        <Seo
+          title={`${cfg.title} practice exam — test-day simulator · Road to CISSP`}
+          description={`${cfg.questionCount} questions. ${cfg.blurb} ${cfg.durationMin} minutes on the clock — the timer survives a refresh.`}
+          path={`/academy/cert/${certId}/exam`}
+          jsonLd={faqJsonLd(certFaqs(cfg))}
+        />
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
           <UpgradePrompt what={`The ${cfg.title} practice exam`} />
+          <div className="mt-10">
+            <FaqSection faqs={certFaqs(cfg)} />
+          </div>
         </div>
       </main>
     );
@@ -45,10 +100,16 @@ export default function CertPracticeExam() {
 
   return (
     <main className="min-h-screen text-ink-1">
+      <Seo
+        title={`${cfg.title} practice exam — test-day simulator · Road to CISSP`}
+        description={`${cfg.questionCount} questions. ${cfg.blurb} ${cfg.durationMin} minutes on the clock — the timer survives a refresh.`}
+        path={`/academy/cert/${certId}/exam`}
+        jsonLd={faqJsonLd(certFaqs(cfg))}
+      />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
-        {!exam && <StartScreen cfg={cfg} certId={certId} history={certExamHistory(state, certId)} />}
+        {!exam && <StartScreen cfg={cfg} certId={certId} history={certExamHistory(state, certId)} onStart={handleStart} starting={starting} startError={startError} />}
         {exam && !exam.finishedAt && <RunningExam key={exam.id} exam={exam} cfg={cfg} certId={certId} />}
-        {exam && exam.finishedAt && <ReportScreen exam={exam} cfg={cfg} certId={certId} />}
+        {exam && exam.finishedAt && <ReportScreen exam={exam} cfg={cfg} certId={certId} onStart={handleStart} starting={starting} startError={startError} />}
       </div>
     </main>
   );
@@ -58,7 +119,7 @@ export default function CertPracticeExam() {
 // Start screen
 // -------------------------------------------------------------------------------------------------
 
-function StartScreen({ cfg, certId, history }) {
+function StartScreen({ cfg, certId, history, onStart, starting, startError }) {
   const recent = history.slice(0, 3);
   return (
     <div>
@@ -73,7 +134,8 @@ function StartScreen({ cfg, certId, history }) {
           <li className="flex gap-3"><Award size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{cfg.passPct}% proficiency to pass, with a per-domain breakdown so you know exactly what to study next.</li>
         </ul>
         <div className="mt-6">
-          <Button size="lg" icon={Play} onClick={() => startCertPracticeExam(certId)} className="w-full sm:w-auto">Start the exam</Button>
+          <Button size="lg" icon={Play} onClick={onStart} disabled={starting} className="w-full sm:w-auto">{starting ? 'Building your exam…' : 'Start the exam'}</Button>
+          {startError && <p className="mt-3 text-small text-red-600">Couldn’t start the exam — check your connection and try again.</p>}
         </div>
         <p className="mt-3 text-small text-ink-2">One sitting. Flag questions to revisit them before you finish.</p>
       </Card>
@@ -102,6 +164,9 @@ function StartScreen({ cfg, certId, history }) {
           ))}
         </ul>
       )}
+      <div className="mt-10">
+        <FaqSection faqs={certFaqs(cfg)} />
+      </div>
     </div>
   );
 }
@@ -283,7 +348,7 @@ function RunningExam({ exam, cfg, certId }) {
 // Report
 // -------------------------------------------------------------------------------------------------
 
-function ReportScreen({ exam, cfg, certId }) {
+function ReportScreen({ exam, cfg, certId, onStart, starting, startError }) {
   const { result } = exam;
   const domainById = Object.fromEntries(cfg.domains.map((d) => [d.id, d]));
 
@@ -302,7 +367,7 @@ function ReportScreen({ exam, cfg, certId }) {
         <p className="mt-4 text-title tabular-nums text-ink-1">{result.pct}%</p>
         <p className="mt-1 text-small text-ink-2">{result.correct} / {result.total} correct · {cfg.passPct}% needed to pass</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Button icon={RotateCcw} onClick={() => startCertPracticeExam(certId)}>Retake exam</Button>
+          <Button icon={RotateCcw} onClick={onStart} disabled={starting}>{starting ? 'Building your exam…' : 'Retake exam'}</Button>
           <Button to="/app" variant="secondary" icon={Home}>Back to home</Button>
         </div>
       </Card>

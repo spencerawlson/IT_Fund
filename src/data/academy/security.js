@@ -15,6 +15,7 @@ export default {
         title: 'Security Concepts',
         summary: 'CIA, AAA, controls, zero trust, and change management. (Domain 1.0)',
         cissp: [1, 3],
+        secplus: [1],
         sources: ['messer-sec', 'isc2-cc', 'nist-glossary'],
         cards: [
           ['What does the CIA triad stand for?', 'Confidentiality, Integrity, Availability', 'The three core goals of information security.', ['Control, Identity, Access', 'Cipher, Integrity, Authentication', 'Confidentiality, Identity, Accountability']],
@@ -36,6 +37,7 @@ export default {
         title: 'Threat Actors & Social Engineering',
         summary: 'Who attacks, why, and how people get tricked. (Objectives 2.1, 2.2)',
         cissp: [1, 7],
+        secplus: [2],
         sources: ['messer-sec', 'mitre-attack', 'isc2-cc'],
         cards: [
           ['Which threat actor has the most resources and persistence?', 'Nation-state', 'Often behind APTs (advanced persistent threats).', ['Unskilled attacker', 'Hacktivist', 'Insider']],
@@ -57,6 +59,7 @@ export default {
         title: 'Malware & Attack Indicators',
         summary: 'Malware types and signs of compromise. (Objective 2.4)',
         cissp: [7],
+        secplus: [2],
         sources: ['messer-sec', 'mitre-attack'],
         cards: [
           ['Which malware self-replicates across networks without user action?', 'Worm', 'A virus needs a host file and user action to spread.', ['Virus', 'Trojan', 'Logic bomb']],
@@ -80,6 +83,7 @@ export default {
         title: 'Cryptography & PKI',
         summary: 'Symmetric, asymmetric, hashing, certificates. (Objective 1.4)',
         cissp: [3],
+        secplus: [1],
         sources: ['messer-sec', 'nist-glossary'],
         cards: [
           ['Symmetric encryption uses…', 'One shared key for encryption and decryption', 'Fast; AES is the standard. Key distribution is the hard part.', ['A public and private key pair', 'No key', 'A hash and a salt']],
@@ -102,6 +106,7 @@ export default {
         title: 'Identity & Access Management',
         summary: 'MFA, SSO, federation, and access models. (Objective 4.6)',
         cissp: [5],
+        secplus: [4],
         sources: ['messer-sec', 'nist-glossary'],
         cards: [
           ['What are the MFA factor categories?', 'Something you know, have, are (plus somewhere you are)', 'Two passwords are still one factor.', ['Username, password, PIN', 'Email, SMS, call', 'Device, network, app']],
@@ -138,6 +143,7 @@ export default {
         title: 'Security Architecture',
         summary: 'Secure design, cloud, IoT/OT, and data protection. (Domain 3.0)',
         cissp: [3, 2],
+        secplus: [3],
         sources: ['messer-sec', 'comptia-sec'],
         cards: [
           ['What are the three data states?', 'At rest, in transit, in use', 'Encrypt at rest (disk), in transit (TLS); in use is protected by secure enclaves.', ['Public, private, secret', 'Hot, warm, cold', 'Raw, processed, archived']],
@@ -161,6 +167,7 @@ export default {
         title: 'Security Operations',
         summary: 'Hardening, vuln management, monitoring, and IR. (Domain 4.0, 28%)',
         cissp: [7, 6],
+        secplus: [4],
         sources: ['messer-sec', 'nist-ir', 'cisa-kev'],
         cards: [
           ['What is CVSS?', 'A 0-10 score for vulnerability severity', 'Prioritise with context: exploitability (e.g. CISA KEV) and asset value.', ['A malware family', 'A compliance law', 'An encryption standard']],
@@ -182,6 +189,7 @@ export default {
         title: 'Governance, Risk & Compliance',
         summary: 'Risk management, policies, third parties, and audits. (Domain 5.0, 20%)',
         cissp: [1, 2],
+        secplus: [5],
         sources: ['messer-sec', 'nist-csf', 'nist-rmf'],
         cards: [
           ['What is the formula for Annualized Loss Expectancy?', 'ALE = SLE × ARO', 'SLE = Asset Value × Exposure Factor.', ['ALE = SLE + ARO', 'ALE = AV × ARO', 'ALE = SLE / ARO']],
@@ -203,6 +211,7 @@ export default {
         title: 'Application & AI Security',
         summary: 'Secure coding, web attacks, and AI threats (new in SY0-801).',
         cissp: [8, 3],
+        secplus: [3],
         sources: ['owasp-top10', 'owasp-llm', 'comptia-sec'],
         cards: [
           ['What is SQL injection?', 'Inserting SQL through input so the database runs it', 'Fix with parameterised queries and least-privilege DB accounts.', ['Flooding a database', 'Stealing DB backups', 'A DNS attack']],

@@ -9,10 +9,6 @@
       }
     },
     {
-      "source": "/((?!api/|assets/)[^.]*)",
-      "destination": "/index.html"
-    },
-    {
       "source": "/(.*)",
       "destination": {
         "type": "service",

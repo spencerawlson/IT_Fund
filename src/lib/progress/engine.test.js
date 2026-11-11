@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { COURSES, PATHS, ROADMAP_ORDER, allLessons, getCourse, getModule, getPath } from '@/data/catalog';
 import {
-  PASS_PCT, lessonStatus, lessonPrerequisites, modulePrerequisites, moduleStatus, courseProgress,
+  PASS_PCT, isPassed, lessonStatus, lessonPrerequisites, modulePrerequisites, moduleStatus, courseProgress,
   courseStatus, courseMinutesLeft, pathStatus, pathPrerequisites, continueLearning, pastLessonCards,
   overallProgress, reviewQueue, dueReviewCount, assessmentReviewCards,
 } from './engine';
@@ -104,6 +104,16 @@ describe('course progress', () => {
     const failed = withLessons([course.lessons[0].id], 10);
     expect(courseProgress(failed, course)).toBe(0);
     expect(courseStatus(failed, course)).toBe('in-progress');
+  });
+
+  it('treats a lab-marked lesson as passed without a quiz score', () => {
+    // recordVerifiedLabCompletion writes { at, via: 'lab' } — no best.
+    const labMarked = { ...empty(), lessons: { [course.lessons[0].id]: { at: 1, via: 'lab' } } };
+    expect(isPassed(labMarked, course.lessons[0].id)).toBe(true);
+    expect(lessonStatus(labMarked, course.lessons[0])).toBe('completed');
+    expect(courseProgress(labMarked, course)).toBeGreaterThan(0);
+    // A low guided score still fails.
+    expect(isPassed(withLessons([course.lessons[0].id], 10), course.lessons[0].id)).toBe(false);
   });
 
   it('computes overall progress across every course', () => {

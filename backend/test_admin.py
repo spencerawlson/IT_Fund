@@ -18,6 +18,7 @@ if str(backend_dir) not in sys.path:
 import pytest
 from fastapi.testclient import TestClient
 
+import admin as admin_mod
 import ai_tutor
 import db
 import main
@@ -36,6 +37,7 @@ def setup_function():
     os.environ["ADMIN_PASSWORD"] = ADMIN_PASSWORD
     ai_tutor._hits.clear()
     ai_tutor._cache.clear()
+    admin_mod._admin_login_attempts.clear()
 
 
 def teardown_function():
@@ -92,6 +94,27 @@ def test_admin_login_correct_password_admits_and_status_reflects():
     assert r.status_code == 200
     assert r.json() == {"ok": True}
     assert client.get("/api/admin/status").json() == {"authenticated": True}
+    assert client.get("/api/admin/overview").status_code == 200
+
+
+def test_admin_login_rate_limited(monkeypatch):
+    # Shrink the window so the test can observe expiry (limit constants are
+    # module-level in admin.py and read at call time).
+    monkeypatch.setattr(admin_mod, "ADMIN_LOGIN_WINDOW_SECONDS", 2)
+    for _ in range(admin_mod.ADMIN_LOGIN_MAX_ATTEMPTS):
+        assert _admin_login("wrong-password").status_code == 401
+    r = _admin_login("wrong-password")
+    assert r.status_code == 429
+    assert "retry-after" in r.headers
+    assert int(r.headers["retry-after"]) > 0
+    # A correct password during the window is also refused.
+    assert _admin_login().status_code == 429
+    assert client.get("/api/admin/overview").status_code == 401
+    # After the window passes, login works again.
+    import time
+
+    time.sleep(2.2)
+    assert _admin_login().status_code == 200
     assert client.get("/api/admin/overview").status_code == 200
 
 
@@ -156,6 +179,24 @@ def test_accounts_search_and_pagination():
     assert body["total"] == 5 and body["page"] == 2 and len(body["items"]) == 2
 
 
+def test_accounts_search_escapes_wildcards():
+    _seed_user("u-aaa", "a@example.com", "Alice")
+    _seed_user("u-bbb", "b@example.com", "Bob")
+    _seed_user("u-pct", "pct@example.com", "100% Sure")
+    _admin_login()
+    # q=% must match only accounts literally containing %, not every account.
+    r = client.get("/api/admin/accounts?q=%")
+    assert r.status_code == 200
+    assert r.json()["total"] == 1
+    assert r.json()["items"][0]["email"] == "pct@example.com"
+    # Same for the single-character wildcard _.
+    r = client.get("/api/admin/accounts?q=_")
+    assert r.json()["total"] == 0
+    # Ordinary substring search still works.
+    r = client.get("/api/admin/accounts?q=alice")
+    assert r.json()["total"] == 1
+
+
 # ---------- subscriptions ----------
 
 
@@ -209,6 +250,10 @@ class FakeCompletionsWithUsage:
 
 def _tutor_user(monkeypatch):
     uid, raw = _signed_in_user()
+    # The tutor is paywalled: the fixture user needs an active subscription.
+    with db.SessionLocal() as s:
+        s.merge(Subscription(user_id=uid, stripe_customer_id="cus_test", status="active"))
+        s.commit()
     monkeypatch.setattr(
         ai_tutor,
         "get_client",
@@ -256,6 +301,10 @@ def test_cached_tutor_call_logs_zero_cost(monkeypatch):
 
 def test_tutor_error_still_logs_a_row(monkeypatch):
     uid, raw = _signed_in_user()
+    # The tutor is paywalled: this user needs an active subscription.
+    with db.SessionLocal() as s:
+        s.merge(Subscription(user_id=uid, stripe_customer_id="cus_test", status="active"))
+        s.commit()
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
 
     class Failing:

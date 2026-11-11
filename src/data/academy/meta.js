@@ -6,7 +6,25 @@ export const TIERS = [
   { id: 'advanced', label: 'Advanced', color: '#F59E0B' },
 ];
 
-// ISC2 CISSP exam outline, effective 15 April 2024 (current as of 2026).
+// Exam-outline versions and expiry: the curriculum is written against these
+// outlines. When one retires, the tracks mapped to it need a re-map before
+// the exam changes — this is the single place that records what is current.
+export const EXAM_OUTLINES = {
+  cissp: {
+    exam: 'CISSP',
+    outline: '2024 outline (effective 15 April 2024)',
+    validUntil: '2027-04-15',
+    source: 'https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline',
+  },
+  secplus: {
+    exam: 'Security+ SY0-701',
+    outline: 'SY0-701 exam objectives',
+    validUntil: '2027-06-11',
+    source: 'https://www.comptia.org/certifications/security',
+  },
+};
+
+// ISC2 CISSP exam outline, effective 15 April 2024 (see EXAM_OUTLINES).
 export const CISSP_DOMAINS = [
   { id: 1, title: 'Security and Risk Management', weight: 16, color: '#F43F5E' },
   { id: 2, title: 'Asset Security', weight: 10, color: '#F59E0B' },
@@ -18,7 +36,7 @@ export const CISSP_DOMAINS = [
   { id: 8, title: 'Software Development Security', weight: 10, color: '#22C55E' },
 ];
 
-// CompTIA Security+ SY0-701 exam objectives (current as of 2026).
+// CompTIA Security+ SY0-701 exam objectives (see EXAM_OUTLINES).
 export const SECURITY_PLUS_DOMAINS = [
   { id: 1, title: 'General Security Concepts', weight: 12, color: '#3B82F6' },
   { id: 2, title: 'Threats, Vulnerabilities & Mitigations', weight: 22, color: '#F43F5E' },

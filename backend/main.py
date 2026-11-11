@@ -31,21 +31,50 @@ app.add_middleware(
 # Authlib stores the OAuth state/nonce in a signed session cookie during the login round-trip.
 from starlette.middleware.sessions import SessionMiddleware  # noqa: E402
 
-# A missing SESSION_SECRET is only tolerable in local dev: in production it would let
-# anyone forge the signed OAuth state cookie (login CSRF). Refuse to boot instead.
-_session_secret = os.environ.get("SESSION_SECRET")
-if not _session_secret:
-    if os.environ.get("APP_ENV", "development").lower() == "production":
-        raise RuntimeError("SESSION_SECRET must be set when APP_ENV=production.")
-    import warnings
+# Boot-time config guards. A missing SESSION_SECRET is never silently
+# papered over: the app refuses to boot unless the secret is explicitly set,
+# or the operator explicitly opts into the insecure dev default with
+# ALLOW_DEV_SECRET=1 (local development only — never in production). The old
+# published dev literal is refused even when explicitly configured: it is in
+# the public repo, so anyone who read it could forge the signed OAuth
+# state/nonce cookie.
+DEV_SESSION_SECRET = "dev-insecure-session-secret-change-me"
 
-    warnings.warn(
-        "SESSION_SECRET is not set; using an insecure dev default. "
-        "Set SESSION_SECRET before any real deployment.",
-        RuntimeWarning,
-        stacklevel=2,
+_session_secret = os.environ.get("SESSION_SECRET")
+if _session_secret == DEV_SESSION_SECRET:
+    raise RuntimeError(
+        "SESSION_SECRET must not be the published dev default "
+        "(dev-insecure-session-secret-change-me). Generate a real secret."
     )
-    _session_secret = "dev-insecure-session-secret-change-me"
+if not _session_secret:
+    if os.environ.get("ALLOW_DEV_SECRET") == "1":
+        log.warning(
+            "SESSION_SECRET is not set and ALLOW_DEV_SECRET=1 is present: "
+            "booting with the insecure dev default. Never use this outside "
+            "local development."
+        )
+        _session_secret = DEV_SESSION_SECRET
+    else:
+        raise RuntimeError(
+            "SESSION_SECRET must be set. For local development only, set "
+            "ALLOW_DEV_SECRET=1 to use the insecure dev default."
+        )
+
+# COOKIE_INSECURE=1 strips Secure from every cookie (session, admin, OAuth
+# state). Refuse it in production, same fail-fast pattern as SESSION_SECRET.
+if (
+    os.environ.get("APP_ENV", "development").lower() == "production"
+    and os.environ.get("COOKIE_INSECURE") == "1"
+):
+    raise RuntimeError("COOKIE_INSECURE=1 is refused when APP_ENV=production.")
+
+# ALLOW_DEV_LOGIN=1 is a dev-only backdoor (see auth/router.py dev_login).
+# Refuse it in production even though the docs already say never to set it.
+if (
+    os.environ.get("APP_ENV", "development").lower() == "production"
+    and os.environ.get("ALLOW_DEV_LOGIN") == "1"
+):
+    raise RuntimeError("ALLOW_DEV_LOGIN=1 is refused when APP_ENV=production.")
 
 app.add_middleware(
     SessionMiddleware,
@@ -158,6 +187,15 @@ from progress_api import router as progress_router  # noqa: E402
 
 app.include_router(progress_router)
 app.include_router(progress_router, prefix="/api")
+
+# Entitled content API (P0-1 remediation): premium lesson bodies, card answers,
+# module notes and exam questions are served here only after an entitlement
+# check — they no longer ship in the public JS bundle. Both prefixes like the
+# other routers, so /api/content/* works behind the /api rewrite.
+from content import router as content_router  # noqa: E402
+
+app.include_router(content_router)
+app.include_router(content_router, prefix="/api")
 
 # Stripe subscription billing. Both prefixes like the other routers, so
 # /api/billing/* works behind the /api rewrite.

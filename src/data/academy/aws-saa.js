@@ -134,7 +134,6 @@ export default {
         title: 'Decoupling with Queues & Events',
         summary: 'SQS, SNS, EventBridge, and Step Functions for resilient flows. (Domain 2)',
         saa: [2],
-        cissp: [3],
         sources: ['aws-saa'],
         cards: [
           ['A web tier gets traffic spikes that overwhelm the backend. Which pattern absorbs bursts?', 'SQS queue between web tier and workers (buffering)', 'The queue decouples producers from consumers; workers scale independently.', ['Bigger EC2 instances', 'Synchronous API calls', 'More ALBs']],
@@ -190,7 +189,6 @@ export default {
         title: 'Storage Selection',
         summary: 'S3 vs EBS vs EFS vs instance store — picking the right store. (Domain 3)',
         saa: [3],
-        cissp: [3],
         sources: ['aws-saa'],
         cards: [
           ['A workload needs shared file storage for 100 EC2 instances across AZs. Which service?', 'Amazon EFS', 'NFS shared filesystem, scales automatically, multi-AZ.', ['EBS', 'Instance store', 'S3 alone']],
@@ -218,7 +216,6 @@ export default {
         title: 'Database Selection',
         summary: 'RDS vs Aurora vs DynamoDB vs Redshift — the right engine. (Domain 3)',
         saa: [3],
-        cissp: [3],
         sources: ['aws-saa'],
         cards: [
           ['A workload needs single-digit-millisecond reads at massive scale with flexible schema. Which database?', 'DynamoDB', 'Managed NoSQL key-value/document store.', ['RDS MySQL', 'Redshift', 'Aurora']],
@@ -248,7 +245,6 @@ export default {
         title: 'Caching & Content Delivery',
         summary: 'CloudFront, Global Accelerator, ElastiCache, and edge patterns. (Domain 3)',
         saa: [3],
-        cissp: [3],
         sources: ['aws-saa'],
         cards: [
           ['A global audience needs low-latency static content. Which service?', 'CloudFront CDN', 'Caches at edge locations; integrates with S3, ALB, and WAF.', ['Direct S3', 'Single-region ALB', 'Route 53 alone']],
@@ -276,7 +272,6 @@ export default {
         title: 'Compute Cost Optimization',
         summary: 'EC2 pricing models, Savings Plans, rightsizing, and Graviton. (Domain 4)',
         saa: [4],
-        cissp: [3],
         sources: ['aws-saa'],
         cards: [
           ['A steady web tier runs 24/7 for 2 years. Cheapest EC2 option?', 'Compute Savings Plan or Reserved Instances (1–3yr commit)', 'Up to ~72% off On-Demand; Savings Plans flex across instance types.', ['Spot', 'On-Demand', 'Dedicated Hosts']],
@@ -304,7 +299,6 @@ export default {
         title: 'Storage & Data Cost Optimization',
         summary: 'S3 tiers, lifecycle policies, transfer costs, and Athena. (Domain 4)',
         saa: [4],
-        cissp: [3],
         sources: ['aws-saa'],
         cards: [
           ['Logs are rarely accessed after 30 days but kept 7 years. Cheapest S3 strategy?', 'Lifecycle: Standard → Infrequent Access → Glacier Deep Archive', 'Deep Archive is about $1/TB/month; retrieval takes 12–48h.', ['Standard forever', 'Delete after 30 days', 'EBS']],

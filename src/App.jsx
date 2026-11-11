@@ -19,15 +19,18 @@ import { captureAttributionTag } from '@/lib/attribution';
 // lazy-loaded below so it doesn't bloat the initial bundle (the Three.js-backed
 // Visual Lab and lab workspace especially). Lazy routes render inside the
 // <Suspense> wrapper around <Routes>.
-import Academy from './pages/Academy';
-import AcademyTrack from './pages/AcademyTrack';
-import CisspRoadmap from './pages/CisspRoadmap';
-import Practice from './pages/Practice';
 import Landing from './pages/Landing';
 import SignIn from './pages/SignIn';
-import Pricing from './pages/Pricing';
 
 // Lazy (code-split): heavy (Three.js) or secondary routes.
+const Academy = React.lazy(() => import('./pages/Academy'));
+const AcademyTrack = React.lazy(() => import('./pages/AcademyTrack'));
+const CisspRoadmap = React.lazy(() => import('./pages/CisspRoadmap'));
+const Practice = React.lazy(() => import('./pages/Practice'));
+const Pricing = React.lazy(() => import('./pages/Pricing'));
+const Privacy = React.lazy(() => import('./pages/Privacy'));
+const Terms = React.lazy(() => import('./pages/Terms'));
+const Contact = React.lazy(() => import('./pages/Contact'));
 const Home = React.lazy(() => import('./pages/Home'));
 const Module = React.lazy(() => import('./pages/Module'));
 const Lab = React.lazy(() => import('./pages/Lab'));
@@ -128,6 +131,9 @@ const AuthenticatedApp = () => {
       {/* Public front door: the marketing landing. Signed-in visitors go straight to /app. */}
       <Route path="/" element={<Landing />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/contact" element={<Contact />} />
 
       {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
       <Route path="/labs" element={<LabLauncher />} />

@@ -36,10 +36,13 @@ def _check_provider(provider: str) -> None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown or unconfigured provider.")
 
 
-@router.api_route("/dev-login", methods=["GET", "POST"])
+@router.post("/dev-login")
 def dev_login():
     """Local-only owner sign-in for testing before the OAuth apps exist. Disabled unless
-    ALLOW_DEV_LOGIN=1 (never set in production), so it 404s everywhere by default."""
+    ALLOW_DEV_LOGIN=1 (never set in production — main.py also refuses to boot with
+    it in production), so it 404s everywhere by default. POST-only: a GET that
+    creates a session is CSRF-able by construction (SameSite=lax allows
+    top-level GETs cross-site)."""
     if os.environ.get("ALLOW_DEV_LOGIN") != "1":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found.")
     with db.SessionLocal() as s:

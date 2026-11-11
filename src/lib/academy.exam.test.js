@@ -1,16 +1,13 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   setProgressAdapter,
-  buildPracticeExam,
   scoreExam,
-  examDomainQuotas,
   startPracticeExam,
   answerExamQuestion,
   toggleExamFlag,
   finishPracticeExam,
   clearPracticeExam,
   examHistory,
-  DECK_DOMAIN,
   EXAM_QUESTION_COUNT,
   EXAM_DURATION_MIN,
   EXAM_PASS_PCT,
@@ -19,63 +16,36 @@ import {
 import { memoryAdapter } from './progress/storage';
 import { CISSP_DOMAINS } from '../data/academy/meta';
 
+// Exam questions are built server-side now (backend/content.py); the client
+// only scores them and runs the timed session. Builder/quota/pool coverage
+// lives in backend/test_content.py. These tests use hand-built fixtures and
+// a mocked fetch so they never touch the network.
+
+/** Deterministic fake exam questions in the server's shape. */
+function fakeQuestions(n, domains = [1, 2, 3, 4, 5, 6, 7, 8]) {
+  return Array.from({ length: n }, (_, i) => ({
+    id: `q-${i}`,
+    domain: domains[i % domains.length],
+    card: { id: `c-${i}`, deckId: 'net-osi', trackId: 'cissp', q: `Question ${i}?`, a: `Answer ${i}`, e: `Why ${i}` },
+    options: [`Answer ${i}`, `Wrong A ${i}`, `Wrong B ${i}`, `Wrong C ${i}`],
+    correct: 0,
+  }));
+}
+
+function mockFetchExam(questions) {
+  const payload = { questions, quotas: {}, shortfalls: [] };
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => payload })));
+}
+
 let store;
 beforeEach(() => {
   store = memoryAdapter();
   setProgressAdapter(store);
 });
-
-describe('examDomainQuotas', () => {
-  it('sums to the exam length and matches the CISSP weights exactly', () => {
-    const quotas = examDomainQuotas(100);
-    expect(Object.values(quotas).reduce((s, n) => s + n, 0)).toBe(100);
-    for (const d of CISSP_DOMAINS) expect(quotas[d.id]).toBe(d.weight);
-  });
-});
-
-describe('DECK_DOMAIN', () => {
-  it('maps every deck to a valid CISSP domain', () => {
-    const ids = Object.values(DECK_DOMAIN);
-    expect(ids.length).toBeGreaterThan(60);
-    for (const id of ids) expect(id).toBeGreaterThanOrEqual(1);
-    for (const id of ids) expect(id).toBeLessThanOrEqual(8);
-  });
-});
-
-describe('buildPracticeExam', () => {
-  it('builds 100 unique questions with exact per-domain quotas', () => {
-    const { questions, quotas, shortfalls } = buildPracticeExam();
-    expect(questions).toHaveLength(EXAM_QUESTION_COUNT);
-    expect(shortfalls).toEqual([]);
-    expect(new Set(questions.map((q) => q.id)).size).toBe(EXAM_QUESTION_COUNT);
-    const counts = {};
-    for (const q of questions) counts[q.domain] = (counts[q.domain] || 0) + 1;
-    for (const d of CISSP_DOMAINS) expect(counts[d.id]).toBe(quotas[d.id]);
-  });
-
-  it('shuffles option order while keeping the correct answer mapped', () => {
-    const { questions } = buildPracticeExam();
-    for (const q of questions) {
-      expect(q.options).toContain(q.card.a);
-      expect(q.options[q.correct]).toBe(q.card.a);
-      expect(new Set(q.options).size).toBe(q.options.length); // no duplicate options
-    }
-  });
-
-  it('fills shortfalls from the global pool when a domain is thin', () => {
-    // Force an impossible quota: every domain wants more than it has.
-    const { questions, shortfalls } = buildPracticeExam({ count: 4000 });
-    expect(questions.length).toBeLessThanOrEqual(4000);
-    expect(shortfalls.length).toBeGreaterThan(0);
-    expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length);
-    // count=4000 is a deliberately impossible stress case that builds the WHOLE card pool to force
-    // shortfalls. It used to be O(n²) (a whole-pool distractor scan per card) and grew with content;
-    // buildQuestions now short-circuits to each card's own distractors, so this runs in a few ms.
-  });
-});
+afterEach(() => { vi.unstubAllGlobals(); });
 
 describe('scoreExam', () => {
-  const { questions } = buildPracticeExam({ count: 20 });
+  const questions = fakeQuestions(20);
 
   it('scores a perfect run as 100% and passed', () => {
     const answers = Object.fromEntries(questions.map((q) => [q.id, q.correct]));
@@ -109,16 +79,18 @@ describe('scoreExam', () => {
 });
 
 describe('practice exam session', () => {
-  it('persists the deadline so a refresh cannot reset the clock', () => {
-    const exam = startPracticeExam();
+  it('persists the deadline so a refresh cannot reset the clock', async () => {
+    mockFetchExam(fakeQuestions(EXAM_QUESTION_COUNT));
+    const exam = await startPracticeExam();
     expect(exam.deadline - exam.startedAt).toBe(EXAM_DURATION_MIN * 60 * 1000);
     expect(exam.questions).toHaveLength(EXAM_QUESTION_COUNT);
     // Simulate a refresh: the adapter still holds the same exam.
     expect(store.load().exam.deadline).toBe(exam.deadline);
   });
 
-  it('records answers and flags, then finishes with history and XP', () => {
-    const exam = startPracticeExam();
+  it('records answers and flags, then finishes with history and XP', async () => {
+    mockFetchExam(fakeQuestions(EXAM_QUESTION_COUNT));
+    const exam = await startPracticeExam();
     const first = exam.questions[0];
     answerExamQuestion(first.id, (first.correct + 1) % first.options.length); // wrong on purpose
     toggleExamFlag(first.id);
@@ -136,10 +108,17 @@ describe('practice exam session', () => {
     expect(finishPracticeExam().finishedAt).toBe(finished.finishedAt); // idempotent
   });
 
-  it('discards an exam without recording an attempt', () => {
-    startPracticeExam();
+  it('discards an exam without recording an attempt', async () => {
+    mockFetchExam(fakeQuestions(EXAM_QUESTION_COUNT));
+    await startPracticeExam();
     clearPracticeExam();
     expect(store.load().exam).toBeNull();
     expect(examHistory(store.load())).toEqual([]);
+  });
+
+  it('surfaces a failed fetch instead of starting an empty exam', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 503, json: async () => ({}) })));
+    await expect(startPracticeExam()).rejects.toMatchObject({ status: 503 });
+    expect(store.load()).toBeNull(); // nothing was written: no empty exam exists
   });
 });

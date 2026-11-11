@@ -52,10 +52,8 @@ IMAGE_DOCKERFILE = {
     "trivy": "Dockerfile.trivy",
     "iac-policy": "Dockerfile.iac-policy",
     "python-tools": "Dockerfile.python-tools",
-    # Dockerfiles are created directly on FedServ (see images/README.md);
-    # definitions still reference the images, and build.sh builds them there.
-    "linux-admin": None,
-    "linux-admin-hardening": None,
+    "linux-admin": "Dockerfile.linux-admin",
+    "linux-admin-hardening": "Dockerfile.linux-admin-hardening",
 }
 
 IMAGE_RE = re.compile(r'image="(road-to-cissp/([\w-]+)):latest"')
@@ -114,6 +112,71 @@ def test_build_sh_covers_every_built_image():
         if dockerfile is None:
             continue
         assert name in built, f"build.sh never tags road-to-cissp/{name}"
+
+
+def _build_sh_all_case_images():
+    """Image names the `all)` case of build.sh produces (L-05).
+
+    Only the `all)` block counts here: per-image arms (e.g. `./build.sh
+    linux-admin`) do not help a fresh host, where the runbook runs plain
+    `./build.sh` and expects every Docker-backed lab to work."""
+    lines = (IMAGES_DIR / "build.sh").read_text(encoding="utf-8").splitlines()
+    built = set()
+    in_all = False
+    for raw in lines:
+        line = raw.strip()
+        if line.startswith("all|"):
+            in_all = True
+            continue
+        if in_all:
+            if line == ";;":
+                break
+            if line.startswith("build "):
+                parts = shlex.split(line)
+                built.add(parts[1])
+                for tok in parts[3:]:
+                    if tok.startswith("-"):
+                        break
+                    built.add(tok)
+    return built
+
+
+def test_build_sh_all_case_produces_every_docker_backed_image():
+    """Reverse direction of test_build_sh_covers_every_built_image (L-05):
+    `./build.sh` (all) must produce EVERY Docker-backed definition's image,
+    or those labs fail "unavailable" on a fresh host."""
+    from labs.registry import LABS
+
+    built = _build_sh_all_case_images()
+    for lab in LABS.values():
+        if lab.environment.provider != "docker":
+            continue
+        name = lab.environment.image.removeprefix("road-to-cissp/").removesuffix(":latest")
+        assert name in built, (
+            f"{lab.id}: image road-to-cissp/{name} is Docker-backed but "
+            "`./build.sh` (all) never builds it")
+
+
+def test_dockerfile_mapping_covers_every_dockerfile_on_disk():
+    """The IMAGE_DOCKERFILE mapping must cover all 15 Dockerfiles on disk (L-05):
+    the pinned-base / non-root-user / `sleep infinity` contract test only
+    checks mapped files, so an unmapped Dockerfile is silently untested."""
+    mapped = {d for d in IMAGE_DOCKERFILE.values() if d}
+    on_disk = {p.name for p in IMAGES_DIR.glob("Dockerfile.*")}
+    assert mapped == on_disk, (
+        f"mapping covers {sorted(mapped)}, disk has {sorted(on_disk)}")
+
+
+def test_no_static_ctf_flag_literals_under_seeds():
+    """No FLAG-<KIND>-<6 hex> literal may exist anywhere under images/seeds/
+    (L-01b): per-session flags are generated at container start, never baked
+    into a file the learner's container can grep."""
+    flag_re = re.compile(r"FLAG-[A-Z]+-[0-9a-f]{6}")
+    for path in sorted(SEEDS_DIR.rglob("*")):
+        if not path.is_file() or "__pycache__" in path.parts:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        assert not flag_re.search(text), f"{path.relative_to(IMAGES_DIR)}: static flag literal"
 
 
 def test_image_backed_definitions_set_workdir():

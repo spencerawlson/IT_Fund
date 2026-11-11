@@ -142,6 +142,7 @@ export default function SignIn() {
         title="Sign in · Road to CISSP"
         description="Sign in to save your progress across devices. It's optional — everything works without an account, with your progress kept in this browser."
         path="/signin"
+        robots="noindex"
       />
       <PageHeader
         title="Sign in to sync"

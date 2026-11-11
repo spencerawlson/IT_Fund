@@ -111,6 +111,11 @@ class LabCompletion(Base):
     session_id: Mapped[str] = mapped_column(String(64))
     duration_seconds: Mapped[int] = mapped_column(Integer)
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+    # L-01 provenance: True when the completion rests on client attestation
+    # ("I did this" findings POSTed by the learner) rather than server-side
+    # evidence from exec. Docker labs can only complete that way today (their
+    # exec returns no findings); mock-lab completions are always evidenced.
+    attested: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
 class Subscription(Base):
@@ -119,7 +124,9 @@ class Subscription(Base):
     Written by the Stripe webhook (see billing.py) — never trust client input for
     subscription status. `status` mirrors Stripe's subscription status
     ("active", "trialing", "past_due", "canceled", ...). A user counts as
-    subscribed when status is "active" or "trialing" (see billing.is_subscribed).
+    subscribed when status is "active" or "trialing" (see billing.is_subscribed),
+    or when status is "past_due" and the 7-day grace from `past_due_since`
+    has not expired.
     """
     __tablename__ = "subscriptions"
 
@@ -128,7 +135,57 @@ class Subscription(Base):
     stripe_subscription_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="incomplete")
     current_period_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # When the subscription went past_due (webhook-set, see billing.py).
+    # The 7-day past_due grace is anchored here — never at
+    # current_period_end, which Stripe advances to the end of the new
+    # (unpaid) period on a failed renewal. NULL unless status is past_due.
+    past_due_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class ProcessedWebhookEvent(Base):
+    """One row per Stripe webhook event id actually applied (see billing.py).
+
+    Idempotency: a redelivered event id is acknowledged without
+    re-applying. Ordering: `event_created` per subscription is compared
+    against the last-applied event, so a delayed older event cannot
+    overwrite newer state. Only events that changed subscription state
+    are recorded; ignored event types and deterministically
+    unprocessable events leave no row.
+    """
+    __tablename__ = "processed_webhook_events"
+
+    stripe_event_id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    event_type: Mapped[str] = mapped_column(String(64))
+    event_created: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class LabSession(Base):
+    """Durable interactive-lab session row, exactly as created by
+    migration b7f3a1c9d2e4.
+
+    No code uses this ORM model yet — it exists so Alembic autogenerate
+    sees the table the migration created instead of wanting to drop it.
+    `owner_id` is intentionally NOT a foreign key: most lab users are
+    anonymous guests with no `users` row.
+    """
+    __tablename__ = "lab_sessions"
+
+    id: Mapped[str] = mapped_column(String(48), primary_key=True)
+    lab_id: Mapped[str] = mapped_column(String(64), index=True)
+    owner_id: Mapped[str] = mapped_column(String(128), index=True)
+    status: Mapped[str] = mapped_column(String(16))
+    environment_id: Mapped[str] = mapped_column(String(128))
+    provider: Mapped[str] = mapped_column(String(16))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    progress: Mapped[dict] = mapped_column(JSON)
+    validation_results: Mapped[dict] = mapped_column(JSON)
+    findings: Mapped[dict] = mapped_column(JSON)
 
 
 class AdminSession(Base):

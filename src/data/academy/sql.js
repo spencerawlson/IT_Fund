@@ -3,7 +3,8 @@
 // card ids are position-based, so reordering resets a learner's progress on them.
 //
 // SQL track. Relational querying + the security angle (injection, least privilege).
-// cissp: [8] (Software Development Security — data handling, injection defences).
+// cissp: no deck in this track is tagged — SQL syntax is not CISSP Domain 8 content.
+// (Injection defences are taught in sec-ai-apps / cy-web instead.)
 
 export default {
   id: 'sql',
@@ -17,7 +18,6 @@ export default {
         id: 'sql-basics',
         title: 'Relational Basics',
         summary: 'Tables, rows, columns, and what SQL is.',
-        cissp: [8],
         sources: ['sqlbolt', 'mode-sql'],
         cards: [
           ['What does SQL stand for?', 'Structured Query Language', 'The standard language for relational databases.', ['Sequential Query Logic', 'Simple Query Language', 'Server Query Layer']],
@@ -36,7 +36,6 @@ export default {
         id: 'sql-select',
         title: 'Filtering & Sorting',
         summary: 'WHERE, ORDER BY, DISTINCT and operators.',
-        cissp: [8],
         sources: ['sqlbolt', 'mode-sql'],
         cards: [
           ['Which clause filters rows?', 'WHERE', 'e.g. WHERE age >= 18.', ['FILTER', 'HAVING', 'ONLY']],
@@ -55,7 +54,6 @@ export default {
         id: 'sql-aggregates',
         title: 'Aggregates & Grouping',
         summary: 'COUNT/SUM/AVG, GROUP BY and HAVING.',
-        cissp: [8],
         sources: ['sqlbolt', 'pgexercises'],
         cards: [
           ['What does COUNT(*) return?', 'The number of rows', 'COUNT(col) ignores NULLs in that column.', ['The sum of a column', 'The number of columns', 'The first row']],
@@ -76,7 +74,6 @@ export default {
         id: 'sql-joins',
         title: 'Joins',
         summary: 'Combining tables: inner, outer and self joins.',
-        cissp: [8],
         sources: ['sqlbolt', 'mode-sql', 'pgexercises'],
         cards: [
           ['What does an INNER JOIN return?', 'Only rows with a match in BOTH tables', 'Unmatched rows are excluded.', ['All rows from both', 'All left rows', 'Rows with no match']],
@@ -95,7 +92,6 @@ export default {
         id: 'sql-ddl-dml',
         title: 'Tables & Changing Data',
         summary: 'CREATE/ALTER/DROP and INSERT/UPDATE/DELETE.',
-        cissp: [8],
         sources: ['w3-sql', 'pgexercises'],
         cards: [
           ['Which statement creates a table?', 'CREATE TABLE name (col type, ...)', 'DDL (Data Definition Language).', ['NEW TABLE', 'MAKE TABLE', 'INSERT TABLE']],
@@ -114,7 +110,6 @@ export default {
         id: 'sql-subqueries',
         title: 'Subqueries & CTEs',
         summary: 'Nested queries, EXISTS, set operators and WITH.',
-        cissp: [8],
         sources: ['mode-sql', 'pgexercises'],
         cards: [
           ['What is a subquery?', 'A query nested inside another query', 'It can feed WHERE, FROM or SELECT.', ['A stored procedure', 'A join', 'A view']],
@@ -135,7 +130,6 @@ export default {
         id: 'sql-indexes-norm',
         title: 'Indexes & Normalization',
         summary: 'Performance and well-designed schemas.',
-        cissp: [8],
         sources: ['use-the-index', 'mode-sql'],
         cards: [
           ['What is an index, in one line?', 'A data structure (usually a B-tree) that speeds up lookups on indexed columns', 'It is like a book index — find rows without scanning everything.', ['A backup', 'A copy of the table', 'A constraint']],
@@ -154,7 +148,6 @@ export default {
         id: 'sql-transactions-security',
         title: 'Transactions, Views & Security',
         summary: 'ACID, views, window functions, and injection defence.',
-        cissp: [8],
         sources: ['mode-sql', 'use-the-index'],
         cards: [
           ['What is a transaction?', 'A group of statements that succeed or fail as a single unit', 'BEGIN ... COMMIT; or ROLLBACK to undo.', ['A single query', 'A stored procedure', 'A backup']],

@@ -1,5 +1,11 @@
 User-agent: *
 Allow: /
 
+# App surfaces: signed-in only, nothing indexable behind them.
+Disallow: /app
+Disallow: /admin
+Disallow: /labs/progress
+Disallow: /academy/review
+
 # Canonical host is www.road2cissp.com (apex 301-redirects here).
 Sitemap: https://www.road2cissp.com/sitemap.xml

@@ -54,6 +54,24 @@ describe('labProgress', () => {
     expect(agg.b.completions).toBe(1);
   });
 
+  it('records attested provenance on local completions', () => {
+    const attested = recordLabCompletion('x-001', '2026-10-07T10:00:00Z', '2026-10-07T10:05:00Z', true);
+    expect(attested.attested).toBe(true);
+    const verified = recordLabCompletion('y-001', '2026-10-07T10:00:00Z', '2026-10-07T10:05:00Z');
+    expect(verified.attested).toBe(false);
+  });
+
+  it('aggregates the latest completion provenance from server rows', () => {
+    const agg = aggregateServerHistory([
+      { lab_id: 'a', duration_seconds: 300, completed_at: '2026-10-07T12:00:00Z', attested: true },
+      { lab_id: 'a', duration_seconds: 600, completed_at: '2026-10-07T10:00:00Z', attested: false },
+      { lab_id: 'b', duration_seconds: 120, completed_at: '2026-10-07T11:00:00Z', attested: false },
+    ]);
+    expect(agg.a.completions).toBe(2);
+    expect(agg.a.attested).toBe(true); // newest-first: the first row is the latest run
+    expect(agg.b.attested).toBe(false);
+  });
+
   it('merges with server winning per lab, local-only labs preserved', () => {
     const local = {
       a: { completions: 5, bestSeconds: 999, lastSeconds: 999, lastCompletedAt: 't' },

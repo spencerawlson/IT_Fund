@@ -3,7 +3,8 @@
 // card ids are position-based, so reordering resets a learner's progress on them.
 //
 // Rust track. Memory-safe systems programming: ownership, borrowing, and fearless concurrency.
-// cissp: [8] (Software Development Security) — a code track; ownership IS a security story.
+// cissp: only rust-ownership and rust-concurrency are tagged [8] (memory safety).
+// The rest of this code track is language trivia, not CISSP Domain 8.
 
 export default {
   id: 'rust',
@@ -17,7 +18,6 @@ export default {
         id: 'rust-basics',
         title: 'Basics & Cargo',
         summary: 'What Rust is, the toolchain, and hello world.',
-        cissp: [8],
         sources: ['rust-book', 'rust-by-example'],
         cards: [
           ['What is Rust\'s headline promise?', 'Memory safety without a garbage collector, enforced at compile time', 'The ownership system prevents use-after-free and data races.', ['Fastest possible runtime only', 'Dynamic typing', 'Automatic memory via a GC']],
@@ -36,7 +36,6 @@ export default {
         id: 'rust-types',
         title: 'Variables, Types & Mutability',
         summary: 'Immutability by default, scalar types and shadowing.',
-        cissp: [8],
         sources: ['rust-book', 'rust-by-example'],
         cards: [
           ['Are variables mutable by default in Rust?', 'No — `let x = 5;` is immutable; add `mut` to allow changes', 'Immutability by default prevents a class of bugs.', ['Yes, always mutable', 'Only numbers are immutable', 'Only with const']],
@@ -55,7 +54,6 @@ export default {
         id: 'rust-control-functions',
         title: 'Control Flow & Functions',
         summary: 'if/loop/match as expressions, and functions.',
-        cissp: [8],
         sources: ['rust-book', 'rust-by-example'],
         cards: [
           ['Is `if` an expression in Rust?', 'Yes — it returns a value: let n = if cond { 1 } else { 2 };', 'Both branches must have the same type.', ['No, only a statement', 'Only inside loops', 'Only with return']],
@@ -95,7 +93,6 @@ export default {
         id: 'rust-structs-enums',
         title: 'Structs, Enums & Matching',
         summary: 'Data modelling with structs, enums, Option and Result.',
-        cissp: [8],
         sources: ['rust-book', 'rust-by-example'],
         cards: [
           ['How do you add methods to a struct?', 'In an impl block: impl Point { fn dist(&self) -> f64 { ... } }', 'Methods take self, &self, or &mut self.', ['Inside the struct body', 'With the method keyword', 'As free functions only']],
@@ -114,7 +111,6 @@ export default {
         id: 'rust-errors',
         title: 'Collections & Error Handling',
         summary: 'Vec, String, HashMap, Result and the ? operator.',
-        cissp: [8],
         sources: ['rust-book', 'rust-by-example'],
         cards: [
           ['Which type is a growable array?', 'Vec<T>', 'push to add; indexing a bad position panics, .get returns Option.', ['Array [T; N]', 'List<T>', 'Slice']],
@@ -135,7 +131,6 @@ export default {
         id: 'rust-traits-generics',
         title: 'Traits & Generics',
         summary: 'Shared behaviour and zero-cost abstraction.',
-        cissp: [8],
         sources: ['rust-book', 'rust-by-example'],
         cards: [
           ['What is a trait?', 'A set of method signatures a type can implement — Rust\'s interface', 'impl Trait for Type provides the behaviour.', ['A base class', 'A struct', 'A module']],

@@ -19,7 +19,13 @@ EnvironmentFile=%h/.config/itfund/backend.env
 # images built (backend/labs/images/build.sh); until then, provider="docker"
 # labs report "unavailable" — mock labs are unaffected.
 Environment=LAB_DOCKER_ENABLED=1
-ExecStart=%h/IT_Fund/backend/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8001 --workers 2
+# Single worker (L-03 interim): lab sessions, findings and rate limiters live in
+# per-process memory, so a session created on worker A 404s on worker B under
+# --workers 2. Run one worker until the DB-backed session store lands (roadmap);
+# throughput trade-off: the backend is single-process, so one slow request can
+# briefly delay others — acceptable for this traffic level, and far better than
+# intermittent 404s on live labs.
+ExecStart=%h/IT_Fund/backend/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8001 --workers 1
 Restart=on-failure
 RestartSec=5
 # Hardening: backend only needs localhost networking, its own tree, and /tmp.

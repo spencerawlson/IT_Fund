@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Repeat, FlaskConical, Crown, Search, Sparkles, X, LogIn, User } from 'lucide-react';
+import { Home, BookOpen, Repeat, FlaskConical, Crown, Tag, Search, Sparkles, X, LogIn, User } from 'lucide-react';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useAuth } from '@/lib/AuthContext';
@@ -25,6 +25,9 @@ function useNavItems() {
     { to: '/academy/review', label: 'Review', icon: Repeat, match: (p) => p === '/academy/review' },
     { to: '/practice', label: 'Practice', icon: FlaskConical, match: (p) => PRACTICE.test(p) },
     { to: '/academy/roadmap', label: 'Road to CISSP', short: 'CISSP', icon: Crown, match: (p) => p === '/academy/roadmap' },
+    // Sidebar only: the mobile tab bar is a fixed 5-column grid, so Pricing
+    // lives in the desktop sidebar (and the Landing header/footer) instead.
+    { to: '/pricing', label: 'Pricing', icon: Tag, match: (p) => p === '/pricing', sidebarOnly: true },
   ];
 }
 
@@ -185,7 +188,7 @@ export default function AppShell() {
       {/* Mobile bottom tab bar: opaque pill, same reason as the top bar. */}
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden">
         <div className="glass-3 nav-solid grid grid-cols-5 rounded-card p-1">
-          {items.map(({ to, label, short, icon: Icon, match }) => {
+          {items.filter((item) => !item.sidebarOnly).map(({ to, label, short, icon: Icon, match }) => {
             const active = match(pathname);
             return (
               <Link

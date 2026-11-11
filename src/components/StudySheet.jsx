@@ -1,15 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, Lightbulb, Target } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
 import RichText from './academy/RichText';
 import TutorAssist from './academy/tutor/TutorAssist';
 import StudyMascot from './StudyMascot';
-import { getNote } from '@/data/moduleNotes';
+import { getModuleNote } from '@/lib/content';
 
 /** Full study notes for one concept, with prev/next through the module. */
 export default function StudySheet({ concepts, index, moduleId, moduleTitle, color, onClose, onNavigate }) {
   const concept = concepts[index];
-  const note = getNote(concept);
+  // The full note lives behind the entitled content API: importing getNote()
+  // would bundle every premium note (moduleNotes/index.js closes over the
+  // whole map). Until the note lands, show the concept's short detail — the
+  // same fallback the old getNote() used — so the sheet opens instantly and
+  // upgrades in place. Any failure keeps the fallback.
+  const [note, setNote] = useState(() => ({ body: concept.detail }));
+  useEffect(() => {
+    let live = true;
+    setNote({ body: concept.detail });
+    getModuleNote(concept.id, concept.detail).then((full) => { if (live) setNote(full); });
+    return () => { live = false; };
+  }, [concept.id, concept.term]);
 
   useEffect(() => {
     const onKey = (e) => {

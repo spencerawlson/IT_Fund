@@ -13,7 +13,6 @@ export default {
         id: 'ai-ml-basics',
         title: 'Machine Learning Basics',
         summary: 'Supervised vs unsupervised, training, and overfitting.',
-        cissp: [8],
         sources: ['google-mlcc', 'fastai'],
         cards: [
           ['Supervised learning uses…', 'Labelled examples (inputs with known answers)', 'Classification and regression are supervised.', ['No data', 'Unlabelled data only', 'Rewards and penalties']],
@@ -34,7 +33,6 @@ export default {
         id: 'ai-dl-basics',
         title: 'Neural Networks & Deep Learning',
         summary: 'Neurons, backprop, and architectures.',
-        cissp: [8],
         sources: ['karpathy', 'fastai', 'google-mlcc'],
         cards: [
           ['What does an activation function add?', 'Non-linearity, so networks can learn complex patterns', 'ReLU is the common default: max(0, x).', ['Linearity', 'Data', 'Regularisation']],
@@ -54,7 +52,6 @@ export default {
         id: 'ai-llm-basics',
         title: 'LLM Fundamentals',
         summary: 'Tokens, context windows, sampling, and prompting.',
-        cissp: [8],
         sources: ['hf-learn', 'claude-docs', 'dlai'],
         cards: [
           ['What is a token?', 'A chunk of text (often part of a word) the model processes', 'Pricing and limits are counted in tokens.', ['A password', 'A whole sentence', 'A GPU core']],
@@ -76,7 +73,7 @@ export default {
         id: 'ai-rag',
         title: 'Retrieval-Augmented Generation',
         summary: 'Chunking, vector search, and grounding answers.',
-        cissp: [8, 2],
+        cissp: [2],
         sources: ['hf-learn', 'dlai', 'claude-docs'],
         cards: [
           ['What is RAG?', 'Retrieving relevant documents and adding them to the prompt', 'Grounds answers in your data without retraining.', ['Retraining the model', 'A GPU type', 'A prompt template only']],
@@ -96,7 +93,6 @@ export default {
         id: 'ai-apis-tools',
         title: 'LLM APIs, Tools & Structured Output',
         summary: 'Calling models from code, tool use, streaming, and cost.',
-        cissp: [8],
         sources: ['claude-docs', 'dlai'],
         cards: [
           ['What is tool use (function calling)?', 'The model requests a function call with arguments; your code runs it and returns results', 'The model never runs code itself; your app executes and validates.', ['The model runs code on your server', 'A plugin store', 'A fine-tuning method']],
@@ -116,7 +112,7 @@ export default {
         id: 'ai-finetune-eval',
         title: 'Fine-tuning & Evaluation',
         summary: 'When to fine-tune, LoRA, and building evals.',
-        cissp: [8, 6],
+        cissp: [6],
         sources: ['hf-learn', 'fastai'],
         cards: [
           ['When is fine-tuning the right tool?', 'Consistent style, format, or a narrow task that prompting can’t achieve', 'Try prompting and RAG first; they are cheaper to iterate on.', ['Adding fresh facts daily', 'Fixing every bug', 'Always first']],
@@ -137,7 +133,7 @@ export default {
         id: 'ai-agents',
         title: 'Agents & Orchestration',
         summary: 'Agent loops, planning, memory, and safe autonomy.',
-        cissp: [8, 5],
+        cissp: [5],
         sources: ['claude-docs', 'hf-learn', 'dlai'],
         cards: [
           ['What is an AI agent?', 'An LLM in a loop that chooses tools and actions toward a goal', 'Observe, think, act, repeat until done.', ['A chatbot with no tools', 'A cron job', 'A fine-tuned model']],

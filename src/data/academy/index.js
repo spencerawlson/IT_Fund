@@ -1,53 +1,23 @@
-// Normalises the raw track files into tracks -> tiers -> decks -> cards with stable ids.
-import python from './python';
-import network from './network';
-import routing from './routing';
-import security from './security';
-import cyber from './cyber';
-import cloud from './cloud';
-import awsSaa from './aws-saa';
-import cysa from './cysa';
-import awsSecurity from './aws-security';
-import ai from './ai';
-import cissp from './cissp';
-import linux from './linux';
-import terraform from './terraform';
-import cpp from './cpp';
-import go from './go';
-import rust from './rust';
-import sql from './sql';
-import docker from './docker';
-import kubernetes from './kubernetes';
-import git from './git';
-import interactive from './interactive';
-import { TIERS, RESOURCES } from './meta';
+// Public academy data: structure + free-tier bodies only.
+//
+// `tracks` comes from the generated src/data/content-public.js (written by
+// `node scripts/export-content.mjs` from the authoring sources in
+// src/data/academy/*.js). Premium decks carry card STUBS here — { id, deckId,
+// trackId } with no question, answer, or distractors — and empty puzzles.
+// Their bodies live behind the entitled content API; read them through
+// src/lib/content.js (getDeckContent / resolveCards), never by importing the
+// authoring sources. Importing a track file directly would bundle every
+// premium answer for anonymous visitors (audit P0-1).
+//
+// Structure-only consumers (counts, titles, tags, resources) use this module
+// as before: tracks, allDecks, allCards, getTrack, getDeck, decksForDomain,
+// trackResources. Anything that shows a question or an answer must resolve
+// the cards first.
+import { tracks } from '../content-public';
 
-export { TIERS, CISSP_DOMAINS, SECURITY_PLUS_DOMAINS, SAA_DOMAINS, CYSA_DOMAINS, AWS_SECURITY_DOMAINS, ROADMAP, RESOURCES } from './meta';
+export { TIERS, CISSP_DOMAINS, SECURITY_PLUS_DOMAINS, SAA_DOMAINS, CYSA_DOMAINS, AWS_SECURITY_DOMAINS, ROADMAP, RESOURCES, EXAM_OUTLINES } from './meta';
 
-function normaliseTrack(raw) {
-  const tiers = TIERS.map((tier) => ({
-    ...tier,
-    decks: (raw.tiers[tier.id] || []).map((deck) => ({
-      ...deck,
-      trackId: raw.id,
-      tierId: tier.id,
-      resources: (deck.sources || []).map((id) => ({ id, ...RESOURCES[id] })).filter((r) => r.url),
-      puzzles: (interactive[deck.id] || []).map((p, i) => ({ ...p, id: `${deck.id}-p${i}` })),
-      cards: deck.cards.map(([q, a, x, wrong], i) => ({
-        id: `${deck.id}-${i}`,
-        deckId: deck.id,
-        trackId: raw.id,
-        q,
-        a,
-        x,
-        wrong,
-      })),
-    })),
-  }));
-  return { ...raw, tiers };
-}
-
-export const tracks = [python, network, routing, security, cyber, cloud, awsSaa, cysa, awsSecurity, ai, cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes, git].map(normaliseTrack);
+export { tracks };
 
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);

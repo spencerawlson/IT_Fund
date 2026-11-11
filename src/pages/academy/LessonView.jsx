@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap, Eye, TerminalSquare } from 'lucide-react';
+import { Play, RotateCcw, Copy, Check, ArrowLeft, ArrowRight, SearchX, Zap, Eye, TerminalSquare, Loader2 } from 'lucide-react';
 import RichText from '@/components/academy/RichText';
 import LayerStack from '@/components/academy/LayerStack';
 import { PrereqNotice } from '@/components/academy/ui/bits';
@@ -11,17 +11,14 @@ import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, pl
 import { labForLesson } from '@/data/labLessons';
 import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
-import { useSubscription } from '@/lib/subscription';
+import { useSubscription, isLessonFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import VideoExplainer from '@/components/academy/lesson/VideoExplainer';
 import CipherNote from '@/components/academy/lesson/CipherNote';
-import { getCipherNote } from '@/data/cipherNotes';
+import { getLessonContent, getDeckContent } from '@/lib/content';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const SAMPLE_QUESTIONS = 4;
-
-// Free-tier samples: the opening lesson of each flagship track is open to everyone.
-const FREE_LESSON_IDS = new Set(['net-osi', 'sec-concepts', 'py-basics']);
 
 // Lessons that have a matching Visual Lab scenario ("Learn → See"). Deep-links straight to it.
 const VISUAL_LAB_FOR = {
@@ -45,6 +42,28 @@ export default function LessonView() {
   const course = lesson && getCourse(lesson.courseSlug);
   useDocumentTitle(lesson ? `${lesson.title} · Road to CISSP` : 'Lesson · Road to CISSP');
 
+  // Reading body + cipher note + deck puzzles. Free lessons are bundled;
+  // premium lessons come from the entitled content API. The paywall gate
+  // below returns before this renders, so a non-subscriber never fetches.
+  const [content, setContent] = useState(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  useEffect(() => {
+    if (!lesson) return;
+    if (!subLoading && !subscribed && !isLessonFree(lessonId)) return;
+    let live = true;
+    setContent(null);
+    setLoadFailed(false);
+    Promise.all([getLessonContent(lessonId), getDeckContent(lesson.deck.id)])
+      .then(([lessonContent, deckContent]) => {
+        if (live) setContent({ ...lessonContent, puzzles: deckContent.puzzles, deckCards: deckContent.cards });
+      })
+      .catch(() => { if (live) setLoadFailed(true); });
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonId, reloadKey]);
+
+
   if (!lesson) {
     return (
       <PageContainer>
@@ -53,7 +72,7 @@ export default function LessonView() {
     );
   }
 
-  if (!subLoading && !subscribed && !FREE_LESSON_IDS.has(lessonId)) {
+  if (!subLoading && !subscribed && !isLessonFree(lessonId)) {
     return (
       <PageContainer>
         <PageHeader breadcrumbs={[{ label: 'Home', to: '/' }]} title={lesson.title} />
@@ -72,7 +91,7 @@ export default function LessonView() {
   ];
   const title = <>Lesson {lesson.number}: <RichText text={lesson.title} /></>;
 
-  const c = lesson.content || {};
+  const c = content?.content || {};
   const resume = state.resume?.deckId === lesson.id ? state.resume : null;
   const best = state.lessons?.[lesson.id]?.best;
   const i = module.lessons.findIndex((l) => l.id === lesson.id);
@@ -85,8 +104,28 @@ export default function LessonView() {
     ...(prereq.previous ? [{ label: `Lesson ${prereq.previous.number}: ${prereq.previous.title}`, to: lessonHref(prereq.previous) }] : []),
     ...prereq.modules.map((m) => ({ label: `${getCourse(m.courseSlug).title} · Module ${m.number}`, to: moduleHref(m) })),
   ]).slice(0, 2);
-  const puzzles = lesson.deck.puzzles.length;
+  const puzzles = content?.puzzles?.length ?? lesson.deck.puzzles.length;
   const practiceLabel = resume ? 'Resume practice' : status === 'completed' ? 'Practise again' : 'Start practice';
+
+  if (!content) {
+    return (
+      <PageContainer>
+        <PageHeader breadcrumbs={crumbs} eyebrow={`${course.title} · Module ${module.number}: ${module.title}`} title={title} />
+        {loadFailed ? (
+          <div className="flex flex-col items-center py-16 text-center">
+            <p className="text-title font-bold text-ink-1">Couldn’t load this lesson</p>
+            <p className="mt-2 text-body text-ink-2">Check your connection and try again.</p>
+            <Button variant="secondary" size="lg" className="mt-6" onClick={() => setReloadKey((k) => k + 1)}>Retry</Button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center py-16 text-center">
+            <Loader2 size={28} className="animate-spin text-action" aria-hidden="true" />
+            <p className="mt-4 text-body text-ink-2">Loading lesson…</p>
+          </div>
+        )}
+      </PageContainer>
+    );
+  }
 
   const sections = [
     c.learn?.length && { id: 'learn', label: 'Learn' },
@@ -144,11 +183,11 @@ export default function LessonView() {
       <Card level={2} padding="lg" as="article" className="space-y-12">
         <Section id="overview" title="Overview">
           {(c.overview || [lesson.summary]).map((p) => <Para key={p} text={p} />)}
-          {!lesson.content && (
+          {!content.content && (
             <div className="mt-2">
               <p className="text-body text-ink-2">This lesson is taught through practice. You’ll work through questions like these:</p>
               <ul className="mt-3 space-y-2">
-                {lesson.deck.cards.slice(0, SAMPLE_QUESTIONS).map((card) => (
+                {(content.deckCards || []).slice(0, SAMPLE_QUESTIONS).map((card) => (
                   <li key={card.id} className="flex gap-3 text-lesson text-ink-1">
                     <span aria-hidden="true" className="text-ink-3">–</span>
                     <RichText text={card.q} />
@@ -195,7 +234,7 @@ export default function LessonView() {
 
         {c.cheatSheet?.length > 0 && (
           <>
-            <CipherNote text={getCipherNote(lesson.id)} />
+            <CipherNote text={content.cipherNote} />
             <Section id="cheat-sheet" title="Cheat sheet">
             <div className="overflow-x-auto">
             <table className="w-full text-left text-body">
@@ -222,7 +261,7 @@ export default function LessonView() {
         <p className="mt-2 max-w-reading text-body text-ink-2">
           Starts with a few questions from earlier lessons, then this lesson’s {lesson.deck.cards.length} questions
           {puzzles ? ` and ${puzzles} hands-on ${puzzles === 1 ? 'puzzle' : 'puzzles'}` : ''}. Score {PASS_PCT}% on first tries to
-          pass and open the next lesson.
+          pass the lesson — passing every lesson opens the module assessment.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Button to={playerHref(lesson)} size="lg" icon={resume ? RotateCcw : Play}>{practiceLabel}</Button>

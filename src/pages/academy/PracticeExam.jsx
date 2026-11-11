@@ -22,7 +22,7 @@ import useDocumentTitle from '@/hooks/useDocumentTitle';
 const EXAM_FAQS = [
   {
     q: 'How does the practice exam work?',
-    a: `${EXAM_QUESTION_COUNT} questions sampled from every track, weighted by the official CISSP domain weights. You get ${EXAM_DURATION_MIN / 60} hours on the clock, and ${EXAM_PASS_PCT}% proficiency passes.`,
+    a: `${EXAM_QUESTION_COUNT} questions sampled from every track, weighted by the official CISSP domain weights. You get ${EXAM_DURATION_MIN / 60} hours on the clock, and ${EXAM_PASS_PCT}% proficiency passes this simulator.`,
     sources: [
       { label: 'ISC2 CISSP', href: 'https://www.isc2.org/certifications/cissp' },
     ],
@@ -59,6 +59,21 @@ export default function PracticeExam() {
   useDocumentTitle('Practice Exam · Road to CISSP');
   const { subscribed, loading } = useSubscription();
   const exam = state.exam;
+  // The exam is built server-side (entitled content API), so starting is
+  // async: the button shows its loading state instead of going quiet.
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState(null);
+  const handleStart = async () => {
+    setStarting(true);
+    setStartError(null);
+    try {
+      await startPracticeExam();
+    } catch (err) {
+      setStartError(err);
+    } finally {
+      setStarting(false);
+    }
+  };
 
   if (!loading && !subscribed) {
     return (
@@ -88,9 +103,9 @@ export default function PracticeExam() {
         jsonLd={faqJsonLd(EXAM_FAQS)}
       />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
-        {!exam && <StartScreen history={examHistory(state)} />}
+        {!exam && <StartScreen history={examHistory(state)} onStart={handleStart} starting={starting} startError={startError} />}
         {exam && !exam.finishedAt && <RunningExam key={exam.id} exam={exam} />}
-        {exam && exam.finishedAt && <ReportScreen exam={exam} />}
+        {exam && exam.finishedAt && <ReportScreen exam={exam} onStart={handleStart} starting={starting} startError={startError} />}
       </div>
     </main>
   );
@@ -100,7 +115,7 @@ export default function PracticeExam() {
 // Start screen
 // -------------------------------------------------------------------------------------------------
 
-function StartScreen({ history }) {
+function StartScreen({ history, onStart, starting, startError }) {
   const recent = history.slice(0, 3);
   return (
     <div>
@@ -112,11 +127,12 @@ function StartScreen({ history }) {
         <ul className="space-y-3 text-body text-ink-1">
           <li className="flex gap-3"><ListChecks size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_QUESTION_COUNT} questions, sampled from every track and weighted by the official CISSP domain weights.</li>
           <li className="flex gap-3"><Clock size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_DURATION_MIN / 60} hours on the clock. The timer survives a refresh — closing the tab does not buy you time.</li>
-          <li className="flex gap-3"><Award size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_PASS_PCT}% proficiency to pass, with a per-domain breakdown so you know exactly what to study next.</li>
+          <li className="flex gap-3"><Award size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />{EXAM_PASS_PCT}% proficiency to pass this simulator, with a per-domain breakdown so you know exactly what to study next. (The real CISSP passes at a 700/1000 scaled score, not a percentage.)</li>
           <li className="flex gap-3"><Info size={18} className="mt-1 shrink-0 text-action" aria-hidden="true" />Fixed-length practice: the real CISSP is computer-adaptive (it adjusts difficulty as you answer). Treat this as a knowledge check, not a test-day prediction.</li>
         </ul>
         <div className="mt-6">
-          <Button size="lg" icon={Play} onClick={() => startPracticeExam()} className="w-full sm:w-auto">Start the exam</Button>
+          <Button size="lg" icon={Play} onClick={onStart} disabled={starting} className="w-full sm:w-auto">{starting ? 'Building your exam…' : 'Start the exam'}</Button>
+          {startError && <p className="mt-3 text-small text-red-600">Couldn’t start the exam — check your connection and try again.</p>}
         </div>
         <p className="mt-3 text-small text-ink-2">One sitting. Flag questions to revisit them before you finish.</p>
       </Card>
@@ -334,7 +350,7 @@ function RunningExam({ exam }) {
 // Report
 // -------------------------------------------------------------------------------------------------
 
-function ReportScreen({ exam }) {
+function ReportScreen({ exam, onStart, starting, startError }) {
   const { result } = exam;
   return (
     <div>
@@ -351,7 +367,7 @@ function ReportScreen({ exam }) {
         <p className="mt-4 text-title tabular-nums text-ink-1">{result.pct}%</p>
         <p className="mt-1 text-small text-ink-2">{result.correct} / {result.total} correct · {EXAM_PASS_PCT}% needed to pass</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Button icon={RotateCcw} onClick={() => startPracticeExam()}>Retake exam</Button>
+          <Button icon={RotateCcw} onClick={onStart} disabled={starting}>{starting ? 'Building your exam…' : 'Retake exam'}</Button>
           <Button to="/app" variant="secondary" icon={Home}>Back to home</Button>
         </div>
       </Card>

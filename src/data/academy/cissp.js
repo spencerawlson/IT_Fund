@@ -192,7 +192,7 @@ export default {
         sources: ['cissp-outline', 'nist-800-53'],
         cards: [
           ['Vulnerability assessment vs penetration test?', 'Finding and ranking weaknesses vs actively exploiting them', 'Pentests prove impact; both need authorisation.', ['Same thing', 'Pentest is passive', 'Assessments exploit']],
-          ['Internal vs external vs third-party audit?', 'By own staff vs to external parties vs by an independent firm', 'Third-party audits carry the most independence.', ['Same thing', 'Internal is most independent', 'External means on-site only']],
+          ['First-party vs second-party vs third-party audit?', 'Internal audit by own staff vs audit by a customer or partner vs audit by an independent firm', 'First-party audits are internal; second-party audits are external but by an interested party; third-party audits are independent and carry the most weight.', ['Same thing', 'Third-party is internal', 'Second-party means on-site only']],
           ['SOC 1 vs SOC 2 vs SOC 3?', 'Financial controls vs security/trust controls (detailed) vs public summary', 'SOC 2 covers the Trust Services Criteria.', ['Three severity levels', 'Three SIEM tiers', 'Same thing']],
           ['What is synthetic transaction monitoring?', 'Scripted simulated user activity to test availability and performance', 'Real user monitoring (RUM) observes actual users.', ['Fake log entries', 'A pentest', 'A load test only']],
           ['What is fuzz testing?', 'Feeding malformed or random input to find crashes and bugs', 'Mutation fuzzing alters valid input; generation fuzzing builds from a spec.', ['Code review', 'Unit testing', 'Static analysis']],
@@ -201,7 +201,7 @@ export default {
           ['What is code coverage vs interface testing?', 'How much code tests exercised vs testing interactions between components', 'Interface testing covers APIs, UIs, and physical interfaces.', ['Same thing', 'Coverage tests UIs', 'Interface counts lines']],
           ['What is a breach and attack simulation (BAS)?', 'Automated, continuous safe emulation of attacks to validate controls', 'Complements periodic pentests.', ['A real breach', 'A tabletop', 'A code review']],
           ['Why must audit logs be protected?', 'Attackers alter or delete them to hide activity', 'Centralise, restrict access, and use write-once or integrity checks.', ['They use space', 'They are public', 'They slow systems']],
-          ['What does a regression test confirm?', 'A change did not break existing functionality', 'Automate it in CI.', ['New features work', 'Performance improved', 'Security is perfect']],
+          ['What does a regression test confirm?', 'A change did not break existing functionality', 'Run the regression suite automatically on every change, so a fix in one place cannot silently break something that used to work.', ['New features work', 'Performance improved', 'Security is perfect']],
         ],
       },
       {

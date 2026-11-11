@@ -63,7 +63,9 @@ async def put_progress(request: Request, response: Response, user_id: str = Depe
         raise HTTPException(status_code=413, detail="Progress payload too large.")  # 413 Content Too Large
     try:
         body = json.loads(raw or b"{}")
-    except ValueError:
+    except (ValueError, RecursionError):
+        # A deeply nested body raises RecursionError, not ValueError: it is
+        # still a malformed payload, not a 500.
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Body must be JSON.")
     state = body.get("state") if isinstance(body, dict) else None
     if not isinstance(state, dict):

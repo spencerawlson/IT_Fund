@@ -47,11 +47,9 @@ case "$only" in
         build portblast-lab Dockerfile.portblast --build-arg "BASE_TAG=$TAG"
         build cloudshell Dockerfile.cloudshell
         build iac Dockerfile.iac
-        # Phase 3 images.
-        # NOTE: Dockerfile.linux-admin and Dockerfile.linux-admin-hardening are
-        # created on FedServ (see deploy/DOCKER_LABS.md); the definitions
-        # reference road-to-cissp/linux-admin:latest and
-        # road-to-cissp/linux-admin-hardening:latest.
+        # Phase 3 images. linux-admin-hardening FROMs linux-admin: build order matters.
+        build linux-admin Dockerfile.linux-admin
+        build linux-admin-hardening Dockerfile.linux-admin-hardening
         build wireshark Dockerfile.wireshark
         build webapp Dockerfile.webapp
         build pentest-web Dockerfile.pentest-web

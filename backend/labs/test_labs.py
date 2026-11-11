@@ -141,6 +141,7 @@ def test_completion_is_recorded_for_signed_in_users():
     assert row.session_id == sess["id"]
     assert row.duration_seconds >= 0
     assert row.completed_at is not None
+    assert row.attested is True  # Docker-lab completion via attestation (L-01)
 
 
 def test_completion_recording_is_idempotent():
@@ -174,6 +175,7 @@ def test_history_endpoint_needs_sign_in_and_is_user_scoped():
     assert hist[0]["lab_id"] == "cyber-nmap-001"
     assert isinstance(hist[0]["duration_seconds"], int)
     assert hist[0]["completed_at"]
+    assert hist[0]["attested"] is True  # attestation provenance surfaces in history (L-01)
     # Another signed-in learner sees none of it.
     r = client.get("/api/labs/history", cookies=_user("hist4"))
     assert r.json() == {"history": []}
@@ -222,6 +224,15 @@ def test_start_unknown_lab_is_404():
 
 
 def test_full_pass_flow():
+    """Docker lab completes via explicit attestation — and says so (L-01).
+
+    cyber-nmap-001 is Docker-backed, so its exec returns no findings; the only
+    completion path is the learner posting attested findings ("I did this").
+    That path is preserved, but the session and the stored completion are
+    marked attested: the lab completes, and the provenance is honest about
+    how. (Mock labs cannot complete this way — see
+    test_forged_findings_cannot_complete_mock_lab.)
+    """
     h = _user("u1")
     r = client.post("/api/labs/cyber-nmap-001/start", cookies=h)
     assert r.status_code == 200
@@ -240,6 +251,57 @@ def test_full_pass_flow():
     assert body["status"] == "COMPLETED"
     assert all(body["progress"].values())
     assert body["completed_at"]
+    # Attestation provenance: the completion rests on client-posted findings,
+    # not on server-observed evidence.
+    assert body["attested"] is True
+    with db.SessionLocal() as s:
+        row = s.execute(
+            select(LabCompletion).where(LabCompletion.session_id == sid)
+        ).scalars().one()
+    assert row.attested is True
+    hist = client.get("/api/labs/history", cookies=h).json()["history"]
+    assert hist[0]["attested"] is True
+
+
+VLAN_FORGED = {"findings": {"config": {
+    "vlans_created": True,
+    "access_ports_configured": True,
+    "trunk_configured": True,
+    "router_subinterfaces_configured": True,
+    "intervlan_connectivity": True,
+}}}
+
+
+def test_forged_findings_cannot_complete_mock_lab():
+    """L-01 regression: POSTing a full forged findings dict for a MOCK lab
+    without any exec must NOT complete it, and no LabCompletion row exists.
+    Mock findings are server-derived from the simulated shell; client POSTs
+    may only write free-form `notes`."""
+    h = _user("u1")
+    r = client.post("/api/labs/net-vlan-001/start", cookies=h)
+    assert r.status_code == 200
+    sid = r.json()["id"]
+    client.post(f"/api/labs/sessions/{sid}/findings", json=VLAN_FORGED, cookies=h)
+    # The forged validator keys were dropped, not stored.
+    sess = client.get(f"/api/labs/sessions/{sid}", cookies=h).json()
+    assert "config" not in sess["findings"]
+    r = client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
+    assert r.json()["status"] == "RUNNING"
+    assert not any(o["passed"] for o in r.json()["validation_results"])
+    assert _completion_count("u1") == 0
+
+
+def test_client_notes_are_recorded_but_do_not_complete_mock_lab():
+    """The one client-writable namespace: free-form `notes` are stored, but
+    they never satisfy a validator."""
+    h = _user("u1")
+    sid = client.post("/api/labs/net-vlan-001/start", cookies=h).json()["id"]
+    r = client.post(f"/api/labs/sessions/{sid}/findings",
+                    json={"findings": {"notes": "VLAN 10 is sales"}}, cookies=h)
+    assert r.json()["findings"]["notes"] == "VLAN 10 is sales"
+    r = client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
+    assert r.json()["status"] == "RUNNING"
+    assert _completion_count("u1") == 0
 
 
 def test_reset_clears_progress_and_findings():
@@ -251,6 +313,7 @@ def test_reset_clears_progress_and_findings():
     body = r.json()
     assert body["findings"] == {} and not any(body["progress"].values())
     assert body["status"] == "RUNNING"
+    assert body["attested"] is False  # reset clears the attestation mark too
 
 
 # ---- authorization / isolation ----
@@ -339,6 +402,64 @@ def test_lab_entitlement():
             assert r.status_code == 402, r.text
             # Subscribed users start premium labs fine.
             r = client.post("/api/labs/cyber-nmap-001/start", cookies=_user("u_sub"))
+            assert r.status_code == 200, r.text
+    finally:
+        setup_function._patcher.start()
+
+
+def test_mid_session_cancellation_blocks_premium_lab():
+    """Billing F-05: a subscription that lapses mid-session blocks further use.
+
+    Start a premium lab while subscribed, then flip is_subscribed to False
+    (simulating cancellation mid-session): exec, validate, findings, reset
+    and GET must all refuse with 402, and DELETE must still work (exiting a
+    lab is never blocked). A free-lab session is unaffected by the same flip.
+    """
+    setup_function._patcher.stop()
+    try:
+        with mock.patch.object(
+            labs_api, "is_subscribed", side_effect=lambda owner_id: owner_id == "u_sub"
+        ):
+            sid = client.post(
+                "/api/labs/net-static-routing-001/start", cookies=_user("u_sub")
+            ).json()["id"]
+            r = client.post(
+                f"/api/labs/sessions/{sid}/exec",
+                json={"command": "help"},
+                cookies=_user("u_sub"),
+            )
+            assert r.status_code == 200, r.text
+        with mock.patch.object(labs_api, "is_subscribed", return_value=False):
+            assert client.get(f"/api/labs/sessions/{sid}", cookies=_user("u_sub")).status_code == 402
+            assert client.post(
+                f"/api/labs/sessions/{sid}/exec",
+                json={"command": "help"},
+                cookies=_user("u_sub"),
+            ).status_code == 402
+            assert client.post(
+                f"/api/labs/sessions/{sid}/validate", cookies=_user("u_sub")
+            ).status_code == 402
+            assert client.post(
+                f"/api/labs/sessions/{sid}/findings",
+                json={"findings": {"notes": "x"}},
+                cookies=_user("u_sub"),
+            ).status_code == 402
+            assert client.post(
+                f"/api/labs/sessions/{sid}/reset", cookies=_user("u_sub")
+            ).status_code == 402
+            # DELETE still works: exiting a lab is never blocked.
+            assert client.delete(
+                f"/api/labs/sessions/{sid}", cookies=_user("u_sub")
+            ).status_code == 204
+            # A free-lab session is unaffected by the same subscription loss.
+            free_sid = client.post(
+                "/api/labs/net-vlan-001/start", cookies=_user("u1")
+            ).json()["id"]
+            r = client.post(
+                f"/api/labs/sessions/{free_sid}/exec",
+                json={"command": "help"},
+                cookies=_user("u1"),
+            )
             assert r.status_code == 200, r.text
     finally:
         setup_function._patcher.start()

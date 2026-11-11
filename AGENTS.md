@@ -45,6 +45,7 @@ and 49 unused npm deps were pruned in the production-readiness pass). Auth is OA
 
 - Routes `/academy`, `/academy/roadmap`, `/academy/review`, `/academy/:trackId`, `/academy/:trackId/deck/:deckId?mode=learn|quiz`, `/academy/:trackId/boss/:tierId`, `/academy/:trackId/lesson/:deckId`.
 - Content lives in `src/data/academy/<track>.js` (cards are `[question, answer, explanation?, wrongOptions?]`); tiers, CISSP domains, roadmap steps, and free resources are in `meta.js`.
+- Premium content must never enter the public bundle (audit P0-1): the app imports only the generated `src/data/content-public.js` (free bodies + premium card stubs) via `src/data/academy/index.js`. Premium lesson bodies, card answers, module notes and exam questions come from the entitled content API (`backend/content.py`) through `src/lib/content.js`. Never import a track file, `lessonContent.js`, `cipherNotes.js`, `moduleNotes/` or `interactive.js` from app code — the exporter (`scripts/export-content.mjs`) is the only reader of the authoring sources.
 - Card ids are position-based (`<deckId>-<index>`): append new cards, don't reorder, or learners lose progress on them.
 - Guided lessons (`/academy/:trackId/lesson/:deckId`, Brilliant style) mix each deck's questions with hands-on puzzles from `src/data/academy/interactive.js` (order / numeric / widget: bits, cidr, hash).
 - Styling: two glass systems are in use — legacy `.glass`/`.glass-strong`/`.glass-btn` and the newer `.glass-1`/`.glass-2`/`.glass-3` (see `src/index.css`). Prefer the numbered system for new work. The page background is a plain static white (the animated ambient background was removed 2026-10-18 at Spencer's request); the app root in `App.jsx` is `relative isolate`.
@@ -60,9 +61,11 @@ and 49 unused npm deps were pruned in the production-readiness pass). Auth is OA
 
 ## Interactive labs (backend/labs)
 
-- Providers: `mock` (simulation — the default for every lab definition) and `docker` (`labs/providers/docker.py`:
-  one hardened container per session: dropped caps, no-new-privileges, CPU/mem/PID limits, internal-only
-  network when the lab denies internet egress). Docker registers only with `LAB_DOCKER_ENABLED=1` on a host
+- Providers: `mock` (simulation — the default for the 32 simulated lab definitions)
+  and `docker` (`labs/providers/docker.py`: one hardened container per session:
+  dropped caps, no-new-privileges, CPU/mem/PID limits, one internal-only network
+  per session when the lab denies internet egress). 29 definitions name
+  `provider="docker"`. Docker registers only with `LAB_DOCKER_ENABLED=1` on a host
   with a reachable daemon; flip a lab's `environment.provider` to `"docker"` once its image is published.
 - DB: `APP_ENV=production` requires `DATABASE_URL` + `SESSION_SECRET` and runs Alembic migrations
   (`backend/alembic/versions`) at startup. Dev/test use SQLite + `create_all`. New schema change = new
@@ -72,7 +75,8 @@ and 49 unused npm deps were pruned in the production-readiness pass). Auth is OA
   it; every subsequent backend restart crashed with "Can't locate revision identified by 'b7f3a1c9d2e4'"
   (uvicorn child failed → parent stopped → Cloudflare 502 for 7+ hours). Fix was restoring the file and
   re-chaining. If a migration was a mistake, write a new migration that undoes it — don't remove the file.
-- Startup migrations run in every uvicorn worker (`--workers 2`); `main._run_migrations()` serializes them
+- Startup migrations run in every uvicorn worker (`--workers 1`, single worker since
+  the L-03 interim fix — lab sessions are per-process memory); `main._run_migrations()` serializes them
   with a Postgres advisory lock so concurrent workers can't race a pending migration.
 
 ## Module study notes

@@ -19,11 +19,11 @@ from labs.providers.docker import DockerLabProvider, MAX_OUTPUT_CHARS
 import labs.sessions as sessions_mod
 
 
-def _lab(**env_overrides):
+def _lab(lab_id="test-docker-001", **env_overrides):
     env = dict(provider="docker", image="test-lab:latest", deny_internet_egress=True)
     env.update(env_overrides)
     return LabDefinition(
-        id="test-docker-001",
+        id=lab_id,
         slug="docker-test",
         title="Docker test lab",
         description="d",
@@ -59,7 +59,12 @@ class FakeContainer:
 
     def exec_run(self, argv, **kwargs):
         self.exec_calls.append((argv, kwargs))
-        cmd = " ".join(argv)
+        # The provider wraps commands in coreutils `timeout(1)` (L-02): strip
+        # `timeout --kill-after=<n> <secs>` to recover the real command.
+        cmd_argv = list(argv)
+        if cmd_argv[:1] == ["timeout"]:
+            cmd_argv = cmd_argv[3:]
+        cmd = " ".join(cmd_argv)
         if cmd == "boom":
             raise RuntimeError("daemon exploded")
         return SimpleNamespace(exit_code=0, output=(f"out: {cmd}\n".encode(), b""))
@@ -68,10 +73,15 @@ class FakeContainer:
 class FakeContainers:
     def __init__(self, client):
         self._client = client
+        self._next = 0
 
     def run(self, *args, **kwargs):
         self._client.last_run_kwargs = kwargs
-        cid = "abcdef1234567890"
+        # Unique container id per run (real Docker never reuses one): the
+        # provider derives environment ids from the first 12 chars, so the
+        # counter goes FIRST — two sessions must differ in that prefix.
+        self._next += 1
+        cid = f"{self._next:012d}abcdef"
         c = FakeContainer(cid, self._client)
         self._client._containers[cid] = c
         return c
@@ -97,16 +107,39 @@ class FakeImages:
         self.present.add(image)
 
 
+class FakeNetwork:
+    def __init__(self, name, internal, parent):
+        self.name = name
+        self.internal = internal
+        self.attrs = {"Internal": internal}
+        self._parent = parent
+
+    def remove(self):
+        self._parent._networks.pop(self.name, None)
+        self._parent.removed.append(self.name)
+
+
 class FakeNetworks:
     def __init__(self):
         self.created = []
+        self.removed = []
+        self._networks = {}
+        self._preset = []  # list() answers from here when non-empty (mismatch tests)
 
     def list(self, names=None):
-        return []
+        pool = self._preset if self._preset else list(self._networks.values())
+        return [n for n in pool if names is None or n.name in names]
 
     def create(self, name, internal=False, labels=None):
         self.created.append({"name": name, "internal": internal})
-        return SimpleNamespace(name=name)
+        net = FakeNetwork(name, internal, self)
+        self._networks[name] = net
+        return net
+
+    def get(self, name):
+        if name in self._networks:
+            return self._networks[name]
+        raise KeyError(name)
 
 
 class FakeClient:
@@ -256,3 +289,119 @@ def test_provider_registers_only_when_enabled(monkeypatch):
     monkeypatch.setenv("LAB_DOCKER_ENABLED", "1")
     providers = sessions_mod._build_providers()
     assert providers["docker"].name == "docker"
+
+
+# ---- L-02: exec timeout is enforced inside the container ----
+
+def test_exec_wraps_command_in_coreutils_timeout(provider, fake_docker):
+    env = asyncio.run(provider.create_session(_lab(), "u1"))
+    container = fake_docker.containers.get(env.id.removeprefix("docker-"))
+    asyncio.run(provider.exec_command(env.id, _lab(), "nmap target.lab", {}))
+    argv = container.exec_calls[0][0]
+    assert argv[:3] == ["timeout", "--kill-after=5", "60"]
+    assert argv[3:] == ["nmap", "target.lab"]
+
+
+def test_exec_timeout_kill_is_reported_when_timeout_exits_124(provider, fake_docker, monkeypatch):
+    """A fake exec that plays the role of coreutils `timeout`: it sees the
+    wrapper in argv and reports exit 124 (killed). The provider must surface
+    that as a timeout error that says the command was killed — which is now
+    true, because the kernel enforced it inside the container."""
+    env = asyncio.run(provider.create_session(_lab(), "u1"))
+    container = fake_docker.containers.get(env.id.removeprefix("docker-"))
+
+    def timeout_kill(argv, **kwargs):
+        assert argv[0] == "timeout"  # the wrapper must be present
+        return SimpleNamespace(exit_code=124, output=(b"", b""))
+
+    monkeypatch.setattr(container, "exec_run", timeout_kill)
+    with pytest.raises(LabError) as ei:
+        asyncio.run(provider.exec_command(env.id, _lab(), "sleep 300", {}))
+    assert ei.value.code == "invalid"
+    assert "timed out after 60s and was killed" in ei.value.message
+
+
+# ---- L-04: one network per session, verified on reuse, deleted on destroy ----
+
+def test_two_sessions_get_distinct_networks(provider, fake_docker):
+    env1 = asyncio.run(provider.create_session(_lab(), "user-1"))
+    env2 = asyncio.run(provider.create_session(_lab(), "user-2"))
+    assert len(fake_docker.networks.created) == 2
+    name1, name2 = (n["name"] for n in fake_docker.networks.created)
+    assert name1 != name2
+    assert all(n["internal"] is True for n in fake_docker.networks.created)
+    assert name1.startswith("rtc-labs-") and name2.startswith("rtc-labs-")
+
+
+def test_destroy_removes_only_that_sessions_network(provider, fake_docker):
+    env1 = asyncio.run(provider.create_session(_lab(), "user-1"))
+    env2 = asyncio.run(provider.create_session(_lab(), "user-2"))
+    name1 = fake_docker.networks.created[0]["name"]
+    name2 = fake_docker.networks.created[1]["name"]
+    asyncio.run(provider.destroy_session(env1.id))
+    assert fake_docker.networks.removed == [name1]
+    assert name2 in fake_docker.networks._networks
+    asyncio.run(provider.destroy_session(env2.id))
+    assert fake_docker.networks.removed == [name1, name2]
+
+
+def test_ensure_network_refuses_mismatched_internal_flag(provider, fake_docker):
+    """A pre-existing non-internal network must never be reused for a lab
+    that denies egress — fail closed instead of silently granting internet."""
+    bad = FakeNetwork("rtc-labs-internal", False, fake_docker.networks)
+    fake_docker.networks._preset = [bad]
+    with pytest.raises(LabError) as ei:
+        provider._ensure_network(fake_docker, internal=True, name="rtc-labs-internal")
+    assert ei.value.code == "unavailable"
+    assert "internal" in ei.value.message
+
+
+def test_ensure_network_reuses_matching_network(provider, fake_docker):
+    good = FakeNetwork("rtc-labs-internal", True, fake_docker.networks)
+    fake_docker.networks._preset = [good]
+    assert provider._ensure_network(fake_docker, internal=True, name="rtc-labs-internal") is good
+    assert fake_docker.networks.created == []
+
+
+# ---- L-01b: per-session CTF flags ----
+
+def test_pentest_web_session_gets_fresh_random_flags(provider, fake_docker):
+    from labs.registry import LABS
+
+    lab = LABS["sec-pentest-web-001"]
+    env1 = asyncio.run(provider.create_session(lab, "user-1"))
+    env2 = asyncio.run(provider.create_session(lab, "user-2"))
+    flags1 = provider._session_flags[env1.id]
+    flags2 = provider._session_flags[env2.id]
+    assert set(flags1) == {"sqli", "idor", "cmdi"}
+    assert flags1 != flags2  # fresh per session
+    import re as _re
+    for value in flags1.values():
+        assert _re.fullmatch(r"FLAG-[A-Z]+-[0-9a-f]{6}", value), value
+    # Injected into the container as env vars so the seed app can read them.
+    kw = fake_docker.last_run_kwargs
+    assert kw["environment"]["CTF_FLAG_SQLI"] == flags2["sqli"]
+    assert kw["environment"]["CTF_FLAG_IDOR"] == flags2["idor"]
+    assert kw["environment"]["CTF_FLAG_CMDI"] == flags2["cmdi"]
+    # Other labs get no flags and no env injection.
+    env3 = asyncio.run(provider.create_session(_lab(), "user-1"))
+    assert env3.id not in provider._session_flags
+    assert fake_docker.last_run_kwargs["environment"] is None
+
+
+def test_pentest_web_validator_uses_per_session_flags(provider, fake_docker):
+    from labs.registry import LABS
+
+    lab = LABS["sec-pentest-web-001"]
+    env = asyncio.run(provider.create_session(lab, "user-1"))
+    flags = provider._session_flags[env.id]
+    good = asyncio.run(provider.validate_objective(
+        env.id, lab, "sqli-union", {"flags": {"sqli": flags["sqli"]}}))
+    assert good.passed is True
+    # The old static literals no longer pass, even when posted verbatim.
+    stale = asyncio.run(provider.validate_objective(
+        env.id, lab, "sqli-union", {"flags": {"sqli": "FLAG-SQLI-7a1c9e"}}))
+    assert stale.passed is False
+    wrong = asyncio.run(provider.validate_objective(
+        env.id, lab, "idor", {"flags": {"idor": "FLAG-IDOR-000000"}}))
+    assert wrong.passed is False

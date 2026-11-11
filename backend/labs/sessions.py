@@ -32,6 +32,22 @@ MAX_LIVE_SESSIONS_PER_OWNER = 5
 #: (512MB each), so this is tighter than the general cap. Mock sessions are cheap.
 MAX_LIVE_DOCKER_SESSIONS_PER_OWNER = 3
 
+#: GLOBAL cap on live Docker sessions across ALL owners (L-06). Guest ids are
+#: client-chosen cookies, so rotating the cookie defeats every per-owner cap;
+#: this backstop bounds total host exhaustion regardless of identity. 50 is a
+#: host-exhaustion ceiling, not a product limit — the per-owner caps above are
+#: the normal limit, and this only bites when identities are rotated to evade
+#: them. Lower it on a smaller host (50 x 512 MB is ~25 GB worst case).
+MAX_LIVE_DOCKER_SESSIONS_GLOBAL = 50
+
+#: Top-level findings key a client may write freely (L-01). Everything else a
+#: validator reads (config, ports, hosts, _siem, portblast, flags, ...) is
+#: server-derived: only the provider/exec path may write it. Client POSTs that
+#: carry other keys are handled in record_findings: dropped for mock labs,
+#: accepted as explicit attestation (and marked) for Docker labs, whose exec
+#: returns no findings.
+CLIENT_FINDINGS_NAMESPACE = "notes"
+
 
 class LabError(Exception):
     """Carries a code the API maps to an HTTP status: not_found, unavailable, invalid."""
@@ -75,6 +91,24 @@ def _merge_findings(dst: dict[str, Any], delta: dict[str, Any]) -> dict[str, Any
     return dst
 
 
+def _merge_notes(dst: dict[str, Any], notes: Any) -> None:
+    """Accumulate free-form learner notes under the `notes` key (L-01).
+
+    The only client-writable findings namespace. Dicts merge, strings append
+    (newline-separated), lists extend; anything else replaces."""
+    existing = dst.get(CLIENT_FINDINGS_NAMESPACE)
+    if existing is None:
+        dst[CLIENT_FINDINGS_NAMESPACE] = notes
+    elif isinstance(existing, dict) and isinstance(notes, dict):
+        existing.update(notes)
+    elif isinstance(existing, str) and isinstance(notes, str):
+        dst[CLIENT_FINDINGS_NAMESPACE] = existing + "\n" + notes
+    elif isinstance(existing, list) and isinstance(notes, list):
+        existing.extend(notes)
+    else:
+        dst[CLIENT_FINDINGS_NAMESPACE] = notes
+
+
 @dataclass
 class LabSession:
     id: str
@@ -89,6 +123,13 @@ class LabSession:
     progress: dict[str, bool] = field(default_factory=dict)  # objective_id -> passed
     validation_results: list[dict] = field(default_factory=list)  # last result per objective
     findings: dict[str, Any] = field(default_factory=dict)
+    # True when any validator-read finding in this session came from a client
+    # POST (explicit "I did this" attestation) rather than server-side exec.
+    # Docker labs can only complete that way today (their exec returns no
+    # findings); the flag is persisted on LabCompletion so history can tell
+    # attested completions from evidenced ones. Mock labs never set it: their
+    # findings are server-derived from the simulated shell.
+    attested: bool = False
 
     def public_dict(self) -> dict[str, Any]:
         """View safe for the browser: no environment_id or provider internals."""
@@ -103,6 +144,7 @@ class LabSession:
             "progress": self.progress,
             "validation_results": self.validation_results,
             "findings": self.findings,
+            "attested": self.attested,
         }
 
 
@@ -161,16 +203,26 @@ class SessionService:
             raise LabError("invalid", f"You already have {MAX_LIVE_SESSIONS_PER_OWNER} labs open. Exit one first.")
         # Docker containers cost real host resources: cap those separately and tighter.
         if lab.environment.provider == "docker":
-            def _is_live_docker(s) -> bool:
-                if not (s.user_id == user_id and s.status in (CREATING, READY, RUNNING, VALIDATING)):
+            def _is_live_docker(s, owner_id: str | None = None) -> bool:
+                if owner_id is not None and s.user_id != owner_id:
+                    return False
+                if s.status not in (CREATING, READY, RUNNING, VALIDATING):
                     return False
                 other = get_lab(s.lab_id)
                 return other is not None and other.environment.provider == "docker"
 
-            if sum(1 for s in self._sessions.values() if _is_live_docker(s)) >= MAX_LIVE_DOCKER_SESSIONS_PER_OWNER:
+            if sum(1 for s in self._sessions.values() if _is_live_docker(s, user_id)) >= MAX_LIVE_DOCKER_SESSIONS_PER_OWNER:
                 raise LabError("invalid",
                                f"You already have {MAX_LIVE_DOCKER_SESSIONS_PER_OWNER} live container labs open. "
                                "Exit one first.")
+            # L-06 global backstop: per-owner caps are keyed by a client-chosen
+            # guest cookie, so rotating the cookie defeats them. This cap counts
+            # live Docker sessions across ALL owners and refuses past the limit
+            # no matter how many identities the caller mints.
+            if sum(1 for s in self._sessions.values() if _is_live_docker(s)) >= MAX_LIVE_DOCKER_SESSIONS_GLOBAL:
+                raise LabError("invalid",
+                               "Too many live container labs are running right now. "
+                               "Try again shortly.")
         provider = self._provider_for(lab.environment.provider)
         env = await provider.create_session(lab, user_id)
         now = _now()
@@ -193,13 +245,39 @@ class SessionService:
         return self._owned(session_id, user_id)
 
     def record_findings(self, session_id: str, user_id: str, findings: dict[str, Any]) -> LabSession:
+        """Record client-posted findings (L-01 split).
+
+        A client POST may ONLY write free-form learner notes, under the
+        `notes` key. Every validator-read key (config, ports, hosts, _siem,
+        portblast, flags, ...) is server-derived and is NOT writable here:
+        - Mock labs: such keys are DROPPED. Mock exec derives findings
+          server-side from the simulated shell, so mock labs stay completable
+          through real work and can no longer be forged by POST.
+        - Docker labs: exec returns no findings, so the explicit "I did this"
+          attestation path is preserved — validator-read keys are accepted,
+          but the session is marked `attested`, and the completion is recorded
+          as attested (see LabCompletion.attested), not as evidenced. Full
+          server-side probes are a roadmap project; until they exist, Docker
+          completions stay attestation-based BY DESIGN and are labelled so.
+        """
         session = self._owned(session_id, user_id)
         if session.status not in (READY, RUNNING):
             raise LabError("invalid", f"Cannot record findings while the session is {session.status}.")
         if not isinstance(findings, dict):
             raise LabError("invalid", "Findings must be an object.")
-        # Merge so a student can record incrementally.
-        session.findings.update(findings)
+        lab = get_lab(session.lab_id)
+        if CLIENT_FINDINGS_NAMESPACE in findings:
+            _merge_notes(session.findings, findings[CLIENT_FINDINGS_NAMESPACE])
+        validator_keys = {k: v for k, v in findings.items() if k != CLIENT_FINDINGS_NAMESPACE}
+        if validator_keys:
+            if lab is not None and lab.environment.provider == "mock":
+                # Forged validator findings for a mock lab: silently dropped.
+                # (The response still shows the session, with notes merged.)
+                pass
+            else:
+                # Docker lab attestation: accepted, but provenance is recorded.
+                session.findings.update(validator_keys)
+                session.attested = True
         return session
 
     async def validate(self, session_id: str, user_id: str) -> LabSession:
@@ -252,6 +330,7 @@ class SessionService:
         session.validation_results = []
         session.progress = {o.id: False for o in lab.objectives}
         session.completed_at = None
+        session.attested = False
         if session.status in (COMPLETED, EXPIRED, FAILED):
             session.status = RUNNING
         return session

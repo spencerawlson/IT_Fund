@@ -3,7 +3,7 @@
 // card ids are position-based, so reordering resets a learner's progress on them.
 //
 // Git track. Version control end to end: staging, branching, merging, undo, workflows, and hygiene.
-// cissp: [8] (Software Development Security — source control, secrets, signed commits).
+// cissp: no deck in this track is tagged — Git mechanics are not CISSP Domain 8 content.
 
 export default {
   id: 'git',
@@ -17,7 +17,6 @@ export default {
         id: 'git-basics',
         title: 'Git Basics',
         summary: 'What Git is and the three areas of a repository.',
-        cissp: [8],
         sources: ['git-scm', 'learn-git-branching'],
         cards: [
           ['What kind of version control system is Git?', 'A distributed VCS — every clone is a full copy with complete history', 'You can commit, branch and view history offline.', ['A centralised VCS', 'A backup tool', 'A file-sync service']],
@@ -36,7 +35,6 @@ export default {
         id: 'git-staging-commits',
         title: 'Staging & Committing',
         summary: 'add, commit, diff, log and .gitignore.',
-        cissp: [8],
         sources: ['git-scm', 'learn-git-branching'],
         cards: [
           ['What does `git add <file>` do?', 'Stages the file\'s current changes for the next commit', 'git add . stages everything in the directory.', ['Commits the file', 'Deletes the file', 'Pushes the file']],
@@ -55,7 +53,6 @@ export default {
         id: 'git-remotes',
         title: 'Remotes & Syncing',
         summary: 'push, pull, fetch and tracking branches.',
-        cissp: [8],
         sources: ['git-scm', 'github-skills'],
         cards: [
           ['What is a "remote" in Git?', 'A named reference to another copy of the repo (e.g. on GitHub)', 'The default remote is called origin.', ['A branch', 'A commit', 'A tag']],
@@ -76,7 +73,6 @@ export default {
         id: 'git-branching',
         title: 'Branching & Merging',
         summary: 'Lightweight branches, HEAD and merges.',
-        cissp: [8],
         sources: ['git-scm', 'learn-git-branching'],
         cards: [
           ['What is a Git branch, under the hood?', 'A lightweight, movable pointer to a commit', 'Creating one is nearly free — just a new ref.', ['A full copy of the files', 'A remote', 'A backup folder']],
@@ -95,7 +91,6 @@ export default {
         id: 'git-conflicts',
         title: 'Conflicts, Merge & Rebase',
         summary: 'Resolving conflicts and integrating history.',
-        cissp: [8],
         sources: ['git-scm', 'oh-shit-git'],
         cards: [
           ['What causes a merge conflict?', 'Two branches changed the same lines, so Git cannot auto-merge', 'You must choose the correct result manually.', ['Any merge', 'A push', 'A new branch']],
@@ -114,7 +109,6 @@ export default {
         id: 'git-undo',
         title: 'Undoing Changes',
         summary: 'restore, reset, revert, stash and reflog.',
-        cissp: [8],
         sources: ['git-scm', 'oh-shit-git'],
         cards: [
           ['How do you discard unstaged changes to a file?', 'git restore <file> (older: git checkout -- <file>)', 'This is destructive — the edits are gone.', ['git reset <file>', 'git revert <file>', 'git clean <file>']],
@@ -135,7 +129,6 @@ export default {
         id: 'git-workflows',
         title: 'Workflows & Collaboration',
         summary: 'Feature branches, PRs, rebase -i, cherry-pick and tags.',
-        cissp: [8],
         sources: ['github-skills', 'git-scm'],
         cards: [
           ['What is the feature-branch workflow?', 'Each change is developed on its own branch and merged via review', 'Keeps main releasable and changes isolated.', ['Commit everything to main', 'One branch per person forever', 'No branches at all']],
@@ -154,7 +147,6 @@ export default {
         id: 'git-internals-hygiene',
         title: 'Internals & Good Practice',
         summary: 'The object model, history integrity and security.',
-        cissp: [8],
         sources: ['git-scm'],
         cards: [
           ['What identifies a Git commit?', 'A cryptographic hash (SHA-1, moving to SHA-256) of its content', 'Change anything and the hash changes — tamper-evident.', ['A sequential number', 'The author name', 'The branch name']],
