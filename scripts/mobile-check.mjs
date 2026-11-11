@@ -49,6 +49,9 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
   // Console errors (failed module loads, CSP blocks) do not raise pageerror;
   // keep them so a blank page says why. Proxy noise from the absent API is skipped.
   page.on('console', (m) => { if (m.type() === 'error' && !/\/api\//.test(m.text())) consoleErrors.push(m.text()); });
+  // Which file failed: the console message alone does not name it.
+  page.on('response', (r) => { if (r.status() >= 400 && !/\/api\//.test(r.url())) consoleErrors.push(`HTTP ${r.status()} ${r.url().replace(BASE, '')}`); });
+  page.on('requestfailed', (r) => { if (!/\/api\//.test(r.url())) consoleErrors.push(`request failed ${r.url().replace(BASE, '')}: ${r.failure()?.errorText}`); });
 
   for (const path of PAGES) {
     errors.length = 0;
@@ -66,7 +69,7 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
     if (!m.h1) {
       const seen = await page.evaluate(() => (document.body?.innerText || '').replace(/\s+/g, ' ').slice(0, 160));
       fail(`${engine} ${path}: page did not render a heading — shows "${seen}"`
-        + (consoleErrors.length ? ` — console: ${consoleErrors.slice(0, 2).join(' | ')}` : ''));
+        + (consoleErrors.length ? ` — console: ${consoleErrors.slice(0, 4).join(' | ')}` : ''));
     }
   }
 
@@ -77,9 +80,15 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
   await page.waitForTimeout(800);
   const header = await page.evaluate(() =>
     [...document.querySelectorAll('header span, header a')].filter((e) => e.offsetHeight).map((e) => {
-      const r = document.createRange();
-      r.selectNodeContents(e);
-      const tops = new Set([...r.getClientRects()].filter((b) => b.width > 0).map((b) => Math.round(b.top)));
+      // Text only: an icon beside the label is its own box, not a second line.
+      const tops = new Set();
+      const walk = document.createTreeWalker(e, NodeFilter.SHOW_TEXT);
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+        if (!n.textContent.trim()) continue;
+        const r = document.createRange();
+        r.selectNodeContents(n);
+        for (const b of r.getClientRects()) if (b.width > 0) tops.add(Math.round(b.top));
+      }
       return [e.innerText.trim(), tops.size];
     }));
   for (const [text, lines] of header) if (lines > 1) fail(`${engine} landing header "${text}" wraps (${lines} lines)`);
