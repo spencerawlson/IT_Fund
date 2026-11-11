@@ -136,7 +136,7 @@ export default function Landing() {
     <div className="relative isolate min-h-screen overflow-hidden text-ink-1">
       <LandingBackground />
       <Seo
-        title="Road to CISSP — Networking, Security, Python, Cloud & Cybersecurity Training"
+        title="Road to CISSP — Networking, Security & Cloud Training"
         description={`Go from IT fundamentals to the CISSP: ${COUNTS.totalCardsPlus} objective-mapped flashcards, hands-on labs in real terminals, and timed exam simulators. Start free.`}
         path="/"
         jsonLd={FAQ_JSON_LD}
