@@ -44,10 +44,15 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
   await context.addInitScript(() => { try { localStorage.setItem('itfund-ambient-bg', 'off'); } catch { /* ignore */ } });
   const page = await context.newPage();
   const errors = [];
+  const consoleErrors = [];
   page.on('pageerror', (e) => errors.push(e.message));
+  // Console errors (failed module loads, CSP blocks) do not raise pageerror;
+  // keep them so a blank page says why. Proxy noise from the absent API is skipped.
+  page.on('console', (m) => { if (m.type() === 'error' && !/\/api\//.test(m.text())) consoleErrors.push(m.text()); });
 
   for (const path of PAGES) {
     errors.length = 0;
+    consoleErrors.length = 0;
     await page.goto(BASE + path, { waitUntil: 'load' });
     await page.waitForTimeout(1200);
     const m = await page.evaluate(() => ({
@@ -58,15 +63,26 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
     console.log(`  ${path}  overflow=${m.overflow}px acronyms=${m.acronyms} errors=${errors.length}`);
     if (m.overflow > 1) fail(`${engine} ${path}: page scrolls sideways by ${m.overflow}px`);
     if (errors.length) fail(`${engine} ${path}: page error: ${errors[0]}`);
-    if (!m.h1) fail(`${engine} ${path}: page did not render a heading`);
+    if (!m.h1) {
+      const seen = await page.evaluate(() => (document.body?.innerText || '').replace(/\s+/g, ' ').slice(0, 160));
+      fail(`${engine} ${path}: page did not render a heading — shows "${seen}"`
+        + (consoleErrors.length ? ` — console: ${consoleErrors.slice(0, 2).join(' | ')}` : ''));
+    }
   }
 
-  // Landing header: brand and buttons each on one line.
+  // Landing header: brand and buttons each on one line. Count the text's
+  // line boxes — not the element height: buttons are 44px tall on purpose
+  // (touch targets), which is not wrapping.
   await page.goto(BASE + '/', { waitUntil: 'load' });
   await page.waitForTimeout(800);
   const header = await page.evaluate(() =>
-    [...document.querySelectorAll('header span, header a')].filter((e) => e.offsetHeight).map((e) => [e.innerText.trim(), e.getBoundingClientRect().height]));
-  for (const [text, h] of header) if (h > 40) fail(`${engine} landing header "${text}" wraps (${Math.round(h)}px tall)`);
+    [...document.querySelectorAll('header span, header a')].filter((e) => e.offsetHeight).map((e) => {
+      const r = document.createRange();
+      r.selectNodeContents(e);
+      const tops = new Set([...r.getClientRects()].filter((b) => b.width > 0).map((b) => Math.round(b.top)));
+      return [e.innerText.trim(), tops.size];
+    }));
+  for (const [text, lines] of header) if (lines > 1) fail(`${engine} landing header "${text}" wraps (${lines} lines)`);
 
   // Underlines actually painted (WebKit once dropped them all).
   const drawn = await underlineDrawn(page);
