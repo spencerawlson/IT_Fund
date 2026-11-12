@@ -205,6 +205,21 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
                 row.past_due_since = event_created or datetime.now(timezone.utc)
         else:
             row.past_due_since = None
+        # Phase 3: copy the campaign tag from the Subscription metadata
+        # into the account record — first-touch only. The subscription
+        # object carries the tag (subscription_data at Checkout
+        # creation), so a webhook that never saw the landing page can
+        # still record how the subscriber arrived. A tag already on the
+        # account is never overwritten. No capture time is set here: the
+        # webhook carries no capture time, and the tag arrived via
+        # Stripe, not a landing capture.
+        tag = (sub.get("metadata") or {}).get("ventoryn_tag")
+        if tag and _ATTRIBUTION_TAG_RE.match(tag):
+            from db_models import User
+
+            user = s.get(User, user_id)
+            if user is not None and not user.attribution_tag:
+                user.attribution_tag = tag
         s.commit()
     log.info("subscription synced: user=%s status=%s", user_id, sub["status"])
 
@@ -247,22 +262,53 @@ def _attribution_metadata(attribution_tag: str | None) -> dict:
     return meta
 
 
+#: Attribution window (decision D3): a stored campaign tag attributes a
+#: checkout only within 30 days of capture. Enforced server-side from
+#: users.attribution_captured_at; no browser timestamp is trusted.
+ATTRIBUTION_WINDOW = timedelta(days=30)
+
+
+def _stored_tag_is_fresh(user, now: datetime) -> bool:
+    """True when the user's stored tag may still attribute a checkout:
+    captured within the 30-day window. A legacy row with a tag but no
+    captured_at (PR #37 shipped before the timestamp existed) is
+    treated as fresh — it is at most a few days old, and first-touch
+    preservation wins over guessing an expiry. SQLite returns naive
+    datetimes; treat them as UTC."""
+    if not user.attribution_tag:
+        return False
+    if user.attribution_captured_at is None:
+        return True
+    captured = user.attribution_captured_at
+    if captured.tzinfo is None:
+        captured = captured.replace(tzinfo=timezone.utc)
+    return now - captured <= ATTRIBUTION_WINDOW
+
+
 def _record_attribution(user_id: str, attribution_tag: str) -> None:
-    """First-touch only: a user's recorded tag is never overwritten,
-    so a later visit through a different campaign can't steal credit
-    from the one that actually brought them in. Recorded regardless of
-    whether VENTORYN_SITE_ID is configured — it is Road to CISSP's own
-    record of how the visitor arrived, independent of whether the
-    Stripe metadata pass-through to Ventoryn is turned on."""
+    """First-touch only: a user's recorded tag is never overwritten by a
+    later visit through a different campaign — except when the stored
+    tag is older than the 30-day window, in which case a fresh capture
+    replaces it (the old campaign no longer owns the visit). The capture
+    time is recorded alongside the tag so the window can be enforced
+    server-side. Recorded regardless of whether VENTORYN_SITE_ID is
+    configured — it is Road to CISSP's own record of how the visitor
+    arrived, independent of whether the Stripe metadata pass-through to
+    Ventoryn is turned on."""
     if not _ATTRIBUTION_TAG_RE.match(attribution_tag):
         return
+    now = datetime.now(timezone.utc)
     with db.SessionLocal() as s:
         from db_models import User
 
         user = s.get(User, user_id)
-        if user is not None and not user.attribution_tag:
-            user.attribution_tag = attribution_tag
-            s.commit()
+        if user is None:
+            return
+        if user.attribution_tag and _stored_tag_is_fresh(user, now):
+            return  # first-touch preserved
+        user.attribution_tag = attribution_tag
+        user.attribution_captured_at = now
+        s.commit()
 
 
 def _format_price(unit_amount: int | None, currency: str) -> str:
@@ -340,8 +386,23 @@ async def create_checkout(request: Request,
 
         user = s.get(User, user_id)
         email = user.email if user else None
+        # Fallback chain (decision D3): the tag that rides to Stripe is
+        # the request tag when one arrives, else the stored account tag
+        # when it is still inside the 30-day window, else none — so a
+        # tag captured on one device still attributes a checkout from
+        # another. The subscription's attribution is the tag on that
+        # subscription's metadata; the DB record is the account-level
+        # fallback.
+        stored_tag = user.attribution_tag if user else None
+        stored_fresh = bool(user) and _stored_tag_is_fresh(user, datetime.now(timezone.utc))
+    effective_tag = attribution_tag or (stored_tag if stored_fresh else None)
+    # Record the capture BEFORE creating the Stripe session: a DB failure
+    # here fails checkout cleanly with no session created, instead of
+    # losing the checkout URL after the session already exists.
+    if attribution_tag:
+        _record_attribution(user_id, attribution_tag)
     customer_id = _get_or_create_customer(stripe, user_id, email)
-    attribution_meta = _attribution_metadata(attribution_tag)
+    attribution_meta = _attribution_metadata(effective_tag)
     session = stripe.checkout.Session.create(
         customer=customer_id,
         mode="subscription",
@@ -357,8 +418,6 @@ async def create_checkout(request: Request,
         # instead of creating a second one.
         idempotency_key=f"checkout:{user_id}:{price_id}",
     )
-    if attribution_tag:
-        _record_attribution(user_id, attribution_tag)
     return {"checkout_url": session.url}
 
 
