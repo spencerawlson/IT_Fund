@@ -37,6 +37,12 @@ class User(Base):
     # link that brought this visitor in (see backend/billing.py). First
     # touch only — never overwritten. None for the vast majority of users.
     attribution_tag: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    # When that tag was captured (UTC). The 30-day attribution window
+    # (decision D3) is enforced server-side from this timestamp; a tag
+    # older than 30 days no longer attributes a checkout and may be
+    # replaced by a fresh capture. None on legacy rows from before this
+    # column existed — those are treated as fresh (see billing.py).
+    attribution_captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     identities: Mapped[list["Identity"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 

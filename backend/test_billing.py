@@ -5,6 +5,8 @@ import types
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import pytest
+
 os.environ["COOKIE_INSECURE"] = "1"
 
 backend_dir = Path(__file__).resolve().parent
@@ -365,6 +367,139 @@ def test_checkout_attribution_is_first_touch_only(monkeypatch):
         assert s.get(User, uid).attribution_tag == "vtn_first.aaa111"
 
 
+def _set_attribution(uid, tag, captured_at):
+    """Seed a user's stored attribution record directly (as if an
+    earlier capture had recorded it)."""
+    with db.SessionLocal() as s:
+        from db_models import User
+
+        user = s.get(User, uid)
+        user.attribution_tag = tag
+        user.attribution_captured_at = captured_at
+        s.commit()
+
+
+def _stored_attribution(uid):
+    with db.SessionLocal() as s:
+        from db_models import User
+
+        user = s.get(User, uid)
+        captured = user.attribution_captured_at
+        if captured is not None and captured.tzinfo is None:  # SQLite returns naive datetimes
+            captured = captured.replace(tzinfo=timezone.utc)
+        return user.attribution_tag, captured
+
+
+def test_checkout_subscription_data_carries_attribution_tag(monkeypatch):
+    # Phase 3 (1): the tag must land on the Subscription object itself
+    # (subscription_data), not only on the Checkout Session, so later
+    # subscription events carry it without a customer lookup.
+    monkeypatch.setenv("VENTORYN_SITE_ID", "aaaaaaaaaaaaaaaaaaaaaaaa")
+    cookies, uid = _signed_in()
+    r = _checkout(cookies, attribution_tag="vtn_abc123.def456")
+    assert r.status_code == 200
+    expected = {
+        "user_id": uid,
+        "ventoryn_site_id": "aaaaaaaaaaaaaaaaaaaaaaaa",
+        "ventoryn_tag": "vtn_abc123.def456",
+    }
+    assert _calls["checkout_create"]["metadata"] == expected
+    assert _calls["checkout_create"]["subscription_data"] == {"metadata": expected}
+
+
+def test_checkout_records_attribution_captured_at(monkeypatch):
+    # Phase 3 (2): the capture time is recorded alongside the tag, so
+    # the 30-day window can be enforced server-side.
+    monkeypatch.setenv("VENTORYN_SITE_ID", "aaaaaaaaaaaaaaaaaaaaaaaa")
+    cookies, uid = _signed_in()
+    before = datetime.now(timezone.utc)
+    r = _checkout(cookies, attribution_tag="vtn_abc123.def456")
+    assert r.status_code == 200
+    tag, captured = _stored_attribution(uid)
+    assert tag == "vtn_abc123.def456"
+    assert captured is not None
+    assert before <= captured <= datetime.now(timezone.utc)
+
+
+def test_checkout_uses_stored_tag_when_no_request_tag():
+    # Phase 3 (2) fallback chain: with no tag on the request, a stored
+    # tag still inside the 30-day window rides to Stripe.
+    cookies, uid = _signed_in()
+    _set_attribution(uid, "vtn_stored.aaa111", datetime.now(timezone.utc))
+    r = _checkout(cookies)
+    assert r.status_code == 200
+    expected = {
+        "user_id": uid,
+        "ventoryn_site_id": "418e926be25e251d95badb9e",
+        "ventoryn_tag": "vtn_stored.aaa111",
+    }
+    assert _calls["checkout_create"]["metadata"] == expected
+    assert _calls["checkout_create"]["subscription_data"] == {"metadata": expected}
+
+
+def test_checkout_ignores_expired_stored_tag():
+    # Phase 3 (2): a stored tag older than 30 days no longer attributes.
+    cookies, uid = _signed_in()
+    _set_attribution(uid, "vtn_old.aaa111", datetime.now(timezone.utc) - timedelta(days=31))
+    r = _checkout(cookies)
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"] == {
+        "user_id": uid, "ventoryn_site_id": "418e926be25e251d95badb9e"}
+    assert _calls["checkout_create"]["subscription_data"] == {
+        "metadata": {"user_id": uid, "ventoryn_site_id": "418e926be25e251d95badb9e"}}
+    # The stale record itself is left alone until a fresh capture arrives.
+    tag, _ = _stored_attribution(uid)
+    assert tag == "vtn_old.aaa111"
+
+
+def test_checkout_fresh_request_tag_replaces_expired_stored_tag(monkeypatch):
+    # Phase 3 (2): an expired stored tag may be overwritten by a fresh
+    # capture — the old campaign no longer owns the visit.
+    monkeypatch.setenv("VENTORYN_SITE_ID", "aaaaaaaaaaaaaaaaaaaaaaaa")
+    cookies, uid = _signed_in()
+    _set_attribution(uid, "vtn_old.aaa111", datetime.now(timezone.utc) - timedelta(days=31))
+    r = _checkout(cookies, attribution_tag="vtn_fresh.bbb222")
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"]["ventoryn_tag"] == "vtn_fresh.bbb222"
+    tag, captured = _stored_attribution(uid)
+    assert tag == "vtn_fresh.bbb222"
+    assert captured is not None
+    assert datetime.now(timezone.utc) - captured < timedelta(seconds=60)
+
+
+def test_checkout_keeps_fresh_stored_tag_in_db(monkeypatch):
+    # Phase 3 (2): a fresh stored tag is first-touch — a different
+    # request tag still rides to Stripe for this subscription, but the
+    # account record keeps the tag (and capture time) that brought the
+    # visitor in.
+    monkeypatch.setenv("VENTORYN_SITE_ID", "aaaaaaaaaaaaaaaaaaaaaaaa")
+    cookies, uid = _signed_in()
+    captured_at = datetime.now(timezone.utc) - timedelta(hours=1)
+    _set_attribution(uid, "vtn_first.aaa111", captured_at)
+    r = _checkout(cookies, attribution_tag="vtn_second.bbb222")
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["metadata"]["ventoryn_tag"] == "vtn_second.bbb222"
+    tag, captured = _stored_attribution(uid)
+    assert tag == "vtn_first.aaa111"
+    assert captured == captured_at
+
+
+def test_checkout_records_attribution_before_creating_session(monkeypatch):
+    # Phase 3 (5): the attribution DB write happens before the Stripe
+    # session is created, so a DB failure fails checkout cleanly with
+    # no session created — instead of losing the checkout URL after
+    # the session already exists.
+    cookies, _ = _signed_in()
+
+    def failing_record(user_id, attribution_tag):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(billing, "_record_attribution", failing_record)
+    with pytest.raises(RuntimeError):
+        _checkout(cookies, attribution_tag="vtn_abc123.def456")
+    assert "checkout_create" not in _calls  # no Stripe session was created
+
+
 def test_checkout_works_with_no_body_at_all():
     # The existing no-body call path (pre-attribution) must keep working.
     cookies, uid = _signed_in()
@@ -680,6 +815,60 @@ def test_webhook_subscription_event_with_metadata_needs_no_existing_row():
         assert row is not None and row.status == "active"
         assert row.stripe_subscription_id == "sub_test_1"
     assert billing.is_subscribed(uid) is True
+
+
+def test_webhook_sync_copies_tag_from_subscription_metadata():
+    # Phase 3 (3): a subscription event whose metadata carries a
+    # ventoryn_tag records it on the account — first-touch only — even
+    # when the webhook never saw the landing page.
+    _, uid = _signed_in()
+    r = _webhook_post(
+        {
+            "id": "evt_tagcopy_1",
+            "created": 1893456000,
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_test_1",
+                    "customer": "cus_test_1",
+                    "status": "active",
+                    "current_period_end": 1893456000,
+                    "metadata": {"user_id": uid, "ventoryn_tag": "vtn_webhook.aaa111"},
+                }
+            },
+        }
+    )
+    assert r.status_code == 200
+    tag, captured = _stored_attribution(uid)
+    assert tag == "vtn_webhook.aaa111"
+    # The webhook carries no capture time, so none is recorded.
+    assert captured is None
+
+
+def test_webhook_sync_keeps_first_touch_tag():
+    # Phase 3 (3): a tag already on the account is never overwritten by
+    # a later subscription carrying a different tag.
+    _, uid = _signed_in()
+    _set_attribution(uid, "vtn_first.aaa111", datetime.now(timezone.utc))
+    r = _webhook_post(
+        {
+            "id": "evt_tagcopy_2",
+            "created": 1893456000,
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_test_1",
+                    "customer": "cus_test_1",
+                    "status": "active",
+                    "current_period_end": 1893456000,
+                    "metadata": {"user_id": uid, "ventoryn_tag": "vtn_second.bbb222"},
+                }
+            },
+        }
+    )
+    assert r.status_code == 200
+    tag, _ = _stored_attribution(uid)
+    assert tag == "vtn_first.aaa111"
 
 
 # ---------- past_due grace anchor + charge.refunded ----------
