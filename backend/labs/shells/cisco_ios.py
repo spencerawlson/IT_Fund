@@ -136,7 +136,7 @@ _HELP_WALKTHROUGHS = {
     ),
     'net-acl-001': (
         'Walkthrough (router R1): enable | configure terminal | access-list 10 deny host 192.168.1.20 | '
-        'access-list 10 permit any | exit | interface gi0/1 | ip access-group 10 out | end\n'
+        'access-list 10 permit any | interface gi0/1 | ip access-group 10 out | end\n'
         'Remember: an ACL ends with an implicit deny, so "permit any" is required or nobody gets through. '
         'Standard ACLs go near the destination.\n'
         'Verify: connect GUEST | ping 192.168.2.10 (should fail); connect PC1 | ping 192.168.2.10 (should work).'
@@ -368,6 +368,12 @@ def _ios_command(lab, state, tokens) -> CommandResult:
         return _emit(lab, state, INVALID)
 
     if mode == 'priv':
+        if _match(low, 'enable'):
+            # Already privileged: real IOS treats a second `enable` as a
+            # no-op, not an error. The firewall console buttons always start
+            # with `enable`, so without this every button after the first
+            # left a "% Invalid input detected" banner in its output.
+            return _emit(lab, state, '')
         if _match(low, 'configure', 'terminal') or _match(low, 'configure') or cmd == 'config':
             state['mode'] = 'config'
             return _emit(lab, state, 'Enter configuration commands, one per line. End with CNTL/Z.')
@@ -441,6 +447,15 @@ def _config_command(lab, state, dev, tokens, low) -> CommandResult:
         if rule is None:
             return _emit(lab, state, INVALID)
         dev.setdefault('acls', {}).setdefault(int(tokens[1]), []).append(rule)
+        return _emit(lab, state, '')
+    if low[:2] == ['no', 'access-list'] and len(tokens) >= 3 and tokens[2].isdigit():
+        # `no access-list <n>` removes the whole list — the only rule removal
+        # the shell offers. The mission's deny-any wrong move uses it to
+        # rebuild list 10 with deny-any ahead of permit-any (first-match
+        # wins, so appending deny-any after permit-any was a no-op).
+        if dev['kind'] != 'router':
+            return _emit(lab, state, INVALID)
+        dev.setdefault('acls', {}).pop(int(tokens[2]), None)
         return _emit(lab, state, '')
     if cmd == 'router' and len(tokens) >= 3 and tokens[2].isdigit():
         if dev['kind'] != 'router':

@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import MissionWorkspace from './MissionWorkspace';
+import MissionWorkspace, { formatObjectives } from './MissionWorkspace';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -56,5 +56,57 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('onRendererFailed={handleRendererFailed}');
     expect(src).toContain("setViewPersisted('2d')");
     expect(src).toContain('<MissionTopology');
+  });
+
+  it('shows no objectives checklist or progress count on the page — the terminal is the only place to check', () => {
+    // The page must not show where the student stands: no checklist panel,
+    // no 7/9 or % progress. `objectives` / `progress` / `hint` in the
+    // Mission Console are the only way to check.
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).not.toContain('Mission Objectives');
+    expect(src).not.toContain('ProgressBar');
+    expect(src).not.toContain('passedCount');
+    expect(src).not.toContain('BLOCKED ✓');
+    expect(src).not.toContain('incident contained');
+    // ...but the page does instruct the student to use the terminal.
+    expect(src).toContain('run `objectives` to see where you stand');
+    expect(src).toContain('Where do you stand?');
+  });
+
+  it('refreshes the mission objectives on check, so the terminal list never goes stale', () => {
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain('missionsApi.getAttempt(attempt.id)');
+    expect(src).toContain('mission objectives complete');
+  });
+
+  it('refreshes the session from firewall exec responses, so the rules read-back stays current', () => {
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain('handleFirewallExec');
+    expect(src).toContain('if (res && res.session) setSession(res.session)');
+    expect(src).toContain('onExec={handleFirewallExec}');
+  });
+});
+
+describe('formatObjectives', () => {
+  const objectives = [
+    { id: 'deny-guest', label: 'Block the intruder', passed: true },
+    { id: 'trusted-allowed', label: 'Prove friends still get in', passed: false },
+    { id: 'report', label: 'File the mission report', passed: false },
+  ];
+
+  it('renders the terminal listing with [x]/[ ] matching the passed flags', () => {
+    const out = formatObjectives(objectives);
+    expect(out).toContain('Mission objectives (1/3 objectives complete):');
+    expect(out).toContain('[x] Block the intruder');
+    expect(out).toContain('[ ] Prove friends still get in');
+    expect(out).toContain('[ ] File the mission report');
+  });
+
+  it('falls back to the objective id when no label is present', () => {
+    expect(formatObjectives([{ id: 'topology', passed: true }])).toContain('[x] Inspect every device in the topology');
+  });
+
+  it('reports zero of zero for an empty list', () => {
+    expect(formatObjectives([])).toContain('Mission objectives (0/0 objectives complete):');
   });
 });

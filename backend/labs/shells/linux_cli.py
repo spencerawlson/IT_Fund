@@ -148,11 +148,39 @@ def _fresh() -> dict[str, Any]:
     }
 
 
+def _session_user(lab) -> str:
+    """Container/mock user for the prompt, derived from the lab's workdir.
+
+    Lab images run as a non-root user whose home is the workdir
+    (/home/analyst -> analyst, /home/student -> student, /root -> root).
+    """
+    workdir = getattr(getattr(lab, 'environment', None), 'workdir', '') or ''
+    parts = [p for p in workdir.split('/') if p]
+    if len(parts) == 2 and parts[0] == 'home':
+        return parts[1]
+    if parts == ['root']:
+        return 'root'
+    return 'student'
+
+
+def _session_host(lab) -> str:
+    targets = getattr(lab, 'targets', None) or []
+    if targets:
+        return targets[0].hostname
+    return 'linux-lab'
+
+
 def initial_prompt(lab) -> str:
-    return PROMPT
+    # The prompt is the lab's own user@host: student@linux-lab for the
+    # simulated essentials lab, analyst@devsecops01 for the Trivy container.
+    # It used to be hardcoded to student@linux-lab for every lab, so docker
+    # sessions (which run as analyst) showed a prompt that was never theirs.
+    return f'{_session_user(lab)}@{_session_host(lab)}:~$ '
 
 
-def banner(lab) -> list[str]:
+def _essentials_banner() -> list[str]:
+    # Unchanged: this is the one lab whose session really is the mock
+    # filesystem seeded below (todo.txt in /home/student, broken nginx).
     return [
         'Road to CISSP - simulated Linux terminal   (safe: nothing is really executed)',
         'Ubuntu 24.04 workstation. Learn by doing: navigate, manage files, fix permissions,',
@@ -160,6 +188,32 @@ def banner(lab) -> list[str]:
         'and manage users. Your todo list is in ~/todo.txt - start there.',
         'Try: pwd · ls -la · cat ~/todo.txt · help',
     ]
+
+
+def banner(lab) -> list[str]:
+    # Only the mock lab runs the seeded filesystem this banner describes.
+    # Docker labs run real commands in a real container with their own files,
+    # so their banner is built from the lab definition — title, target, and
+    # the first objective's hint as the starting point. It must never mention
+    # ~/todo.txt, which does not exist in those containers (the Trivy lab's
+    # image seeds only vuln-rootfs.tar.gz and the Trivy DB).
+    env = getattr(lab, 'environment', None)
+    if env is None or getattr(env, 'provider', 'mock') == 'mock':
+        return _essentials_banner()
+    lines = [f'Road to CISSP - {lab.title}']
+    targets = getattr(lab, 'targets', None) or []
+    if targets:
+        lines.append(f'{targets[0].role} ({targets[0].hostname}). Commands run in a real container.')
+    else:
+        lines.append('Commands run in a real container.')
+    objectives = getattr(lab, 'objectives', None) or []
+    if objectives:
+        lines.append(f'First objective: {objectives[0].label}.')
+        hints = getattr(objectives[0], 'hints', None) or []
+        if hints:
+            lines.append(f'Start here: {hints[0]}')
+    lines.append('Try: pwd · ls -la · help')
+    return lines
 
 
 # ---- path helpers ----

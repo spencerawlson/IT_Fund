@@ -23,6 +23,17 @@ describe('IncidentReportForm', () => {
     expect(html).toContain('File incident report');
   });
 
+  it('the file button is a real submit button (regression: type="button" never submits the form)', () => {
+    // The shared Button hardcodes type="button"; without an explicit
+    // type="submit" the click never fires the form's onSubmit, so the
+    // report could never be filed — the mission could never complete.
+    const html = renderToString(
+      <IncidentReportForm initial={{ summary: 's', root_cause: 'c', fix: 'f' }} onSubmit={async () => {}} canSubmit />,
+    );
+    expect(html).toContain('type="submit"');
+    expect(html).not.toContain('type="button"');
+  });
+
   it('hints that other objectives come first when the gate is closed', () => {
     const html = renderToString(
       <IncidentReportForm initial={{}} onSubmit={async () => {}} canSubmit={false} />,

@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Check, X, Lock, RotateCcw, SearchX, TerminalSquare, ShieldCheck, Map, Boxes } from 'lucide-react';
-import { Button, Card, EmptyState, ProgressBar } from '@/components/ui-glass';
+import { Button, Card, EmptyState } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
 import MissionTopology, { MISSION_TOPOLOGY_DEVICES } from '@/components/missions/MissionTopology';
@@ -36,6 +36,19 @@ const MISSION_OBJECTIVE_LABELS = {
 };
 
 const LAB_OBJECTIVE_IDS = ['deny-guest', 'permit-others', 'apply', 'guest-blocked', 'trusted-allowed'];
+
+/** The terminal `objectives` listing: `[x]`/`[ ]` per objective, in order.
+ *  The page shows no objectives list — the terminal is the only place the
+ *  student checks where they stand — so this is the source of truth the
+ *  runner prints, and the unit test asserts it matches the page's state. */
+export function formatObjectives(objectives = []) {
+  const count = `${objectives.filter((o) => o.passed).length}/${objectives.length} objectives complete`;
+  const lines = objectives.map((o) => {
+    const label = o.label || MISSION_OBJECTIVE_LABELS[o.id] || o.id;
+    return `  [${o.passed ? 'x' : ' '}] ${label}`;
+  });
+  return `Mission objectives (${count}):\n${lines.join('\n')}`;
+}
 
 const readStored = (key, fallback) => {
   try {
@@ -185,13 +198,9 @@ export default function MissionWorkspace() {
     const [cmd, ...args] = trimmed.split(/\s+/);
     const c = cmd.toLowerCase();
     const sub = (args[0] || '').toLowerCase();
-    const objList = () => objectives.map((o) => {
-      const label = o.label || MISSION_OBJECTIVE_LABELS[o.id] || o.id;
-      return `  [${o.passed ? 'x' : ' '}] ${label}`;
-    }).join('\n');
     const count = () => `${objectives.filter((o) => o.passed).length}/${objectives.length} objectives complete`;
 
-    if (c === 'objectives') return { output: `Mission objectives (${count()}):\n${objList()}` };
+    if (c === 'objectives') return { output: formatObjectives(objectives) };
     if (c === 'progress' || (c === 'lab' && sub === 'status') || (c === 'status')) return { output: count() };
     if (c === 'hint') {
       const open = objectives.find((o) => !o.passed);
@@ -202,7 +211,19 @@ export default function MissionWorkspace() {
       try {
         const s = await labsApi.validate(session.id);
         setSession(s);
-        return { output: `Checked. ${Object.values(s.progress || {}).filter(Boolean).length} lab objectives complete.`, session: s };
+        // Re-read the attempt too: the mission objectives behind the
+        // terminal's `objectives` list only refresh from the attempt
+        // endpoint, so without this the list stays stale after a validation.
+        let missionCount = '';
+        if (attempt) {
+          try {
+            const view = await missionsApi.getAttempt(attempt.id);
+            applyAttemptState(view);
+            const passed = (view.objectives || []).filter((o) => o.passed).length;
+            missionCount = ` ${passed}/${(view.objectives || []).length} mission objectives complete.`;
+          } catch { /* keep the lab-only count */ }
+        }
+        return { output: `Checked. ${Object.values(s.progress || {}).filter(Boolean).length} lab objectives complete.${missionCount}`, session: s };
       } catch (e) { return { output: e.message, exit_code: 1 }; }
     }
     if (c === 'lab' && sub === 'reset') { reset(); return { output: 'Resetting the lab environment...' }; }
@@ -229,7 +250,7 @@ export default function MissionWorkspace() {
       } catch { return { output: meta }; }
     }
     return labsApi.exec(session.id, raw);
-  }, [session, objectives, reset, navigate]);
+  }, [session, objectives, attempt, applyAttemptState, reset, navigate]);
 
   // Traffic test: ping the server from a host, then re-validate so the
   // blocked/allowed display comes from the latest validation state — never
@@ -255,6 +276,15 @@ export default function MissionWorkspace() {
       setTrafficBusy(false);
     }
   }, [session, attempt, applyAttemptState]);
+
+  // The firewall console's exec responses carry the refreshed session, so
+  // the rules read-back updates after each button instead of lagging until
+  // the next validation cycle.
+  const handleFirewallExec = useCallback(async (command) => {
+    const res = await labsApi.exec(session.id, command);
+    if (res && res.session) setSession(res.session);
+    return res;
+  }, [session]);
 
   const submitReport = useCallback(async ({ summary, root_cause, fix }) => {
     setReportError('');
@@ -285,7 +315,6 @@ export default function MissionWorkspace() {
     }
   }, [attempt]);
 
-  const passedCount = useMemo(() => objectives.filter((o) => o.passed).length, [objectives]);
   const total = objectives.length;
   const passed = (id) => objectives.find((o) => o.id === id)?.passed || false;
   // Two findings sources, kept separate: the attempt carries the mission
@@ -388,30 +417,22 @@ export default function MissionWorkspace() {
       <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr]">
         <div className="space-y-4">
           <MissionBrief mission={missionForBrief} />
+          {/* No objectives checklist lives on this page: the terminal is the
+              only place the student checks where they stand (run `objectives`
+              in the Mission Console). */}
           <Card level={2}>
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-heading text-ink-1">Mission Objectives</h2>
-              <span className="text-small text-ink-2">{passedCount}/{total}</span>
-            </div>
-            <ProgressBar value={total ? Math.round((passedCount / total) * 100) : 0} label="Objectives complete" showValue={false} />
-            <ol className="mt-4 space-y-2">
-              {objectives.map((o) => (
-                <li key={o.id} className="flex gap-3">
-                  <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${o.passed ? 'border-success/40 bg-success/15 text-success' : 'border-black/15 text-ink-2'}`}>
-                    {o.passed ? <Check size={14} aria-hidden="true" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-body text-ink-1">{o.label || MISSION_OBJECTIVE_LABELS[o.id] || o.id}</span>
-                    {o.message && !o.passed && <span className="block text-small text-ink-2">{o.message}</span>}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <h2 className="text-heading text-ink-1">Where do you stand?</h2>
+            <p className="mt-1 text-small text-ink-2">
+              Check the Mission Console below: run <code>objectives</code> for the list,{' '}
+              <code>progress</code> for the count, and <code>hint</code> when you are stuck.
+              After changing the firewall, run <code>check</code> to re-validate first.
+            </p>
           </Card>
           <Card level={2}>
             <h2 className="text-heading text-ink-1">Traffic test</h2>
             <p className="mt-1 text-small text-ink-2">
-              Ping the server from each host. Blocked / allowed comes from the last validation, not the ping text.
+              Ping the server from each host and read the replies. To check whether the
+              traffic checks pass, run <code>objectives</code> in the Mission Console.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button size="sm" variant="secondary" onClick={() => pingTest('GUEST')} loading={trafficBusy} disabled={trafficBusy || session.status === 'EXPIRED'}>
@@ -420,20 +441,6 @@ export default function MissionWorkspace() {
               <Button size="sm" variant="secondary" onClick={() => pingTest('PC1')} loading={trafficBusy} disabled={trafficBusy || session.status === 'EXPIRED'}>
                 Ping SRV from PC1
               </Button>
-            </div>
-            <div className="mt-3 space-y-1 text-small">
-              <p>
-                GUEST → SRV:{' '}
-                <span className={passed('guest-blocked') ? 'font-semibold text-danger' : 'text-ink-2'}>
-                  {passed('guest-blocked') ? 'BLOCKED ✓' : 'not yet blocked'}
-                </span>
-              </p>
-              <p>
-                PC1 → SRV:{' '}
-                <span className={passed('trusted-allowed') ? 'font-semibold text-success' : 'text-ink-2'}>
-                  {passed('trusted-allowed') ? 'ALLOWED ✓' : 'not yet confirmed'}
-                </span>
-              </p>
             </div>
             {traffic && (
               <pre className="mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-xl border border-black/10 bg-terminal-bg p-3 font-mono text-[12px] leading-relaxed text-terminal-text">
@@ -450,9 +457,6 @@ export default function MissionWorkspace() {
               <h2 className="font-mono text-heading text-terminal-bright">SOC Room</h2>
               <span className="hidden text-caption text-terminal-muted sm:inline">
                 {view === '3d' ? 'click a device to inspect it' : '2D topology — fully playable without WebGL'}
-              </span>
-              <span className="ml-auto text-caption text-terminal-muted">
-                {incidentActive ? '⚠ incident active' : contained ? '✓ incident contained' : 'monitoring'}
               </span>
             </div>
             {view === '3d' ? (
@@ -489,7 +493,7 @@ export default function MissionWorkspace() {
             <div className="mt-4">
               <FirewallConsole
                 rules={config}
-                onExec={(command) => labsApi.exec(session.id, command)}
+                onExec={handleFirewallExec}
                 onReset={reset}
                 onInspectFirewall={onInspectFirewall}
                 busy={busy}
@@ -502,7 +506,7 @@ export default function MissionWorkspace() {
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
               <h2 className="font-mono text-heading text-terminal-bright">Mission Console</h2>
-              <span className="hidden text-caption text-terminal-muted sm:inline">type `help` for available operations</span>
+              <span className="hidden text-caption text-terminal-muted sm:inline">type `help` for available operations — run `objectives` to see where you stand</span>
             </div>
             <div className="crt crt-flicker overflow-hidden rounded-xl">
               <LabTerminal

@@ -35,6 +35,7 @@ export const MISSIONS = {
       'Orion Technologies — unauthorized traffic detected between two network segments. Sensitive resources may be exposed.',
       'Investigate the topology, inspect the firewall policies, and find the unauthorized path.',
       'Correct the configuration with least privilege — block the intruder, keep legitimate traffic flowing — then document the incident and file your report.',
+      'Check where you stand in the Mission Console: run `objectives` for the list, `progress` for the count, and `hint` when you are stuck. The terminal is the only place your progress is shown.',
     ],
     // objective id -> story beat shown in place of the plain label
     beats: {

@@ -212,6 +212,11 @@ export default function LessonView() {
             Excellent work, Agent. You&apos;ve learned the fundamentals of network segmentation. Sentinel has an
             assignment waiting for you. Are you ready to put your knowledge into practice?
           </p>
+          <p className="mt-2 text-small text-ink-2">
+            In the mission, the terminal is the only place your progress is shown — run{' '}
+            <code>objectives</code> in the Mission Console to see where you stand, and{' '}
+            <code>hint</code> when you are stuck.
+          </p>
           <div className="mt-4">
             <Button to={`/missions/${missionId}`} variant="primary" size="sm">
               Start Mission

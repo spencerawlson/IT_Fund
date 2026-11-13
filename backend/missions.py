@@ -31,7 +31,7 @@ from auth.deps import require_user_id
 from billing import is_subscribed
 from db_models import LabCompletion, MissionAttempt
 from labs.missions import TOPOLOGY_DEVICES, copy_findings, get_mission, initial_findings, list_missions
-from labs.sessions import LabError, service
+from labs.sessions import COMPLETED, RUNNING, LabError, service
 from labs.validators import VALIDATORS
 
 router = APIRouter(prefix="/missions", tags=["missions"])
@@ -273,6 +273,37 @@ async def start_mission(mission_id: str, user_id: str = Depends(require_user_id)
     if definition is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mission not found.")
     _check_mission_entitlement(user_id)
+    # Resume: a reload/remount must return the learner's in-progress attempt,
+    # not start a fresh one at 0/9. Only a live lab session is resumable —
+    # RUNNING, or COMPLETED when the lab work is done but the report is not.
+    # An attempt whose session is gone (expired/destroyed) is abandoned and a
+    # fresh one starts instead. At most one attempt per (user, mission) stays
+    # in_progress, so a reload never strands the learner on a dead attempt.
+    # A resume is not a start, so it does not consume the start rate budget.
+    with db.SessionLocal() as s:
+        priors = s.execute(
+            select(MissionAttempt)
+            .where(MissionAttempt.user_id == user_id,
+                   MissionAttempt.mission_id == definition.id,
+                   MissionAttempt.status == "in_progress")
+            .order_by(MissionAttempt.started_at.desc())
+        ).scalars().all()
+    if priors:
+        latest = priors[0]
+        lab_session = _get_lab_session(latest, user_id)
+        if lab_session is not None and lab_session.status in (RUNNING, COMPLETED):
+            with db.SessionLocal() as s:
+                attempt = _load_attempt(s, latest.id, user_id)
+                view = _attempt_view(attempt, user_id)
+            return {"attempt": view["attempt"], "session": lab_session.public_dict(),
+                    "objectives": view["objectives"], "mission": definition.public_dict(),
+                    "resumed": True}
+        with db.SessionLocal() as s:
+            for prior in priors:
+                row = s.get(MissionAttempt, prior.id)
+                if row is not None and row.status == "in_progress":
+                    row.status = "abandoned"
+            s.commit()
     _check_start_rate(user_id)
     try:
         lab_session = await service.start(definition.lab_id, user_id)

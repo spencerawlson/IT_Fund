@@ -9,6 +9,7 @@ import {
   buildRecoverAcl20Commands,
   buildShowAccessListsCommands,
   runCommandSequence,
+  withR1Connect,
 } from './firewallCommands';
 
 // Firewall console for Operation Broken Shield: buttons that issue the
@@ -17,13 +18,14 @@ import {
 // The console never invents state — `rules` is the session's own
 // findings.config, refreshed after every exec/validate.
 //
-// The "Try deny-any" button is the deliberate wrong move: it denies all
-// traffic and applies it, so the student watches the trusted PC lose the
-// server too. Recovery is "Recover with ACL 20" (a corrected list 20
+// The "Try deny-any" button is the deliberate wrong move: it rebuilds list 10
+// with deny-any ahead of permit-any, so the student watches the trusted PC
+// lose the server too. Recovery is "Recover with ACL 20" (a corrected list 20
 // re-applied, replacing list 10 on the interface) or "Reset the lab"
 // (labsApi.reset via onReset). Re-adding permit-any does NOT recover —
-// the mock IOS shell has no rule removal and first-match wins, so a
-// trailing permit-any never fires after a deny-any.
+// first-match wins, so a trailing permit-any never fires after a deny-any.
+// Every button sequence is prefixed with `connect R1`: the traffic tests
+// leave the console on a PC, and IOS commands on a PC console fail.
 
 // findings.config keys (validators) -> human-readable rule lines.
 const RULE_LINES = [
@@ -53,7 +55,7 @@ export default function FirewallConsole({
     setRunning(name);
     setError('');
     try {
-      const results = await runCommandSequence(onExec, commands);
+      const results = await runCommandSequence(onExec, withR1Connect(commands));
       setLastOutput(results.map((r) => r.output).filter(Boolean).join('\n'));
     } catch (e) {
       setError(e.message || 'Command failed.');

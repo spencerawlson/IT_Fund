@@ -1,6 +1,9 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import FirewallConsole, { rulesSummary } from './FirewallConsole';
 
 describe('rulesSummary', () => {
@@ -16,6 +19,14 @@ describe('rulesSummary', () => {
 });
 
 describe('FirewallConsole', () => {
+  it('runs every button sequence on R1, even after a traffic test left the console on a PC', () => {
+    // The traffic tests connect the console to PC1/GUEST, where IOS commands
+    // fail — the console prefixes `connect R1` via withR1Connect.
+    const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'FirewallConsole.jsx'), 'utf8');
+    expect(src).toContain('withR1Connect');
+    expect(src).toContain('runCommandSequence(onExec, withR1Connect(commands))');
+  });
+
   it('renders the rule buttons and the empty-rules state (SSR smoke)', () => {
     const html = renderToString(<FirewallConsole rules={{}} onExec={async () => ({ output: '' })} />);
     expect(html).toContain('Deny guest');
