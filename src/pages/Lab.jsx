@@ -48,7 +48,6 @@ import { LAB_FLOWS } from '@/data/labFlows';
 import { ROUTING_SCENARIOS } from '@/data/routingScenarios';
 import { getModulesForLab, NOTES, LAB_LABELS } from '@/data/labLinks';
 import Seo from '@/components/Seo';
-import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 
 // Ordered categories for the gallery.
 const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Security', 'Data & Systems', 'DevOps'];
@@ -245,32 +244,6 @@ function Stage({ id, onBack }) {
   );
 }
 
-// FAQ, in the product's own words — rendered below and mirrored as FAQPage
-// JSON-LD on this page's <Seo> (single source of truth, no drift).
-const FAQS = [
-  {
-    q: 'Do I need to install anything?',
-    a: 'No. Everything runs in the browser — 3D models, animations, and tools like the subnet calculator. Nothing to download, nothing to configure.',
-  },
-  {
-    q: 'What can I explore here?',
-    a: 'Seven areas: hardware, networking, routing, cloud and scale, security, data and systems, and DevOps. Pick a subject — the OSI model, the TCP handshake, DNS resolution, BGP path selection, the TLS handshake — and step through how it works.',
-    sources: [
-      { label: 'RFC 793: TCP', href: 'https://www.rfc-editor.org/rfc/rfc793' },
-      { label: 'RFC 1035: DNS', href: 'https://www.rfc-editor.org/rfc/rfc1035' },
-      { label: 'RFC 8446: TLS 1.3', href: 'https://www.rfc-editor.org/rfc/rfc8446' },
-    ],
-  },
-  {
-    q: 'How is the Visual Lab different from the Interactive Labs?',
-    a: 'Here you watch and explore: animations and 3D models that show how things work. In the Interactive Labs you do it yourself in a real terminal — several subjects link straight through with “Build this in the Interactive Lab”.',
-  },
-  {
-    q: 'Can I share a subject with someone?',
-    a: 'Yes. Opening a subject updates the page address, so you can copy the link and send it — it opens on the same subject.',
-  },
-];
-
 export default function Lab() {
   const [active, setActive] = useState(() => {
     // Deep-link (?item=…) only exists in a browser; the server renders
@@ -299,7 +272,6 @@ export default function Lab() {
         title="Visual Lab — interactive 3D explainers for networking & security"
         description="Explore networking, security, and systems concepts as interactive 3D models and animated diagrams — OSI, switches, routers, VPCs, routing protocols, and more."
         path="/lab"
-        jsonLd={faqJsonLd(FAQS)}
       />
       <div ref={topRef} className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
         <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
@@ -323,9 +295,6 @@ export default function Lab() {
 
         {active ? <Stage id={active} onBack={back} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} />}
 
-        <div className="mt-12">
-          <FaqSection faqs={FAQS} />
-        </div>
       </div>
     </div>
   );

@@ -20,11 +20,11 @@ export function faqJsonLd(faqs) {
   };
 }
 
-export default function FaqSection({ faqs }) {
+export default function FaqSection({ faqs, title = 'Frequently asked questions', id }) {
   if (!faqs || faqs.length === 0) return null;
   return (
-    <section className="pb-16 sm:pb-20" aria-label="Frequently asked questions">
-      <h2 className="text-center text-title font-bold text-ink-1">Frequently asked questions</h2>
+    <section className="pb-16 sm:pb-20" aria-label={title} id={id}>
+      <h2 className="text-center text-title font-bold text-ink-1">{title}</h2>
       <div className="mx-auto mt-8 grid max-w-3xl gap-4">
         {faqs.map((f) => (
           <div key={f.q} className="glass-2 rounded-card p-5">

@@ -83,6 +83,7 @@ export default function Privacy() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6">
           <span className="text-caption text-ink-3">Road to CISSP — learn IT by doing it.</span>
           <div className="flex gap-4 text-caption text-ink-3">
+            <Link to="/faq" className="hover:text-ink-1">FAQ</Link>
             <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
             <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>

@@ -54,7 +54,7 @@ export default function Contact() {
           <h2 className="text-heading font-semibold text-ink-1">Before you write</h2>
           <p className="mt-2 text-body text-ink-2">
             Common questions are answered on the{' '}
-            <Link to="/pricing" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">pricing page</Link>
+            <Link to="/faq" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">FAQ page</Link>
             {' '}— cancelling, what the free tier includes, and refunds. Billing itself is handled
             by Stripe: card changes and cancellations are self-serve from your account page, in
             the Stripe Customer Portal.
@@ -66,6 +66,7 @@ export default function Contact() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6">
           <span className="text-caption text-ink-3">Road to CISSP — learn IT by doing it.</span>
           <div className="flex gap-4 text-caption text-ink-3">
+            <Link to="/faq" className="hover:text-ink-1">FAQ</Link>
             <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
             <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>

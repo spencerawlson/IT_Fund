@@ -9,36 +9,10 @@ import { useAcademy } from '@/lib/academy';
 import { pathProgress, pathStatus } from '@/lib/progress/engine';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 import Seo from '@/components/Seo';
-import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 
 // Paths you're on come first, then untouched ones, then finished ones. Paths without courses yet
 // are not listed.
 const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
-
-// FAQ, in the product's own words — rendered below and mirrored as FAQPage
-// JSON-LD on this page's <Seo> (single source of truth, no drift).
-const FAQS = [
-  {
-    q: 'What is a career path?',
-    a: 'A path is a set of courses aimed at one role — for example Networking, Cybersecurity, or Cloud Security. Each path lists its courses in order, with the time it takes and the background that makes it easier.',
-  },
-  {
-    q: 'Do I have to finish one path before starting another?',
-    a: 'No. Every path is open from the start — nothing is locked. The prerequisites are advice, not gates: they tell you which background makes a path easier, not whether you may start it.',
-  },
-  {
-    q: 'Which path should I start with?',
-    a: 'If you are new to IT, start with IT Foundations, then follow the roadmap — it lays out the seven steps from foundations to the CISSP in the order most successful candidates take them.',
-  },
-  {
-    q: 'What certification does a path prepare me for?',
-    a: 'It depends on the path. Networking leads toward CompTIA Network+, Cybersecurity toward Security+ and CySA+, and every path builds toward the CISSP capstone. Each course page lists the certifications it prepares you for.',
-    sources: [
-      { label: 'CompTIA Network+', href: 'https://www.comptia.org/certifications/network' },
-      { label: 'ISC2 CISSP', href: 'https://www.isc2.org/certifications/cissp' },
-    ],
-  },
-];
 
 export function PathsIndex() {
   useDocumentTitle('Career Paths · Road to CISSP');
@@ -53,7 +27,6 @@ export function PathsIndex() {
         title="Career paths — role-based routes to the CISSP · Road to CISSP"
         description="Each path is a set of courses toward a role. Every path is open from the start; its prerequisites tell you which background makes it easier."
         path="/academy/paths"
-        jsonLd={faqJsonLd(FAQS)}
       />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Career paths' }]}
@@ -71,7 +44,6 @@ export function PathsIndex() {
           In development: {upcoming.map((p) => p.title).join(', ')}.
         </p>
       )}
-      <FaqSection faqs={FAQS} />
     </PageContainer>
   );
 }

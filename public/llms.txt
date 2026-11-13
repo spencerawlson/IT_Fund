@@ -6,6 +6,7 @@
 
 - [Home](https://www.road2cissp.com/): What Road to CISSP is, the certification road, and how it works.
 - [Pricing](https://www.road2cissp.com/pricing): One plan — Pro at $19/month unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators. Free tier with no account needed.
+- [FAQ](https://www.road2cissp.com/faq): Every question about Road to CISSP in one place — getting started, pricing, courses, labs, and practice exams.
 - [CISSP roadmap](https://www.road2cissp.com/academy/roadmap): Seven steps that follow the path most successful candidates take, from IT foundations to the CISSP.
 - [Career paths](https://www.road2cissp.com/academy/paths): Role-based routes — each path chains the right courses, labs, and drills into one plan.
 - [Courses](https://www.road2cissp.com/academy/courses): Every course is a sequence of modules, and each module a sequence of lessons. Every course is open at every level.

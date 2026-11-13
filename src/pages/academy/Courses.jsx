@@ -16,7 +16,6 @@ import {
   pathPrerequisites, lessonStatus,
 } from '@/lib/progress/engine';
 import Seo from '@/components/Seo';
-import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 
 const SITE = 'https://www.road2cissp.com';
 // schema.org BreadcrumbList from [{name, path?}]; the last crumb usually has no path.
@@ -56,31 +55,6 @@ function LibraryTile({ to, icon: Icon, title, text }) {
   );
 }
 
-// FAQ, in the product's own words — rendered below and mirrored as FAQPage
-// JSON-LD on this page's <Seo> (single source of truth, no drift).
-const FAQS = [
-  {
-    q: 'Do I have to take courses in order?',
-    a: 'No. Every course is open at every level — follow the recommended order, or start where you need to. Modules inside a course work the same way.',
-  },
-  {
-    q: 'What is inside a course?',
-    a: 'A sequence of modules, and each module a sequence of lessons — plus cheat sheets and hands-on labs. Every course also lists the skills it teaches and the certifications it prepares you for.',
-  },
-  {
-    q: 'Which course should I take first?',
-    a: 'Start with the roadmap: it orders the courses into seven steps, from IT foundations through Network+ and Security+ to the CISSP. Security+ is the flagship course if you want one place to begin.',
-  },
-  {
-    q: 'Are the courses tied to real certifications?',
-    a: 'Yes. Courses prepare you for CompTIA Network+, Security+, Linux+ and CySA+, Cisco CCNA, and the ISC2 CISSP, among others — each course page lists the certifications it prepares you for.',
-    sources: [
-      { label: 'CompTIA Security+', href: 'https://www.comptia.org/certifications/security' },
-      { label: 'ISC2 CISSP', href: 'https://www.isc2.org/certifications/cissp' },
-    ],
-  },
-];
-
 export function CoursesIndex() {
   const state = useAcademy();
   const courses = [...COURSES].sort((a, b) => ORDER[courseStatus(state, a)] - ORDER[courseStatus(state, b)]);
@@ -90,7 +64,6 @@ export function CoursesIndex() {
         title="Courses — guided tracks from IT fundamentals to the CISSP"
         description="Work through structured courses across networking, Security+, Linux, Python, cloud, and the CISSP domains — lessons, cheat sheets, and hands-on labs in each."
         path="/academy/courses"
-        jsonLd={faqJsonLd(FAQS)}
       />
       <PageHeader
         breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Courses' }]}
@@ -110,9 +83,6 @@ export function CoursesIndex() {
         </div>
       </section>
 
-      <div className="mt-12">
-        <FaqSection faqs={FAQS} />
-      </div>
     </PageContainer>
   );
 }

@@ -31,6 +31,7 @@ const Pricing = React.lazy(() => import('./pages/Pricing'));
 const Privacy = React.lazy(() => import('./pages/Privacy'));
 const Terms = React.lazy(() => import('./pages/Terms'));
 const Contact = React.lazy(() => import('./pages/Contact'));
+const Faq = React.lazy(() => import('./pages/Faq'));
 const Home = React.lazy(() => import('./pages/Home'));
 const Module = React.lazy(() => import('./pages/Module'));
 const Lab = React.lazy(() => import('./pages/Lab'));
@@ -135,6 +136,7 @@ const AuthenticatedApp = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/faq" element={<Faq />} />
 
       {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
       <Route path="/labs" element={<LabLauncher />} />

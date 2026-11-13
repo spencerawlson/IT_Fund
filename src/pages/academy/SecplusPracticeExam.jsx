@@ -14,35 +14,7 @@ import { cn } from '@/lib/utils';
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import Seo from '@/components/Seo';
-import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
-
-// FAQ, in the product's own words — rendered below and mirrored as FAQPage
-// JSON-LD on this page's <Seo> (single source of truth, no drift).
-const SECPLUS_FAQS = [
-  {
-    q: 'How does the practice exam work?',
-    a: `${SECPLUS_EXAM_QUESTION_COUNT} questions sampled from every track, weighted by the official SY0-701 domain weights. You get ${SECPLUS_EXAM_DURATION_MIN} minutes on the clock, and ${SECPLUS_EXAM_PASS_PCT}% proficiency passes this simulator.`,
-    sources: [
-      { label: 'CompTIA Security+', href: 'https://www.comptia.org/certifications/security' },
-    ],
-  },
-  {
-    q: 'Can I pause the exam?',
-    a: 'No — the timer survives a refresh, and closing the tab does not buy you time. One sitting, start to finish.',
-  },
-  {
-    q: 'Is the real Security+ like this?',
-    a: 'Not exactly. The real SY0-701 is 90 questions in 90 minutes and includes performance-based questions — drag-and-drop, simulations, and other hands-on tasks — which this simulator does not include. This is fixed-length practice: a knowledge check with a per-domain breakdown, not a test-day prediction.',
-    sources: [
-      { label: 'CompTIA SY0-701 exam objectives', href: 'https://www.comptia.org/certifications/security' },
-    ],
-  },
-  {
-    q: 'What happens after I finish?',
-    a: 'You get a per-domain breakdown showing exactly what to study next, and you can review every missed question with the correct answer. Retake it as often as you like.',
-  },
-];
 
 const domainById = Object.fromEntries(SECURITY_PLUS_DOMAINS.map((d) => [d.id, d]));
 
@@ -80,13 +52,9 @@ export default function SecplusPracticeExam() {
           title="Security+ practice exam — test-day simulator · Road to CISSP"
           description="90 questions sampled from every track, weighted by the official SY0-701 domain weights. 90 minutes on the clock — the timer survives a refresh."
           path="/academy/security-plus/exam"
-          jsonLd={faqJsonLd(SECPLUS_FAQS)}
         />
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
           <UpgradePrompt what="The Security+ practice exam" />
-          <div className="mt-10">
-            <FaqSection faqs={SECPLUS_FAQS} />
-          </div>
         </div>
       </main>
     );
@@ -98,7 +66,6 @@ export default function SecplusPracticeExam() {
         title="Security+ practice exam — test-day simulator · Road to CISSP"
         description="90 questions sampled from every track, weighted by the official SY0-701 domain weights. 90 minutes on the clock — the timer survives a refresh."
         path="/academy/security-plus/exam"
-        jsonLd={faqJsonLd(SECPLUS_FAQS)}
       />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
         {!exam && <StartScreen history={secplusExamHistory(state)} onStart={handleStart} starting={starting} startError={startError} />}
@@ -158,9 +125,6 @@ function StartScreen({ history, onStart, starting, startError }) {
           ))}
         </ul>
       )}
-      <div className="mt-10">
-        <FaqSection faqs={SECPLUS_FAQS} />
-      </div>
     </div>
   );
 }
