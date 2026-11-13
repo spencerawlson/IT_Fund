@@ -165,9 +165,14 @@ export default function SignIn() {
             <p className="text-small text-ink-2">Account sign-in is being set up — for now, everything works without an account.</p>
           )}
           {import.meta.env.DEV && (
-            <Button size="lg" variant="ghost" onClick={() => { window.location.href = '/api/auth/dev-login'; }}>
-              Developer sign-in (local only)
-            </Button>
+            // `/auth/dev-login` is POST-only on purpose (a GET that creates a session is
+            // CSRF-able by construction), so this must be a real form submission, not a
+            // `window.location.href` navigation — that issues a GET and 405s.
+            <form method="POST" action={`${API_BASE}/auth/dev-login`}>
+              <Button type="submit" size="lg" variant="ghost" className="w-full">
+                Developer sign-in (local only)
+              </Button>
+            </form>
           )}
         </div>
         <div className="mt-6 border-t border-black/[0.08] pt-5">
