@@ -116,10 +116,6 @@ export default function LessonPlayer({ track, deck }) {
   const [done, setDone] = useState(false);
   // One accent everywhere: selections, highlights and buttons use the action colour, not the course colour.
   const color = ACTION.action;
-  const { steps, index, tries } = session;
-
-  const step = steps[index];
-  const StepComponent = step ? STEP_COMPONENTS[step.type] : null;
 
   const onComplete = (firstTry) => {
     if (step.type === 'choice') {
@@ -166,7 +162,10 @@ export default function LessonPlayer({ track, deck }) {
     setDone(false);
   };
 
-  if (!bundle) {
+  // The session is built together with the bundle (see the effect above), so
+  // both are null until the async load lands. Reading the session above this
+  // guard crashed the first render ("Cannot destructure property 'steps'").
+  if (!bundle || !session) {
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-center px-4 text-center">
         {bundleError ? (
@@ -187,6 +186,12 @@ export default function LessonPlayer({ track, deck }) {
       </div>
     );
   }
+
+  // Only reachable once the bundle — and therefore the session — has loaded.
+  const { steps, index, tries } = session;
+
+  const step = steps[index];
+  const StepComponent = step ? STEP_COMPONENTS[step.type] : null;
 
   const progress = done ? 100 : index < 0 ? 0 : Math.round((index / steps.length) * 100);
 
