@@ -39,6 +39,7 @@ export default function LabProgress() {
   const [synced, setSynced] = useState(false);
   const [missions, setMissions] = useState(null);
   const [missionsError, setMissionsError] = useState('');
+  const [missionsLocked, setMissionsLocked] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -73,8 +74,14 @@ export default function LabProgress() {
     }
     let live = true;
     missionsApi.history()
-      .then((data) => { if (live) setMissions(Array.isArray(data) ? data : (data?.history || [])); })
-      .catch((e) => { if (live) setMissionsError(e.message); });
+      .then((data) => { if (live) setMissions(data?.history || []); })
+      .catch((e) => {
+        if (!live) return;
+        // 401/402: this learner just isn't entitled to missions (signed out
+        // mid-session, or free tier) — a soft nudge, not a red error banner.
+        if (e.status === 401 || e.status === 402) setMissionsLocked(true);
+        else setMissionsError(e.message);
+      });
     return () => { live = false; };
   }, [isAuthenticated]);
 
@@ -158,8 +165,14 @@ export default function LabProgress() {
             </p>
             <section aria-labelledby="missions-title" className="mt-10">
               <h2 id="missions-title" className="text-heading text-ink-1">Missions</h2>
+              {missionsLocked && (
+                <p className="mt-3 flex flex-wrap items-center gap-3 text-body text-ink-2">
+                  Missions unlock with Premium.
+                  <Button size="sm" variant="ghost" to="/pricing">See plans</Button>
+                </p>
+              )}
               {missionsError && <p className="mt-3 text-body text-danger">Could not load missions: {missionsError}</p>}
-              {!missions && !missionsError && <p className="mt-3 text-ink-2">Loading…</p>}
+              {!missions && !missionsError && !missionsLocked && <p className="mt-3 text-ink-2">Loading…</p>}
               {missions && missions.length === 0 && !missionsError && (
                 <p className="mt-3 text-body text-ink-2">No missions completed yet — finish a lesson to unlock one.</p>
               )}
