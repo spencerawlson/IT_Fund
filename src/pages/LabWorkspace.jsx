@@ -191,16 +191,19 @@ export default function LabWorkspace() {
 
   // Live-execution labs: the learner ran the step for real in the container — record the
   // attestation as a finding, then validate so progress ticks. (Simulated labs fabricate
-  // findings server-side and never need this.)
+  // findings server-side and never need this.) Returns whether the attestation was
+  // recorded, so the terminal `attest` command can report honestly.
   const attest = useCallback(async (objective) => {
-    if (!session || !objective?.validator) return;
+    if (!session || !objective?.validator) return false;
     setBusy(true);
     setError('');
     try {
       await labsApi.recordFindings(session.id, { [objective.validator]: { attested: true } });
       setSession(await labsApi.validate(session.id));
+      return true;
     } catch (e) {
       setError(e.message);
+      return false;
     } finally {
       setBusy(false);
     }
@@ -255,16 +258,16 @@ export default function LabWorkspace() {
     if (host) setActiveDevice(host);
   }, []);
 
-  // Terminal command runner: meta-commands (help/objectives/hint/check/devices/progress/reset/exit)
+  // Terminal command runner: meta-commands (help/objectives/hint/attest/check/devices/progress/reset/exit)
   // are handled in the browser; everything else is the lab's real tooling, sent to the backend shell.
   const runner = useCallback(async (raw) => {
     const trimmed = raw.trim();
     const [cmd, ...args] = trimmed.split(/\s+/);
     const c = cmd.toLowerCase();
     const sub = (args[0] || '').toLowerCase();
-    const objList = () => (lab?.objectives || []).map((o) => {
+    const objList = () => (lab?.objectives || []).map((o, i) => {
       const passed = session?.progress?.[o.id];
-      return `  [${passed ? 'x' : ' '}] ${o.label}`;
+      return `  ${i + 1}. [${passed ? 'x' : ' '}] ${o.label}`;
     }).join('\n');
     const count = () => `${Object.values(session?.progress || {}).filter(Boolean).length}/${lab?.objectives.length || 0} objectives complete`;
 
@@ -278,6 +281,29 @@ export default function LabWorkspace() {
       const open = (lab?.objectives || []).find((o) => !session?.progress?.[o.id]);
       if (!open) return { output: 'Every objective is complete — nothing left to hint at.' };
       return { output: `Hint for "${open.label}":\n  ${open.hints?.[0] || 'Work through the mission step by step.'}` };
+    }
+    if (c === 'attest') {
+      // Live-execution labs only: record a step the learner ran for real in
+      // the container. In mission mode this replaces the "I did this" button
+      // on the objectives card, which is hidden there. Simulated labs check
+      // automatically and never need attestation.
+      if (!isLive) return { output: 'This lab checks your work automatically — nothing to attest here.' };
+      if (!session) return { output: 'No active session.' };
+      const objectives = lab?.objectives || [];
+      let target = null;
+      if (args[0] !== undefined) {
+        const n = Number(args[0]);
+        if (!Number.isInteger(n) || n < 1 || n > objectives.length) {
+          return { output: 'Usage: attest [n] — attest objective n from the `objectives` list, or the next open one.' };
+        }
+        target = objectives[n - 1];
+        if (session?.progress?.[target.id]) return { output: `"${target.label}" is already complete.` };
+      } else {
+        target = objectives.find((o) => !session?.progress?.[o.id]);
+        if (!target) return { output: 'Every objective is complete — nothing left to attest.' };
+      }
+      const ok = await attest(target);
+      return { output: ok ? `Recorded "${target.label}" as done.` : 'Could not record that — see the error on the page.' };
     }
     if (c === 'check') {
       try {
@@ -300,6 +326,7 @@ export default function LabWorkspace() {
         '  hint              a hint for the next unfinished objective',
         '  check             re-check your work now',
         '  progress          how many objectives are complete',
+        (isLive ? '  attest [n]         record a step you ran for real' : null),
         (lab?.targets?.length > 1 ? '  devices           list the devices · connect <device> to access one' : null),
         '  lab reset         start the lab over',
         '  lab exit          leave to the lab menu',
@@ -312,7 +339,7 @@ export default function LabWorkspace() {
       } catch { return { output: meta }; }
     }
     return labsApi.exec(session.id, raw);
-  }, [session, lab, reset, navigate]);
+  }, [session, lab, reset, navigate, attest, isLive]);
 
   const results = session?.validation_results || [];
   const passedCount = useMemo(() => Object.values(session?.progress || {}).filter(Boolean).length, [session]);
@@ -356,7 +383,9 @@ export default function LabWorkspace() {
   const banner = gameMode
     ? ['[ MISSION CONSOLE v1 ]', 'establishing uplink ............ OK',
        `routing to ${target0} ............ ONLINE`,
-       `objectives: ${total} · clearance: ${lab.difficulty}`, 'type `help` for available operations', '']
+       `objectives: ${total} · clearance: ${lab.difficulty}`,
+       'run `objectives` for the list · `progress` for the count · `hint` when stuck',
+       'type `help` for available operations', '']
     : labBanner;
   // Console tabs only for shells that support `connect <device>` (e.g. Cisco IOS labs).
   const devices = lab.terminal?.multi_device ? (lab.targets || []) : [];
@@ -391,17 +420,22 @@ export default function LabWorkspace() {
               <p className="mt-3 text-small text-ink-2">{lab.description}</p>
             </Card>
           )}
+          {/* In mission mode the objectives live in the terminal only (run
+              `objectives` in the Mission Console) — no checklist, hints,
+              count or progress bar on the page. Plain labs keep the list. */}
+          {!gameMode && (
           <Card level={2}>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-heading text-ink-1">{gameMode ? 'Mission Objectives' : 'Objectives'}</h2>
+              <h2 className="text-heading text-ink-1">Objectives</h2>
               <span className="text-small text-ink-2">{passedCount}/{total}</span>
             </div>
             <ProgressBar value={total ? Math.round((passedCount / total) * 100) : 0} label="Objectives complete" showValue={false} />
             {/* Scrollable so a long mission (e.g. the 9-step Docker+SIEM lab) never overflows the card. */}
             <div className="mt-4 max-h-[22rem] overflow-y-auto pr-1 [scrollbar-width:thin]">
-              <LabObjectives objectives={lab.objectives} results={results} attestable={isLive} onAttest={attest} busy={busy} labelFor={gameMode ? ((o) => mission.beats?.[o.id] || o.label) : undefined} />
+              <LabObjectives objectives={lab.objectives} results={results} attestable={isLive} onAttest={attest} busy={busy} />
             </div>
           </Card>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -460,7 +494,13 @@ export default function LabWorkspace() {
               />
               </div>
               <p className="mt-3 text-caption text-ink-3">
-                {isLive ? (
+                {gameMode ? (
+                  isLive ? (
+                    <>Run each step for real in the container, then type <code className="font-mono text-ink-2">attest</code> in the console to record it. Type <code className="font-mono text-ink-2">objectives</code> to see where you stand.</>
+                  ) : (
+                    <>Objectives check automatically as you run commands. Type <code className="font-mono text-ink-2">objectives</code> to see where you stand.</>
+                  )
+                ) : isLive ? (
                   <>Run each step for real in the container, then press <span className="font-semibold text-ink-1">I did this</span> on the objective and check your work.</>
                 ) : (
                   <>Objectives check automatically as you run commands. Type <code className="font-mono text-ink-2">help</code> for the command list.</>
