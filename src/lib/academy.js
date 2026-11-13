@@ -55,7 +55,7 @@ export const BADGES = {
   'cissp-ready': { title: 'CISSP-Ready', desc: 'Reach 80% readiness in all 8 CISSP domains.', icon: 'ShieldCheck' },
 };
 
-const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null, exams: [], exam: null, secplusExams: [], secplusExam: null, labs: {} };
+const EMPTY = { xp: 0, days: {}, streak: { count: 0, last: null }, cards: {}, bosses: {}, badges: [], bestCombo: 0, mastered: {}, lessons: {}, resume: null, exams: [], exam: null, secplusExams: [], secplusExam: null, labs: {}, missions: {} };
 
 let cache = null;
 // Persistence goes through an adapter (src/lib/progress/storage.js) so a server-backed store
@@ -200,6 +200,29 @@ export function recordVerifiedLabCompletion(labId, lessonIds = []) {
     if (next.lessons?.[lessonId]) continue; // already complete: keep its score
     next = withXp({ ...next, lessons: { ...next.lessons, [lessonId]: { at, via: 'lab' } } }, XP.lessonComplete);
   }
+  write(withBadges(next));
+  return true;
+}
+
+/**
+ * Record a Cyber Mission completion and award its XP once per mission.
+ * The amount comes from the server (the mission definition's XP, returned
+ * as xp_awarded by the complete endpoint) — the frontend never hardcodes a
+ * mission amount. Separate from the lab's own once-per-lab XP
+ * (recordVerifiedLabCompletion): a learner who did the lab standalone first
+ * still earns the full mission XP on first mission completion, and a replay
+ * earns nothing. Returns false when already recorded or the amount is 0.
+ */
+export function recordMissionCompletion(missionId, xpAmount) {
+  const amount = Number(xpAmount) || 0;
+  if (amount <= 0) return false;
+  const state = read();
+  if (state.missions?.[missionId]) return false;
+  const at = Date.now();
+  const next = withXp(
+    { ...state, missions: { ...(state.missions || {}), [missionId]: { xp: amount, at } } },
+    amount,
+  );
   write(withBadges(next));
   return true;
 }

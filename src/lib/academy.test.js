@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { setProgressAdapter, completeLesson, recordVerifiedLabCompletion, saveLessonProgress, clearLessonProgress, gradeCard, XP } from './academy';
+import { setProgressAdapter, completeLesson, recordVerifiedLabCompletion, recordMissionCompletion, saveLessonProgress, clearLessonProgress, gradeCard, XP } from './academy';
 import { isPassed } from './progress/engine';
 import { memoryAdapter } from './progress/storage';
 
@@ -64,5 +64,32 @@ describe('verified lab completions (Spencer rule, 2026-11-11)', () => {
     expect(recordVerifiedLabCompletion('sec-dns-typo-001', [])).toBe(true);
     expect(store.load().xp).toBe(XP.labComplete);
     expect(store.load().lessons).toEqual({});
+  });
+});
+
+describe('mission completions (XP keyed to the mission, not the lab)', () => {
+  it('awards the mission XP once and records it under the mission id', () => {
+    expect(recordMissionCompletion('op-broken-shield', 80)).toBe(true);
+    const s = store.load();
+    expect(s.xp).toBe(80);
+    expect(s.missions['op-broken-shield'].xp).toBe(80);
+    // A replay earns nothing: no double award.
+    expect(recordMissionCompletion('op-broken-shield', 80)).toBe(false);
+    expect(store.load().xp).toBe(80);
+  });
+
+  it('pays the mission XP even when the lab was already completed standalone', () => {
+    // The learner did the lab first (lab XP already banked) — the mission
+    // still pays its own XP on first mission completion.
+    expect(recordVerifiedLabCompletion('net-acl-001', ['net-security'])).toBe(true);
+    const before = store.load().xp;
+    expect(recordMissionCompletion('op-broken-shield', 80)).toBe(true);
+    expect(store.load().xp).toBe(before + 80);
+  });
+
+  it('awards nothing for a zero amount', () => {
+    expect(recordMissionCompletion('op-broken-shield', 0)).toBe(false);
+    // Nothing was written at all: no XP, no mission record.
+    expect(store.load()).toBeNull();
   });
 });

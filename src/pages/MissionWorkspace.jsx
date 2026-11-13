@@ -10,7 +10,7 @@ import IncidentReportForm from '@/components/missions/IncidentReportForm';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
-import { recordVerifiedLabCompletion } from '@/lib/academy';
+import { recordMissionCompletion, recordVerifiedLabCompletion } from '@/lib/academy';
 import { LESSONS_FOR_LAB } from '@/data/labLessons';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
@@ -20,6 +20,10 @@ import { useTheme } from '@/components/ThemeProvider';
 // (Static imports of three/ModelViewer must stay out of this file — see
 // MissionWorkspace.test.jsx.)
 const MissionSocScene = React.lazy(() => import('@/components/three/MissionSocScene'));
+
+// The draft autosave debounce: keystrokes are saved 750ms after the last
+// one, and immediately on blur, so a reload restores what was typed.
+const DRAFT_SAVE_DELAY_MS = 750;
 
 // Operation Broken Shield runs the net-acl-001 lab; the mission API owns the
 // attempt, the lab API owns the terminal session underneath it.
@@ -85,6 +89,12 @@ export default function MissionWorkspace() {
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
   });
   const termRef = useRef(null);
+  // Draft autosave state: the timer for the debounce, the latest unsaved
+  // values, and whether a save is in flight (a save that lands while one
+  // is in flight is queued and sent right after).
+  const draftTimerRef = useRef(null);
+  const draftPendingRef = useRef(null);
+  const draftSavingRef = useRef(false);
 
   useEffect(() => {
     let live = true;
@@ -308,12 +318,17 @@ export default function MissionWorkspace() {
       setDebrief(res);
       if (res.attempt) setAttempt(res.attempt);
       if (res.objectives) setObjectives(res.objectives);
+      // The server's xp_awarded is the mission's first-completion award
+      // (definition XP, once per mission). Record it in the learner's XP
+      // ledger — a debrief number alone never reached the dashboard, which
+      // is why the live first completion showed 0 XP awarded.
+      if (res.xp_awarded > 0) recordMissionCompletion(missionId, res.xp_awarded);
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [attempt]);
+  }, [attempt, missionId]);
 
   const total = objectives.length;
   const passed = (id) => objectives.find((o) => o.id === id)?.passed || false;
@@ -334,6 +349,47 @@ export default function MissionWorkspace() {
   const canSubmitReport = objectives
     .filter((o) => o.id !== 'report' && o.id !== 'document')
     .every((o) => o.passed);
+
+  // The saved draft (server-side, restored on resume/reload) and the filed
+  // report share the form's initial values: the filed text wins once a
+  // report is filed (the draft is cleared server-side at filing), otherwise
+  // the draft is what the learner was typing.
+  const draft = missionFindings?.incident_report_draft || {};
+  const reportDraftInitial = {
+    summary: report.summary || draft.summary || '',
+    root_cause: report.root_cause || draft.root_cause || '',
+    fix: report.fix || draft.fix || '',
+  };
+
+  // Draft autosave: best-effort and silent — a failed save must never show
+  // an error banner or touch the objectives; the text stays in the form and
+  // is retried on the next keystroke/blur. The server stores it under
+  // incident_report_draft, which the document validator never reads.
+  const saveDraftNow = useCallback(async (values) => {
+    if (!attempt) return;
+    if (draftSavingRef.current) { draftPendingRef.current = values; return; }
+    draftSavingRef.current = true;
+    try {
+      const view = await missionsApi.action(attempt.id, { type: 'save_draft', ...values });
+      applyAttemptState(view);
+    } catch { /* draft saves are best-effort; the text stays in the form */ }
+    finally {
+      draftSavingRef.current = false;
+      if (draftPendingRef.current) {
+        const next = draftPendingRef.current;
+        draftPendingRef.current = null;
+        saveDraftNow(next);
+      }
+    }
+  }, [attempt, applyAttemptState]);
+  const handleDraftChange = useCallback((values) => {
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => saveDraftNow(values), DRAFT_SAVE_DELAY_MS);
+  }, [saveDraftNow]);
+  const flushDraft = useCallback((values) => {
+    if (draftTimerRef.current) { clearTimeout(draftTimerRef.current); draftTimerRef.current = null; }
+    saveDraftNow(values);
+  }, [saveDraftNow]);
 
   if (error && !missionDef && !entitled) {
     return (
@@ -417,6 +473,11 @@ export default function MissionWorkspace() {
       <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr]">
         <div className="space-y-4">
           <MissionBrief mission={missionForBrief} />
+          {typeof missionDef.xp === 'number' && (
+            <p className="text-small text-ink-2">
+              First completion earns {missionDef.xp} XP — replays earn none.
+            </p>
+          )}
           {/* No objectives checklist lives on this page: the terminal is the
               only place the student checks where they stand (run `objectives`
               in the Mission Console). */}
@@ -531,8 +592,10 @@ export default function MissionWorkspace() {
               </p>
               <div className="mt-4">
                 <IncidentReportForm
-                  initial={report}
+                  initial={reportDraftInitial}
                   onSubmit={submitReport}
+                  onDraftChange={handleDraftChange}
+                  onDraftBlur={flushDraft}
                   canSubmit={canSubmitReport}
                   busy={busy}
                   disabled={session.status === 'EXPIRED'}

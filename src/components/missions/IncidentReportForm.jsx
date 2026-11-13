@@ -7,6 +7,9 @@ import { Button } from '@/components/ui-glass';
 // stays a dumb controlled form. The server is the gate for submit_report:
 // if objectives are still open it returns the missing list, shown here.
 // `canSubmit` is a client-side hint only (8 other objectives passing).
+// Drafts autosave through `onDraftChange` (debounced by the parent) and
+// `onDraftBlur` (flush); filing still goes through `onSubmit` only. The
+// parent owns the network calls, so the form stays a dumb controlled form.
 
 export function reportIsComplete({ summary = '', root_cause = '', fix = '' } = {}) {
   return [summary, root_cause, fix].every((v) => v.trim().length > 0);
@@ -15,6 +18,8 @@ export function reportIsComplete({ summary = '', root_cause = '', fix = '' } = {
 export default function IncidentReportForm({
   initial = {},
   onSubmit,
+  onDraftChange,
+  onDraftBlur,
   canSubmit = false,
   busy = false,
   disabled = false,
@@ -24,6 +29,27 @@ export default function IncidentReportForm({
   const [rootCause, setRootCause] = useState(initial.root_cause || '');
   const [fix, setFix] = useState(initial.fix || '');
   const [error, setError] = useState('');
+
+  // Notify the parent of the current text so it can autosave the draft.
+  // Typing stays local; the parent owns the network call.
+  const emitDraft = (next) => {
+    if (typeof onDraftChange === 'function') onDraftChange(next);
+  };
+  const changeSummary = (value) => {
+    setSummary(value);
+    emitDraft({ summary: value, root_cause: rootCause, fix });
+  };
+  const changeRootCause = (value) => {
+    setRootCause(value);
+    emitDraft({ summary, root_cause: value, fix });
+  };
+  const changeFix = (value) => {
+    setFix(value);
+    emitDraft({ summary, root_cause: rootCause, fix: value });
+  };
+  const flushDraft = () => {
+    if (typeof onDraftBlur === 'function') onDraftBlur({ summary, root_cause: rootCause, fix });
+  };
 
   const complete = reportIsComplete({ summary, root_cause: rootCause, fix });
   const blocked = !complete || !canSubmit || busy || disabled;
@@ -48,7 +74,8 @@ export default function IncidentReportForm({
         <textarea
           id="mission-report-summary"
           value={summary}
-          onChange={(e) => setSummary(e.target.value)}
+          onChange={(e) => changeSummary(e.target.value)}
+          onBlur={flushDraft}
           rows={2}
           disabled={busy || disabled}
           placeholder="e.g. The guest host could reach the internal server — the firewall had no ACL."
@@ -62,7 +89,8 @@ export default function IncidentReportForm({
         <textarea
           id="mission-report-cause"
           value={rootCause}
-          onChange={(e) => setRootCause(e.target.value)}
+          onChange={(e) => changeRootCause(e.target.value)}
+          onBlur={flushDraft}
           rows={2}
           disabled={busy || disabled}
           placeholder="e.g. No access list on R1, so nothing filtered guest traffic from the server LAN."
@@ -76,7 +104,8 @@ export default function IncidentReportForm({
         <textarea
           id="mission-report-fix"
           value={fix}
-          onChange={(e) => setFix(e.target.value)}
+          onChange={(e) => changeFix(e.target.value)}
+          onBlur={flushDraft}
           rows={2}
           disabled={busy || disabled}
           placeholder="e.g. Standard ACL 10 denies 192.168.1.20, permits everything else, applied outbound on Gi0/1."

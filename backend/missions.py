@@ -12,8 +12,9 @@ cannot touch another's attempt — another user's attempt reads as 404.
 
 Mounted on both /missions/* and /api/missions/* (see main.py), like the labs
 router. The lab session itself is driven through the existing /labs API
-(exec/validate), which is what records the LabCompletion row the XP rule
-reads (see _first_time_xp).
+(exec/validate), which is what records the LabCompletion row the lab's own
+once-per-lab XP reads. Mission XP is separate: it is keyed to the mission,
+not the lab (see _first_time_xp).
 """
 from __future__ import annotations
 
@@ -29,7 +30,7 @@ from sqlalchemy import select
 import db
 from auth.deps import require_user_id
 from billing import is_subscribed
-from db_models import LabCompletion, MissionAttempt
+from db_models import MissionAttempt
 from labs.missions import TOPOLOGY_DEVICES, copy_findings, get_mission, initial_findings, list_missions
 from labs.sessions import COMPLETED, RUNNING, LabError, service
 from labs.validators import VALIDATORS
@@ -62,11 +63,8 @@ _check_action_rate = _rate_limiter(300, 3600)  # mission actions per owner per h
 
 _STATUS = {"not_found": 404, "invalid": 400, "unavailable": 503}
 
-#: Max length of one incident-report field (document action).
+#: Max length of one incident-report field (document / save_draft actions).
 MAX_REPORT_FIELD_CHARS = 2000
-
-#: XP for completing the mission the first time (see _first_time_xp).
-MISSION_XP = 80
 
 
 def _now() -> datetime:
@@ -182,25 +180,18 @@ def _load_attempt(s, attempt_id: str, user_id: str) -> MissionAttempt:
 
 
 def _first_time_xp(s, attempt: MissionAttempt) -> int:
-    """80 XP the first time this learner completes the mission's lab with
-    server-verified (non-attested) evidence, else 0 — no double XP.
+    """The mission definition's XP the first time this learner completes
+    THIS mission, else 0 — no double XP.
 
-    "Prior" means before this attempt: the LabCompletion row this attempt's
-    own lab session produced (via the /labs exec/validate endpoints) is not
-    prior evidence, so it is excluded by session id. A prior completed
-    attempt of the same mission also disqualifies (covers a replay driven
-    without the /labs API, where no LabCompletion row would exist yet)."""
+    Keyed to the mission, not the lab. The old rule also required no prior
+    LabCompletion row for the wrapped lab, which meant a learner who had
+    already validated the lab's objectives — e.g. in an earlier attempt that
+    could not complete — earned 0 XP on their first completable mission
+    attempt. The lab keeps its own once-per-lab XP (50 + 30, paid when the
+    lab session completes); the mission pays its own XP once per mission,
+    even if the lab was completed standalone first. A prior completed
+    attempt of the same mission still disqualifies (replays pay 0)."""
     definition = get_mission(attempt.mission_id)
-    prior_lab = s.execute(
-        select(LabCompletion.id).where(
-            LabCompletion.user_id == attempt.user_id,
-            LabCompletion.lab_id == definition.lab_id,
-            LabCompletion.attested.is_(False),
-            LabCompletion.session_id != attempt.lab_session_id,
-        )
-    ).first()
-    if prior_lab is not None:
-        return 0
     prior_mission = s.execute(
         select(MissionAttempt.id).where(
             MissionAttempt.user_id == attempt.user_id,
@@ -211,7 +202,7 @@ def _first_time_xp(s, attempt: MissionAttempt) -> int:
     ).first()
     if prior_mission is not None:
         return 0
-    return MISSION_XP
+    return definition.xp
 
 
 # ---- catalogue ----
@@ -380,6 +371,25 @@ async def mission_action(
                     )
                 report[key] = value.strip()
             choices.append({"type": "document"})
+        elif action_type == "save_draft":
+            # Autosave for the report form: stores the in-progress text in
+            # incident_report_draft so a reload restores it. Deliberately NOT
+            # incident_report — the document validator reads that key only,
+            # so a draft (even a full-length one) can never pass the document
+            # objective on its own; only the document action on filing does.
+            # No choice is appended: a draft save is not a mission action.
+            # Partial drafts are fine: keys may be empty or absent.
+            draft = findings["incident_report_draft"]
+            for key in ("summary", "root_cause", "fix"):
+                if key not in body:
+                    continue
+                value = body.get(key)
+                if not isinstance(value, str) or len(value) > MAX_REPORT_FIELD_CHARS:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"{key} must be a string of at most {MAX_REPORT_FIELD_CHARS} characters.",
+                    )
+                draft[key] = value.strip()
         elif action_type == "submit_report":
             lab_session = _get_lab_session(attempt, user_id)
             objectives = _objective_results(definition, lab_session, findings)
@@ -389,6 +399,9 @@ async def mission_action(
                 return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
                                     content={"missing": missing})
             findings["incident_report"]["submitted"] = True
+            # The draft has served its purpose: the filed text lives in
+            # incident_report now, so a later resume must not resurrect it.
+            findings["incident_report_draft"] = {"summary": "", "root_cause": "", "fix": ""}
             choices.append({"type": "submit_report"})
         else:
             raise HTTPException(

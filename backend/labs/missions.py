@@ -45,6 +45,12 @@ class MissionDefinition:
     debrief_win: str
     debrief_fail: str
     scoring: dict[str, int]
+    #: XP for a first completion of THIS mission (the single source of truth
+    #: for the advertised amount and the award — see _first_time_xp in
+    #: backend/missions.py). Separate from the lab's own once-per-lab XP
+    #: (50 lab + 30 lesson, paid when the lab session completes): a learner
+    #: who did the lab standalone first still earns the full mission XP.
+    xp: int = 80
     #: Mission-only objectives. The lab's own objectives (from the wrapped
     #: lab definition) come first in every combined view; see all_objectives().
     objectives: list[MissionObjective] = field(default_factory=list)
@@ -67,6 +73,7 @@ class MissionDefinition:
             "cissp_domain": self.cissp_domain,
             "difficulty": self.difficulty,
             "estimated_minutes": self.estimated_minutes,
+            "xp": self.xp,
         }
 
     def public_dict(self) -> dict[str, Any]:
@@ -93,6 +100,11 @@ def initial_findings() -> dict[str, Any]:
         "topology": {"inspected": []},
         "firewall": {"inspected": False},
         "incident_report": {"summary": "", "root_cause": "", "fix": "", "submitted": False},
+        # Draft report text, saved as the learner types (save_draft action).
+        # Kept apart from incident_report on purpose: the document validator
+        # reads incident_report only, so a draft can never pass the document
+        # objective on its own. Cleared when the report is filed.
+        "incident_report_draft": {"summary": "", "root_cause": "", "fix": ""},
     }
 
 
@@ -139,6 +151,10 @@ BROKEN_SHIELD = MissionDefinition(
         "secure when the guest is blocked and trusted hosts still pass."
     ),
     scoring={"per_objective": 10, "completion_bonus": 10},
+    # First-completion award (see the xp field): 80, matching the 50 XP lab
+    # rate + 30 XP lesson bonus the lab path pays — the mission pays its own
+    # 80 on top, once per mission, even if the lab was done standalone first.
+    xp=80,
     objectives=[
         MissionObjective(
             id="topology",

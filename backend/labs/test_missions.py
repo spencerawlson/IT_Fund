@@ -11,11 +11,12 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 import db
 import main
 import missions as missions_api
 from auth.sessions import COOKIE_NAME, create_session
-from db_models import User
+from db_models import LabCompletion, User
 from labs import api as labs_api
 from labs import missions as mission_defs
 from labs import sessions as sessions_mod
@@ -262,7 +263,9 @@ def test_full_mission_flow_scores_100_and_awards_80_xp():
     assert all(o["passed"] for o in view["objectives"]), view["objectives"]
     result = _complete(client, h, aid)
     assert result["score"] == 100
-    assert result["xp_awarded"] == 80
+    # The award equals the mission definition's XP — the definition is the
+    # single source of truth for the advertised amount and the award.
+    assert result["xp_awarded"] == mission_defs.get_mission(MISSION_ID).xp == 80
     assert result["attempt"]["status"] == "completed"
     assert result["attempt"]["score"] == 100
     assert result["debrief"].startswith("Mission complete, Agent.")
@@ -327,6 +330,122 @@ def test_deny_all_blocks_trusted_then_corrected_acl_restores_it():
     assert objs["trusted-allowed"]["passed"] is True
     assert objs["guest-blocked"]["passed"] is True
     assert all(objs[o]["passed"] for o in ("deny-guest", "permit-others", "apply"))
+
+
+# ---- mission XP is keyed to the mission, not the lab ----
+# (defect: the first completable attempt paid 0 XP because earlier attempts
+# had already validated the lab's objectives, so a LabCompletion row existed)
+
+def test_definition_xp_is_the_single_source_of_truth():
+    definition = mission_defs.get_mission(MISSION_ID)
+    assert definition.xp == 80
+    h = _user("xpdef1")
+    missions = client.get("/api/missions/definitions", cookies=h).json()["missions"]
+    assert missions[0]["xp"] == 80
+    body = client.get(f"/api/missions/{MISSION_ID}", cookies=h).json()
+    assert body["xp"] == 80
+
+
+def _complete_lab_standalone(c, cookies):
+    """Complete net-acl-001 as a standalone lab (no mission): this records a
+    LabCompletion row for the lab in a different session — exactly the state
+    the old XP rule treated as 'already earned'."""
+    r = c.post("/api/labs/net-acl-001/start", cookies=cookies)
+    assert r.status_code == 200, r.text
+    sid = r.json()["id"]
+    _exec_many(c, cookies, sid, ACL_COMMANDS)
+    r = c.post(f"/api/labs/sessions/{sid}/validate", cookies=cookies)
+    assert r.status_code == 200, r.text
+    assert r.json()["status"] == "COMPLETED"
+
+
+def test_prior_standalone_lab_completion_still_earns_full_mission_xp():
+    uid = "labfirst1"
+    h = _user(uid)
+    _complete_lab_standalone(client, h)
+    # Prove the setup really reproduces the live condition: a prior
+    # LabCompletion row for this lab exists before the mission starts.
+    with db.SessionLocal() as s:
+        row = s.execute(
+            select(LabCompletion.id).where(
+                LabCompletion.user_id == uid,
+                LabCompletion.lab_id == "net-acl-001",
+            )
+        ).first()
+    assert row is not None
+    aid, sid = _start(client, h)
+    _do_mission_work(client, h, aid, sid)
+    result = _complete(client, h, aid)
+    assert result["score"] == 100
+    assert result["xp_awarded"] == mission_defs.get_mission(MISSION_ID).xp == 80
+
+
+# ---- incident-report draft (defect: draft lost on reload) ----
+
+def test_save_draft_persists_without_passing_any_objective():
+    h = _user("draft1")
+    aid, _sid = _start(client, h)
+    r = _action(client, h, aid, {"type": "save_draft", **DOC})
+    assert r.status_code == 200, r.text
+    view = _get_attempt(client, h, aid)
+    assert view["attempt"]["findings"]["incident_report_draft"] == DOC
+    # A full-length draft is still only a draft: neither report objective
+    # passes, and the filed report is untouched.
+    objs = _objectives_by_id(view)
+    assert objs["document"]["passed"] is False
+    assert objs["report"]["passed"] is False
+    assert view["attempt"]["findings"]["incident_report"] == {
+        "summary": "", "root_cause": "", "fix": "", "submitted": False,
+    }
+
+
+def test_save_draft_accepts_partial_text_and_validates():
+    h = _user("draft2")
+    aid, _sid = _start(client, h)
+    r = _action(client, h, aid, {"type": "save_draft", "summary": "half written"})
+    assert r.status_code == 200, r.text
+    view = _get_attempt(client, h, aid)
+    draft = view["attempt"]["findings"]["incident_report_draft"]
+    assert draft["summary"] == "half written"
+    assert draft["root_cause"] == "" and draft["fix"] == ""
+    assert _action(client, h, aid, {"type": "save_draft", "summary": "x" * 2001}).status_code == 400
+    assert _action(client, h, aid, {"type": "save_draft", "fix": 42}).status_code == 400
+
+
+def test_draft_survives_a_reload():
+    h = _user("draft3")
+    aid, _sid = _start(client, h)
+    r = _action(client, h, aid, {"type": "save_draft", **DOC})
+    assert r.status_code == 200, r.text
+    # "Reload": POST /start again — same attempt, draft still there.
+    r = client.post(f"/api/missions/{MISSION_ID}/start", cookies=h)
+    assert r.status_code == 200, r.text
+    assert r.json().get("resumed") is True
+    assert r.json()["attempt"]["id"] == aid
+    view = _get_attempt(client, h, aid)
+    assert view["attempt"]["findings"]["incident_report_draft"] == DOC
+
+
+def test_draft_cleared_when_report_is_filed():
+    h = _user("draft4")
+    aid, sid = _start(client, h)
+    r = _action(client, h, aid, {"type": "save_draft", **DOC})
+    assert r.status_code == 200, r.text
+    _do_mission_work(client, h, aid, sid)
+    view = _get_attempt(client, h, aid)
+    assert view["attempt"]["findings"]["incident_report_draft"] == {
+        "summary": "", "root_cause": "", "fix": "",
+    }
+    assert view["attempt"]["findings"]["incident_report"]["submitted"] is True
+    assert view["attempt"]["findings"]["incident_report"]["summary"] == DOC["summary"]
+
+
+def test_save_draft_on_completed_attempt_is_conflict():
+    h = _user("draft5")
+    aid, sid = _start(client, h)
+    _do_mission_work(client, h, aid, sid)
+    _complete(client, h, aid)
+    assert _action(client, h, aid, {"type": "save_draft", **DOC}).status_code == 409
 
 
 # ---- determinism + replay (no double XP) ----
