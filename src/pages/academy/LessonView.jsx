@@ -9,6 +9,8 @@ import {
 } from '@/components/ui-glass';
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
 import { labForLesson } from '@/data/labLessons';
+import { MISSION_FOR_LESSON } from '@/data/missions';
+import TutorAssist from '@/components/academy/tutor/TutorAssist';
 import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 import { useSubscription, isLessonFree } from '@/lib/subscription';
@@ -83,6 +85,7 @@ export default function LessonView() {
 
   const module = getModule(lesson.moduleKey);
   const status = lessonStatus(state, lesson);
+  const missionId = MISSION_FOR_LESSON[lesson.id];
   const crumbs = [
     { label: 'Home', to: '/' },
     { label: course.title, to: courseHref(course) },
@@ -167,6 +170,51 @@ export default function LessonView() {
             <p className="text-small text-ink-2">Do it for real: a hands-on lab terminal for this lesson's skills.</p>
             <Button to={`/labs/${labForLesson(lesson.id)}`} variant="primary" size="sm" icon={TerminalSquare} className="w-full justify-center sm:w-auto">
               Launch Lab
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {missionId && (
+        <Card level={2} padding="sm" className="mb-8 max-w-reading">
+          <h2 className="text-heading text-ink-1">Ask Cipher</h2>
+          <p className="mt-1 text-small text-ink-2">Stuck on a concept? Cipher can explain it, show an example, or put it more simply.</p>
+          <TutorAssist
+            className="mt-4"
+            actions={[
+              { mode: 'explain', label: 'Explain this concept' },
+              { mode: 'example', label: 'Give me an example' },
+              { mode: 'simplify', label: 'Explain it more simply' },
+            ]}
+            context={{ track: lesson.trackId, topic: lesson.title }}
+          />
+          <div className="mt-4 flex flex-wrap gap-3">
+            {labForLesson(lesson.id) ? (
+              <Button to={`/labs/${labForLesson(lesson.id)}`} variant="secondary" size="sm">
+                Show a practical application
+              </Button>
+            ) : VISUAL_LAB_FOR[lesson.id] ? (
+              <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm">
+                Show a practical application
+              </Button>
+            ) : null}
+            <Button to={`/missions/${missionId}`} variant="secondary" size="sm">
+              Give me a mission
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {missionId && status === 'completed' && (
+        <Card level={2} padding="sm" className="mb-8 max-w-reading">
+          <h2 className="text-heading text-ink-1">Mission briefing — Sentinel</h2>
+          <p className="mt-2 text-body text-ink-2">
+            Excellent work, Agent. You&apos;ve learned the fundamentals of network segmentation. Sentinel has an
+            assignment waiting for you. Are you ready to put your knowledge into practice?
+          </p>
+          <div className="mt-4">
+            <Button to={`/missions/${missionId}`} variant="primary" size="sm">
+              Start Mission
             </Button>
           </div>
         </Card>

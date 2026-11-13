@@ -226,3 +226,35 @@ class AiTutorCall(Base):
     cached: Mapped[bool] = mapped_column(Boolean, default=False)
     error: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+
+
+def _mission_attempt_id() -> str:
+    return "att-" + secrets.token_hex(12)
+
+
+class MissionAttempt(Base):
+    """One Cyber Mission attempt (op-broken-shield vertical slice).
+
+    Written by backend/missions.py. `user_id` is intentionally NOT a foreign
+    key (matching lab_sessions' owner_id pattern): missions require a signed-in
+    user, so a real user id is always present, but no FK constraint is enforced.
+    `findings` is the versioned mission-findings schema (see
+    labs/missions.py initial_findings, v1); `objectives_passed` is the list of
+    the 9 objective ids passing at the last evaluation; `choices` is the
+    append-only log of mission actions the learner took.
+    """
+    __tablename__ = "mission_attempts"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_mission_attempt_id)
+    user_id: Mapped[str] = mapped_column(String(32), index=True)
+    mission_id: Mapped[str] = mapped_column(String(64), index=True)
+    definition_version: Mapped[int] = mapped_column(Integer)
+    lab_session_id: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(32), default="in_progress")
+    score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    objectives_passed: Mapped[list] = mapped_column(JSON, default=list)
+    choices: Mapped[list] = mapped_column(JSON, default=list)
+    findings: Mapped[dict] = mapped_column(JSON, default=dict)
+    xp_awarded: Mapped[int] = mapped_column(Integer, default=0)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

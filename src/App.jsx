@@ -53,6 +53,7 @@ const PracticeExam = React.lazy(() => import('./pages/academy/PracticeExam'));
 const SecplusPracticeExam = React.lazy(() => import('./pages/academy/SecplusPracticeExam'));
 const CertPracticeExam = React.lazy(() => import('./pages/academy/CertPracticeExam'));
 const LabWorkspace = React.lazy(() => import('./pages/LabWorkspace'));
+const MissionWorkspace = React.lazy(() => import('./pages/MissionWorkspace'));
 const LabLauncher = React.lazy(() => import('./pages/LabLauncher'));
 const LabProgress = React.lazy(() => import('./pages/LabProgress'));
 
@@ -139,6 +140,7 @@ const AuthenticatedApp = () => {
       <Route path="/labs" element={<LabLauncher />} />
       <Route path="/labs/progress" element={<LabProgress />} />
       <Route path="/labs/:labId" element={<LabWorkspace />} />
+      <Route path="/missions/:missionId" element={<MissionWorkspace />} />
       <Route path="/academy/exam" element={<PracticeExam />} />
       <Route path="/academy/security-plus/exam" element={<SecplusPracticeExam />} />
       <Route path="/academy/cert/:certId/exam" element={<CertPracticeExam />} />

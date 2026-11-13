@@ -176,6 +176,14 @@ from labs.api import router as labs_router  # noqa: E402  (after app is created)
 app.include_router(labs_router)
 app.include_router(labs_router, prefix="/api")
 
+# Cyber Missions (vertical slice: op-broken-shield over net-acl-001). Mounted
+# on both prefixes like the labs router, so /api/missions/* works behind the
+# /api rewrite.
+from missions import router as missions_router  # noqa: E402
+
+app.include_router(missions_router)
+app.include_router(missions_router, prefix="/api")
+
 # OAuth accounts (C3.2). Both prefixes, so /api/auth/* works behind the /api rewrite.
 from auth.router import router as auth_router  # noqa: E402
 
