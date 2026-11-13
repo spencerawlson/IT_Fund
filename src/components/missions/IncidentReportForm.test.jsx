@@ -53,4 +53,26 @@ describe('IncidentReportForm', () => {
     expect(html).toContain('No ACL');
     expect(html).toContain('ACL 10');
   });
+
+  it('restores a saved draft with the file button enabled (defect: draft lost on reload)', () => {
+    // The parent passes the server-saved draft as `initial` (merged with
+    // the filed report); a complete draft must come back with the button
+    // enabled, so the learner is not forced to retype it.
+    const html = renderToString(
+      <IncidentReportForm
+        initial={{ summary: 'Guest reached SRV', root_cause: 'No ACL', fix: 'ACL 10' }}
+        onSubmit={async () => {}}
+        onDraftChange={() => {}}
+        onDraftBlur={() => {}}
+        canSubmit
+      />,
+    );
+    expect(html).toContain('Guest reached SRV');
+    expect(html).toContain('No ACL');
+    expect(html).toContain('ACL 10');
+    // The file button carries no disabled attribute (the Button's Tailwind
+    // `disabled:` variant classes always contain the word, so match the
+    // attribute, not the substring).
+    expect(html).not.toMatch(/<button[^>]*\sdisabled[\s=>]/);
+  });
 });

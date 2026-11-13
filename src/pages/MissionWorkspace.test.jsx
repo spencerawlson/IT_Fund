@@ -85,6 +85,35 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('if (res && res.session) setSession(res.session)');
     expect(src).toContain('onExec={handleFirewallExec}');
   });
+
+  it('records the mission XP in the learner XP ledger on completion (defect: debrief said 0 XP, dashboard unmoved)', () => {
+    // The server returns xp_awarded, but a return value alone never reached
+    // the dashboard — completeMission must bank it via recordMissionCompletion
+    // (once per mission, amount from the server), or the award is invisible.
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain("recordMissionCompletion(missionId, res.xp_awarded)");
+    expect(src).toContain("import { recordMissionCompletion, recordVerifiedLabCompletion } from '@/lib/academy'");
+  });
+
+  it('shows the mission XP from the definition before completion', () => {
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain('missionDef.xp');
+    expect(src).toContain('First completion earns');
+  });
+
+  it('autosaves the incident-report draft server-side and restores it on resume (defect: draft lost on reload)', () => {
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    // The draft is saved through the save_draft action (debounced, flushed
+    // on blur) and the form's initial values merge the filed report with
+    // the saved draft, so a reload restores what was typed.
+    expect(src).toContain("type: 'save_draft'");
+    expect(src).toContain('DRAFT_SAVE_DELAY_MS');
+    expect(src).toContain('incident_report_draft');
+    expect(src).toContain('reportDraftInitial');
+    expect(src).toContain('initial={reportDraftInitial}');
+    expect(src).toContain('onDraftChange={handleDraftChange}');
+    expect(src).toContain('onDraftBlur={flushDraft}');
+  });
 });
 
 describe('formatObjectives', () => {
