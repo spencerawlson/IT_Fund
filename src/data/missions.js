@@ -29,6 +29,33 @@ export const MISSIONS = {
     // findings keys that hold recovered "intel" to show on the dossier
     intelKeys: ['flags'],
   },
+  'net-acl-001': {
+    callsign: 'OPERATION BROKEN SHIELD',
+    brief: [
+      'Orion Technologies — unauthorized traffic detected between two network segments. Sensitive resources may be exposed.',
+      'Investigate the topology, inspect the firewall policies, and find the unauthorized path.',
+      'Correct the configuration with least privilege — block the intruder, keep legitimate traffic flowing — then document the incident and file your report.',
+    ],
+    // objective id -> story beat shown in place of the plain label
+    beats: {
+      topology: 'Map the network',
+      'firewall-inspect': 'Read the firewall rules',
+      'deny-guest': 'Block the intruder',
+      'permit-others': 'Keep the door open for friends',
+      apply: 'Apply the rule where it counts',
+      'guest-blocked': 'Prove the guest is locked out',
+      'trusted-allowed': 'Prove friends still get in',
+      document: 'Write up the incident',
+      report: 'File the mission report',
+    },
+    // findings keys that hold recovered "intel" to show on the dossier
+    intelKeys: ['flags'],
+  },
+};
+
+/** Lesson id -> mission id, for the lesson-page mission invitation. */
+export const MISSION_FOR_LESSON = {
+  'net-security': 'op-broken-shield',
 };
 
 /** The callsign for a lab with no explicit mission: slug -> SPACED CAPS. */

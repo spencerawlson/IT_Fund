@@ -3,7 +3,22 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
-export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], target = [0, 0.5, 0] }) {
+export default function ModelViewer({
+  buildScene,
+  cameraPos = [14, 12, 14],
+  target = [0, 0.5, 0],
+  // Additive optional props (defaults preserve the original behaviour):
+  // background — scene + fog colour; reducedMotion — no auto-rotate and the
+  // buildScene tick is never called, so scenes stay static; quality 'low' —
+  // pixel ratio capped at 1 and shadows off; onRendererFailed — called with
+  // the throw when the WebGL renderer cannot be created, in addition to the
+  // fallback UI; onInspect — called with an interactive's `id` on click.
+  background = '#F8F7FF',
+  reducedMotion = false,
+  quality = 'high',
+  onRendererFailed,
+  onInspect,
+}) {
   const mountRef = useRef(null);
   const buildRef = useRef(buildScene);
   const [info, setInfo] = useState(null);
@@ -20,7 +35,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     const height = mount.clientHeight || 500;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#F8F7FF');
+    scene.background = new THREE.Color(background);
 
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
     camera.position.set(...cameraPos);
@@ -31,14 +46,15 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
       // or the fallback below is skipped by the very failure it is meant to catch.
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(quality === 'low' ? 1 : Math.min(window.devicePixelRatio, 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.15;
-      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.enabled = quality !== 'low';
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     } catch (err) {
       setRendererFailed(true);
+      if (onRendererFailed) onRendererFailed(err);
       return () => {};
     }
 
@@ -49,7 +65,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = envTexture;
-    scene.fog = new THREE.Fog(0xf8f7ff, 40, 82);
+    scene.fog = new THREE.Fog(background, 40, 82);
 
     // Lights — the environment handles soft ambient, so direct lights shape and rim the model.
     scene.add(new THREE.AmbientLight(0xffffff, 0.22));
@@ -95,7 +111,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
     controls.minDistance = 6;
     controls.maxDistance = 45;
     controls.maxPolarAngle = Math.PI * 0.85;
-    controls.autoRotate = true;
+    controls.autoRotate = !reducedMotion;
     controls.autoRotateSpeed = 0.6;
     const stopAuto = () => { controls.autoRotate = false; };
     renderer.domElement.addEventListener('pointerdown', stopAuto);
@@ -142,6 +158,7 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
         }
         const item = interactives.find((i) => i.mesh === hitMesh);
         if (item) {
+          if (onInspect && item.id) onInspect(item.id);
           setInfo({
             label: item.label,
             desc: item.desc,
@@ -168,7 +185,8 @@ export default function ModelViewer({ buildScene, cameraPos = [14, 12, 14], targ
       // and timers resume seamlessly when the tab becomes visible again.
       if (hidden) return;
       const t = clock.getElapsedTime();
-      if (tick) tick(t);
+      // Reduced motion: the scene stays static — tick (pulses, sweeps) never runs.
+      if (tick && !reducedMotion) tick(t);
       controls.update();
       renderer.render(scene, camera);
     };

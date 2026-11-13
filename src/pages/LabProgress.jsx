@@ -2,9 +2,29 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FlaskConical, Timer, Trophy, RotateCcw, Play } from 'lucide-react';
 import { Button, Card } from '@/components/ui-glass';
 import { labsApi } from '@/api/labs';
+import { missionsApi } from '@/api/missions';
+import { MISSIONS, MISSION_FOR_LESSON } from '@/data/missions';
+import { LAB_FOR_LESSON } from '@/data/labLessons';
 import { getLabProgress, aggregateServerHistory, mergeProgress, formatDuration } from '@/lib/labProgress';
 import { useAuth } from '@/lib/AuthContext';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+
+/** Callsign for a mission id, from the lesson -> lab -> mission data. */
+function missionCallsign(missionId) {
+  for (const [lessonId, id] of Object.entries(MISSION_FOR_LESSON)) {
+    if (id !== missionId) continue;
+    const mission = MISSIONS[LAB_FOR_LESSON[lessonId]];
+    if (mission) return mission.callsign;
+  }
+  return missionId.replace(/[-_]+/g, ' ').toUpperCase();
+}
+
+function missionDate(attempt) {
+  const raw = attempt.completed_at || attempt.started_at;
+  if (!raw) return '';
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString();
+}
 
 // Interactive-lab progress: every lab, whether you've completed it, how many
 // times, and how fast (best + last). Signed-in learners get server history
@@ -17,6 +37,8 @@ export default function LabProgress() {
   const [error, setError] = useState('');
   const [progress, setProgress] = useState(() => getLabProgress());
   const [synced, setSynced] = useState(false);
+  const [missions, setMissions] = useState(null);
+  const [missionsError, setMissionsError] = useState('');
 
   useEffect(() => {
     let live = true;
@@ -41,6 +63,18 @@ export default function LabProgress() {
           .catch(() => { if (live) setProgress(local); }); // offline: local history still shows
       })
       .catch((e) => { if (live) setError(e.message); });
+    return () => { live = false; };
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setMissions([]);
+      return;
+    }
+    let live = true;
+    missionsApi.history()
+      .then((data) => { if (live) setMissions(Array.isArray(data) ? data : (data?.history || [])); })
+      .catch((e) => { if (live) setMissionsError(e.message); });
     return () => { live = false; };
   }, [isAuthenticated]);
 
@@ -122,6 +156,34 @@ export default function LabProgress() {
                 ? 'Synced to your account — your times follow you across devices.'
                 : 'Times are measured from lab start to completion, in this browser. Sign in to sync them.'}
             </p>
+            <section aria-labelledby="missions-title" className="mt-10">
+              <h2 id="missions-title" className="text-heading text-ink-1">Missions</h2>
+              {missionsError && <p className="mt-3 text-body text-danger">Could not load missions: {missionsError}</p>}
+              {!missions && !missionsError && <p className="mt-3 text-ink-2">Loading…</p>}
+              {missions && missions.length === 0 && !missionsError && (
+                <p className="mt-3 text-body text-ink-2">No missions completed yet — finish a lesson to unlock one.</p>
+              )}
+              {missions && missions.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {missions.map((attempt) => (
+                    <Card key={attempt.id ?? `${attempt.mission_id}-${attempt.started_at}`} level={2} className="flex flex-wrap items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-body font-semibold text-ink-1">{missionCallsign(attempt.mission_id)}</p>
+                        <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-small text-ink-2">
+                          <span>{attempt.status}</span>
+                          {attempt.score !== undefined && attempt.score !== null && <span>Score {attempt.score}</span>}
+                          {attempt.xp_awarded !== undefined && attempt.xp_awarded !== null && <span>{attempt.xp_awarded} XP</span>}
+                          {missionDate(attempt) && <span>{missionDate(attempt)}</span>}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="secondary" to={`/missions/${attempt.mission_id}`} icon={Play}>
+                        Replay
+                      </Button>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </section>
           </>
         )}
       </main>

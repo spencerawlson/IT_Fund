@@ -442,3 +442,43 @@ def subnet_problem_solved(args, findings):
     if wrong:
         details.append(f"incorrect: {', '.join(f'{k} (you: {recorded[k]}, expected: {expected[k]})' for k in wrong)}")
     return False, "Not quite — " + "; ".join(details) + ".", None
+
+
+# ---- Cyber Missions (op-broken-shield): mission-only validators ----
+# These run over the mission attempt's findings dict (see labs/missions.py),
+# NOT over a lab session's findings. Pure functions, same (args, findings)
+# -> (passed, message, evidence) shape as every other validator here.
+
+
+@validator("topology_inspected")
+def topology_inspected(args, findings):
+    devices = list((args or {}).get("devices", []))
+    inspected = set((findings or {}).get("topology", {}).get("inspected", []) or [])
+    missing = [d for d in devices if d not in inspected]
+    if not missing:
+        return True, "Every device in the topology has been inspected.", {"inspected": sorted(inspected)}
+    return False, f"Inspect the remaining device(s): {', '.join(missing)}.", None
+
+
+@validator("firewall_policy_inspected")
+def firewall_policy_inspected(args, findings):
+    if (findings or {}).get("firewall", {}).get("inspected") is True:
+        return True, "The firewall policies have been inspected.", None
+    return False, "Open the firewall console and review the current rules.", None
+
+
+@validator("incident_documented")
+def incident_documented(args, findings):
+    report = (findings or {}).get("incident_report", {}) or {}
+    short = [k for k in ("summary", "root_cause", "fix")
+             if not isinstance(report.get(k), str) or len(report.get(k).strip()) < 20]
+    if not short:
+        return True, "The incident is documented: what happened, the cause, and the fix.", None
+    return False, f"Document the incident — each of these needs at least 20 characters: {', '.join(short)}.", None
+
+
+@validator("incident_report_submitted")
+def incident_report_submitted(args, findings):
+    if (findings or {}).get("incident_report", {}).get("submitted") is True:
+        return True, "The mission report has been filed.", None
+    return False, "File the mission report once every other objective passes.", None
