@@ -90,41 +90,6 @@ const CERT_ROAD = [
   },
 ];
 
-// FAQ, in the product's own words — the same copy as Pricing, SignIn, the
-// roadmap and the lab launcher. Rendered below and mirrored as FAQPage
-// JSON-LD on this page's <Seo> (single source of truth, no drift).
-const FAQS = [
-  {
-    q: 'Is Road to CISSP really free to start?',
-    a: 'Yes. Start free with no credit card — sign up with Google or GitHub, no password needed. Everything works without an account too, with your progress kept in this browser.',
-  },
-  {
-    q: 'What does Pro unlock?',
-    a: 'One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators — $19/month, cancel anytime. Your progress syncs across devices.',
-  },
-  {
-    q: 'What should I learn first?',
-    a: 'Start with the roadmap — a guided route through every layer of the IT, networking, cloud, and security curriculum, from first principles to exam day.',
-  },
-  {
-    q: 'How do the labs work?',
-    a: 'Hands-on labs run in real terminals. Type labs to browse the tracks and lab start <#> to begin — this is how real lab environments work.',
-  },
-  {
-    q: 'Which certifications does it cover?',
-    a: 'Security+ (SY0-701), Network+ (N10-009), Linux+ and CySA+ (CS0-003) — all the way to the CISSP.',
-  },
-];
-
-const FAQ_JSON_LD = {
-  '@type': 'FAQPage',
-  mainEntity: FAQS.map(({ q, a }) => ({
-    '@type': 'Question',
-    name: q,
-    acceptedAnswer: { '@type': 'Answer', text: a },
-  })),
-};
-
 // The five official social profiles. Single source of truth for the footer
 // links below and the Organization sameAs in HOME_JSON_LD — one list, no drift.
 const SOCIAL_LINKS = [
@@ -136,7 +101,7 @@ const SOCIAL_LINKS = [
 ];
 
 // Homepage JSON-LD: WebSite + Organization (sameAs = the five social
-// profiles) + the FAQPage. The prerender script splits @graph nodes into
+// profiles). The prerender script splits @graph nodes into
 // separate ld+json blocks in the static HTML (same pattern as Pricing).
 const HOME_JSON_LD = {
   '@context': 'https://schema.org',
@@ -155,7 +120,6 @@ const HOME_JSON_LD = {
       url: 'https://www.road2cissp.com/',
       sameAs: SOCIAL_LINKS.map((s) => s.href),
     },
-    FAQ_JSON_LD,
   ],
 };
 
@@ -305,28 +269,6 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="pb-16 sm:pb-20" aria-label="Frequently asked questions">
-          <h2 className="text-center text-title font-bold text-ink-1">Frequently asked questions</h2>
-          <div className="mx-auto mt-8 grid max-w-3xl gap-4">
-            {FAQS.map((f) => (
-              <div key={f.q} className="glass-2 rounded-card p-5">
-                <h3 className="text-body font-semibold text-ink-1">{f.q}</h3>
-                <p className="mt-1.5 text-small text-ink-2">{f.a}</p>
-              </div>
-            ))}
-          </div>
-          <p className="mx-auto mt-8 max-w-3xl text-center text-small text-ink-2">
-            Exam details come straight from the vendors:{' '}
-            <a href="https://www.isc2.org/certifications/cissp" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">CISSP — ISC2</a>
-            {', '}
-            <a href="https://www.comptia.org/certifications/security" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">Security+ — CompTIA</a>
-            {', '}
-            <a href="https://www.comptia.org/certifications/network" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">Network+ — CompTIA</a>
-            .
-          </p>
-        </section>
-
         {/* Final CTA */}
         <section className="pb-20 text-center" aria-label="Get started">
           <div className="glass-1 rounded-card px-6 py-12">
@@ -356,6 +298,7 @@ export default function Landing() {
           <div className="flex gap-4 text-caption text-ink-3">
             <Link to="/labs" className="hover:text-ink-1">Labs</Link>
             <Link to="/library" className="hover:text-ink-1">Library</Link>
+            <Link to="/faq" className="hover:text-ink-1">FAQ</Link>
             <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
             <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>

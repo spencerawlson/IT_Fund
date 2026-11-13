@@ -80,7 +80,8 @@ describe('Landing social profiles', () => {
     const org = graph.find((node) => node['@type'] === 'Organization');
     expect(org).toBeDefined();
     expect(org.sameAs).toEqual(SOCIAL_URLS);
-    // The FAQPage stays in the graph alongside the new nodes.
-    expect(graph.some((node) => node['@type'] === 'FAQPage')).toBe(true);
+    // The FAQPage moved to /faq with the rest of the FAQs (2026-11-13) —
+    // the homepage graph keeps only WebSite + Organization now.
+    expect(graph.some((node) => node['@type'] === 'FAQPage')).toBe(false);
   });
 });

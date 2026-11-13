@@ -13,39 +13,7 @@ import { cn } from '@/lib/utils';
 import { useSubscription } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import Seo from '@/components/Seo';
-import FaqSection, { faqJsonLd } from '@/components/FaqSection';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
-
-// FAQ, in the product's own words — rendered below and mirrored as FAQPage
-// JSON-LD on this page's <Seo> (single source of truth, no drift).
-// The "is the real exam like this?" answer is per-cert: the AWS exams are
-// multiple-choice / multiple-response, while CySA+ (like Security+) also
-// has performance-based questions this simulator does not include.
-function certFaqs(cfg) {
-  const realExam = {
-    'aws-saa': 'The real SAA-C03 is 65 scenario-based questions in 130 minutes — multiple-choice and multiple-response. This simulator samples the same domains and weights, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.',
-    cysa: 'The real CS0-003 is 85 questions in 165 minutes and includes performance-based questions — hands-on tasks in a simulated environment — which this simulator does not include. This is fixed-length practice: a knowledge check with a per-domain breakdown, not a test-day prediction.',
-    'aws-security': 'The real SCS-C02 is 65 scenario-based questions in 170 minutes — multiple-choice and multiple-response. This simulator samples the same domains and weights, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.',
-  }[cfg.certId] || 'This simulator samples the same domains and weights as the real exam, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.';
-  return [
-    {
-      q: 'How does the practice exam work?',
-      a: `${cfg.questionCount} questions. ${cfg.blurb} You get ${cfg.durationMin} minutes on the clock, and ${cfg.passPct}% proficiency passes this simulator.`,
-    },
-    {
-      q: 'Can I pause the exam?',
-      a: 'No — the timer survives a refresh, and closing the tab does not buy you time. One sitting, start to finish.',
-    },
-    {
-      q: `Is the real ${cfg.code} like this?`,
-      a: realExam,
-    },
-    {
-      q: 'What happens after I finish?',
-      a: 'You get a per-domain breakdown showing exactly what to study next, and you can review every missed question with the correct answer. Retake it as often as you like.',
-    },
-  ];
-}
 
 function fmtClock(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
@@ -86,13 +54,9 @@ export default function CertPracticeExam() {
           title={`${cfg.title} practice exam — test-day simulator · Road to CISSP`}
           description={`${cfg.questionCount} questions. ${cfg.blurb} ${cfg.durationMin} minutes on the clock — the timer survives a refresh.`}
           path={`/academy/cert/${certId}/exam`}
-          jsonLd={faqJsonLd(certFaqs(cfg))}
         />
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
           <UpgradePrompt what={`The ${cfg.title} practice exam`} />
-          <div className="mt-10">
-            <FaqSection faqs={certFaqs(cfg)} />
-          </div>
         </div>
       </main>
     );
@@ -104,7 +68,6 @@ export default function CertPracticeExam() {
         title={`${cfg.title} practice exam — test-day simulator · Road to CISSP`}
         description={`${cfg.questionCount} questions. ${cfg.blurb} ${cfg.durationMin} minutes on the clock — the timer survives a refresh.`}
         path={`/academy/cert/${certId}/exam`}
-        jsonLd={faqJsonLd(certFaqs(cfg))}
       />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
         {!exam && <StartScreen cfg={cfg} certId={certId} history={certExamHistory(state, certId)} onStart={handleStart} starting={starting} startError={startError} />}
@@ -164,9 +127,6 @@ function StartScreen({ cfg, certId, history, onStart, starting, startError }) {
           ))}
         </ul>
       )}
-      <div className="mt-10">
-        <FaqSection faqs={certFaqs(cfg)} />
-      </div>
     </div>
   );
 }

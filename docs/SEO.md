@@ -12,16 +12,18 @@ Canonical host: **https://www.road2cissp.com** (the apex `road2cissp.com` must
   consumers that only read a top-level `@type` see it). Site-wide defaults, so
   any route without `<Seo>` still has valid tags.
 - **`public/robots.txt`** — declares `Sitemap:`.
-- **`public/sitemap.xml`** — www host, 16 URLs including `/pricing`, `lastmod` +
+- **`public/sitemap.xml`** — www host, 19 URLs including `/pricing` and `/faq`, `lastmod` +
   `changefreq`.
 - **`public/llms.txt`** — llmstxt.org shape: H1 + Markdown list of the key pages
   with one-line descriptions, for AI crawlers.
 - **`src/components/Seo.jsx`** — dependency-free per-route meta (title, description,
-  canonical, OG/Twitter, optional JSON-LD). Now wired into **all 16 public
-  routes** (`/`, `/pricing`, `/academy/roadmap`, `/academy/paths`,
+  canonical, OG/Twitter, optional JSON-LD). Now wired into **all 17 public
+  routes** (`/`, `/pricing`, `/faq`, `/academy/roadmap`, `/academy/paths`,
   `/academy/courses`, `/academy/badges`, `/academy/exam`, `/library`, `/lab`,
   `/labs`, `/practice`, `/tracks`, `/roadmap`, `/challenge`, `/learning-path`,
-  `/signin`). The FAQ on `/` and the FAQ on `/pricing` both ship FAQPage JSON-LD.
+  `/signin`). Since 2026-11-13 the FAQs live on `/faq` only, with the FAQPage
+  JSON-LD there (Spencer's call — one dedicated FAQ page instead of scattered
+  per-page sections; the Nov 8 GEO-100 per-page FAQ sections are gone with them).
 - **Plausible analytics** — `defer` script tag in `index.html`
   (`data-domain="road2cissp.com"`). **The tag alone counts nothing: a Plausible
   account must be created for road2cissp.com and the site added there before

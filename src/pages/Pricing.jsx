@@ -17,40 +17,6 @@ const FEATURES = [
   { icon: RefreshCw, title: 'Progress that syncs', text: 'Streaks, XP, badges, and Leitner review saved to your account across every device.' },
 ];
 
-const FAQS = [
-  {
-    q: 'Can I cancel anytime?',
-    a: 'Yes. Cancel in one click from your account page — no emails, no phone calls, no retention gauntlet. You keep full access until the end of your billing period.',
-  },
-  {
-    q: 'What happens to my progress if I cancel?',
-    a: 'Nothing is deleted. Your streaks, XP, badges, and history stay on your account. You drop back to the free tier until you resubscribe.',
-  },
-  {
-    q: 'What if I want a refund?',
-    a: 'If this is your first subscription and you ask within 14 days of subscribing, you get your money back — email support@road2cissp.com with the date you subscribed. After that, refunds are decided case by case. A subscription refunded in full loses access and is cancelled, so you are not charged again.',
-  },
-  {
-    q: 'What happens if my payment fails?',
-    a: 'Your subscription goes past due and you keep full access for 7 days while you fix the payment — update your card in the Stripe Customer Portal, reached from your account page. After 7 days without a successful payment, access is revoked until you resubscribe.',
-  },
-  {
-    q: 'What exactly is free?',
-    a: 'Five sample lessons, 57 flashcards, two hands-on labs, and all marketing pages — no account or payment needed. Everything beyond that needs the subscription.',
-  },
-  {
-    q: 'Is this enough to pass Security+ or CISSP?',
-    a: 'That is the goal we build toward: flashcards mapped to official objectives, scenario-based practice, hands-on labs, and timed exam sims. We recommend pairing it with the official exam objectives checklist as you study.',
-  },
-];
-
-// FAQ rich-result structured data, generated from the FAQS shown on the page.
-const FAQ_ENTITIES = FAQS.map((f) => ({
-  '@type': 'Question',
-  name: f.q,
-  acceptedAnswer: { '@type': 'Answer', text: f.a },
-}));
-
 // Fallback matches billing.PRICE_FALLBACK; replaced by the live Stripe price.
 const PRICE_FALLBACK = { display: '$19', interval: 'month', amount: '19.00', currency: 'USD' };
 const INTERVAL_LABEL = { month: 'month', year: 'year', week: 'week', day: 'day' };
@@ -88,7 +54,6 @@ export default function Pricing() {
   const jsonLd = useMemo(() => ({
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'FAQPage', mainEntity: FAQ_ENTITIES },
       {
         '@type': 'Product',
         name: 'Road to CISSP membership',
@@ -208,25 +173,6 @@ export default function Pricing() {
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="mx-auto max-w-3xl pb-20">
-          <h2 className="text-center text-title font-bold tracking-tight text-ink-1">Questions</h2>
-          <div className="mt-8 space-y-4">
-            {FAQS.map(({ q, a }) => (
-              <Card key={q} level={1} padding="lg">
-                <h3 className="text-heading font-semibold text-ink-1">{q}</h3>
-                <p className="mt-2 text-body text-ink-2">{a}</p>
-              </Card>
-            ))}
-          </div>
-          <p className="mt-8 text-center text-small text-ink-2">
-            Before you book the exam, check the official objectives:{' '}
-            <a href="https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">CISSP exam outline — ISC2</a>
-            {', '}
-            <a href="https://www.comptia.org/certifications/security" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">Security+ exam objectives — CompTIA</a>
-            .
-          </p>
-        </section>
       </main>
     </div>
   );

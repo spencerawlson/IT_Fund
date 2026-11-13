@@ -41,8 +41,8 @@ describe('Contact page', () => {
     expect(html).not.toMatch(/<form/);
   });
 
-  it('links to the pricing FAQ and the Terms refund policy', () => {
-    expect(html).toContain('href="/pricing"');
+  it('links to the FAQ page and the Terms refund policy', () => {
+    expect(html).toContain('href="/faq"');
     expect(html).toContain('Terms');
   });
 });

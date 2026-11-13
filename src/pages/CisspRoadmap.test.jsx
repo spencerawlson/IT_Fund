@@ -28,9 +28,13 @@ describe('CisspRoadmap exam facts (audit F-03)', () => {
 
 describe('PracticeExam simulator labelling (audit F-03)', () => {
   const src = readSrc('src/pages/academy/PracticeExam.jsx');
+  // The "passes this simulator" wording moved with the FAQs to the
+  // consolidated data file on 2026-11-13 (one /faq page; the per-page
+  // FAQ sections were removed).
+  const faqs = readSrc('src/data/faqs.js');
 
   it('labels the 70% rule as the simulator’s own, not the real exam’s', () => {
-    expect(src).toContain('passes this simulator');
+    expect(faqs).toContain('passes this simulator');
     expect(src).toContain('to pass this simulator');
     expect(src).toContain('700/1000 scaled score, not a percentage');
   });
