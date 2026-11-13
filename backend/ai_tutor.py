@@ -131,6 +131,7 @@ class Turn(BaseModel):
 
 class TutorReq(BaseModel):
     mode: Mode
+    level: Optional[Literal["beginner", "intermediate", "advanced"]] = None
     track: Optional[str] = Field(default=None, max_length=80)
     topic: Optional[str] = Field(default=None, max_length=120)
     question: Optional[str] = Field(default=None, max_length=600)
@@ -143,6 +144,19 @@ class TutorReq(BaseModel):
 
 
 # ---------- prompts ----------
+
+#: Difficulty-level instruction, appended to the task when the learner picks
+#: a level (Cypher lesson panel). None means the model's default register.
+LEVEL_INSTRUCTIONS = {
+    "beginner": "Explain at a beginner level: assume no prior knowledge and define every technical term.",
+    "intermediate": "Explain at an intermediate level: assume basic networking and security knowledge.",
+    "advanced": "Explain at an advanced level: assume working knowledge and go deep on the why, not just the what.",
+}
+
+
+def _level_note(req: TutorReq) -> str:
+    return f"\n\n{LEVEL_INSTRUCTIONS[req.level]}" if req.level in LEVEL_INSTRUCTIONS else ""
+
 
 def _card(req: TutorReq, include_answer: bool = True) -> str:
     lines = []
@@ -169,7 +183,7 @@ def build_messages(req: TutorReq) -> list[dict]:
         user_turns = [m for m in req.messages if m.role == "user"]
         if not user_turns:
             raise HTTPException(status_code=400, detail="chat needs a final user message")
-        context = f"The learner is studying: {req.track or 'the Road to CISSP curriculum'}."
+        context = f"The learner is studying: {req.track or 'the Road to CISSP curriculum'}." + _level_note(req)
         return [{"role": "system", "content": SYSTEM_PROMPT + "\n\n" + context}] + [m.model_dump() for m in user_turns]
 
     if req.mode == "weakspots":
@@ -190,6 +204,7 @@ def build_messages(req: TutorReq) -> list[dict]:
                 + "\n\nGive a Socratic hint in 1-3 sentences that helps the learner reason toward the answer. "
                 "Do NOT state, quote, or strongly imply the correct answer, and do not rule out options by name. "
                 "The correct answer above is for your reference only."
+                + _level_note(req)
             )
         elif req.mode == "explain":
             given = f"The learner answered: {req.user_answer}" if req.user_answer else "The learner has not answered yet."
@@ -197,11 +212,12 @@ def build_messages(req: TutorReq) -> list[dict]:
                 _card(req) + f"\n\n{given}\n\n"
                 "Explain why the correct answer is right. If the learner was wrong, name the specific "
                 "misconception behind their answer. End with a one-line memory tip."
+                + _level_note(req)
             )
         elif req.mode == "simplify":
-            task = _card(req) + "\n\nExplain this for someone brand new to IT, using an everyday analogy. Keep it under 120 words."
+            task = _card(req) + "\n\nExplain this for someone brand new to IT, using an everyday analogy. Keep it under 120 words." + _level_note(req)
         else:  # example
-            task = _card(req) + "\n\nGive one concrete, real-world example or scenario that shows this concept in practice."
+            task = _card(req) + "\n\nGive one concrete, real-world example or scenario that shows this concept in practice." + _level_note(req)
 
     return [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": task}]
 
@@ -227,7 +243,7 @@ def cache_key(req: TutorReq) -> Optional[str]:
     # Card-based modes repeat across learners; chat and weak-spot summaries are personal.
     if req.mode in ("chat", "weakspots"):
         return None
-    raw = json.dumps([req.mode, req.question, req.answer, req.user_answer, req.options], sort_keys=True)
+    raw = json.dumps([req.mode, req.level, req.question, req.answer, req.user_answer, req.options], sort_keys=True)
     return hashlib.sha256(raw.encode()).hexdigest()
 
 

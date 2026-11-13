@@ -258,3 +258,46 @@ class MissionAttempt(Base):
     xp_awarded: Mapped[int] = mapped_column(Integer, default=0)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class VoiceCall(Base):
+    """One ElevenLabs character-voice generation (or fallback), append-only.
+    Written by backend/voice.py for every POST /voice/speak that passes auth
+    + rate limiting — generated, cached, fallback, or upstream error.
+    cost_usd is None ("unknown"): ElevenLabs pricing is plan-dependent and
+    no list price is asserted here — see voice.py. chars + model let the
+    cost be computed from the account's own plan. No audio and no text is
+    stored: the cache lives on disk, keyed by hash, and the request text is
+    never persisted (see voice.py)."""
+    __tablename__ = "voice_calls"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    character: Mapped[str] = mapped_column(String(32))  # "cypher" | "sentinel" | "patch"
+    model: Mapped[str] = mapped_column(String(64))
+    chars: Mapped[int] = mapped_column(Integer)
+    cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    cached: Mapped[bool] = mapped_column(Boolean, default=False)
+    error: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+
+
+class CypherEvent(Base):
+    """One Cypher interaction event, append-only. Written by
+    backend/analytics.py from POST /analytics/events. Counts and timings
+    only — never conversation content, never free text: `meta` holds small
+    ids/flags (mission_id, lesson_id, objective_id) and is validated
+    server-side. The lesson-to-mission conversion, mission starts /
+    completions / completion time come from mission_attempts (started_at,
+    completed_at, status); tutor cost from ai_tutor_calls; voice usage from
+    voice_calls — this table only adds the UI interactions those tables
+    cannot see."""
+    __tablename__ = "cypher_events"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    event: Mapped[str] = mapped_column(String(48), index=True)
+    mission_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    lesson_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    meta: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)

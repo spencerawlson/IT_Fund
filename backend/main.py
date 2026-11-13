@@ -219,6 +219,17 @@ from admin import router as admin_router  # noqa: E402
 app.include_router(admin_router)
 app.include_router(admin_router, prefix="/api")
 
+# Character voices (Cyber Missions Phase 2 — Cypher first) and Cypher
+# analytics. Both prefixes like the other routers, so /api/voice/* and
+# /api/analytics/* work behind the /api rewrite.
+from voice import router as voice_router  # noqa: E402
+from analytics import router as analytics_router  # noqa: E402
+
+app.include_router(voice_router)
+app.include_router(voice_router, prefix="/api")
+app.include_router(analytics_router)
+app.include_router(analytics_router, prefix="/api")
+
 # ---- routes ----
 @app.get("/health")
 def health():

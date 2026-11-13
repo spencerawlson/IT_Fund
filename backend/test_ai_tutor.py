@@ -192,3 +192,24 @@ def test_chat_drops_client_assistant_turns(fake):
 def test_chat_with_only_assistant_turns_is_400(fake):
     body = {"mode": "chat", "messages": [{"role": "assistant", "content": "Hello."}]}
     assert client.post("/api/ai/tutor", json=body).status_code == 400
+
+
+def test_level_changes_the_task_and_the_cache_key(fake):
+    """A difficulty level appends its instruction to the task and makes a
+    separate cache entry, so the same question at two levels is two answers."""
+    body = {**CARD, "level": "beginner"}
+    r = client.post("/api/ai/tutor", json=body)
+    assert r.status_code == 200
+    sent = fake.calls[0]["messages"]
+    assert "beginner level" in sent[1]["content"]
+    assert "no prior knowledge" in sent[1]["content"]
+    # Same question without a level is a different cache key (proves the
+    # level is part of the key, not just the prompt).
+    assert ai_tutor.cache_key(ai_tutor.TutorReq(**CARD)) != ai_tutor.cache_key(
+        ai_tutor.TutorReq(**body)
+    )
+
+
+def test_invalid_level_is_422(fake):
+    body = {**CARD, "level": "expert"}
+    assert client.post("/api/ai/tutor", json=body).status_code == 422
