@@ -184,6 +184,66 @@ def test_show_access_lists_reflects_rules():
     assert "access list 10" in res.output.lower() and "deny host 192.168.1.20" in res.output
 
 
+def test_enable_twice_is_a_no_op():
+    # Every firewall button sequence starts with `enable`; the old shell
+    # rejected a second `enable` with "% Invalid input detected" — the banner
+    # the playthrough saw after every button. Real IOS treats it as a no-op.
+    _, res = _run("net-acl-001", ["enable", "enable"])
+    assert "Invalid input" not in res.output
+    assert res.exit_code == 0
+    # The button pattern: enable, conf t, ..., end, enable again (apply).
+    _, res = _run("net-acl-001", ["enable", "conf t",
+                                  "access-list 10 deny host 192.168.1.20", "end", "enable"])
+    assert "Invalid input" not in res.output
+    assert res.exit_code == 0
+
+
+def test_no_access_list_removes_the_whole_list():
+    # The only rule removal the shell offers — the mission's deny-any wrong
+    # move rebuilds list 10 on top of it.
+    svc = SessionService()
+    s = asyncio.run(svc.start("net-acl-001", "u1"))
+    outs = []
+    for c in ["enable", "conf t",
+              "access-list 10 deny host 192.168.1.20", "access-list 10 permit any",
+              "show access-lists",
+              "no access-list 10",
+              "show access-lists"]:
+        s, res = asyncio.run(svc.exec_command(s.id, "u1", c))
+        outs.append(res.output)
+    assert "deny host 192.168.1.20" in outs[4]
+    assert outs[6] == ""  # list 10 is gone entirely
+    # Removing a list that was never created is a silent no-op, not an error.
+    _, res = _run("net-acl-001", ["enable", "conf t", "no access-list 99", "end"])
+    assert "Invalid input" not in res.output
+    assert res.exit_code == 0
+
+
+def test_rebuilt_acl_with_deny_any_ahead_of_permit_any_blocks_trusted():
+    # First-match wins: deny-any must precede permit-any or the trusted PC
+    # is never cut off (the old button appended deny-any after permit-any).
+    _, trusted = _run("net-acl-001", [
+        "enable", "conf t",
+        "no access-list 10",
+        "access-list 10 deny host 192.168.1.20",
+        "access-list 10 deny any",
+        "access-list 10 permit any",
+        "interface gi0/1", "ip access-group 10 out", "end",
+        "connect PC1", "ping 192.168.2.10",
+    ])
+    assert "100% loss" in trusted.output
+
+
+def test_acl_walkthrough_never_exits_before_the_interface():
+    # The `help` walkthrough for net-acl-001 used to say `exit | interface`:
+    # `exit` in global config drops to privileged EXEC, where `interface` is
+    # invalid — students following it could never apply the ACL. (`exit` from
+    # an interface/vlan sub-mode is fine; it returns to global config.)
+    from labs.shells.cisco_ios import _HELP_WALKTHROUGHS
+
+    assert "exit | interface" not in _HELP_WALKTHROUGHS["net-acl-001"]
+
+
 # ---- Log triage lab (Linux logs shell) ----
 
 LOG = get_lab("sec-logtriage-001")

@@ -514,3 +514,53 @@ def test_full_lab_walkthrough():
     for name in VALIDATOR_NAMES:
         passed, msg, _ = _validate(name, f)
         assert passed, f"{name}: {msg}"
+
+
+# ---- lab-aware banner / prompt (defect: docker labs showed the essentials banner) ----
+
+def _banner_text(lab):
+    return "\n".join(linux_cli.banner(lab))
+
+
+def test_essentials_banner_still_points_at_todo_txt():
+    # The one lab whose session really is the seeded mock filesystem keeps
+    # its banner verbatim.
+    text = _banner_text(LAB)
+    assert "~/todo.txt" in text
+    assert "student@linux-lab" in linux_cli.initial_prompt(LAB)
+    assert linux_cli.initial_prompt(LAB) == "student@linux-lab:~$ "
+
+
+def test_trivy_banner_points_at_the_tarball_not_todo_txt():
+    from labs.definitions.devops_tools import TRIVY_LAB
+
+    text = _banner_text(TRIVY_LAB)
+    assert "vuln-rootfs.tar.gz" in text
+    assert "trivy rootfs" in text
+    assert "todo.txt" not in text
+    assert "simulated" not in text.lower()
+    assert linux_cli.initial_prompt(TRIVY_LAB) == "analyst@devsecops01:~$ "
+
+
+def test_docker_linux_cli_labs_never_mention_todo_txt():
+    # Sweep every linux_cli lab that runs in a real container: none of their
+    # banners may point at ~/todo.txt, and none may claim student@linux-lab.
+    from labs.definitions import ALL_LABS
+
+    docker_labs = [l for l in ALL_LABS if l.shell == "linux_cli" and l.environment.provider == "docker"]
+    assert len(docker_labs) >= 10  # trivy + iac + 8 linux-admin + 3 sectools
+    for lab in docker_labs:
+        text = _banner_text(lab)
+        assert "todo.txt" not in text, lab.id
+        assert "linux-lab" not in text, lab.id
+        assert linux_cli.initial_prompt(lab).startswith(("analyst@", "student@")), lab.id
+        assert lab.title in text, lab.id
+        # The banner names the first objective, so the student knows where to start.
+        assert lab.objectives[0].label in text, lab.id
+
+
+def test_admin_lab_prompt_uses_its_own_host():
+    from labs.definitions.linux_admin import LINUX_USERS_LAB
+
+    assert linux_cli.initial_prompt(LINUX_USERS_LAB) == "student@sysadmin01:~$ "
+    assert "todo.txt" not in _banner_text(LINUX_USERS_LAB)

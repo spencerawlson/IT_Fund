@@ -52,8 +52,10 @@ export function buildShowAccessListsCommands() {
 }
 
 /** The deliberate wrong move: deny everything, then apply it. The student
- *  watches the trusted PC lose the server too. Recovery is NOT re-adding
- *  permit-any — the mock IOS shell has no rule removal and first-match wins,
+ *  watches the trusted PC lose the server too. The list is REBUILT so the
+ *  deny-any line lands ahead of permit-any: ACLs match top-down, so appending
+ *  deny-any after an existing permit-any was a no-op and the promised outage
+ *  never happened. Recovery is NOT re-adding permit-any — first-match wins,
  *  so a trailing permit-any never fires after a deny-any. Recovery is
  *  buildRecoverAcl20Commands (a corrected list 20 re-applied, which replaces
  *  list 10 on the interface) or resetting the lab. Never sent silently —
@@ -62,7 +64,10 @@ export function buildDenyAnyCommands() {
   return [
     'enable',
     'configure terminal',
+    `no access-list ${ACL_NUMBER}`,
+    `access-list ${ACL_NUMBER} deny host ${GUEST_IP}`,
     `access-list ${ACL_NUMBER} deny any`,
+    `access-list ${ACL_NUMBER} permit any`,
     'end',
   ];
 }
@@ -70,14 +75,16 @@ export function buildDenyAnyCommands() {
 /** Recovery from the deny-any wrong move: a corrected standard list 20
  *  (deny the guest, permit everyone else), applied outbound on Gi0/1.
  *  Applying list 20 replaces list 10 on the interface, so the trusted PC
- *  passes again while the guest stays blocked — without resetting the lab. */
+ *  passes again while the guest stays blocked — without resetting the lab.
+ *  No `exit` between the ACL lines and the interface: `exit` in global
+ *  config drops back to privileged EXEC, where `interface` is invalid and
+ *  the apply silently never happens (the trusted PC stayed blocked). */
 export function buildRecoverAcl20Commands() {
   return [
     'enable',
     'configure terminal',
     'access-list 20 deny host 192.168.1.20',
     'access-list 20 permit any',
-    'exit',
     'interface gi0/1',
     'ip access-group 20 out',
     'end',
@@ -87,6 +94,13 @@ export function buildRecoverAcl20Commands() {
 /** Switch console to `host`, then ping the server. Two exec calls, in order. */
 export function buildPingCommands(host) {
   return [`connect ${host}`, `ping ${SERVER_IP}`];
+}
+
+/** Prefix a command sequence with `connect R1`, so firewall buttons always
+ *  run on the router even after a traffic test left the console on a PC
+ *  (IOS commands on a PC console fail with "command not found"). */
+export function withR1Connect(commands) {
+  return ['connect R1', ...commands];
 }
 
 /** Run a sequence through an exec function one command at a time, awaiting

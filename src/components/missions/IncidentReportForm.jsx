@@ -86,12 +86,17 @@ export default function IncidentReportForm({
       {!canSubmit && (
         <p className="text-small text-ink-2">
           Finish the other objectives first — the report files once the topology, firewall and traffic checks pass.
+          Run <code>objectives</code> in the Mission Console to see what is still open.
         </p>
       )}
       {(error || serverError) && (
         <p className="text-small text-danger" role="alert">{error || serverError}</p>
       )}
-      <Button size="lg" loading={busy} disabled={blocked} className="w-full">
+      {/* type="submit" is load-bearing: the shared Button hardcodes
+          type="button", so without it this button never submits the form and
+          the report can never be filed (the form has only textareas, so Enter
+          cannot submit it either). */}
+      <Button type="submit" size="lg" loading={busy} disabled={blocked} className="w-full">
         File incident report
       </Button>
     </form>

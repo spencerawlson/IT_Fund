@@ -223,7 +223,11 @@ def test_definitions_hide_validator_internals():
     assert r.status_code == 200
     body = r.json()
     assert body["briefing"][0].startswith("Orion Technologies")
-    assert len(body["briefing"]) == 3
+    assert len(body["briefing"]) == 4
+    # The 4th line makes the terminal the instructed way to check progress:
+    # `objectives` lists [x]/[ ], `progress` counts, `hint` names the next step.
+    assert "objectives" in body["briefing"][3] and "progress" in body["briefing"][3]
+    assert "hint" in body["briefing"][3]
     assert len(body["objectives"]) == 9
     assert body["scoring"] == {"per_objective": 10, "completion_bonus": 10}
     assert body["debrief_win"].startswith("Mission complete, Agent.")
@@ -310,8 +314,9 @@ def test_deny_all_blocks_trusted_then_corrected_acl_restores_it():
     objs = _objectives_by_id(view)
     assert objs["guest-blocked"]["passed"] is True
     assert objs["trusted-allowed"]["passed"] is False  # the visible consequence
-    # The mock shell has no rule removal, so the fix is a corrected ACL with
-    # permit-any, applied in place of the deny-all one (access-group replaces).
+    # The fix is a corrected ACL with permit-any, applied in place of the
+    # deny-all one (access-group replaces) — the same recovery the
+    # "Recover with ACL 20" button sends.
     _exec_many(client, h, sid, [
         "enable", "conf t",
         "access-list 20 deny host 192.168.1.20", "access-list 20 permit any",
@@ -407,3 +412,78 @@ def test_history_is_user_scoped():
     _do_mission_work(client, h, aid, sid)
     _complete(client, h, aid)
     assert client.get("/api/missions/history", cookies=_user("hist-m2")).json() == {"history": []}
+
+
+# ---- resume on reload (defect: reload started a fresh attempt at 0/9) ----
+
+def test_start_resumes_in_progress_attempt_instead_of_starting_a_new_one():
+    h = _user("resume1")
+    aid, sid = _start(client, h)
+    for device in DEVICES:
+        r = _action(client, h, aid, {"type": "inspect_device", "device": device})
+        assert r.status_code == 200, r.text
+    # "Reload": POST /start again — same attempt, same session, no new attempt.
+    r = client.post(f"/api/missions/{MISSION_ID}/start", cookies=h)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body.get("resumed") is True
+    assert body["attempt"]["id"] == aid
+    assert body["session"]["id"] == sid
+    view = _get_attempt(client, h, aid)
+    objs = _objectives_by_id(view)
+    assert objs["topology"]["passed"] is True  # inspection state survived the "reload"
+    hist = client.get("/api/missions/history", cookies=h).json()["history"]
+    assert len(hist) == 1
+
+
+def test_start_after_dead_session_abandons_and_starts_fresh():
+    h = _user("resume2")
+    aid, sid = _start(client, h)
+    sessions_mod.service._sessions.pop(sid, None)  # session expired/destroyed
+    r = client.post(f"/api/missions/{MISSION_ID}/start", cookies=h)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body.get("resumed") is not True
+    assert body["attempt"]["id"] != aid
+    assert body["attempt"]["status"] == "in_progress"
+    hist = client.get("/api/missions/history", cookies=h).json()["history"]
+    assert len(hist) == 2
+    old = next(x for x in hist if x["id"] == aid)
+    assert old["status"] == "abandoned"
+
+
+# ---- deny-any button sequence (defect: deny-any appended after permit-any) ----
+
+def test_frontend_deny_any_sequence_blocks_trusted_then_acl20_recovers():
+    h = _user("denyany1")
+    aid, sid = _start(client, h)
+    # Exactly what the "Try deny-any" firewall button sends: the withR1Connect
+    # prefix, the rebuilt ACL 10 (deny-any ahead of permit-any), then apply.
+    _exec_many(client, h, sid, [
+        "connect R1", "enable", "configure terminal",
+        "no access-list 10",
+        "access-list 10 deny host 192.168.1.20",
+        "access-list 10 deny any",
+        "access-list 10 permit any",
+        "end",
+        "enable", "configure terminal",
+        "interface gi0/1", "ip access-group 10 out", "end",
+        "connect GUEST", "ping 192.168.2.10",
+        "connect PC1", "ping 192.168.2.10",
+    ])
+    view = _get_attempt(client, h, aid)
+    objs = _objectives_by_id(view)
+    assert objs["guest-blocked"]["passed"] is True
+    assert objs["trusted-allowed"]["passed"] is False  # the outage the button promises
+    # "Recover with ACL 20" (buildRecoverAcl20Commands) must still work after.
+    _exec_many(client, h, sid, [
+        "connect R1", "enable", "configure terminal",
+        "access-list 20 deny host 192.168.1.20", "access-list 20 permit any",
+        "interface gi0/1", "ip access-group 20 out", "end",
+        "connect GUEST", "ping 192.168.2.10",
+        "connect PC1", "ping 192.168.2.10",
+    ])
+    view = _get_attempt(client, h, aid)
+    objs = _objectives_by_id(view)
+    assert objs["trusted-allowed"]["passed"] is True
+    assert objs["guest-blocked"]["passed"] is True
