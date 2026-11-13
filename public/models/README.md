@@ -14,6 +14,7 @@ procedural Visual-Lab model for that role, so the scene always renders.
 | `firewall.glb` | firewalls |
 | `cloud.glb` | internet / upstream cloud |
 | `pc.glb` | workstations / hosts |
+| `cypher.glb` | Cypher, the 3D AI tutor robot in the SOC room (Cyber Missions Phase 2). Original work — modelled procedurally in Blender from the approved character sheets, not a third-party asset. 1.70 m tall, 11,676 triangles, 6 animation clips (idle, walk, talk, point, greeting, thinking). Source: `assets/blender/cypher.blend`, rebuilt by `assets/blender/build_cypher.py`. |
 
 Keep each model reasonably low-poly (ideally < 1–2 MB) — they're scaled to a
 uniform footprint, so absolute size/orientation don't need to match, but a model

@@ -7,6 +7,10 @@ import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
 import MissionTopology, { MISSION_TOPOLOGY_DEVICES } from '@/components/missions/MissionTopology';
 import FirewallConsole from '@/components/missions/FirewallConsole';
 import IncidentReportForm from '@/components/missions/IncidentReportForm';
+import CypherVoiceButton from '@/components/missions/CypherVoiceButton';
+import { useTutor, useTutorEnabled, TutorText, Thinking } from '@/components/academy/tutor/TutorAssist';
+import { useCypherVoice } from '@/api/voice';
+import { logCypherEvent } from '@/api/analytics';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
@@ -89,6 +93,19 @@ export default function MissionWorkspace() {
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
   });
   const termRef = useRef(null);
+  // Shared Cypher voice state { talking, level }: the voice hook writes it
+  // while audio plays and the SOC scene's tick reads it every frame, so the
+  // 3D Cypher talks (talk clip + audio-reactive head bob) without
+  // re-rendering the scene. One useCypherVoice instance serves the briefing
+  // Listen button and the debrief explanation, so two clips never overlap.
+  const cypherVoiceRef = useRef({ talking: false, level: 0 });
+  const cypherVoice = useCypherVoice(cypherVoiceRef);
+  const tutorEnabled = useTutorEnabled();
+  const {
+    text: explainText, loading: explainLoading, error: explainError,
+    ask: askExplain, stop: stopExplain,
+  } = useTutor();
+  const debriefLoggedRef = useRef(false);
   // Draft autosave state: the timer for the debounce, the latest unsaved
   // values, and whether a save is in flight (a save that lands while one
   // is in flight is queued and sent right after).
@@ -119,6 +136,35 @@ export default function MissionWorkspace() {
     })();
     return () => { live = false; };
   }, [missionId]);
+
+  // Debrief analytics: one debrief_viewed per completed mission (counts,
+  // never conversation content). `debrief` is only set on completion.
+  useEffect(() => {
+    if (debrief && !debriefLoggedRef.current) {
+      debriefLoggedRef.current = true;
+      logCypherEvent({ event: 'debrief_viewed', mission_id: missionId });
+    }
+  }, [debrief, missionId]);
+
+  // "Cipher explains the outcome": the question is built from the
+  // server-validated state (score + passed/open objectives + debrief text).
+  // The tutor explains from that state — nothing is re-graded client-side.
+  const explainOutcome = () => {
+    const passed = objectives.filter((o) => o.passed).map((o) => o.label || o.id);
+    const open = objectives.filter((o) => !o.passed).map((o) => o.label || o.id);
+    const q = `I just completed Operation Broken Shield with a score of ${debrief?.score ?? '—'} out of 100. `
+      + `Objectives passed (${passed.length}/${objectives.length}): ${passed.join('; ') || 'none'}. `
+      + `Still open: ${open.join('; ') || 'none'}. `
+      + `The debrief says: ${debrief?.debrief || '—'}. `
+      + `Explain what I did well, what the open objectives mean, and the one concept I should review next. Do not re-grade my work — explain from this state.`;
+    askExplain({
+      mode: 'chat',
+      track: 'net-security',
+      topic: 'Operation Broken Shield — mission debrief',
+      level: 'intermediate',
+      messages: [{ role: 'user', content: q }],
+    });
+  };
 
   // Keep reduced-motion in step with the OS while the mission is open.
   useEffect(() => {
@@ -215,6 +261,7 @@ export default function MissionWorkspace() {
     if (c === 'hint') {
       const open = objectives.find((o) => !o.passed);
       if (!open) return { output: 'Every objective is complete — file the incident report.' };
+      logCypherEvent({ event: 'hint_viewed', mission_id: missionId, meta: { objective_id: open.id } });
       return { output: `Hint for "${open.label || MISSION_OBJECTIVE_LABELS[open.id] || open.id}":\n  ${open.message || 'Work through the mission step by step.'}` };
     }
     if (c === 'check') {
@@ -478,6 +525,23 @@ export default function MissionWorkspace() {
               First completion earns {missionDef.xp} XP — replays earn none.
             </p>
           )}
+          {briefLines.length > 0 && (
+            <Card level={2}>
+              <h2 className="text-heading text-ink-1">Hear the briefing</h2>
+              <p className="mt-1 text-small text-ink-2">
+                Cipher reads Sentinel’s briefing out loud while he talks in the SOC.
+                The words show as subtitles while he speaks.
+              </p>
+              <div className="mt-3">
+                <CypherVoiceButton
+                  text={briefLines.join('\n')}
+                  label="Listen to the briefing"
+                  voice={cypherVoice}
+                  eventContext={{ mission_id: missionId }}
+                />
+              </div>
+            </Card>
+          )}
           {/* No objectives checklist lives on this page: the terminal is the
               only place the student checks where they stand (run `objectives`
               in the Mission Console). */}
@@ -532,6 +596,7 @@ export default function MissionWorkspace() {
                   background={background}
                   reducedMotion={reducedMotion}
                   quality={quality}
+                  cypherVoiceRef={cypherVoiceRef}
                 />
               </React.Suspense>
             ) : (
@@ -625,6 +690,49 @@ export default function MissionWorkspace() {
                 {typeof debrief.xp_awarded === 'number' && <> · XP awarded: <strong>{debrief.xp_awarded}</strong></>}
               </p>
               {debrief.debrief && <p className="mt-2 whitespace-pre-wrap text-body text-ink-2">{debrief.debrief}</p>}
+              {tutorEnabled && (
+                <div className="mt-4 border-t border-black/10 pt-4">
+                  <p className="text-body font-semibold text-ink-1">Cipher explains the outcome</p>
+                  <p className="mt-1 text-small text-ink-2">
+                    Cipher reads your validated results — score and which objectives
+                    passed — and explains what they mean. He never re-grades your work.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button size="sm" variant="secondary" onClick={explainOutcome} loading={explainLoading} disabled={explainLoading}>
+                      Ask Cipher to explain the outcome
+                    </Button>
+                    {explainLoading && (
+                      <Button size="sm" variant="ghost" onClick={stopExplain}>Stop</Button>
+                    )}
+                  </div>
+                  {explainError && <p className="mt-3 text-small text-danger">{explainError}</p>}
+                  {explainText && (
+                    <div className="mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-3.5 text-sm leading-relaxed text-ink-1" aria-live="polite">
+                      <TutorText text={explainText} />
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => cypherVoice.play(explainText)}
+                          disabled={cypherVoice.playing}
+                        >
+                          {cypherVoice.playing ? 'Speaking…' : 'Hear Cipher say it'}
+                        </Button>
+                        {cypherVoice.playing && (
+                          <Button size="sm" variant="ghost" onClick={cypherVoice.stop}>Stop</Button>
+                        )}
+                      </div>
+                      {cypherVoice.subtitle && (
+                        <p className="mt-2 text-small text-ink-2" aria-live="polite">
+                          <span className="font-bold text-action-hover">Cipher:</span> {cypherVoice.subtitle}
+                        </p>
+                      )}
+                      {cypherVoice.error && <p className="mt-2 text-small text-danger">{cypherVoice.error}</p>}
+                    </div>
+                  )}
+                  {explainLoading && !explainText && <div className="mt-3"><Thinking /></div>}
+                </div>
+              )}
             </Card>
           )}
           {done && (

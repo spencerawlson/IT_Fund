@@ -5,6 +5,7 @@ import { StaticRouter, Routes, Route } from 'react-router-dom';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import MissionWorkspace, { formatObjectives } from './MissionWorkspace';
 
@@ -13,15 +14,20 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 // Effects never run under SSR, so the page renders its loading state without
 // any network — that is what this smoke test asserts. The live flow (start,
 // inspect, report, debrief) is exercised against the real backend, not here.
+// The page calls the tutor hooks, so it needs the QueryClient the app root
+// always provides.
 function renderWorkspace() {
+  const queryClient = new QueryClient();
   return renderToString(
-    <ThemeProvider>
-      <StaticRouter location="/missions/op-broken-shield">
-        <Routes>
-          <Route path="/missions/:missionId" element={<MissionWorkspace />} />
-        </Routes>
-      </StaticRouter>
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <StaticRouter location="/missions/op-broken-shield">
+          <Routes>
+            <Route path="/missions/:missionId" element={<MissionWorkspace />} />
+          </Routes>
+        </StaticRouter>
+      </ThemeProvider>
+    </QueryClientProvider>,
   );
 }
 

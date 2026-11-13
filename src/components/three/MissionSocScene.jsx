@@ -5,6 +5,13 @@ import { makeLabel } from '@/components/three/labels';
 import {
   modelKeyFor, fallbackBuilderFor, loadDeviceModel, fitAndPlace,
 } from '@/components/three/deviceModels';
+import { loadCypherCharacter } from '@/components/three/CypherCharacter';
+
+// Cypher's spot in the SOC: near the east wall, facing the room centre.
+// The model is real scale (1.70 m); the room reads at device scale, so he
+// is scaled up to stand beside the 5-unit devices. Rotation -PI/4 faces him
+// toward the room centre from (5.5, -5.5) — the model faces +Z in three.js.
+export const CYPHER_SPAWN = { x: 5.5, z: -5.5, scale: 2.2, rotationY: -Math.PI / 4 };
 
 // The 3D SOC room for Operation Broken Shield. One room, kit-built from
 // primitives plus the existing device GLBs: floor + walls, a desk row, a
@@ -60,15 +67,33 @@ export default function MissionSocScene({
   background,
   reducedMotion = false,
   quality = 'high',
+  // Shared mutable ref { talking, level } the voice hook writes: the SOC
+  // tick reads it every frame so Cypher talks while audio plays, without
+  // re-rendering the scene.
+  cypherVoiceRef,
 }) {
   // tick() closes over the mount-time scene, so live alert state travels
   // through a ref the tick reads every frame (ModelViewer builds once).
-  const stateRef = useRef({ incidentActive, contained });
-  stateRef.current = { incidentActive, contained };
+  const stateRef = useRef({ incidentActive, contained, cypherVoiceRef });
+  stateRef.current = { incidentActive, contained, cypherVoiceRef };
 
   const buildScene = useCallback((scene) => {
     const pos = socPositions();
     const screenMats = [];
+    let cypher = null;
+    let lastT = null;
+
+    // Cypher stands in the SOC (the real model — no placeholder). If the
+    // GLB fails to load he is simply absent; the mission still works.
+    loadCypherCharacter()
+      .then((controller) => {
+        cypher = controller;
+        controller.group.position.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
+        controller.group.rotation.y = CYPHER_SPAWN.rotationY;
+        controller.group.scale.setScalar(CYPHER_SPAWN.scale);
+        scene.add(controller.group);
+      })
+      .catch(() => { /* Cypher absent — the SOC keeps its devices */ });
 
     // --- Room shell: floor slab + back/side walls (front stays open to the camera).
     const floor = new THREE.Mesh(
@@ -166,14 +191,26 @@ export default function MissionSocScene({
     });
 
     // --- Alert pulse: red while the incident is live, green once contained.
+    // Cypher's mixer advances here too, driven by the shared voice ref.
     const tick = (t) => {
-      const { incidentActive: active, contained: done } = stateRef.current;
+      const { incidentActive: active, contained: done, cypherVoiceRef: voiceRef } = stateRef.current;
       const color = done ? 0x22c55e : active ? 0xef4444 : 0x38bdf8;
       const pulse = active && !done ? 0.55 + 0.45 * Math.sin(t * 3) : 0.7;
       screenMats.forEach((m) => {
         m.emissive.setHex(color);
         m.emissiveIntensity = pulse;
       });
+      if (cypher) {
+        const dt = lastT === null ? 0 : Math.min(t - lastT, 0.1);
+        lastT = t;
+        const voice = voiceRef?.current;
+        if (voice) {
+          cypher.setTalkLevel(voice.level || 0);
+          if (voice.talking && !cypher.isTalking()) cypher.setTalking(true);
+          if (!voice.talking && cypher.isTalking()) cypher.setTalking(false);
+        }
+        cypher.update(dt);
+      }
     };
 
     return { parts, tick };

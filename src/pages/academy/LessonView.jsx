@@ -10,7 +10,7 @@ import {
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
 import { labForLesson } from '@/data/labLessons';
 import { MISSION_FOR_LESSON } from '@/data/missions';
-import TutorAssist from '@/components/academy/tutor/TutorAssist';
+import CypherLessonPanel from '@/components/academy/tutor/CypherLessonPanel';
 import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 import { useSubscription, isLessonFree } from '@/lib/subscription';
@@ -179,29 +179,17 @@ export default function LessonView() {
         <Card level={2} padding="sm" className="mb-8 max-w-reading">
           <h2 className="text-heading text-ink-1">Ask Cipher</h2>
           <p className="mt-1 text-small text-ink-2">Stuck on a concept? Cipher can explain it, show an example, or put it more simply.</p>
-          <TutorAssist
-            className="mt-4"
-            actions={[
-              { mode: 'explain', label: 'Explain this concept' },
-              { mode: 'example', label: 'Give me an example' },
-              { mode: 'simplify', label: 'Explain it more simply' },
-            ]}
-            context={{ track: lesson.trackId, topic: lesson.title }}
+          <CypherLessonPanel
+            lesson={lesson}
+            missionId={missionId}
+            practicalHref={
+              labForLesson(lesson.id)
+                ? `/labs/${labForLesson(lesson.id)}`
+                : VISUAL_LAB_FOR[lesson.id]
+                  ? `/lab?item=${VISUAL_LAB_FOR[lesson.id]}`
+                  : null
+            }
           />
-          <div className="mt-4 flex flex-wrap gap-3">
-            {labForLesson(lesson.id) ? (
-              <Button to={`/labs/${labForLesson(lesson.id)}`} variant="secondary" size="sm">
-                Show a practical application
-              </Button>
-            ) : VISUAL_LAB_FOR[lesson.id] ? (
-              <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm">
-                Show a practical application
-              </Button>
-            ) : null}
-            <Button to={`/missions/${missionId}`} variant="secondary" size="sm">
-              Give me a mission
-            </Button>
-          </div>
         </Card>
       )}
 

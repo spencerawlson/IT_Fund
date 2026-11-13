@@ -55,3 +55,7 @@ backend/*.db
 CLAUDE.md
 Road_to_CISSP_Claude_Code_Master_Prompt.md
 labs_dev.db
+
+# Generated character-voice audio cache (ElevenLabs MP3s, keyed by hash).
+# Regenerated on demand; never commit audio.
+backend/.voice-cache/
