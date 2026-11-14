@@ -67,6 +67,45 @@ const readStored = (key, fallback) => {
   }
 };
 
+/** Whether an error means the lab session is gone (the backend's not_found:
+ *  "Lab session not found."). Lab sessions live in the backend's memory,
+ *  so a backend restart wipes them — after that, every exec against the
+ *  dead id 404s until the page is reloaded. */
+export function isSessionGoneError(e) {
+  if (!e) return false;
+  const message = e.message || '';
+  return /lab session not found/i.test(message)
+    || (e.status === 404 && /session/i.test(message));
+}
+
+/** Run one lab exec, recovering from a lost session instead of dying on it.
+ *  Regression for the live Apply-after-reset failure (2026-11-13 23:40
+ *  EST): after "Reset the lab", the Apply button failed with
+ *  "Failed to fetch" and then "Lab session not found." — the in-memory
+ *  lab session on the host was gone — and the console had no recovery:
+ *  every exec kept dying on the dead id until a manual page reload.
+ *  On a gone-session error this re-syncs the session from the attempt
+ *  (the attempt outlives the lab session) and retries the command once
+ *  with the live id. When no live session comes back it rethrows the
+ *  original error — the Reset button's own recovery (re-start the
+ *  mission) is the escape hatch from there. Other errors pass straight
+ *  through with no re-sync. */
+export async function execWithSessionRecovery({ sessionId, exec, refreshSession, onSession, command }) {
+  try {
+    const res = await exec(sessionId, command);
+    if (res && res.session && onSession) onSession(res.session);
+    return res;
+  } catch (e) {
+    if (!isSessionGoneError(e)) throw e;
+    const fresh = await refreshSession();
+    if (!fresh || !fresh.id || fresh.id === sessionId) throw e;
+    if (onSession) onSession(fresh);
+    const res = await exec(fresh.id, command);
+    if (res && res.session && onSession) onSession(res.session);
+    return res;
+  }
+}
+
 /** Full-screen mission workspace: Sentinel briefing, 3D SOC room (or the 2D
  *  topology when WebGL is unavailable), firewall console, traffic tests, the
  *  real lab terminal, and the incident report — ending in a debrief. The 2D
@@ -241,11 +280,31 @@ export default function MissionWorkspace() {
       setTraffic(null);
       applyAttemptState(await missionsApi.getAttempt(attempt.id));
     } catch (e) {
+      if (isSessionGoneError(e)) {
+        // The lab session is gone (e.g. the backend restarted and its
+        // in-memory sessions were lost): a reset against the dead id can
+        // never work, and neither can any console button. Re-start the
+        // mission instead — the backend abandons the dead attempt and
+        // hands back a fresh session — the same recovery a page reload
+        // performs, without making the student figure that out.
+        try {
+          const started = await missionsApi.start(missionId);
+          setAttempt(started.attempt || null);
+          setSession(started.session || null);
+          if (started.objectives) setObjectives(started.objectives);
+          if (started.mission) setMissionDef(started.mission);
+          setTraffic(null);
+          setError('');
+          return;
+        } catch {
+          // Fall through to the original error below.
+        }
+      }
       setError(e.message);
     } finally {
       setBusy(false);
     }
-  }, [session, attempt, applyAttemptState]);
+  }, [session, attempt, applyAttemptState, missionId]);
 
   // Terminal command runner: meta-commands in the browser, everything else
   // is the lab's real IOS shell via labsApi.exec (LabWorkspace's shape, trimmed).
@@ -336,12 +395,21 @@ export default function MissionWorkspace() {
 
   // The firewall console's exec responses carry the refreshed session, so
   // the rules read-back updates after each button instead of lagging until
-  // the next validation cycle.
+  // the next validation cycle. A lost session is recovered, not fatal:
+  // execWithSessionRecovery re-syncs from the attempt and retries once
+  // with the live id (see the helper above).
   const handleFirewallExec = useCallback(async (command) => {
-    const res = await labsApi.exec(session.id, command);
-    if (res && res.session) setSession(res.session);
-    return res;
-  }, [session]);
+    return execWithSessionRecovery({
+      sessionId: session.id,
+      exec: (id, cmd) => labsApi.exec(id, cmd),
+      refreshSession: async () => {
+        const view = await missionsApi.getAttempt(attempt.id);
+        return view && view.session ? view.session : null;
+      },
+      onSession: setSession,
+      command,
+    });
+  }, [session, attempt]);
 
   const submitReport = useCallback(async ({ summary, root_cause, fix }) => {
     setReportError('');

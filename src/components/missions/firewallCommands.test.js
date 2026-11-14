@@ -134,4 +134,55 @@ describe('firewallCommands', () => {
     await expect(runCommandSequence(exec, ['enable', 'configure terminal', 'end'])).rejects.toThrow('boom');
     expect(seen).toEqual(['enable', 'configure terminal']);
   });
+
+  it('runCommandSequence retries a transient network failure once and completes', async () => {
+    // Regression for the live Apply-after-reset failure (2026-11-13 23:40
+    // EST): one exec in the Apply sequence failed with "Failed to fetch"
+    // and the whole sequence died with a red error, even though the
+    // failure was transient. A single retry of the failed command lets
+    // the sequence land; the Apply commands are idempotent, so re-issuing
+    // one is safe.
+    const seen = [];
+    let failedOnce = false;
+    const exec = async (command) => {
+      seen.push(command);
+      if (command === 'interface gi0/1' && !failedOnce) {
+        failedOnce = true;
+        throw new TypeError('Failed to fetch');
+      }
+      return { output: '', exit_code: 0 };
+    };
+    const results = await runCommandSequence(exec, ['connect R1', 'enable', 'configure terminal', 'interface gi0/1', 'ip access-group 10 out', 'end']);
+    expect(results).toHaveLength(6);
+    expect(seen).toEqual([
+      'connect R1', 'enable', 'configure terminal',
+      'interface gi0/1', 'interface gi0/1',
+      'ip access-group 10 out', 'end',
+    ]);
+  });
+
+  it('runCommandSequence gives up after one retry and surfaces the error', async () => {
+    const seen = [];
+    const exec = async (command) => {
+      seen.push(command);
+      throw new TypeError('Failed to fetch');
+    };
+    await expect(runCommandSequence(exec, ['enable', 'end'])).rejects.toThrow('Failed to fetch');
+    expect(seen).toEqual(['enable', 'enable']);
+  });
+
+  it('runCommandSequence does not retry HTTP errors', async () => {
+    // A 404 (dead session), 402 or 429 must fail fast: retrying the same
+    // dead session is pointless — the session recovery one level up
+    // (MissionWorkspace's exec wrapper) owns that case.
+    const seen = [];
+    const err = new Error('Lab session not found.');
+    err.status = 404;
+    const exec = async (command) => {
+      seen.push(command);
+      throw err;
+    };
+    await expect(runCommandSequence(exec, ['enable', 'end'])).rejects.toThrow('Lab session not found.');
+    expect(seen).toEqual(['enable']);
+  });
 });
