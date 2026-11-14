@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -95,5 +95,47 @@ describe('CypherViewer', () => {
     expect(html).not.toContain('Drag to rotate');
     expect(html).not.toContain('Scroll to zoom');
     expect(html).not.toContain('Click parts for info');
+  });
+});
+
+describe('preloadCypherCharacter', () => {
+  // preloadCypherCharacter warms the browser cache for cypher.glb so the
+  // SOC scene's load resolves fast on direct entry, not only on the handoff
+  // path (whose lesson panel already warmed the cache by loading the same
+  // GLB). The module caches the fetch, so each test gets a fresh instance.
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  async function freshPreload() {
+    const mod = await import('./CypherCharacter');
+    return mod.preloadCypherCharacter;
+  }
+
+  it('fetches the Cypher GLB URL once, and never rejects', async () => {
+    const preload = await freshPreload();
+    const urls = [];
+    const fetchImpl = (url) => {
+      urls.push(url);
+      return Promise.resolve({ ok: true });
+    };
+    await expect(preload(fetchImpl)).resolves.toBeUndefined();
+    expect(urls).toHaveLength(1);
+    expect(urls[0]).toContain('models/cypher.glb');
+    // A second call reuses the in-flight/completed fetch — no second request.
+    await preload(fetchImpl);
+    expect(urls).toHaveLength(1);
+  });
+
+  it('is a no-op without a fetch implementation (SSR / node) and never throws', async () => {
+    const preload = await freshPreload();
+    await expect(preload(null)).resolves.toBeUndefined();
+    await expect(preload(undefined)).resolves.toBeUndefined();
+  });
+
+  it('swallows a failed fetch — the SOC still loads on demand', async () => {
+    const preload = await freshPreload();
+    const fetchImpl = () => Promise.reject(new Error('offline'));
+    await expect(preload(fetchImpl)).resolves.toBeUndefined();
   });
 });

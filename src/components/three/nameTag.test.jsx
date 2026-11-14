@@ -8,18 +8,25 @@ import {
   CYPHER_NAME_TAG_TEXT,
   NAME_TAG_WIDTH,
   NAME_TAG_HEIGHT,
+  NAME_TAG_CANVAS_HEIGHT,
+  NAME_TAG_NAME_FONT_PX,
+  NAME_CAP_HEIGHT_RATIO,
   drawNameTag,
+  fitNameFont,
   makeNameTag,
   faceTagToCamera,
   attachCypherNameTag,
 } from './nameTag';
+import { CYPHER_SPAWN, SOC_CAMERA_POS } from './MissionSocScene';
 
 // A fake 2d context that records what is drawn (jsdom has no canvas, and
 // the repo has no jsdom dependency — the tag helper takes an injectable
-// canvas factory instead, so these tests run in plain node).
+// canvas factory instead, so these tests run in plain node). Each fillText
+// records the font in force at the time, so the name-size tests can read
+// the exact font the draw code chose.
 function fakeCtx() {
   const calls = { fillText: [] };
-  return {
+  const ctx = {
     calls,
     fillStyle: '',
     strokeStyle: '',
@@ -38,9 +45,16 @@ function fakeCtx() {
     save: () => {},
     restore: () => {},
     clip: () => {},
-    fillText: (text, x, y) => { calls.fillText.push([text, x, y]); },
+    fillText: (text, x, y) => { calls.fillText.push([text, x, y, ctx.font]); },
     measureText: () => ({ width: 400 }),
   };
+  return ctx;
+}
+
+/** The font px of a recorded fillText call. */
+function fontPxOf(call) {
+  const m = /(\d+)px/.exec(call[3] || '');
+  return m ? Number(m[1]) : 0;
 }
 
 function fakeCanvasFactory() {
@@ -86,6 +100,46 @@ describe('drawNameTag', () => {
     expect(drawn).toContain('Cypher');
     expect(drawn.join(' ')).toContain("Hi, I'm Cypher");
   });
+
+  it('draws the NAME as big as the tag allows — the readable part at room distance', () => {
+    // The live check (PR #60) could not read the name at all: "Cypher" was
+    // 168px on the canvas, ~5px on screen. The name must dominate the tag
+    // now: its cap height is at least 30% of the tag height, so at the SOC
+    // camera (tag ~54px tall on the 706x400 frame) it renders ~19px.
+    const ctx = fakeCtx();
+    drawNameTag(ctx, 1024, 592);
+    const nameCall = ctx.calls.fillText.find(([t]) => t === 'Cypher');
+    expect(nameCall).toBeTruthy();
+    const namePx = fontPxOf(nameCall);
+    expect(namePx).toBeGreaterThanOrEqual(280);
+    expect(namePx).toBeLessThanOrEqual(NAME_TAG_NAME_FONT_PX);
+    const capFraction = (namePx * NAME_CAP_HEIGHT_RATIO) / NAME_TAG_CANVAS_HEIGHT;
+    expect(capFraction).toBeGreaterThan(0.3);
+    // And the name is bigger than the greeting line above it.
+    const greetingCall = ctx.calls.fillText.find(([t]) => t === "Hi, I'm");
+    expect(namePx).toBeGreaterThan(fontPxOf(greetingCall));
+  });
+});
+
+describe('fitNameFont', () => {
+  it('returns the start size when the name fits the tag width', () => {
+    const ctx = fakeCtx(); // measureText returns 400, well under 950
+    expect(fitNameFont(ctx, 'Cypher', 300, 950)).toBe(300);
+  });
+
+  it('shrinks proportionally when the name is too wide for the tag', () => {
+    const ctx = fakeCtx();
+    ctx.measureText = () => ({ width: 2000 }); // a very wide font
+    const fitted = fitNameFont(ctx, 'Cypher', 300, 950);
+    expect(fitted).toBeLessThan(300);
+    expect(fitted).toBeGreaterThanOrEqual(140); // 300 * 950 / 2000 = 142
+  });
+
+  it('never returns 0 or a negative size on a broken measureText', () => {
+    const ctx = fakeCtx();
+    ctx.measureText = () => ({ width: 0 });
+    expect(fitNameFont(ctx, 'Cypher', 300, 950)).toBe(300);
+  });
 });
 
 describe('makeNameTag', () => {
@@ -116,12 +170,12 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
   it('pins the tag to the chest bone, in front of the torso, facing the camera', async () => {
     const gltf = await parseGlb();
     const group = gltf.scene;
-    // Mirror the SOC: real scale 1.70 m scaled 2.2x, standing at his spot,
-    // facing the room centre; camera fixed at [16, 12, 18].
-    group.scale.setScalar(2.2);
-    group.rotation.y = -Math.PI / 4;
-    group.position.set(5.5, 0, -5.5);
-    const cameraPos = [16, 12, 18];
+    // Mirror the SOC: real scale 1.70 m scaled 3.0x, standing at his spot,
+    // facing the camera (the learner); camera fixed at SOC_CAMERA_POS.
+    group.scale.setScalar(CYPHER_SPAWN.scale);
+    group.rotation.y = CYPHER_SPAWN.rotationY;
+    group.position.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
+    const cameraPos = SOC_CAMERA_POS;
 
     const tag = attachCypherNameTag(group, cameraPos, { createCanvas: fakeCanvasFactory() });
     expect(tag).toBeTruthy();
@@ -138,14 +192,13 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
     group.updateMatrixWorld(true);
     const tagPos = new THREE.Vector3();
     tag.getWorldPosition(tagPos);
-    // Chest height in the SOC (chest bone ~1.10 m x 2.2 scale).
-    expect(tagPos.y).toBeGreaterThan(2.2);
-    expect(tagPos.y).toBeLessThan(2.8);
+    // Chest height in the SOC (chest bone ~1.10 m x 3.0 scale, plus the
+    // 0.05 local tag offset): ~3.45.
+    expect(tagPos.y).toBeGreaterThan(3.1);
+    expect(tagPos.y).toBeLessThan(3.8);
     // In front of the torso (chest front is z 0.255 in model units): the
     // tag sits proud of the chest along the direction Cypher faces
-    // (group +Z rotated -PI/4 toward the room centre), not inside the body.
-    // It does NOT point at the camera — the camera sits ~67° off his facing
-    // axis, which is why the tag yaws to face it instead.
+    // (group +Z rotated to face the camera), not inside the body.
     const chestBone = (() => {
       let found = null;
       group.traverse((o) => { if (!found && o.isBone && o.name === 'chest') found = o; });
@@ -153,12 +206,16 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
     })();
     const chestPos = new THREE.Vector3();
     chestBone.getWorldPosition(chestPos);
-    const facingDir = new THREE.Vector3(Math.sin(-Math.PI / 4), 0, Math.cos(-Math.PI / 4));
+    const facingDir = new THREE.Vector3(
+      Math.sin(CYPHER_SPAWN.rotationY), 0, Math.cos(CYPHER_SPAWN.rotationY),
+    );
     const proud = tagPos.clone().sub(chestPos).dot(facingDir);
-    expect(proud).toBeGreaterThan(0.5); // 0.27 model units x 2.2 scale = 0.594
+    expect(proud).toBeGreaterThan(0.7); // 0.27 model units x 3.0 scale = 0.81
     const toCamera = new THREE.Vector3(...cameraPos).sub(tagPos).normalize();
 
-    // Facing the camera (world +Z of the tag points at it).
+    // Facing the camera (world +Z of the tag points at it). He faces the
+    // camera now, so the yaw is small — the tag still yaws every tick, so
+    // it keeps facing the camera through the walk-in and idle.
     const worldQuat = new THREE.Quaternion();
     tag.getWorldQuaternion(worldQuat);
     const facing = new THREE.Vector3(0, 0, 1).applyQuaternion(worldQuat);
@@ -167,7 +224,7 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
 
   it('returns null when the character has no chest bone', () => {
     const group = new THREE.Group();
-    const tag = attachCypherNameTag(group, [16, 12, 18], { createCanvas: fakeCanvasFactory() });
+    const tag = attachCypherNameTag(group, SOC_CAMERA_POS, { createCanvas: fakeCanvasFactory() });
     expect(tag).toBeNull();
   });
 });
@@ -175,21 +232,21 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
 describe('faceTagToCamera', () => {
   it('yaws the tag to face the camera without tilting it', () => {
     const parent = new THREE.Group();
-    parent.rotation.y = -Math.PI / 4;
-    parent.position.set(5.5, 0, -5.5);
+    parent.rotation.y = CYPHER_SPAWN.rotationY;
+    parent.position.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
     const tag = makeNameTag({ createCanvas: fakeCanvasFactory() });
     tag.position.set(0, 0.05, 0.27);
     parent.add(tag);
     parent.updateMatrixWorld(true);
 
-    faceTagToCamera(tag, [16, 12, 18]);
+    faceTagToCamera(tag, SOC_CAMERA_POS);
     parent.updateMatrixWorld(true);
     const worldQuat = new THREE.Quaternion();
     tag.getWorldQuaternion(worldQuat);
     const facing = new THREE.Vector3(0, 0, 1).applyQuaternion(worldQuat);
     const tagPos = new THREE.Vector3();
     tag.getWorldPosition(tagPos);
-    const toCamera = new THREE.Vector3(16, tagPos.y, 18).sub(tagPos).normalize();
+    const toCamera = new THREE.Vector3(SOC_CAMERA_POS[0], tagPos.y, SOC_CAMERA_POS[2]).sub(tagPos).normalize();
     expect(facing.dot(toCamera)).toBeGreaterThan(0.99);
     // No pitch: the tag stays vertical.
     expect(Math.abs(facing.y)).toBeLessThan(0.01);

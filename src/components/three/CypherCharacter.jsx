@@ -21,6 +21,32 @@ function loader() {
   return _loader;
 }
 
+let _cypherPreload = null;
+/**
+ * Warm the browser cache for cypher.glb so the SOC scene's load resolves
+ * fast on direct entry, not only on the handoff path (whose lesson panel
+ * already warmed the cache by loading the same GLB — which is why Cypher
+ * appeared there first). Fire-and-forget, never rejects, and fetches at
+ * most once per page load. `fetchImpl` is injectable for tests; without a
+ * fetch implementation (SSR / node) it is a no-op.
+ */
+export function preloadCypherCharacter(fetchImpl) {
+  if (_cypherPreload) return _cypherPreload;
+  const doFetch = fetchImpl || (typeof fetch === 'function' ? fetch : null);
+  if (!doFetch) {
+    _cypherPreload = Promise.resolve();
+    return _cypherPreload;
+  }
+  try {
+    _cypherPreload = Promise.resolve(doFetch(modelUrl('cypher')))
+      .then(() => undefined)
+      .catch(() => undefined);
+  } catch {
+    _cypherPreload = Promise.resolve();
+  }
+  return _cypherPreload;
+}
+
 /**
  * Load cypher.glb and return a controller for the rig:
  * { group, mixer, clips, play(name), setTalking(bool), setTalkLevel(0..1),
