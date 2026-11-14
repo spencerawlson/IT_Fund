@@ -2,6 +2,7 @@ import React from 'react';
 import * as THREE from 'three';
 import ModelViewer from './ModelViewer';
 import { addLabel } from './labels';
+import { FALLBACK_BLUEPRINT_FOR_SUBJECT } from '@/data/blueprints';
 
 function addBox(scene, parts, o) {
   const geo = new THREE.BoxGeometry(o.w, o.h, o.d);
@@ -174,5 +175,6 @@ export function buildSwitch(scene) {
 }
 
 export default function Switch3D() {
-  return <ModelViewer buildScene={buildSwitch} cameraPos={[14, 9, 16]} target={[0, 0.2, 0]} />;
+  // When WebGL cannot start, the switch blueprint sheet stands in for the scene.
+  return <ModelViewer buildScene={buildSwitch} cameraPos={[14, 9, 16]} target={[0, 0.2, 0]} fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT.switch} />;
 }

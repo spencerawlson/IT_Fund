@@ -2,6 +2,7 @@ import React from 'react';
 import * as THREE from 'three';
 import ModelViewer from './ModelViewer';
 import { addLabel } from './labels';
+import { FALLBACK_BLUEPRINT_FOR_SUBJECT } from '@/data/blueprints';
 
 function addBox(scene, parts, o) {
   const geo = new THREE.BoxGeometry(o.w, o.h, o.d);
@@ -118,5 +119,6 @@ export function buildRack(scene) {
 }
 
 export default function ServerRack3D() {
-  return <ModelViewer buildScene={buildRack} cameraPos={[22, 16, 26]} target={[0, 9, 0]} />;
+  // When WebGL cannot start, the 42U rack sheet stands in for the scene.
+  return <ModelViewer buildScene={buildRack} cameraPos={[22, 16, 26]} target={[0, 9, 0]} fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT['server-rack']} />;
 }
