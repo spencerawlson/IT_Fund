@@ -2,19 +2,24 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
+import { AuthProvider } from '../lib/AuthContext';
 import { ThemeProvider } from '../components/ThemeProvider';
 import { SeoCollectorContext } from '../components/Seo';
 import Faq from './Faq';
 import { FAQ_GROUPS, ALL_FAQS } from '../data/faqs';
+
+const ANON_AUTH = { user: null, isLoadingAuth: false, authChecked: true };
 
 function renderPage(path) {
   const collector = { seo: null, register(data) { this.seo = data; } };
   const html = renderToString(
     <SeoCollectorContext.Provider value={collector}>
       <ThemeProvider>
-        <StaticRouter location={path}>
-          <Faq />
-        </StaticRouter>
+        <AuthProvider initialAuth={ANON_AUTH}>
+          <StaticRouter location={path}>
+            <Faq />
+          </StaticRouter>
+        </AuthProvider>
       </ThemeProvider>
     </SeoCollectorContext.Provider>,
   );

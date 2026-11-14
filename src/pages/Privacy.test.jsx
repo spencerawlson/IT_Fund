@@ -2,19 +2,29 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
+import { AuthProvider } from '../lib/AuthContext';
 import { ThemeProvider } from '../components/ThemeProvider';
 import { SeoCollectorContext } from '../components/Seo';
 import Privacy from './Privacy';
 import Terms from './Terms';
 
-function renderPage(Page, path) {
+const ANON_AUTH = { user: null, isLoadingAuth: false, authChecked: true };
+const SIGNED_IN_AUTH = {
+  user: { display_name: 'Test User', avatar_url: null, providers: ['google'] },
+  isLoadingAuth: false,
+  authChecked: true,
+};
+
+function renderPage(Page, path, auth = ANON_AUTH) {
   const collector = { seo: null, register(data) { this.seo = data; } };
   const html = renderToString(
     <SeoCollectorContext.Provider value={collector}>
       <ThemeProvider>
-        <StaticRouter location={path}>
-          <Page />
-        </StaticRouter>
+        <AuthProvider initialAuth={auth}>
+          <StaticRouter location={path}>
+            <Page />
+          </StaticRouter>
+        </AuthProvider>
       </ThemeProvider>
     </SeoCollectorContext.Provider>,
   );
@@ -75,5 +85,23 @@ describe('Terms page (audit F-06)', () => {
     expect(html).toContain('support@road2cissp.com');
     const addresses = html.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g) || [];
     expect(new Set(addresses)).toEqual(new Set(['support@road2cissp.com']));
+  });
+});
+
+describe('Public-page footers (2026-11-13)', () => {
+  it('links signed-out visitors to the pricing page', () => {
+    const { html } = renderPage(Privacy, '/privacy');
+    expect(html).toContain('href="/pricing"');
+    expect(html).toContain('>Pricing<');
+  });
+
+  it('links signed-in users to their account page, never to pricing', () => {
+    for (const [Page, path] of [[Privacy, '/privacy'], [Terms, '/terms']]) {
+      const { html } = renderPage(Page, path, SIGNED_IN_AUTH);
+      expect(html).toContain('href="/signin"');
+      expect(html).toContain('>Account<');
+      expect(html).not.toContain('href="/pricing"');
+      expect(html).not.toContain('>Pricing<');
+    }
   });
 });

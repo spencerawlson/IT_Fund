@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui-glass';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -8,6 +9,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 // contact channels, no promises the code does not keep. If the product
 // starts collecting something new, this page must be updated with it.
 export default function Privacy() {
+  const { isAuthenticated } = useAuth();
   return (
     <div className="min-h-screen text-ink-1">
       <Seo
@@ -84,7 +86,11 @@ export default function Privacy() {
           <span className="text-caption text-ink-3">Road to CISSP — learn IT by doing it.</span>
           <div className="flex gap-4 text-caption text-ink-3">
             <Link to="/faq" className="hover:text-ink-1">FAQ</Link>
-            <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
+            {isAuthenticated ? (
+              <Link to="/signin" className="hover:text-ink-1">Account</Link>
+            ) : (
+              <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
+            )}
             <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>
             <Link to="/contact" className="hover:text-ink-1">Contact</Link>
