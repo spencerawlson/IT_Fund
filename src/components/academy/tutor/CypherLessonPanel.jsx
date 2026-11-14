@@ -13,6 +13,27 @@ const LEVELS = [
   { id: 'advanced', label: 'Advanced' },
 ];
 
+// Preset questions: each button asks a real question about THIS lesson
+// instead of submitting an empty form. The backend requires a question
+// for explain/example/simplify (400 "question is required"), and the chat
+// path is the right one for lesson-level presets — the mode prompts are
+// built around a flashcard question/answer, which the panel has no
+// access to. The question also fills the input, so the student sees
+// exactly what was asked.
+export function presetQuestion(mode, lessonTitle, level) {
+  const topic = lessonTitle || 'this lesson';
+  const atLevel = level && level !== 'intermediate' ? ` at ${level} level` : '';
+  switch (mode) {
+    case 'example':
+      return `Give me a concrete, real-world example of ${topic}.`;
+    case 'simplify':
+      return `Explain ${topic} in simple terms${atLevel}, using an everyday analogy.`;
+    case 'explain':
+    default:
+      return `Explain the key ideas of ${topic}${atLevel}.`;
+  }
+}
+
 // Cypher on the lesson page (Network Security first): the 3D tutor offers
 // assistance, answers questions with the CURRENT lesson context through the
 // existing server-side AI tutor (no duplicate chatbot), explains the mission
@@ -62,9 +83,11 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
   }, [lesson.id, missionId]);
 
   const runMode = (mode) => {
+    const q = presetQuestion(mode, lesson.title, level);
+    setQuestion(q);
     setActive(mode);
     setHintShown(false);
-    ask({ ...context, mode });
+    ask({ ...context, mode: 'chat', messages: [{ role: 'user', content: q }] });
   };
 
   const askQuestion = () => {
@@ -198,9 +221,10 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
                 </div>
               )}
               {voice.subtitle && (
-                <p className="mt-2 text-small text-ink-2" aria-live="polite">
-                  <span className="font-bold text-action-hover">Cipher:</span> {voice.subtitle}
-                </p>
+                <div className="mt-2 text-small text-ink-2" aria-live="polite">
+                  <span className="font-bold text-action-hover">Cipher:</span>{' '}
+                  <TutorText text={voice.subtitle} />
+                </div>
               )}
               {voice.error && <p className="mt-2 text-small text-danger">{voice.error}</p>}
             </div>
@@ -223,6 +247,9 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
           <p className="mt-1 text-small text-ink-2">
             A live incident in the SOC: a guest workstation can reach the DMZ
             server and it shouldn’t. You’ll fix the firewall and file the report.
+            In the mission, the terminal is the only place your progress is shown
+            — run <code>objectives</code> in the Mission Console to see where you
+            stand, and <code>hint</code> when you are stuck.
           </p>
         )}
         <div className="mt-3 flex flex-wrap gap-2">
@@ -235,7 +262,7 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
             size="sm"
             onClick={() => logCypherEvent({ event: 'invite_accepted', lesson_id: lesson.id, mission_id: missionId })}
           >
-            {completed ? 'Replay the mission' : objectives.length > 0 ? 'Continue the mission' : 'Give me a mission'}
+            {completed ? 'Replay the mission' : objectives.length > 0 ? 'Continue the mission' : 'Start Mission'}
           </Button>
           {nextOpen && !completed && (
             <button

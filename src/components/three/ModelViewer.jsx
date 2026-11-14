@@ -13,11 +13,16 @@ export default function ModelViewer({
   // pixel ratio capped at 1 and shadows off; onRendererFailed — called with
   // the throw when the WebGL renderer cannot be created, in addition to the
   // fallback UI; onInspect — called with an interactive's `id` on click.
+  // interactive — false pins the camera and removes ALL pointer
+  // interaction (no drag-to-rotate, no scroll-to-zoom, no click-for-info)
+  // plus the hint bar: presenter-only scenes (Cypher) pass false; every
+  // other viewer keeps the original behaviour.
   background = '#F8F7FF',
   reducedMotion = false,
   quality = 'high',
   onRendererFailed,
   onInspect,
+  interactive = true,
 }) {
   const mountRef = useRef(null);
   const buildRef = useRef(buildScene);
@@ -103,18 +108,25 @@ export default function ModelViewer({
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.target.set(...target);
-    controls.minDistance = 6;
-    controls.maxDistance = 45;
-    controls.maxPolarAngle = Math.PI * 0.85;
-    controls.autoRotate = !reducedMotion;
-    controls.autoRotateSpeed = 0.6;
-    const stopAuto = () => { controls.autoRotate = false; };
-    renderer.domElement.addEventListener('pointerdown', stopAuto);
+    // Controls — only for interactive scenes. A presenter-only scene
+    // (interactive={false}) keeps the camera fixed on the target: no
+    // OrbitControls at all, so there is nothing to drag, zoom or click.
+    let controls = null;
+    const stopAuto = () => { if (controls) controls.autoRotate = false; };
+    if (interactive) {
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.target.set(...target);
+      controls.minDistance = 6;
+      controls.maxDistance = 45;
+      controls.maxPolarAngle = Math.PI * 0.85;
+      controls.autoRotate = !reducedMotion;
+      controls.autoRotateSpeed = 0.6;
+      renderer.domElement.addEventListener('pointerdown', stopAuto);
+    } else {
+      camera.lookAt(...target);
+    }
 
     // Build scene — may return an array of interactives, or { parts, tick } where
     // tick(t) is called each animation frame for scene animation.
@@ -172,7 +184,9 @@ export default function ModelViewer({
       }
       setInfo(null);
     };
-    renderer.domElement.addEventListener('click', onClick);
+    // Click-for-info only exists on interactive scenes; a presenter-only
+    // scene never registers the raycast click at all.
+    if (interactive) renderer.domElement.addEventListener('click', onClick);
 
     let frameId;
     let hidden = document.hidden;
@@ -187,7 +201,7 @@ export default function ModelViewer({
       const t = clock.getElapsedTime();
       // Reduced motion: the scene stays static — tick (pulses, sweeps) never runs.
       if (tick && !reducedMotion) tick(t);
-      controls.update();
+      if (controls) controls.update();
       renderer.render(scene, camera);
     };
     animate();
@@ -209,7 +223,7 @@ export default function ModelViewer({
       ro.disconnect();
       renderer.domElement.removeEventListener('click', onClick);
       renderer.domElement.removeEventListener('pointerdown', stopAuto);
-      controls.dispose();
+      if (controls) controls.dispose();
       scene.traverse((obj) => {
         if (obj.geometry) obj.geometry.dispose();
         if (obj.material) {
@@ -236,7 +250,7 @@ export default function ModelViewer({
           </div>
         </div>
       )}
-      {info && !rendererFailed && (
+      {interactive && info && !rendererFailed && (
         <div
           className="pointer-events-none absolute z-10 max-w-[220px] rounded-lg border border-blue-600/30 bg-white/85 backdrop-blur-xl px-3 py-2 text-xs shadow-xl"
           style={{
@@ -248,9 +262,11 @@ export default function ModelViewer({
           <p className="mt-0.5 leading-relaxed text-ink-2">{info.desc}</p>
         </div>
       )}
-      <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-black/10 bg-white/80 px-2 py-1 text-[10px] text-ink-2">
-        Drag to rotate · Scroll to zoom · Click parts for info
-      </div>
+      {interactive && (
+        <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-black/10 bg-white/80 px-2 py-1 text-[10px] text-ink-2">
+          Drag to rotate · Scroll to zoom · Click parts for info
+        </div>
+      )}
     </div>
   );
 }

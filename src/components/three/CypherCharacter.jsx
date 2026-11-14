@@ -128,6 +128,13 @@ export function loadCypherCharacter() {
  * hands to the voice hook — the tick reads it every frame, so talking
  * starts/stops without re-rendering. Renders nothing (keeps the text tutor)
  * when the GLB cannot load.
+ *
+ * Presenter-only: the viewer is NOT interactive (no drag, no zoom, no
+ * click-for-info — the camera is fixed). Cypher animates as a teacher
+ * instead, driven by the dialogue state: he greets when the panel opens,
+ * points once when he starts speaking, talks while the voice plays, and
+ * idles otherwise. The walk cycle belongs to the SOC, where he enters
+ * through the door (see MissionSocScene).
  */
 export default function CypherViewer({ voiceRef, className = '' }) {
   const controllerRef = useRef(null);
@@ -157,6 +164,9 @@ export default function CypherViewer({ voiceRef, className = '' }) {
         controller.group.position.set(0, 0, 0);
         controller.group.rotation.y = 0;
         scene.add(controller.group);
+        // Presenter greeting on open: a one-shot that returns to idle
+        // (the mixer's 'finished' handler) once it plays through.
+        controller.play('greeting');
         state.ready = true;
       })
       .catch(() => { /* GLB missing/unparseable — the panel hides the view */ });
@@ -170,7 +180,14 @@ export default function CypherViewer({ voiceRef, className = '' }) {
       const voice = voiceRef?.current;
       if (voice) {
         controller.setTalkLevel(voice.level || 0);
-        if (voice.talking && !controller.isTalking()) controller.setTalking(true);
+        if (voice.talking && !controller.isTalking()) {
+          // Speech starts: talk, and point once at the explanation —
+          // the one-shot returns to the talk loop (or idle) when it
+          // finishes, and isTalking() stays true, so it never re-fires
+          // mid-speech.
+          controller.setTalking(true);
+          controller.play('point');
+        }
         if (!voice.talking && controller.isTalking()) controller.setTalking(false);
       }
       controller.update(dt);
@@ -189,6 +206,7 @@ export default function CypherViewer({ voiceRef, className = '' }) {
         target={[0, 0.85, 0]}
         reducedMotion={false}
         quality="high"
+        interactive={false}
       />
     </div>
   );

@@ -10,6 +10,7 @@ import LessonPlayer from './LessonPlayer';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 const SRC = readFileSync(join(ROOT, 'src/components/academy/lesson/LessonPlayer.jsx'), 'utf8');
+const LESSON_VIEW_SRC = readFileSync(join(ROOT, 'src/pages/academy/LessonView.jsx'), 'utf8');
 
 const DECK = { id: 'net-osi', title: 'OSI Model' };
 const TRACK = { id: 'network', title: 'Network Engineering' };
@@ -47,5 +48,33 @@ describe('LessonPlayer', () => {
     const destructureAt = SRC.indexOf('const { steps, index, tries } = session;');
     expect(guardAt).toBeGreaterThan(-1);
     expect(destructureAt).toBeGreaterThan(guardAt);
+  });
+
+  it('hands off to the mission at the end of practice, once passed', () => {
+    // The handoff is Cypher's spoken congratulations + invite, shown in
+    // the completion state — only when the practice is passed, and only
+    // for the one lesson with a mission. A failed run shows no handoff.
+    expect(SRC).toContain('MISSION_FOR_LESSON[deck.id]');
+    expect(SRC).toContain('{passed && missionId && <MissionHandoff');
+    expect(SRC).toContain("missionId={missionId} lessonId={deck.id}");
+  });
+
+  it('has no Video Explainer placeholder in the player or the lesson page', () => {
+    // Scope E: the "Video explainer coming soon" card is gone; Ask Cypher
+    // is the interactive assistant. The component was deleted, so neither
+    // file may reference it at all.
+    expect(SRC).not.toContain('VideoExplainer');
+    expect(LESSON_VIEW_SRC).not.toContain('VideoExplainer');
+    expect(SRC).not.toContain('Video explainer coming soon');
+    expect(LESSON_VIEW_SRC).not.toContain('Video explainer coming soon');
+  });
+
+  it('has no static written mission briefing on the lesson page', () => {
+    // Scope D: the briefing is what Cypher SAYS at the end of practice
+    // (MissionHandoff), never a block of written text — and Sentinel, who
+    // is not built yet, must not appear on the lesson page.
+    expect(LESSON_VIEW_SRC).not.toContain('Mission briefing');
+    expect(LESSON_VIEW_SRC).not.toContain('Sentinel');
+    expect(LESSON_VIEW_SRC).not.toContain('Excellent work, Agent');
   });
 });

@@ -9,11 +9,12 @@ import { getDeck } from '@/data/academy';
 import { getDeckContent, getDeckCards, resolveCards } from '@/lib/content';
 import { continueLearning, pastLessonCards, PASS_PCT } from '@/lib/progress/engine';
 import { playerHref } from '@/data/catalog';
+import { MISSION_FOR_LESSON } from '@/data/missions';
+import MissionHandoff from './MissionHandoff';
 import RichText from '../RichText';
 import { Button, Card, ProgressBar } from '@/components/ui-glass';
 import { ACTION } from '@/lib/design/tokens';
 import { ChoiceStep, OrderStep, NumericStep, WidgetStep } from './steps';
-import VideoExplainer from './VideoExplainer';
 
 const STEP_COMPONENTS = { choice: ChoiceStep, order: OrderStep, numeric: NumericStep, widget: WidgetStep };
 /** Questions from earlier lessons that open every lesson, so old material keeps coming back. */
@@ -242,7 +243,6 @@ function Intro({ deck, track, steps, resumeAt, onStart, onRestart }) {
       <h1 className="mt-1 text-title text-ink-1">{deck.title}</h1>
       <p className="mt-3 text-lesson text-ink-2">{deck.summary}</p>
 
-      <VideoExplainer className="mt-6" />
       <Card level={2} className="mt-4">
         <ul className="space-y-3 text-body text-ink-1">
           <li className="flex gap-3">
@@ -289,6 +289,10 @@ function Complete({ deck, state, tries, onRetry }) {
   const passed = pct >= PASS_PCT;
   const next = useMemo(() => continueLearning(state)?.lesson || null, [state]);
   const nextHref = next ? playerHref(next) : '/';
+  // The mission handoff lives here, at the end of the practice — not on
+  // the reading page. Only the one lesson with a mission (net-security)
+  // shows it, and only once the practice is passed.
+  const missionId = MISSION_FOR_LESSON[deck.id];
 
   return (
     <div className="animate-pop text-center">
@@ -312,6 +316,7 @@ function Complete({ deck, state, tries, onRetry }) {
             ? 'Excellent. These questions will come back on a later review day.'
             : 'Good work. The questions you missed will come back soon in your reviews.'}
       </p>
+      {passed && missionId && <MissionHandoff missionId={missionId} lessonId={deck.id} />}
       <ActionBar>
         <Button variant="secondary" size="lg" icon={Layers} to={`/academy/${deck.trackId}/deck/${deck.id}?mode=learn`} aria-label="Flashcards">
           <span className="hidden sm:inline">Flashcards</span>
