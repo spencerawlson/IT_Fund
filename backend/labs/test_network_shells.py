@@ -244,6 +244,64 @@ def test_acl_walkthrough_never_exits_before_the_interface():
     assert "exit | interface" not in _HELP_WALKTHROUGHS["net-acl-001"]
 
 
+def test_concurrent_execs_on_one_session_both_land():
+    # Regression for the live rapid-click bug: two execs racing the same
+    # session must not lose one another's work. Each exec reads the
+    # findings, mutates its own copy, and merges it back — without a
+    # per-session lock the second merge overwrites the first (last-writer-
+    # wins) and a command silently vanishes. The stub yields between the
+    # read and the return, the way an I/O-backed provider (docker) does.
+    import copy
+
+    from labs.providers.base import CommandResult
+    from labs.providers.mock import MockLabProvider
+
+    class YieldingProvider(MockLabProvider):
+        async def exec_command(self, environment_id, lab, command, findings):
+            snapshot = copy.deepcopy(findings)
+            await asyncio.sleep(0)  # yield: the other exec reads the same pre-state
+            snapshot.setdefault("notes", [])
+            snapshot["notes"].append(command)
+            return CommandResult(output="ok", findings=snapshot)
+
+    svc = SessionService(providers={"mock": YieldingProvider()})
+    s = asyncio.run(svc.start("net-acl-001", "u1"))
+
+    async def _both():
+        await asyncio.gather(
+            svc.exec_command(s.id, "u1", "first"),
+            svc.exec_command(s.id, "u1", "second"),
+        )
+
+    asyncio.run(_both())
+    notes = svc.get(s.id, "u1").findings.get("notes", [])
+    assert sorted(notes) == ["first", "second"]
+
+
+def test_deny_appended_after_permit_any_does_not_block_guest_but_rebuild_does():
+    # Regression for the live rapid-click bug, second half: after the deny
+    # was lost, the student re-added it AFTER permit-any and re-applied —
+    # the rule showed in the read-back and acl_applied passed, yet the
+    # guest still passed, because ACLs match top-down and permit-any fires
+    # first. Only rebuilding the list with the deny first restores the
+    # block (the fix the console's Deny button now issues).
+    svc = SessionService()
+    s = asyncio.run(svc.start("net-acl-001", "u1"))
+    for c in ["enable", "conf t", "access-list 10 permit any", "end",
+              "enable", "conf t", "access-list 10 deny host 192.168.1.20", "end",
+              "enable", "conf t", "interface gi0/1", "ip access-group 10 out", "end"]:
+        s, _ = asyncio.run(svc.exec_command(s.id, "u1", c))
+    assert s.progress["deny-guest"] is True
+    assert s.progress["apply"] is True
+    assert s.progress["guest-blocked"] is False  # permit-any matches first
+    for c in ["connect R1", "enable", "conf t", "no access-list 10",
+              "access-list 10 deny host 192.168.1.20", "access-list 10 permit any", "end",
+              "enable", "conf t", "interface gi0/1", "ip access-group 10 out", "end"]:
+        s, _ = asyncio.run(svc.exec_command(s.id, "u1", c))
+    assert s.progress["guest-blocked"] is True
+    assert s.progress["trusted-allowed"] is True
+
+
 # ---- Log triage lab (Linux logs shell) ----
 
 LOG = get_lab("sec-logtriage-001")
