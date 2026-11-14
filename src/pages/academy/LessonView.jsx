@@ -15,7 +15,6 @@ import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 import { useSubscription, isLessonFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
-import VideoExplainer from '@/components/academy/lesson/VideoExplainer';
 import CipherNote from '@/components/academy/lesson/CipherNote';
 import { getLessonContent, getDeckContent } from '@/lib/content';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
@@ -152,12 +151,10 @@ export default function LessonView() {
         {best !== undefined && <span>Best score {best}%</span>}
       </div>
 
-      <PrereqNotice className="mb-8 max-w-reading" items={prereqItems} />
-
-      <VideoExplainer className="mb-8 max-w-reading" />
+      <PrereqNotice className="mb-8" items={prereqItems} />
 
       {(VISUAL_LAB_FOR[lesson.id] || labForLesson(lesson.id)) && (
-        <div className="mb-8 flex max-w-reading flex-wrap gap-3">
+        <div className="mb-8 flex flex-wrap gap-3">
           {VISUAL_LAB_FOR[lesson.id] && (
             <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm" icon={Eye} className="w-full justify-center sm:w-auto">
               Open in Visual Lab
@@ -172,7 +169,7 @@ export default function LessonView() {
       )}
 
       {missionId && (
-        <Card level={2} padding="sm" className="mb-8 max-w-reading">
+        <Card level={2} padding="sm" className="mb-8">
           <h2 className="text-heading text-ink-1">Ask Cipher</h2>
           <p className="mt-1 text-small text-ink-2">Stuck on a concept? Cipher can explain it, show an example, or put it more simply.</p>
           <CypherLessonPanel
@@ -186,26 +183,6 @@ export default function LessonView() {
                   : null
             }
           />
-        </Card>
-      )}
-
-      {missionId && status === 'completed' && (
-        <Card level={2} padding="sm" className="mb-8 max-w-reading">
-          <h2 className="text-heading text-ink-1">Mission briefing — Sentinel</h2>
-          <p className="mt-2 text-body text-ink-2">
-            Excellent work, Agent. You&apos;ve learned the fundamentals of network segmentation. Sentinel has an
-            assignment waiting for you. Are you ready to put your knowledge into practice?
-          </p>
-          <p className="mt-2 text-small text-ink-2">
-            In the mission, the terminal is the only place your progress is shown — run{' '}
-            <code>objectives</code> in the Mission Console to see where you stand, and{' '}
-            <code>hint</code> when you are stuck.
-          </p>
-          <div className="mt-4">
-            <Button to={`/missions/${missionId}`} variant="primary" size="sm">
-              Start Mission
-            </Button>
-          </div>
         </Card>
       )}
 

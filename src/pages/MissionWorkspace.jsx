@@ -581,17 +581,17 @@ export default function MissionWorkspace() {
               <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
               <h2 className="font-mono text-heading text-terminal-bright">SOC Room</h2>
               <span className="hidden text-caption text-terminal-muted sm:inline">
-                {view === '3d' ? 'click a device to inspect it' : '2D topology — fully playable without WebGL'}
+                {view === '3d'
+                  ? 'Cypher presents the SOC — switch to the 2D topology to inspect devices'
+                  : '2D topology — fully playable without WebGL'}
               </span>
             </div>
             {view === '3d' ? (
               <React.Suspense fallback={<div className="flex h-[26rem] items-center justify-center text-ink-2">Loading SOC room…</div>}>
                 <MissionSocScene
                   devices={MISSION_TOPOLOGY_DEVICES}
-                  inspected={inspected}
                   incidentActive={incidentActive}
                   contained={contained}
-                  onInspect={onInspect}
                   onRendererFailed={handleRendererFailed}
                   background={background}
                   reducedMotion={reducedMotion}

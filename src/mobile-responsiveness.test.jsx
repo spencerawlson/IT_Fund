@@ -141,11 +141,30 @@ describe('dashboard card layouts (2026-11-08, phone screenshot)', () => {
     // No more two separate cards with a text-plus-button row.
     expect(s).not.toContain('flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between');
     // One wrapping row holding both buttons; full-width on phones, side by side from sm up.
-    const row = s.match(/<div className="mb-8 flex max-w-reading flex-wrap gap-3">([\s\S]*?)<\/div>/);
+    const row = s.match(/<div className="mb-8 flex flex-wrap gap-3">([\s\S]*?)<\/div>/);
     expect(row).not.toBeNull();
     expect(row[1]).toContain('Open in Visual Lab');
     expect(row[1]).toContain('Launch Lab');
     expect(s.match(/className="w-full justify-center sm:w-auto"/g)?.length).toBe(2);
+  });
+
+  it('lesson page cards are all the same width (2026-11-13)', () => {
+    const s = src('src/pages/academy/LessonView.jsx');
+    // Spencer 2026-11-13: the lesson content card was wider than the Ask
+    // Cipher / mission cards above it — the top cards carried max-w-reading
+    // (70ch) while the reading, Practice and Resources cards spanned the
+    // full PageContainer (max-w-5xl). Every card is now a direct child of
+    // PageContainer with no narrower max-width of its own, so they all
+    // render at the same width on desktop and mobile. max-w-reading
+    // survives ONLY on prose paragraphs inside the cards — the text
+    // measure, never the card.
+    expect(s).not.toContain('className="mb-8 max-w-reading"');
+    expect(s).not.toContain('flex max-w-reading flex-wrap gap-3');
+    expect(s).not.toContain('padding="sm" className="mb-8 max-w-reading"');
+    expect(s).toContain('<Card level={2} padding="lg" as="article" className="space-y-12">');
+    expect(s).toContain('className="mt-6 scroll-mt-28"');
+    // Exactly three max-w-reading uses remain, all on prose <p> elements.
+    expect((s.match(/max-w-reading/g) || []).length).toBe(3);
   });
 
   it('focus-mode sticky headers use the opaque pill', () => {

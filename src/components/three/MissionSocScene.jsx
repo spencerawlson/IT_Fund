@@ -15,9 +15,13 @@ export const CYPHER_SPAWN = { x: 5.5, z: -5.5, scale: 2.2, rotationY: -Math.PI /
 
 // The 3D SOC room for Operation Broken Shield. One room, kit-built from
 // primitives plus the existing device GLBs: floor + walls, a desk row, a
-// monitor wall, a server rack, the router, the firewall and the PCs. The four
-// lab devices (R1, PC1, GUEST, SRV) are interactive nodes — each registers a
-// real hitbox mesh so ModelViewer's raycaster resolves clicks to onInspect.
+// monitor wall, a server rack, the router, the firewall and the PCs.
+//
+// Presenter-only: Cypher walks in through the east-wall door and takes
+// his spot, then presents — the camera is fixed and nothing in the room
+// is clickable. Inspecting devices happens in the 2D topology
+// (MissionTopology, "fully playable without WebGL"), which sends the same
+// inspect action; the 3D scene keeps no hitboxes or click handling.
 //
 // Alert state drives the monitor wall: while the incident is active the
 // screens glow red (pulsed by tick, unless reduced motion — ModelViewer then
@@ -59,10 +63,8 @@ function box(w, h, d, color, x = 0, y = 0, z = 0) {
 
 export default function MissionSocScene({
   devices = SOC_DEVICES,
-  inspected = [],
   incidentActive = true,
   contained = false,
-  onInspect,
   onRendererFailed,
   background,
   reducedMotion = false,
@@ -85,13 +87,27 @@ export default function MissionSocScene({
 
     // Cypher stands in the SOC (the real model — no placeholder). If the
     // GLB fails to load he is simply absent; the mission still works.
+    // He walks in through the east-wall door and takes his spot by the
+    // SOC; reduced motion skips the walk (the tick never runs then, so a
+    // walk would strand him at the door) and he starts at his spot.
+    const walkFrom = { x: 11.5, z: 4 };
+    let cypherWalking = false;
     loadCypherCharacter()
       .then((controller) => {
         cypher = controller;
-        controller.group.position.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
-        controller.group.rotation.y = CYPHER_SPAWN.rotationY;
         controller.group.scale.setScalar(CYPHER_SPAWN.scale);
         scene.add(controller.group);
+        if (reducedMotion) {
+          controller.group.position.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
+          controller.group.rotation.y = CYPHER_SPAWN.rotationY;
+        } else {
+          controller.group.position.set(walkFrom.x, 0, walkFrom.z);
+          controller.group.rotation.y = Math.atan2(
+            CYPHER_SPAWN.x - walkFrom.x, CYPHER_SPAWN.z - walkFrom.z,
+          );
+          controller.play('walk');
+          cypherWalking = true;
+        }
       })
       .catch(() => { /* Cypher absent — the SOC keeps its devices */ });
 
@@ -151,6 +167,9 @@ export default function MissionSocScene({
     });
 
     // --- The four lab devices: procedural fallback now, real GLB when it loads.
+    // No interactives: the 3D room is presenter-only (inspection lives in
+    // the 2D topology), so parts stays empty and ModelViewer — called with
+    // interactive={false} — never raycasts.
     const parts = [];
     devices.forEach((d) => {
       const p = pos[d.id];
@@ -165,21 +184,6 @@ export default function MissionSocScene({
       const label = makeLabel(d.id, { height: 1.1 });
       label.position.set(p.x, FOOTPRINT + 1.6, p.z);
       scene.add(label);
-
-      // Invisible-but-raycastable hitbox: the interactive ModelViewer clicks.
-      // (opacity-0 transparent, not visible=false — the raycaster still hits it.)
-      const hitbox = new THREE.Mesh(
-        new THREE.BoxGeometry(FOOTPRINT, FOOTPRINT, FOOTPRINT),
-        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
-      );
-      hitbox.position.set(p.x, FOOTPRINT / 2, p.z);
-      scene.add(hitbox);
-      parts.push({
-        id: d.id,
-        mesh: hitbox,
-        label: `${d.label} — ${d.role || ''}`.trim(),
-        desc: `${d.ip || ''}${inspected.includes(d.id) ? ' · inspected ✓' : ' · click to inspect'}`,
-      });
 
       loadDeviceModel(modelKeyFor(role))
         .then((model) => {
@@ -203,18 +207,42 @@ export default function MissionSocScene({
       if (cypher) {
         const dt = lastT === null ? 0 : Math.min(t - lastT, 0.1);
         lastT = t;
-        const voice = voiceRef?.current;
-        if (voice) {
-          cypher.setTalkLevel(voice.level || 0);
-          if (voice.talking && !cypher.isTalking()) cypher.setTalking(true);
-          if (!voice.talking && cypher.isTalking()) cypher.setTalking(false);
+        if (cypherWalking) {
+          // Walk-in: stride toward the spot, facing the direction of
+          // travel; on arrival, face the room and greet, then idle.
+          const p = cypher.group.position;
+          const dx = CYPHER_SPAWN.x - p.x;
+          const dz = CYPHER_SPAWN.z - p.z;
+          const dist = Math.hypot(dx, dz);
+          const step = 4 * dt; // ~4 units/s: door to spot in under 3 s
+          if (dist <= step) {
+            p.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
+            cypher.group.rotation.y = CYPHER_SPAWN.rotationY;
+            cypherWalking = false;
+            cypher.play('greeting');
+          } else {
+            p.x += (dx / dist) * step;
+            p.z += (dz / dist) * step;
+            cypher.group.rotation.y = Math.atan2(dx, dz);
+          }
+        } else {
+          const voice = voiceRef?.current;
+          if (voice) {
+            cypher.setTalkLevel(voice.level || 0);
+            if (voice.talking && !cypher.isTalking()) {
+              // Speech starts: talk, and point once at the explanation.
+              cypher.setTalking(true);
+              cypher.play('point');
+            }
+            if (!voice.talking && cypher.isTalking()) cypher.setTalking(false);
+          }
         }
         cypher.update(dt);
       }
     };
 
     return { parts, tick };
-  }, [devices, inspected]);
+  }, [devices, reducedMotion]);
 
   return (
     <div className="h-[26rem] w-full sm:h-[30rem]">
@@ -225,8 +253,8 @@ export default function MissionSocScene({
         background={background}
         reducedMotion={reducedMotion}
         quality={quality}
-        onInspect={onInspect}
         onRendererFailed={onRendererFailed}
+        interactive={false}
       />
     </div>
   );

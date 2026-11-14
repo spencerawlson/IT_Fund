@@ -2,7 +2,7 @@ import React from 'react';
 import { Volume2, VolumeX, Square } from 'lucide-react';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
-import { pillClass } from '@/components/academy/tutor/TutorAssist';
+import { pillClass, TutorText } from '@/components/academy/tutor/TutorAssist';
 
 /**
  * A "Listen" control for a block of text (mission briefing, debrief):
@@ -69,10 +69,10 @@ export default function CypherVoiceButton({ text, label = 'Listen', voice, voice
       </div>
       {error && <p className="mt-2 text-small text-danger">{error}</p>}
       {subtitle && (
-        <p className="mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-3 text-sm leading-relaxed text-ink-1" aria-live="polite">
+        <div className="mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-3 text-sm leading-relaxed text-ink-1" aria-live="polite">
           <span className="mr-1.5 font-bold text-action-hover">Cipher:</span>
-          {subtitle}
-        </p>
+          <TutorText text={subtitle} />
+        </div>
       )}
     </div>
   );

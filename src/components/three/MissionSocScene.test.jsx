@@ -21,10 +21,13 @@ describe('socPositions', () => {
 describe('MissionSocScene', () => {
   it('renders without throwing (WebGL effect does not run under SSR)', () => {
     const html = renderToString(
-      <MissionSocScene devices={SOC_DEVICES} inspected={['R1']} incidentActive contained={false} onInspect={() => {}} />,
+      <MissionSocScene devices={SOC_DEVICES} incidentActive contained={false} />,
     );
     expect(typeof html).toBe('string');
-    expect(html).toContain('Drag to rotate');
+    // Presenter-only: fixed camera, no drag/zoom/click, no hint bar.
+    expect(html).not.toContain('Drag to rotate');
+    expect(html).not.toContain('Scroll to zoom');
+    expect(html).not.toContain('Click parts for info');
   });
 });
 

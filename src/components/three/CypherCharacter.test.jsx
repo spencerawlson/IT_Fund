@@ -91,6 +91,9 @@ describe('CypherViewer', () => {
   it('renders without throwing (WebGL effect does not run under SSR)', () => {
     const html = renderToString(<CypherViewer voiceRef={{ current: { talking: false, level: 0 } }} />);
     expect(typeof html).toBe('string');
-    expect(html).toContain('Drag to rotate');
+    // Presenter-only: fixed camera, no drag/zoom/click, no hint bar.
+    expect(html).not.toContain('Drag to rotate');
+    expect(html).not.toContain('Scroll to zoom');
+    expect(html).not.toContain('Click parts for info');
   });
 });

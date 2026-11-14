@@ -134,7 +134,6 @@ export function useCypherVoice(voiceRef) {
   const play = React.useCallback(async (text) => {
     stop();
     setError('');
-    setSubtitle(text);
     if (!text || !text.trim()) return '';
     let envelope;
     try {
@@ -144,6 +143,10 @@ export function useCypherVoice(voiceRef) {
       setSubtitle('');
       return '';
     }
+    // The subtitle is the backend's cleaned text (Markdown stripped for
+    // speech), not the raw answer — so the words on screen match the
+    // words Cipher speaks, with no "###" or "**" ever showing.
+    setSubtitle(envelope.text || '');
     if (!envelope.audio_b64 || muted) {
       // Text-only fallback (voice not configured, or muted): Cypher still
       // "talks" — the talk clip plays while the subtitles show, so the

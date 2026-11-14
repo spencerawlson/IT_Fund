@@ -31,6 +31,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
+import re
 import time
 from collections import defaultdict, deque
 from pathlib import Path
@@ -85,6 +86,71 @@ def voice_id_for(character: str) -> Optional[str]:
 
 def cache_key(character: str, text: str) -> str:
     return hashlib.sha256(f"{character}|{MODEL}|{text}".encode()).hexdigest()
+
+
+# ---------- Markdown -> speakable plain text ----------
+
+# Tutor answers are Markdown, but the voice must never read the markup
+# aloud: in the live test "### Reasons for Implicit Deny" came out as
+# garbled words at exactly the Markdown markers. Every spoken text passes
+# through strip_markdown_to_speech() before synthesis (and before the
+# cache key, so the key is on the cleaned text). Code blocks are dropped
+# entirely — code is shown on screen, never spoken. Inline code, links
+# and emphasis collapse to the words a teacher would say.
+_FENCE_RE = re.compile(r"^\s*```")
+_HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+")
+_BULLET_RE = re.compile(r"^\s*[-*+]\s+")
+_ORDERED_RE = re.compile(r"^\s*\d+[.)]\s+")
+_BLOCKQUOTE_RE = re.compile(r"^\s*>\s?")
+_HR_RE = re.compile(r"^\s*([-*_])(\s*\1){2,}\s*$")
+_HTML_RE = re.compile(r"<[^>]+>")
+_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\([^)]*\)")
+_LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+_BARE_URL_RE = re.compile(r"https?://\S+")
+_CODE_SPAN_RE = re.compile(r"`([^`]*)`")
+_BOLD_RE = re.compile(r"(\*\*|__)(.+?)\1")
+_ITALIC_RE = re.compile(r"(?<!\w)(\*|_)([^*_]+?)\1(?!\w)")
+
+
+def strip_markdown_to_speech(text: str) -> str:
+    """Collapse Markdown to clean, speakable plain text.
+
+    Headings, bullets and numbered items become sentences (a full stop is
+    added where the line has no terminal punctuation, so the voice pauses);
+    bold/italic markers, links, bare URLs, HTML tags and inline code are
+    removed, keeping the words. Returns '' only when nothing speakable
+    remains (e.g. the input was a lone code block) — callers fall back to
+    the original text in that case.
+    """
+    lines = []
+    in_fence = False
+    for raw in text.splitlines():
+        line = raw.strip()
+        if _FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence or not line or _HR_RE.match(line):
+            continue
+        line = _HEADING_RE.sub("", line)
+        line = _BULLET_RE.sub("", line)
+        line = _ORDERED_RE.sub("", line)
+        line = _BLOCKQUOTE_RE.sub("", line)
+        line = _IMAGE_RE.sub(r"\1", line)
+        line = _LINK_RE.sub(r"\1", line)
+        line = _BARE_URL_RE.sub("", line)
+        line = _HTML_RE.sub("", line)
+        line = _CODE_SPAN_RE.sub(r"\1", line)
+        line = _BOLD_RE.sub(r"\2", line)
+        line = _ITALIC_RE.sub(r"\2", line)
+        line = re.sub(r"\s+", " ", line).strip()
+        if not line:
+            continue
+        # A line with no terminal punctuation is a heading or list item:
+        # end it as a sentence so the voice pauses before the next one.
+        if line[-1].isalnum():
+            line += "."
+        lines.append(line)
+    return " ".join(lines)
 
 
 def _cache_path(key: str) -> Path:
@@ -223,15 +289,22 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
     check_rate(f"user:{user_id}")
 
     text = body.text.strip()
-    key = cache_key(character, text)
+    # The single chokepoint: every spoken text is stripped to clean,
+    # speakable plain text before synthesis, caching and logging — the
+    # voice never reads Markdown markers aloud. The cache key is on the
+    # cleaned text, so differently-marked repeats of the same words hit.
+    # An input that strips to nothing (a lone code block) falls back to
+    # the original text rather than synthesising silence.
+    speakable = strip_markdown_to_speech(text) or text
+    key = cache_key(character, speakable)
     cached_audio = _cache_read(key)
     if cached_audio is not None:
-        _log_call(user_id, character, len(text), cached=True, error=False)
+        _log_call(user_id, character, len(speakable), cached=True, error=False)
         import base64
 
         return {
             "character": character,
-            "text": text,
+            "text": speakable,
             "audio_b64": base64.b64encode(cached_audio).decode(),
             "mime": "audio/mpeg",
             "cached": True,
@@ -244,10 +317,10 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
         # No key or no voice ID yet (Spencer supplies both himself, portal
         # -> server env file). Text-only fallback: the frontend shows the
         # subtitles and Cypher still animates; nothing here is an error.
-        _log_call(user_id, character, len(text), cached=False, error=False)
+        _log_call(user_id, character, len(speakable), cached=False, error=False)
         return {
             "character": character,
-            "text": text,
+            "text": speakable,
             "audio_b64": None,
             "mime": None,
             "cached": False,
@@ -256,15 +329,15 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
         }
 
     try:
-        audio = provider.synthesize(voice_id, text)
+        audio = provider.synthesize(voice_id, speakable)
     except Exception:
         # Upstream failure degrades to the same text-only fallback — a
         # voice outage must never 500 the lesson or the mission.
         log.warning("ElevenLabs synthesis failed for character %s", character, exc_info=True)
-        _log_call(user_id, character, len(text), cached=False, error=True)
+        _log_call(user_id, character, len(speakable), cached=False, error=True)
         return {
             "character": character,
-            "text": text,
+            "text": speakable,
             "audio_b64": None,
             "mime": None,
             "cached": False,
@@ -273,12 +346,12 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
         }
 
     _cache_write(key, audio)
-    _log_call(user_id, character, len(text), cached=False, error=False)
+    _log_call(user_id, character, len(speakable), cached=False, error=False)
     import base64
 
     return {
         "character": character,
-        "text": text,
+        "text": speakable,
         "audio_b64": base64.b64encode(audio).decode(),
         "mime": "audio/mpeg",
         "cached": False,

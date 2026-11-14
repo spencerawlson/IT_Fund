@@ -183,3 +183,80 @@ def test_speak_text_too_long(monkeypatch):
     _signed_in_user("voice-test", "v@example.com")
     r = client.post("/api/voice/speak", json={"character": "cypher", "text": "x" * 2001})
     assert r.status_code == 422
+
+
+# ---------- Markdown -> speakable text (live defect: the voice read "###"
+# and "**" aloud, garbled, in the 2026-11-13 browser test) ----------
+
+def test_strip_markdown_headings_bold_bullets():
+    cleaned = voice.strip_markdown_to_speech(
+        "### Reasons for Implicit Deny\n"
+        "**Security** — any traffic not explicitly permitted is denied.\n"
+        "- Management: concise rules.\n"
+        "1. First step\n"
+        "2. Second step\n"
+    )
+    assert "###" not in cleaned and "**" not in cleaned
+    assert cleaned.startswith("Reasons for Implicit Deny.")
+    assert "Security — any traffic not explicitly permitted is denied." in cleaned
+    assert "Management: concise rules." in cleaned
+    assert "First step." in cleaned and "Second step." in cleaned
+
+
+def test_strip_markdown_links_code_and_urls():
+    cleaned = voice.strip_markdown_to_speech(
+        "Run `objectives` in the [Mission Console](https://example.com/missions) "
+        "or see https://example.com/docs for details.\n"
+        "> A quoted line stays as words.\n"
+        "Use *italics* and _emphasis_ sparingly."
+    )
+    assert "`" not in cleaned and "[" not in cleaned and "https://" not in cleaned
+    assert "Run objectives in the Mission Console or see" in cleaned
+    assert "A quoted line stays as words." in cleaned
+    assert "Use italics and emphasis sparingly." in cleaned
+
+
+def test_strip_markdown_drops_code_blocks():
+    cleaned = voice.strip_markdown_to_speech(
+        "Here is the rule:\n```\naccess-list 10 deny any\n```\nThat blocks the guest."
+    )
+    assert "access-list" not in cleaned
+    assert cleaned == "Here is the rule: That blocks the guest."
+
+
+def test_strip_markdown_empty_when_nothing_speakable():
+    assert voice.strip_markdown_to_speech("```\nonly code\n```") == ""
+    assert voice.strip_markdown_to_speech("   \n---\n  ") == ""
+
+
+def test_speak_sends_cleaned_text_to_provider(monkeypatch):
+    """The provider (ElevenLabs) receives the cleaned text, never raw
+    Markdown — and the envelope returns the cleaned text for subtitles."""
+    fake = FakeProvider()
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    monkeypatch.setenv("CYPHER_VOICE_ID", "voice-cypher-test")
+    _signed_in_user("voice-test", "v@example.com")
+    r = client.post(
+        "/api/voice/speak",
+        json={"character": "cypher", "text": "### Reasons for Implicit Deny\n**Security** wins."},
+    )
+    assert r.status_code == 200
+    assert len(fake.calls) == 1
+    assert fake.calls[0][1] == "Reasons for Implicit Deny. Security wins."
+    assert "###" not in r.json()["text"] and "**" not in r.json()["text"]
+    assert r.json()["text"] == "Reasons for Implicit Deny. Security wins."
+
+
+def test_speak_cache_key_is_on_cleaned_text(monkeypatch):
+    """Two differently-marked wordings of the same words clean identically,
+    so the second is a cache hit and the provider is not called again."""
+    fake = FakeProvider()
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    monkeypatch.setenv("CYPHER_VOICE_ID", "voice-cypher-test")
+    _signed_in_user("voice-test", "v@example.com")
+    r1 = client.post("/api/voice/speak", json={"character": "cypher", "text": "## Hello there"})
+    assert r1.json()["cached"] is False
+    r2 = client.post("/api/voice/speak", json={"character": "cypher", "text": "**Hello there**"})
+    assert r2.status_code == 200
+    assert r2.json()["cached"] is True
+    assert len(fake.calls) == 1
