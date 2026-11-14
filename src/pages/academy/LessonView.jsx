@@ -156,26 +156,19 @@ export default function LessonView() {
 
       <VideoExplainer className="mb-8 max-w-reading" />
 
-      {VISUAL_LAB_FOR[lesson.id] && (
-        <Card level={2} padding="sm" className="mb-8 max-w-reading">
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-small text-ink-2">See this concept animated, then configure it yourself.</p>
+      {(VISUAL_LAB_FOR[lesson.id] || labForLesson(lesson.id)) && (
+        <div className="mb-8 flex max-w-reading flex-wrap gap-3">
+          {VISUAL_LAB_FOR[lesson.id] && (
             <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm" icon={Eye} className="w-full justify-center sm:w-auto">
               Open in Visual Lab
             </Button>
-          </div>
-        </Card>
-      )}
-
-      {labForLesson(lesson.id) && (
-        <Card level={2} padding="sm" className="mb-8 max-w-reading">
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-small text-ink-2">Do it for real: a hands-on lab terminal for this lesson's skills.</p>
+          )}
+          {labForLesson(lesson.id) && (
             <Button to={`/labs/${labForLesson(lesson.id)}`} variant="primary" size="sm" icon={TerminalSquare} className="w-full justify-center sm:w-auto">
               Launch Lab
             </Button>
-          </div>
-        </Card>
+          )}
+        </div>
       )}
 
       {missionId && (
