@@ -53,7 +53,7 @@ export default function MissionHandoff({ missionId, lessonId }) {
   }, [voice.play]);
 
   return (
-    <Card level={2} className="mx-auto mt-6 max-w-2xl text-left">
+    <Card level={2} className="mt-6 text-left">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="w-full shrink-0 sm:w-44">
           <CypherViewer voiceRef={voiceRef} />

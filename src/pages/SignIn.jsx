@@ -31,7 +31,7 @@ function SubscriptionSection() {
 
   if (loading) {
     return (
-      <Card level={2} padding="lg" className="mt-4 max-w-reading">
+      <Card level={2} padding="lg" className="mt-4">
         <p className="text-small text-ink-2">Loading subscription…</p>
       </Card>
     );
@@ -40,7 +40,7 @@ function SubscriptionSection() {
   const renewal = currentPeriodEnd ? new Date(currentPeriodEnd).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : null;
 
   return (
-    <Card level={2} padding="lg" className="mt-4 max-w-reading">
+    <Card level={2} padding="lg" className="mt-4">
       <p className="flex items-center gap-2 text-heading font-semibold text-ink-1">
         <CreditCard size={18} aria-hidden="true" /> Subscription
       </p>
@@ -105,7 +105,7 @@ export default function SignIn() {
     return (
       <PageContainer>
         <PageHeader title="Your account" description="Your progress syncs to your account across devices." />
-        <Card level={2} padding="lg" className="max-w-reading">
+        <Card level={2} padding="lg">
           <div className="flex items-center gap-4">
             {user.avatar_url ? (
               <img src={user.avatar_url} alt="" className="h-12 w-12 rounded-full border border-black/10" />
