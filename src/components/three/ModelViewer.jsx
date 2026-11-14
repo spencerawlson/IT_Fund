@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import WebglFallback from './WebglFallback';
 
 export default function ModelViewer({
   buildScene,
@@ -20,6 +21,9 @@ export default function ModelViewer({
   // cameraRef — optional ref filled with the live camera object, so a
   // scene whose camera moves (the SOC focus shots) can aim things at it
   // every frame. The camera is created once, so one assignment is enough.
+  // fallbackImage — optional image shown in the WebGL-failure fallback
+  // (a blueprint sheet for the equipment the scene depicts); without it
+  // the fallback is the plain text notice.
   background = '#F8F7FF',
   reducedMotion = false,
   quality = 'high',
@@ -27,6 +31,7 @@ export default function ModelViewer({
   onInspect,
   interactive = true,
   cameraRef = null,
+  fallbackImage = null,
 }) {
   const mountRef = useRef(null);
   const buildRef = useRef(buildScene);
@@ -247,14 +252,7 @@ export default function ModelViewer({
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl">
       <div ref={mountRef} className="h-full w-full" />
-      {rendererFailed && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-black/10 bg-white/[0.06] p-6">
-          <div className="text-center text-sm text-ink-3">
-            <p className="font-semibold text-ink-1">Visual preview unavailable</p>
-            <p className="mt-2">This lab requires hardware acceleration or WebGL support.</p>
-          </div>
-        </div>
-      )}
+      {rendererFailed && <WebglFallback image={fallbackImage} />}
       {interactive && info && !rendererFailed && (
         <div
           className="pointer-events-none absolute z-10 max-w-[220px] rounded-lg border border-blue-600/30 bg-white/85 backdrop-blur-xl px-3 py-2 text-xs shadow-xl"

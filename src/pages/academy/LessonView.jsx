@@ -9,6 +9,8 @@ import {
 } from '@/components/ui-glass';
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
 import { labForLesson } from '@/data/labLessons';
+import { BLUEPRINTS_FOR_LESSON, BLUEPRINT_POSTER } from '@/data/blueprints';
+import LessonBlueprint from '@/components/academy/lesson/LessonBlueprint';
 import { MISSION_FOR_LESSON } from '@/data/missions';
 import CypherLessonPanel from '@/components/academy/tutor/CypherLessonPanel';
 import { useAcademy } from '@/lib/academy';
@@ -134,7 +136,9 @@ export default function LessonView() {
 
   const sections = [
     c.learn?.length && { id: 'learn', label: 'Learn' },
-    c.architecture && { id: 'architecture', label: 'Architecture' },
+    // A lesson with blueprint sheets gets an Architecture section even
+    // without an ASCII diagram — the sheet is the architecture reference.
+    (c.architecture || (BLUEPRINTS_FOR_LESSON[lesson.id]?.length ?? 0) > 0) && { id: 'architecture', label: 'Architecture' },
     c.examples?.length && { id: 'examples', label: 'Examples' },
     c.cheatSheet?.length && { id: 'cheat-sheet', label: 'Cheat sheet' },
     { id: 'practice', label: 'Practice' },
@@ -214,12 +218,17 @@ export default function LessonView() {
           </Section>
         )}
 
-        {c.architecture && (
+        {(c.architecture || (BLUEPRINTS_FOR_LESSON[lesson.id]?.length ?? 0) > 0) && (
           <Section id="architecture" title="Architecture">
-            <figure>
-              <pre className="overflow-x-auto rounded-control border border-terminal-border bg-terminal-bg p-5 font-mono text-small leading-relaxed text-terminal-text">{c.architecture.diagram}</pre>
-              <figcaption className="mt-3 text-small text-ink-2">{c.architecture.caption}</figcaption>
-            </figure>
+            {c.architecture && (
+              <figure>
+                <pre className="overflow-x-auto rounded-control border border-terminal-border bg-terminal-bg p-5 font-mono text-small leading-relaxed text-terminal-text">{c.architecture.diagram}</pre>
+                <figcaption className="mt-3 text-small text-ink-2">{c.architecture.caption}</figcaption>
+              </figure>
+            )}
+            {(BLUEPRINTS_FOR_LESSON[lesson.id] || []).map((b) => (
+              <LessonBlueprint key={b.src} src={b.src} alt={b.alt} caption={b.caption} />
+            ))}
           </Section>
         )}
 
@@ -289,6 +298,9 @@ export default function LessonView() {
               ))}
             </ul>
           </Card>
+          {BLUEPRINT_POSTER.lessonId === lesson.id && (
+            <LessonBlueprint src={BLUEPRINT_POSTER.src} alt={BLUEPRINT_POSTER.alt} caption={BLUEPRINT_POSTER.caption} />
+          )}
         </section>
       )}
 
