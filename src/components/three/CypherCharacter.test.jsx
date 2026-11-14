@@ -8,6 +8,16 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import CypherViewer, { CYPHER_CLIPS } from './CypherCharacter';
 
+// The new Meshy GLBs embed textures, and Three's GLTFLoader needs a
+// browser image pipeline to decode them (createImageBitmap + self.URL).
+// Plain node has neither, so parsing would reject at loadTexture —
+// unrelated to the asset. These two stubs let the loader finish: the
+// texture pixels are never inspected, only the scene, skin and clips.
+if (typeof globalThis.self === 'undefined') globalThis.self = globalThis;
+if (typeof globalThis.createImageBitmap === 'undefined') {
+  globalThis.createImageBitmap = async () => ({ width: 1, height: 1, close() {} });
+}
+
 // The real Cypher GLB, parsed straight from the repo (no server, no fetch):
 // GLTFLoader.parse reads the bytes, so this proves the shipped asset loads
 // in the same loader the SOC and the lesson panel use.
@@ -43,20 +53,26 @@ describe('cypher.glb', () => {
     // No stray object-action clips (the blink rides the idle clip).
     expect(names).toHaveLength(CYPHER_CLIPS.length);
 
-    // Rigid bone parenting (not vertex skinning): meshes are parented to
-    // bones, and the clips animate the bones. So assert the bone hierarchy
-    // is there, not a SkinnedMesh.
+    // Vertex skinning (Meshy rig): ONE SkinnedMesh driven by a 24-bone
+    // skeleton — not the procedural model's rigid bone parenting.
     let bones = 0;
-    let meshesParentedToBones = 0;
+    let skinnedMeshes = 0;
     let headBone = null;
+    let chestBone = null;
     gltf.scene.traverse((obj) => {
       if (obj.isBone) bones += 1;
       if (obj.isBone && obj.name === 'head') headBone = obj;
-      if (obj.isMesh && obj.parent?.isBone) meshesParentedToBones += 1;
+      if (obj.isBone && obj.name === 'chest') chestBone = obj;
+      if (obj.isSkinnedMesh) {
+        skinnedMeshes += 1;
+        expect(obj.skeleton).toBeTruthy();
+        expect(obj.skeleton.bones.length).toBe(24);
+      }
     });
-    expect(bones).toBe(26);
-    expect(meshesParentedToBones).toBeGreaterThan(0);
+    expect(bones).toBe(24);
+    expect(skinnedMeshes).toBe(1);
     expect(headBone).toBeTruthy();
+    expect(chestBone).toBeTruthy();
   });
 
   it('plays each clip on an AnimationMixer without throwing', async () => {
@@ -85,6 +101,23 @@ describe('cypher.glb', () => {
     expect(triangles).toBeLessThan(50_000);
     expect(fs.statSync(GLB_PATH).size).toBeLessThan(2_000_000);
   });
+
+  it('is the real 1.70 m model with the chest bone at 0.88 m', async () => {
+    const gltf = await parseGlb();
+    const box = new THREE.Box3().setFromObject(gltf.scene);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    expect(size.y).toBeCloseTo(1.70, 1);
+    let chest = null;
+    gltf.scene.traverse((obj) => {
+      if (!chest && obj.isBone && obj.name === 'chest') chest = obj;
+    });
+    expect(chest).toBeTruthy();
+    gltf.scene.updateMatrixWorld(true);
+    const chestPos = new THREE.Vector3();
+    chest.getWorldPosition(chestPos);
+    expect(chestPos.y).toBeCloseTo(0.88, 1);
+  });
 });
 
 describe('CypherViewer', () => {
@@ -95,6 +128,32 @@ describe('CypherViewer', () => {
     expect(html).not.toContain('Drag to rotate');
     expect(html).not.toContain('Scroll to zoom');
     expect(html).not.toContain('Click parts for info');
+  });
+
+  it('frames the real 1.70 m Cypher head-to-toe in the panel camera', () => {
+    // The panel camera is [0, 1.6, 5.2] -> target [0, 0.85, 0], FOV 42
+    // (see CypherViewer). At 5.2 m the vertical coverage is
+    // 2 * 5.2 * tan(21°) ~= 3.99 units, so the 1.70 m model fills ~43% of
+    // the frame height — a full-body presenter, not a cropped torso.
+    const cam = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
+    cam.position.set(0, 1.6, 5.2);
+    cam.lookAt(0, 0.85, 0);
+    cam.updateMatrixWorld(true);
+    const projectPx = (v) => {
+      const p = v.clone().project(cam);
+      return { x: (p.x + 1) / 2 * 224, y: (1 - p.y) / 2 * 224, behind: p.z > 1 };
+    };
+    const feet = projectPx(new THREE.Vector3(0, 0, 0));
+    const head = projectPx(new THREE.Vector3(0, 1.704, 0));
+    expect(feet.behind).toBe(false);
+    expect(head.behind).toBe(false);
+    for (const px of [feet, head]) {
+      expect(px.x).toBeGreaterThanOrEqual(0);
+      expect(px.x).toBeLessThanOrEqual(224);
+      expect(px.y).toBeGreaterThanOrEqual(0);
+      expect(px.y).toBeLessThanOrEqual(224);
+    }
+    expect(feet.y - head.y).toBeGreaterThanOrEqual(80);
   });
 });
 

@@ -45,10 +45,10 @@ export function fitNameFont(ctx, text, startPx, maxWidth) {
   return Math.max(1, Math.floor((startPx * maxWidth) / measured));
 }
 
-// Tag centre, local to the chest bone (the bone sits at ~1.10 m; the torso
-// front is z 0.255 in the chest band, measured from cypher.glb): just proud
-// of the chest so it never z-fights the body.
-export const NAME_TAG_CHEST_OFFSET = { x: 0, y: 0.05, z: 0.27 };
+// Tag centre, local to the chest bone (the bone sits at 0.88 m in the real
+// Meshy cypher.glb; the torso front is z 0.194 in the chest band, measured
+// from the GLB): just proud of the chest so it never z-fights the body.
+export const NAME_TAG_CHEST_OFFSET = { x: 0, y: 0.05, z: 0.21 };
 
 function roundRectPath(ctx, x, y, w, h, r) {
   ctx.beginPath();
