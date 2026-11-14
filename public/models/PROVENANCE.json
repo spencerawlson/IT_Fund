@@ -1,37 +1,100 @@
 {
-  "router": {
-    "title": "Modern Router",
-    "author": "J-Toastie",
-    "licence": "CC-BY 3.0",
+  "cloud": {
+    "author": "Quaternius",
+    "licence": "CC0 1.0",
+    "query": "cloud",
     "source": "https://poly.pizza",
-    "query": "wifi router"
-  },
-  "server": {
-    "title": "server rack",
-    "author": "Jeremy Eyring",
-    "licence": "CC-BY 3.0",
-    "source": "https://poly.pizza",
-    "query": "server"
+    "title": "Cloud"
   },
   "firewall": {
-    "title": "Wall",
     "author": "Quaternius",
     "licence": "CC0 1.0",
+    "query": "wall",
     "source": "https://poly.pizza",
-    "query": "wall"
+    "title": "Wall"
   },
-  "cloud": {
-    "title": "Cloud",
-    "author": "Quaternius",
-    "licence": "CC0 1.0",
-    "source": "https://poly.pizza",
-    "query": "cloud"
+  "lab-access-point": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "title": "R2C Wireless Access Point"
+  },
+  "lab-cloud": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "title": "R2C Cloud Computing Architecture"
+  },
+  "lab-firewall": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 100,896 tris, untextured",
+    "title": "R2C Next-Generation Firewall"
+  },
+  "lab-nas": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris (two-stage: gltf-transform meshopt, then Blender)",
+    "title": "R2C NAS Storage Appliance"
+  },
+  "lab-rack-server": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 56,359 tris, untextured",
+    "title": "R2C Rack Server 2U"
+  },
+  "lab-router": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "title": "R2C Enterprise Router ER1000"
+  },
+  "lab-server-rack": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris (two-stage: gltf-transform meshopt, then Blender)",
+    "title": "R2C 42U Server Rack"
+  },
+  "lab-switch": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "title": "R2C 48-Port Managed Network Switch"
+  },
+  "lab-ups": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "title": "R2C Rack-Mounted UPS"
   },
   "pc": {
-    "title": "Computer",
     "author": "CreativeTrio",
     "licence": "CC0 1.0",
+    "query": "desktop computer",
     "source": "https://poly.pizza",
-    "query": "desktop computer"
+    "title": "Computer"
+  },
+  "router": {
+    "author": "J-Toastie",
+    "licence": "CC-BY 3.0",
+    "query": "wifi router",
+    "source": "https://poly.pizza",
+    "title": "Modern Router"
+  },
+  "server": {
+    "author": "Jeremy Eyring",
+    "licence": "CC-BY 3.0",
+    "query": "server",
+    "source": "https://poly.pizza",
+    "title": "server rack"
   }
 }

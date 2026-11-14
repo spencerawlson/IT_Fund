@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, Cpu, Network, ArrowRightLeft, Radio, Server, Shuffle, Gauge, Cloud, Layers,
   GitBranch, Calculator, TerminalSquare, Globe, Shield, KeyRound, Zap, CloudCog, Database,
-  Container, Lock, Route as RouteIcon, ShieldAlert, Search, Boxes, Wrench,
+  Container, Lock, Route as RouteIcon, ShieldAlert, Search, Boxes, Wrench, Router, Wifi,
+  HardDrive, BatteryCharging, ShieldCheck,
 } from 'lucide-react';
 // 3D scenes are code-split: three.js (~600 KB) only loads when a 3D subject is opened,
 // never as part of the initial bundle.
@@ -13,6 +14,13 @@ const ServerRack3D = React.lazy(() => import('@/components/three/ServerRack3D'))
 const Vpc3D = React.lazy(() => import('@/components/three/Vpc3D'));
 const LoadBalancer3D = React.lazy(() => import('@/components/three/LoadBalancer3D'));
 const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
+const Router3D = React.lazy(() => import('@/components/three/Router3D'));
+const Firewall3D = React.lazy(() => import('@/components/three/Firewall3D'));
+const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
+const Nas3D = React.lazy(() => import('@/components/three/Nas3D'));
+const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
+const RackServer3D = React.lazy(() => import('@/components/three/RackServer3D'));
+const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
@@ -53,13 +61,17 @@ import Seo from '@/components/Seo';
 const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Security', 'Data & Systems', 'DevOps'];
 
 // The curated core, shown in the gallery. Every entry is genuinely visual or interactive.
-const SUBJECTS = [
+export const SUBJECTS = [
   // Hardware
   { id: 'motherboard', category: 'Hardware', kind: '3d', icon: Cpu, label: '3D Motherboard', blurb: 'Rotate a real board — CPU socket, RAM, PCIe, chipset, and power paths.' },
   { id: 'switch', category: 'Hardware', kind: '3d', icon: Network, label: '3D Network Switch', blurb: 'Explore ports, uplinks, and status LEDs on a managed switch.' },
   { id: 'server-rack', category: 'Hardware', kind: '3d', icon: Server, label: '3D Server Rack', blurb: 'Inspect servers, top-of-rack switch, PDU, and UPS in a data-center rack.' },
+  { id: 'rack-server', category: 'Hardware', kind: '3d', icon: Server, label: '3D Rack Server', blurb: 'A real 2U rack server — drive bays, power supplies, cooling fans, and management port.' },
+  { id: 'ups', category: 'Hardware', kind: '3d', icon: BatteryCharging, label: '3D UPS', blurb: 'Rack-mounted battery backup — status display, protected outlets, and how it keeps servers alive.' },
   // Networking
   { id: 'osi', category: 'Networking', kind: '3d', icon: Layers, label: 'OSI Model', blurb: 'Climb the seven layers as a 3D stack, from cabling to application.' },
+  { id: 'router', category: 'Networking', kind: '3d', icon: Router, label: '3D Enterprise Router', blurb: 'A real edge router — WAN and LAN ports, management and console access, and where it sits in the topology.' },
+  { id: 'access-point', category: 'Networking', kind: '3d', icon: Wifi, label: '3D Wireless Access Point', blurb: 'Ceiling-mounted Wi-Fi — status ring, PoE uplink, and how far its signal reaches.' },
   { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
   { id: 'udp', category: 'Networking', kind: 'anim', icon: Radio, label: 'UDP Datagrams', blurb: 'See fire-and-forget delivery — fast, connectionless, and lossy.' },
   { id: 'dns', category: 'Networking', kind: 'anim', icon: Globe, label: 'DNS Resolution', blurb: 'Follow a name through root, TLD, and authoritative servers.' },
@@ -76,6 +88,7 @@ const SUBJECTS = [
   { id: 'rt-link-failure', category: 'Routing', kind: 'anim', icon: Zap, label: 'Link Failure & Reconvergence', blurb: 'A link fails; watch the network recompute paths and reroute.' },
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
+  { id: 'cloud', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: '3D Cloud Architecture', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
   { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'See traffic fan out with health checks and fast failover.' },
   { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
   { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
@@ -85,9 +98,11 @@ const SUBJECTS = [
   { id: 'tls', category: 'Security', kind: 'anim', icon: Lock, label: 'TLS Handshake', blurb: 'Certificate validation, key exchange, and encrypted records.' },
   { id: 'encryption', category: 'Security', kind: 'anim', icon: KeyRound, label: 'Encryption', blurb: 'Watch plaintext become ciphertext, and back again.' },
   { id: 'firewall', category: 'Security', kind: 'anim', icon: Shield, label: 'Firewall Rules', blurb: 'See packets allowed or dropped as rule order is evaluated.' },
+  { id: 'firewall-3d', category: 'Security', kind: '3d', icon: ShieldCheck, label: '3D Next-Gen Firewall', blurb: 'A real NGFW appliance — LAN and WAN ports, SFP+ uplinks, and the security module bay.' },
   { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
   // Data & Systems
   { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
+  { id: 'nas', category: 'Data & Systems', kind: '3d', icon: HardDrive, label: '3D NAS Storage', blurb: 'A real 8-bay NAS appliance — hot-swap drive bays, network ports, and redundant power.' },
   { id: 'system-architecture', category: 'Data & Systems', kind: 'flow', icon: Boxes, label: 'System Architecture', blurb: 'A resilient request path with caching, failover, and observability.' },
   { id: 'cloud-migration', category: 'Data & Systems', kind: 'flow', icon: CloudCog, label: 'Cloud Migration', blurb: 'Assess, lift-and-shift, refactor, then optimize.' },
   { id: 'capacity-planning', category: 'Data & Systems', kind: 'flow', icon: Gauge, label: 'Capacity Planning', blurb: 'From workload inputs to a validated, cost-aware plan.' },
@@ -109,8 +124,11 @@ const ALIASES = {
 
 // Every renderable subject id -> how to render it. Superset of the gallery, so deep-links survive
 // curation. Flow subjects are data-driven via FlowDiagram.
-const RENDERERS = {
+export const RENDERERS = {
   motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
+  'rack-server': RackServer3D, ups: Ups3D,
+  router: Router3D, 'access-point': AccessPoint3D,
+  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: Nas3D,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,

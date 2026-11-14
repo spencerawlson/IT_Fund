@@ -61,7 +61,17 @@ describe('blueprints map', () => {
   });
 
   it('Visual Lab fallbacks point at real sheets for real 3D subjects', () => {
-    expect(Object.keys(FALLBACK_BLUEPRINT_FOR_SUBJECT).sort()).toEqual(['server-rack', 'switch']);
+    expect(Object.keys(FALLBACK_BLUEPRINT_FOR_SUBJECT).sort()).toEqual([
+      'access-point',
+      'cloud',
+      'firewall-3d',
+      'nas',
+      'rack-server',
+      'router',
+      'server-rack',
+      'switch',
+      'ups',
+    ]);
     for (const src of Object.values(FALLBACK_BLUEPRINT_FOR_SUBJECT)) {
       assertBlueprintFile(src);
     }

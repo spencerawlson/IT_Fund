@@ -1,8 +1,13 @@
 import React from 'react';
 import * as THREE from 'three';
-import ModelViewer from './ModelViewer';
+import GltfSubject, { labModelUrl } from './GltfSubject';
 import { addLabel } from './labels';
 import { FALLBACK_BLUEPRINT_FOR_SUBJECT } from '@/data/blueprints';
+
+// Default export: the real 48-port switch (Spencer's own Meshy model,
+// slimmed for the web — see GltfSubject.jsx). The procedural builder
+// below stays exported: the mission SOC topology view still uses it as
+// the fallback when its own switch model cannot load.
 
 function addBox(scene, parts, o) {
   const geo = new THREE.BoxGeometry(o.w, o.h, o.d);
@@ -175,6 +180,21 @@ export function buildSwitch(scene) {
 }
 
 export default function Switch3D() {
-  // When WebGL cannot start, the switch blueprint sheet stands in for the scene.
-  return <ModelViewer buildScene={buildSwitch} cameraPos={[14, 9, 16]} target={[0, 0.2, 0]} fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT.switch} />;
+  return (
+    <GltfSubject
+      modelUrl={labModelUrl('lab-switch.glb')}
+      cameraPos={[13, 8, 15]}
+      target={[0, 1, 0]}
+      fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT.switch}
+      label="48-Port Managed Switch"
+      desc="Managed switch: forwards Ethernet frames by MAC address within the LAN. Forty-eight RJ45 ports plus SFP+ uplinks — this is the device that connects every machine in a rack to the rest of the network."
+      annotations={[
+        { text: 'Status LEDs', at: [-0.85, 0.7, 1.08] },
+        { text: '48× RJ45 Ports', at: [-0.1, 0.7, 1.08] },
+        { text: 'SFP+ Uplinks', at: [0.75, 0.7, 1.08] },
+      ]}
+    />
+  );
 }
+
+// Procedural builder — kept for the topology fallback (deviceModels.js).

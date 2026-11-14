@@ -1,8 +1,13 @@
 import React from 'react';
 import * as THREE from 'three';
-import ModelViewer from './ModelViewer';
+import GltfSubject, { labModelUrl } from './GltfSubject';
 import { addLabel } from './labels';
 import { FALLBACK_BLUEPRINT_FOR_SUBJECT } from '@/data/blueprints';
+
+// Default export: the real 42U server rack (Spencer's own Meshy model,
+// slimmed for the web — see GltfSubject.jsx). The procedural builder
+// below stays exported: the mission SOC topology view still uses it as
+// the fallback when its own rack model cannot load.
 
 function addBox(scene, parts, o) {
   const geo = new THREE.BoxGeometry(o.w, o.h, o.d);
@@ -119,6 +124,20 @@ export function buildRack(scene) {
 }
 
 export default function ServerRack3D() {
-  // When WebGL cannot start, the 42U rack sheet stands in for the scene.
-  return <ModelViewer buildScene={buildRack} cameraPos={[22, 16, 26]} target={[0, 9, 0]} fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT['server-rack']} />;
+  return (
+    <GltfSubject
+      modelUrl={labModelUrl('lab-server-rack.glb')}
+      cameraPos={[15, 12, 19]}
+      target={[0, 7, 0]}
+      fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT['server-rack']}
+      label="42U Server Rack"
+      desc="A 42U rack holds the whole data centre in one frame: servers, top-of-rack switch, PDU, and UPS — forty-two rack units of compute, storage, and power."
+      annotations={[
+        { text: 'Top-of-Rack Switch', at: [0, 0.88, 1.08] },
+        { text: 'Servers', at: [0, 0.5, 1.08] },
+      ]}
+    />
+  );
 }
+
+// Procedural builder — kept for the topology fallback (deviceModels.js).
