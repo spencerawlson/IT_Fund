@@ -14,7 +14,10 @@ procedural Visual-Lab model for that role, so the scene always renders.
 | `firewall.glb` | firewalls |
 | `cloud.glb` | internet / upstream cloud |
 | `pc.glb` | workstations / hosts |
-| `cypher.glb` | Cypher, the 3D AI tutor robot in the SOC room (Cyber Missions Phase 2). Original work — modelled procedurally in Blender from the approved character sheets, not a third-party asset. 1.70 m tall, 10,066 triangles, 6 animation clips (idle, walk, talk, point, greeting, thinking). Source: `assets/blender/cypher.blend`, rebuilt by `assets/blender/build_cypher.py`. |
+| `cypher.glb` | Cypher, the 3D AI tutor robot in the SOC room (Cyber Missions Phase 2). Spencer's own Meshy AI generation (PRO account spencerawlson.gobold), rigged + optimized in Blender, 1.70 m tall, 20,000 triangles, 24 bones, 1 SkinnedMesh, 6 animation clips (idle, walk, talk, point, greeting, thinking). Build sources stay out of the repo: `~/workspace/meshy-robots-work/` (build_robot.py + cypher.blend). Replaces the earlier procedural build (its source stays at `assets/blender/cypher.blend` as history). |
+| `sentinel.glb` | Sentinel, the commander robot in the SOC room. Spencer's own Meshy AI generation, same rig shape as Cypher (1.70 m, 20,000 triangles, 24 bones, 6 clips). |
+| `patch.glb` | Patch, the systems-engineer robot in the SOC room. Spencer's own Meshy AI generation, same rig shape (1.70 m, 1.40 m wide on tank treads, 20,000 triangles, 24 bones, 6 clips — his walk is a bob/rock, driven as-is). |
+| `datacenter.glb` | The data-center room the SOC scene lives in. Spencer's own Meshy AI generation, 4.85 × 2.70 × 5.21 m, 60,000 triangles, static (no bones, no clips). |
 
 Keep each model reasonably low-poly (ideally < 1–2 MB) — they're scaled to a
 uniform footprint, so absolute size/orientation don't need to match, but a model
@@ -36,4 +39,7 @@ and record the source + license below.
 
 | File | Source URL | License | Author |
 |---|---|---|---|
-| | | | |
+| cypher.glb | Meshy AI (meshy.ai), generated 2026-11-13 on Spencer's PRO account | Spencer's own generation | spencerawlson |
+| sentinel.glb | Meshy AI (meshy.ai), generated 2026-11-13 on Spencer's PRO account | Spencer's own generation | spencerawlson |
+| patch.glb | Meshy AI (meshy.ai), generated 2026-11-13 on Spencer's PRO account | Spencer's own generation | spencerawlson |
+| datacenter.glb | Meshy AI (meshy.ai), generated 2026-11-13 on Spencer's PRO account | Spencer's own generation | spencerawlson |

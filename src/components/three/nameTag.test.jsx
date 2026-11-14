@@ -4,12 +4,22 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+// Same node polyfills as CypherCharacter.test.jsx: the Meshy cypher.glb
+// embeds textures, and Three's GLTFLoader needs a browser image pipeline
+// to decode them. The texture pixels are never inspected — only the chest
+// bone and the tag placement.
+if (typeof globalThis.self === 'undefined') globalThis.self = globalThis;
+if (typeof globalThis.createImageBitmap === 'undefined') {
+  globalThis.createImageBitmap = async () => ({ width: 1, height: 1, close() {} });
+}
 import {
   CYPHER_NAME_TAG_TEXT,
   NAME_TAG_WIDTH,
   NAME_TAG_HEIGHT,
   NAME_TAG_CANVAS_HEIGHT,
   NAME_TAG_NAME_FONT_PX,
+  NAME_TAG_CHEST_OFFSET,
   NAME_CAP_HEIGHT_RATIO,
   drawNameTag,
   fitNameFont,
@@ -170,7 +180,7 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
   it('pins the tag to the chest bone, in front of the torso, facing the camera', async () => {
     const gltf = await parseGlb();
     const group = gltf.scene;
-    // Mirror the SOC: real scale 1.70 m scaled 3.0x, standing at his spot,
+    // Mirror the SOC: real scale 1.70 m scaled 5.0x, standing at his spot,
     // facing the camera (the learner); camera fixed at SOC_CAMERA_POS.
     group.scale.setScalar(CYPHER_SPAWN.scale);
     group.rotation.y = CYPHER_SPAWN.rotationY;
@@ -192,11 +202,11 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
     group.updateMatrixWorld(true);
     const tagPos = new THREE.Vector3();
     tag.getWorldPosition(tagPos);
-    // Chest height in the SOC (chest bone ~1.10 m x 3.0 scale, plus the
-    // 0.05 local tag offset): ~3.45.
-    expect(tagPos.y).toBeGreaterThan(3.1);
-    expect(tagPos.y).toBeLessThan(3.8);
-    // In front of the torso (chest front is z 0.255 in model units): the
+    // Chest height in the SOC (chest bone 0.88 m x 5.0 scale, plus the
+    // 0.05 local tag offset): ~4.65.
+    expect(tagPos.y).toBeGreaterThan(4.4);
+    expect(tagPos.y).toBeLessThan(4.9);
+    // In front of the torso (chest front is z 0.194 in model units): the
     // tag sits proud of the chest along the direction Cypher faces
     // (group +Z rotated to face the camera), not inside the body.
     const chestBone = (() => {
@@ -210,8 +220,12 @@ describe('attachCypherNameTag (real cypher.glb)', () => {
       Math.sin(CYPHER_SPAWN.rotationY), 0, Math.cos(CYPHER_SPAWN.rotationY),
     );
     const proud = tagPos.clone().sub(chestPos).dot(facingDir);
-    expect(proud).toBeGreaterThan(0.7); // 0.27 model units x 3.0 scale = 0.81
-    const toCamera = new THREE.Vector3(...cameraPos).sub(tagPos).normalize();
+    expect(proud).toBeGreaterThan(1.0); // 0.21 model units x 5.0 scale = 1.05
+    // Same-height direction to the camera: the tag yaws but never tilts
+    // (faceTagToCamera aims at the tag's own height), and the SOC camera
+    // sits high (16 units) above the tag (4.65), so the full 3D direction
+    // would read ~40° off even when the yaw is exact.
+    const toCamera = new THREE.Vector3(cameraPos[0], tagPos.y, cameraPos[2]).sub(tagPos).normalize();
 
     // Facing the camera (world +Z of the tag points at it). He faces the
     // camera now, so the yaw is small — the tag still yaws every tick, so
@@ -235,7 +249,9 @@ describe('faceTagToCamera', () => {
     parent.rotation.y = CYPHER_SPAWN.rotationY;
     parent.position.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
     const tag = makeNameTag({ createCanvas: fakeCanvasFactory() });
-    tag.position.set(0, 0.05, 0.27);
+    tag.position.set(
+      NAME_TAG_CHEST_OFFSET.x, NAME_TAG_CHEST_OFFSET.y, NAME_TAG_CHEST_OFFSET.z,
+    );
     parent.add(tag);
     parent.updateMatrixWorld(true);
 

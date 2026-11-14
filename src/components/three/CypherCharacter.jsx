@@ -1,27 +1,31 @@
 import React, { useCallback, useRef } from 'react';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import ModelViewer from '@/components/three/ModelViewer';
-import { modelUrl } from '@/components/three/deviceModels';
+import {
+  ROBOT_CLIPS as CYPHER_CLIPS,
+  ROBOT_LOOP_CLIPS as CYPHER_LOOP_CLIPS,
+  ROBOT_ONE_SHOT_CLIPS as CYPHER_ONE_SHOT_CLIPS,
+  loadRobotCharacter,
+  preloadRobotCharacter,
+} from '@/components/three/RobotCharacter';
 
 // Cypher, the 3D AI tutor robot (Cyber Missions Phase 2). The model is the
-// real Blender build (public/models/cypher.glb, source assets/blender/) —
-// 1.70 m tall, 26 bones, 6 animation clips. No placeholder: if the GLB
-// fails to load, the caller keeps its fallback (the SOC keeps its devices,
-// the lesson panel hides the 3D view and keeps the text tutor).
+// real Meshy build (public/models/cypher.glb) — 1.70 m tall, 24 bones,
+// 1 SkinnedMesh, 6 animation clips. No placeholder: if the GLB fails to
+// load, the caller keeps its fallback (the SOC keeps its devices, the
+// lesson panel hides the 3D view and keeps the text tutor).
+//
+// The loader itself lives in RobotCharacter.jsx — Cypher, Sentinel and
+// Patch share one rig shape and one clip set, so one loader drives all
+// three. This module keeps Cypher's public API (clip names, preload,
+// loader, viewer) so existing imports keep working.
 
-export const CYPHER_CLIPS = ['idle', 'walk', 'talk', 'point', 'greeting', 'thinking'];
-export const CYPHER_LOOP_CLIPS = new Set(['idle', 'walk', 'talk', 'thinking']);
-// One-shot clips return to idle when they finish.
-export const CYPHER_ONE_SHOT_CLIPS = new Set(['point', 'greeting']);
+export { CYPHER_CLIPS, CYPHER_LOOP_CLIPS, CYPHER_ONE_SHOT_CLIPS };
 
-let _loader = null;
-function loader() {
-  if (!_loader) _loader = new GLTFLoader();
-  return _loader;
+/** Load cypher.glb and return its clip controller (see RobotCharacter). */
+export function loadCypherCharacter() {
+  return loadRobotCharacter('cypher');
 }
 
-let _cypherPreload = null;
 /**
  * Warm the browser cache for cypher.glb so the SOC scene's load resolves
  * fast on direct entry, not only on the handoff path (whose lesson panel
@@ -31,120 +35,7 @@ let _cypherPreload = null;
  * fetch implementation (SSR / node) it is a no-op.
  */
 export function preloadCypherCharacter(fetchImpl) {
-  if (_cypherPreload) return _cypherPreload;
-  const doFetch = fetchImpl || (typeof fetch === 'function' ? fetch : null);
-  if (!doFetch) {
-    _cypherPreload = Promise.resolve();
-    return _cypherPreload;
-  }
-  try {
-    _cypherPreload = Promise.resolve(doFetch(modelUrl('cypher')))
-      .then(() => undefined)
-      .catch(() => undefined);
-  } catch {
-    _cypherPreload = Promise.resolve();
-  }
-  return _cypherPreload;
-}
-
-/**
- * Load cypher.glb and return a controller for the rig:
- * { group, mixer, clips, play(name), setTalking(bool), setTalkLevel(0..1),
- *   update(dt), dispose() }.
- * - play(name) crossfades to the named clip (one-shots return to idle).
- * - setTalking(true) plays the talk loop; setTalking(false) returns to idle.
- * - setTalkLevel(level) is the audio-reactive face: the voice hook feeds it
- *   the analyser level while audio plays, and the head bobs a little more
- *   with it. It is applied after mixer.update() each frame, so it rides on
- *   top of whatever clip is playing and never fights the mixer.
- * The caller owns the group: add it to the scene, remove + dispose() on cleanup.
- */
-export function loadCypherCharacter() {
-  return new Promise((resolve, reject) => {
-    loader().load(
-      modelUrl('cypher'),
-      (gltf) => {
-        const group = gltf.scene;
-        const clips = {};
-        gltf.animations.forEach((clip) => { clips[clip.name] = clip; });
-        const mixer = new THREE.AnimationMixer(group);
-        let current = null;
-        let currentName = null;
-        let talking = false;
-        let talkLevel = 0;
-        let headBone = null;
-        group.traverse((obj) => {
-          if (!headBone && obj.name === 'head' && obj.isBone) headBone = obj;
-        });
-
-        const play = (name) => {
-          const clip = clips[name];
-          if (!clip) return false;
-          if (currentName === name) return true;
-          const next = mixer.clipAction(clip);
-          next.setLoop(
-            CYPHER_LOOP_CLIPS.has(name) ? THREE.LoopRepeat : THREE.LoopOnce,
-            Infinity,
-          );
-          next.clampWhenFinished = true;
-          if (current) current.fadeOut(0.2);
-          next.reset().fadeIn(0.2).play();
-          current = next;
-          currentName = name;
-          return true;
-        };
-
-        mixer.addEventListener('finished', () => {
-          if (currentName && CYPHER_ONE_SHOT_CLIPS.has(currentName)) {
-            if (talking) play('talk');
-            else play('idle');
-          }
-        });
-
-        const setTalking = (on) => {
-          talking = !!on;
-          if (talking) play('talk');
-          else if (currentName === 'talk') play('idle');
-        };
-
-        const update = (dt) => {
-          mixer.update(dt);
-          // Audio-reactive head bob, on top of the clip pose.
-          if (talking && headBone && talkLevel > 0.02) {
-            headBone.rotation.x += talkLevel * 0.06 * Math.sin(performance.now() / 90);
-          }
-        };
-
-        const dispose = () => {
-          mixer.stopAllAction();
-          mixer.uncacheRoot(group);
-          group.traverse((obj) => {
-            if (obj.geometry) obj.geometry.dispose();
-            if (obj.material) {
-              if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
-              else obj.material.dispose();
-            }
-          });
-        };
-
-        play('idle');
-        resolve({
-          group,
-          mixer,
-          clips,
-          clipNames: Object.keys(clips),
-          play,
-          setTalking,
-          setTalkLevel: (level) => { talkLevel = Math.max(0, Math.min(1, level || 0)); },
-          isTalking: () => talking,
-          update,
-          dispose,
-        });
-      },
-      undefined,
-      (err) => reject(err),
-    );
-  });
+  return preloadRobotCharacter('cypher', fetchImpl);
 }
 
 /**

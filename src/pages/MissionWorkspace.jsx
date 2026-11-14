@@ -176,16 +176,18 @@ export default function MissionWorkspace() {
     return () => { live = false; };
   }, [missionId]);
 
-  // Warm the Cypher GLB cache on mount: on direct entry the SOC scene would
-  // otherwise load cypher.glb cold (the lesson handoff path pre-warms it via
-  // the lesson panel, which is why Cypher appeared there first). Dynamic
-  // import so three.js stays out of the main chunk — this shares the chunk
-  // the lazy SOC scene loads, it just starts the fetch earlier.
+  // Warm the mission GLB cache on mount: on direct entry the SOC scene
+  // would otherwise load cypher.glb cold (the lesson handoff path
+  // pre-warms it via the lesson panel, which is why Cypher appeared there
+  // first). The SOC now needs all four mission models — the three robots
+  // plus the data-center room — so preload them all. Dynamic import so
+  // three.js stays out of the main chunk — this shares the chunk the lazy
+  // SOC scene loads, it just starts the fetches earlier.
   useEffect(() => {
     let cancelled = false;
-    import('@/components/three/CypherCharacter')
-      .then((m) => { if (!cancelled) m.preloadCypherCharacter(); })
-      .catch(() => { /* Cypher loads on demand in the SOC scene */ });
+    import('@/components/three/RobotCharacter')
+      .then((m) => { if (!cancelled) m.preloadMissionRobots(); })
+      .catch(() => { /* The robots load on demand in the SOC scene */ });
     return () => { cancelled = true; };
   }, []);
 
