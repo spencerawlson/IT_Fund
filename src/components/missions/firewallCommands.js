@@ -123,12 +123,37 @@ export function withR1Connect(commands) {
 }
 
 /** Run a sequence through an exec function one command at a time, awaiting
- *  each. Returns the list of { command, output, exit_code } results. */
+ *  each. Returns the list of { command, output, exit_code } results.
+ *
+ *  A failed command is retried ONCE when the failure is a transient network
+ *  error (fetch rejecting with TypeError "Failed to fetch"): the live
+ *  Apply-after-reset failure (2026-11-13) was one exec in the Apply
+ *  sequence dying that way and killing the whole sequence with a red error,
+ *  even though the next attempt would have landed. The console's commands
+ *  are idempotent (connect/enable/interface/ip access-group/end re-issue
+ *  cleanly; a re-issued access-list line at worst duplicates a rule, which
+ *  first-match makes harmless), so re-issuing the failed one is safe.
+ *  HTTP errors (404 dead session, 402, 429, ...) are NOT retried — they
+ *  fail fast; a dead session is recovered one level up, in
+ *  MissionWorkspace's exec wrapper. */
 export async function runCommandSequence(exec, commands) {
   const results = [];
   for (const command of commands) {
-    const res = await exec(command);
-    results.push({ command, output: res?.output ?? '', exit_code: res?.exit_code ?? 0 });
+    let retries = 0;
+    for (;;) {
+      try {
+        const res = await exec(command);
+        results.push({ command, output: res?.output ?? '', exit_code: res?.exit_code ?? 0 });
+        break;
+      } catch (e) {
+        const transient = e instanceof TypeError || /failed to fetch/i.test(e?.message || '');
+        if (transient && retries < 1) {
+          retries += 1;
+          continue;
+        }
+        throw e;
+      }
+    }
   }
   return results;
 }

@@ -302,6 +302,72 @@ def test_deny_appended_after_permit_any_does_not_block_guest_but_rebuild_does():
     assert s.progress["trusted-allowed"] is True
 
 
+def test_apply_after_reset_lands():
+    # Regression for the live PR #58 verification (2026-11-13 23:40 EST):
+    # after "Reset the lab", the standalone "Apply to Gi0/1 out" button
+    # failed ("Failed to fetch", then "Lab session not found.") while the
+    # other console buttons kept working and a fresh page load worked.
+    # The backend half of that story is clean: a reset keeps the SAME
+    # session id, clears the findings, and the full deny -> permit ->
+    # apply flow lands on the reset session — including after a second
+    # reset. (The live failure was a lost in-memory session on the host;
+    # the console now recovers from that instead of dying — see
+    # MissionWorkspace's session recovery. This test pins the backend
+    # contract it relies on.)
+    svc = SessionService()
+    s = asyncio.run(svc.start("net-acl-001", "u1"))
+    sid = s.id
+    for c in ["connect R1", "enable", "conf t",
+              "access-list 10 deny host 192.168.1.20", "access-list 10 permit any",
+              "interface gi0/1", "ip access-group 10 out", "end"]:
+        s, _ = asyncio.run(svc.exec_command(sid, "u1", c))
+    assert s.progress["apply"] is True
+    assert s.progress["guest-blocked"] is True
+
+    # Reset keeps the session id and clears the work.
+    s = asyncio.run(svc.reset(sid, "u1"))
+    assert s.id == sid
+    assert s.progress["apply"] is False
+    assert s.findings.get("config") in (None, {})
+
+    # Standalone Apply on the reset session: the six execs complete
+    # (no "Lab session not found"). The apply objective itself stays
+    # open — there is no list to apply yet — which is correct IOS
+    # semantics, not a failure.
+    for c in ["connect R1", "enable", "conf t",
+              "interface gi0/1", "ip access-group 10 out", "end"]:
+        s, _ = asyncio.run(svc.exec_command(sid, "u1", c))
+    assert s.progress["apply"] is False
+
+    # The full flow lands on the reset session — and again after a
+    # second reset, the exact shape of the live failure.
+    s = asyncio.run(svc.reset(sid, "u1"))
+    for c in ["connect R1", "enable", "conf t",
+              "access-list 10 deny host 192.168.1.20", "access-list 10 permit any",
+              "interface gi0/1", "ip access-group 10 out", "end"]:
+        s, _ = asyncio.run(svc.exec_command(sid, "u1", c))
+    assert s.progress["apply"] is True
+    assert s.progress["guest-blocked"] is True
+    assert s.progress["trusted-allowed"] is True
+
+
+def test_exec_on_destroyed_session_raises_not_found():
+    # The error the console's session recovery keys on: exec against a
+    # session that no longer exists (destroyed, or lost with a backend
+    # restart) raises LabError not_found, "Lab session not found."
+    svc = SessionService()
+    s = asyncio.run(svc.start("net-acl-001", "u1"))
+    asyncio.run(svc.destroy(s.id, "u1"))
+    from labs.sessions import LabError
+
+    try:
+        asyncio.run(svc.exec_command(s.id, "u1", "show access-lists"))
+        raise AssertionError("exec on a destroyed session should have raised")
+    except LabError as e:
+        assert e.code == "not_found"
+        assert e.message == "Lab session not found."
+
+
 # ---- Log triage lab (Linux logs shell) ----
 
 LOG = get_lab("sec-logtriage-001")
