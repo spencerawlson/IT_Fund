@@ -6,7 +6,7 @@ import { Button, Card } from '@/components/ui-glass';
 // Links to /pricing; signed-out visitors are prompted to sign in first.
 export default function UpgradePrompt({ what = 'this content' }) {
   return (
-    <Card level={2} padding="lg" className="mx-auto max-w-reading text-center">
+    <Card level={2} padding="lg" className="text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-black/[0.04]">
         <Lock size={22} className="text-ink-2" aria-hidden="true" />
       </div>
