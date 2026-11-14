@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui-glass';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -38,6 +39,7 @@ function GroupNote({ note }) {
 }
 
 export default function Faq() {
+  const { isAuthenticated } = useAuth();
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
 
@@ -130,7 +132,11 @@ export default function Faq() {
           <span className="text-caption text-ink-3">Road to CISSP — learn IT by doing it.</span>
           <div className="flex gap-4 text-caption text-ink-3">
             <Link to="/faq" className="hover:text-ink-1">FAQ</Link>
-            <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
+            {isAuthenticated ? (
+              <Link to="/signin" className="hover:text-ink-1">Account</Link>
+            ) : (
+              <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
+            )}
             <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>
             <Link to="/contact" className="hover:text-ink-1">Contact</Link>

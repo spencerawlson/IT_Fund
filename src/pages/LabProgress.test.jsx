@@ -42,4 +42,9 @@ describe('LabProgress', () => {
     expect(SRC).toContain('Missions unlock with Premium');
     expect(SRC).not.toMatch(/missionsLocked[^\n]*text-danger/);
   });
+
+  it('points signed-in users at their account to subscribe, not at pricing (2026-11-13)', () => {
+    expect(SRC).toContain('to="/signin">Subscribe</Button>');
+    expect(SRC).toContain('to="/pricing">See plans</Button>');
+  });
 });

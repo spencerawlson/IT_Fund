@@ -17,6 +17,7 @@ const PRACTICE = /^\/(practice|lab|challenge|library|tracks|learning-path|roadma
 
 function useNavItems() {
   const state = useAcademy();
+  const { isAuthenticated } = useAuth();
   const next = continueLearning(state);
   const learnTo = next ? courseHref(getCourse(next.lesson.courseSlug)) : '/academy/courses';
   return [
@@ -27,7 +28,12 @@ function useNavItems() {
     { to: '/academy/roadmap', label: 'Road to CISSP', short: 'CISSP', icon: Crown, match: (p) => p === '/academy/roadmap' },
     // Sidebar only: the mobile tab bar is a fixed 5-column grid, so Pricing
     // lives in the desktop sidebar (and the Landing header/footer) instead.
-    { to: '/pricing', label: 'Pricing', icon: Tag, match: (p) => p === '/pricing', sidebarOnly: true },
+    // Signed-in users never see it: pricing lives on the landing page for
+    // signed-out visitors; signed-in users manage their subscription from
+    // their account page.
+    ...(!isAuthenticated
+      ? [{ to: '/pricing', label: 'Pricing', icon: Tag, match: (p) => p === '/pricing', sidebarOnly: true }]
+      : []),
   ];
 }
 

@@ -1,10 +1,13 @@
 import React from 'react';
 import { Lock } from 'lucide-react';
 import { Button, Card } from '@/components/ui-glass';
+import { useAuth } from '@/lib/AuthContext';
 
 // Friendly paywall: shown where premium content is gated, never a dead end.
-// Links to /pricing; signed-out visitors are prompted to sign in first.
+// Signed-out visitors get the pricing page (and a sign-in button); signed-in
+// users go to their account page, where the subscription card subscribes.
 export default function UpgradePrompt({ what = 'this content' }) {
+  const { isAuthenticated } = useAuth();
   return (
     <Card level={2} padding="lg" className="text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-black/[0.04]">
@@ -16,8 +19,14 @@ export default function UpgradePrompt({ what = 'this content' }) {
         for $19/month. The free tier includes 5 sample lessons, 57 flashcards, and 2 labs.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <Button to="/pricing">See plans — $19/mo</Button>
-        <Button variant="ghost" to="/signin">Sign in</Button>
+        {isAuthenticated ? (
+          <Button to="/signin">Subscribe</Button>
+        ) : (
+          <>
+            <Button to="/pricing">See plans — $19/mo</Button>
+            <Button variant="ghost" to="/signin">Sign in</Button>
+          </>
+        )}
       </div>
     </Card>
   );

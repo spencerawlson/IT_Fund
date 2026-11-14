@@ -5,6 +5,7 @@ import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/
 import Seo from '@/components/Seo';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription } from '@/lib/subscription';
+import { getAttributionTag } from '@/lib/attribution';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -23,6 +24,31 @@ function SubscriptionSection() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || 'Could not open the billing portal.');
       window.location.href = data.portal_url;
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+    }
+  };
+
+  // Free-tier subscribe: same Stripe checkout the pricing page uses. The
+  // account page is the subscription home for signed-in users, so the
+  // subscribe action lives here instead of a link to /pricing.
+  const subscribe = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const attributionTag = getAttributionTag();
+      const res = await fetch(`${API_BASE}/billing/checkout`, {
+        method: 'POST',
+        credentials: 'include',
+        ...(attributionTag ? {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attribution_tag: attributionTag }),
+        } : {}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || data.message || 'Checkout failed. Please try again.');
+      window.location.href = data.checkout_url;
     } catch (e) {
       setError(e.message);
       setBusy(false);
@@ -68,8 +94,12 @@ function SubscriptionSection() {
             Premium unlocks every track, all labs, and the exam simulators.
           </p>
           <div className="mt-4">
-            <Button to="/pricing">See plans — $19/mo</Button>
+            <Button onClick={subscribe} disabled={busy}>
+              {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+              {busy ? 'Starting checkout…' : 'Subscribe'}
+            </Button>
           </div>
+          {error && <p className="mt-3 text-small text-danger">{error}</p>}
         </>
       )}
     </Card>

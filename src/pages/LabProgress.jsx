@@ -168,7 +168,11 @@ export default function LabProgress() {
               {missionsLocked && (
                 <p className="mt-3 flex flex-wrap items-center gap-3 text-body text-ink-2">
                   Missions unlock with Premium.
-                  <Button size="sm" variant="ghost" to="/pricing">See plans</Button>
+                  {isAuthenticated ? (
+                    <Button size="sm" variant="ghost" to="/signin">Subscribe</Button>
+                  ) : (
+                    <Button size="sm" variant="ghost" to="/pricing">See plans</Button>
+                  )}
                 </p>
               )}
               {missionsError && <p className="mt-3 text-body text-danger">Could not load missions: {missionsError}</p>}
