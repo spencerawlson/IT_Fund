@@ -94,28 +94,48 @@ describe('useCypherVoice loading', () => {
     return { promise, resolve, reject };
   }
 
-  // Minimal stand-in for HTMLAudioElement: play() resolves at once, so the
-  // audio-start path runs without a real decoder. URL.createObjectURL and
-  // atob are Node built-ins; the analyser path is skipped (no window).
-  class FakeAudio {
-    constructor(url) { this.src = url; FakeAudio.instances.push(this); }
-    play() { return Promise.resolve(); }
-    pause() {}
+  // Minimal stand-in for the Web Audio API: decodeAudioData resolves at
+  // once (no real decoder), and start()/stop() just track calls — this
+  // Node environment has no `window`, so play() resolves ctx via this fake.
+  class FakeAnalyser {
+    constructor() { this.fftSize = 0; this.frequencyBinCount = 1; }
+    connect() {}
+    getByteFrequencyData() {}
+  }
+  class FakeGain {
+    constructor() { this.gain = { value: 1 }; }
+    connect() {}
+  }
+  class FakeSourceNode {
+    constructor() { FakeSourceNode.instances.push(this); }
+    connect() {}
+    start() { this.started = true; }
+    stop() { this.stopped = true; }
+  }
+  class FakeAudioContext {
+    constructor() { FakeAudioContext.instances.push(this); this.destination = {}; this.state = 'running'; }
+    resume() { return Promise.resolve(); }
+    close() { return Promise.resolve(); }
+    decodeAudioData() { return Promise.resolve({}); }
+    createBufferSource() { return new FakeSourceNode(); }
+    createGain() { return new FakeGain(); }
+    createAnalyser() { return new FakeAnalyser(); }
   }
 
   const audioEnvelope = { character: 'cypher', text: 'Hello.', audio_b64: 'QUJD', mime: 'audio/mpeg', cached: false, fallback: false, reason: null };
   const fallbackEnvelope = { character: 'cypher', text: 'Hello.', audio_b64: null, mime: 'audio/mpeg', cached: false, fallback: true, reason: 'voice_not_configured' };
 
   beforeEach(() => {
-    FakeAudio.instances = [];
-    globalThis.Audio = FakeAudio;
+    FakeAudioContext.instances = [];
+    FakeSourceNode.instances = [];
+    globalThis.window = { AudioContext: FakeAudioContext };
   });
 
   afterEach(() => {
     if (root) TestRenderer.act(() => { root.unmount(); });
     root = null;
     latest = null;
-    delete globalThis.Audio;
+    delete globalThis.window;
   });
 
   it('is idle before play(), loads while the speak fetch is pending, and clears when audio starts', async () => {
@@ -130,6 +150,11 @@ describe('useCypherVoice loading', () => {
     TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
     expect(latest.loading).toBe(true);
     expect(latest.playing).toBe(false);
+    // The AudioContext must be created+resumed synchronously here, before
+    // the speak fetch resolves: on a real browser this is the only way
+    // audio started later (ElevenLabs synthesis can take ~25s) still counts
+    // as gesture-initiated. See scripts/_voice_autoplay_repro*.mjs.
+    expect(FakeAudioContext.instances.length).toBe(1);
 
     await TestRenderer.act(async () => {
       gate.resolve(jsonResponse(audioEnvelope));
@@ -139,6 +164,9 @@ describe('useCypherVoice loading', () => {
     expect(latest.playing).toBe(true);
     expect(latest.fallback).toBe(false);
     expect(latest.subtitle).toBe('Hello.');
+    // Played through the already-unlocked AudioContext, not a cold
+    // HTMLMediaElement.play() call made after the fetch.
+    expect(FakeSourceNode.instances[0].started).toBe(true);
   });
 
   it('clears loading and reports fallback when the envelope has no audio', async () => {

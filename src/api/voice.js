@@ -78,10 +78,18 @@ function readStored(key, fallback) {
  * the character talks (talk clip + audio-reactive head bob); when it stops
  * he goes back to idle. Mute + volume persist in localStorage.
  *
- * play(text) -> the spoken text (or '' on error): fetches the audio, decodes
- * it to an Audio element, and drives the analyser that feeds voiceRef.level.
- * A fallback envelope (no audio) still returns the text — the caller shows
- * it as text and Cypher talks silently (text-only fallback).
+ * play(text) -> the spoken text (or '' on error): fetches the audio and
+ * plays it through a Web Audio AudioBufferSourceNode, feeding an analyser
+ * that drives voiceRef.level. Playback goes through the Web Audio API
+ * rather than an <audio> element on purpose: the speak fetch (ElevenLabs
+ * synthesis) can take ~25s, long past the window browsers honor a click's
+ * gesture for a cold `audio.play()` call (Safari/iOS always reject it;
+ * Chrome does under stricter autoplay policies). An AudioContext resumed
+ * synchronously at the top of play() — before that fetch — stays "unlocked"
+ * for as long as it's open, so starting the real audio on it once the
+ * fetch resolves needs no fresh gesture. A fallback envelope (no audio)
+ * still returns the text — the caller shows it as text and Cypher talks
+ * silently (text-only fallback).
  */
 export function useCypherVoice(voiceRef) {
   const [muted, setMutedState] = React.useState(() => readStored(MUTE_KEY, '0') === '1');
@@ -101,10 +109,11 @@ export function useCypherVoice(voiceRef) {
   const [fallback, setFallback] = React.useState(false);
   const [error, setError] = React.useState('');
   const [subtitle, setSubtitle] = React.useState('');
-  const audioRef = React.useRef(null);
   const rafRef = React.useRef(null);
   const analyserRef = React.useRef(null);
   const audioCtxRef = React.useRef(null);
+  const sourceNodeRef = React.useRef(null);
+  const gainNodeRef = React.useRef(null);
 
   const stopLevelLoop = React.useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -113,10 +122,12 @@ export function useCypherVoice(voiceRef) {
   }, [voiceRef]);
 
   const stop = React.useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.onended = null;
+      try { sourceNodeRef.current.stop(); } catch { /* already stopped */ }
+      sourceNodeRef.current = null;
     }
+    gainNodeRef.current = null;
     if (audioCtxRef.current) {
       audioCtxRef.current.close().catch(() => {});
       audioCtxRef.current = null;
@@ -131,21 +142,33 @@ export function useCypherVoice(voiceRef) {
   const setMuted = React.useCallback((next) => {
     setMutedState(next);
     try { localStorage.setItem(MUTE_KEY, next ? '1' : '0'); } catch { /* ignore */ }
-    if (audioRef.current) audioRef.current.muted = next;
-  }, []);
+    if (gainNodeRef.current) gainNodeRef.current.gain.value = next ? 0 : volume;
+  }, [volume]);
 
   const setVolume = React.useCallback((next) => {
     const v = Math.max(0, Math.min(1, next));
     setVolumeState(v);
     try { localStorage.setItem(VOLUME_KEY, String(v)); } catch { /* ignore */ }
-    if (audioRef.current) audioRef.current.volume = v;
-  }, []);
+    if (gainNodeRef.current && !muted) gainNodeRef.current.gain.value = v;
+  }, [muted]);
 
   const play = React.useCallback(async (text) => {
     stop();
     setError('');
     setFallback(false);
     if (!text || !text.trim()) return '';
+    // Resume the AudioContext here, synchronously, before the speak fetch:
+    // this is still inside the click's user gesture. Once resumed, the
+    // context stays unlocked for as long as it's open, so the real audio
+    // can start on it later — after the fetch — with no fresh gesture.
+    let ctx = null;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtxRef.current = ctx;
+      ctx.resume().catch(() => {});
+    } catch {
+      ctx = null;
+    }
     // The speak fetch (ElevenLabs synthesis) can take ~25 s for a long
     // answer. `loading` is true for exactly that window, so callers can
     // show "Loading voice…" instead of silence.
@@ -154,6 +177,10 @@ export function useCypherVoice(voiceRef) {
     try {
       envelope = await speakVoice({ character: 'cypher', text });
     } catch (e) {
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
       setLoading(false);
       setFallback(true);
       setError(e.message || 'Cipher’s voice isn’t available right now.');
@@ -168,6 +195,10 @@ export function useCypherVoice(voiceRef) {
       // Text-only fallback (voice not configured, or muted): Cypher still
       // "talks" — the talk clip plays while the words are shown, so the
       // experience degrades to silent speech, never to nothing.
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
       setLoading(false);
       setFallback(true);
       if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
@@ -181,24 +212,35 @@ export function useCypherVoice(voiceRef) {
       }, ms);
       return envelope.text;
     }
+    if (!ctx) {
+      // No AudioContext available at all (very old or locked-down browser):
+      // degrade to text, same as any other playback failure below.
+      setLoading(false);
+      setFallback(true);
+      setError('Cipher’s voice couldn’t play here — the words are shown as text.');
+      setSubtitle('');
+      return envelope.text;
+    }
     try {
       const bytes = Uint8Array.from(atob(envelope.audio_b64), (c) => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: envelope.mime || 'audio/mpeg' });
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.muted = muted;
-      audio.volume = volume;
-      audioRef.current = audio;
-      // Analyser for the audio-reactive face: the level feeds voiceRef.
+      const audioBuffer = await ctx.decodeAudioData(bytes.buffer);
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      const gain = ctx.createGain();
+      gain.gain.value = muted ? 0 : volume;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      gainNodeRef.current = gain;
+      sourceNodeRef.current = source;
+      // Analyser for the audio-reactive face: the level feeds voiceRef. This
+      // is cosmetic — if it's unavailable (no requestAnimationFrame, e.g. an
+      // older or non-browser environment), Cypher still talks at a flat
+      // level and the real audio still plays.
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        audioCtxRef.current = ctx;
-        const source = ctx.createMediaElementSource(audio);
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
         analyserRef.current = analyser;
-        source.connect(analyser);
-        analyser.connect(ctx.destination);
+        gain.connect(analyser);
         const data = new Uint8Array(analyser.frequencyBinCount);
         const loop = () => {
           analyser.getByteFrequencyData(data);
@@ -208,24 +250,16 @@ export function useCypherVoice(voiceRef) {
         };
         loop();
       } catch {
-        // Analyser unavailable (older browser): still talk, flat level.
         if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
       }
+      source.onended = () => {
+        stopLevelLoop();
+        setPlaying(false);
+        setSubtitle('');
+      };
       setPlaying(true);
       if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
-      audio.onended = () => {
-        URL.revokeObjectURL(url);
-        stopLevelLoop();
-        setPlaying(false);
-        setSubtitle('');
-      };
-      audio.onerror = () => {
-        URL.revokeObjectURL(url);
-        stopLevelLoop();
-        setPlaying(false);
-        setSubtitle('');
-      };
-      await audio.play();
+      source.start();
       setLoading(false);
       return envelope.text;
     } catch {

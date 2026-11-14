@@ -126,10 +126,32 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
   const audioEnvelope = { character: 'cypher', text: SPOKEN, audio_b64: 'QUJD', mime: 'audio/mpeg', cached: false, fallback: false, reason: null };
   const fallbackEnvelope = { character: 'cypher', text: SPOKEN, audio_b64: null, mime: 'audio/mpeg', cached: false, fallback: true, reason: 'voice_not_configured' };
 
-  class FakeAudio {
-    constructor(url) { this.src = url; FakeAudio.instances.push(this); }
-    play() { return Promise.resolve(); }
-    pause() {}
+  // Minimal stand-in for the Web Audio API (see src/api/voice.test.js for
+  // the same fakes, used for the same reason: this test environment has no
+  // `window`/AudioContext, and useCypherVoice now plays through one).
+  class FakeAnalyser {
+    constructor() { this.fftSize = 0; this.frequencyBinCount = 1; }
+    connect() {}
+    getByteFrequencyData() {}
+  }
+  class FakeGain {
+    constructor() { this.gain = { value: 1 }; }
+    connect() {}
+  }
+  class FakeSourceNode {
+    constructor() { FakeSourceNode.instances.push(this); }
+    connect() {}
+    start() { this.started = true; }
+    stop() { this.stopped = true; }
+  }
+  class FakeAudioContext {
+    constructor() { this.destination = {}; this.state = 'running'; }
+    resume() { return Promise.resolve(); }
+    close() { return Promise.resolve(); }
+    decodeAudioData() { return Promise.resolve({}); }
+    createBufferSource() { return new FakeSourceNode(); }
+    createGain() { return new FakeGain(); }
+    createAnalyser() { return new FakeAnalyser(); }
   }
 
   let root;
@@ -187,8 +209,8 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
   }
 
   beforeEach(() => {
-    FakeAudio.instances = [];
-    globalThis.Audio = FakeAudio;
+    FakeSourceNode.instances = [];
+    globalThis.window = { AudioContext: FakeAudioContext };
     fetchGate = deferred();
     globalThis.fetch = vi.fn(() => fetchGate.promise);
     tutorMocks.streamTutor.mockImplementation(async (body, { onToken }) => {
@@ -200,7 +222,7 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
   afterEach(() => {
     if (root) TestRenderer.act(() => { root.unmount(); });
     root = null;
-    delete globalThis.Audio;
+    delete globalThis.window;
     vi.clearAllMocks();
   });
 
@@ -279,7 +301,7 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     expect(treeText()).toContain('Speaking…');
     expect(findButton('Hear again')).toBeFalsy();
     // End the audio: the hook's onended clears playing.
-    TestRenderer.act(() => { FakeAudio.instances[0].onended(); });
+    TestRenderer.act(() => { FakeSourceNode.instances[0].onended(); });
     expect(treeText()).not.toContain('Speaking…');
     const replay = findButton('Hear again');
     expect(replay).toBeTruthy();
