@@ -187,6 +187,81 @@ describe('createRobotController', () => {
     // bob/rock, and the controller never rewrites bone transforms.
     controller.dispose();
   });
+
+  it('sit() seats Cypher on a chair: procedural pose, no clip runs, talking only bobs the head', async () => {
+    const { createRobotController, SEATED_POSE, SEATED_HIPS_LIFT_M } = await import('./RobotCharacter');
+    const gltf = await parseGlb('cypher');
+    const controller = createRobotController(gltf);
+    expect(controller.isSeated()).toBe(false);
+
+    // Rest orientations, captured before sit(): the pose is a delta from
+    // rest, not an absolute rotation (thigh rest is pi about X).
+    const bones = {};
+    gltf.scene.traverse((obj) => { if (obj.isBone) bones[obj.name] = obj; });
+    const restQ = {};
+    for (const name of Object.keys(SEATED_POSE)) {
+      expect(bones[name]).toBeTruthy();
+      restQ[name] = bones[name].quaternion.clone();
+    }
+    const expectPose = () => {
+      for (const [name, [x, y, z]] of Object.entries(SEATED_POSE)) {
+        const delta = new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, z, 'XYZ'));
+        const expected = restQ[name].clone().multiply(delta);
+        const actual = bones[name].quaternion;
+        expect(actual.x).toBeCloseTo(expected.x, 2);
+        expect(actual.y).toBeCloseTo(expected.y, 2);
+        expect(actual.z).toBeCloseTo(expected.z, 2);
+        expect(actual.w).toBeCloseTo(expected.w, 2);
+      }
+    };
+
+    expect(controller.sit()).toBe(true);
+    expect(controller.isSeated()).toBe(true);
+    // The pose is the exported table, applied as rest x delta.
+    expectPose();
+    // Pelvis lifted onto the ~0.60 m seat (rest hips 0.67 m + lift).
+    expect(bones.hips.position.y).toBeCloseTo(0.67 + SEATED_HIPS_LIFT_M, 2);
+
+    // Seated geometry, in three.js metres (model faces +Z/south):
+    // knees forward of the hips and below them, feet dangling above the
+    // floor, head at ~1.35 m — seated, not the 1.70 m standing height.
+    gltf.scene.updateMatrixWorld(true);
+    const worldPos = (name) => {
+      const v = new THREE.Vector3();
+      bones[name].getWorldPosition(v);
+      return v;
+    };
+    const hips = worldPos('hips');
+    const head = worldPos('head');
+    const knee = worldPos('kneeL');
+    const foot = worldPos('footL');
+    const hand = worldPos('handL');
+    expect(head.y).toBeGreaterThan(1.2);
+    expect(head.y).toBeLessThan(1.5);
+    expect(knee.z).toBeGreaterThan(0.1); // thigh forward, not hanging down
+    expect(knee.y).toBeLessThan(hips.y);
+    expect(knee.y).toBeGreaterThan(0.4);
+    expect(foot.y).toBeGreaterThan(0.15); // dangling — the seat is high for short legs
+    expect(foot.y).toBeLessThan(0.4);
+    expect(foot.z).toBeGreaterThan(0.1);
+    expect(hand.y).toBeGreaterThan(0.5); // hands rest on the thighs
+    expect(hand.y).toBeLessThan(0.75);
+    expect(hand.z).toBeGreaterThan(0.05);
+
+    // No clip can start while seated — not play(), not setTalking().
+    expect(controller.play('walk')).toBe(false);
+    expect(controller.play('idle')).toBe(false);
+    controller.setTalking(true);
+    expect(controller.isTalking()).toBe(true);
+    controller.update(0.5);
+    const talkAction = controller.mixer.existingAction(controller.clips.talk);
+    expect(talkAction === null || !talkAction.isRunning()).toBe(true);
+    // The pose survives frames: update() re-applies it after the mixer.
+    expectPose();
+    controller.setTalking(false);
+    controller.update(0.1);
+    controller.dispose();
+  });
 });
 
 describe('preloadMissionRobots', () => {

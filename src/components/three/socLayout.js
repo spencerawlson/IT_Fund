@@ -61,6 +61,14 @@ export const ROBOT_SPOTS_M = {
   patch: { work: { x: 1.2, y: 1.0 } },
 };
 
+// Cypher's chair in the desk room (Blender metres, measured from the real
+// mesh with a ray-cast height map + renders, never assumed): the seat top
+// is ~0.60 m at (-1.05, -1.2), the backrest east of the seat, so the
+// chair faces the west desk. The lesson panel seats him on it turned
+// south to face the learner — a swivel chair turned toward the visitor —
+// at his south desk, head and shoulders above the monitors.
+export const CYPHER_CHAIR_M = { x: -1.05, y: -1.2, seatHeightM: 0.60 };
+
 // Facing, as three.js rotationY: the models face +Z (south, toward the
 // learner) at 0; west is -PI/2, east is +PI/2.
 export const FACING = { south: 0, west: -Math.PI / 2, east: Math.PI / 2, north: Math.PI };
