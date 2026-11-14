@@ -130,30 +130,43 @@ describe('CypherViewer', () => {
     expect(html).not.toContain('Click parts for info');
   });
 
-  it('frames the real 1.70 m Cypher head-to-toe in the panel camera', () => {
-    // The panel camera is [0, 1.6, 5.2] -> target [0, 0.85, 0], FOV 42
-    // (see CypherViewer). At 5.2 m the vertical coverage is
-    // 2 * 5.2 * tan(21°) ~= 3.99 units, so the 1.70 m model fills ~43% of
-    // the frame height — a full-body presenter, not a cropped torso.
-    const cam = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
-    cam.position.set(0, 1.6, 5.2);
-    cam.lookAt(0, 0.85, 0);
-    cam.updateMatrixWorld(true);
-    const projectPx = (v) => {
+  it('frames the real 1.70 m Cypher head-to-toe in his room, at his desk and on patrol', () => {
+    // The panel camera is the SOC wide-shot geometry at the room's real
+    // scale — [x, 3.4, 6.0] -> target [x, 1.0, 0.35], FOV 42 — and it
+    // tracks his patrol x (see CypherViewer), so he stays centred while
+    // he walks. At ~5.3 m the vertical coverage is
+    // 2 * 5.3 * tan(21°) ~= 4.1 units, so the 1.70 m model fills ~42% of
+    // the frame height — a full-body presenter in his room, not a
+    // cropped torso — at his desk and everywhere on his patrol.
+    // Measured 73.4–79.6px on the 224px frame (~33–36%).
+    const projectPx = (cam, v) => {
       const p = v.clone().project(cam);
       return { x: (p.x + 1) / 2 * 224, y: (1 - p.y) / 2 * 224, behind: p.z > 1 };
     };
-    const feet = projectPx(new THREE.Vector3(0, 0, 0));
-    const head = projectPx(new THREE.Vector3(0, 1.704, 0));
-    expect(feet.behind).toBe(false);
-    expect(head.behind).toBe(false);
-    for (const px of [feet, head]) {
-      expect(px.x).toBeGreaterThanOrEqual(0);
-      expect(px.x).toBeLessThanOrEqual(224);
-      expect(px.y).toBeGreaterThanOrEqual(0);
-      expect(px.y).toBeLessThanOrEqual(224);
+    // [camera x, Cypher x, Cypher z] — camera tracks his patrol x.
+    const cases = [
+      [-0.5, -0.5, 1.0], // at his desk (work spot)
+      [-0.5, -0.5, 0.35], // patrol west end
+      [0.35, 0.35, 0.35], // patrol centre
+      [1.2, 1.2, 0.35], // patrol east end
+    ];
+    for (const [camX, x, z] of cases) {
+      const cam = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
+      cam.position.set(camX, 3.4, 6.0);
+      cam.lookAt(camX, 1.0, 0.35);
+      cam.updateMatrixWorld(true);
+      const feet = projectPx(cam, new THREE.Vector3(x, 0, z));
+      const head = projectPx(cam, new THREE.Vector3(x, 1.704, z));
+      expect(feet.behind).toBe(false);
+      expect(head.behind).toBe(false);
+      for (const px of [feet, head]) {
+        expect(px.x).toBeGreaterThanOrEqual(0);
+        expect(px.x).toBeLessThanOrEqual(224);
+        expect(px.y).toBeGreaterThanOrEqual(0);
+        expect(px.y).toBeLessThanOrEqual(224);
+      }
+      expect(feet.y - head.y).toBeGreaterThanOrEqual(70);
     }
-    expect(feet.y - head.y).toBeGreaterThanOrEqual(80);
   });
 });
 

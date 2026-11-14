@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Check, X, Lock, RotateCcw, SearchX, TerminalSquare, ShieldCheck, Map, Boxes } from 'lucide-react';
 import { Button, Card, EmptyState } from '@/components/ui-glass';
@@ -11,6 +11,8 @@ import CypherVoiceButton from '@/components/missions/CypherVoiceButton';
 import { useTutor, useTutorEnabled, TutorText, Thinking } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
+import { SHOWCASE_ORDER } from '@/components/three/socLayout';
+import { splitBriefing } from '@/data/missions';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
@@ -106,6 +108,16 @@ export async function execWithSessionRecovery({ sessionId, exec, refreshSession,
   }
 }
 
+// Mission opening timings (seconds). The opening plays like a video on
+// entry (fresh attempt only): a short cinematic establishing shot, then
+// the split briefing — each robot reads their paragraph with the camera
+// on them — then a tour of the four devices. Safety caps: a briefing turn
+// advances on its own if the voice stalls (the hook's suspended-context
+// fallback guarantees playing ends), so no phase can hang.
+const OPEN_OPEN_S = 1.8;
+const OPEN_SHOWCASE_S = 2.5;
+const OPEN_BRIEFING_CAP_S = 60;
+
 /** Full-screen mission workspace: Sentinel briefing, 3D SOC room (or the 2D
  *  topology when WebGL is unavailable), firewall console, traffic tests, the
  *  real lab terminal, and the incident report — ending in a debrief. The 2D
@@ -117,6 +129,7 @@ export default function MissionWorkspace() {
   const { theme } = useTheme();
   const [missionDef, setMissionDef] = useState(null);
   const [attempt, setAttempt] = useState(null);
+  const [resumedAttempt, setResumedAttempt] = useState(false);
   const [session, setSession] = useState(null);
   const [objectives, setObjectives] = useState([]);
   const [error, setError] = useState('');
@@ -139,6 +152,157 @@ export default function MissionWorkspace() {
   // Listen button and the debrief explanation, so two clips never overlap.
   const cypherVoiceRef = useRef({ talking: false, level: 0 });
   const cypherVoice = useCypherVoice(cypherVoiceRef);
+  // Briefing lines come from the API; fall back to the mission description.
+  // (Computed here, before the opening effects below, because the turn
+  // split feeds them.) The backend serves them under `briefing`; the
+  // frontend copy under `brief`.
+  const briefLines = missionDef?.brief || missionDef?.briefing || missionDef?.lines
+    || (missionDef?.description ? [missionDef.description] : []);
+  // The briefing, split into spoken turns — one per robot, from the
+  // existing text only (see splitBriefing in src/data/missions.js):
+  // Cypher opens with the introduction, Sentinel reads the servers part,
+  // Patch reads the security part, Cypher closes with the console
+  // instructions. All four turns are read by Cypher's voice: it is the
+  // only character voice configured (/api/voice/status: cypher true,
+  // sentinel/patch false), so until per-character voices exist the camera
+  // and the caption — not the voice — say who is speaking.
+  const briefingTurns = useMemo(
+    () => splitBriefing(briefLines),
+    [briefLines],
+  );
+  // Who is talking, for the SOC camera: during the opening each briefing
+  // turn's speaker drives it (the camera is on whoever is speaking); the
+  // debrief is Cypher's; otherwise the wide shot. A manual replay of the
+  // whole brief (the sound-controls button below) is Cypher reading it
+  // all, so briefingPlaying means Cypher too. The scene reads speakerRef
+  // every frame; the booleans below drive it.
+  const [briefingPlaying, setBriefingPlaying] = useState(false);
+  const [debriefPlaying, setDebriefPlaying] = useState(false);
+  const speakerRef = useRef('wide');
+  // --- Mission opening (plays like a video, on entry, fresh attempt only).
+  // Phases: 'open' (cinematic establishing shot) -> 'briefing' (the split
+  // briefing, one turn at a time: each robot reads their paragraph with
+  // the camera on them, Cypher walking while he reads his) -> 'showcase'
+  // (the four devices, one at a time, each shown + labelled in 3D) ->
+  // 'done'. 'done' also means "no opening" (a resumed attempt, reduced
+  // motion, or the user skipped). The phase lives in state (it drives the
+  // SOC card's caption + Skip button); the speaker/showcase refs are what
+  // the scene tick reads every frame.
+  const [openingPhase, setOpeningPhase] = useState('open');
+  const [briefingTurnIdx, setBriefingTurnIdx] = useState(0);
+  const [showcaseDevice, setShowcaseDevice] = useState(null);
+  const showcaseRef = useRef(null);
+  const openingStartedRef = useRef(false);
+  // Index of the briefing turn already started (-1: none yet). The ref
+  // keeps a turn from re-speaking when the effect re-runs on a playing
+  // flip; the state advances the turn once the voice ends.
+  const briefingTurnSpokenRef = useRef(-1);
+  const voicePlayRef = useRef(null);
+  voicePlayRef.current = cypherVoice.play;
+  useEffect(() => {
+    if (openingPhase === 'briefing') {
+      speakerRef.current = briefingTurns[briefingTurnIdx]?.speaker || 'cypher';
+    } else {
+      speakerRef.current = briefingPlaying || debriefPlaying ? 'cypher' : 'wide';
+    }
+  }, [openingPhase, briefingTurnIdx, briefingTurns, briefingPlaying, debriefPlaying]);
+  useEffect(() => { showcaseRef.current = showcaseDevice; }, [showcaseDevice]);
+  // When the voice stops for any reason (natural end, Stop), clear both
+  // flags so the camera returns to the wide shot.
+  useEffect(() => {
+    if (!cypherVoice.playing) {
+      setBriefingPlaying(false);
+      setDebriefPlaying(false);
+    }
+  }, [cypherVoice.playing]);
+  // Fresh vs resumed: the opening plays only on a fresh attempt (the
+  // start endpoint returns resumed: true when it hands back an
+  // in-progress attempt). A resumed learner is mid-mission, not watching
+  // the intro again. Reduced motion skips it too (no camera moves, no
+  // auto-play). Runs once, when the mission + attempt have loaded.
+  useEffect(() => {
+    if (openingStartedRef.current) return;
+    if (!missionDef || !attempt) return;
+    openingStartedRef.current = true;
+    if (reducedMotion || resumedAttempt) setOpeningPhase('done');
+  }, [missionDef, attempt, resumedAttempt, reducedMotion]);
+  // Opening phase machine. The 'briefing' step plays the split briefing
+  // one turn at a time: it starts the current turn's read-aloud once (the
+  // ref keeps it from re-speaking when the effect re-runs on a playing
+  // flip) and advances to the next turn when the voice ends after having
+  // played; the hook's suspended-context fallback guarantees playing ends
+  // even when Safari blocks audio, and the 60 s cap advances it regardless
+  // (per turn, so a stalled turn never hangs the sequence). A mission with
+  // no briefing lines skips straight to the showcase; the 'briefing' step
+  // waits for the mission to load rather than skipping on an empty turn
+  // list (the 'open' timer can fire before the API answers).
+  // The resumed/reduced-motion checks here are belt-and-suspenders for
+  // the fresh-vs-resumed effect above (same render, stale phase).
+  useEffect(() => {
+    if (openingPhase === 'done') return undefined;
+    if (reducedMotion || resumedAttempt) {
+      setOpeningPhase('done');
+      return undefined;
+    }
+    if (openingPhase === 'open') {
+      const t = setTimeout(() => setOpeningPhase('briefing'), OPEN_OPEN_S * 1000);
+      return () => clearTimeout(t);
+    }
+    if (openingPhase === 'briefing') {
+      if (!missionDef) return undefined;
+      const turns = briefingTurns;
+      if (!turns.length) {
+        setOpeningPhase('showcase');
+        return undefined;
+      }
+      if (briefingTurnIdx >= turns.length) {
+        setOpeningPhase('showcase');
+        return undefined;
+      }
+      const turn = turns[briefingTurnIdx];
+      if (briefingTurnSpokenRef.current !== briefingTurnIdx) {
+        briefingTurnSpokenRef.current = briefingTurnIdx;
+        voicePlayRef.current?.(turn.text);
+        // Safety cap: if the voice stalls, the opening still advances.
+        const cap = setTimeout(() => setBriefingTurnIdx((i) => i + 1), OPEN_BRIEFING_CAP_S * 1000);
+        return () => clearTimeout(cap);
+      }
+      if (!cypherVoice.loading && !cypherVoice.playing) {
+        const t = setTimeout(() => setBriefingTurnIdx((i) => i + 1), 400);
+        return () => clearTimeout(t);
+      }
+      return undefined;
+    }
+    if (openingPhase === 'showcase') {
+      if (!showcaseDevice) {
+        setShowcaseDevice(SHOWCASE_ORDER[0]);
+        return undefined;
+      }
+      const idx = SHOWCASE_ORDER.indexOf(showcaseDevice);
+      if (idx < 0) {
+        setShowcaseDevice(SHOWCASE_ORDER[0]);
+        return undefined;
+      }
+      const t = setTimeout(() => {
+        if (idx + 1 >= SHOWCASE_ORDER.length) {
+          setShowcaseDevice(null);
+          setOpeningPhase('done');
+        } else {
+          setShowcaseDevice(SHOWCASE_ORDER[idx + 1]);
+        }
+      }, OPEN_SHOWCASE_S * 1000);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, showcaseDevice, cypherVoice.loading, cypherVoice.playing, resumedAttempt, reducedMotion]);
+  // Skip the opening: stop the voice (its playing=false clears the
+  // speaker flags, so the camera returns to wide) and hand the mission
+  // controls over as today.
+  const skipOpening = () => {
+    cypherVoice.stop();
+    setShowcaseDevice(null);
+    setOpeningPhase('done');
+  };
   const tutorEnabled = useTutorEnabled();
   const {
     text: explainText, loading: explainLoading, error: explainError,
@@ -161,6 +325,9 @@ export default function MissionWorkspace() {
         if (!live) return;
         setMissionDef(def);
         setAttempt(started.attempt || null);
+        // The start endpoint returns resumed: true when it hands back an
+        // in-progress attempt — the opening plays only on a fresh one.
+        setResumedAttempt(Boolean(started.resumed));
         setSession(started.session || null);
         if (started.objectives) setObjectives(started.objectives);
       } catch (e) {
@@ -552,13 +719,23 @@ export default function MissionWorkspace() {
     );
   }
 
-  // Briefing lines come from the API; fall back to the mission description.
   const callsign = missionDef.callsign || 'OPERATION BROKEN SHIELD';
-  const briefLines = missionDef.brief || missionDef.briefing || missionDef.lines
-    || (missionDef.description ? [missionDef.description] : []);
   const missionForBrief = { callsign, brief: briefLines };
   const title = missionDef.title || 'Operation Broken Shield';
   const background = theme === 'dark' ? '#111111' : '#F8F7FF';
+  // Opening caption: a label for the current moment (not dialogue — the
+  // spoken lines are only the existing briefing text, read by Cypher's
+  // voice). While a turn plays, the subtitle is the spoken words; before
+  // it starts, the label names the speaker and their room.
+  const briefingTurn = openingPhase === 'briefing' ? briefingTurns[briefingTurnIdx] : null;
+  const briefingTurnLabel = briefingTurn?.speaker === 'sentinel' ? 'Sentinel — server room'
+    : briefingTurn?.speaker === 'patch' ? 'Patch — workshop'
+    : 'Cypher reads the briefing…';
+  const openingCaption = openingPhase === 'open' ? 'Opening the SOC…'
+    : openingPhase === 'briefing' ? (cypherVoice.subtitle || briefingTurnLabel)
+    : openingPhase === 'showcase' ? (showcaseDevice ? `Equipment tour — ${showcaseDevice}` : 'Equipment tour')
+    : null;
+  const openingActive = openingPhase !== 'done';
   const done = attempt.status === 'COMPLETED' || !!debrief;
   const labObjectives = objectives.filter((o) => LAB_OBJECTIVE_IDS.includes(o.id));
   const labLike = {
@@ -601,6 +778,55 @@ export default function MissionWorkspace() {
       </header>
 
       <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr]">
+        {/* SOC room first, full width: the 3D frame is the mission's
+            centrepiece, and its camera focuses on whoever is talking. */}
+        <div className="lg:col-span-2">
+          <Card level={2} className={`mission-console${openingActive ? ' soc-open' : ''}`}>
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
+              <h2 className="font-mono text-heading text-terminal-bright">SOC Room</h2>
+              <span className="hidden text-caption text-terminal-muted sm:inline">
+                {view === '3d'
+                  ? 'Cypher presents the SOC — switch to the 2D topology to inspect devices'
+                  : '2D topology — fully playable without WebGL'}
+              </span>
+              {openingActive && (
+                <button type="button" onClick={skipOpening} className="ml-auto rounded-control border border-black/10 bg-white/80 px-2.5 py-1 text-caption font-semibold text-ink-1">
+                  Skip intro
+                </button>
+              )}
+            </div>
+            {openingCaption && (
+              <p className="mb-3 text-small text-terminal-muted" aria-live="polite">{openingCaption}</p>
+            )}
+            {view === '3d' ? (
+              <React.Suspense fallback={<div className="flex aspect-[16/10] items-center justify-center text-ink-2">Loading SOC room…</div>}>
+                <MissionSocScene
+                  devices={MISSION_TOPOLOGY_DEVICES}
+                  incidentActive={incidentActive}
+                  contained={contained}
+                  onRendererFailed={handleRendererFailed}
+                  background={background}
+                  reducedMotion={reducedMotion}
+                  quality={quality}
+                  cypherVoiceRef={cypherVoiceRef}
+                  speakerRef={speakerRef}
+                  showcaseRef={showcaseRef}
+                />
+              </React.Suspense>
+            ) : (
+              <MissionTopology
+                devices={MISSION_TOPOLOGY_DEVICES}
+                inspected={inspected}
+                onInspect={onInspect}
+                guestBlocked={passed('guest-blocked') ? true : null}
+                trustedAllowed={passed('trusted-allowed') ? true : null}
+                activeDevice={null}
+              />
+            )}
+          </Card>
+        </div>
+
         <div className="space-y-4">
           <MissionBrief mission={missionForBrief} />
           {typeof missionDef.xp === 'number' && (
@@ -608,22 +834,25 @@ export default function MissionWorkspace() {
               First completion earns {missionDef.xp} XP — replays earn none.
             </p>
           )}
+          {/* The briefing plays itself on mission entry (the opening
+              auto-plays it, one robot's paragraph at a time), so the "Hear
+              the briefing" card's wording and its Listen button are gone
+              — Spencer, 2026-11-14: "No need to have any wording there."
+              Only the sound controls stay, slim and unobtrusive, so the
+              learner can still mute or turn Cypher down. The
+              onPlayingChange wiring stays: it is what tells the SOC
+              camera the replay is playing (Cypher reads the whole brief,
+              so the camera stays on him). */}
           {briefLines.length > 0 && (
-            <Card level={2}>
-              <h2 className="text-heading text-ink-1">Hear the briefing</h2>
-              <p className="mt-1 text-small text-ink-2">
-                Cipher reads Sentinel’s briefing out loud while he talks in the SOC.
-                The words show as subtitles while he speaks.
-              </p>
-              <div className="mt-3">
-                <CypherVoiceButton
-                  text={briefLines.join('\n')}
-                  label="Listen to the briefing"
-                  voice={cypherVoice}
-                  eventContext={{ mission_id: missionId }}
-                />
-              </div>
-            </Card>
+            <div className="px-1">
+              <CypherVoiceButton
+                text={briefLines.join('\n')}
+                voice={cypherVoice}
+                eventContext={{ mission_id: missionId }}
+                onPlayingChange={setBriefingPlaying}
+                controlsOnly
+              />
+            </div>
           )}
           {/* No objectives checklist lives on this page: the terminal is the
               only place the student checks where they stand (run `objectives`
@@ -659,41 +888,6 @@ export default function MissionWorkspace() {
         </div>
 
         <div className="space-y-4">
-          <Card level={2} className="mission-console">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
-              <h2 className="font-mono text-heading text-terminal-bright">SOC Room</h2>
-              <span className="hidden text-caption text-terminal-muted sm:inline">
-                {view === '3d'
-                  ? 'Cypher presents the SOC — switch to the 2D topology to inspect devices'
-                  : '2D topology — fully playable without WebGL'}
-              </span>
-            </div>
-            {view === '3d' ? (
-              <React.Suspense fallback={<div className="flex aspect-video items-center justify-center text-ink-2">Loading SOC room…</div>}>
-                <MissionSocScene
-                  devices={MISSION_TOPOLOGY_DEVICES}
-                  incidentActive={incidentActive}
-                  contained={contained}
-                  onRendererFailed={handleRendererFailed}
-                  background={background}
-                  reducedMotion={reducedMotion}
-                  quality={quality}
-                  cypherVoiceRef={cypherVoiceRef}
-                />
-              </React.Suspense>
-            ) : (
-              <MissionTopology
-                devices={MISSION_TOPOLOGY_DEVICES}
-                inspected={inspected}
-                onInspect={onInspect}
-                guestBlocked={passed('guest-blocked') ? true : null}
-                trustedAllowed={passed('trusted-allowed') ? true : null}
-                activeDevice={null}
-              />
-            )}
-          </Card>
-
           <Card level={2}>
             <h2 className="text-heading text-ink-1">Firewall console — R1, access-list 10</h2>
             <p className="mt-1 text-small text-ink-2">
@@ -796,13 +990,13 @@ export default function MissionWorkspace() {
                         <Button
                           size="sm"
                           variant="secondary"
-                          onClick={() => cypherVoice.play(explainText)}
+                          onClick={() => { setDebriefPlaying(true); cypherVoice.play(explainText); }}
                           disabled={cypherVoice.playing}
                         >
                           {cypherVoice.playing ? 'Speaking…' : 'Hear Cipher say it'}
                         </Button>
                         {cypherVoice.playing && (
-                          <Button size="sm" variant="ghost" onClick={cypherVoice.stop}>Stop</Button>
+                          <Button size="sm" variant="ghost" onClick={() => { setDebriefPlaying(false); cypherVoice.stop(); }}>Stop</Button>
                         )}
                       </div>
                       {cypherVoice.subtitle && (

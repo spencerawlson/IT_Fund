@@ -421,7 +421,14 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .animate-pop, .animate-shake, .animate-rise { animation: none; }
   .mascot-blink, .mascot-point, .mascot-idle, .mascot-spin, .mascot-bounce, .mascot-wiggle, .streak-ignited, .count-pop, .ring-complete { animation: none; }
+  .soc-open { animation: none; }
 }
+
+/* Mission opening: the SOC card opens wide, like a video starting — a
+   slow scale/fade from slightly small and dim to full. Only while the
+   opening is active (the .soc-open class); skipped under reduced motion. */
+.soc-open { animation: soc-open 1.2s ease-out; }
+@keyframes soc-open { 0% { transform: scale(0.97); opacity: 0.55; } 100% { transform: scale(1); opacity: 1; } }
 
 /* Acronym explanations (src/components/AcronymTooltips.jsx): dotted underline + help cursor on hover. */
 /* Longhands, not the `text-decoration` shorthand: Safari/WebKit rejects the shorthand with a style

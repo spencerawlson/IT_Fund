@@ -251,4 +251,50 @@ describe('useCypherVoice loading', () => {
     expect(latest.fallback).toBe(true);
     expect(latest.error).toBeTruthy();
   });
+
+  it('falls back to silent speech when the AudioContext stays suspended (Safari auto-play)', async () => {
+    // The mission opening auto-plays with no user gesture, so Safari
+    // leaves the AudioContext suspended: source.start() on a suspended
+    // context never advances and onended never fires, so without this
+    // fallback playing would stay true forever and the opening would
+    // hang on the briefing step. The hook races resume() against 1 s,
+    // then degrades to the silent word-count timer — the sequence
+    // always advances, and playing still ends.
+    class SuspendedAudioContext extends FakeAudioContext {
+      constructor() {
+        super();
+        this.state = 'suspended';
+      }
+      // resume() never resolves (no gesture): the 1 s race must win.
+      resume() { return new Promise(() => {}); }
+    }
+    globalThis.window = { AudioContext: SuspendedAudioContext };
+    vi.useFakeTimers();
+    try {
+      const gate = deferred();
+      globalThis.fetch = vi.fn(() => gate.promise);
+      mount();
+
+      let playPromise;
+      TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+      await TestRenderer.act(async () => {
+        gate.resolve(jsonResponse(audioEnvelope));
+        // The 1 s resume race must win before play() can return.
+        await vi.advanceTimersByTimeAsync(1000);
+        await playPromise;
+      });
+      expect(latest.loading).toBe(false);
+      expect(latest.playing).toBe(true); // silent talk while the subtitles show
+      expect(latest.fallback).toBe(true);
+      expect(latest.subtitle).toBe('Hello.');
+      expect(FakeSourceNode.instances.length).toBe(0); // no audio started
+
+      // The silent timer ends playback (1 word -> 2500 ms minimum).
+      await TestRenderer.act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+      expect(latest.playing).toBe(false);
+      expect(latest.subtitle).toBe('');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

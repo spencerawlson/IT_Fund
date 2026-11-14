@@ -53,4 +53,23 @@ describe('MissionTopology', () => {
     const html = renderToString(<MissionTopology trustedAllowed onInspect={() => {}} />);
     expect(html).toContain('ALLOWED');
   });
+
+  it('keeps the R1–SRV segment label clear of the R1 box, below the line', () => {
+    // The R1–SRV label ("Server LAN · 192.168.2.0/24") sat centred on
+    // the line at (435, 142), where its left end overlapped the R1 box
+    // (ends x = 372): it now sits below the line (midY + 42 = 192).
+    // The other two links' labels stay above their lines (midY − 8):
+    // PC1–R1 at 102, GUEST–R1 at 182. (The R1–SRV link never renders a
+    // BLOCKED/ALLOWED state — states only exist on the user-LAN links —
+    // so its state position below the line is untestable here; the
+    // GUEST–R1 BLOCKED state stays at midY + 18 = 208.)
+    const html = renderToString(<MissionTopology guestBlocked onInspect={() => {}} />);
+    const labelYs = (text) => {
+      const re = new RegExp(`<text x="\\d+" y="(\\d+)"[^>]*>${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</text>`, 'g');
+      return [...html.matchAll(re)].map((m) => Number(m[1]));
+    };
+    expect(labelYs('Server LAN · 192.168.2.0/24')).toEqual([192]);
+    expect(labelYs('User LAN · 192.168.1.0/24')).toEqual([102, 182]);
+    expect(labelYs('BLOCKED')).toEqual([208]);
+  });
 });
