@@ -133,10 +133,19 @@ describe('dashboard card layouts (2026-11-08, phone screenshot)', () => {
     }
   });
 
-  it('lesson lab cards stack on phones instead of squeezing the copy', () => {
+  it('lesson lab buttons sit in one row with no descriptive copy (2026-11-13)', () => {
     const s = src('src/pages/academy/LessonView.jsx');
-    expect(s.match(/flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between/g)?.length).toBe(2);
-    expect(s).toContain('className="w-full justify-center sm:w-auto"');
+    // Spencer 2026-11-13: just the two buttons, side by side, no wording.
+    expect(s).not.toContain('See this concept animated, then configure it yourself.');
+    expect(s).not.toContain("Do it for real: a hands-on lab terminal for this lesson's skills.");
+    // No more two separate cards with a text-plus-button row.
+    expect(s).not.toContain('flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between');
+    // One wrapping row holding both buttons; full-width on phones, side by side from sm up.
+    const row = s.match(/<div className="mb-8 flex max-w-reading flex-wrap gap-3">([\s\S]*?)<\/div>/);
+    expect(row).not.toBeNull();
+    expect(row[1]).toContain('Open in Visual Lab');
+    expect(row[1]).toContain('Launch Lab');
+    expect(s.match(/className="w-full justify-center sm:w-auto"/g)?.length).toBe(2);
   });
 
   it('focus-mode sticky headers use the opaque pill', () => {
