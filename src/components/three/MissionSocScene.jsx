@@ -44,9 +44,10 @@ import {
 // short greeting tour (Cypher -> Sentinel -> Patch, ~2.5 s each) that any
 // speaker change interrupts. During the mission opening's device
 // showcase, showcaseRef (owned by MissionWorkspace: null, or a device
-// id) overrides the speaker — the camera goes to that device's close-up
-// and its label is emphasised — and a showcase change interrupts the
-// tour the same way. Under reduced motion the tick never runs, so the
+// id) overrides the speaker — the camera CUTS to that device's close-up
+// (a snap, not a glide: damping cannot settle inside a 4 s dwell at a
+// low frame rate) and its label is emphasised — and a showcase change
+// interrupts the tour the same way. Under reduced motion the tick never runs, so the
 // camera holds the wide shot and the tour never happens.
 // Cypher SITS on the chair at his desk the whole mission (Spencer
 // 2026-11-14: "Cypher can simply sit on the chair ... because now he
@@ -112,8 +113,8 @@ const FOOTPRINT = 4;
 const TOUR_PHASE_S = 2.5;
 const GREETING_WINDOW_S = 3;
 // Camera glide: damped toward the current shot at this rate. During
-// the device showcase the camera settles faster (the tour dwells 4 s
-// per device and the shot should read, not still be gliding).
+// the device showcase the camera CUTS onto each shot (see the tick);
+// the faster showcase damp only settles any residual offset.
 const CAMERA_DAMP = 2.5;
 const CAMERA_DAMP_SHOWCASE = 4;
 
@@ -165,6 +166,9 @@ export default function MissionSocScene({
     // Greeting tour state.
     let tourStart = null;
     let tourDone = false;
+    // The showcase device the camera last cut to (null when not in the
+    // showcase): a change cuts the camera straight onto the new shot.
+    let lastShowcase = null;
     // The camera target the tick is damping toward.
     const currentTarget = new THREE.Vector3(...SOC_CAMERA_TARGET);
 
@@ -303,6 +307,20 @@ export default function MissionSocScene({
         sprite.scale.set(baseScale.x * s, baseScale.y * s, baseScale.z);
       }
       const camera = cameraRef.current;
+      // --- Showcase cuts, not glides. A showcase change snaps the camera
+      // straight onto the device shot: the opening plays like a video,
+      // and a cut reads the instant its dwell starts at ANY frame rate.
+      // Damping could not do that — dt is clamped to 0.1 s, so at 1 fps
+      // a 4 s dwell is four 33%-of-the-way frames and the camera never
+      // arrives (the two live checks saw a slow orbit, never a dwell).
+      // Speaker shots and the return to wide keep damping: they last
+      // long enough to settle.
+      if (camera && showcase && showcase !== lastShowcase) {
+        camera.position.set(shot.pos[0], shot.pos[1], shot.pos[2]);
+        currentTarget.set(shot.target[0], shot.target[1], shot.target[2]);
+        camera.lookAt(currentTarget);
+      }
+      lastShowcase = showcase;
       if (camera && dt > 0) {
         // The showcase settles faster so each device reads, not glides.
         const damp = showcase ? CAMERA_DAMP_SHOWCASE : CAMERA_DAMP;
