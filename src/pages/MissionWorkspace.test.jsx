@@ -68,11 +68,97 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('<MissionTopology');
   });
 
-  it('frames the SOC room as a video card while it loads — 16:9, not a tall box', () => {
+  it('frames the SOC room as a video card while it loads — full width, 16:10', () => {
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
     expect(src).toContain('Loading SOC room…');
-    expect(src).toContain('aspect-video');
+    // The SOC card is the full-width first row of the mission grid, and
+    // its frame is 16:10 — taller than the old 16:9 box.
+    expect(src).toContain('aspect-[16/10]');
+    expect(src).toContain('lg:col-span-2');
+    expect(src).not.toContain('aspect-video');
     expect(src).not.toContain('h-[26rem]');
+  });
+
+  it('focuses the SOC camera on whoever is talking — briefing turn speaker, debrief Cypher, else wide', () => {
+    // The scene reads speakerRef every frame. During the opening the
+    // current briefing turn's speaker drives it (splitBriefing: Cypher
+    // opens, Sentinel reads the servers part, Patch the security part,
+    // Cypher closes); the debrief is Cypher's; otherwise the wide "look
+    // across" shot. A manual replay of the whole brief is Cypher reading
+    // it all, so the briefing button's playing state means Cypher too —
+    // the briefing no longer belongs to a single speaker. The briefing
+    // button reports its playing state via onPlayingChange; the debrief
+    // play/stop buttons set the debrief flag; the voice stopping clears
+    // both.
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain('speakerRef={speakerRef}');
+    expect(src).toContain('onPlayingChange={setBriefingPlaying}');
+    expect(src).toContain("briefingPlaying || debriefPlaying ? 'cypher' : 'wide'");
+    expect(src).toContain('splitBriefing(briefLines)');
+    expect(src).toContain("briefingTurns[briefingTurnIdx]?.speaker || 'cypher'");
+    expect(src).toContain("openingPhase === 'briefing'");
+    expect(src).not.toContain("openingPhase === 'sentinel'");
+    expect(src).not.toContain("openingPhase === 'patch'");
+    expect(src).toContain('setDebriefPlaying(true)');
+    expect(src).toContain('setDebriefPlaying(false)');
+  });
+
+  it('drops the "Hear the briefing" wording and Listen button — only the sound controls stay', () => {
+    // Spencer (2026-11-14): "No need to have any wording there." The
+    // briefing auto-plays on entry now, so the card's heading, its
+    // explanatory paragraph and the Listen button are gone. The sound
+    // controls stay (mute + volume) via the button's controlsOnly mode,
+    // and the onPlayingChange wiring stays so the camera still knows
+    // the briefing is playing. The "Where do you stand?" card and the
+    // XP line are untouched (see the checklist test above).
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).not.toContain('Hear the briefing');
+    expect(src).not.toContain('Listen to the briefing');
+    expect(src).not.toContain('reads Sentinel’s briefing out loud');
+    expect(src).not.toContain('The words show as subtitles');
+    expect(src).toContain('controlsOnly');
+    expect(src).toContain('onPlayingChange={setBriefingPlaying}');
+  });
+
+  it('plays the mission opening like a video on entry — fresh attempt only', () => {
+    // Phases: open (cinematic establishing shot) -> briefing (the split
+    // briefing, one turn at a time: each robot reads their paragraph
+    // with the camera on them) -> showcase (the four devices, one at a
+    // time) -> done. A Skip button stops the voice and hands the
+    // controls over. The opening runs only on a fresh attempt: the start
+    // endpoint returns resumed: true for an in-progress attempt, and
+    // reduced motion skips it too. Each briefing turn has a 60 s safety
+    // cap so a stalled voice can never hang the sequence, and the
+    // briefing step waits for the mission to load rather than skipping
+    // on an empty turn list.
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain("setOpeningPhase('briefing')");
+    expect(src).toContain("setOpeningPhase('showcase')");
+    expect(src).not.toContain("setOpeningPhase('sentinel')");
+    expect(src).not.toContain("setOpeningPhase('patch')");
+    expect(src).not.toContain("openingPhase === 'sentinel' ? 'patch' : 'showcase'");
+    expect(src).toContain('briefingTurnIdx');
+    expect(src).toContain('setBriefingTurnIdx((i) => i + 1)');
+    expect(src).toContain('splitBriefing');
+    expect(src).toContain("setOpeningPhase('done')");
+    expect(src).toContain("setOpeningPhase('done')");
+    expect(src).toContain('showcaseRef={showcaseRef}');
+    expect(src).toContain('SHOWCASE_ORDER');
+    expect(src).toContain('Skip intro');
+    expect(src).toContain('Opening the SOC…');
+    expect(src).toContain('Sentinel — server room');
+    expect(src).toContain('Patch — workshop');
+    expect(src).toContain('Equipment tour');
+    expect(src).toContain('soc-open');
+    expect(src).toContain('started.resumed');
+    expect(src).toContain('resumedAttempt');
+    expect(src).toContain('OPEN_BRIEFING_CAP_S');
+    // The briefing is read aloud from the existing mission text only:
+    // no invented lines for Sentinel or Patch anywhere in the file —
+    // every turn is one of the original briefing paragraphs (see
+    // splitBriefing in src/data/missions.js, tested there).
+    expect(src).not.toContain('Sentinel says');
+    expect(src).not.toContain('Patch says');
   });
 
   it('shows no objectives checklist or progress count on the page — the terminal is the only place to check', () => {

@@ -16,11 +16,23 @@ import { pillClass, TutorText } from '@/components/academy/tutor/TutorAssist';
  * never overlap); when omitted the button creates its own. `voiceRef` is
  * the shared mutable ref { talking, level } the SOC scene (or the lesson
  * panel) reads every frame. `eventContext` ({mission_id, lesson_id}) is
- * attached to the voice_played / voice_fallback events.
+ * attached to the voice_played / voice_fallback events. `onPlayingChange`
+ * is called with true/false whenever playback starts/stops, so the page
+ * can react (the mission camera focuses on the speaker while they talk).
+ * `controlsOnly` renders just the sound controls (mute + volume) — no
+ * Listen/Stop button, no subtitle, no error — for when the briefing
+ * plays itself (the mission opening auto-plays it on entry, so a Listen
+ * button and an explanatory card are redundant; the sound controls stay
+ * reachable and unobtrusive). onPlayingChange still fires, so the page
+ * still tracks playback.
  */
-export default function CypherVoiceButton({ text, label = 'Listen', voice, voiceRef, eventContext = {} }) {
+export default function CypherVoiceButton({ text, label = 'Listen', voice, voiceRef, eventContext = {}, onPlayingChange, controlsOnly = false }) {
   const ownVoice = useCypherVoice(voiceRef);
   const { play, stop, playing, error, subtitle, muted, setMuted, volume, setVolume } = voice || ownVoice;
+
+  React.useEffect(() => {
+    if (onPlayingChange) onPlayingChange(playing);
+  }, [playing, onPlayingChange]);
 
   const listen = async () => {
     const spoken = await play(text);
@@ -34,7 +46,7 @@ export default function CypherVoiceButton({ text, label = 'Listen', voice, voice
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        {playing ? (
+        {!controlsOnly && (playing ? (
           <button type="button" onClick={stop} className={pillClass} aria-label="Stop Cypher speaking">
             <Square size={13} className="fill-current" /> Stop
           </button>
@@ -42,7 +54,7 @@ export default function CypherVoiceButton({ text, label = 'Listen', voice, voice
           <button type="button" onClick={listen} className={pillClass} disabled={!text}>
             <Volume2 size={15} className="text-action" /> {label}
           </button>
-        )}
+        ))}
         <button
           type="button"
           onClick={() => setMuted(!muted)}
@@ -67,8 +79,8 @@ export default function CypherVoiceButton({ text, label = 'Listen', voice, voice
           />
         </label>
       </div>
-      {error && <p className="mt-2 text-small text-danger">{error}</p>}
-      {subtitle && (
+      {!controlsOnly && error && <p className="mt-2 text-small text-danger">{error}</p>}
+      {!controlsOnly && subtitle && (
         <div className="mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-3 text-sm leading-relaxed text-ink-1" aria-live="polite">
           <span className="mr-1.5 font-bold text-action-hover">Cipher:</span>
           <TutorText text={subtitle} />

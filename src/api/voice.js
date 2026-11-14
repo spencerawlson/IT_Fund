@@ -182,6 +182,25 @@ export function useCypherVoice(voiceRef) {
     setError('');
     setFallback(false);
     if (!text || !text.trim()) return '';
+    // Silent speech: Cypher "talks" (talk clip + subtitles) on a
+    // word-count timer, no audio. Used when there is no audio (voice not
+    // configured, muted) and when the AudioContext is suspended (Safari
+    // auto-play block) — source.start() on a suspended context never
+    // advances and onended never fires, so without this the opening
+    // would hang on the briefing step with playing stuck true.
+    const startSilentTimer = (spokenText) => {
+      setLoading(false);
+      setFallback(true);
+      if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
+      setPlaying(true);
+      const words = spokenText.trim().split(/\s+/).length;
+      const ms = Math.min(30000, Math.max(2500, (words / 2.5) * 1000));
+      setTimeout(() => {
+        stopLevelLoop();
+        setPlaying(false);
+        setSubtitle('');
+      }, ms);
+    };
     // Resume the AudioContext here, synchronously, before the speak fetch:
     // this is still inside the click's user gesture. Once resumed, the
     // context stays unlocked for as long as it's open, so the real audio
@@ -235,17 +254,7 @@ export function useCypherVoice(voiceRef) {
         audioCtxRef.current.close().catch(() => {});
         audioCtxRef.current = null;
       }
-      setLoading(false);
-      setFallback(true);
-      if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
-      setPlaying(true);
-      const words = envelope.text.trim().split(/\s+/).length;
-      const ms = Math.min(30000, Math.max(2500, (words / 2.5) * 1000));
-      setTimeout(() => {
-        stopLevelLoop();
-        setPlaying(false);
-        setSubtitle('');
-      }, ms);
+      startSilentTimer(envelope.text);
       return envelope.text;
     }
     if (!ctx) {
@@ -265,6 +274,22 @@ export function useCypherVoice(voiceRef) {
         // it's safe to replay later through a different (future) context.
         const entry = voiceCache.get(cacheKey);
         if (entry) entry.audioBuffer = audioBuffer;
+      }
+      // Safari auto-play: the context may still be suspended — the
+      // opening auto-plays with no user gesture, so the resume() above
+      // cannot unlock it. Give resume() 1 s, then fall back to silent
+      // speech so the sequence always advances.
+      if (ctx.state !== 'running') {
+        try {
+          await Promise.race([
+            ctx.resume(),
+            new Promise((resolve) => setTimeout(resolve, 1000)),
+          ]);
+        } catch { /* resume rejected: fall through to the check below */ }
+      }
+      if (ctx.state !== 'running') {
+        startSilentTimer(envelope.text);
+        return envelope.text;
       }
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;

@@ -17,12 +17,16 @@ export default function ModelViewer({
   // interaction (no drag-to-rotate, no scroll-to-zoom, no click-for-info)
   // plus the hint bar: presenter-only scenes (Cypher) pass false; every
   // other viewer keeps the original behaviour.
+  // cameraRef — optional ref filled with the live camera object, so a
+  // scene whose camera moves (the SOC focus shots) can aim things at it
+  // every frame. The camera is created once, so one assignment is enough.
   background = '#F8F7FF',
   reducedMotion = false,
   quality = 'high',
   onRendererFailed,
   onInspect,
   interactive = true,
+  cameraRef = null,
 }) {
   const mountRef = useRef(null);
   const buildRef = useRef(buildScene);
@@ -44,6 +48,7 @@ export default function ModelViewer({
 
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
     camera.position.set(...cameraPos);
+    if (cameraRef) cameraRef.current = camera;
 
     let renderer;
     try {

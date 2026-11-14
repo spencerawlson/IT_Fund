@@ -54,6 +54,42 @@ export const MISSIONS = {
   },
 };
 
+/**
+ * Split a mission briefing into spoken turns, one per robot, from the
+ * existing text only — nothing is invented. Spencer, 2026-11-14: Cypher
+ * ALWAYS does the introduction first; Sentinel says the part related to
+ * servers; Patch says the part related to security.
+ *
+ * - The first line is the introduction: always Cypher, whatever it says.
+ * - A later line is Patch's when it is the security FIX (least privilege,
+ *   blocking the intruder, correcting the configuration).
+ * - A later line is Sentinel's when it is the investigation of the network
+ *   itself (the topology, the firewall policies as things to inspect, the
+ *   unauthorized path to find). Honest caveat: no paragraph of the Broken
+ *   Shield briefing literally mentions servers — this line is the closest
+ *   content match, because the things being investigated (R1, SRV) live in
+ *   Sentinel's server room and watching the network is his job. If Spencer
+ *   wants that line read by someone else, it is a one-line change here.
+ * - Anything else (e.g. how to use the Mission Console) stays with Cypher,
+ *   the presenter — he opens the briefing and closes it.
+ * Returns [{ speaker: 'cypher' | 'sentinel' | 'patch', text }] in order.
+ * Every turn's text is one of the original lines, verbatim.
+ */
+const PATCH_LINE_RE = /least privilege|block the intruder|correct the configuration/i;
+const SENTINEL_LINE_RE = /topology|network segment|unauthorized path|firewall polic/i;
+
+export function splitBriefing(brief) {
+  const lines = Array.isArray(brief) ? brief.filter(Boolean) : [];
+  return lines.map((text, i) => {
+    let speaker = 'cypher';
+    if (i > 0) {
+      if (PATCH_LINE_RE.test(text)) speaker = 'patch';
+      else if (SENTINEL_LINE_RE.test(text)) speaker = 'sentinel';
+    }
+    return { speaker, text };
+  });
+}
+
 /** Lesson id -> mission id, for the lesson-page mission invitation. */
 export const MISSION_FOR_LESSON = {
   'net-security': 'op-broken-shield',

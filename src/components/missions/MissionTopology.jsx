@@ -65,14 +65,21 @@ export default function MissionTopology({
           const stroke = state === 'blocked' ? '#dc2626' : state === 'open' ? '#16a34a' : '#94a3b8';
           const midX = (pa.x + pb.x) / 2;
           const midY = (pa.y + pb.y) / 2;
+          // The R1–SRV segment label sat centred on the line at (435, 142),
+          // where its left end overlapped the R1 box (ends x = 372): move
+          // it — and its BLOCKED/ALLOWED state — below the line, clear of
+          // both boxes. The other two links' labels already clear theirs.
+          const isServerLink = linkKey(a, b) === 'R1-SRV';
+          const labelY = isServerLink ? midY + 42 : midY - 8;
+          const stateY = isServerLink ? midY + 60 : midY + 18;
           return (
             <g key={linkKey(a, b)}>
               <line x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={stroke} strokeWidth={state ? 3 : 2} strokeDasharray={state === 'blocked' ? '6 4' : undefined} />
-              <text x={midX} y={midY - 8} textAnchor="middle" fontSize="11" fill="#64748b">
+              <text x={midX} y={labelY} textAnchor="middle" fontSize="11" fill="#64748b">
                 {MISSION_TOPOLOGY_SEGMENTS[linkKey(a, b)] || ''}
               </text>
               {state && (
-                <text x={midX} y={midY + 18} textAnchor="middle" fontSize="11" fontWeight="700" fill={stroke}>
+                <text x={midX} y={stateY} textAnchor="middle" fontSize="11" fontWeight="700" fill={stroke}>
                   {state === 'blocked' ? 'BLOCKED' : 'ALLOWED'}
                 </text>
               )}
