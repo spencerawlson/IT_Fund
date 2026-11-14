@@ -79,6 +79,55 @@ export function getLessonContent(lessonId) {
 }
 
 /**
+ * Flatten one lesson's reading body into plain text for the AI tutor, so
+ * Cypher explains ONLY what that lesson covers: Overview + Learn sections
+ * (headings, paragraphs, and LayerStack rows) + architecture caption +
+ * examples + cheat sheet. The ASCII architecture diagram itself is skipped
+ * (the caption says what it shows); the deck cards and puzzles are not
+ * reading body and stay out. Truncated at 12,000 chars — the longest
+ * lesson body is ~7,400, so this only ever bites on a malformed payload.
+ * Returns '' when there is no reading body (practice-only lessons).
+ */
+const LESSON_TEXT_MAX_CHARS = 12000;
+
+export function lessonTextFromContent(content) {
+  if (!content || typeof content !== 'object') return '';
+  const parts = [];
+  const push = (text) => {
+    if (typeof text === 'string' && text.trim()) parts.push(text.trim());
+  };
+  (content.overview || []).forEach(push);
+  for (const part of content.learn || []) {
+    push(part.heading);
+    for (const p of part.body || []) {
+      if (typeof p === 'string') {
+        push(p);
+      } else if (p && typeof p === 'object' && p.stack) {
+        push(p.stack.title);
+        for (const item of p.stack.items || []) {
+          const bits = [item.name, item.does, item.examples ? `Examples: ${item.examples}` : '']
+            .filter(Boolean);
+          if (bits.length) parts.push(bits.join(' — '));
+        }
+      }
+    }
+  }
+  if (content.architecture) push(content.architecture.caption);
+  for (const ex of content.examples || []) {
+    push(ex.title);
+    push(ex.code);
+    push(ex.explanation);
+  }
+  for (const [term, meaning] of content.cheatSheet || []) {
+    parts.push(`${term}: ${meaning}`);
+  }
+  const text = parts.join('\n\n');
+  return text.length > LESSON_TEXT_MAX_CHARS
+    ? `${text.slice(0, LESSON_TEXT_MAX_CHARS)}\n[Lesson text truncated]`
+    : text;
+}
+
+/**
  * One module study note. Any failure — no full note (404), anonymous (401),
  * or non-subscriber (402) — falls back to the concept's short detail, which
  * is the same fallback the bundled getNote() has always used.

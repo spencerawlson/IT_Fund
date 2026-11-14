@@ -232,3 +232,48 @@ def test_level_changes_the_task_and_the_cache_key(fake):
 def test_invalid_level_is_422(fake):
     body = {**CARD, "level": "expert"}
     assert client.post("/api/ai/tutor", json=body).status_code == 422
+
+
+LESSON_TEXT = "Attackers who get onto a network, even as a guest, often start at Layer 2."
+
+
+def test_lesson_text_grounds_explain_example_and_simplify(fake):
+    """The lesson panel sends the lesson's own text; the tutor prompt must
+    carry it plus the stay-inside-the-lesson instruction, for all three
+    preset modes — this is what stops the CIA-triad drift in lesson 3.3,
+    which has no CIA in it."""
+    for mode in ("explain", "example", "simplify"):
+        body = {**CARD, "mode": mode, "lesson_text": LESSON_TEXT}
+        r = client.post("/api/ai/tutor", json=body)
+        assert r.status_code == 200
+    assert len(fake.calls) == 3
+    for call in fake.calls:
+        task = call["messages"][1]["content"]
+        assert LESSON_TEXT in task
+        assert "ONLY source you may draw on" in task
+        assert "Do not introduce topics" in task
+
+
+def test_no_lesson_text_means_no_grounding_block(fake):
+    client.post("/api/ai/tutor", json=CARD)
+    task = fake.calls[0]["messages"][1]["content"]
+    assert "Lesson text:" not in task
+    assert "ONLY source you may draw on" not in task
+
+
+def test_lesson_text_changes_the_cache_key(fake):
+    """The same question grounded on two lessons is two answers — and a
+    pre-grounding cached answer must never serve a grounded request."""
+    body = {**CARD, "lesson_text": LESSON_TEXT}
+    client.post("/api/ai/tutor", json=body)
+    client.post("/api/ai/tutor", json=body)
+    assert len(fake.calls) == 1  # same lesson text: cached
+    other = {**CARD, "lesson_text": "A different lesson entirely."}
+    client.post("/api/ai/tutor", json=other)
+    assert len(fake.calls) == 2
+    assert ai_tutor.cache_key(ai_tutor.TutorReq(**CARD)) != ai_tutor.cache_key(ai_tutor.TutorReq(**body))
+
+
+def test_oversized_lesson_text_is_422(fake):
+    body = {**CARD, "lesson_text": "x" * (ai_tutor.LESSON_TEXT_MAX_CHARS + 1)}
+    assert client.post("/api/ai/tutor", json=body).status_code == 422

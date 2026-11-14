@@ -41,12 +41,17 @@ function renderPanel(props) {
 }
 
 describe('CypherLessonPanel', () => {
-  it('renders the greeting and difficulty levels, with exactly three buttons and no mission section and no question box', () => {
+  it('renders the difficulty levels, with exactly three buttons and no mission section, no question box, no greeting, and no Read answer', () => {
     const html = renderPanel({
       lesson: { id: 'net-security', title: 'Network Security', trackId: 'net' },
       missionId: 'op-broken-shield',
     });
-    expect(html).toContain('Hi, I’m Cipher');
+    // No greeting paragraph anymore (and no "Stuck on a concept?" subtitle —
+    // that lived in the lesson page, which now shows just the "Cypher"
+    // heading): the panel opens straight onto the level selector.
+    expect(html).not.toContain('Hi, I’m Cipher');
+    expect(html).not.toContain('Stuck on a concept');
+    expect(html).not.toContain('Read answer');
     // SSR renders `{label} level` as `Beginner<!-- --> level`, so assert the
     // option values (contiguous in the HTML) instead of the joined text.
     expect(html).toContain('value="beginner"');
@@ -158,6 +163,10 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
   let root;
   let fetchGate;
 
+  // The lesson's own text (Overview + body) the panel sends so the tutor
+  // explains only what this lesson covers.
+  const LESSON_TEXT = 'Attackers who get onto a network, even as a guest, often start at Layer 2.';
+
   function deferred() {
     let resolve; let reject;
     const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
@@ -179,13 +188,13 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     }
   }
 
-  function mountPanel() {
+  function mountPanel(lessonText = LESSON_TEXT) {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     TestRenderer.act(() => {
       root = TestRenderer.create(
         <QueryClientProvider client={queryClient}>
           <StaticRouter location="/academy/lessons/net-security">
-            <CypherLessonPanel lesson={{ id: 'net-security', title: 'Network Security', trackId: 'net' }} missionId="op-broken-shield" />
+            <CypherLessonPanel lesson={{ id: 'net-security', title: 'Network Security', trackId: 'net' }} missionId="op-broken-shield" lessonText={lessonText} />
           </StaticRouter>
         </QueryClientProvider>,
       );
@@ -258,7 +267,21 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
       expect(lastCall.question).toBe(presetQuestion(mode, 'Network Security', 'intermediate'));
       expect(lastCall.track).toBe('net');
       expect(lastCall.topic).toBe('Network Security');
+      // Grounding: the lesson's own text travels with every preset ask.
+      expect(lastCall.lesson_text).toBe(LESSON_TEXT);
     }
+  });
+
+  it('omits lesson_text when the page has no reading body to ground on', async () => {
+    mountPanel(null);
+    await flush();
+    const button = findButton('Explain this concept');
+    expect(button).toBeTruthy();
+    TestRenderer.act(() => { button.props.onClick(); });
+    await flush();
+    const lastCall = tutorMocks.streamTutor.mock.calls.at(-1)[0];
+    expect(lastCall.mode).toBe('explain');
+    expect(lastCall.lesson_text).toBeUndefined();
   });
 
   it('auto-plays the answer when it arrives — no Hear click — and shows "Loading voice…" while the voice is being made', async () => {
@@ -280,7 +303,7 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     expect(treeText()).not.toContain(SPOKEN);
   });
 
-  it('is voice-only while audio plays — no subtitle paragraph — and the Read answer toggle reveals the text', async () => {
+  it('is voice-only while audio plays — no subtitle paragraph — and there is no Read answer toggle', async () => {
     mountPanel();
     await askPreset();
     await TestRenderer.act(async () => { fetchGate.resolve(jsonResponse(audioEnvelope)); });
@@ -288,11 +311,9 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     expect(treeText()).toContain('Speaking…');
     expect(treeText()).not.toContain(SPOKEN); // voice-only: no subtitle
     expect(treeText()).not.toContain(ANSWER); // full text hidden
-    const toggle = findButton('Read answer');
-    expect(toggle).toBeTruthy();
-    TestRenderer.act(() => { toggle.props.onClick(); });
-    expect(treeText()).toContain(ANSWER);
-    expect(findButton('Hide answer')).toBeTruthy();
+    // No way to read the answer while voice works: the toggle is gone.
+    expect(findButton('Read answer')).toBeFalsy();
+    expect(findButton('Hide answer')).toBeFalsy();
   });
 
   it('replays with "Hear again" once playback finishes', async () => {
@@ -307,7 +328,7 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     expect(treeText()).not.toContain('Speaking…');
     const replay = findButton('Hear again');
     expect(replay).toBeTruthy();
-    expect(findButton('Read answer')).toBeTruthy();
+    expect(findButton('Read answer')).toBeFalsy(); // the toggle is gone; Hear again is the control
     // The exact same answer was already heard this visit, so "Hear again"
     // is served from the in-tab cache: no new fetch to /voice/speak (no
     // ElevenLabs cost, no network round trip), and it starts right away —

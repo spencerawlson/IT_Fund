@@ -62,6 +62,10 @@ Mode = Literal["hint", "explain", "simplify", "example", "weakspots", "chat"]
 # Output budget per mode keeps answers short and costs predictable.
 MAX_TOKENS = {"hint": 150, "explain": 350, "simplify": 300, "example": 300, "weakspots": 500, "chat": 600}
 
+#: Max lesson text the panel may send with a request. The longest lesson
+#: body is ~7,400 chars; 12,000 leaves headroom and bounds the prompt cost.
+LESSON_TEXT_MAX_CHARS = 12000
+
 #: OpenAI list prices, USD per 1M tokens, as published 2026-11-08.
 #: Update when OpenAI changes list prices. A model missing here costs
 #: None ("unknown") — never a made-up figure.
@@ -146,6 +150,10 @@ class TutorReq(BaseModel):
     question: Optional[str] = Field(default=None, max_length=600)
     answer: Optional[str] = Field(default=None, max_length=600)
     explanation: Optional[str] = Field(default=None, max_length=800)
+    # The lesson's own text (Overview + body), sent by the lesson panel so
+    # the tutor explains only what that lesson covers. Optional: other
+    # callers (flashcards, chat) don't have it and keep the old behaviour.
+    lesson_text: Optional[str] = Field(default=None, max_length=LESSON_TEXT_MAX_CHARS)
     user_answer: Optional[str] = Field(default=None, max_length=600)
     options: list[Annotated[str, Field(max_length=300)]] = Field(default_factory=list, max_length=8)
     missed: list[Missed] = Field(default_factory=list, max_length=15)
@@ -165,6 +173,26 @@ LEVEL_INSTRUCTIONS = {
 
 def _level_note(req: TutorReq) -> str:
     return f"\n\n{LEVEL_INSTRUCTIONS[req.level]}" if req.level in LEVEL_INSTRUCTIONS else ""
+
+
+def _lesson_grounding(req: TutorReq) -> str:
+    """Grounding block for the lesson-panel modes (explain/simplify/example):
+    when the client sends the lesson's own text, the tutor may draw ONLY on
+    it. Without the text the model improvises from general knowledge — that
+    is how a lesson with no CIA triad in it got an answer about the CIA
+    triad. No lesson text, no block: other callers keep the old behaviour."""
+    if not req.lesson_text:
+        return ""
+    return (
+        "\n\nThe lesson the learner is studying is reproduced below. It is "
+        "the ONLY source you may draw on: explain, exemplify, and simplify "
+        "ONLY concepts that appear in it. Do not introduce topics, terms, or "
+        "examples that are not in the lesson text. If the lesson does not "
+        "cover something, say so plainly and point to what the lesson does "
+        "cover instead of importing outside material. If you cannot explain "
+        "from general knowledge, read and explain from the lesson text itself."
+        f"\n\nLesson text:\n{req.lesson_text}"
+    )
 
 
 def _card(req: TutorReq, include_answer: bool = True) -> str:
@@ -227,6 +255,10 @@ def build_messages(req: TutorReq) -> list[dict]:
             task = _card(req) + "\n\nExplain this for someone brand new to IT, using an everyday analogy. Keep it under 120 words." + _level_note(req)
         else:  # example
             task = _card(req) + "\n\nGive one concrete, real-world example or scenario that shows this concept in practice." + _level_note(req)
+        if req.mode in ("explain", "simplify", "example"):
+            # Lesson-panel modes ground on the lesson's own text when the
+            # client sent it; hint stays card-grounded as before.
+            task += _lesson_grounding(req)
 
     return [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": task}]
 
@@ -252,7 +284,10 @@ def cache_key(req: TutorReq) -> Optional[str]:
     # Card-based modes repeat across learners; chat and weak-spot summaries are personal.
     if req.mode in ("chat", "weakspots"):
         return None
-    raw = json.dumps([req.mode, req.level, req.question, req.answer, req.user_answer, req.options], sort_keys=True)
+    # The lesson text is part of the key: the same question grounded on two
+    # different lessons is two different answers, and a pre-grounding cached
+    # answer (no lesson text) must never be served to a grounded request.
+    raw = json.dumps([req.mode, req.level, req.question, req.answer, req.user_answer, req.options, req.lesson_text], sort_keys=True)
     return hashlib.sha256(raw.encode()).hexdigest()
 
 

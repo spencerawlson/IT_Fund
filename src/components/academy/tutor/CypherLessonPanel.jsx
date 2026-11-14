@@ -31,16 +31,16 @@ export function presetQuestion(mode, lessonTitle, level) {
   }
 }
 
-// Cipher Explains on the lesson page (Network Security first): the 3D
-// tutor offers assistance through the existing server-side AI tutor (no
-// duplicate chatbot). Three buttons — explain, example, simplify — each
-// ask directly for the current lesson context, no typing. Answers are
-// listen-first and voice-only: Cypher speaks each answer as soon as it
-// arrives, with no subtitle paragraph while he talks; the full text stays
-// hidden behind a "Read answer" toggle. The mission lives in the handoff
-// at the end of practice, not here: nothing about Operation Broken Shield
+// Cypher on the lesson page (Network Security first): the 3D tutor offers
+// assistance through the existing server-side AI tutor (no duplicate
+// chatbot). Three buttons — explain, example, simplify — each ask directly
+// for the current lesson context, no typing. Answers are listen-first and
+// voice-only: Cypher speaks each answer as soon as it arrives, with no
+// subtitle paragraph while he talks; when voice is unavailable or muted the
+// full text is shown directly instead. The mission lives in the handoff at
+// the end of practice, not here: nothing about Operation Broken Shield
 // shows in this panel.
-export default function CypherLessonPanel({ lesson, missionId }) {
+export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
   const tutorEnabled = useTutorEnabled();
   const voiceRef = useRef({ talking: false, level: 0 });
   const voice = useCypherVoice(voiceRef);
@@ -49,29 +49,36 @@ export default function CypherLessonPanel({ lesson, missionId }) {
   const [active, setActive] = useState(null); // which ask is showing
   // Listen-first + voice-only: Cypher speaks each answer as soon as it
   // arrives — the student listens, they don't read. No subtitle paragraph
-  // while he talks; the full text stays hidden behind a "Read answer"
-  // toggle, and "Hear again" replays once he finishes.
-  const [showAnswer, setShowAnswer] = useState(false);
+  // while he talks; when voice is unavailable or muted the answer text is
+  // shown directly instead (voice.fallback). "Hear again" replays once he
+  // finishes.
   const [spoken, setSpoken] = useState(false); // this answer has been spoken at least once
   const autoPlayedRef = useRef(''); // answer text already spoken by auto-play
   const stoppedRef = useRef(false); // the student stopped the tutor mid-answer
   const loggedOpenRef = useRef(false);
 
-  const context = { track: lesson.trackId, topic: lesson.title, level };
+  const context = {
+    track: lesson.trackId,
+    topic: lesson.title,
+    level,
+    // Grounding: the lesson's own text, so Cypher explains only what this
+    // lesson covers. Omitted when the page has no reading body (a
+    // practice-only lesson) — the backend then answers as before.
+    ...(lessonText ? { lesson_text: lessonText } : {}),
+  };
 
   // A new question resets the listen-first state for the next answer.
   const resetAnswerState = () => {
     autoPlayedRef.current = '';
     stoppedRef.current = false;
-    setShowAnswer(false);
     setSpoken(false);
   };
 
   // Listen-first: when an answer finishes arriving, Cypher speaks it —
   // no "Hear Cipher say it" click needed. Voice-only: the spoken words
-  // are NOT shown as subtitles while he talks; "Read answer" reveals
-  // the text. If the student stopped the tutor mid-answer, the partial
-  // text is not auto-played — they can hear it with "Hear Cipher say it".
+  // are NOT shown as subtitles while he talks. If the student stopped the
+  // tutor mid-answer, the partial text is not auto-played — they can hear
+  // it with "Hear Cipher say it".
   useEffect(() => {
     if (!text || loading || error || stoppedRef.current) return;
     if (autoPlayedRef.current === text) return;
@@ -104,12 +111,6 @@ export default function CypherLessonPanel({ lesson, missionId }) {
           <p className="mt-1 text-center text-caption text-ink-2">Cipher — your AI tutor</p>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-body text-ink-1">
-            Hi, I’m Cipher. I can explain this lesson, show an example, or put
-            it more simply — and when you’re ready, I’ll walk you into the
-            mission with you.
-          </p>
-
           <label className="mt-3 flex items-center gap-2 text-small text-ink-2">
             Explain at
             <select
@@ -158,10 +159,9 @@ export default function CypherLessonPanel({ lesson, missionId }) {
                 <p className="text-danger">{error}</p>
               ) : loading || !text ? (
                 <Thinking />
-              ) : voice.fallback || showAnswer ? (
+              ) : voice.fallback ? (
                 // Voice unavailable or muted: listening can't happen, so the
-                // answer is shown as text with the Hear button, as before.
-                // Same when the student asked to read it.
+                // answer is shown as text directly, with the Hear button.
                 <TutorText text={text} />
               ) : null}
               {text && !loading && (
@@ -194,16 +194,6 @@ export default function CypherLessonPanel({ lesson, missionId }) {
                       className={pillClass}
                     >
                       <Volume2 size={15} className="text-action" /> Hear again
-                    </button>
-                  )}
-                  {!voice.fallback && (
-                    <button
-                      type="button"
-                      onClick={() => setShowAnswer((s) => !s)}
-                      className={pillClass}
-                      aria-expanded={showAnswer}
-                    >
-                      {showAnswer ? 'Hide answer' : 'Read answer'}
                     </button>
                   )}
                 </div>
