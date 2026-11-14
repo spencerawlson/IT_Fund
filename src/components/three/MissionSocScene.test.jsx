@@ -29,6 +29,16 @@ describe('MissionSocScene', () => {
     expect(html).not.toContain('Scroll to zoom');
     expect(html).not.toContain('Click parts for info');
   });
+
+  it('frames the SOC as a video card — a 16:9 frame, not a tall box', () => {
+    const html = renderToString(
+      <MissionSocScene devices={SOC_DEVICES} incidentActive contained={false} />,
+    );
+    // The Cypher presentation renders like a video player card.
+    expect(html).toContain('aspect-video');
+    expect(html).not.toContain('h-[26rem]');
+    expect(html).not.toContain('sm:h-[30rem]');
+  });
 });
 
 describe('CYPHER_SPAWN', () => {

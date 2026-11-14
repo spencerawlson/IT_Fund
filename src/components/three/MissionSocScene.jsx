@@ -6,12 +6,16 @@ import {
   modelKeyFor, fallbackBuilderFor, loadDeviceModel, fitAndPlace,
 } from '@/components/three/deviceModels';
 import { loadCypherCharacter } from '@/components/three/CypherCharacter';
+import { attachCypherNameTag, faceTagToCamera } from '@/components/three/nameTag';
 
 // Cypher's spot in the SOC: near the east wall, facing the room centre.
 // The model is real scale (1.70 m); the room reads at device scale, so he
 // is scaled up to stand beside the 5-unit devices. Rotation -PI/4 faces him
 // toward the room centre from (5.5, -5.5) — the model faces +Z in three.js.
 export const CYPHER_SPAWN = { x: 5.5, z: -5.5, scale: 2.2, rotationY: -Math.PI / 4 };
+
+// Fixed presenter camera for the video frame; the name tag yaws to face it.
+export const SOC_CAMERA_POS = [16, 12, 18];
 
 // The 3D SOC room for Operation Broken Shield. One room, kit-built from
 // primitives plus the existing device GLBs: floor + walls, a desk row, a
@@ -92,11 +96,15 @@ export default function MissionSocScene({
     // walk would strand him at the door) and he starts at his spot.
     const walkFrom = { x: 11.5, z: 4 };
     let cypherWalking = false;
+    let cypherTag = null;
     loadCypherCharacter()
       .then((controller) => {
         cypher = controller;
         controller.group.scale.setScalar(CYPHER_SPAWN.scale);
         scene.add(controller.group);
+        // His name tag, pinned to his chest bone and facing the camera —
+        // the greeting is the tag; everything else he says is voice only.
+        cypherTag = attachCypherNameTag(controller.group, SOC_CAMERA_POS);
         if (reducedMotion) {
           controller.group.position.set(CYPHER_SPAWN.x, 0, CYPHER_SPAWN.z);
           controller.group.rotation.y = CYPHER_SPAWN.rotationY;
@@ -238,6 +246,10 @@ export default function MissionSocScene({
           }
         }
         cypher.update(dt);
+        // The tag rides the chest bone; keep it yawed at the fixed camera
+        // as he walks in (under reduced motion the tick never runs, so the
+        // orientation set at attach time stands).
+        if (cypherTag) faceTagToCamera(cypherTag, SOC_CAMERA_POS);
       }
     };
 
@@ -245,10 +257,11 @@ export default function MissionSocScene({
   }, [devices, reducedMotion]);
 
   return (
-    <div className="h-[26rem] w-full sm:h-[30rem]">
+    // Video card: the SOC presents like a 16:9 video player frame.
+    <div className="aspect-video w-full">
       <ModelViewer
         buildScene={buildScene}
-        cameraPos={[16, 12, 18]}
+        cameraPos={SOC_CAMERA_POS}
         target={[0, 2, 0]}
         background={background}
         reducedMotion={reducedMotion}

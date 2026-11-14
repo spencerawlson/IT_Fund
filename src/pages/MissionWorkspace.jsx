@@ -655,7 +655,7 @@ export default function MissionWorkspace() {
               </span>
             </div>
             {view === '3d' ? (
-              <React.Suspense fallback={<div className="flex h-[26rem] items-center justify-center text-ink-2">Loading SOC room…</div>}>
+              <React.Suspense fallback={<div className="flex aspect-video items-center justify-center text-ink-2">Loading SOC room…</div>}>
                 <MissionSocScene
                   devices={MISSION_TOPOLOGY_DEVICES}
                   incidentActive={incidentActive}
