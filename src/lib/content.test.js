@@ -7,6 +7,7 @@ import {
   fetchExam,
   resolveCards,
   clearContentCache,
+  lessonTextFromContent,
   ContentError,
 } from './content';
 import { getDeck } from '../data/academy';
@@ -173,5 +174,73 @@ describe('resolveCards', () => {
     expect(resolved).toHaveLength(2);
     expect(resolved[0].q).toBe(free.cards[0].q);
     expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe('lessonTextFromContent', () => {
+  // Shaped like lesson 3.3 (net-security): Overview + Learn + architecture
+  // + examples + cheat sheet — the reading body the student sees on the
+  // page, and the only text Cypher may explain from.
+  const lesson = {
+    overview: [
+      'Attackers who get onto a network, even as a guest, often start at Layer 2, where many switches trust by default.',
+      'This lesson covers the classic Layer 2 attacks and their switch defences.',
+    ],
+    learn: [
+      {
+        heading: 'Layer 2 attacks and defences',
+        body: [
+          'DHCP snooping drops untrusted DHCP replies.',
+          { stack: { title: 'The OSI model, top to bottom', items: [
+            { badge: 'L7', name: 'Application', does: 'Where users live.', examples: 'HTTP, DNS' },
+            { badge: 'L2', name: 'Data Link', does: 'Switching and framing.', examples: 'Ethernet' },
+          ] } },
+        ],
+      },
+    ],
+    architecture: {
+      diagram: '+---+\n| X |\n+---+',
+      caption: 'A screened subnet sits between two firewalls.',
+    },
+    examples: [
+      { title: 'DHCP starvation', code: 'dhcp-starve --interface eth0', explanation: 'The attacker exhausts the pool.' },
+    ],
+    cheatSheet: [['DHCP snooping', 'Drops untrusted DHCP replies.']],
+  };
+
+  it('flattens the reading body in page order', () => {
+    const text = lessonTextFromContent(lesson);
+    for (const fragment of [
+      'Attackers who get onto a network',
+      'Layer 2 attacks and defences',
+      'DHCP snooping drops untrusted DHCP replies.',
+      'The OSI model, top to bottom',
+      'Application — Where users live. — Examples: HTTP, DNS',
+      'A screened subnet sits between two firewalls.',
+      'DHCP starvation',
+      'dhcp-starve --interface eth0',
+      'The attacker exhausts the pool.',
+      'DHCP snooping: Drops untrusted DHCP replies.',
+    ]) {
+      expect(text).toContain(fragment);
+    }
+    // The ASCII diagram itself is not text the tutor should quote.
+    expect(text).not.toContain('+---+');
+    // Page order: overview first, cheat sheet last.
+    expect(text.indexOf('Attackers who get onto a network')).toBeLessThan(text.indexOf('DHCP snooping:'));
+  });
+
+  it('returns empty text with no reading body', () => {
+    expect(lessonTextFromContent(null)).toBe('');
+    expect(lessonTextFromContent(undefined)).toBe('');
+    expect(lessonTextFromContent({})).toBe('');
+    expect(lessonTextFromContent({ content: null })).toBe('');
+  });
+
+  it('caps the text at 12,000 chars', () => {
+    const big = { overview: ['x'.repeat(20000)] };
+    const text = lessonTextFromContent(big);
+    expect(text.length).toBeLessThanOrEqual(12000 + '[Lesson text truncated]'.length + 1);
+    expect(text).toContain('[Lesson text truncated]');
   });
 });

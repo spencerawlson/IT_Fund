@@ -16,7 +16,7 @@ import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engi
 import { useSubscription, isLessonFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import CipherNote from '@/components/academy/lesson/CipherNote';
-import { getLessonContent, getDeckContent } from '@/lib/content';
+import { getLessonContent, getDeckContent, lessonTextFromContent } from '@/lib/content';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const SAMPLE_QUESTIONS = 4;
@@ -170,9 +170,8 @@ export default function LessonView() {
 
       {missionId && (
         <Card level={2} padding="sm" className="mb-8">
-          <h2 className="text-heading text-ink-1">Cipher Explains</h2>
-          <p className="mt-1 text-small text-ink-2">Stuck on a concept? Cipher can explain it, show an example, or put it more simply.</p>
-          <CypherLessonPanel lesson={lesson} missionId={missionId} />
+          <h2 className="text-heading text-ink-1">Cypher</h2>
+          <CypherLessonPanel lesson={lesson} missionId={missionId} lessonText={lessonTextFromContent(c)} />
         </Card>
       )}
 
