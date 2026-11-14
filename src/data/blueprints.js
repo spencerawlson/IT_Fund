@@ -95,4 +95,11 @@ export const BLUEPRINT_POSTER = {
 export const FALLBACK_BLUEPRINT_FOR_SUBJECT = {
   switch: '/blueprint-network-switch-48-port.jpg',
   'server-rack': '/blueprint-network-rack-42u.jpg',
+  router: '/blueprint-network-router.jpg',
+  'firewall-3d': '/blueprint-firewall-ngfw.jpg',
+  'access-point': '/blueprint-wireless-access-point.jpg',
+  nas: '/blueprint-nas-storage.jpg',
+  ups: '/blueprint-ups-rackmount-2u.jpg',
+  'rack-server': '/blueprint-rack-server-2u.jpg',
+  cloud: '/blueprint-cloud-architecture.jpg',
 };

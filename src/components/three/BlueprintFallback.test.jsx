@@ -7,6 +7,13 @@ import Motherboard3D from './Motherboard3D';
 import Vpc3D from './Vpc3D';
 import LoadBalancer3D from './LoadBalancer3D';
 import Osi3D from './Osi3D';
+import Router3D from './Router3D';
+import Firewall3D from './Firewall3D';
+import AccessPoint3D from './AccessPoint3D';
+import Nas3D from './Nas3D';
+import Ups3D from './Ups3D';
+import RackServer3D from './RackServer3D';
+import Cloud3D from './Cloud3D';
 
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -33,6 +40,21 @@ describe('3D subjects pass a blueprint fallback only where one fits', () => {
 
   it('ServerRack3D falls back to the 42U rack sheet', () => {
     expect(viewerPropsFor(ServerRack3D).fallbackImage).toBe('/blueprint-network-rack-42u.jpg');
+  });
+
+  it('the new Meshy GLB subjects fall back to their matching sheets', () => {
+    const cases = [
+      [Router3D, '/blueprint-network-router.jpg'],
+      [Firewall3D, '/blueprint-firewall-ngfw.jpg'],
+      [AccessPoint3D, '/blueprint-wireless-access-point.jpg'],
+      [Nas3D, '/blueprint-nas-storage.jpg'],
+      [Ups3D, '/blueprint-ups-rackmount-2u.jpg'],
+      [RackServer3D, '/blueprint-rack-server-2u.jpg'],
+      [Cloud3D, '/blueprint-cloud-architecture.jpg'],
+    ];
+    for (const [Component, sheet] of cases) {
+      expect(viewerPropsFor(Component).fallbackImage, Component.name).toBe(sheet);
+    }
   });
 
   it('the other 3D subjects have no fallback image', () => {
