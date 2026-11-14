@@ -90,6 +90,15 @@ export function useCypherVoice(voiceRef) {
     return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.9;
   });
   const [playing, setPlaying] = React.useState(false);
+  // True only while the speak fetch is in flight. Synthesis of a long
+  // answer can take ~25 s, and until now the button gave no feedback in
+  // that window — the silence read as "voice isn't available". While
+  // loading, callers show "Loading voice…" and disable the button.
+  const [loading, setLoading] = React.useState(false);
+  // True when the most recent play() ended without audio — voice not
+  // configured, muted, or errored — so callers show the text instead of
+  // leaving the student with nothing to listen to.
+  const [fallback, setFallback] = React.useState(false);
   const [error, setError] = React.useState('');
   const [subtitle, setSubtitle] = React.useState('');
   const audioRef = React.useRef(null);
@@ -115,6 +124,7 @@ export function useCypherVoice(voiceRef) {
     }
     stopLevelLoop();
     setPlaying(false);
+    setLoading(false);
     setSubtitle('');
   }, [stopLevelLoop]);
 
@@ -134,11 +144,18 @@ export function useCypherVoice(voiceRef) {
   const play = React.useCallback(async (text) => {
     stop();
     setError('');
+    setFallback(false);
     if (!text || !text.trim()) return '';
+    // The speak fetch (ElevenLabs synthesis) can take ~25 s for a long
+    // answer. `loading` is true for exactly that window, so callers can
+    // show "Loading voice…" instead of silence.
+    setLoading(true);
     let envelope;
     try {
       envelope = await speakVoice({ character: 'cypher', text });
     } catch (e) {
+      setLoading(false);
+      setFallback(true);
       setError(e.message || 'Cipher’s voice isn’t available right now.');
       setSubtitle('');
       return '';
@@ -151,6 +168,8 @@ export function useCypherVoice(voiceRef) {
       // Text-only fallback (voice not configured, or muted): Cypher still
       // "talks" — the talk clip plays while the subtitles show, so the
       // experience degrades to silent speech, never to nothing.
+      setLoading(false);
+      setFallback(true);
       if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
       setPlaying(true);
       const words = envelope.text.trim().split(/\s+/).length;
@@ -207,8 +226,11 @@ export function useCypherVoice(voiceRef) {
         setSubtitle('');
       };
       await audio.play();
+      setLoading(false);
       return envelope.text;
     } catch {
+      setLoading(false);
+      setFallback(true);
       stopLevelLoop();
       setPlaying(false);
       setSubtitle('');
@@ -219,5 +241,5 @@ export function useCypherVoice(voiceRef) {
 
   React.useEffect(() => stop, [stop]);
 
-  return { play, stop, playing, error, subtitle, muted, setMuted, volume, setVolume };
+  return { play, stop, playing, loading, fallback, error, subtitle, muted, setMuted, volume, setVolume };
 }

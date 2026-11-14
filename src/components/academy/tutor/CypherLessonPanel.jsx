@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Sparkles, Square, Volume2, Send, ShieldCheck, Lightbulb } from 'lucide-react';
+import { Sparkles, Square, Volume2, Send, ShieldCheck, Lightbulb, ChevronDown } from 'lucide-react';
 import CypherViewer from '@/components/three/CypherCharacter';
 import { useTutor, useTutorEnabled, TutorText, Thinking, pillClass } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { missionsApi } from '@/api/missions';
 import { logCypherEvent } from '@/api/analytics';
 import { Button } from '@/components/ui-glass';
+import { missionCtaLabel } from '@/components/academy/lesson/MissionHandoff';
 
 const LEVELS = [
   { id: 'beginner', label: 'Beginner' },
@@ -41,7 +42,7 @@ export function presetQuestion(mode, lessonTitle, level) {
 // validation, XP, or mission state), and invites the student into
 // Operation Broken Shield. The deterministic grading path is untouched:
 // everything here reads state the server already validated.
-export default function CypherLessonPanel({ lesson, missionId, practicalHref }) {
+export default function CypherLessonPanel({ lesson, missionId, practicalHref, defaultMissionOpen = false }) {
   const tutorEnabled = useTutorEnabled();
   const voiceRef = useRef({ talking: false, level: 0 });
   const voice = useCypherVoice(voiceRef);
@@ -49,12 +50,45 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
   const [level, setLevel] = useState('intermediate');
   const [question, setQuestion] = useState('');
   const [active, setActive] = useState(null); // which ask is showing
+  // Listen-first: Cypher speaks each answer as soon as it arrives — the
+  // student listens, they don't read. The full text stays hidden behind a
+  // "Read answer" toggle, and "Hear again" replays once he finishes.
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [spoken, setSpoken] = useState(false); // this answer has been spoken at least once
+  const autoPlayedRef = useRef(''); // answer text already spoken by auto-play
+  const stoppedRef = useRef(false); // the student stopped the tutor mid-answer
   const [attemptView, setAttemptView] = useState(null); // {attempt, objectives} or null
   const [hintShown, setHintShown] = useState(false);
   const [hintLoading, setHintLoading] = useState(false);
+  // The Operation Broken Shield section is hidden by default — it only
+  // opens when the student clicks its header. The mission's one button
+  // lives in the handoff at the end of practice, not open under Ask Cipher.
+  const [missionOpen, setMissionOpen] = useState(defaultMissionOpen);
   const loggedOpenRef = useRef(false);
+  const loggedInviteRef = useRef(false);
 
   const context = { track: lesson.trackId, topic: lesson.title, level };
+
+  // A new question resets the listen-first state for the next answer.
+  const resetAnswerState = () => {
+    autoPlayedRef.current = '';
+    stoppedRef.current = false;
+    setShowAnswer(false);
+    setSpoken(false);
+  };
+
+  // Listen-first: when an answer finishes arriving, Cypher speaks it —
+  // no "Hear Cipher say it" click needed. The answer text stays hidden
+  // (the spoken words show as subtitles while he talks); "Read answer"
+  // reveals it. If the student stopped the tutor mid-answer, the partial
+  // text is not auto-played — they can hear it with "Hear Cipher say it".
+  useEffect(() => {
+    if (!text || loading || error || stoppedRef.current) return;
+    if (autoPlayedRef.current === text) return;
+    autoPlayedRef.current = text;
+    setSpoken(true);
+    voice.play(text);
+  }, [text, loading, error, voice.play]);
 
   // Read-only: the latest attempt for this mission, with its validated
   // objectives. Never starts a mission — starting is the student's choice
@@ -79,14 +113,25 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
     if (loggedOpenRef.current) return;
     loggedOpenRef.current = true;
     logCypherEvent({ event: 'panel_opened', lesson_id: lesson.id, mission_id: missionId });
-    logCypherEvent({ event: 'invite_shown', lesson_id: lesson.id, mission_id: missionId });
   }, [lesson.id, missionId]);
+
+  // The mission section is hidden until the student opens it — that first
+  // open is when the invitation is actually shown.
+  const toggleMission = () => {
+    const next = !missionOpen;
+    setMissionOpen(next);
+    if (next && !loggedInviteRef.current) {
+      loggedInviteRef.current = true;
+      logCypherEvent({ event: 'invite_shown', lesson_id: lesson.id, mission_id: missionId });
+    }
+  };
 
   const runMode = (mode) => {
     const q = presetQuestion(mode, lesson.title, level);
     setQuestion(q);
     setActive(mode);
     setHintShown(false);
+    resetAnswerState();
     ask({ ...context, mode: 'chat', messages: [{ role: 'user', content: q }] });
   };
 
@@ -95,6 +140,7 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
     if (!q) return;
     setActive('chat');
     setHintShown(false);
+    resetAnswerState();
     ask({ ...context, mode: 'chat', messages: [{ role: 'user', content: q }] });
   };
 
@@ -110,6 +156,7 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
       + `Completed: ${passed.join('; ') || 'none yet'}. Still open: ${open.join('; ') || 'none'}. `
       + `Explain why the open objectives are still open and what concept I am missing for each one. Do not re-grade my work — explain from this state.`;
     setActive('why');
+    resetAnswerState();
     ask({ ...context, mode: 'chat', messages: [{ role: 'user', content: q }] });
   };
 
@@ -168,7 +215,7 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
                   <Sparkles size={15} className="text-action" /> Explain it more simply
                 </button>
                 {loading && (
-                  <button type="button" onClick={stop} className={pillClass} aria-label="Stop the tutor">
+                  <button type="button" onClick={() => { stoppedRef.current = true; stop(); }} className={pillClass} aria-label="Stop the tutor">
                     <Square size={13} className="fill-current" /> Stop
                   </button>
                 )}
@@ -193,7 +240,7 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
           ) : (
             <p className="mt-3 text-small text-ink-2">
               The AI tutor isn’t available on this server right now — the mission
-              hints and invitation below still work.
+              section below still works.
             </p>
           )}
 
@@ -202,28 +249,63 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
               <p className="mb-1.5 flex items-center gap-1.5 text-caption font-bold uppercase tracking-[0.14em] text-action-hover">
                 <Sparkles size={12} /> Cipher answers
               </p>
-              {error ? <p className="text-danger">{error}</p> : text ? <TutorText text={text} /> : <Thinking />}
-              {text && !loading && (
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => voice.play(text)}
-                    disabled={voice.playing}
-                    className={pillClass}
-                  >
-                    <Volume2 size={15} className="text-action" /> {voice.playing ? 'Speaking…' : 'Hear Cipher say it'}
-                  </button>
-                  {voice.playing && (
-                    <button type="button" onClick={voice.stop} className={pillClass} aria-label="Stop Cypher speaking">
-                      <Square size={13} className="fill-current" /> Stop
-                    </button>
-                  )}
-                </div>
-              )}
-              {voice.subtitle && (
-                <div className="mt-2 text-small text-ink-2" aria-live="polite">
+              {error ? (
+                <p className="text-danger">{error}</p>
+              ) : loading || !text ? (
+                <Thinking />
+              ) : voice.fallback || showAnswer ? (
+                // Voice unavailable or muted: listening can't happen, so the
+                // answer is shown as text with the Hear button, as before.
+                // Same when the student asked to read it.
+                <TutorText text={text} />
+              ) : voice.subtitle ? (
+                <div className="text-small text-ink-2" aria-live="polite">
                   <span className="font-bold text-action-hover">Cipher:</span>{' '}
                   <TutorText text={voice.subtitle} />
+                </div>
+              ) : null}
+              {text && !loading && (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {voice.loading ? (
+                    <button type="button" disabled className={pillClass}>
+                      <Volume2 size={15} className="text-action" /> Loading voice…
+                    </button>
+                  ) : voice.playing ? (
+                    <>
+                      <button type="button" disabled className={pillClass}>
+                        <Volume2 size={15} className="text-action" /> Speaking…
+                      </button>
+                      <button type="button" onClick={voice.stop} className={pillClass} aria-label="Stop Cypher speaking">
+                        <Square size={13} className="fill-current" /> Stop
+                      </button>
+                    </>
+                  ) : voice.fallback || !spoken ? (
+                    <button
+                      type="button"
+                      onClick={() => { setSpoken(true); voice.play(text); }}
+                      className={pillClass}
+                    >
+                      <Volume2 size={15} className="text-action" /> Hear Cipher say it
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => voice.play(text)}
+                      className={pillClass}
+                    >
+                      <Volume2 size={15} className="text-action" /> Hear again
+                    </button>
+                  )}
+                  {!voice.fallback && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAnswer((s) => !s)}
+                      className={pillClass}
+                      aria-expanded={showAnswer}
+                    >
+                      {showAnswer ? 'Hide answer' : 'Read answer'}
+                    </button>
+                  )}
                 </div>
               )}
               {voice.error && <p className="mt-2 text-small text-danger">{voice.error}</p>}
@@ -233,10 +315,22 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
       </div>
 
       <div className="mt-4 border-t border-black/10 pt-4">
-        <h3 className="flex items-center gap-2 text-heading text-ink-1">
-          <ShieldCheck size={18} className="text-action" aria-hidden="true" />
+        <button
+          type="button"
+          onClick={toggleMission}
+          aria-expanded={missionOpen}
+          className="flex w-full items-center gap-2 text-left text-heading text-ink-1"
+        >
+          <ShieldCheck size={18} className="shrink-0 text-action" aria-hidden="true" />
           Operation Broken Shield
-        </h3>
+          <ChevronDown
+            size={16}
+            className={`ml-auto shrink-0 transition-transform ${missionOpen ? 'rotate-180' : ''}`}
+            aria-hidden="true"
+          />
+        </button>
+        {missionOpen && (
+          <>
         {objectives.length > 0 ? (
           <p className="mt-1 text-small text-ink-2">
             {completed
@@ -262,7 +356,7 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
             size="sm"
             onClick={() => logCypherEvent({ event: 'invite_accepted', lesson_id: lesson.id, mission_id: missionId })}
           >
-            {completed ? 'Replay the mission' : objectives.length > 0 ? 'Continue the mission' : 'Start Mission'}
+            {missionCtaLabel({ completed, hasAttempt: objectives.length > 0 })}
           </Button>
           {nextOpen && !completed && (
             <button
@@ -292,6 +386,8 @@ export default function CypherLessonPanel({ lesson, missionId, practicalHref }) 
         )}
         {hintShown && !nextOpen && objectives.length > 0 && (
           <p className="mt-3 text-small text-ink-2">Every objective is complete — file the incident report.</p>
+        )}
+          </>
         )}
       </div>
     </div>

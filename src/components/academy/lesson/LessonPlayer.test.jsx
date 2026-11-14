@@ -59,6 +59,18 @@ describe('LessonPlayer', () => {
     expect(SRC).toContain("missionId={missionId} lessonId={deck.id}");
   });
 
+  it('shows a Practice button after the lesson content on the reading page', () => {
+    // Spencer (2026-11-13): after the lesson content, show a Practice
+    // button — it opens the interactive lesson (the practice), which the
+    // handoff then follows. The reading card is the <article> Card; the
+    // Practice section with its button to playerHref must come after it.
+    const articleAt = LESSON_VIEW_SRC.indexOf('as="article"');
+    const practiceAt = LESSON_VIEW_SRC.indexOf('id="practice"');
+    expect(articleAt).toBeGreaterThan(-1);
+    expect(practiceAt).toBeGreaterThan(articleAt);
+    expect(LESSON_VIEW_SRC).toContain('to={playerHref(lesson)}');
+  });
+
   it('has no Video Explainer placeholder in the player or the lesson page', () => {
     // Scope E: the "Video explainer coming soon" card is gone; Ask Cypher
     // is the interactive assistant. The component was deleted, so neither
