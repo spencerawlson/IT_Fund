@@ -126,11 +126,17 @@ export const COUNTS = {
       "cards": 80,
       "decksPlus": "8",
       "cardsPlus": "80+"
+    },
+    "intro-it": {
+      "decks": 6,
+      "cards": 70,
+      "decksPlus": "6",
+      "cardsPlus": "70+"
     }
   },
-  "totalCards": 3075,
+  "totalCards": 3145,
   "totalCardsPlus": "3,000+",
-  "totalDecks": 216,
+  "totalDecks": 222,
   "totalDecksPlus": "200+",
   "labs": 61,
   "labsPlus": "60+"

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-11T14:34:04.910Z",
+  "generatedAt": "2026-11-14T00:11:22.094Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -47354,6 +47354,1187 @@
           ]
         }
       ]
+    },
+    {
+      "id": "intro-it",
+      "title": "Introduction to Information Technology",
+      "tagline": "What computers are, how they work, and how to use them with confidence.",
+      "icon": "Monitor",
+      "color": "#94A3B8",
+      "tiers": [
+        {
+          "id": "beginner",
+          "label": "Beginner",
+          "color": "#22C55E",
+          "decks": [
+            {
+              "id": "it-what-is-it",
+              "title": "What Information Technology Is",
+              "summary": "Hardware, software, data, networks, and the people who keep them running.",
+              "sources": [
+                "comptia-itf"
+              ],
+              "cards": [
+                {
+                  "id": "it-what-is-it-0",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "What does information technology (IT) cover?",
+                  "a": "The use of computers, networks, software, and data to store, process, and share information.",
+                  "x": "IT is the technology side of handling information — the machines, the networks that connect them, the software that runs on them, and the data they hold.",
+                  "wrong": [
+                    "Only building websites and mobile apps",
+                    "Only repairing printers and replacing cables",
+                    "Only writing code for new software"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-1",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between hardware and software?",
+                  "a": "Hardware is the physical parts you can touch; software is the instructions that run on them.",
+                  "x": "A laptop's keyboard and screen are hardware. The operating system and the browser are software — they have no weight, but they tell the hardware what to do.",
+                  "wrong": [
+                    "Hardware is the data and software is the cables",
+                    "Hardware is the screen and software is the box",
+                    "There is no difference — the words mean the same thing"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-2",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "Which of these is system software?",
+                  "a": "The operating system.",
+                  "x": "System software runs the machine itself: the operating system manages hardware, memory, files, and programs. Applications — browsers, editors, games — sit on top of it.",
+                  "wrong": [
+                    "A web browser",
+                    "A spreadsheet app",
+                    "A photo editor"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-3",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "What does an app (application software) do?",
+                  "a": "It performs a specific task for the user, like writing, browsing, or editing photos.",
+                  "x": "Applications exist to do work you can name: write a document, send a message, edit a photo. They rely on the operating system underneath.",
+                  "wrong": [
+                    "It manages the computer's hardware directly",
+                    "It replaces the operating system when it runs",
+                    "It writes the firmware on the motherboard"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-4",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "What is the input–process–output–storage cycle?",
+                  "a": "Data goes in, the computer works on it, a result comes out, and the result can be saved.",
+                  "x": "Every computer job follows the same cycle: input (keyboard, mouse, files), process (the CPU), output (screen, printer, speaker), and storage (the drive) if the result is kept.",
+                  "wrong": [
+                    "The order a computer boots up in",
+                    "The steps for installing a new program",
+                    "The way files are compressed for backup"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-5",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "Which kind of computer is built to serve many users at once?",
+                  "a": "A server.",
+                  "x": "Servers stay on, answer requests, and are built for reliability — more memory, redundant disks, and a server operating system. Desktops and laptops serve one person at a time.",
+                  "wrong": [
+                    "A laptop",
+                    "A tablet",
+                    "A smartphone"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-6",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between data and information?",
+                  "a": "Data is raw facts; information is data given meaning and context.",
+                  "x": "\"23, 24, 22\" is data. \"The office temperature was 23°, 24°, 22° over three days\" is information — the same numbers, now meaningful.",
+                  "wrong": [
+                    "Data is stored and information is deleted",
+                    "Information is raw and data is processed",
+                    "There is no difference between the two"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-7",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "What does a network let computers do?",
+                  "a": "Share resources and communicate with each other.",
+                  "x": "A network is a set of connected machines. It lets them share files, printers, and internet access — and lets people on different machines work together.",
+                  "wrong": [
+                    "Run without any software at all",
+                    "Store data without a hard drive",
+                    "Work without an operating system"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-8",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "In client–server computing, what does the client do?",
+                  "a": "It requests a service; the server provides it.",
+                  "x": "Your browser is a client: it asks the web server for a page, and the server answers. One server can serve many clients at the same time.",
+                  "wrong": [
+                    "It stores all the data and answers requests",
+                    "It manages the network cables and switches",
+                    "It powers the other computers on the network"
+                  ]
+                },
+                {
+                  "id": "it-what-is-it-9",
+                  "deckId": "it-what-is-it",
+                  "trackId": "intro-it",
+                  "q": "What is the core job of an IT support technician?",
+                  "a": "Help users, fix problems, and keep systems running.",
+                  "x": "Support work is mostly diagnosis and communication: understand the problem, find the cause, fix it, and show the user how to avoid it next time.",
+                  "wrong": [
+                    "Design new programming languages",
+                    "Sell computers to customers",
+                    "Write the firmware for new devices"
+                  ]
+                }
+              ],
+              "trackId": "intro-it",
+              "tierId": "beginner",
+              "resources": [
+                {
+                  "id": "comptia-itf",
+                  "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                  "url": "https://www.comptia.org/certifications/it-fundamentals"
+                }
+              ],
+              "puzzles": [
+                {
+                  "type": "order",
+                  "prompt": "Put the input–process–output–storage cycle in order.",
+                  "items": [
+                    "Input: data goes in",
+                    "Process: the CPU works on it",
+                    "Output: a result comes out",
+                    "Storage: the result is saved"
+                  ],
+                  "x": "Every computer job follows the same cycle — in, work, out, keep — whether it is an email or a database query.",
+                  "id": "it-what-is-it-p0"
+                }
+              ]
+            },
+            {
+              "id": "it-binary-basics",
+              "title": "Binary, Bits & Number Systems",
+              "summary": "How computers count: bits, bytes, binary, hexadecimal, and text encodings.",
+              "sources": [
+                "comptia-itf",
+                "nist-glossary"
+              ],
+              "cards": [
+                {
+                  "id": "it-binary-basics-0",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "What is a bit?",
+                  "a": "One binary digit — 0 or 1 — the smallest unit of data.",
+                  "x": "A bit is a single switch state. Everything a computer stores is built from bits: eight of them make a byte.",
+                  "wrong": [
+                    "Eight binary digits grouped together",
+                    "A small file stored on a hard drive",
+                    "A character on a keyboard"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-1",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "How many bits are in a byte?",
+                  "a": "8.",
+                  "x": "A byte is eight bits. It is the unit computers use to represent a single character, a pixel value, or one step of a measurement.",
+                  "wrong": [
+                    "2",
+                    "10",
+                    "16"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-2",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "How many different values can one byte represent?",
+                  "a": "256.",
+                  "x": "With eight positions each holding 0 or 1, there are 2^8 = 256 possible patterns — the values 0 through 255.",
+                  "wrong": [
+                    "8",
+                    "128",
+                    "255"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-3",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "What is binary 1101 in decimal?",
+                  "a": "13.",
+                  "x": "Read the positions right to left as 1, 2, 4, 8: 1 + 4 + 8 = 13. The leading zero adds nothing.",
+                  "wrong": [
+                    "11",
+                    "12",
+                    "15"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-4",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "What is binary 1010 in decimal?",
+                  "a": "10.",
+                  "x": "8 + 2 = 10. Each position doubles as you move left: 1, 2, 4, 8.",
+                  "wrong": [
+                    "5",
+                    "12",
+                    "20"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-5",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "What is decimal 255 in hexadecimal?",
+                  "a": "FF.",
+                  "x": "255 is the largest value one byte can hold, and it is FF in hex — two F digits, each worth 15.",
+                  "wrong": [
+                    "99",
+                    "FE",
+                    "100"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-6",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "How many bits does a single hexadecimal digit represent?",
+                  "a": "4.",
+                  "x": "Hex digits run 0–F, sixteen values — exactly 2^4. That is why hex is the shorthand for binary: one hex digit is one nibble.",
+                  "wrong": [
+                    "2",
+                    "8",
+                    "16"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-7",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "What does the 0x prefix mean?",
+                  "a": "The number that follows is hexadecimal.",
+                  "x": "0x1F and 31 are the same value written two ways. The prefix removes the ambiguity so code, manuals, and debuggers agree.",
+                  "wrong": [
+                    "The number is in binary",
+                    "The number is in decimal",
+                    "The number is a memory address in octal"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-8",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "Why is hexadecimal used as a shorthand for binary?",
+                  "a": "Each hex digit maps to exactly four bits, so long binary strings stay readable.",
+                  "x": "1101 0010 is hard to scan; D2 says the same thing in two characters. Conversion is a straight grouping, with no arithmetic.",
+                  "wrong": [
+                    "Hex values are stored more compactly in memory",
+                    "Hex uses fewer transistors than binary",
+                    "Hex numbers are always smaller than binary numbers"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-9",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "What is ASCII?",
+                  "a": "A standard that assigns numbers to characters — letters, digits, and symbols.",
+                  "x": "In ASCII, A is 65 and a is 97. One byte holds one character, which is why plain text files are so simple.",
+                  "wrong": [
+                    "A file system used on Windows drives",
+                    "A programming language for web pages",
+                    "A compression method for images"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-10",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "What is UTF-8?",
+                  "a": "The standard encoding for text on the web, covering every writing system.",
+                  "x": "UTF-8 extends ASCII: ordinary English characters still take one byte, while accented letters, Arabic, Chinese, and emoji take two to four.",
+                  "wrong": [
+                    "A video compression format",
+                    "A secure way to store passwords",
+                    "A protocol for sending email"
+                  ]
+                },
+                {
+                  "id": "it-binary-basics-11",
+                  "deckId": "it-binary-basics",
+                  "trackId": "intro-it",
+                  "q": "In data sizes, what does 1 KB mean?",
+                  "a": "1,024 bytes.",
+                  "x": "Computers count in powers of two, so 1 KB = 1,024 bytes, 1 MB = 1,024 KB, and 1 GB = 1,024 MB. Disk makers advertise with powers of ten, which is why a \"1 TB\" drive shows less in Windows.",
+                  "wrong": [
+                    "1,000 bytes",
+                    "100 bytes",
+                    "10,240 bytes"
+                  ]
+                }
+              ],
+              "trackId": "intro-it",
+              "tierId": "beginner",
+              "resources": [
+                {
+                  "id": "comptia-itf",
+                  "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                  "url": "https://www.comptia.org/certifications/it-fundamentals"
+                },
+                {
+                  "id": "nist-glossary",
+                  "title": "NIST CSRC Glossary",
+                  "url": "https://csrc.nist.gov/glossary"
+                }
+              ],
+              "puzzles": [
+                {
+                  "type": "widget",
+                  "widget": "bits",
+                  "prompt": "Flip the bits to make 13 — the first number in the lesson.",
+                  "goal": {
+                    "value": 13
+                  },
+                  "x": "1101 is 8 + 4 + 1 = 13. Each position doubles as you move left: 1, 2, 4, 8.",
+                  "id": "it-binary-basics-p0"
+                },
+                {
+                  "type": "numeric",
+                  "prompt": "What is binary 1010 in decimal?",
+                  "answer": 10,
+                  "x": "8 + 2 = 10. Only the 8 and 2 positions hold a 1.",
+                  "id": "it-binary-basics-p1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "intermediate",
+          "label": "Intermediate",
+          "color": "#3B82F6",
+          "decks": [
+            {
+              "id": "it-hardware",
+              "title": "Computer Hardware & Components",
+              "summary": "The CPU, cores, cache, motherboard, chipset, memory, and expansion buses.",
+              "sources": [
+                "comptia-itf"
+              ],
+              "cards": [
+                {
+                  "id": "it-hardware-0",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What does the CPU do?",
+                  "a": "It fetches, decodes, and executes instructions — the work of running programs.",
+                  "x": "The CPU is the computer's worker. It reads an instruction from memory, works out what it means, does it, and moves to the next one — billions of times per second.",
+                  "wrong": [
+                    "It stores files permanently",
+                    "It draws images on the screen",
+                    "It connects the computer to the internet"
+                  ]
+                },
+                {
+                  "id": "it-hardware-1",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What does clock speed, measured in gigahertz (GHz), tell you?",
+                  "a": "How many cycles the CPU runs per second.",
+                  "x": "A 3 GHz CPU runs three billion cycles a second. Clock speed is only part of performance — a newer design does more per cycle than an older one at the same speed.",
+                  "wrong": [
+                    "How much memory the CPU has",
+                    "How hot the CPU will run",
+                    "How many programs it can store"
+                  ]
+                },
+                {
+                  "id": "it-hardware-2",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is a CPU core?",
+                  "a": "An independent processing unit inside the chip.",
+                  "x": "A quad-core CPU is four processors in one package. Cores let the computer run several things at once instead of queuing them through one worker.",
+                  "wrong": [
+                    "A slot for extra memory",
+                    "The fan that cools the processor",
+                    "A connector for the hard drive"
+                  ]
+                },
+                {
+                  "id": "it-hardware-3",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is cache memory (L1, L2, L3)?",
+                  "a": "Very fast, small memory built into or next to the CPU for data it uses constantly.",
+                  "x": "L1 is the fastest and smallest, then L2, then L3 — each a trade-off between speed and size. Cache exists because RAM is too slow to keep a 3 GHz CPU fed.",
+                  "wrong": [
+                    "The memory on a graphics card",
+                    "The long-term storage inside a hard drive",
+                    "The buffer on a network card"
+                  ]
+                },
+                {
+                  "id": "it-hardware-4",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is the motherboard?",
+                  "a": "The main circuit board that connects every component in the computer.",
+                  "x": "The CPU, RAM, storage, and expansion cards all plug into the motherboard, which carries power and data between them.",
+                  "wrong": [
+                    "The power supply unit",
+                    "The metal case that holds the parts",
+                    "The software that starts the computer"
+                  ]
+                },
+                {
+                  "id": "it-hardware-5",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What does the chipset do?",
+                  "a": "It governs which CPUs, memory speeds, and expansion cards the board supports.",
+                  "x": "The chipset is the motherboard's traffic controller and rulebook. Two boards with the same socket can support different CPUs if their chipsets differ.",
+                  "wrong": [
+                    "It stores the operating system",
+                    "It generates the computer's display",
+                    "It powers the cooling fans directly"
+                  ]
+                },
+                {
+                  "id": "it-hardware-6",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is RAM used for?",
+                  "a": "Fast, temporary working memory for programs that are running right now.",
+                  "x": "When you open a document, it lives in RAM. RAM is fast to read and write — and it forgets everything the moment the power goes off.",
+                  "wrong": [
+                    "Storing files permanently",
+                    "Running the computer without electricity",
+                    "Cooling the processor"
+                  ]
+                },
+                {
+                  "id": "it-hardware-7",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between RAM and ROM?",
+                  "a": "RAM is volatile working memory; ROM is non-volatile storage that keeps firmware even without power.",
+                  "x": "RAM holds what you are doing now and clears on shutdown. ROM (and its modern flash-based forms) holds the firmware the machine needs to start at all.",
+                  "wrong": [
+                    "RAM is permanent and ROM is temporary",
+                    "RAM is on the hard drive and ROM is on the CPU",
+                    "There is no difference — they are two names for one thing"
+                  ]
+                },
+                {
+                  "id": "it-hardware-8",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What does PCIe connect?",
+                  "a": "Expansion cards — graphics cards, network cards, and NVMe drives.",
+                  "x": "PCIe slots are the computer's high-speed expansion bus. A graphics card in a PCIe x16 slot has a direct, very fast path to the CPU and RAM.",
+                  "wrong": [
+                    "Keyboards and mice",
+                    "Power cables from the wall",
+                    "The monitor's stand"
+                  ]
+                },
+                {
+                  "id": "it-hardware-9",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is the main difference between x86-64 and ARM processors?",
+                  "a": "x86-64 dominates desktops and servers; ARM dominates phones and tablets, built for performance per watt.",
+                  "x": "ARM chips do more work per watt, which is why they rule battery-powered devices. Modern laptops increasingly use ARM for the same reason.",
+                  "wrong": [
+                    "x86-64 is only for phones and ARM only for servers",
+                    "ARM cannot run an operating system",
+                    "x86-64 uses no electricity at all"
+                  ]
+                },
+                {
+                  "id": "it-hardware-10",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between multiprocessing and multitasking?",
+                  "a": "Multiprocessing runs work in parallel on several cores; multitasking switches one core between tasks.",
+                  "x": "Multiprocessing is genuinely parallel — two cores, two jobs at once. Multitasking is the OS rapidly switching one core between jobs so they all appear to run together.",
+                  "wrong": [
+                    "Multiprocessing is slower than multitasking",
+                    "Multitasking needs several CPUs to work",
+                    "They are the same thing with different names"
+                  ]
+                },
+                {
+                  "id": "it-hardware-11",
+                  "deckId": "it-hardware",
+                  "trackId": "intro-it",
+                  "q": "What is the maximum RAM a 32-bit system can address?",
+                  "a": "About 4 GB.",
+                  "x": "2^32 = 4,294,967,296 addresses — roughly 4 GB. A 64-bit system can address far more memory than any machine will hold for decades.",
+                  "wrong": [
+                    "About 4 TB",
+                    "About 640 KB",
+                    "Unlimited memory"
+                  ]
+                }
+              ],
+              "trackId": "intro-it",
+              "tierId": "intermediate",
+              "resources": [
+                {
+                  "id": "comptia-itf",
+                  "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                  "url": "https://www.comptia.org/certifications/it-fundamentals"
+                }
+              ],
+              "puzzles": [
+                {
+                  "type": "numeric",
+                  "prompt": "What is the maximum RAM a 32-bit system can address, in GB?",
+                  "answer": 4,
+                  "unit": "GB",
+                  "x": "2^32 addresses is about 4 GB. A 64-bit system can address far more memory than any machine will hold for decades.",
+                  "id": "it-hardware-p0"
+                },
+                {
+                  "type": "order",
+                  "prompt": "Put the CPU cycle in order.",
+                  "items": [
+                    "Fetch the instruction",
+                    "Decode what it means",
+                    "Execute it"
+                  ],
+                  "x": "The CPU repeats fetch → decode → execute billions of times a second. That cycle is what \"running a program\" means.",
+                  "id": "it-hardware-p1"
+                }
+              ]
+            },
+            {
+              "id": "it-storage-memory",
+              "title": "Storage & Memory",
+              "summary": "The memory hierarchy, hard drives, SSDs, partitions, and formatting.",
+              "sources": [
+                "comptia-itf"
+              ],
+              "cards": [
+                {
+                  "id": "it-storage-memory-0",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between storage and memory?",
+                  "a": "Storage keeps data after the power goes off; memory (RAM) holds what is being worked on right now and forgets it.",
+                  "x": "Your files live in storage — SSD or hard drive. When you open one, a copy goes into RAM. Save it, and the changes go back to storage.",
+                  "wrong": [
+                    "Storage is faster than memory",
+                    "Memory is permanent and storage is temporary",
+                    "There is no difference — both keep data forever"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-1",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What is the memory hierarchy?",
+                  "a": "A ladder from the fastest, smallest storage near the CPU down to the slowest, largest storage far away.",
+                  "x": "Registers and cache are fastest but tiny; RAM is the middle; SSDs and hard drives are slowest but huge. Each level holds what the level above is most likely to need next.",
+                  "wrong": [
+                    "A way to organise files into folders",
+                    "The order in which programs are installed",
+                    "A list of the fastest internet connections"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-2",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "Which is faster to read: RAM or an SSD?",
+                  "a": "RAM — by a wide margin.",
+                  "x": "RAM answers in nanoseconds; an SSD answers in microseconds. That gap is why the CPU keeps its working set in RAM and only goes to the drive when it must.",
+                  "wrong": [
+                    "An SSD is faster than RAM",
+                    "They are exactly the same speed",
+                    "A hard drive is faster than both"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-3",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "How is a hard drive (HDD) different from a solid-state drive (SSD)?",
+                  "a": "An HDD stores data magnetically on spinning platters; an SSD stores it in flash chips with no moving parts.",
+                  "x": "HDDs are cheaper per gigabyte and hold more, but they are slower and fragile. SSDs are fast and silent, and they survive drops that would kill a hard drive.",
+                  "wrong": [
+                    "An HDD has no moving parts and an SSD spins",
+                    "An SSD can only store music files",
+                    "An HDD is always faster than an SSD"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-4",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What does HDD speed in RPM measure?",
+                  "a": "How fast the platters spin — usually 5,400 or 7,200 revolutions per minute.",
+                  "x": "Higher RPM means the head reaches data sooner, so a 7,200 RPM drive is noticeably quicker than a 5,400 RPM one — though both are far slower than an SSD.",
+                  "wrong": [
+                    "How many files the drive can hold",
+                    "How fast the drive's cable transfers data",
+                    "How much power the drive uses"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-5",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What is a sector on a disk?",
+                  "a": "The smallest unit the drive can address, traditionally 512 bytes.",
+                  "x": "Data is written in sectors. A file is a chain of sectors — which is why a 1-byte file still takes a whole sector of space.",
+                  "wrong": [
+                    "A folder on the desktop",
+                    "A partition table entry",
+                    "A type of file system"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-6",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What does partitioning a disk do?",
+                  "a": "It divides the disk into separate logical volumes.",
+                  "x": "Partitioning lets one physical disk behave as several: one volume for the system, one for data, or one per operating system on a dual-boot machine.",
+                  "wrong": [
+                    "It deletes all the files on the disk",
+                    "It copies the disk to another drive",
+                    "It makes the disk spin faster"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-7",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What does formatting a volume do?",
+                  "a": "It writes a file system on it so the operating system can store and find files.",
+                  "x": "Formatting lays down the empty structure — the index of files, free space, and folders. Quick format writes a fresh index; full format also checks every sector.",
+                  "wrong": [
+                    "It physically replaces the disk inside the case",
+                    "It upgrades the disk to a newer model",
+                    "It merges two disks into one"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-8",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What is wear levelling on an SSD?",
+                  "a": "The controller spreads writes evenly across the flash cells so no cell wears out early.",
+                  "x": "Flash cells survive a limited number of writes. Wear levelling, plus TRIM — which tells the drive which blocks are free — is how an SSD lasts for years of daily use.",
+                  "wrong": [
+                    "A way to make the drive spin more quietly",
+                    "A backup feature that copies data to the cloud",
+                    "A security feature that encrypts every file"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-9",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "Why should you never defragment an SSD?",
+                  "a": "There is no seek penalty on flash, so defrag gains nothing — and it burns through the drive's limited write cycles.",
+                  "x": "Defrag exists for spinning disks, where reading a scattered file means waiting for the platter. On an SSD every address is equally fast, so defrag is pure wear.",
+                  "wrong": [
+                    "Defrag makes SSDs run slower by design",
+                    "Defrag erases the operating system",
+                    "Defrag is illegal on solid-state drives"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-10",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "What is a bad sector?",
+                  "a": "A damaged area of a disk that can no longer hold data reliably.",
+                  "x": "A few bad sectors are normal wear. A count that keeps growing is a warning: the drive is failing — back it up and replace it.",
+                  "wrong": [
+                    "A file that was deleted by mistake",
+                    "A partition that was never formatted",
+                    "A virus hiding on the drive"
+                  ]
+                },
+                {
+                  "id": "it-storage-memory-11",
+                  "deckId": "it-storage-memory",
+                  "trackId": "intro-it",
+                  "q": "Why does a \"1 TB\" drive show about 931 GB in Windows?",
+                  "a": "Makers count in powers of ten; Windows counts in powers of two.",
+                  "x": "1 TB on the box is 1,000,000,000,000 bytes. Windows divides by 1,024 three times, which comes out to about 931 GiB — the same bytes, measured with a different ruler.",
+                  "wrong": [
+                    "The drive is defective and missing space",
+                    "Windows reserves 69 GB for the operating system",
+                    "The drive was formatted incorrectly"
+                  ]
+                }
+              ],
+              "trackId": "intro-it",
+              "tierId": "intermediate",
+              "resources": [
+                {
+                  "id": "comptia-itf",
+                  "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                  "url": "https://www.comptia.org/certifications/it-fundamentals"
+                }
+              ],
+              "puzzles": [
+                {
+                  "type": "order",
+                  "prompt": "Order the memory hierarchy from fastest to slowest.",
+                  "items": [
+                    "Registers",
+                    "Cache (L1/L2/L3)",
+                    "RAM",
+                    "SSD",
+                    "Hard drive"
+                  ],
+                  "x": "Each level is faster but smaller than the one below it. Data moves up the ladder when it is needed and down again when it is not.",
+                  "id": "it-storage-memory-p0"
+                },
+                {
+                  "type": "numeric",
+                  "prompt": "How many KB are in 1 MB?",
+                  "answer": 1024,
+                  "unit": "KB",
+                  "x": "Computers count in powers of two: 1 KB is 1,024 bytes and 1 MB is 1,024 KB.",
+                  "id": "it-storage-memory-p1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "advanced",
+          "label": "Advanced",
+          "color": "#F59E0B",
+          "decks": [
+            {
+              "id": "it-os-boot",
+              "title": "Operating Systems & Booting",
+              "summary": "What the OS does, the kernel boundary, processes, and the boot sequence.",
+              "sources": [
+                "comptia-itf"
+              ],
+              "cards": [
+                {
+                  "id": "it-os-boot-0",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What does an operating system do?",
+                  "a": "It manages the hardware, memory, files, processes, and users of the computer.",
+                  "x": "The OS is the middleman between applications and hardware. It decides who gets CPU time, keeps files organised, and stops one program from breaking another.",
+                  "wrong": [
+                    "It writes new programs for the user",
+                    "It manufactures the computer's parts",
+                    "It connects the computer to the internet"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-1",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between kernel space and user space?",
+                  "a": "The kernel runs with full hardware access; applications run restricted and must ask the kernel for anything sensitive.",
+                  "x": "This split is the OS's safety boundary. A crashing app can be killed; a crashing kernel takes the whole machine down.",
+                  "wrong": [
+                    "Kernel space is where user files are stored",
+                    "User space is faster than kernel space",
+                    "There is no boundary — apps access hardware directly"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-2",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between a process and a thread?",
+                  "a": "A process is a running program with its own memory; a thread is a line of work inside a process, sharing that memory.",
+                  "x": "A browser is one process per tab; each tab's threads share the tab's memory. Threads are cheap to start, but one thread's crash can take its process with it.",
+                  "wrong": [
+                    "A process is faster than a thread",
+                    "A thread has its own separate memory",
+                    "They are the same thing"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-3",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is virtual memory?",
+                  "a": "Disk space used to extend RAM when physical memory runs short.",
+                  "x": "When RAM fills up, the OS pages the least-used data out to a swap file. It works — but slowly, because the disk is far slower than RAM.",
+                  "wrong": [
+                    "Memory that only exists in the cloud",
+                    "A second CPU used for graphics",
+                    "A backup copy of the hard drive"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-4",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is BIOS, and how is UEFI different?",
+                  "a": "BIOS is the old firmware interface; UEFI is its modern replacement — graphical, faster, and able to boot from GPT disks with Secure Boot.",
+                  "x": "UEFI replaced BIOS because it can handle large drives, boots in seconds, and can verify that the bootloader is signed before running it.",
+                  "wrong": [
+                    "BIOS is faster and UEFI is older",
+                    "UEFI is a type of operating system",
+                    "BIOS and UEFI are the same thing"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-5",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is POST, and when does it run?",
+                  "a": "The Power-On Self-Test — the first step of boot, checking that the CPU, memory, and key devices respond.",
+                  "x": "If POST fails, you hear beeps or see an error code instead of a boot screen. One short beep usually means everything passed.",
+                  "wrong": [
+                    "The last step before the desktop appears",
+                    "A test run when the computer is shut down",
+                    "A security scan of installed programs"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-6",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What loads the operating system kernel into memory?",
+                  "a": "The bootloader.",
+                  "x": "The firmware finds the boot device, runs the bootloader (BOOTMGR on Windows, GRUB on Linux), and the bootloader loads the kernel — which then starts the services and the login screen.",
+                  "wrong": [
+                    "The BIOS battery",
+                    "The hard drive's motor",
+                    "The computer's power supply"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-7",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "Which bootloader is standard on most Linux systems?",
+                  "a": "GRUB.",
+                  "x": "GRUB (the GRand Unified Bootloader) can list several kernels and operating systems and let you choose at start-up — which is why dual-boot machines show a menu.",
+                  "wrong": [
+                    "BOOTMGR",
+                    "UEFI",
+                    "Systemd"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-8",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between MBR and GPT partition tables?",
+                  "a": "MBR is limited to 2 TB disks and four primary partitions; GPT supports huge disks, up to 128 partitions, and keeps backup copies with error checking.",
+                  "x": "MBR dates from 1983 and stores the table in the first sector, with no backup. GPT, part of UEFI, keeps a backup table at the end of the disk and uses CRC checks to detect damage.",
+                  "wrong": [
+                    "MBR is newer and GPT is the legacy format",
+                    "GPT cannot boot a computer",
+                    "MBR supports unlimited partitions"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-9",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "How many primary partitions can an MBR disk have?",
+                  "a": "Four.",
+                  "x": "Four entries fit in the MBR table. To have more, one primary becomes an extended partition — a container that holds logical partitions.",
+                  "wrong": [
+                    "One",
+                    "Two",
+                    "Sixteen"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-10",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is an extended partition?",
+                  "a": "A container partition that holds logical partitions, working around MBR's four-partition limit.",
+                  "x": "With one extended partition, you can have three primaries plus as many logical drives as you need — the classic way dual-boot setups fit on an MBR disk.",
+                  "wrong": [
+                    "A partition that cannot hold files",
+                    "A backup copy of the boot sector",
+                    "A partition that only Linux can use"
+                  ]
+                },
+                {
+                  "id": "it-os-boot-11",
+                  "deckId": "it-os-boot",
+                  "trackId": "intro-it",
+                  "q": "What is Secure Boot?",
+                  "a": "A UEFI feature that refuses to run an unsigned bootloader, blocking rootkits that load before the OS.",
+                  "x": "Secure Boot checks the bootloader's signature against keys stored in the firmware. It stops boot-level malware — and it can block Linux installers that are not signed, which is why some distros ship signed bootloaders.",
+                  "wrong": [
+                    "A password on the login screen",
+                    "An antivirus program",
+                    "A firewall for the network card"
+                  ]
+                }
+              ],
+              "trackId": "intro-it",
+              "tierId": "advanced",
+              "resources": [
+                {
+                  "id": "comptia-itf",
+                  "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                  "url": "https://www.comptia.org/certifications/it-fundamentals"
+                }
+              ],
+              "puzzles": [
+                {
+                  "type": "order",
+                  "prompt": "Put the boot sequence in order.",
+                  "items": [
+                    "POST checks the hardware",
+                    "Firmware finds the boot device",
+                    "Bootloader loads the kernel",
+                    "Kernel starts services",
+                    "Login screen appears"
+                  ],
+                  "x": "Booting is a relay race — each stage hands off to the next. A failure at any stage stops the machine there.",
+                  "id": "it-os-boot-p0"
+                },
+                {
+                  "type": "numeric",
+                  "prompt": "How many primary partitions can an MBR disk have?",
+                  "answer": 4,
+                  "x": "Four entries fit in the MBR table. To have more, one primary becomes an extended partition holding logical partitions.",
+                  "id": "it-os-boot-p1"
+                }
+              ]
+            },
+            {
+              "id": "it-files-cli",
+              "title": "Files, Paths & the Command Line",
+              "summary": "File systems, paths and names, the CLI, and how the OS moves data fast.",
+              "sources": [
+                "comptia-itf"
+              ],
+              "cards": [
+                {
+                  "id": "it-files-cli-0",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "Which file system is the Windows default, and what does it offer?",
+                  "a": "NTFS — permissions, journaling, encryption, and large files.",
+                  "x": "NTFS replaced FAT32 on Windows because it tracks who may read or change each file, logs changes so a crash does not corrupt the volume, and supports files far larger than 4 GB.",
+                  "wrong": [
+                    "FAT32 — no permissions and a 4 GB file limit",
+                    "ext4 — the Linux default",
+                    "exFAT — for camera memory cards"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-1",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "Which file system is the Linux default?",
+                  "a": "ext4 — journaled, reliable, and built for Linux permissions.",
+                  "x": "ext4 is the standard Linux file system. It journals changes like NTFS, handles large files, and is the reason a Linux install feels at home on any disk.",
+                  "wrong": [
+                    "NTFS",
+                    "FAT32",
+                    "APFS"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-2",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "What is the key limit of FAT32?",
+                  "a": "A single file cannot exceed 4 GB, and it has no file permissions.",
+                  "x": "FAT32 is universal — every OS can read it — but a 4 GB file cap and no ownership make it a poor choice for a modern system drive. It survives on USB sticks and cameras.",
+                  "wrong": [
+                    "It only works on Windows",
+                    "It cannot store text files",
+                    "It requires an internet connection"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-3",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "What is exFAT used for?",
+                  "a": "Flash drives and memory cards that need to work on Windows and macOS without the 4 GB file limit.",
+                  "x": "exFAT is the middle ground: cross-platform like FAT32, but without the 4 GB cap. It has no journaling or permissions, so it is for removable media, not system drives.",
+                  "wrong": [
+                    "Booting a Linux server",
+                    "Encrypting a system drive",
+                    "Running a database"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-4",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between an absolute and a relative path?",
+                  "a": "An absolute path starts at the root; a relative path starts at the current directory.",
+                  "x": "/home/sam/report.pdf is absolute — it works from anywhere. ../report.pdf is relative — it means \"one folder up from where I am now.\"",
+                  "wrong": [
+                    "Absolute paths only work on Windows",
+                    "Relative paths are always longer",
+                    "There is no difference between them"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-5",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "Which of these is an absolute path?",
+                  "a": "C:\\Users\\Sam\\report.pdf.",
+                  "x": "It starts at the root of the C: drive, so it points to the same file no matter where you are. \"..\\report.pdf\" and \"report.pdf\" are relative.",
+                  "wrong": [
+                    "..\\report.pdf",
+                    "report.pdf",
+                    "Desktop\\report.pdf"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-6",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "Why is a file named invoice.pdf.exe dangerous?",
+                  "a": "Windows hides known extensions, so it looks like a harmless PDF but is actually a program.",
+                  "x": "With \"Hide extensions for known file types\" on — the default — invoice.pdf.exe shows as invoice.pdf. Double-clicking runs the .exe. Showing extensions is a basic security habit.",
+                  "wrong": [
+                    "It is not dangerous — PDF files cannot run code",
+                    "It is a corrupted file that cannot open",
+                    "It is only dangerous on Linux"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-7",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "Are Report.txt and report.txt the same file on Linux?",
+                  "a": "No — Linux file names are case-sensitive.",
+                  "x": "On Linux, Report.txt, report.txt, and REPORT.TXT are three different files. On Windows and macOS they are usually the same file, which is a classic source of \"it worked on my machine\" bugs.",
+                  "wrong": [
+                    "Yes — all systems treat them the same",
+                    "Yes — Linux ignores case in file names",
+                    "No — because the files are in different folders"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-8",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "What is the command line (CLI)?",
+                  "a": "A text interface where you type commands to control the computer directly.",
+                  "x": "The CLI has no buttons or windows — you type, and the shell answers. It is faster for repetitive work, easy to automate, and the native language of servers.",
+                  "wrong": [
+                    "A graphical desktop for new users",
+                    "A web browser built into the OS",
+                    "A type of file system"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-9",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "Which of these is a Linux shell?",
+                  "a": "Bash.",
+                  "x": "Bash is the default shell on most Linux systems and on macOS before zsh. CMD and PowerShell are the Windows shells.",
+                  "wrong": [
+                    "CMD",
+                    "PowerShell",
+                    "Explorer"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-10",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "What does the `cd` command do?",
+                  "a": "It changes the current directory.",
+                  "x": "cd Documents moves you into Documents; cd .. moves you up one level; cd ~ takes you home. Almost every other command depends on knowing where you are.",
+                  "wrong": [
+                    "It copies a directory",
+                    "It deletes the current directory",
+                    "It creates a new directory"
+                  ]
+                },
+                {
+                  "id": "it-files-cli-11",
+                  "deckId": "it-files-cli",
+                  "trackId": "intro-it",
+                  "q": "What is the difference between buffering and caching?",
+                  "a": "A buffer holds data while a slower device catches up; a cache keeps recently used data in fast memory for the next request.",
+                  "x": "A buffer is about timing — smoothing the speed gap between a producer and a consumer. A cache is about reuse — keeping the answer ready in case it is asked again.",
+                  "wrong": [
+                    "Buffering stores data permanently and caching is temporary",
+                    "Caching is slower than buffering",
+                    "They are the same thing"
+                  ]
+                }
+              ],
+              "trackId": "intro-it",
+              "tierId": "advanced",
+              "resources": [
+                {
+                  "id": "comptia-itf",
+                  "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                  "url": "https://www.comptia.org/certifications/it-fundamentals"
+                }
+              ],
+              "puzzles": [
+                {
+                  "type": "numeric",
+                  "prompt": "What is the maximum size of a single file on FAT32, in GB?",
+                  "answer": 4,
+                  "unit": "GB",
+                  "x": "FAT32 caps a single file at 4 GB and has no permissions — one reason it survives only on USB sticks and cameras.",
+                  "id": "it-files-cli-p0"
+                },
+                {
+                  "type": "order",
+                  "prompt": "Order the steps to find and read a file from the terminal.",
+                  "items": [
+                    "Open the terminal",
+                    "cd to the folder",
+                    "ls to check the file is there",
+                    "cat the file to read it"
+                  ],
+                  "x": "Know where you are, check what is there, then read it. pwd tells you where you are if you ever get lost.",
+                  "id": "it-files-cli-p1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "lessons": {
@@ -64030,6 +65211,451 @@
         [
           "State protection",
           "Encrypt, restrict access, version the bucket — state holds secrets and topology."
+        ]
+      ]
+    },
+    "it-what-is-it": {
+      "overview": [
+        "Information technology is the discipline of making computers, networks, and software work for people. It covers everything from the laptop on your desk to the servers that answer your search queries — and the people who keep all of it running.",
+        "This course is the foundation of the IT Foundations path. It answers the questions every IT professional is assumed to know: what a computer is, how it counts and stores information, what the parts inside it do, and how to work with files and the command line."
+      ],
+      "learn": [
+        {
+          "heading": "What \"information technology\" actually means",
+          "body": [
+            "IT is the technology side of handling information. It has four parts that always appear together: hardware (the physical machines), software (the instructions that run on them), networks (the connections between machines), and data (the information itself). Change one and the others feel it.",
+            "The word \"technology\" is the giveaway: IT is not about the information itself — that is the business's job — but about the systems that store it, move it, protect it, and put it in front of the people who need it."
+          ]
+        },
+        {
+          "heading": "Hardware, software, and the cycle that connects them",
+          "body": [
+            "Every computer job follows the same cycle: input, process, output, storage. Data comes in through a keyboard, a mouse, a file, or a sensor; the CPU processes it; a result comes out on a screen, a printer, or a speaker; and the result is saved to storage if it is worth keeping. The cycle is the same whether you are writing an email or training a model.",
+            "Software splits into two layers. System software — the operating system — runs the machine: it manages hardware, memory, files, and programs. Application software — browsers, editors, games — does a specific job for a specific person, and it always runs on top of the operating system."
+          ]
+        },
+        {
+          "heading": "Clients, servers, and the people who keep it running",
+          "body": [
+            "Most computing today is client–server. A client asks for a service; a server provides it. Your browser is a client when it asks a web server for a page, and one server can answer thousands of clients at once. Servers are built for that job: they stay on, they have redundant parts, and they run server operating systems.",
+            "The IT support technician sits between the systems and the people. The job is mostly diagnosis and communication: understand what is wrong, find the cause, fix it, and show the user how to avoid it next time. Every other course on this path assumes you can already think this way."
+          ]
+        }
+      ],
+      "cheatSheet": [
+        [
+          "Hardware",
+          "The physical parts of a computer — CPU, RAM, drive, screen, keyboard."
+        ],
+        [
+          "Software",
+          "The instructions that run on hardware — operating systems and apps."
+        ],
+        [
+          "System software",
+          "Software that runs the machine itself, above all the operating system."
+        ],
+        [
+          "Application",
+          "Software built for a specific user task, like writing or browsing."
+        ],
+        [
+          "Data",
+          "Raw facts, numbers, and text with no meaning attached yet."
+        ],
+        [
+          "Information",
+          "Data given meaning and context, so it answers a question."
+        ],
+        [
+          "Network",
+          "Computers connected so they can share resources and communicate."
+        ],
+        [
+          "Client–server",
+          "A client requests a service; a server provides it to many clients."
+        ]
+      ]
+    },
+    "it-binary-basics": {
+      "overview": [
+        "A computer is built from switches. Each switch has two reliable states — off and on — and the whole machine is made by combining billions of them. Binary is simply the number system that matches that hardware: two digits, 0 and 1, instead of the ten we use.",
+        "Binary looks strange at first, but it is just counting with a different base. Once you can read a binary number and convert it to decimal and hexadecimal, every number you meet in IT — addresses, sizes, error codes — becomes readable."
+      ],
+      "learn": [
+        {
+          "heading": "Bits, bytes, and why two states are enough",
+          "body": [
+            "A bit is one binary digit, 0 or 1 — a single switch state. Eight bits make a byte, the unit computers use for one character, one pixel value, or one step of a measurement. A byte can hold 2^8 = 256 different patterns, the values 0 through 255.",
+            "Two states are enough because they are reliable. A switch that is clearly off or clearly on can be read correctly billions of times a second. Anything with more states would be slower, hotter, and more error-prone — which is why every computer ever built counts in binary."
+          ]
+        },
+        {
+          "heading": "Reading binary like a number line",
+          "body": [
+            "Binary positions double as you move left: 1, 2, 4, 8, 16, 32, and so on. To read 1101, add the positions that hold a 1: 1 + 4 + 8 = 13. To write 10 in binary, use the positions that add to 10: 8 + 2, so 1010. The same skill reads any binary number, however long.",
+            "Sizes work the same way, in powers of two: 1 KB is 1,024 bytes, 1 MB is 1,024 KB, and 1 GB is 1,024 MB. Disk makers advertise in powers of ten, which is why a drive labelled \"1 TB\" shows about 931 GB in Windows — the same bytes, measured with a different ruler."
+          ]
+        },
+        {
+          "heading": "Hexadecimal: the shorthand",
+          "body": [
+            "Long binary strings are hard to read, so IT uses hexadecimal — base 16, digits 0–9 then A–F. One hex digit maps to exactly four bits, so conversion is a straight grouping: 1101 0010 becomes D2, no arithmetic needed. The 0x prefix marks a number as hex, so 0x1F and 31 are the same value written two ways.",
+            "You will see hex everywhere: memory addresses, colour codes, error codes, and network addresses. Learning to read it is not a party trick — it is how you read the output of the tools you will use daily."
+          ]
+        },
+        {
+          "heading": "Characters: ASCII and UTF-8",
+          "body": [
+            "Text is numbers too. ASCII is the original standard: each character gets a number from 0 to 127 — A is 65, a is 97 — and one byte holds one character. It covers English and nothing else, which was fine until the internet went global.",
+            "UTF-8 is the standard that replaced it. Ordinary English characters still take one byte, so ASCII text is valid UTF-8, but accented letters, Arabic, Chinese, and emoji take two to four bytes. Every web page, every API, and every modern file format speaks UTF-8."
+          ]
+        }
+      ],
+      "architecture": {
+        "caption": "Reading binary: each position doubles. Add the positions that hold a 1.",
+        "diagram": "  position value:   8   4   2   1\n  binary digits:    1   1   0   1   =  8 + 4 + 1  =  13\n\n  one hex digit = 4 bits:\n  1101 0010  ->  D    2   (0xD2 = 210)"
+      },
+      "examples": [
+        {
+          "title": "Binary to decimal, step by step",
+          "code": "1101   ->  1×8 + 1×4 + 0×2 + 1×1  =  13\n1010   ->  1×8 + 0×4 + 1×2 + 0×1  =  10\n11111111  ->  128 + 64 + 32 + 16 + 8 + 4 + 2 + 1  =  255",
+          "explanation": "Write the position values above the digits, keep the positions with a 1, and add them."
+        },
+        {
+          "title": "Decimal to hex, via binary",
+          "code": "255  ->  binary 1111 1111  ->  groups 1111 1111  ->  F F  =  0xFF\n210  ->  binary 1101 0010  ->  groups 1101 0010  ->  D 2  =  0xD2\n31   ->  binary 0001 1111  ->  groups 0001 1111  ->  1 F  =  0x1F",
+          "explanation": "Split the binary into groups of four bits from the right; each group is one hex digit."
+        }
+      ],
+      "cheatSheet": [
+        [
+          "Bit",
+          "One binary digit, 0 or 1 — the smallest unit of data."
+        ],
+        [
+          "Byte",
+          "Eight bits; holds one character or one value from 0 to 255."
+        ],
+        [
+          "Nibble",
+          "Four bits — exactly one hexadecimal digit."
+        ],
+        [
+          "Binary",
+          "Base 2; positions double leftwards: 1, 2, 4, 8, 16…"
+        ],
+        [
+          "Hexadecimal",
+          "Base 16; digits 0–9, A–F. One digit per four bits."
+        ],
+        [
+          "ASCII",
+          "The original character standard: numbers 0–127 for letters and symbols."
+        ],
+        [
+          "UTF-8",
+          "The web standard for text; ASCII-compatible, covers every writing system."
+        ],
+        [
+          "1 KB",
+          "1,024 bytes. 1 MB = 1,024 KB; 1 GB = 1,024 MB."
+        ]
+      ]
+    },
+    "it-hardware": {
+      "overview": [
+        "A computer is a team of parts, and each part has one job. The CPU does the thinking, memory holds what is being worked on, storage keeps what must survive a shutdown, and the motherboard connects them all so data can flow between them.",
+        "This lesson names the parts inside a desktop computer and explains what each one actually does — the vocabulary you need before you open a case, read a specification sheet, or choose a machine for a job."
+      ],
+      "learn": [
+        {
+          "heading": "The CPU: fetch, decode, execute",
+          "body": [
+            "The CPU runs programs by repeating one cycle: fetch an instruction from memory, decode what it means, execute it, and move to the next. It does this billions of times a second — the clock speed in gigahertz is how many cycles it runs per second.",
+            "Clock speed is only part of performance. A newer CPU design does more work per cycle than an older one at the same speed, and a CPU with more cores can do several things genuinely at once. When you compare processors, look at the generation, the core count, and the cache — not just the GHz number."
+          ]
+        },
+        {
+          "heading": "Cores, clocks, and cache",
+          "body": [
+            "A core is an independent processing unit inside the chip. A quad-core CPU is four processors in one package, and the operating system spreads programs across them. Multiprocessing is real parallelism — two cores, two jobs at once — while multitasking is the OS rapidly switching one core between jobs so they all appear to run together.",
+            "Cache is the fast, small memory built into or next to the CPU for data it uses constantly. L1 is the fastest and smallest, then L2, then L3 — each a trade-off between speed and size. Cache exists because RAM is too slow to keep a 3 GHz CPU fed; without it, the processor would spend most of its time waiting."
+          ]
+        },
+        {
+          "heading": "The motherboard and the chipset",
+          "body": [
+            "The motherboard is the main circuit board. The CPU, RAM, storage, and expansion cards all plug into it, and it carries power and data between them. Its sockets and slots decide what you can install: which CPUs fit, how much RAM it takes, and which expansion cards it accepts.",
+            "The chipset is the motherboard's traffic controller and rulebook. It governs which CPUs, memory speeds, and expansion cards the board supports — two boards with the same CPU socket can support different processors if their chipsets differ. When a part \"is not supported\", the chipset is usually the reason."
+          ]
+        },
+        {
+          "heading": "Memory, storage, and the ports between them",
+          "body": [
+            "RAM is the computer's working memory: fast, temporary, and gone the moment the power goes off. ROM and its modern flash-based forms hold firmware that survives without power — the code the machine needs to start at all. Storage — hard drives and SSDs — holds everything else, permanently.",
+            "Everything connects through buses. PCIe is the high-speed expansion bus: graphics cards, network cards, and NVMe drives plug into PCIe slots for a direct, fast path to the CPU and RAM. USB, HDMI, and Ethernet are the external ports — slower, but hot-swappable and universal."
+          ]
+        }
+      ],
+      "cheatSheet": [
+        [
+          "CPU",
+          "The processor: fetches, decodes, and executes instructions."
+        ],
+        [
+          "Core",
+          "An independent processing unit inside the CPU chip."
+        ],
+        [
+          "Clock speed",
+          "Cycles per second, in GHz — only part of CPU performance."
+        ],
+        [
+          "Cache",
+          "Very fast, small memory near the CPU (L1 fastest, then L2, L3)."
+        ],
+        [
+          "Motherboard",
+          "The main board connecting every component in the computer."
+        ],
+        [
+          "Chipset",
+          "Governs which CPUs, memory speeds, and cards the board supports."
+        ],
+        [
+          "RAM",
+          "Volatile working memory for programs running right now."
+        ],
+        [
+          "PCIe",
+          "The high-speed bus for expansion cards and NVMe drives."
+        ]
+      ]
+    },
+    "it-storage-memory": {
+      "overview": [
+        "Computers keep two kinds of memory, and confusing them is the most common beginner mistake. Storage keeps data after the power goes off — your files live there. Memory (RAM) holds what is being worked on right now, and forgets it the moment the machine shuts down.",
+        "This lesson follows data down the memory hierarchy, from the CPU's registers to the hard drive, and explains how disks are organised into partitions and file systems — the ground every later course stands on."
+      ],
+      "learn": [
+        {
+          "heading": "The memory hierarchy",
+          "body": [
+            "Storage is a ladder. At the top, registers and cache are fastest but tiny — they hold what the CPU is touching this instant. RAM is the middle: big enough for every running program, fast enough to keep up. At the bottom, SSDs and hard drives are slowest but huge, holding everything the machine owns.",
+            "Each level exists because the one above it is too small and the one below it is too slow. Data moves up the ladder when it is needed and down again when it is not. The whole art of performance is keeping the data the CPU needs next as high up the ladder as possible."
+          ]
+        },
+        {
+          "heading": "Hard drives: spinning rust",
+          "body": [
+            "A hard drive stores data magnetically on spinning platters. A read/write head floats nanometres above the platter and flips magnetic spots to write a 1 or a 0. The smallest unit the drive can address is a sector — traditionally 512 bytes — and a file is a chain of sectors.",
+            "HDD speed is measured in RPM: how fast the platters spin, usually 5,400 or 7,200. Higher RPM means the head reaches data sooner. But any spinning disk is slow compared with flash, because the head must physically move — which is also why a dropped laptop can kill a hard drive and leave an SSD unharmed."
+          ]
+        },
+        {
+          "heading": "SSDs: flash, wear, and TRIM",
+          "body": [
+            "An SSD stores data in flash chips with no moving parts. It is fast, silent, and shock-proof — and its cells survive only a limited number of writes. The controller spreads writes evenly across the cells (wear levelling) and uses TRIM — a message from the OS saying which blocks are free — so the drive stays fast and lasts for years of daily use.",
+            "That write limit has one practical rule: never defragment an SSD. Defrag exists for spinning disks, where reading a scattered file means waiting for the platter. On flash every address is equally fast, so defrag gains nothing and burns through the drive's write budget for free."
+          ]
+        },
+        {
+          "heading": "Partitions and formatting",
+          "body": [
+            "Partitioning divides one physical disk into separate logical volumes — one for the system, one for data, or one per operating system on a dual-boot machine. The partition table records where each volume starts and ends; MBR and GPT are the two formats, covered in the operating-systems lesson.",
+            "Formatting writes a file system on a volume so the operating system can store and find files — the empty index of files, folders, and free space. Quick format writes a fresh index; full format also checks every sector. A growing count of bad sectors — damaged areas that can no longer hold data — is a warning: back the drive up and replace it."
+          ]
+        }
+      ],
+      "cheatSheet": [
+        [
+          "Storage",
+          "Keeps data after the power goes off — SSDs and hard drives."
+        ],
+        [
+          "Memory (RAM)",
+          "Volatile working memory for programs running right now."
+        ],
+        [
+          "HDD",
+          "Hard disk drive: magnetic platters, cheap per GB, slower, fragile."
+        ],
+        [
+          "SSD",
+          "Solid-state drive: flash chips, no moving parts, fast, shock-proof."
+        ],
+        [
+          "Sector",
+          "The smallest addressable unit on a disk, traditionally 512 bytes."
+        ],
+        [
+          "Partition",
+          "A logical division of a disk, behaving as a separate volume."
+        ],
+        [
+          "Formatting",
+          "Writing a file system on a volume so the OS can store files."
+        ],
+        [
+          "TRIM",
+          "The OS telling an SSD which blocks are free, keeping it fast."
+        ]
+      ]
+    },
+    "it-os-boot": {
+      "overview": [
+        "The operating system is the middleman between applications and hardware. It decides who gets CPU time, keeps files organised, and stops one program from breaking another. Without it, every application would have to manage the hardware itself.",
+        "This lesson explains what the OS does, the boundary it draws between itself and your programs, and the relay race that runs every time you press the power button — from the first self-test to the desktop."
+      ],
+      "learn": [
+        {
+          "heading": "What the operating system actually does",
+          "body": [
+            "The OS has five jobs: manage the CPU (who runs, and for how long), manage memory (who gets RAM, and what happens when it runs out), manage files (where they live and who may touch them), manage devices (printers, disks, network cards), and manage users (who is logged in and what they may do).",
+            "Every application relies on those services instead of talking to the hardware directly. That is what makes software portable: the same program runs on different machines because the OS hides the differences between them."
+          ]
+        },
+        {
+          "heading": "Kernel space and user space",
+          "body": [
+            "The kernel is the part of the OS with full hardware access. Applications run in user space — restricted — and must ask the kernel for anything sensitive, through system calls. That boundary is the OS's safety net: a crashing application can be killed, but a crashing kernel takes the whole machine down.",
+            "When a program reads a file, it does not touch the disk. It asks the kernel, the kernel checks permissions, reads the disk, and hands the data back. Every permission error, every \"access denied\", and every security boundary in the system lives on this split."
+          ]
+        },
+        {
+          "heading": "Processes, threads, and virtual memory",
+          "body": [
+            "A process is a running program with its own memory; a thread is a line of work inside a process, sharing that memory. A browser runs one process per tab, and each tab's threads share the tab's memory. Threads are cheap to start, but one thread's crash can take its whole process with it.",
+            "Virtual memory is the OS's answer to running out of RAM: it pages the least-used data out to a swap file on disk, freeing RAM for what is needed now. It works — but slowly, because the disk is far slower than RAM. A machine that is constantly swapping feels sluggish for exactly this reason."
+          ]
+        },
+        {
+          "heading": "From power button to desktop",
+          "body": [
+            "Booting is a relay race. The firmware runs POST — the Power-On Self-Test — checking that the CPU, memory, and key devices respond. Then it finds the boot device and runs the bootloader: BOOTMGR on Windows, GRUB on Linux. The bootloader loads the kernel, the kernel starts the services, and the login screen appears.",
+            "The firmware is BIOS on old machines and UEFI on modern ones. UEFI is graphical, boots faster, handles large GPT disks, and supports Secure Boot — a check that refuses to run an unsigned bootloader, blocking rootkits that load before the operating system. The partition table matters too: MBR is limited to 2 TB disks and four primary partitions, while GPT supports huge disks, up to 128 partitions, and keeps backup copies with error checking."
+          ]
+        }
+      ],
+      "architecture": {
+        "caption": "The boot sequence: each stage hands off to the next. A failure at any stage stops the machine there.",
+        "diagram": "  power on\n     |\n  POST — firmware checks CPU, RAM, devices\n     |\n  firmware finds the boot device (UEFI / BIOS)\n     |\n  bootloader loads the kernel  (BOOTMGR / GRUB)\n     |\n  kernel starts services, drivers, login screen\n     |\n  desktop"
+      },
+      "cheatSheet": [
+        [
+          "Operating system",
+          "Manages hardware, memory, files, processes, and users."
+        ],
+        [
+          "Kernel",
+          "The OS core with full hardware access; apps must ask it."
+        ],
+        [
+          "Process",
+          "A running program with its own isolated memory."
+        ],
+        [
+          "Thread",
+          "A line of work inside a process, sharing its memory."
+        ],
+        [
+          "Virtual memory",
+          "Disk space used to extend RAM when memory runs short."
+        ],
+        [
+          "BIOS",
+          "The legacy firmware interface; replaced by UEFI."
+        ],
+        [
+          "UEFI",
+          "Modern firmware: graphical, fast, GPT, Secure Boot."
+        ],
+        [
+          "Bootloader",
+          "Loads the kernel into memory — BOOTMGR or GRUB."
+        ]
+      ]
+    },
+    "it-files-cli": {
+      "overview": [
+        "Files are the unit of work in IT. Everything you do — writing a report, fixing a server, shipping code — is creating, moving, reading, or deleting files. The file system is the map that organises them, and the command line is the fastest way to work with them.",
+        "This lesson covers the file systems you will meet, how paths and names work, the extension trap that catches beginners, and the command line — the text interface that every server, and every later course, assumes you can use."
+      ],
+      "learn": [
+        {
+          "heading": "File systems: NTFS, ext4, FAT32, exFAT",
+          "body": [
+            "A file system is the structure written on a volume so the operating system can store and find files. NTFS is the Windows default: it tracks who may read or change each file, journals changes so a crash does not corrupt the volume, and supports files far larger than 4 GB. ext4 is the Linux default, with the same journaling and large-file support, built for Linux permissions.",
+            "FAT32 is universal — every operating system can read it — but a single file cannot exceed 4 GB and it has no permissions, so it survives on USB sticks and cameras. exFAT is the middle ground for removable media: cross-platform like FAT32, without the 4 GB cap, but with no journaling or permissions either. Choose by the job: NTFS or ext4 for system drives, exFAT for a flash drive that must work everywhere."
+          ]
+        },
+        {
+          "heading": "Paths, names, and the extension trap",
+          "body": [
+            "A path is an address. An absolute path starts at the root — C:\\Users\\Sam\\report.pdf or /home/sam/report.pdf — and works from anywhere. A relative path starts at the current directory: ../report.pdf means \"one folder up from where I am now.\" Knowing where you are is half of working with files.",
+            "Names have traps. On Linux, Report.txt and report.txt are different files — file names are case-sensitive — while Windows and macOS usually treat them as one. And Windows hides known extensions by default, so invoice.pdf.exe looks like a harmless PDF while actually being a program. Showing extensions is a basic security habit."
+          ]
+        },
+        {
+          "heading": "The command line",
+          "body": [
+            "The command line (CLI) is a text interface: you type a command, the shell runs it and answers. There are no buttons or windows, but there is also no ambiguity — the same command does the same thing every time, which makes it fast for repetitive work and easy to automate. It is the native language of servers, and every later course assumes you can use it.",
+            "The shell is the program that reads your commands: Bash on Linux, CMD and PowerShell on Windows. A few commands cover most daily work: cd changes directory, ls lists files, mkdir makes a directory, and cat prints a file. Learn those four and you can navigate any system; the rest is vocabulary you pick up as you go."
+          ]
+        },
+        {
+          "heading": "Buffers and caches",
+          "body": [
+            "Two ideas keep data moving fast, and they are easy to confuse. A buffer holds data while a slower device catches up — it smooths the speed gap between a producer and a consumer, like a reservoir between two pipes. A cache keeps recently used data in fast memory so the next request is answered instantly — it is about reuse, not timing.",
+            "Both appear everywhere: the OS buffers disk writes, the CPU caches memory, the browser caches pages. When something is slow, the first question is usually which one is missing or full."
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Finding your way around",
+          "code": "pwd            # print the current directory\nls -la         # list all files, with details\ncd Documents   # move into Documents\ncd ..          # move up one level\ncd ~           # go home",
+          "explanation": "Knowing where you are is the first step — pwd tells you, ls shows you what is there, cd moves you."
+        },
+        {
+          "title": "Working with files",
+          "code": "mkdir notes     # make a new directory\ncat todo.txt    # print a file to the screen\ncp todo.txt backup.txt   # copy a file\nmv todo.txt done.txt     # rename (move) a file\nrm old.txt      # delete a file — no recycle bin",
+          "explanation": "These five commands cover most file work. Note that rm deletes immediately: there is no undo."
+        }
+      ],
+      "cheatSheet": [
+        [
+          "File system",
+          "The structure on a volume that organises files — NTFS, ext4, FAT32, exFAT."
+        ],
+        [
+          "NTFS",
+          "Windows default: permissions, journaling, large files."
+        ],
+        [
+          "ext4",
+          "Linux default: journaled, reliable, built for Linux permissions."
+        ],
+        [
+          "FAT32",
+          "Universal, but 4 GB file limit and no permissions."
+        ],
+        [
+          "Absolute path",
+          "Starts at the root — works from anywhere."
+        ],
+        [
+          "Relative path",
+          "Starts at the current directory — depends on where you are."
+        ],
+        [
+          "Shell",
+          "The program that reads CLI commands — Bash, CMD, PowerShell."
+        ],
+        [
+          "CLI",
+          "Command-line interface: type commands, get answers, automate everything."
         ]
       ]
     }

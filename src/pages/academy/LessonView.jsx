@@ -33,6 +33,9 @@ const VISUAL_LAB_FOR = {
   'net-troubleshoot': 'proto-dns',
   'net-ip-subnet': 'packet-builder',
   'sec-crypto': 'proto-tls',
+  'it-binary-basics': 'number-system',
+  'it-files-cli': 'terminal',
+  'it-hardware': 'motherboard',
 };
 
 /** One lesson: reading on a glass-2 surface, then practice (the interactive lesson). */

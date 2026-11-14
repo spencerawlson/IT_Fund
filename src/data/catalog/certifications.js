@@ -16,6 +16,7 @@ export const CERTIFICATIONS = {
   'terraform-associate': { id: 'terraform-associate', name: 'Terraform Associate (003)', vendor: 'HashiCorp' },
   'cpa-cpp': { id: 'cpa-cpp', name: 'CPA — C++ Certified Associate Programmer', vendor: 'C++ Institute' },
   cka: { id: 'cka', name: 'CKA — Certified Kubernetes Administrator', vendor: 'CNCF / Linux Foundation' },
+  'itf-plus': { id: 'itf-plus', name: 'IT Fundamentals (ITF+)', vendor: 'CompTIA' },
 };
 
 /** Skills a course can teach. Phase 3 adds subskills and the scoring model. */
@@ -24,6 +25,8 @@ export const SKILLS = {
   automation: 'Automation',
   networking: 'Networking',
   troubleshooting: 'Troubleshooting',
+  hardware: 'Hardware',
+  'it-support': 'IT Support',
   security: 'Security',
   iam: 'Identity & Access',
   cryptography: 'Cryptography',

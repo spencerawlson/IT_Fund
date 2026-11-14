@@ -22374,6 +22374,512 @@ export const tracks = [
         ]
       }
     ]
+  },
+  {
+    "id": "intro-it",
+    "title": "Introduction to Information Technology",
+    "tagline": "What computers are, how they work, and how to use them with confidence.",
+    "icon": "Monitor",
+    "color": "#94A3B8",
+    "tiers": [
+      {
+        "id": "beginner",
+        "label": "Beginner",
+        "color": "#22C55E",
+        "decks": [
+          {
+            "id": "it-what-is-it",
+            "title": "What Information Technology Is",
+            "summary": "Hardware, software, data, networks, and the people who keep them running.",
+            "sources": [
+              "comptia-itf"
+            ],
+            "cards": [
+              {
+                "id": "it-what-is-it-0",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-1",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-2",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-3",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-4",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-5",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-6",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-7",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-8",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-what-is-it-9",
+                "deckId": "it-what-is-it",
+                "trackId": "intro-it"
+              }
+            ],
+            "trackId": "intro-it",
+            "tierId": "beginner",
+            "resources": [
+              {
+                "id": "comptia-itf",
+                "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                "url": "https://www.comptia.org/certifications/it-fundamentals"
+              }
+            ],
+            "puzzles": []
+          },
+          {
+            "id": "it-binary-basics",
+            "title": "Binary, Bits & Number Systems",
+            "summary": "How computers count: bits, bytes, binary, hexadecimal, and text encodings.",
+            "sources": [
+              "comptia-itf",
+              "nist-glossary"
+            ],
+            "cards": [
+              {
+                "id": "it-binary-basics-0",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-1",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-2",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-3",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-4",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-5",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-6",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-7",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-8",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-9",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-10",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-binary-basics-11",
+                "deckId": "it-binary-basics",
+                "trackId": "intro-it"
+              }
+            ],
+            "trackId": "intro-it",
+            "tierId": "beginner",
+            "resources": [
+              {
+                "id": "comptia-itf",
+                "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                "url": "https://www.comptia.org/certifications/it-fundamentals"
+              },
+              {
+                "id": "nist-glossary",
+                "title": "NIST CSRC Glossary",
+                "url": "https://csrc.nist.gov/glossary"
+              }
+            ],
+            "puzzles": []
+          }
+        ]
+      },
+      {
+        "id": "intermediate",
+        "label": "Intermediate",
+        "color": "#3B82F6",
+        "decks": [
+          {
+            "id": "it-hardware",
+            "title": "Computer Hardware & Components",
+            "summary": "The CPU, cores, cache, motherboard, chipset, memory, and expansion buses.",
+            "sources": [
+              "comptia-itf"
+            ],
+            "cards": [
+              {
+                "id": "it-hardware-0",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-1",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-2",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-3",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-4",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-5",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-6",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-7",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-8",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-9",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-10",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-hardware-11",
+                "deckId": "it-hardware",
+                "trackId": "intro-it"
+              }
+            ],
+            "trackId": "intro-it",
+            "tierId": "intermediate",
+            "resources": [
+              {
+                "id": "comptia-itf",
+                "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                "url": "https://www.comptia.org/certifications/it-fundamentals"
+              }
+            ],
+            "puzzles": []
+          },
+          {
+            "id": "it-storage-memory",
+            "title": "Storage & Memory",
+            "summary": "The memory hierarchy, hard drives, SSDs, partitions, and formatting.",
+            "sources": [
+              "comptia-itf"
+            ],
+            "cards": [
+              {
+                "id": "it-storage-memory-0",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-1",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-2",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-3",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-4",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-5",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-6",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-7",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-8",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-9",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-10",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-storage-memory-11",
+                "deckId": "it-storage-memory",
+                "trackId": "intro-it"
+              }
+            ],
+            "trackId": "intro-it",
+            "tierId": "intermediate",
+            "resources": [
+              {
+                "id": "comptia-itf",
+                "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                "url": "https://www.comptia.org/certifications/it-fundamentals"
+              }
+            ],
+            "puzzles": []
+          }
+        ]
+      },
+      {
+        "id": "advanced",
+        "label": "Advanced",
+        "color": "#F59E0B",
+        "decks": [
+          {
+            "id": "it-os-boot",
+            "title": "Operating Systems & Booting",
+            "summary": "What the OS does, the kernel boundary, processes, and the boot sequence.",
+            "sources": [
+              "comptia-itf"
+            ],
+            "cards": [
+              {
+                "id": "it-os-boot-0",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-1",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-2",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-3",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-4",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-5",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-6",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-7",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-8",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-9",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-10",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-os-boot-11",
+                "deckId": "it-os-boot",
+                "trackId": "intro-it"
+              }
+            ],
+            "trackId": "intro-it",
+            "tierId": "advanced",
+            "resources": [
+              {
+                "id": "comptia-itf",
+                "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                "url": "https://www.comptia.org/certifications/it-fundamentals"
+              }
+            ],
+            "puzzles": []
+          },
+          {
+            "id": "it-files-cli",
+            "title": "Files, Paths & the Command Line",
+            "summary": "File systems, paths and names, the CLI, and how the OS moves data fast.",
+            "sources": [
+              "comptia-itf"
+            ],
+            "cards": [
+              {
+                "id": "it-files-cli-0",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-1",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-2",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-3",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-4",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-5",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-6",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-7",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-8",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-9",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-10",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              },
+              {
+                "id": "it-files-cli-11",
+                "deckId": "it-files-cli",
+                "trackId": "intro-it"
+              }
+            ],
+            "trackId": "intro-it",
+            "tierId": "advanced",
+            "resources": [
+              {
+                "id": "comptia-itf",
+                "title": "CompTIA IT Fundamentals (ITF+) exam objectives",
+                "url": "https://www.comptia.org/certifications/it-fundamentals"
+              }
+            ],
+            "puzzles": []
+          }
+        ]
+      }
+    ]
   }
 ];
 
