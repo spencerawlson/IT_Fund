@@ -434,4 +434,27 @@ export const COURSE_META = [
       advanced: { title: 'Workflows & Good Practice', summary: 'Feature branches, PRs, internals, history and security.' },
     },
   },
+  {
+    slug: 'intro-to-it',
+    trackId: 'intro-it',
+    title: 'Introduction to Information Technology',
+    difficulty: 'Beginner',
+    description:
+      'The on-ramp to IT: what computers are, how they count and store information, what the parts inside them do, and how to work with files and the command line. From binary and number systems through hardware, storage, operating systems and booting, to file systems and the CLI.',
+    objectives: [
+      'Explain what IT is: hardware, software, networks, and data',
+      'Read and convert binary, decimal, and hexadecimal',
+      'Name the parts inside a computer and what each one does',
+      'Explain how storage and memory work, and how disks are organised',
+      'Describe what an operating system does and how a computer boots',
+      'Work with file systems, paths, and the command line',
+    ],
+    skills: ['hardware', 'it-support', 'troubleshooting', 'networking'],
+    certifications: ['itf-plus'],
+    modules: {
+      beginner: { title: 'What IT Is', summary: 'Hardware, software, data, networks — and the IT support role.' },
+      intermediate: { title: 'Hardware & Storage', summary: 'CPU, memory, storage, and how disks are organised.' },
+      advanced: { title: 'Operating Systems & Working with Computers', summary: 'What the OS does, booting, files, paths, and the CLI.' },
+    },
+  },
 ];

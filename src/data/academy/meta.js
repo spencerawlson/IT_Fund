@@ -79,9 +79,9 @@ export const ROADMAP = [
   {
     step: 1,
     title: 'Foundations',
-    desc: 'Learn to script and learn how packets move. Everything later assumes both.',
+    desc: 'Start with what computers are and how they work, then learn to script and how packets move. Everything later assumes all three.',
     milestone: 'ISC2 Certified in Cybersecurity (CC): free training and exam voucher',
-    tiers: [['python', 'beginner'], ['network', 'beginner']],
+    tiers: [['intro-it', 'beginner'], ['intro-it', 'intermediate'], ['intro-it', 'advanced'], ['python', 'beginner'], ['network', 'beginner']],
     months: '1-2',
   },
   {
@@ -144,6 +144,8 @@ export const RESOURCES = {
   'exercism-py': { title: 'Exercism Python track', url: 'https://exercism.org/tracks/python' },
   'realpython': { title: 'Real Python tutorials', url: 'https://realpython.com/' },
   'pep8': { title: 'PEP 8: Style Guide for Python Code', url: 'https://peps.python.org/pep-0008/' },
+  // IT Fundamentals
+  'comptia-itf': { title: 'CompTIA IT Fundamentals (ITF+) exam objectives', url: 'https://www.comptia.org/certifications/it-fundamentals' },
   // Networking
   'messer-net': { title: 'Professor Messer N10-009 Network+ course', url: 'https://www.professormesser.com/network-plus/n10-009/n10-009-video/n10-009-training-course/' },
   'comptia-net': { title: 'CompTIA Network+ exam objectives', url: 'https://www.comptia.org/certifications/network' },

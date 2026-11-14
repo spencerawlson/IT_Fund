@@ -45,6 +45,7 @@ import sql from '../src/data/academy/sql.js';
 import docker from '../src/data/academy/docker.js';
 import kubernetes from '../src/data/academy/kubernetes.js';
 import git from '../src/data/academy/git.js';
+import introIt from '../src/data/academy/intro-it.js';
 import interactive from '../src/data/academy/interactive.js';
 import {
   TIERS,
@@ -97,7 +98,7 @@ function normaliseTrack(raw) {
 
 const RAW_TRACKS = [
   python, network, routing, security, cyber, cloud, awsSaa, cysa, awsSecurity, ai,
-  cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes, git,
+  cissp, linux, terraform, cpp, go, rust, sql, docker, kubernetes, git, introIt,
 ];
 
 export const tracks = RAW_TRACKS.map(normaliseTrack);

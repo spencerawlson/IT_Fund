@@ -12,7 +12,7 @@ export const PATHS = [
     color: '#94A3B8',
     difficulty: 'Beginner',
     summary: 'Hardware, operating systems, help desk skills and how the pieces of IT fit together.',
-    courses: [],
+    courses: ['intro-to-it'],
     prerequisites: {},
   },
   {

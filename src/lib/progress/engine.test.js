@@ -66,7 +66,13 @@ describe('prerequisites are guidance', () => {
 
   it('drops recommendations as they are completed', () => {
     const intermediate = getModule('network:intermediate');
-    const stepOne = withLessons([...moduleLessons('python:beginner'), ...moduleLessons('network:beginner')]);
+    const stepOne = withLessons([
+      ...moduleLessons('intro-it:beginner'),
+      ...moduleLessons('intro-it:intermediate'),
+      ...moduleLessons('intro-it:advanced'),
+      ...moduleLessons('python:beginner'),
+      ...moduleLessons('network:beginner'),
+    ]);
     expect(modulePrerequisites(stepOne, intermediate)).toEqual({ met: true, modules: [] });
   });
 
@@ -124,7 +130,8 @@ describe('course progress', () => {
 
 describe('career path prerequisites', () => {
   it('marks paths without courses as coming soon', () => {
-    expect(pathStatus(empty(), getPath('it-foundations'))).toBe('coming-soon');
+    expect(pathStatus(empty(), getPath('it-foundations'))).toBe('not-started');
+    expect(pathStatus(empty(), getPath('security-engineering'))).toBe('coming-soon');
   });
 
   it('reports unmet required paths without closing the path', () => {

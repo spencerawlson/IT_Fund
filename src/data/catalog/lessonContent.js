@@ -20,6 +20,7 @@ import cpp from './lessons/cpp.js';
 import cysa from './lessons/cysa.js';
 import docker from './lessons/docker.js';
 import git from './lessons/git.js';
+import introIt from './lessons/intro-it.js';
 import go from './lessons/go.js';
 import kubernetes from './lessons/kubernetes.js';
 import linux from './lessons/linux.js';
@@ -28,4 +29,4 @@ import sql from './lessons/sql.js';
 import terraform from './lessons/terraform.js';
 
 /** @type {Record<string, import('./schema').LessonContent>} */
-export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...awsSaa, ...awsSecurity, ...cysa, ...cissp, ...cpp, ...docker, ...git, ...go, ...kubernetes, ...linux, ...rust, ...sql, ...terraform };
+export const LESSON_CONTENT = { ...python, ...network, ...routing, ...security, ...cyber, ...cloud, ...ai, ...awsSaa, ...awsSecurity, ...cysa, ...cissp, ...cpp, ...docker, ...git, ...go, ...kubernetes, ...linux, ...rust, ...sql, ...terraform, ...introIt };

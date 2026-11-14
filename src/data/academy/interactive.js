@@ -192,4 +192,29 @@ export default {
   'git-conflicts': [
     { type: 'order', prompt: 'Order the steps to resolve a merge conflict.', items: ['git merge triggers a conflict', 'Edit the file, removing <<<<<<< ======= >>>>>>>', 'git add the resolved file', 'git commit to finish the merge'], x: 'You edit to the correct result and delete all three markers, then staging marks it resolved and the commit completes the merge.' },
   ],
+
+  // ---------- Introduction to Information Technology ----------
+  'it-what-is-it': [
+    { type: 'order', prompt: 'Put the input–process–output–storage cycle in order.', items: ['Input: data goes in', 'Process: the CPU works on it', 'Output: a result comes out', 'Storage: the result is saved'], x: 'Every computer job follows the same cycle — in, work, out, keep — whether it is an email or a database query.' },
+  ],
+  'it-binary-basics': [
+    { type: 'widget', widget: 'bits', prompt: 'Flip the bits to make 13 — the first number in the lesson.', goal: { value: 13 }, x: '1101 is 8 + 4 + 1 = 13. Each position doubles as you move left: 1, 2, 4, 8.' },
+    { type: 'numeric', prompt: 'What is binary 1010 in decimal?', answer: 10, x: '8 + 2 = 10. Only the 8 and 2 positions hold a 1.' },
+  ],
+  'it-hardware': [
+    { type: 'numeric', prompt: 'What is the maximum RAM a 32-bit system can address, in GB?', answer: 4, unit: 'GB', x: '2^32 addresses is about 4 GB. A 64-bit system can address far more memory than any machine will hold for decades.' },
+    { type: 'order', prompt: 'Put the CPU cycle in order.', items: ['Fetch the instruction', 'Decode what it means', 'Execute it'], x: 'The CPU repeats fetch → decode → execute billions of times a second. That cycle is what "running a program" means.' },
+  ],
+  'it-storage-memory': [
+    { type: 'order', prompt: 'Order the memory hierarchy from fastest to slowest.', items: ['Registers', 'Cache (L1/L2/L3)', 'RAM', 'SSD', 'Hard drive'], x: 'Each level is faster but smaller than the one below it. Data moves up the ladder when it is needed and down again when it is not.' },
+    { type: 'numeric', prompt: 'How many KB are in 1 MB?', answer: 1024, unit: 'KB', x: 'Computers count in powers of two: 1 KB is 1,024 bytes and 1 MB is 1,024 KB.' },
+  ],
+  'it-os-boot': [
+    { type: 'order', prompt: 'Put the boot sequence in order.', items: ['POST checks the hardware', 'Firmware finds the boot device', 'Bootloader loads the kernel', 'Kernel starts services', 'Login screen appears'], x: 'Booting is a relay race — each stage hands off to the next. A failure at any stage stops the machine there.' },
+    { type: 'numeric', prompt: 'How many primary partitions can an MBR disk have?', answer: 4, x: 'Four entries fit in the MBR table. To have more, one primary becomes an extended partition holding logical partitions.' },
+  ],
+  'it-files-cli': [
+    { type: 'numeric', prompt: 'What is the maximum size of a single file on FAT32, in GB?', answer: 4, unit: 'GB', x: 'FAT32 caps a single file at 4 GB and has no permissions — one reason it survives only on USB sticks and cameras.' },
+    { type: 'order', prompt: 'Order the steps to find and read a file from the terminal.', items: ['Open the terminal', 'cd to the folder', 'ls to check the file is there', 'cat the file to read it'], x: 'Know where you are, check what is there, then read it. pwd tells you where you are if you ever get lost.' },
+  ],
 };
