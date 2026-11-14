@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ShieldCheck, RotateCcw, Eye } from 'lucide-react';
 import { Button } from '@/components/ui-glass';
 import {
@@ -47,11 +47,20 @@ export default function FirewallConsole({
   disabled = false,
 }) {
   const [running, setRunning] = useState(null);
+  // Synchronous guard: React state does not land before the next tap, so a
+  // second rapid tap would still see `running` as null and start a second
+  // sequence. The ref is set before the first await, so the second tap is
+  // dropped. (The live bug: two concurrent sequences interleaved their
+  // execs, and the second sequence's `connect R1` reset the shared shell
+  // mode mid-flight, so the first sequence's access-list line was rejected
+  // with "% Invalid input detected" and the deny rule never landed.)
+  const runningRef = useRef(null);
   const [lastOutput, setLastOutput] = useState('');
   const [error, setError] = useState('');
 
   const run = async (name, commands) => {
-    if (!onExec || busy || disabled) return;
+    if (!onExec || busy || disabled || runningRef.current) return;
+    runningRef.current = name;
     setRunning(name);
     setError('');
     try {
@@ -60,9 +69,15 @@ export default function FirewallConsole({
     } catch (e) {
       setError(e.message || 'Command failed.');
     } finally {
+      runningRef.current = null;
       setRunning(null);
     }
   };
+
+  // While any sequence runs, every console button is disabled: a second tap
+  // (on any button, including Reset and Inspect) must wait for the
+  // in-flight sequence to finish.
+  const consoleBusy = busy || disabled || running !== null;
 
   const active = rulesSummary(rules);
   const isRunning = (name) => running === name;
@@ -83,20 +98,20 @@ export default function FirewallConsole({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" icon={ShieldCheck} onClick={() => run('deny-guest', buildDenyGuestCommands())} loading={isRunning('deny-guest')} disabled={busy || disabled}>
+        <Button size="sm" icon={ShieldCheck} onClick={() => run('deny-guest', buildDenyGuestCommands({ rebuild: rules.acl_permits_others && !rules.acl_denies_guest }))} loading={isRunning('deny-guest')} disabled={consoleBusy}>
           Deny guest
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => run('permit-any', buildPermitAnyCommands())} loading={isRunning('permit-any')} disabled={busy || disabled}>
+        <Button size="sm" variant="secondary" onClick={() => run('permit-any', buildPermitAnyCommands())} loading={isRunning('permit-any')} disabled={consoleBusy}>
           Permit any
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => run('apply', buildApplyCommands())} loading={isRunning('apply')} disabled={busy || disabled}>
+        <Button size="sm" variant="secondary" onClick={() => run('apply', buildApplyCommands())} loading={isRunning('apply')} disabled={consoleBusy}>
           Apply to Gi0/1 out
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => run('show', buildShowAccessListsCommands())} loading={isRunning('show')} disabled={busy || disabled}>
+        <Button size="sm" variant="ghost" onClick={() => run('show', buildShowAccessListsCommands())} loading={isRunning('show')} disabled={consoleBusy}>
           Show access-lists
         </Button>
         {onInspectFirewall && (
-          <Button size="sm" variant="ghost" icon={Eye} onClick={onInspectFirewall} disabled={busy || disabled}>
+          <Button size="sm" variant="ghost" icon={Eye} onClick={onInspectFirewall} disabled={consoleBusy}>
             Inspect firewall
           </Button>
         )}
@@ -109,14 +124,14 @@ export default function FirewallConsole({
           outage, then recover with a corrected list 20 — or reset the lab to start over.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button size="sm" variant="secondary" onClick={() => run('deny-any', [...buildDenyAnyCommands(), ...buildApplyCommands()])} loading={isRunning('deny-any')} disabled={busy || disabled}>
+          <Button size="sm" variant="secondary" onClick={() => run('deny-any', [...buildDenyAnyCommands(), ...buildApplyCommands()])} loading={isRunning('deny-any')} disabled={consoleBusy}>
             Try deny-any
           </Button>
-          <Button size="sm" variant="secondary" onClick={() => run('recover-acl20', buildRecoverAcl20Commands())} loading={isRunning('recover-acl20')} disabled={busy || disabled}>
+          <Button size="sm" variant="secondary" onClick={() => run('recover-acl20', buildRecoverAcl20Commands())} loading={isRunning('recover-acl20')} disabled={consoleBusy}>
             Recover with ACL 20
           </Button>
           {onReset && (
-            <Button size="sm" variant="ghost" icon={RotateCcw} onClick={onReset} disabled={busy || disabled}>
+            <Button size="sm" variant="ghost" icon={RotateCcw} onClick={onReset} disabled={consoleBusy}>
               Reset the lab
             </Button>
           )}

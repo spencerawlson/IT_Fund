@@ -7,6 +7,7 @@ change. The API must go through this service, never call a provider directly.
 """
 from __future__ import annotations
 
+import asyncio
 import secrets
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -170,6 +171,23 @@ class SessionService:
     def __init__(self, providers: dict[str, LabProvider] | None = None) -> None:
         self._sessions: dict[str, LabSession] = {}
         self._providers = providers or _PROVIDERS
+        # One exec lock per session (created lazily): see _exec_lock.
+        self._exec_locks: dict[str, asyncio.Lock] = {}
+
+    def _exec_lock(self, session_id: str) -> asyncio.Lock:
+        """The lock serializing execs for one session.
+
+        Each exec reads the session findings, mutates its own copy, and
+        merges it back — without serialization two overlapping execs read
+        the same pre-state and the second merge overwrites the first
+        (last-writer-wins), so a command silently vanishes. The firewall
+        console's rapid taps hit exactly this: two sequences interleaved
+        their execs. Different sessions never block each other."""
+        lock = self._exec_locks.get(session_id)
+        if lock is None:
+            lock = asyncio.Lock()
+            self._exec_locks[session_id] = lock
+        return lock
 
     def _provider_for(self, provider_name: str) -> LabProvider:
         provider = self._providers.get(provider_name)
@@ -313,13 +331,16 @@ class SessionService:
             raise LabError("invalid", f"Cannot run commands while the session is {session.status}.")
         if not isinstance(command, str):
             raise LabError("invalid", "Command must be a string.")
-        lab = get_lab(session.lab_id)
-        provider = self._provider_for(lab.environment.provider)
-        result = await provider.exec_command(session.environment_id, lab, command, session.findings)
-        if result.findings:
-            _merge_findings(session.findings, result.findings)
-            await self._run_validation(session)
-        return session, result
+        # Serialized per session (see _exec_lock): the read-mutate-merge
+        # below must not interleave with another exec on this session.
+        async with self._exec_lock(session_id):
+            lab = get_lab(session.lab_id)
+            provider = self._provider_for(lab.environment.provider)
+            result = await provider.exec_command(session.environment_id, lab, command, session.findings)
+            if result.findings:
+                _merge_findings(session.findings, result.findings)
+                await self._run_validation(session)
+            return session, result
 
     async def reset(self, session_id: str, user_id: str) -> LabSession:
         session = self._owned(session_id, user_id)
@@ -345,6 +366,7 @@ class SessionService:
             await self._provider_for(lab.environment.provider).destroy_session(session.environment_id)
         session.status = DESTROYED
         self._sessions.pop(session_id, None)
+        self._exec_locks.pop(session_id, None)
 
     async def cleanup_expired(self) -> int:
         """Destroy the environments of expired/finished sessions and forget them.
@@ -362,6 +384,7 @@ class SessionService:
                 if lab is not None:
                     await self._provider_for(lab.environment.provider).destroy_session(session.environment_id)
                 self._sessions.pop(session.id, None)
+                self._exec_locks.pop(session.id, None)
                 removed += 1
         return removed
 

@@ -24,6 +24,21 @@ describe('firewallCommands', () => {
     ]);
   });
 
+  it('deny-guest rebuilds the list when a permit-any already exists but no deny yet', () => {
+    // ACLs match top-down: appending the deny after permit-any never fires
+    // (first-match wins) — the live rapid-click bug left the list as
+    // [permit any], and re-adding the deny + re-applying did not block the
+    // guest. Rebuilding (no access-list, deny, permit) puts the deny first.
+    expect(buildDenyGuestCommands({ rebuild: true })).toEqual([
+      'enable',
+      'configure terminal',
+      `no access-list ${ACL_NUMBER}`,
+      `access-list ${ACL_NUMBER} deny host ${GUEST_IP}`,
+      `access-list ${ACL_NUMBER} permit any`,
+      'end',
+    ]);
+  });
+
   it('permit-any adds the required permit line (an ACL ends with implicit deny)', () => {
     expect(buildPermitAnyCommands()).toEqual([
       'enable',

@@ -13,8 +13,27 @@ export const GUEST_IP = '192.168.1.20';
 export const SERVER_IP = '192.168.2.10';
 export const ACL_NUMBER = '10';
 
-/** Deny the untrusted guest host, leaving the rest of the list untouched. */
-export function buildDenyGuestCommands() {
+/** Deny the untrusted guest host, leaving the rest of the list untouched.
+ *  Pass { rebuild: true } when a permit-any line already exists but no deny
+ *  yet: ACLs match top-down, so appending the deny AFTER permit-any would
+ *  never fire (first-match wins) — the live rapid-click bug left the list
+ *  as [permit any], and re-adding the deny + re-applying did not block the
+ *  guest. Rebuilding (no access-list, deny, permit) puts the deny first.
+ *  The caller decides from the read-back: rebuild only when permit-any is
+ *  present and no deny is — in the deny-any wrong-move state a deny IS
+ *  present, so the plain append runs and the wrong move stays in effect
+ *  until the proper recovery (ACL 20 or reset). */
+export function buildDenyGuestCommands({ rebuild = false } = {}) {
+  if (rebuild) {
+    return [
+      'enable',
+      'configure terminal',
+      `no access-list ${ACL_NUMBER}`,
+      `access-list ${ACL_NUMBER} deny host ${GUEST_IP}`,
+      `access-list ${ACL_NUMBER} permit any`,
+      'end',
+    ];
+  }
   return [
     'enable',
     'configure terminal',
