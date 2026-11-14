@@ -1,5 +1,10 @@
 """Build Cypher (Road to CISSP Cyber Missions Phase 2, Milestone B).
 
+REMODEL (2026-11-13): re-proportioned to match the approved art — big helmet
+head with a wide black digital face, large cyan-ringed ear discs, big shield
+chest emblem, thicker limbs, open gesturing right hand, holographic shield
+tablet held up in the left hand. Same 26-bone rig, same 6 clips, same 1.70 m.
+
 Pure procedural Blender modeling from the approved character sheets — no Meshy,
 no purchased assets. Run headless:
 
@@ -16,7 +21,7 @@ in Blender (glTF forward +Z after export). Total height 1.70 m (handle top).
 Palette (from the approved sheet): white #FFFFFF, navy #0D1B2A,
 cyan emissive #00E5FF, blue #1E90FF, panel #BFD6E6.
 
-Rig: one armature, ~21 bones. Meshes are RIGID parts parented to bones
+Rig: one armature, 26 bones (same names/structure as Phase 2). Meshes are RIGID parts parented to bones
 (parent_type='BONE') — correct for a robot, no weight painting needed.
 Clips (separate NLA strips, exported as named GLB animations):
     idle (2.0s loop), walk (1.0s loop), talk (1.6s loop),
@@ -181,6 +186,48 @@ def parent_to_bone(obj, armature, bone_name):
 
 
 # ---------------------------------------------------------------- build
+def shield_mesh(name, width, height, depth, mat, loc=(0, 0, 0), rot=(0, 0, 0)):
+    """A shield plate from a closed poly-spline outline, extruded and converted
+    to a mesh. Built in the local XY plane (width x height), extruded along
+    local +Z. Caller sets the final matrix (e.g. facing -Y with rot X +90)."""
+    pts = [(-0.5, 0.5), (0.5, 0.5), (0.5, 0.15), (0.42, -0.15), (0.25, -0.38),
+           (0.0, -0.5), (-0.25, -0.38), (-0.42, -0.15), (-0.5, 0.15)]
+    curve = bpy.data.curves.new(name, "CURVE")
+    curve.dimensions = "3D"
+    curve.resolution_u = 2
+    spline = curve.splines.new("POLY")
+    spline.points.add(len(pts) - 1)
+    for p, (x, y) in zip(spline.points, pts):
+        p.co = (x * width, y * height, 0.0, 1.0)
+    spline.use_cyclic_u = True
+    curve.extrude = depth / 2.0  # Blender 4.0 renamed extrude_depth -> extrude
+    curve.bevel_depth = 0.003
+    curve.bevel_resolution = 1
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.collection.objects.link(obj)
+    obj.location = loc
+    obj.rotation_euler = rot
+    if mat:
+        obj.data.materials.append(mat)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.ops.object.convert(target="MESH")
+    obj = bpy.context.active_object
+    obj.name = name
+    return obj
+
+
+def rotate_about(obj, pivot, rot_xyz):
+    """Rotate obj about a world pivot point by Euler angles (radians)."""
+    R = (Matrix.Rotation(rot_xyz[0], 4, "X")
+         @ Matrix.Rotation(rot_xyz[1], 4, "Y")
+         @ Matrix.Rotation(rot_xyz[2], 4, "Z"))
+    M = Matrix.Translation(Vector(pivot)) @ R @ Matrix.Translation(-Vector(pivot))
+    obj.matrix_world = M @ obj.matrix_world
+    bpy.context.view_layer.update()
+
+
 def build_model():
     # Clean scene.
     bpy.ops.object.select_all(action="SELECT")
@@ -199,108 +246,157 @@ def build_model():
 
     parts = {}  # name -> object, for bone parenting
 
-    # --- Head (centre y=0 is the body midline; head centre ~1.42 m) ---
-    # Head shell: a squashed sphere, slightly flattened at the back.
-    head = sphere("head_shell", (0, 0, 1.42), (0.22, 0.19, 0.155), mat_white)
+    # --- Head: BIG rounded helmet (centre ~1.45 m), wide black face ---
+    # Shell is wider than the torso: in the art the head is ~as wide as the
+    # chest, ~28% of total height.
+    head = sphere("head_shell", (0, 0, 1.45), (0.24, 0.21, 0.175), mat_white, segments=48, rings=24)
     parts["head_shell"] = head
-    # Face screen: a curved dark panel on the front (-Y side).
-    face = sphere("face_screen", (0, -0.07, 1.42), (0.20, 0.16, 0.14), mat_face)
-    # Flatten the screen's back so it sits inside the shell: scale is enough at
-    # this fidelity — the dark shell reads as the screen from the front.
+    # Navy cap on the top-back of the helmet (the dark stripe in the art).
+    cap = sphere("navy_cap", (0, 0.03, 1.585), (0.20, 0.185, 0.075), mat_navy, segments=24, rings=12)
+    parts["navy_cap"] = cap
+    # Face screen: a second ellipsoid, slightly larger in Y (forward) than the
+    # shell, so its dark front pokes out across the whole face — a wide black
+    # digital face, not a visor slit. Spans ~x ±0.19, z ±0.135.
+    face = sphere("face_screen", (0, -0.025, 1.45), (0.225, 0.215, 0.155), mat_face, segments=48, rings=24)
     parts["face_screen"] = face
-    # Happy eyes: two upward arcs + a small smile arc, slightly proud of the screen.
-    # Arcs are built in the local XY plane; rotate +90 deg about X so they lie
-    # in the XZ face plane (facing forward, -Y) and sit proud of the screen.
+    # Happy eyes: big upward arcs + a small smile, just proud of the screen.
     eye_rot = (math.pi / 2, 0, 0)
-    eye_l = curve_arc("face_eye_L", (-0.075, -0.245, 1.45), 0.035, 0.008, 15, 165, mat_cyan, eye_rot)
-    eye_r = curve_arc("face_eye_R", (0.075, -0.245, 1.45), 0.035, 0.008, 15, 165, mat_cyan, eye_rot)
-    smile = curve_arc("face_smile", (0, -0.245, 1.38), 0.028, 0.006, 200, 340, mat_cyan, eye_rot)
+    eye_l = curve_arc("face_eye_L", (-0.085, -0.225, 1.48), 0.045, 0.012, 15, 165, mat_cyan, eye_rot)
+    eye_r = curve_arc("face_eye_R", (0.085, -0.225, 1.48), 0.045, 0.012, 15, 165, mat_cyan, eye_rot)
+    smile = curve_arc("face_smile", (0, -0.225, 1.40), 0.035, 0.009, 200, 340, mat_cyan, eye_rot)
     parts["face_eye_L"] = eye_l
     parts["face_eye_R"] = eye_r
     parts["face_smile"] = smile
-    # Ear discs: flattened cylinders on the head sides + cyan rings.
+    # Ear discs: LARGE, tilted ~25 deg toward the front so the cyan rings
+    # read from the front view too (not just the side), protruding past the
+    # head silhouette. Right ear tilts -25 deg about Z, left ear +25 deg.
     for side, sx in (("L", -1), ("R", 1)):
-        ear = cyl(f"ear_disc_{side}", (sx * 0.215, 0, 1.42), 0.075, 0.05, mat_white, rot=(0, math.pi / 2, 0))
-        ring = torus(f"ear_ring_{side}", (sx * 0.242, 0, 1.42), 0.055, 0.008, mat_cyan, rot=(0, math.pi / 2, 0))
-        hub = cyl(f"ear_hub_{side}", (sx * 0.243, 0, 1.42), 0.028, 0.012, mat_navy, rot=(0, math.pi / 2, 0))
+        tilt = math.radians(-25 * sx)
+        y_rot = math.pi / 2 if sx > 0 else -math.pi / 2
+        ear = cyl(f"ear_disc_{side}", (sx * 0.245, 0, 1.45), 0.095, 0.05, mat_white, rot=(0, y_rot, tilt), vertices=24)
+        ring = torus(f"ear_ring_{side}", (sx * 0.272, 0, 1.45), 0.068, 0.009, mat_cyan, rot=(0, y_rot, tilt))
+        hub = cyl(f"ear_hub_{side}", (sx * 0.274, 0, 1.45), 0.032, 0.014, mat_navy, rot=(0, y_rot, tilt), vertices=20)
+        dot = cyl(f"ear_dot_{side}", (sx * 0.276, 0, 1.45), 0.012, 0.016, mat_cyan, rot=(0, y_rot, tilt), vertices=12)
         parts[f"ear_disc_{side}"] = ear
         parts[f"ear_ring_{side}"] = ring
         parts[f"ear_hub_{side}"] = hub
-    # Carry handle across the top of the head.
-    handle = torus("head_handle", (0, 0, 1.575), 0.09, 0.018, mat_white, rot=(math.pi / 2, 0, 0))
-    # Keep only the top half of the handle torus: scale it flat in Z so the lower
-    # half sinks into the shell (reads as a handle arch).
+        parts[f"ear_dot_{side}"] = dot
+    # Carry handle across the top of the head, with a cyan light strip.
+    handle = torus("head_handle", (0, 0, 1.615), 0.11, 0.022, mat_white, rot=(math.pi / 2, 0, 0))
     handle.scale = (1.0, 1.0, 0.55)
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    handle_light = box("head_handle_light", (0, 0, 1.60), (0.10, 0.02, 0.012), mat_cyan, bevel_w=0.004)
+    handle_light = box("head_handle_light", (0, 0, 1.638), (0.12, 0.02, 0.012), mat_cyan, bevel_w=0.004)
     parts["head_handle"] = handle
     parts["head_handle_light"] = handle_light
 
-    # --- Neck ---
-    neck = cyl("neck", (0, 0, 1.26), 0.055, 0.09, mat_navy)
+    # --- Neck (short, dark, cyan ring) ---
+    neck = cyl("neck", (0, 0, 1.27), 0.06, 0.10, mat_navy, vertices=20)
     parts["neck"] = neck
+    neck_ring = torus("neck_ring", (0, 0, 1.29), 0.062, 0.006, mat_cyan, rot=(0, 0, 0))
+    parts["neck_ring"] = neck_ring
 
-    # --- Torso (shoulders ~1.22 m, hips ~0.82 m) ---
+    # --- Torso: layered chest plate, navy side panels, BIG shield emblem ---
     torso = box("torso_shell", (0, 0, 1.02), (0.46, 0.30, 0.42), mat_white, bevel_w=0.03)
     parts["torso_shell"] = torso
-    # Chest emblem: shield plate + cyan outline (a flattened box + a smaller emissive box).
-    emblem = box("chest_emblem", (0, -0.158, 1.08), (0.13, 0.012, 0.15), mat_navy, bevel_w=0.006)
-    emblem_glow = box("chest_emblem_glow", (0, -0.166, 1.08), (0.10, 0.008, 0.12), mat_cyan, bevel_w=0.004)
-    parts["chest_emblem"] = emblem
-    parts["chest_emblem_glow"] = emblem_glow
+    chest_plate = box("chest_plate", (0, -0.13, 1.06), (0.40, 0.06, 0.34), mat_white, bevel_w=0.02)
+    parts["chest_plate"] = chest_plate
+    for side, sx in (("L", -1), ("R", 1)):
+        light = box(f"chest_light_{side}", (sx * 0.13, -0.162, 1.17), (0.06, 0.008, 0.015), mat_cyan, bevel_w=0.003)
+        side_panel = box(f"side_panel_{side}", (sx * 0.225, 0, 1.02), (0.02, 0.20, 0.30), mat_navy, bevel_w=0.004)
+        parts[f"chest_light_{side}"] = light
+        parts[f"side_panel_{side}"] = side_panel
+    # Shield emblem: cyan outline shield slightly larger and behind a navy
+    # shield plate, with a small cyan padlock in the centre — the art's chest.
+    shield_outline = shield_mesh("chest_shield_outline", 0.21, 0.25, 0.006, mat_cyan,
+                                 loc=(0, -0.156, 1.08), rot=(math.pi / 2, 0, 0))
+    shield_plate = shield_mesh("chest_shield", 0.18, 0.22, 0.012, mat_navy,
+                               loc=(0, -0.162, 1.08), rot=(math.pi / 2, 0, 0))
+    lock_body = box("chest_lock_body", (0, -0.172, 1.075), (0.035, 0.01, 0.045), mat_cyan, bevel_w=0.003)
+    lock_shackle = torus("chest_lock_shackle", (0, -0.172, 1.11), 0.016, 0.004, mat_cyan, rot=(math.pi / 2, 0, 0))
+    parts["chest_shield_outline"] = shield_outline
+    parts["chest_shield"] = shield_plate
+    parts["chest_lock_body"] = lock_body
+    parts["chest_lock_shackle"] = lock_shackle
     # Back vent: three thin slats on the upper back.
     for i, z in enumerate((1.16, 1.13, 1.10)):
         vent = box(f"back_vent_{i}", (0, 0.152, z), (0.12, 0.008, 0.012), mat_panel, bevel_w=0.002)
         parts[f"back_vent_{i}"] = vent
-    # Pelvis.
+    # Waist band (navy) + pelvis.
+    waist = box("waist", (0, 0, 0.88), (0.36, 0.26, 0.10), mat_navy, bevel_w=0.02)
+    parts["waist"] = waist
     hip = box("hip", (0, 0, 0.80), (0.34, 0.26, 0.20), mat_white, bevel_w=0.025)
     parts["hip"] = hip
 
-    # --- Arms (shoulder 1.22 m, elbow ~0.95 m, wrist ~0.72 m) ---
+    # --- Arms: thicker limbs, big shoulder pads, open hands ---
+    # Rest pose is neutral (arms hang); the animations do the gesturing.
     for side, sx in (("L", -1), ("R", 1)):
-        pad = sphere(f"shoulder_pad_{side}", (sx * 0.26, 0, 1.20), (0.085, 0.085, 0.075), mat_white)
-        stripe = box(f"shoulder_stripe_{side}", (sx * 0.26, -0.02, 1.26), (0.09, 0.012, 0.02), mat_blue, bevel_w=0.004)
-        upper = cyl(f"upper_arm_{side}", (sx * 0.315, 0, 1.08), 0.055, 0.26, mat_white)
-        elbow = sphere(f"elbow_{side}", (sx * 0.315, 0, 0.95), (0.06, 0.06, 0.06), mat_navy)
-        fore = cyl(f"forearm_{side}", (sx * 0.315, 0, 0.83), 0.05, 0.24, mat_white)
-        fore_stripe = box(f"forearm_stripe_{side}", (sx * 0.315, -0.052, 0.83), (0.03, 0.008, 0.16), mat_cyan, bevel_w=0.003)
-        wrist = cyl(f"wrist_{side}", (sx * 0.315, 0, 0.71), 0.045, 0.05, mat_navy)
-        palm = sphere(f"hand_palm_{side}", (sx * 0.315, 0, 0.665), (0.05, 0.045, 0.055), mat_navy)
-        # Three digits: thumb + index + middle, as small stretched spheres.
-        thumb = sphere(f"hand_thumb_{side}", (sx * 0.27, -0.02, 0.66), (0.016, 0.016, 0.035), mat_white)
-        finger1 = sphere(f"hand_finger1_{side}", (sx * 0.315, -0.01, 0.60), (0.014, 0.014, 0.04), mat_white)
-        finger2 = sphere(f"hand_finger2_{side}", (sx * 0.335, -0.005, 0.605), (0.014, 0.014, 0.038), mat_white)
-        for name in ("pad", "stripe", "upper", "elbow", "fore", "fore_stripe", "wrist", "palm",
-                     "thumb", "finger1", "finger2"):
-            pass
+        pad = sphere(f"shoulder_pad_{side}", (sx * 0.27, 0, 1.20), (0.11, 0.11, 0.095), mat_white, segments=24, rings=12)
+        stripe = box(f"shoulder_stripe_{side}", (sx * 0.27, -0.02, 1.28), (0.11, 0.012, 0.02), mat_blue, bevel_w=0.004)
+        upper = cyl(f"upper_arm_{side}", (sx * 0.33, 0, 1.075), 0.075, 0.25, mat_white, vertices=20)
+        elbow = sphere(f"elbow_{side}", (sx * 0.33, 0, 0.95), (0.075, 0.075, 0.075), mat_navy, segments=16, rings=8)
         parts[f"shoulder_pad_{side}"] = pad
         parts[f"shoulder_stripe_{side}"] = stripe
         parts[f"upper_arm_{side}"] = upper
         parts[f"elbow_{side}"] = elbow
-        parts[f"forearm_{side}"] = fore
-        parts[f"forearm_stripe_{side}"] = fore_stripe
-        parts[f"wrist_{side}"] = wrist
-        parts[f"hand_palm_{side}"] = palm
-        parts[f"hand_thumb_{side}"] = thumb
-        parts[f"hand_finger1_{side}"] = finger1
-        parts[f"hand_finger2_{side}"] = finger2
+    # Right forearm hangs straight down (as before).
+    fore_r = cyl("forearm_R", (0.33, 0, 0.83), 0.07, 0.24, mat_white, vertices=20)
+    fore_stripe_r = box("forearm_stripe_R", (0.33, -0.072, 0.83), (0.035, 0.008, 0.16), mat_cyan, bevel_w=0.003)
+    wrist_r = cyl("wrist_R", (0.33, 0, 0.71), 0.05, 0.05, mat_navy, vertices=16)
+    palm_r = sphere("hand_palm_R", (0.33, 0, 0.665), (0.06, 0.045, 0.075), mat_navy, segments=16, rings=8)
+    parts["forearm_R"] = fore_r
+    parts["forearm_stripe_R"] = fore_stripe_r
+    parts["wrist_R"] = wrist_r
+    parts["hand_palm_R"] = palm_r
+    # Right hand OPEN and gesturing: flattened palm + four fanned fingers + thumb.
+    for i, (dx, spread) in enumerate(((-0.05, -32), (-0.017, -11), (0.017, 11), (0.05, 32))):
+        finger = sphere(f"hand_finger_R{i}", (0.33 + dx, -0.01, 0.595),
+                        (0.02, 0.02, 0.05), mat_navy, segments=16, rings=8)
+        finger.rotation_euler = (0, 0, math.radians(spread))
+        bpy.context.view_layer.update()
+        parts[f"hand_finger_R{i}"] = finger
+    thumb_r = sphere("hand_thumb_R", (0.285, -0.02, 0.66), (0.02, 0.02, 0.04), mat_navy, segments=16, rings=8)
+    thumb_r.rotation_euler = (0, 0, math.radians(50))
+    bpy.context.view_layer.update()
+    parts["hand_thumb_R"] = thumb_r
+    # Left forearm is BENT forward ~40 deg at the elbow (mesh-level bend, so
+    # the rest pose holds the tablet up at chest height like the art).
+    elbow_l = Vector((-0.33, 0, 0.93))
+    bend = (math.radians(-40), 0, 0)
+    fore_l = cyl("forearm_L", (-0.33, 0, 0.93), 0.07, 0.26, mat_white, vertices=20)
+    rotate_about(fore_l, elbow_l, bend)
+    parts["forearm_L"] = fore_l
+    # Cyan stripe on the bent forearm: same bend applied to its offset.
+    R_bend = Matrix.Rotation(bend[0], 4, "X")
+    stripe_l_loc = elbow_l + R_bend @ Vector((0, -0.072, -0.13))
+    fore_stripe_l = box("forearm_stripe_L", stripe_l_loc, (0.035, 0.008, 0.16), mat_cyan, bevel_w=0.003)
+    fore_stripe_l.rotation_euler = bend
+    bpy.context.view_layer.update()
+    parts["forearm_stripe_L"] = fore_stripe_l
+    wrist_l_loc = elbow_l + R_bend @ Vector((0, 0, -0.22))
+    wrist_l = cyl("wrist_L", wrist_l_loc, 0.05, 0.05, mat_navy, rot=bend, vertices=16)
+    parts["wrist_L"] = wrist_l
+    palm_l_loc = elbow_l + R_bend @ Vector((0, 0, -0.27))
+    palm_l = sphere("hand_palm_L", palm_l_loc, (0.06, 0.045, 0.075), mat_navy, segments=16, rings=8)
+    palm_l.rotation_euler = bend
+    bpy.context.view_layer.update()
+    parts["hand_palm_L"] = palm_l
 
-    # --- Legs (hip 0.82 m, knee 0.48 m, ankle 0.10 m) ---
+    # --- Legs (slimmer, wider stance, cyan knee strips + ankle rings) ---
     for side, sx in (("L", -1), ("R", 1)):
-        thigh = box(f"thigh_{side}", (sx * 0.11, 0, 0.65), (0.17, 0.16, 0.34), mat_white, bevel_w=0.02)
-        thigh_glow = cyl(f"thigh_glow_{side}", (sx * 0.11, -0.085, 0.65), 0.035, 0.012, mat_cyan, rot=(math.pi / 2, 0, 0))
-        knee = cyl(f"knee_{side}", (sx * 0.11, 0, 0.48), 0.075, 0.09, mat_navy, rot=(0, math.pi / 2, 0))
-        knee_ring = torus(f"knee_ring_{side}", (sx * 0.158, 0, 0.48), 0.05, 0.008, mat_cyan, rot=(0, math.pi / 2, 0))
-        shin = box(f"shin_{side}", (sx * 0.11, 0, 0.29), (0.16, 0.15, 0.36), mat_white, bevel_w=0.02)
-        shin_panel = box(f"shin_panel_{side}", (sx * 0.195, 0, 0.29), (0.012, 0.10, 0.22), mat_blue, bevel_w=0.004)
-        ankle = cyl(f"ankle_{side}", (sx * 0.11, 0, 0.10), 0.05, 0.07, mat_navy)
-        ankle_ring = torus(f"ankle_ring_{side}", (sx * 0.11, 0, 0.10), 0.055, 0.007, mat_cyan, rot=(0, 0, 0))
-        foot = box(f"foot_{side}", (sx * 0.11, -0.03, 0.035), (0.17, 0.26, 0.07), mat_white, bevel_w=0.015)
-        sole = box(f"foot_sole_{side}", (sx * 0.11, -0.03, 0.008), (0.17, 0.26, 0.016), mat_sole, bevel_w=0.004)
+        thigh = box(f"thigh_{side}", (sx * 0.13, 0, 0.65), (0.16, 0.15, 0.32), mat_white, bevel_w=0.02)
+        thigh_glow = cyl(f"thigh_glow_{side}", (sx * 0.13, -0.078, 0.65), 0.032, 0.012, mat_cyan, rot=(math.pi / 2, 0, 0), vertices=16)
+        knee = cyl(f"knee_{side}", (sx * 0.13, 0, 0.48), 0.07, 0.10, mat_navy, rot=(0, math.pi / 2, 0), vertices=20)
+        knee_strip = box(f"knee_strip_{side}", (sx * 0.13, -0.072, 0.48), (0.03, 0.01, 0.11), mat_cyan, bevel_w=0.003)
+        shin = box(f"shin_{side}", (sx * 0.13, 0, 0.29), (0.15, 0.14, 0.34), mat_white, bevel_w=0.02)
+        shin_panel = box(f"shin_panel_{side}", (sx * 0.208, 0, 0.29), (0.012, 0.08, 0.18), mat_navy, bevel_w=0.004)
+        ankle = cyl(f"ankle_{side}", (sx * 0.13, 0, 0.10), 0.05, 0.07, mat_navy, vertices=16)
+        ankle_ring = torus(f"ankle_ring_{side}", (sx * 0.13, 0, 0.10), 0.055, 0.007, mat_cyan, rot=(0, 0, 0))
+        foot = box(f"foot_{side}", (sx * 0.13, -0.03, 0.035), (0.16, 0.26, 0.07), mat_white, bevel_w=0.015)
+        sole = box(f"foot_sole_{side}", (sx * 0.13, -0.03, 0.008), (0.16, 0.26, 0.016), mat_sole, bevel_w=0.004)
         parts[f"thigh_{side}"] = thigh
         parts[f"thigh_glow_{side}"] = thigh_glow
         parts[f"knee_{side}"] = knee
-        parts[f"knee_ring_{side}"] = knee_ring
+        parts[f"knee_strip_{side}"] = knee_strip
         parts[f"shin_{side}"] = shin
         parts[f"shin_panel_{side}"] = shin_panel
         parts[f"ankle_{side}"] = ankle
@@ -308,10 +404,10 @@ def build_model():
         parts[f"foot_{side}"] = foot
         parts[f"foot_sole_{side}"] = sole
 
-    # --- Tablet prop (left hand, hideable) ---
-    tablet = box("tablet", (-0.315, -0.10, 0.66), (0.20, 0.008, 0.28), None, bevel_w=0.006)
-    tab_mat = make_material("TabletGlass", (0.05, 0.3, 0.5, 1.0), roughness=0.2, metallic=0.1,
-                            emission=CYAN, emission_strength=0.6)
+    # --- Holographic shield tablet (left hand, held up at chest height) ---
+    tablet = box("tablet", (-0.38, -0.26, 0.88), (0.26, 0.012, 0.36), None, bevel_w=0.006)
+    tab_mat = make_material("TabletGlass", (0.01, 0.06, 0.16, 1.0), roughness=0.2, metallic=0.1,
+                            emission=CYAN, emission_strength=0.5)
     tab_mat.use_nodes = True
     bsdf = tab_mat.node_tree.nodes.get("Principled BSDF")
     bsdf.inputs["Alpha"].default_value = 0.85
@@ -320,10 +416,46 @@ def build_model():
     except Exception:
         pass
     assign(tablet, tab_mat)
+    tablet.rotation_euler = (math.radians(-18), 0, math.radians(8))
+    bpy.context.view_layer.update()
     parts["tablet"] = tablet
+    # Face details, placed in tablet-local space (x=width, y=thickness,
+    # z=height; the face is the -Y side). The shield needs its plane on the
+    # tablet face, so it gets an extra +90 deg about local X.
+    tab_mw = tablet.matrix_world.copy()
+    R_tab = tab_mw.to_3x3().to_4x4()
+
+    def tab_world(lx, ly, lz):
+        return tab_mw @ Vector((lx, ly, lz))
+
+    def tab_place(obj, lx, ly, lz, extra_rot_x=0.0):
+        M = (Matrix.Translation(tab_world(lx, ly, lz))
+             @ R_tab @ Matrix.Rotation(extra_rot_x, 4, "X"))
+        obj.matrix_world = M
+        bpy.context.view_layer.update()
+
+    tab_shield = shield_mesh("tab_shield", 0.13, 0.16, 0.004, mat_cyan)
+    tab_place(tab_shield, 0, -0.010, 0.07, extra_rot_x=math.pi / 2)
+    parts["tab_shield"] = tab_shield
+    tab_lock = box("tab_lock", (0, 0, 0), (0.02, 0.008, 0.025), mat_cyan, bevel_w=0.003)
+    tab_place(tab_lock, 0, -0.016, 0.07)
+    parts["tab_lock"] = tab_lock
+    for i, (bx, bh) in enumerate(((-0.075, 0.04), (-0.025, 0.065), (0.025, 0.05), (0.075, 0.075))):
+        bar = box(f"tab_bar_{i}", (0, 0, 0), (0.026, 0.008, bh), mat_cyan, bevel_w=0.002)
+        tab_place(bar, bx, -0.010, -0.16 + bh / 2)
+        parts[f"tab_bar_{i}"] = bar
+    # Left fingers curled around the tablet's lower-left edge.
+    for i, (fx, fy, fz) in enumerate(((-0.485, -0.27, 0.74), (-0.465, -0.275, 0.72), (-0.445, -0.27, 0.705))):
+        gf = sphere(f"hand_grip_L{i}", (fx, fy, fz), (0.015, 0.015, 0.03), mat_navy, segments=16, rings=8)
+        gf.rotation_euler = (0, 0.3, 0.5)
+        bpy.context.view_layer.update()
+        parts[f"hand_grip_L{i}"] = gf
+    thumb_l = sphere("hand_thumb_L", (-0.40, -0.24, 0.70), (0.015, 0.015, 0.032), mat_navy, segments=16, rings=8)
+    thumb_l.rotation_euler = (0, 0, math.radians(-40))
+    bpy.context.view_layer.update()
+    parts["hand_thumb_L"] = thumb_l
 
     return parts
-
 
 # ---------------------------------------------------------------- rig
 BONES = [
@@ -333,65 +465,72 @@ BONES = [
     ("spine", (0, 0, 0.95), (0, 0, 1.10), "hips"),
     ("chest", (0, 0, 1.10), (0, 0, 1.24), "spine"),
     ("neck", (0, 0, 1.24), (0, 0, 1.30), "chest"),
-    ("head", (0, 0, 1.30), (0, 0, 1.56), "neck"),
-    ("eye.L", (-0.075, -0.245, 1.45), (-0.075, -0.245, 1.50), "head"),
-    ("eye.R", (0.075, -0.245, 1.45), (0.075, -0.245, 1.50), "head"),
-    ("shoulder.L", (-0.26, 0, 1.22), (-0.315, 0, 1.22), "chest"),
-    ("upper_arm.L", (-0.315, 0, 1.22), (-0.315, 0, 0.95), "shoulder.L"),
-    ("elbow.L", (-0.315, 0, 0.95), (-0.315, 0, 0.71), "upper_arm.L"),
-    ("wrist.L", (-0.315, 0, 0.71), (-0.315, 0, 0.60), "elbow.L"),
-    ("hand.L", (-0.315, 0, 0.60), (-0.315, 0, 0.55), "wrist.L"),
-    ("shoulder.R", (0.26, 0, 1.22), (0.315, 0, 1.22), "chest"),
-    ("upper_arm.R", (0.315, 0, 1.22), (0.315, 0, 0.95), "shoulder.R"),
-    ("elbow.R", (0.315, 0, 0.95), (0.315, 0, 0.71), "upper_arm.R"),
-    ("wrist.R", (0.315, 0, 0.71), (0.315, 0, 0.60), "elbow.R"),
-    ("hand.R", (0.315, 0, 0.60), (0.315, 0, 0.55), "wrist.R"),
-    ("thigh.L", (-0.11, 0, 0.82), (-0.11, 0, 0.48), "hips"),
-    ("knee.L", (-0.11, 0, 0.48), (-0.11, 0, 0.10), "thigh.L"),
-    ("ankle.L", (-0.11, 0, 0.10), (-0.11, 0, 0.02), "knee.L"),
-    ("foot.L", (-0.11, 0, 0.02), (-0.11, -0.08, 0.02), "ankle.L"),
-    ("thigh.R", (0.11, 0, 0.82), (0.11, 0, 0.48), "hips"),
-    ("knee.R", (0.11, 0, 0.48), (0.11, 0, 0.10), "thigh.R"),
-    ("ankle.R", (0.11, 0, 0.10), (0.11, 0, 0.02), "knee.R"),
-    ("foot.R", (0.11, 0, 0.02), (0.11, -0.08, 0.02), "ankle.R"),
+    ("head", (0, 0, 1.30), (0, 0, 1.58), "neck"),
+    ("eye.L", (-0.085, -0.225, 1.48), (-0.085, -0.225, 1.53), "head"),
+    ("eye.R", (0.085, -0.225, 1.48), (0.085, -0.225, 1.53), "head"),
+    ("shoulder.L", (-0.27, 0, 1.22), (-0.33, 0, 1.22), "chest"),
+    ("upper_arm.L", (-0.33, 0, 1.22), (-0.33, 0, 0.93), "shoulder.L"),
+    ("elbow.L", (-0.33, 0, 0.93), (-0.33, 0, 0.71), "upper_arm.L"),
+    ("wrist.L", (-0.33, 0, 0.71), (-0.33, 0, 0.60), "elbow.L"),
+    ("hand.L", (-0.33, 0, 0.60), (-0.33, 0, 0.55), "wrist.L"),
+    ("shoulder.R", (0.27, 0, 1.22), (0.33, 0, 1.22), "chest"),
+    ("upper_arm.R", (0.33, 0, 1.22), (0.33, 0, 0.93), "shoulder.R"),
+    ("elbow.R", (0.33, 0, 0.93), (0.33, 0, 0.71), "upper_arm.R"),
+    ("wrist.R", (0.33, 0, 0.71), (0.33, 0, 0.60), "elbow.R"),
+    ("hand.R", (0.33, 0, 0.60), (0.33, 0, 0.55), "wrist.R"),
+    ("thigh.L", (-0.13, 0, 0.82), (-0.13, 0, 0.48), "hips"),
+    ("knee.L", (-0.13, 0, 0.48), (-0.13, 0, 0.10), "thigh.L"),
+    ("ankle.L", (-0.13, 0, 0.10), (-0.13, 0, 0.02), "knee.L"),
+    ("foot.L", (-0.13, 0, 0.02), (-0.13, -0.08, 0.02), "ankle.L"),
+    ("thigh.R", (0.13, 0, 0.82), (0.13, 0, 0.48), "hips"),
+    ("knee.R", (0.13, 0, 0.48), (0.13, 0, 0.10), "thigh.R"),
+    ("ankle.R", (0.13, 0, 0.10), (0.13, 0, 0.02), "knee.R"),
+    ("foot.R", (0.13, 0, 0.02), (0.13, -0.08, 0.02), "ankle.R"),
 ]
 
 # mesh name -> bone (rigid part parenting)
 PART_BONES = {
-    "head_shell": "head", "face_screen": "head",
+    "head_shell": "head", "face_screen": "head", "navy_cap": "head",
     "face_eye_L": "eye.L", "face_eye_R": "eye.R", "face_smile": "head",
-    "ear_disc_L": "head", "ear_ring_L": "head", "ear_hub_L": "head",
-    "ear_disc_R": "head", "ear_ring_R": "head", "ear_hub_R": "head",
+    "ear_disc_L": "head", "ear_ring_L": "head", "ear_hub_L": "head", "ear_dot_L": "head",
+    "ear_disc_R": "head", "ear_ring_R": "head", "ear_hub_R": "head", "ear_dot_R": "head",
     "head_handle": "head", "head_handle_light": "head",
-    "neck": "neck",
-    "torso_shell": "chest", "chest_emblem": "chest", "chest_emblem_glow": "chest",
+    "neck": "neck", "neck_ring": "neck",
+    "torso_shell": "chest", "chest_plate": "chest",
+    "chest_light_L": "chest", "chest_light_R": "chest",
+    "side_panel_L": "chest", "side_panel_R": "chest",
+    "chest_shield_outline": "chest", "chest_shield": "chest",
+    "chest_lock_body": "chest", "chest_lock_shackle": "chest",
     "back_vent_0": "chest", "back_vent_1": "chest", "back_vent_2": "chest",
-    "hip": "hips",
+    "waist": "hips", "hip": "hips",
     "shoulder_pad_L": "shoulder.L", "shoulder_stripe_L": "shoulder.L",
     "upper_arm_L": "upper_arm.L",
     "elbow_L": "elbow.L",
     "forearm_L": "elbow.L", "forearm_stripe_L": "elbow.L",
     "wrist_L": "wrist.L", "hand_palm_L": "hand.L",
-    "hand_thumb_L": "hand.L", "hand_finger1_L": "hand.L", "hand_finger2_L": "hand.L",
+    "hand_grip_L0": "hand.L", "hand_grip_L1": "hand.L", "hand_grip_L2": "hand.L",
+    "hand_thumb_L": "hand.L",
     "shoulder_pad_R": "shoulder.R", "shoulder_stripe_R": "shoulder.R",
     "upper_arm_R": "upper_arm.R",
     "elbow_R": "elbow.R",
     "forearm_R": "elbow.R", "forearm_stripe_R": "elbow.R",
     "wrist_R": "wrist.R", "hand_palm_R": "hand.R",
-    "hand_thumb_R": "hand.R", "hand_finger1_R": "hand.R", "hand_finger2_R": "hand.R",
+    "hand_finger_R0": "hand.R", "hand_finger_R1": "hand.R",
+    "hand_finger_R2": "hand.R", "hand_finger_R3": "hand.R",
+    "hand_thumb_R": "hand.R",
     "thigh_L": "thigh.L", "thigh_glow_L": "thigh.L",
-    "knee_L": "knee.L", "knee_ring_L": "knee.L",
+    "knee_L": "knee.L", "knee_strip_L": "knee.L",
     "shin_L": "knee.L", "shin_panel_L": "knee.L",
     "ankle_L": "ankle.L", "ankle_ring_L": "ankle.L",
     "foot_L": "foot.L", "foot_sole_L": "foot.L",
     "thigh_R": "thigh.R", "thigh_glow_R": "thigh.R",
-    "knee_R": "knee.R", "knee_ring_R": "knee.R",
+    "knee_R": "knee.R", "knee_strip_R": "knee.R",
     "shin_R": "knee.R", "shin_panel_R": "knee.R",
     "ankle_R": "ankle.R", "ankle_ring_R": "ankle.R",
     "foot_R": "foot.R", "foot_sole_R": "foot.R",
-    "tablet": "hand.L",
+    "tablet": "hand.L", "tab_shield": "hand.L", "tab_lock": "hand.L",
+    "tab_bar_0": "hand.L", "tab_bar_1": "hand.L", "tab_bar_2": "hand.L", "tab_bar_3": "hand.L",
 }
-
 
 def build_rig(parts):
     bpy.ops.object.armature_add(enter_editmode=True, location=(0, 0, 0))
@@ -603,13 +742,19 @@ def setup_camera_lights():
     # Key light + rim light (EEVEE).
     bpy.ops.object.light_add(type="SUN", location=(2, -3, 4))
     sun = bpy.context.active_object
-    sun.data.energy = 3.0
+    sun.data.energy = 4.0
     sun.rotation_euler = (math.radians(50), 0, math.radians(30))
     bpy.ops.object.light_add(type="AREA", location=(-2, -2, 2))
     fill = bpy.context.active_object
-    fill.data.energy = 250.0
+    fill.data.energy = 350.0
     fill.data.shape = "DISK"
     fill.rotation_euler = (math.radians(60), 0, math.radians(-40))
+    # Back rim so the back view is not black.
+    bpy.ops.object.light_add(type="AREA", location=(0, 3, 2.5))
+    rim = bpy.context.active_object
+    rim.data.energy = 200.0
+    rim.data.shape = "DISK"
+    rim.rotation_euler = (math.radians(55), 0, math.radians(180))
     return cam
 
 
@@ -643,9 +788,9 @@ def render_views(out_dir, arm):
     for track in arm.animation_data.nla_tracks:
         track.mute = True
     views = {
-        "cypher-front": (0, -4.6, 1.0),
-        "cypher-side": (4.6, 0, 1.0),
-        "cypher-back": (0, 4.6, 1.0),
+        "cypher-front": (0, -3.1, 1.0),
+        "cypher-side": (3.1, 0, 1.0),
+        "cypher-back": (0, 3.1, 1.0),
     }
     target = Vector((0, 0, 0.85))
     for name, (x, y, z) in views.items():
@@ -668,7 +813,7 @@ def render_preview_frames(out_dir, arm):
     scene.render.film_transparent = True
     scene.render.image_settings.file_format = "PNG"
     cam = bpy.data.objects["RenderCam"]
-    _aim_camera(cam, (2.8, -3.6, 1.2), Vector((0, 0, 0.85)))
+    _aim_camera(cam, (1.9, -2.5, 1.1), Vector((0, 0, 0.85)))
     # Play only the walk strip.
     for track in arm.animation_data.nla_tracks:
         track.mute = track.name != "walk"
