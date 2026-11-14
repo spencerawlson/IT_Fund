@@ -4,6 +4,7 @@ import {
   ROOMS_M,
   ROBOT_SPOTS_M,
   CYPHER_CHAIR_M,
+  CYPHER_SEAT_M,
   DEVICE_POSITIONS_M,
   socPositions,
   spotToScene,
@@ -44,8 +45,8 @@ describe('rooms', () => {
     const { work } = ROBOT_SPOTS_M.cypher;
     // 0.7 m north of the south desk's north edge (y = -1.7): close
     // enough to read as "at his desk", far enough that the WIDE camera
-    // sees his chest tag over the desk monitors (at y = -1.5 a monitor
-    // blocked it — ray-cast proved). Clear of the chair at (-1.0, -1.2).
+    // sees him over the desk monitors (at y = -1.5 a monitor
+    // blocked the view — ray-cast proved). Clear of the chair at (-1.0, -1.2).
     expect(work.y).toBeGreaterThan(-1.7);
     expect(Math.hypot(work.x - -1.0, work.y - -1.2)).toBeGreaterThanOrEqual(0.5);
     expect(work.y).toBeLessThan(ROBOT_SPOTS_M.cypher.patrol.y);
@@ -133,33 +134,52 @@ describe('camera shots', () => {
     expect(shotForSpeaker('nobody')).toBe(CAMERA_SHOTS.wide);
   });
 
-  it('tracks Cypher as he patrols — camera and target follow his x', () => {
-    const west = cypherShot(-0.5);
-    const east = cypherShot(1.2);
-    expect(west.pos[0]).toBe(-0.5 * ROOM_SCALE);
-    expect(west.target[0]).toBe(-0.5 * ROOM_SCALE);
-    expect(east.pos[0]).toBe(1.2 * ROOM_SCALE);
-    expect(east.target[0]).toBe(1.2 * ROOM_SCALE);
-    expect(shotForSpeaker('cypher', 0.35).pos[0]).toBe(0.35 * ROOM_SCALE);
+  it('seats Cypher on the chair at his desk, in the desk room', () => {
+    // Concept rebuild: he sits, never patrols in the SOC. The seat is
+    // the chair shifted 0.15 m west so he sits clear of the
+    // near monitor at x -0.75 — still on the seat (0.63 m at x -1.2),
+    // still in his room, at his desk.
+    expect(CYPHER_SEAT_M).toEqual({ x: CYPHER_CHAIR_M.x - 0.15, y: CYPHER_CHAIR_M.y });
+    const r = ROOMS_M.cypher;
+    expect(CYPHER_SEAT_M.x).toBeGreaterThanOrEqual(r.xMin);
+    expect(CYPHER_SEAT_M.x).toBeLessThanOrEqual(r.xMax);
+    expect(CYPHER_SEAT_M.y).toBeGreaterThanOrEqual(r.yMin);
+    expect(CYPHER_SEAT_M.y).toBeLessThanOrEqual(r.yMax);
+  });
+
+  it('seats Cypher for his shot — fixed at his chair, close and over the bank', () => {
+    // No patrol any more (concept rebuild): he sits on the chair at his
+    // desk, so his shot is fixed at CYPHER_SEAT_M — a close medium over
+    // the 1.5 m monitor bank (a south camera at his height sees the
+    // bank, not him).
+    const shot = cypherShot();
+    expect(shot.pos[0]).toBe(CYPHER_SEAT_M.x * ROOM_SCALE);
+    expect(shot.target[0]).toBe(CYPHER_SEAT_M.x * ROOM_SCALE);
+    expect(shot.target[2]).toBe(-CYPHER_SEAT_M.y * ROOM_SCALE);
+    expect(shotForSpeaker('cypher')).toEqual(shot);
+    expect(shotForSpeaker('cypher', 0.35)).toEqual(shot); // the patrol x is gone
   });
 
   it('gives each speaker a genuinely different angle — not one top-down shot nudged', () => {
     // Spencer (2026-11-14): "everything is just in one angle". The old
-    // scene was one steep top-down shot (~48° elevation). Every shot
-    // here is under 30° elevation, and each focus shot differs from
-    // WIDE by bearing (≥15°) or by distance (a close-up at ≤60% of
-    // WIDE's distance). Measured bearings: WIDE 0°, CYPHER 0°,
-    // SENTINEL −25°, PATCH +34°; distances: WIDE 35.3, CYPHER 11.0,
-    // SENTINEL 33.8, PATCH 33.2.
-    for (const shot of Object.values(CAMERA_SHOTS)) {
-      expect(shotElevation(shot)).toBeLessThan(30);
-    }
+    // scene was one steep top-down shot (~48° elevation). The focus
+    // shots here are under 30° elevation, and each differs from WIDE
+    // by bearing (≥15°) or by distance (a close-up at ≤60% of WIDE's
+    // distance). WIDE itself is 32° in the concept rebuild — steeper
+    // than the old 30° bar, because the seated Cypher only clears the
+    // desk monitors from a near, high camera (ray-cast + Blender
+    // renders); the bar for WIDE is 35°. Measured bearings: WIDE 0°,
+    // CYPHER 0°, SENTINEL −25°, PATCH +34°; distances: WIDE 33.0,
+    // CYPHER 8.5, SENTINEL 33.8, PATCH 33.2.
+    expect(shotElevation(CAMERA_SHOTS.sentinel)).toBeLessThan(30);
+    expect(shotElevation(CAMERA_SHOTS.patch)).toBeLessThan(30);
+    expect(shotElevation(CAMERA_SHOTS.wide)).toBeLessThan(35);
     expect(shotBearing(CAMERA_SHOTS.wide)).toBeCloseTo(0, 5);
     expect(shotBearing(CAMERA_SHOTS.sentinel)).toBeCloseTo(-25, 0);
     expect(shotBearing(CAMERA_SHOTS.patch)).toBeCloseTo(34, 0);
     expect(Math.abs(shotBearing(CAMERA_SHOTS.sentinel) - shotBearing(CAMERA_SHOTS.patch))).toBeGreaterThanOrEqual(40);
     const wideD = shotDistance(CAMERA_SHOTS.wide);
-    expect(shotDistance(cypherShot(0.35)) / wideD).toBeLessThanOrEqual(0.6);
+    expect(shotDistance(cypherShot()) / wideD).toBeLessThanOrEqual(0.6);
     expect(Math.abs(shotBearing(CAMERA_SHOTS.sentinel) - shotBearing(CAMERA_SHOTS.wide))).toBeGreaterThanOrEqual(15);
     expect(Math.abs(shotBearing(CAMERA_SHOTS.patch) - shotBearing(CAMERA_SHOTS.wide))).toBeGreaterThanOrEqual(15);
   });

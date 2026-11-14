@@ -49,8 +49,8 @@ export const ROOMS_M = {
 // while he talks; Sentinel works the racks; Patch works the bench.
 // Cypher's work spot is 0.7 m north of the desk's north edge (y = -1.7):
 // close enough to read as "at his desk", far enough north that the
-// WIDE camera sees his chest tag over the desk monitors (at y = -1.5 a
-// monitor blocked it — ray-cast proved), and clear of the chair at
+// WIDE camera sees him over the desk monitors (at y = -1.5 a
+// monitor blocked the view — ray-cast proved), and clear of the chair at
 // (-1.0, -1.2).
 export const ROBOT_SPOTS_M = {
   cypher: {
@@ -68,6 +68,14 @@ export const ROBOT_SPOTS_M = {
 // south to face the learner — a swivel chair turned toward the visitor —
 // at his south desk, head and shoulders above the monitors.
 export const CYPHER_CHAIR_M = { x: -1.05, y: -1.2, seatHeightM: 0.60 };
+
+// Cypher's seat in the mission SOC (Blender metres): the same chair,
+// shifted 0.15 m west of its centre — still on the seat (0.63 m at
+// x -1.2, the seat runs west to x -1.3), and the west shift puts him
+// clear of the near monitor (top 1.14 m at x -0.75) that used to cut
+// him off — verified in Blender renders. He sits on it, facing south
+// (his desk), the whole mission: no patrol, no walk clip, no sliding.
+export const CYPHER_SEAT_M = { x: CYPHER_CHAIR_M.x - 0.15, y: CYPHER_CHAIR_M.y };
 
 // Facing, as three.js rotationY: the models face +Z (south, toward the
 // learner) at 0; west is -PI/2, east is +PI/2.
@@ -103,7 +111,7 @@ export function robotWorkBox(key) {
 
 // The four mission devices (Blender metres). PC1/GUEST are workstations
 // in Cypher's desk room; R1/SRV are in Sentinel's server room. Kept clear
-// of the robots' spots and of the camera sightlines to Cypher's tag.
+// of the robots' spots and of the camera sightlines to the robots.
 export const DEVICE_POSITIONS_M = {
   R1: { x: 0.0, y: 2.2 },
   PC1: { x: 2.0, y: -1.5 },
@@ -149,26 +157,35 @@ export function spotToScene(p, scale = ROOM_SCALE) {
 // nearest the south cameras — the natural depth of the look-across
 // view, not a mis-focus: he never covers the speaker's head (checked),
 // and the speaker is the one the camera is centred on.
-// WIDE sits south of the room, high enough to see over the south wall.
+// WIDE sits south of the room, high enough to see over the south wall
+// AND over the 1.5 m desk monitor bank — the seated Cypher only clears
+// the bank from a near, high camera (ray-cast + Blender renders: he
+// clears the bank top by ~0.10 m from [0, 19.5, 26]).
+// The price is a steeper, more top-down establishing shot (32°) than
+// the concept render's level look — the height is what buys the clear
+// view over the bank. See the elevation bar in socLayout.test.js.
 export const CAMERA_SHOTS = {
-  wide: { pos: [0, 17, 30], target: [0, 2, -2] },
+  wide: { pos: [0, 19.5, 26], target: [0, 2, -2] },
   sentinel: { pos: [12, 16, 24], target: [-1.5, 5, -5] },
   patch: { pos: [-12, 12, 22], target: [6, 5, -5] },
 };
 
-// Cypher's shot tracks him: he patrols east-west while he talks, so the
-// camera and its target follow his x and he stays centred.
-export function cypherShot(cypherXM) {
-  const x = cypherXM * ROOM_SCALE;
-  const z = -ROBOT_SPOTS_M.cypher.patrol.y * ROOM_SCALE;
-  return { pos: [x, 9, 12], target: [x, 5, z] };
+// Cypher's shot is fixed at his chair: he sits, he never patrols in
+// the SOC, so the camera and its target sit at CYPHER_SEAT_M — a close
+// medium over the 1.5 m monitor bank (a south camera at his height
+// sees the bank, not him). pos [x, 11, 12] -> target [x, 5, 6] in
+// scene units (Blender (x, -2.4, 2.2) -> (x, -1.2, 1.0)).
+export function cypherShot() {
+  const x = CYPHER_SEAT_M.x * ROOM_SCALE;
+  const z = -CYPHER_SEAT_M.y * ROOM_SCALE;
+  return { pos: [x, 11, 12], target: [x, 5, z] };
 }
 
 export const SPEAKERS = ['wide', 'cypher', 'sentinel', 'patch'];
 
-/** The camera shot for a speaker; Cypher's needs his current patrol x. */
-export function shotForSpeaker(speaker, cypherXM) {
-  if (speaker === 'cypher') return cypherShot(cypherXM);
+/** The camera shot for a speaker; Cypher's is fixed at his chair. */
+export function shotForSpeaker(speaker) {
+  if (speaker === 'cypher') return cypherShot();
   return CAMERA_SHOTS[speaker] || CAMERA_SHOTS.wide;
 }
 
@@ -252,8 +269,8 @@ export function socFrameSize(viewportW) {
 
 // --- Cypher's patrol -------------------------------------------------------------
 // While Cypher speaks he walks his patrol in the desk room: a ping-pong
-// along x at a walking pace, facing the learner (south) the whole time so
-// his chest tag stays readable. Pure: position at elapsed seconds t.
+// along x at a walking pace, facing the learner (south) the whole time.
+// Pure: position at elapsed seconds t.
 export const PATROL_SPEED_M_S = 0.25;
 export function patrolX(t, patrol = ROBOT_SPOTS_M.cypher.patrol) {
   const span = patrol.xMax - patrol.xMin;

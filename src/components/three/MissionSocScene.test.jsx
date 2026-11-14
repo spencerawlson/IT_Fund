@@ -10,13 +10,9 @@ import MissionSocScene, {
   SOC_CAMERA_POS, SOC_CAMERA_TARGET,
 } from './MissionSocScene';
 import {
-  ROOMS_M, ROBOT_SPOTS_M, CAMERA_SHOTS, cypherShot, spotToScene,
+  ROOMS_M, ROBOT_SPOTS_M, CYPHER_SEAT_M, CAMERA_SHOTS, cypherShot, spotToScene,
   SHOWCASE_ORDER, deviceShot, robotWorkBox,
 } from './socLayout';
-import {
-  NAME_TAG_HEIGHT, NAME_TAG_CANVAS_HEIGHT, NAME_TAG_CHEST_OFFSET,
-  NAME_CAP_HEIGHT_RATIO, drawNameTag,
-} from './nameTag';
 
 describe('socPositions', () => {
   it('places all four lab devices at distinct points', () => {
@@ -91,26 +87,33 @@ describe('MissionSocScene', () => {
     expect(html).toContain('aspect-[16/10]');
   });
 
-  it('walks Cypher only on his own turn, and lets the speaker talk — the tick is speaker-gated', () => {
+  it('never walks Cypher, and lets the speaker talk — the tick is speaker-gated', () => {
     // The opening splits the briefing across the three robots, and all
     // three turns are read by Cypher's voice (the only configured one) —
-    // so the tick cannot walk Cypher whenever audio plays: during a
+    // so the tick cannot move Cypher whenever audio plays: during a
     // Sentinel or Patch turn he would pace while someone else speaks.
-    // Cypher walks (and bobs) only when the speaker is 'cypher'; on
-    // their own turns Sentinel and Patch do the talking instead (talk
+    // He SITS (concept rebuild): seatRobot() calls the controller's
+    // sit(), which stops the mixer and holds the pose, so no clip can
+    // pull him out of the chair — and the tick never plays a clip on
+    // him at all. Talking shows only as the head bob, gated on his own
+    // turn: on Sentinel/Patch turns he sits still while they talk (talk
     // clip + head bob), gated on their greeting window so the greeting
     // one-shot is never cut. The tick itself runs only in the browser;
     // these are source pins on the gating, like the other tick rules.
     const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'MissionSocScene.jsx'), 'utf8');
     expect(src).toContain("const cypherSpeaking = talking && speaker === 'cypher'");
+    expect(src).toContain('seatRobot(controller)');
+    expect(src).toContain('cypher.setTalking(cypherSpeaking)');
     expect(src).toContain('cypher.setTalkLevel(cypherSpeaking ? (voice?.level || 0) : 0)');
-    expect(src).toContain('if (cypherSpeaking) {');
     expect(src).toContain("const sentinelSpeaking = !!voiceRef?.current?.talking && speaker === 'sentinel' && t > sentinelGreetUntil");
     expect(src).toContain("const patchSpeaking = !!voiceRef?.current?.talking && speaker === 'patch' && t > patchGreetUntil");
     expect(src).toContain('sentinel.setTalkLevel(voiceRef.current.level || 0)');
     expect(src).toContain('patch.setTalkLevel(voiceRef.current.level || 0)');
-    // The old behaviour — walk on any voice activity — must be gone.
+    // The old behaviour — walk on any voice activity, or a walk clip on
+    // Cypher at all — must be gone.
     expect(src).not.toContain('cypher.setTalkLevel(voice?.level || 0)');
+    expect(src).not.toContain("cypher.play('walk')");
+    expect(src).not.toContain('patrolX');
   });
 });
 
@@ -133,15 +136,16 @@ describe('robot spawns', () => {
     expect(inRoom(ROOMS_M.cypher, PATCH_SPAWN)).toBe(false);
   });
 
-  it('places Cypher in front of his desk, facing the learner (south)', () => {
-    // His work spot (Blender -0.5, -1.0) is 0.7 m north of the south
-    // desk's north edge — at his desk, with his chest tag visible over
-    // the desk monitors from the WIDE camera. Scale 5.0 lifts the
-    // real-scale 1.70 m model so he reads beside the 4-unit devices;
-    // rotationY 0 faces him south, toward the learner.
-    expect(CYPHER_SPAWN).toEqual({ ...spotToScene(ROBOT_SPOTS_M.cypher.work), scale: 5.0, rotationY: 0 });
-    expect(CYPHER_SPAWN.x).toBe(-2.5);
-    expect(CYPHER_SPAWN.z).toBe(5);
+  it('seats Cypher on the chair at his desk, facing the learner (south)', () => {
+    // His seat (Blender -1.20, -1.2) is the chair at his desk, shifted
+    // 0.15 m west of its centre so he sits clear of the near
+    // monitor — seated, head and shoulders above the desk monitors,
+    // visible over them from the WIDE camera. Scale
+    // 5.0 lifts the real-scale 1.70 m model so he reads beside the
+    // 4-unit devices; rotationY 0 faces him south, toward the learner.
+    expect(CYPHER_SPAWN).toEqual({ ...spotToScene(CYPHER_SEAT_M), scale: 5.0, rotationY: 0 });
+    expect(CYPHER_SPAWN.x).toBe(-6);
+    expect(CYPHER_SPAWN.z).toBe(6);
   });
 
   it('places Sentinel at the racks facing west, Patch at the bench facing east', () => {
@@ -162,8 +166,7 @@ describe('robot spawns', () => {
   });
 });
 
-// The SOC cameras, the tag and the sightlines — the legibility +
-// visibility bar, measured against the real Meshy cypher.glb + the real
+// The SOC cameras and the sightlines — the visibility bar, measured against the real Meshy cypher.glb + the real
 // cameras + the real data-center room. These are pure geometry (no
 // WebGL, no entry-path state): they hold on direct entry and on reload
 // exactly as on the handoff path, because the scene mounts the robots
@@ -186,10 +189,15 @@ describe('robot spawns', () => {
 
 const FRAME_W = 1104; // SOC frame on a 1920px desktop: full content width, 16:10
 const FRAME_H = 690;
-const CHEST_BONE_Y = 0.88; // chest bone height in the real cypher.glb, model units
-const CYPHER_HEIGHT = 1.704; // full model height in the real cypher.glb, model units
+// Seated Cypher, measured from the real cypher.glb in three.js (the
+// lesson builder's sit() geometry, asserted in RobotCharacter.test.jsx):
+// chest bone 0.96 m, head bone 1.353 m, knee 0.564 m, foot dangling
+// 0.275 m.
+const SEATED_CHEST_Y_M = 0.96;
+const SEATED_HEAD_Y_M = 1.353;
+const SEATED_FOOT_Y_M = 0.275;
+const CYPHER_HEIGHT = 1.704; // full model height in the real cypher.glb, model units — the standing robots' head height (a conservative stand-in for Sentinel/Patch)
 const ROBOT_HALF_WIDTH = { cypher: 0.49, sentinel: 0.48, patch: 0.70 }; // metres
-const PATROL_X = [ROBOT_SPOTS_M.cypher.patrol.xMin, 0.35, ROBOT_SPOTS_M.cypher.patrol.xMax]; // metres
 
 function cameraFor(shot) {
   const cam = new THREE.PerspectiveCamera(42, FRAME_W / FRAME_H, 0.1, 1000);
@@ -237,118 +245,50 @@ function deviceBoxes() {
   }));
 }
 
-/** Tag centre in world space for Cypher at scene (x, z), facing south. */
-function tagCentreAt(x, z) {
-  const s = CYPHER_SPAWN.scale;
-  const off = NAME_TAG_CHEST_OFFSET;
-  return new THREE.Vector3(
-    x + s * off.z * Math.sin(CYPHER_SPAWN.rotationY),
-    CHEST_BONE_Y * s + s * off.y,
-    z + s * off.z * Math.cos(CYPHER_SPAWN.rotationY),
-  );
+/** Chest centre in world space for seated Cypher at scene (x, z) — the chest bone, at the group origin. */
+function chestCentreAt(x, z) {
+  return new THREE.Vector3(x, SEATED_CHEST_Y_M * CYPHER_SPAWN.scale, z);
+}
+
+/** Head / foot heights for a spawn: Cypher sits (head 1.353, feet dangling 0.275), the others stand. */
+function headYFor(spawn) {
+  return (spawn === CYPHER_SPAWN ? SEATED_HEAD_Y_M : CYPHER_HEIGHT) * spawn.scale;
+}
+function feetYFor(spawn) {
+  return (spawn === CYPHER_SPAWN ? SEATED_FOOT_Y_M : 0) * spawn.scale;
 }
 
 /** Projected feet + head of one robot (the rect half-width is computed in the test). */
 function robotRect(cam, spawn) {
-  const feet = projectPx(cam, new THREE.Vector3(spawn.x, 0, spawn.z));
-  const head = projectPx(cam, new THREE.Vector3(spawn.x, CYPHER_HEIGHT * spawn.scale, spawn.z));
+  const feet = projectPx(cam, new THREE.Vector3(spawn.x, feetYFor(spawn), spawn.z));
+  const head = projectPx(cam, new THREE.Vector3(spawn.x, headYFor(spawn), spawn.z));
   return { feet, head };
 }
 
 // Depth of a robot's head from the camera, in scene units (for px widths).
 function headDepth(cam, spawn, target) {
-  const head = new THREE.Vector3(spawn.x, CYPHER_HEIGHT * spawn.scale, spawn.z);
+  const head = new THREE.Vector3(spawn.x, headYFor(spawn), spawn.z);
   return head.clone().sub(cam.position).dot(
     new THREE.Vector3(...target).sub(cam.position).normalize(),
   );
 }
 
-/** Minimal fake 2d context: enough for drawNameTag to record its fonts. */
-function drawCtx() {
-  const calls = { fillText: [] };
-  const ctx = {
-    calls,
-    fillStyle: '',
-    strokeStyle: '',
-    lineWidth: 1,
-    font: '',
-    textAlign: '',
-    textBaseline: '',
-    beginPath: () => {},
-    moveTo: () => {},
-    lineTo: () => {},
-    arcTo: () => {},
-    closePath: () => {},
-    fill: () => {},
-    stroke: () => {},
-    fillRect: () => {},
-    save: () => {},
-    restore: () => {},
-    clip: () => {},
-    fillText: (text, x, y) => { calls.fillText.push([text, x, y, ctx.font]); },
-    measureText: () => ({ width: 400 }),
-  };
-  return ctx;
-}
-
-/** Name cap-height in px on a frame, from the tag's projected height. */
-function nameCapPx(cam, tagCentre) {
-  const ctx = drawCtx();
-  drawNameTag(ctx, 1024, 592);
-  const nameCall = ctx.calls.fillText.find(([t]) => t === 'Cypher');
-  expect(nameCall).toBeTruthy();
-  const nameFontPx = Number(/(\d+)px/.exec(nameCall[3])[1]);
-  const nameCapFraction = (nameFontPx * NAME_CAP_HEIGHT_RATIO) / NAME_TAG_CANVAS_HEIGHT;
-  const halfH = (NAME_TAG_HEIGHT * CYPHER_SPAWN.scale) / 2;
-  const top = projectPx(cam, new THREE.Vector3(tagCentre.x, tagCentre.y + halfH, tagCentre.z));
-  const bottom = projectPx(cam, new THREE.Vector3(tagCentre.x, tagCentre.y - halfH, tagCentre.z));
-  const tagPxH = Math.abs(bottom.y - top.y);
-  return { tagPxH, nameCap: tagPxH * nameCapFraction };
-}
-
-describe('Cypher legibility at the SOC cameras', () => {
-  it('renders the name "Cypher" at least 16px tall at WIDE, at his desk and on patrol', () => {
-    const cam = cameraFor(CAMERA_SHOTS.wide);
-    // The tag must read wherever Cypher stands: at his desk (where he
-    // is when nobody speaks) and everywhere on his patrol (where he
-    // walks while he speaks). Measured: tag ~86px at the desk, ~80px on
-    // patrol; name cap ~31px / ~29px. The bar is 16px.
-    const spots = [
-      [CYPHER_SPAWN.x, CYPHER_SPAWN.z],
-      ...PATROL_X.map((x) => [x * 5, -ROBOT_SPOTS_M.cypher.patrol.y * 5]),
-    ];
-    for (const [x, z] of spots) {
-      const { tagPxH, nameCap } = nameCapPx(cam, tagCentreAt(x, z));
-      expect(tagPxH).toBeGreaterThan(40);
-      expect(nameCap).toBeGreaterThanOrEqual(16);
-    }
-  });
-
+describe('Cypher visibility at the SOC cameras', () => {
   it('renders Cypher himself at least 120px tall at WIDE — a presenter, not a speck', () => {
     const cam = cameraFor(CAMERA_SHOTS.wide);
-    // Measured 244px at his desk, 226px on patrol.
-    for (const [x, z] of [
-      [CYPHER_SPAWN.x, CYPHER_SPAWN.z],
-      ...PATROL_X.map((px) => [px * 5, -ROBOT_SPOTS_M.cypher.patrol.y * 5]),
-    ]) {
-      const feet = projectPx(cam, new THREE.Vector3(x, 0, z));
-      const head = projectPx(cam, new THREE.Vector3(x, CYPHER_HEIGHT * CYPHER_SPAWN.scale, z));
-      expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
-    }
+    // Seated: head 1.353 m, feet dangling 0.275 m — the figure spans
+    // ~1.08 m, ~154px at the wide camera. Measured 154px.
+    const feet = projectPx(cam, new THREE.Vector3(CYPHER_SPAWN.x, SEATED_FOOT_Y_M * CYPHER_SPAWN.scale, CYPHER_SPAWN.z));
+    const head = projectPx(cam, new THREE.Vector3(CYPHER_SPAWN.x, SEATED_HEAD_Y_M * CYPHER_SPAWN.scale, CYPHER_SPAWN.z));
+    expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
   });
 
-  it('renders the name at least 16px tall on his focus shot, wherever he patrols', () => {
-    // The focus camera tracks his patrol x, so he stays centred; the
-    // tag is ~233px tall there (name cap ~85px) at every patrol point.
-    for (const x of PATROL_X) {
-      const cam = cameraFor(cypherShot(x));
-      const { tagPxH, nameCap } = nameCapPx(cam, tagCentreAt(x * 5, -ROBOT_SPOTS_M.cypher.patrol.y * 5));
-      expect(tagPxH).toBeGreaterThan(40);
-      expect(nameCap).toBeGreaterThanOrEqual(16);
-      const feet = projectPx(cam, new THREE.Vector3(x * 5, 0, -ROBOT_SPOTS_M.cypher.patrol.y * 5));
-      const head = projectPx(cam, new THREE.Vector3(x * 5, CYPHER_HEIGHT * CYPHER_SPAWN.scale, -ROBOT_SPOTS_M.cypher.patrol.y * 5));
-      expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
-    }
+  it('renders Cypher himself at least 120px tall on his focus shot', () => {
+    // The focus camera is fixed at his chair, so he stays centred.
+    const cam = cameraFor(cypherShot());
+    const feet = projectPx(cam, new THREE.Vector3(CYPHER_SPAWN.x, SEATED_FOOT_Y_M * CYPHER_SPAWN.scale, CYPHER_SPAWN.z));
+    const head = projectPx(cam, new THREE.Vector3(CYPHER_SPAWN.x, SEATED_HEAD_Y_M * CYPHER_SPAWN.scale, CYPHER_SPAWN.z));
+    expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
   });
 });
 
@@ -360,14 +300,14 @@ describe('robot visibility from the SOC cameras', () => {
     const boxes = deviceBoxes();
     const cases = [
       [CAMERA_SHOTS.wide, CYPHER_SPAWN],
-      [cypherShot(0.35), { ...CYPHER_SPAWN, x: 0.35 * 5, z: -ROBOT_SPOTS_M.cypher.patrol.y * 5 }],
+      [cypherShot(), CYPHER_SPAWN],
       [CAMERA_SHOTS.sentinel, SENTINEL_SPAWN],
       [CAMERA_SHOTS.patch, PATCH_SPAWN],
     ];
     for (const [shot, spawn] of cases) {
       const camPos = new THREE.Vector3(...shot.pos);
-      const centre = tagCentreAt(spawn.x, spawn.z);
-      const head = new THREE.Vector3(spawn.x, CYPHER_HEIGHT * spawn.scale, spawn.z);
+      const centre = chestCentreAt(spawn.x, spawn.z);
+      const head = new THREE.Vector3(spawn.x, headYFor(spawn), spawn.z);
       for (const b of boxes) {
         expect(segmentHitsBox(camPos, centre, b.min, b.max)).toBe(false);
         expect(segmentHitsBox(camPos, head, b.min, b.max)).toBe(false);
@@ -379,14 +319,14 @@ describe('robot visibility from the SOC cameras', () => {
     const boxes = deviceBoxes();
     const cases = [
       [CAMERA_SHOTS.wide, [CYPHER_SPAWN, SENTINEL_SPAWN, PATCH_SPAWN]],
-      [cypherShot(0.35), [SENTINEL_SPAWN, PATCH_SPAWN]],
+      [cypherShot(), [SENTINEL_SPAWN, PATCH_SPAWN]],
       [CAMERA_SHOTS.sentinel, [CYPHER_SPAWN, PATCH_SPAWN]],
       [CAMERA_SHOTS.patch, [CYPHER_SPAWN, SENTINEL_SPAWN]],
     ];
     for (const [shot, spawns] of cases) {
       const camPos = new THREE.Vector3(...shot.pos);
       for (const spawn of spawns) {
-        const head = new THREE.Vector3(spawn.x, CYPHER_HEIGHT * spawn.scale, spawn.z);
+        const head = new THREE.Vector3(spawn.x, headYFor(spawn), spawn.z);
         for (const b of boxes) {
           expect(segmentHitsBox(camPos, head, b.min, b.max)).toBe(false);
         }
@@ -470,11 +410,11 @@ describe('speaker focus shots', () => {
     // 60px of the frame centre) and at least 120px tall; the other two
     // robots' heads are in frame — visible through the glass/doorways in
     // their rooms. Measured: Sentinel 211px centred, Patch 229px +
-    // Cypher 267px in frame; Patch 224px centred, Sentinel 253px +
-    // Cypher 351px in frame. Cypher reads larger in the north-room
-    // shots because his desk room is nearest the south cameras —
-    // he never covers the speaker's head (checked above at WIDE and by
-    // the head-separation below). The Patch shot's closest heads are
+    // Cypher in frame; Patch 224px centred, Sentinel 253px + Cypher
+    // in frame. Cypher reads larger in the north-room shots because
+    // his desk room is nearest the south cameras — he never covers
+    // the speaker's head (checked above at WIDE and by the
+    // head-separation below). The Patch shot's closest heads are
     // 94px apart (Patch–Cypher), so its bar is 90px, not 100px.
     const cases = [
       [CAMERA_SHOTS.sentinel, SENTINEL_SPAWN, [CYPHER_SPAWN, PATCH_SPAWN], 100],
@@ -500,27 +440,19 @@ describe('speaker focus shots', () => {
     }
   });
 
-  it('keeps the other two in frame on Cypher\'s focus shot, wherever he patrols', () => {
-    // The focus camera tracks his patrol x, so he stays centred
-    // (630px) while Sentinel and Patch work behind him. Measured:
-    // Sentinel's head stays in frame at every patrol point (x 131..608),
-    // Patch's too (x 552..1029).
-    for (const x of PATROL_X) {
-      const cam = cameraFor(cypherShot(x));
-      const speaker = { ...CYPHER_SPAWN, x: x * 5, z: -ROBOT_SPOTS_M.cypher.patrol.y * 5 };
-      const { feet, head } = robotRect(cam, speaker);
-      expect(head.behind).toBe(false);
-      expect(Math.abs(head.x - FRAME_W / 2)).toBeLessThanOrEqual(60);
-      expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
-      for (const other of [SENTINEL_SPAWN, PATCH_SPAWN]) {
-        const o = robotRect(cam, other);
-        expect(o.head.behind).toBe(false);
-        expect(o.head.x).toBeGreaterThanOrEqual(0);
-        expect(o.head.x).toBeLessThanOrEqual(FRAME_W);
-        expect(o.head.y).toBeGreaterThanOrEqual(0);
-        expect(o.head.y).toBeLessThanOrEqual(FRAME_H);
-      }
-    }
+  it('frames Cypher as a close-up on his focus shot — the others are out of it, by design', () => {
+    // The focus camera is fixed at his chair, a close medium over the
+    // monitor bank (pos [x, 11, 12] -> target [x, 5, 6]): he stays
+    // centred and tall. Sentinel and Patch are NOT in this shot — a
+    // close-up's 42° FOV cannot hold the north rooms (their heads sit
+    // ~39° off-axis from this camera), and aiming north to include
+    // them would lose his centring. They are visible in the WIDE shot
+    // and in each other's focus shots; this one is for Cypher.
+    const cam = cameraFor(cypherShot());
+    const { feet, head } = robotRect(cam, CYPHER_SPAWN);
+    expect(head.behind).toBe(false);
+    expect(Math.abs(head.x - FRAME_W / 2)).toBeLessThanOrEqual(60);
+    expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
   });
 
   it('uses the wide shot as the scene default camera', () => {

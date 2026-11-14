@@ -31,7 +31,8 @@ describe('ModelViewer interactive prop', () => {
 // a scene whose camera moves (the SOC focus shots) can aim things at it
 // every frame. The WebGL effect never runs under SSR, so this only
 // proves the prop is accepted and left alone server-side; the fill is
-// covered by the scene tests' geometry (the tag yaws to the live camera).
+// covered by the scene tests' geometry (the tick damps the live camera
+// toward its shot).
 describe('ModelViewer cameraRef prop', () => {
   it('accepts a cameraRef without throwing (SSR: the effect never runs)', () => {
     const cameraRef = { current: null };

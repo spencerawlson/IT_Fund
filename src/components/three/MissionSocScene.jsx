@@ -6,18 +6,19 @@ import {
   modelKeyFor, fallbackBuilderFor, loadDeviceModel, fitAndPlace,
 } from '@/components/three/deviceModels';
 import { loadRobotCharacter } from '@/components/three/RobotCharacter';
-import { attachCypherNameTag, faceTagToCamera } from '@/components/three/nameTag';
+import { seatRobot } from '@/components/three/socSeating';
+import { buildSocDressing } from '@/components/three/socDressing';
 import {
   ROOM_SCALE,
   ROBOT_SPOTS_M,
   ROBOT_WORK_FACING,
   FACING,
+  CYPHER_SEAT_M,
   spotToScene,
   socPositions,
   placeDataCenterRoom,
   shotForSpeaker,
   deviceShot,
-  patrolX,
   ambientClipFor,
   CAMERA_SHOTS,
 } from '@/components/three/socLayout';
@@ -34,7 +35,9 @@ import {
 // what let each focus camera see the other two working in the background.
 // The layout (spots, devices, cameras) was measured from the real room
 // mesh (ray-triangle sightlines, floor-height map) and lives in
-// socLayout.js, with its own tests.
+// socLayout.js, with its own tests. The concept look on top — glass in
+// the H-wall doorway, hanging nameplate signs, the R2C screen — is
+// separate scene dressing (socDressing.js), never the GLB.
 // The camera focuses on whoever is talking (speakerRef, owned by
 // MissionWorkspace: a briefing turn's speaker, debrief -> Cypher,
 // otherwise wide) and glides smoothly between shots; on load it takes a
@@ -45,11 +48,15 @@ import {
 // and its label is emphasised — and a showcase change interrupts the
 // tour the same way. Under reduced motion the tick never runs, so the
 // camera holds the wide shot and the tour never happens.
-// Cypher walks his patrol in the desk room while HE speaks (walk clip +
-// audio-reactive head bob) and works at his desk when he doesn't; on a
-// Sentinel or Patch turn they do the talking (talk clip + head bob) in
-// their rooms while Cypher works — the other two keep working in their
-// rooms (ambient loops) the whole time otherwise.
+// Cypher SITS on the chair at his desk the whole mission (Spencer
+// 2026-11-14: "Cypher can simply sit on the chair ... because now he
+// [is] sliding") — no patrol, no walk clip, no sliding. He is seated
+// in the load callback via the controller's own sit() (RobotCharacter,
+// PR #64 — the same seat pose the lesson panel uses, so the two can
+// never drift apart); talking shows through the audio-reactive head
+// bob only. On a Sentinel or Patch turn they do the talking (talk clip
+// + head bob) in their rooms while Cypher sits — the other two keep
+// working in their rooms (ambient loops) the whole time otherwise.
 // The old kit-built room (floor slab, walls, desk row, monitor wall,
 // east-wall door) is gone with it, and so is the monitor-wall alert
 // pulse — the room's own screens are part of its merged mesh and cannot
@@ -58,7 +65,7 @@ import {
 // The camera is fixed (interactive={false} creates no OrbitControls):
 // nothing orbits or hides them.
 export const CYPHER_SPAWN = {
-  ...spotToScene(ROBOT_SPOTS_M.cypher.work), scale: ROOM_SCALE, rotationY: FACING.south,
+  ...spotToScene(CYPHER_SEAT_M), scale: ROOM_SCALE, rotationY: FACING.south,
 };
 export const SENTINEL_SPAWN = {
   ...spotToScene(ROBOT_SPOTS_M.sentinel.work), scale: ROOM_SCALE, rotationY: ROBOT_WORK_FACING.sentinel,
@@ -104,8 +111,11 @@ const FOOTPRINT = 4;
 // ambient work only starts once each robot has had time to greet.
 const TOUR_PHASE_S = 2.5;
 const GREETING_WINDOW_S = 3;
-// Camera glide: damped toward the current shot at this rate.
+// Camera glide: damped toward the current shot at this rate. During
+// the device showcase the camera settles faster (the tour dwells 4 s
+// per device and the shot should read, not still be gliding).
 const CAMERA_DAMP = 2.5;
+const CAMERA_DAMP_SHOWCASE = 4;
 
 export default function MissionSocScene({
   devices = SOC_DEVICES,
@@ -138,7 +148,7 @@ export default function MissionSocScene({
   const stateRef = useRef({ incidentActive, contained, cypherVoiceRef, speakerRef, showcaseRef });
   stateRef.current = { incidentActive, contained, cypherVoiceRef, speakerRef, showcaseRef };
   // The live camera, filled by ModelViewer: the tick damps it toward the
-  // current shot and the name tag yaws to it.
+  // current shot.
   const cameraRef = useRef(null);
 
   const buildScene = useCallback((scene) => {
@@ -148,19 +158,20 @@ export default function MissionSocScene({
     let patch = null;
     let lastT = null;
     // The clock time when each robot may stop greeting and start ambient
-    // work; set at load (clock time then + the greeting window).
-    let cypherGreetUntil = GREETING_WINDOW_S;
+    // work; set at load (clock time then + the greeting window). Cypher
+    // has none — he is seated, never greeted.
     let sentinelGreetUntil = GREETING_WINDOW_S;
     let patchGreetUntil = GREETING_WINDOW_S;
-    // Cypher's patrol clock: only advances while he speaks, so he
-    // resumes his walk where he left off instead of jumping.
-    let patrolClock = 0;
-    let cypherXM = ROBOT_SPOTS_M.cypher.work.x;
     // Greeting tour state.
     let tourStart = null;
     let tourDone = false;
     // The camera target the tick is damping toward.
     const currentTarget = new THREE.Vector3(...SOC_CAMERA_TARGET);
+
+    // The concept dressing (glass, signs, screen) is procedural
+    // and needs no asset: it goes in immediately, even if the room GLB
+    // fails to load.
+    scene.add(buildSocDressing());
 
     // The data-center room itself: the environment the robots live in.
     // If it fails to load, the robots and devices still stand on the
@@ -176,31 +187,31 @@ export default function MissionSocScene({
 
     // The three robots stand in their rooms in the data center (the real
     // models — no placeholders). If a GLB fails to load that robot is
-    // simply absent; the mission still works. They start at their spots
-    // and greet on load; Cypher then presents, driven by the voice ref.
-    // Patch is not a humanoid — his clips (bob/rock walk, smaller arm
-    // swing) are driven as-is, never forced into humanoid poses.
-    const loadRobot = (key, spawn, onLoad) => {
+    // simply absent; the mission still works. Sentinel and Patch start
+    // at their spots and greet on load; Cypher is SEATED on his chair
+    // in the load callback (no greeting clip — a wave would pull him out
+    // of the chair pose) and never walks. Patch is not a humanoid — his
+    // clips (bob/rock walk, smaller arm swing) are driven as-is, never
+    // forced into humanoid poses.
+    const loadRobot = (key, spawn, onLoad, greet = true) => {
       loadRobotCharacter(key)
         .then((controller) => {
           controller.group.scale.setScalar(spawn.scale);
           controller.group.position.set(spawn.x, 0, spawn.z);
           controller.group.rotation.y = spawn.rotationY;
           scene.add(controller.group);
-          controller.play('greeting');
+          if (greet) controller.play('greeting');
           onLoad(controller);
         })
         .catch(() => { /* robot absent — the SOC keeps the rest */ });
     };
 
-    let cypherTag = null;
     loadRobot('cypher', CYPHER_SPAWN, (controller) => {
       cypher = controller;
-      cypherGreetUntil = (lastT ?? 0) + GREETING_WINDOW_S;
-      // His name tag, pinned to his chest bone and facing the camera —
-      // the greeting is the tag; everything else he says is voice only.
-      cypherTag = attachCypherNameTag(controller.group, SOC_CAMERA_POS);
-    });
+      // Seat him before the tick ever calls update() on him: sit()
+      // captures the bind pose as "rest" (see RobotCharacter).
+      seatRobot(controller);
+    }, false);
     loadRobot('sentinel', SENTINEL_SPAWN, (controller) => {
       sentinel = controller;
       sentinelGreetUntil = (lastT ?? 0) + GREETING_WINDOW_S;
@@ -257,12 +268,10 @@ export default function MissionSocScene({
         .catch(() => { /* asset missing/unparseable — fallback stays */ });
     });
 
-    // --- Animation: Cypher walks and talks with the voice; Sentinel and
-    // Patch keep working in their rooms; the camera glides to whoever is
-    // speaking (or tours the three on load). The tag rides Cypher's chest
-    // bone and yaws to the LIVE camera every frame — the camera moves
-    // now, so a fixed position would aim it wrong. Under reduced motion
-    // the tick never runs, so the camera holds the wide shot.
+    // --- Animation: Cypher sits at his desk and talks with the voice;
+    // Sentinel and Patch keep working in their rooms; the camera glides
+    // to whoever is speaking (or tours the three on load). Under reduced
+    // motion the tick never runs, so the camera holds the wide shot.
     const tick = (t) => {
       const { cypherVoiceRef: voiceRef, speakerRef: spkRef, showcaseRef: showRef } = stateRef.current;
       const dt = lastT === null ? 0 : Math.min(t - lastT, 0.1);
@@ -279,12 +288,12 @@ export default function MissionSocScene({
         const phase = Math.floor((t - tourStart) / TOUR_PHASE_S);
         if (phase >= 3) {
           tourDone = true;
-          shot = showcase ? deviceShot(showcase) : shotForSpeaker(speaker, cypherXM);
+          shot = showcase ? deviceShot(showcase) : shotForSpeaker(speaker);
         } else {
-          shot = shotForSpeaker(['cypher', 'sentinel', 'patch'][phase], cypherXM);
+          shot = shotForSpeaker(['cypher', 'sentinel', 'patch'][phase]);
         }
       } else {
-        shot = showcase ? deviceShot(showcase) : shotForSpeaker(speaker, cypherXM);
+        shot = showcase ? deviceShot(showcase) : shotForSpeaker(speaker);
       }
       // --- Showcase label emphasis: the device on camera reads larger;
       // the others stay at their base size. The scale is re-asserted
@@ -295,55 +304,34 @@ export default function MissionSocScene({
       }
       const camera = cameraRef.current;
       if (camera && dt > 0) {
-        camera.position.x = THREE.MathUtils.damp(camera.position.x, shot.pos[0], CAMERA_DAMP, dt);
-        camera.position.y = THREE.MathUtils.damp(camera.position.y, shot.pos[1], CAMERA_DAMP, dt);
-        camera.position.z = THREE.MathUtils.damp(camera.position.z, shot.pos[2], CAMERA_DAMP, dt);
-        currentTarget.x = THREE.MathUtils.damp(currentTarget.x, shot.target[0], CAMERA_DAMP, dt);
-        currentTarget.y = THREE.MathUtils.damp(currentTarget.y, shot.target[1], CAMERA_DAMP, dt);
-        currentTarget.z = THREE.MathUtils.damp(currentTarget.z, shot.target[2], CAMERA_DAMP, dt);
+        // The showcase settles faster so each device reads, not glides.
+        const damp = showcase ? CAMERA_DAMP_SHOWCASE : CAMERA_DAMP;
+        camera.position.x = THREE.MathUtils.damp(camera.position.x, shot.pos[0], damp, dt);
+        camera.position.y = THREE.MathUtils.damp(camera.position.y, shot.pos[1], damp, dt);
+        camera.position.z = THREE.MathUtils.damp(camera.position.z, shot.pos[2], damp, dt);
+        currentTarget.x = THREE.MathUtils.damp(currentTarget.x, shot.target[0], damp, dt);
+        currentTarget.y = THREE.MathUtils.damp(currentTarget.y, shot.target[1], damp, dt);
+        currentTarget.z = THREE.MathUtils.damp(currentTarget.z, shot.target[2], damp, dt);
         camera.lookAt(currentTarget);
       }
 
-      // --- Cypher: walks his patrol while HE speaks, works at his desk
-      // when he doesn't. The walk clip carries the movement; the
-      // audio-reactive head bob (setTalkLevel) carries the speaking.
-      // Only his own turns walk him: during a Sentinel or Patch turn the
-      // same voice is playing (Cypher's is the only configured voice),
-      // but he is not the speaker — he works at his desk while they talk.
+      // --- Cypher: seated at his desk, talking shows through the
+      // audio-reactive head bob only — never a clip, never a walk.
+      // seatRobot() calls the controller's own sit() (RobotCharacter,
+      // PR #64): the mixer is stopped, the pose is re-applied inside
+      // update() after the mixer, and setTalking() starts no clip while
+      // seated — so the pose needs no re-assertion here, and the head
+      // bob (setTalkLevel, applied inside update()) still shows. Only
+      // his own turns bob him: during a Sentinel or Patch turn the same
+      // voice is playing (Cypher's is the only configured voice), but
+      // he is not the speaker — he sits still while they talk.
       if (cypher) {
         const voice = voiceRef?.current;
         const talking = !!voice?.talking;
         const cypherSpeaking = talking && speaker === 'cypher';
+        cypher.setTalking(cypherSpeaking);
         cypher.setTalkLevel(cypherSpeaking ? (voice?.level || 0) : 0);
-        if (cypherSpeaking) {
-          if (!cypher.isTalking()) cypher.setTalking(true);
-          // Re-assert every frame: the greeting's finished handler can
-          // pull him back to the talk clip mid-speech.
-          cypher.play('walk');
-          patrolClock += dt;
-          cypherXM = patrolX(patrolClock);
-          const patrolScene = spotToScene({ x: cypherXM, y: ROBOT_SPOTS_M.cypher.patrol.y });
-          cypher.group.position.x = patrolScene.x;
-          cypher.group.position.z = patrolScene.z;
-          cypher.group.rotation.y = FACING.south;
-        } else {
-          if (cypher.isTalking()) {
-            cypher.setTalking(false);
-            if (t > cypherGreetUntil) cypher.play('idle');
-          }
-          if (t > cypherGreetUntil) {
-            // Ease back to his desk work spot.
-            const work = spotToScene(ROBOT_SPOTS_M.cypher.work);
-            cypher.group.position.x = THREE.MathUtils.damp(cypher.group.position.x, work.x, CAMERA_DAMP, dt);
-            cypher.group.position.z = THREE.MathUtils.damp(cypher.group.position.z, work.z, CAMERA_DAMP, dt);
-            cypher.group.rotation.y = THREE.MathUtils.damp(cypher.group.rotation.y, FACING.south, CAMERA_DAMP, dt);
-          }
-        }
         cypher.update(dt);
-        if (cypherTag) {
-          const camPos = camera ? camera.position.toArray() : SOC_CAMERA_POS;
-          faceTagToCamera(cypherTag, camPos);
-        }
       }
 
       // --- Sentinel and Patch keep working in their rooms: a point at
