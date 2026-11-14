@@ -45,6 +45,15 @@ def teardown_function():
     client.cookies.clear()
 
 
+@pytest.fixture(autouse=True)
+def _tutor_disk_cache(tmp_path, monkeypatch):
+    """A throwaway tutor disk-cache dir per test: without this, the CARD
+    constant below collides with whichever test first generated an answer
+    for it, since the disk cache (unlike _cache.clear() above) persists
+    across tests and across runs (see ai_tutor.TUTOR_CACHE_DIR)."""
+    monkeypatch.setattr(ai_tutor, "TUTOR_CACHE_DIR", tmp_path / "tutor-cache")
+
+
 def _admin_login(password=ADMIN_PASSWORD):
     r = client.post("/api/admin/login", json={"password": password})
     return r

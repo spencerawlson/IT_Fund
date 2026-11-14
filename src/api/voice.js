@@ -63,6 +63,31 @@ export async function speakVoice({ character, text }) {
 const MUTE_KEY = 'rtc-cypher-voice-muted';
 const VOLUME_KEY = 'rtc-cypher-voice-volume';
 
+// In-tab cache of {character, text} -> {envelope, audioBuffer}, so asking
+// Cypher to repeat something already heard this visit (a lesson he already
+// explained, "Hear again") never re-fetches or re-downloads: no request to
+// /voice/speak at all, and no re-decoding once the AudioBuffer is cached.
+// Module-level (not per-hook-instance) so it survives remounting the panel
+// while navigating between lessons in the same tab. Capped and FIFO-evicted
+// — this is a speed/bandwidth cache for the current visit, not meant to
+// grow without bound; the backend's own disk cache is what makes a lesson
+// "cached forever" across visits and restarts.
+const MAX_CLIENT_VOICE_CACHE = 40;
+const voiceCache = new Map();
+
+function cacheVoice(key, value) {
+  voiceCache.set(key, value);
+  if (voiceCache.size > MAX_CLIENT_VOICE_CACHE) {
+    voiceCache.delete(voiceCache.keys().next().value);
+  }
+}
+
+// Test-only: the cache is a module singleton, so tests must reset it
+// between cases (otherwise one test's cached text leaks into the next).
+export function __clearVoiceCache() {
+  voiceCache.clear();
+}
+
 function readStored(key, fallback) {
   try {
     const v = localStorage.getItem(key);
@@ -169,23 +194,34 @@ export function useCypherVoice(voiceRef) {
     } catch {
       ctx = null;
     }
-    // The speak fetch (ElevenLabs synthesis) can take ~25 s for a long
-    // answer. `loading` is true for exactly that window, so callers can
-    // show "Loading voice…" instead of silence.
-    setLoading(true);
+    const cacheKey = `cypher|${text}`;
+    const cached = voiceCache.get(cacheKey);
     let envelope;
-    try {
-      envelope = await speakVoice({ character: 'cypher', text });
-    } catch (e) {
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close().catch(() => {});
-        audioCtxRef.current = null;
+    let audioBuffer = null;
+    if (cached) {
+      // Already heard this exact text this visit: skip the fetch (and the
+      // ElevenLabs/OpenAI cost it could trigger server-side) entirely.
+      envelope = cached.envelope;
+      audioBuffer = cached.audioBuffer;
+    } else {
+      // The speak fetch (ElevenLabs synthesis) can take ~25 s for a long
+      // answer. `loading` is true for exactly that window, so callers can
+      // show "Loading voice…" instead of silence.
+      setLoading(true);
+      try {
+        envelope = await speakVoice({ character: 'cypher', text });
+      } catch (e) {
+        if (audioCtxRef.current) {
+          audioCtxRef.current.close().catch(() => {});
+          audioCtxRef.current = null;
+        }
+        setLoading(false);
+        setFallback(true);
+        setError(e.message || 'Cipher’s voice isn’t available right now.');
+        setSubtitle('');
+        return '';
       }
-      setLoading(false);
-      setFallback(true);
-      setError(e.message || 'Cipher’s voice isn’t available right now.');
-      setSubtitle('');
-      return '';
+      cacheVoice(cacheKey, { envelope, audioBuffer: null });
     }
     // The subtitle is the backend's cleaned text (Markdown stripped for
     // speech), not the raw answer — so the words on screen match the
@@ -222,8 +258,14 @@ export function useCypherVoice(voiceRef) {
       return envelope.text;
     }
     try {
-      const bytes = Uint8Array.from(atob(envelope.audio_b64), (c) => c.charCodeAt(0));
-      const audioBuffer = await ctx.decodeAudioData(bytes.buffer);
+      if (!audioBuffer) {
+        const bytes = Uint8Array.from(atob(envelope.audio_b64), (c) => c.charCodeAt(0));
+        audioBuffer = await ctx.decodeAudioData(bytes.buffer);
+        // An AudioBuffer isn't tied to the AudioContext that decoded it, so
+        // it's safe to replay later through a different (future) context.
+        const entry = voiceCache.get(cacheKey);
+        if (entry) entry.audioBuffer = audioBuffer;
+      }
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
       const gain = ctx.createGain();

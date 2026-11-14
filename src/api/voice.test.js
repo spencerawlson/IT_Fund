@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import { speakVoice, fetchVoiceStatus, useCypherVoice } from './voice';
+import { speakVoice, fetchVoiceStatus, useCypherVoice, __clearVoiceCache } from './voice';
 
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -116,7 +116,7 @@ describe('useCypherVoice loading', () => {
     constructor() { FakeAudioContext.instances.push(this); this.destination = {}; this.state = 'running'; }
     resume() { return Promise.resolve(); }
     close() { return Promise.resolve(); }
-    decodeAudioData() { return Promise.resolve({}); }
+    decodeAudioData() { FakeAudioContext.decodeCount += 1; return Promise.resolve({}); }
     createBufferSource() { return new FakeSourceNode(); }
     createGain() { return new FakeGain(); }
     createAnalyser() { return new FakeAnalyser(); }
@@ -127,8 +127,10 @@ describe('useCypherVoice loading', () => {
 
   beforeEach(() => {
     FakeAudioContext.instances = [];
+    FakeAudioContext.decodeCount = 0;
     FakeSourceNode.instances = [];
     globalThis.window = { AudioContext: FakeAudioContext };
+    __clearVoiceCache(); // the cache is a module singleton — isolate each test
   });
 
   afterEach(() => {
@@ -167,6 +169,34 @@ describe('useCypherVoice loading', () => {
     // Played through the already-unlocked AudioContext, not a cold
     // HTMLMediaElement.play() call made after the fetch.
     expect(FakeSourceNode.instances[0].started).toBe(true);
+  });
+
+  it('replaying the same text this visit skips the fetch and the decode entirely', async () => {
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(audioEnvelope));
+      await playPromise;
+    });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(FakeAudioContext.decodeCount).toBe(1);
+    expect(latest.playing).toBe(true);
+
+    // Same text again: already cached in this tab, so no second fetch to
+    // /voice/speak (no ElevenLabs cost, no network) and no re-decoding —
+    // it plays straight through a fresh AudioContext (stop() tears down
+    // the previous one each play()).
+    await TestRenderer.act(async () => { await latest.play('Hello.'); });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(FakeAudioContext.decodeCount).toBe(1);
+    expect(latest.loading).toBe(false);
+    expect(latest.playing).toBe(true);
+    expect(latest.subtitle).toBe('Hello.');
+    expect(FakeSourceNode.instances[1].started).toBe(true);
   });
 
   it('clears loading and reports fallback when the envelope has no audio', async () => {

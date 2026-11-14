@@ -31,12 +31,15 @@ class FakeCompletions:
 
 
 @pytest.fixture
-def fake(monkeypatch):
+def fake(monkeypatch, tmp_path):
     completions = FakeCompletions()
     monkeypatch.setattr(ai_tutor, "get_client", lambda: SimpleNamespace(chat=SimpleNamespace(completions=completions)))
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     ai_tutor._hits.clear()
     ai_tutor._cache.clear()
+    # A throwaway disk-cache dir per test, so cache assertions never leak
+    # between tests (mirrors test_voice.py's CACHE_DIR fixture).
+    monkeypatch.setattr(ai_tutor, "TUTOR_CACHE_DIR", tmp_path / "tutor-cache")
     return completions
 
 
@@ -146,6 +149,22 @@ def test_card_answers_are_cached(fake):
     r = client.post("/api/ai/tutor", json=CARD)
     assert len(fake.calls) == 1
     assert events(r)[0]["cached"] is True
+
+
+def test_card_answers_survive_a_restart(fake):
+    """The in-memory cache alone would lose this on every backend restart,
+    regenerating the answer (and, downstream, the voice audio) forever.
+    The disk cache must still serve it cold."""
+    client.post("/api/ai/tutor", json=CARD)
+    assert len(fake.calls) == 1
+
+    ai_tutor._cache.clear()  # simulate a process restart wiping memory
+    r = client.post("/api/ai/tutor", json=CARD)
+    assert len(fake.calls) == 1  # no second OpenAI call
+    assert events(r)[0]["cached"] is True
+    assert "".join(e.get("t", "") for e in events(r) if "t" in e) == "Hello world"
+    # Warmed back into memory, so a third call doesn't even touch disk.
+    assert ai_tutor.cache_key(ai_tutor.TutorReq(**CARD)) in ai_tutor._cache
 
 
 def test_chat_is_not_cached(fake):

@@ -4,6 +4,7 @@ import { renderToString } from 'react-dom/server';
 import TestRenderer from 'react-test-renderer';
 import { StaticRouter } from 'react-router-dom';
 import MissionHandoff, { HANDOFF_LINE } from './MissionHandoff';
+import { __clearVoiceCache } from '@/api/voice';
 
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -184,6 +185,7 @@ describe('MissionHandoff listen-first (mounted)', () => {
   beforeEach(() => {
     FakeSourceNode.instances = [];
     globalThis.window = { AudioContext: FakeAudioContext };
+    __clearVoiceCache(); // the cache is a module singleton — isolate each test
     fetchGate = deferred();
     globalThis.fetch = vi.fn(() => fetchGate.promise);
   });
@@ -238,15 +240,16 @@ describe('MissionHandoff listen-first (mounted)', () => {
     const replay = findButton('Hear again');
     expect(replay).toBeTruthy();
     expect(findButton('Read message')).toBeTruthy();
-    // A fresh pending fetch for the replay, so the loading state is
-    // observable (the first gate is already resolved).
-    const gate2 = deferred();
-    globalThis.fetch = vi.fn(() => gate2.promise);
-    TestRenderer.act(() => { replay.props.onClick(); });
-    expect(globalThis.fetch.mock.calls.length).toBe(1);
-    expect(globalThis.fetch.mock.calls[0][0]).toBe('/api/voice/speak');
-    expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body).text).toBe(EXACT_LINE);
-    expect(treeText()).toContain('Loading voice…');
+    // The exact same line was already heard this visit, so "Hear again" is
+    // served from the in-tab cache: no new fetch to /voice/speak (no
+    // ElevenLabs cost, no network round trip), and it starts right away —
+    // no "Loading voice…" step.
+    const fetchSpy = vi.fn();
+    globalThis.fetch = fetchSpy;
+    await TestRenderer.act(async () => { await replay.props.onClick(); });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(treeText()).toContain('Speaking…');
+    expect(FakeSourceNode.instances[1].started).toBe(true);
   });
 
   it('falls back to showing the line as text with the Hear button when voice is unavailable', async () => {

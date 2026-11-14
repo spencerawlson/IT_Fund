@@ -59,3 +59,7 @@ labs_dev.db
 # Generated character-voice audio cache (ElevenLabs MP3s, keyed by hash).
 # Regenerated on demand; never commit audio.
 backend/.voice-cache/
+
+# Generated AI-tutor card answers (OpenAI text, keyed by hash). Regenerated
+# on demand; never commit generated content.
+backend/.tutor-cache/

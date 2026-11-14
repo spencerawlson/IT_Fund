@@ -48,6 +48,15 @@ RATE_LIMIT = int(os.getenv("AI_RATE_LIMIT", "30"))  # requests per window per IP
 RATE_WINDOW = int(os.getenv("AI_RATE_WINDOW", "3600"))  # seconds
 CACHE_SIZE = 500
 
+#: Disk cache for card-mode answers (explain/example/simplify/hint), keyed
+#: the same as the in-memory _cache below. A given lesson+mode+level is
+#: asked identically by every learner, so without this the answer (and the
+#: wording the voice cache keys on) is regenerated — a fresh OpenAI *and*
+#: ElevenLabs call — every time the backend restarts, which happens often.
+#: Mirrors voice.py's CACHE_DIR: never committed (see .gitignore), no size
+#: cap needed (answers are at most a few hundred tokens of plain text).
+TUTOR_CACHE_DIR = Path(os.getenv("TUTOR_CACHE_DIR", Path(__file__).with_name(".tutor-cache")))
+
 Mode = Literal["hint", "explain", "simplify", "example", "weakspots", "chat"]
 
 # Output budget per mode keeps answers short and costs predictable.
@@ -254,6 +263,28 @@ def _cache_put(key: str, text: str) -> None:
         _cache.popitem(last=False)
 
 
+def _disk_cache_path(key: str) -> Path:
+    return TUTOR_CACHE_DIR / f"{key}.txt"
+
+
+def _disk_cache_read(key: str) -> Optional[str]:
+    try:
+        p = _disk_cache_path(key)
+        if p.exists():
+            return p.read_text(encoding="utf-8")
+    except OSError:
+        log.warning("tutor cache read failed for %s", key)
+    return None
+
+
+def _disk_cache_write(key: str, text: str) -> None:
+    try:
+        TUTOR_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        _disk_cache_path(key).write_text(text, encoding="utf-8")
+    except OSError:
+        log.warning("tutor cache write failed for %s", key)
+
+
 # ---------- OpenAI ----------
 
 def get_client():
@@ -271,11 +302,21 @@ def _sse(payload: dict) -> str:
 
 
 def stream_answer(client, req: TutorReq, key: Optional[str], user_id: str) -> Iterator[str]:
-    if key and key in _cache:
-        yield _sse({"t": _cache[key], "cached": True})
-        yield _sse({"done": True})
-        _log_call(user_id, req, MODEL, None, cached=True, error=False)
-        return
+    if key:
+        cached_text = _cache.get(key)
+        if cached_text is None:
+            # Cold process (a restart wiped the in-memory cache): the disk
+            # cache still has it, so this is still a cache hit, not a fresh
+            # OpenAI call. Warm the in-memory cache so the next request on
+            # this process skips the disk read too.
+            cached_text = _disk_cache_read(key)
+            if cached_text is not None:
+                _cache_put(key, cached_text)
+        if cached_text is not None:
+            yield _sse({"t": cached_text, "cached": True})
+            yield _sse({"done": True})
+            _log_call(user_id, req, MODEL, None, cached=True, error=False)
+            return
     parts: list[str] = []
     usage = None
     try:
@@ -304,7 +345,9 @@ def stream_answer(client, req: TutorReq, key: Optional[str], user_id: str) -> It
         _log_call(user_id, req, MODEL, None, cached=False, error=True)
         return
     if key and parts:
-        _cache_put(key, "".join(parts))
+        text = "".join(parts)
+        _cache_put(key, text)
+        _disk_cache_write(key, text)
     yield _sse({"done": True})
     _log_call(user_id, req, MODEL, usage, cached=False, error=False)
 
