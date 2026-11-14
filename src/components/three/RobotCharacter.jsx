@@ -74,6 +74,43 @@ export function preloadMissionRobots(fetchImpl) {
 }
 
 /**
+ * The seated pose (lesson panel only): Cypher sits on a chair at a desk —
+ * no walking, no sliding. Each entry is a rotation DELTA from the bone's
+ * rest pose, in the bone's local frame (XYZ euler) — the same numbers
+ * Blender's pose bones take, verified by a Blender render of the seated
+ * pose. They are NOT absolute bone rotations: three.js bone.rotation
+ * REPLACES the bind rotation, and the limbs' bind frames are far from
+ * identity (thigh rest is pi about X, shoulder rest is (-pi/2, 0, pi/2)),
+ * so an absolute -1.40 on the thigh swings the knee BACKWARD. The
+ * controller therefore applies rest-quaternion x delta (see
+ * applySeatedPose). The relative form reproduces the Blender pose in
+ * three.js to the millimetre (knee 0.564 m, foot 0.275 m, head 1.353 m —
+ * asserted in RobotCharacter.test.jsx).
+ * SEATED_HIPS_LIFT_M is added to the hips bone's rest height (0.67 m):
+ * the standing hip joint (0.52 m) sits below the seat, so the pelvis
+ * rises ~0.08 m onto it and the feet dangle ~0.28 m — a short-legged
+ * robot perched on an office chair, verified by a Blender render.
+ * Bone names are the three.js names (thighL, kneeL, ...): Blender shows
+ * the same bones as thigh.L / knee.L, but the GLB joints — and three.js
+ * — spell them without the dot. Do not "fix" these back to dotted names.
+ */
+export const SEATED_POSE = {
+  thighL: [-1.40, 0, 0],
+  thighR: [-1.40, 0, 0],
+  kneeL: [1.40, 0, 0],
+  kneeR: [1.40, 0, 0],
+  ankleL: [-0.15, 0, 0],
+  ankleR: [-0.15, 0, 0],
+  spine: [0.10, 0, 0],
+  chest: [0.08, 0, 0],
+  shoulderL: [-0.35, 0, 0],
+  shoulderR: [-0.35, 0, 0],
+  elbowL: [-0.90, 0, 0],
+  elbowR: [-0.90, 0, 0],
+};
+export const SEATED_HIPS_LIFT_M = 0.08;
+
+/**
  * Build a clip controller for a parsed robot glTF:
  * { group, mixer, clips, clipNames, play(name), setTalking(bool),
  *   setTalkLevel(0..1), isTalking(), update(dt), dispose() }.
@@ -83,6 +120,11 @@ export function preloadMissionRobots(fetchImpl) {
  *   the analyser level while audio plays, and the head bobs a little more
  *   with it. It is applied after mixer.update() each frame, so it rides on
  *   top of whatever clip is playing and never fights the mixer.
+ * - sit() seats the robot in SEATED_POSE (lesson panel only): the mixer
+ *   is stopped and play()/setTalking() stop starting clips, so nothing
+ *   can pull him out of the chair; talking still shows through the head
+ *   bob. The SOC never calls sit(), so its clip-driven robots are
+ *   untouched.
  * The caller owns the group: add it to the scene, remove + dispose() on cleanup.
  */
 export function createRobotController(gltf) {
@@ -94,12 +136,54 @@ export function createRobotController(gltf) {
   let currentName = null;
   let talking = false;
   let talkLevel = 0;
-  let headBone = null;
+  let seated = false;
+  const bones = {};
   group.traverse((obj) => {
-    if (!headBone && obj.name === 'head' && obj.isBone) headBone = obj;
+    if (obj.isBone) bones[obj.name] = obj;
   });
+  const headBone = bones.head || null;
+  // Rest orientations, captured before any clip plays: a seated pose is
+  // rest-quaternion x delta (see SEATED_POSE), never an absolute euler.
+  const restPose = new Map();
+  for (const [name, bone] of Object.entries(bones)) {
+    restPose.set(name, {
+      quaternion: bone.quaternion.clone(),
+      position: bone.position.clone(),
+    });
+  }
+
+  const applySeatedPose = () => {
+    const delta = new THREE.Quaternion();
+    const euler = new THREE.Euler();
+    for (const [name, [x, y, z]] of Object.entries(SEATED_POSE)) {
+      const bone = bones[name];
+      const rest = restPose.get(name);
+      if (!bone || !rest) continue;
+      euler.set(x, y, z, 'XYZ');
+      delta.setFromEuler(euler);
+      bone.quaternion.copy(rest.quaternion).multiply(delta);
+    }
+    const hips = bones.hips;
+    const hipsRest = restPose.get('hips');
+    if (hips && hipsRest) {
+      hips.position.copy(hipsRest.position);
+      hips.position.y += SEATED_HIPS_LIFT_M;
+    }
+  };
+
+  /** Seat the robot: stop every clip, hold SEATED_POSE, never walk. */
+  const sit = () => {
+    seated = true;
+    mixer.stopAllAction();
+    current = null;
+    currentName = null;
+    applySeatedPose();
+    return true;
+  };
 
   const play = (name) => {
+    // Seated, the body stays in its chair pose: no clip can start.
+    if (seated) return false;
     const clip = clips[name];
     if (!clip) return false;
     if (currentName === name) return true;
@@ -125,13 +209,19 @@ export function createRobotController(gltf) {
 
   const setTalking = (on) => {
     talking = !!on;
+    // Seated, talking only drives the head bob in update() — it never
+    // starts the talk clip, which would pull him out of the chair pose.
+    if (seated) return;
     if (talking) play('talk');
     else if (currentName === 'talk') play('idle');
   };
 
   const update = (dt) => {
     mixer.update(dt);
-    // Audio-reactive head bob, on top of the clip pose.
+    // Seated, the pose is re-applied after the mixer every frame, so no
+    // clip (or a stray crossfade) can pull him out of the chair.
+    if (seated) applySeatedPose();
+    // Audio-reactive head bob, on top of the clip pose (or the seat pose).
     if (talking && headBone && talkLevel > 0.02) {
       headBone.rotation.x += talkLevel * 0.06 * Math.sin(performance.now() / 90);
     }
@@ -156,6 +246,8 @@ export function createRobotController(gltf) {
     clips,
     clipNames: Object.keys(clips),
     play,
+    sit,
+    isSeated: () => seated,
     setTalking,
     setTalkLevel: (level) => { talkLevel = Math.max(0, Math.min(1, level || 0)); },
     isTalking: () => talking,

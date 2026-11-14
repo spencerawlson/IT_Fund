@@ -130,42 +130,44 @@ describe('CypherViewer', () => {
     expect(html).not.toContain('Click parts for info');
   });
 
-  it('frames the real 1.70 m Cypher head-to-toe in his room, at his desk and on patrol', () => {
-    // The panel camera is the SOC wide-shot geometry at the room's real
-    // scale — [x, 3.4, 6.0] -> target [x, 1.0, 0.35], FOV 42 — and it
-    // tracks his patrol x (see CypherViewer), so he stays centred while
-    // he walks. At ~5.3 m the vertical coverage is
-    // 2 * 5.3 * tan(21°) ~= 4.1 units, so the 1.70 m model fills ~42% of
-    // the frame height — a full-body presenter in his room, not a
-    // cropped torso — at his desk and everywhere on his patrol.
-    // Measured 73.4–79.6px on the 224px frame (~33–36%).
-    const projectPx = (cam, v) => {
+  it('frames seated Cypher head-and-shoulders at his desk, desktop and mobile', () => {
+    // The panel camera is fixed on the chair — [-1.05, 3.0, 6.0] -> target
+    // [-1.05, 1.05, 1.2], FOV 42 — and Cypher sits there (head ~1.35 m,
+    // feet dangling ~0.28 m, seat ~0.60 m). At ~5.2 m the vertical
+    // coverage is 2 * 5.2 * tan(21°) ~= 4.0 units, so the ~1.07 m seated
+    // figure fills ~27% of the frame height — a head-and-shoulders tutor
+    // above the desk monitors, not a cropped face — on the desktop
+    // (224x256) and mobile (390x224) panel aspects. The Blender renders
+    // (cypher-seat/seat_desktop.png, seat_mobile.png) show the same shot.
+    const projectPx = (cam, v, w, h) => {
       const p = v.clone().project(cam);
-      return { x: (p.x + 1) / 2 * 224, y: (1 - p.y) / 2 * 224, behind: p.z > 1 };
+      return { x: (p.x + 1) / 2 * w, y: (1 - p.y) / 2 * h, behind: p.z > 1 };
     };
-    // [camera x, Cypher x, Cypher z] — camera tracks his patrol x.
+    const chair = { x: -1.05, z: 1.2 };
     const cases = [
-      [-0.5, -0.5, 1.0], // at his desk (work spot)
-      [-0.5, -0.5, 0.35], // patrol west end
-      [0.35, 0.35, 0.35], // patrol centre
-      [1.2, 1.2, 0.35], // patrol east end
+      { w: 224, h: 256 }, // desktop: w-56 column, sm:h-64
+      { w: 390, h: 224 }, // mobile: full-width column, h-56
     ];
-    for (const [camX, x, z] of cases) {
-      const cam = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
-      cam.position.set(camX, 3.4, 6.0);
-      cam.lookAt(camX, 1.0, 0.35);
+    for (const { w, h } of cases) {
+      const cam = new THREE.PerspectiveCamera(42, w / h, 0.1, 1000);
+      cam.position.set(chair.x, 3.0, 6.0);
+      cam.lookAt(chair.x, 1.05, chair.z);
       cam.updateMatrixWorld(true);
-      const feet = projectPx(cam, new THREE.Vector3(x, 0, z));
-      const head = projectPx(cam, new THREE.Vector3(x, 1.704, z));
-      expect(feet.behind).toBe(false);
-      expect(head.behind).toBe(false);
-      for (const px of [feet, head]) {
+      const head = projectPx(cam, new THREE.Vector3(chair.x, 1.35, chair.z + 0.08), w, h);
+      const feet = projectPx(cam, new THREE.Vector3(chair.x, 0.28, chair.z + 0.22), w, h);
+      const seat = projectPx(cam, new THREE.Vector3(chair.x, 0.60, chair.z), w, h);
+      for (const px of [head, feet, seat]) {
+        expect(px.behind).toBe(false);
         expect(px.x).toBeGreaterThanOrEqual(0);
-        expect(px.x).toBeLessThanOrEqual(224);
+        expect(px.x).toBeLessThanOrEqual(w);
         expect(px.y).toBeGreaterThanOrEqual(0);
-        expect(px.y).toBeLessThanOrEqual(224);
+        expect(px.y).toBeLessThanOrEqual(h);
       }
-      expect(feet.y - head.y).toBeGreaterThanOrEqual(70);
+      // Head in the upper half, feet in the lower half, figure tall
+      // enough to read at panel size.
+      expect(head.y).toBeLessThan(h / 2);
+      expect(feet.y).toBeGreaterThan(h / 2);
+      expect(feet.y - head.y).toBeGreaterThanOrEqual(55);
     }
   });
 });

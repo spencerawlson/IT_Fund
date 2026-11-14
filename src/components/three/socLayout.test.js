@@ -3,6 +3,7 @@ import {
   ROOM_SCALE,
   ROOMS_M,
   ROBOT_SPOTS_M,
+  CYPHER_CHAIR_M,
   DEVICE_POSITIONS_M,
   socPositions,
   spotToScene,
@@ -64,6 +65,21 @@ describe('rooms', () => {
       const r = ROOMS_M.cypher;
       return x >= r.xMin && x <= r.xMax && y >= r.yMin && y <= r.yMax;
     }
+  });
+
+  it('puts Cypher\'s chair inside the desk room, north of the south desk, with a sane seat height', () => {
+    // Measured from the real mesh (ray-cast height map): seat top ~0.60 m
+    // at (-1.05, -1.2), backrest east of the seat. The lesson panel seats
+    // him on it; the SOC work spot and patrol already keep clear of it.
+    const chair = CYPHER_CHAIR_M;
+    const room = ROOMS_M.cypher;
+    expect(chair.x).toBeGreaterThanOrEqual(room.xMin);
+    expect(chair.x).toBeLessThanOrEqual(room.xMax);
+    expect(chair.y).toBeGreaterThanOrEqual(room.yMin);
+    expect(chair.y).toBeLessThanOrEqual(room.yMax);
+    expect(chair.y).toBeGreaterThan(-1.7); // north of the south desk
+    expect(chair.seatHeightM).toBeGreaterThan(0.4);
+    expect(chair.seatHeightM).toBeLessThan(0.8);
   });
 
   it('keeps the devices in their rooms and clear of the robots', () => {
