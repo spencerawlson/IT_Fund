@@ -10,9 +10,9 @@ import CypherLessonPanel, { presetQuestion } from './CypherLessonPanel';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Mounted tests drive the real panel (tutor + voice) with the network
-// stubbed: the tutor API module, the mission API, analytics, and the 3D
-// viewer (WebGL has no DOM here). The voice speak fetch is stubbed per
-// test with a controllable deferred, so auto-play can be observed.
+// stubbed: the tutor API module, analytics, and the 3D viewer (WebGL has
+// no DOM here). The voice speak fetch is stubbed per test with a
+// controllable deferred, so auto-play can be observed.
 const tutorMocks = vi.hoisted(() => ({
   fetchTutorStatus: vi.fn(async () => ({ enabled: true })),
   streamTutor: vi.fn(),
@@ -21,20 +21,13 @@ vi.mock('@/api/tutor', () => ({
   fetchTutorStatus: (...args) => tutorMocks.fetchTutorStatus(...args),
   streamTutor: (...args) => tutorMocks.streamTutor(...args),
 }));
-vi.mock('@/api/missions', () => ({
-  missionsApi: {
-    history: async () => ({ history: [] }),
-    getAttempt: async () => null,
-  },
-}));
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
 vi.mock('@/components/three/CypherCharacter', () => ({ default: () => null }));
 
-// SSR: effects (attempt history, analytics, tutor status) do not run, so
-// the panel renders its first paint — greeting, difficulty selector, and
-// the mission invitation — without any network. The tutor hooks need a
-// QueryClientProvider and the `to=` buttons need a router (same pattern as
-// Seo.test.jsx).
+// SSR: effects (analytics, tutor status) do not run, so the panel renders
+// its first paint — greeting, difficulty selector, and the three
+// explanation buttons — without any network. The tutor hooks need a
+// QueryClientProvider (same pattern as Seo.test.jsx).
 function renderPanel(props) {
   const queryClient = new QueryClient();
   return renderToString(
@@ -47,11 +40,10 @@ function renderPanel(props) {
 }
 
 describe('CypherLessonPanel', () => {
-  it('renders the greeting and difficulty levels, with the mission section hidden by default', () => {
+  it('renders the greeting and difficulty levels, with exactly three buttons and no mission section and no question box', () => {
     const html = renderPanel({
       lesson: { id: 'net-security', title: 'Network Security', trackId: 'net' },
       missionId: 'op-broken-shield',
-      practicalHref: '/labs/net-acl-001',
     });
     expect(html).toContain('Hi, I’m Cipher');
     // SSR renders `{label} level` as `Beginner<!-- --> level`, so assert the
@@ -60,41 +52,32 @@ describe('CypherLessonPanel', () => {
     expect(html).toContain('value="intermediate"');
     expect(html).toContain('value="advanced"');
     expect(html).toContain('Explanation difficulty level');
-    // Operation Broken Shield is a collapsed disclosure by default: the
-    // header is there, but nothing of the section — no status, no mission
-    // button, no hint, no practical-application link — is shown until the
-    // student clicks to open it.
-    expect(html).toContain('Operation Broken Shield');
-    expect(html).toContain('aria-expanded="false"');
+    // The three explanation buttons render only once the tutor-status
+    // query resolves (client-side) — in SSR the tutor is not yet known to
+    // be enabled, so the panel shows the unavailable fallback instead.
+    // The mounted test asserts the three exact labels and no fourth button.
+    expect(html).toContain('The AI tutor isn’t available on this server right now.');
+    // No question box and no Ask button: free-form questions belong to
+    // Ask the Tutor, not to this panel.
+    expect(html).not.toContain('<input');
+    expect(html).not.toContain('Ask Cipher');
+    expect(html).not.toContain('Ask the Tutor');
+    // No mission section at all: the mission opens only from the handoff's
+    // Launch Mission button after practice — nothing about Operation
+    // Broken Shield shows on the lesson page.
+    expect(html).not.toContain('Operation Broken Shield');
     expect(html).not.toContain('Launch Mission');
     expect(html).not.toContain('/missions/op-broken-shield');
     expect(html).not.toContain('Show a practical application');
     expect(html).not.toContain('A live incident in the SOC');
     expect(html).not.toContain('Start Mission');
-  });
-
-  it('shows the mission section when opened, with one Launch Mission button', () => {
-    // The toggle is a plain useState flip; defaultMissionOpen renders the
-    // open state in SSR, which is what this asserts.
-    const html = renderPanel({
-      lesson: { id: 'net-security', title: 'Network Security', trackId: 'net' },
-      missionId: 'op-broken-shield',
-      practicalHref: '/labs/net-acl-001',
-      defaultMissionOpen: true,
-    });
-    expect(html).toContain('Operation Broken Shield');
-    expect(html).toContain('aria-expanded="true"');
-    expect(html).toContain('Launch Mission');
-    expect(html).toContain('/missions/op-broken-shield');
-    expect(html).toContain('Show a practical application');
-    expect(html).toContain('A live incident in the SOC');
+    expect(html).not.toContain('Why are these still open?');
   });
 
   it('renders the 3D Cypher viewer without any manipulation hint (presenter-only)', () => {
     const html = renderPanel({
       lesson: { id: 'net-security', title: 'Network Security', trackId: 'net' },
       missionId: 'op-broken-shield',
-      practicalHref: null,
     });
     expect(html).not.toContain('Drag to rotate');
     expect(html).not.toContain('Scroll to zoom');
@@ -103,10 +86,10 @@ describe('CypherLessonPanel', () => {
 });
 
 describe('presetQuestion', () => {
-  // The presets must fill their own question: clicking one with an empty
-  // box used to submit the empty form and the backend answered 400
-  // "question is required". Each preset now builds a real question about
-  // this lesson, which the panel submits as a chat message.
+  // The presets are the questions each button sends: there is no input box
+  // anymore, so each button builds its own real question about this lesson
+  // and sends it with its mode (the backend answers 400 "question is
+  // required" for explain/example/simplify without one).
   it('builds a real question per preset from the lesson title', () => {
     expect(presetQuestion('explain', 'Network Security', 'intermediate'))
       .toBe('Explain the key ideas of Network Security.');
@@ -134,8 +117,10 @@ describe('presetQuestion', () => {
 describe('CypherLessonPanel listen-first (mounted)', () => {
   // The tutor's answer and the voice's spoken text are deliberately
   // DIFFERENT strings, so the test can tell the hidden full answer apart
-  // from the shown subtitle: the backend strips Markdown before speaking,
-  // so envelope.text is never the raw tutor text.
+  // from the spoken words: the backend strips Markdown before speaking,
+  // so envelope.text is never the raw tutor text. Voice-only: the spoken
+  // words are NOT shown as a subtitle paragraph — nothing of the answer
+  // is on screen while he talks.
   const ANSWER = 'DHCP snooping drops untrusted DHCP replies.';
   const SPOKEN = 'The spoken words are cleaned and different.';
   const audioEnvelope = { character: 'cypher', text: SPOKEN, audio_b64: 'QUJD', mime: 'audio/mpeg', cached: false, fallback: false, reason: null };
@@ -177,7 +162,7 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
       root = TestRenderer.create(
         <QueryClientProvider client={queryClient}>
           <StaticRouter location="/academy/lessons/net-security">
-            <CypherLessonPanel lesson={{ id: 'net-security', title: 'Network Security', trackId: 'net' }} missionId="op-broken-shield" practicalHref="/labs/net-acl-001" />
+            <CypherLessonPanel lesson={{ id: 'net-security', title: 'Network Security', trackId: 'net' }} missionId="op-broken-shield" />
           </StaticRouter>
         </QueryClientProvider>,
       );
@@ -219,6 +204,39 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     vi.clearAllMocks();
   });
 
+  it('each button requests its tutor mode directly, with no question box on screen', async () => {
+    mountPanel();
+    await flush();
+    // Exactly three buttons, each with its exact label — and no fourth:
+    // no "Quiz me" (the tutor has no quiz mode).
+    expect(root.root.findAllByType('button').length).toBe(3);
+    expect(findButton('Explain this concept')).toBeTruthy();
+    expect(findButton('Give me an example')).toBeTruthy();
+    expect(findButton('Explain it more simply')).toBeTruthy();
+    expect(findButton('Quiz me')).toBeFalsy();
+    // No input box anywhere: the buttons ask directly.
+    expect(root.root.findAllByType('input').length).toBe(0);
+    expect(findButton('Ask')).toBeFalsy();
+    // Each button sends its own mode plus the question the mode needs,
+    // built from the lesson context — no typing involved.
+    const cases = [
+      ['Explain this concept', 'explain'],
+      ['Give me an example', 'example'],
+      ['Explain it more simply', 'simplify'],
+    ];
+    for (const [label, mode] of cases) {
+      const button = findButton(label);
+      expect(button).toBeTruthy();
+      TestRenderer.act(() => { button.props.onClick(); });
+      await flush();
+      const lastCall = tutorMocks.streamTutor.mock.calls.at(-1)[0];
+      expect(lastCall.mode).toBe(mode);
+      expect(lastCall.question).toBe(presetQuestion(mode, 'Network Security', 'intermediate'));
+      expect(lastCall.track).toBe('net');
+      expect(lastCall.topic).toBe('Network Security');
+    }
+  });
+
   it('auto-plays the answer when it arrives — no Hear click — and shows "Loading voice…" while the voice is being made', async () => {
     mountPanel();
     await askPreset();
@@ -226,6 +244,11 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     const speakCalls = globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak');
     expect(speakCalls.length).toBe(1);
     expect(JSON.parse(speakCalls[0][1].body).text).toBe(ANSWER);
+    // The tutor was called with the explain mode and the question the
+    // button built from the lesson context.
+    const tutorCall = tutorMocks.streamTutor.mock.calls.at(-1)[0];
+    expect(tutorCall.mode).toBe('explain');
+    expect(tutorCall.question).toBe(presetQuestion('explain', 'Network Security', 'intermediate'));
     // While the fetch is pending the button says so, and the full answer
     // text is nowhere on screen (listen-first: it is not a readable block).
     expect(treeText()).toContain('Loading voice…');
@@ -233,13 +256,13 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     expect(treeText()).not.toContain(SPOKEN);
   });
 
-  it('shows the spoken words as subtitles while audio plays, hides the text, and the Read answer toggle reveals it', async () => {
+  it('is voice-only while audio plays — no subtitle paragraph — and the Read answer toggle reveals the text', async () => {
     mountPanel();
     await askPreset();
     await TestRenderer.act(async () => { fetchGate.resolve(jsonResponse(audioEnvelope)); });
     await flush();
     expect(treeText()).toContain('Speaking…');
-    expect(treeText()).toContain(SPOKEN); // subtitle
+    expect(treeText()).not.toContain(SPOKEN); // voice-only: no subtitle
     expect(treeText()).not.toContain(ANSWER); // full text hidden
     const toggle = findButton('Read answer');
     expect(toggle).toBeTruthy();
@@ -255,7 +278,7 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     await flush();
     expect(treeText()).toContain('Speaking…');
     expect(findButton('Hear again')).toBeFalsy();
-    // End the audio: the hook's onended clears playing and the subtitle.
+    // End the audio: the hook's onended clears playing.
     TestRenderer.act(() => { FakeAudio.instances[0].onended(); });
     expect(treeText()).not.toContain('Speaking…');
     const replay = findButton('Hear again');

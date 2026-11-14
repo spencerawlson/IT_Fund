@@ -170,19 +170,9 @@ export default function LessonView() {
 
       {missionId && (
         <Card level={2} padding="sm" className="mb-8">
-          <h2 className="text-heading text-ink-1">Ask Cipher</h2>
+          <h2 className="text-heading text-ink-1">Cipher Explains</h2>
           <p className="mt-1 text-small text-ink-2">Stuck on a concept? Cipher can explain it, show an example, or put it more simply.</p>
-          <CypherLessonPanel
-            lesson={lesson}
-            missionId={missionId}
-            practicalHref={
-              labForLesson(lesson.id)
-                ? `/labs/${labForLesson(lesson.id)}`
-                : VISUAL_LAB_FOR[lesson.id]
-                  ? `/lab?item=${VISUAL_LAB_FOR[lesson.id]}`
-                  : null
-            }
-          />
+          <CypherLessonPanel lesson={lesson} missionId={missionId} />
         </Card>
       )}
 

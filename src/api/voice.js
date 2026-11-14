@@ -81,7 +81,7 @@ function readStored(key, fallback) {
  * play(text) -> the spoken text (or '' on error): fetches the audio, decodes
  * it to an Audio element, and drives the analyser that feeds voiceRef.level.
  * A fallback envelope (no audio) still returns the text — the caller shows
- * it as subtitles and Cypher talks silently (text-only fallback).
+ * it as text and Cypher talks silently (text-only fallback).
  */
 export function useCypherVoice(voiceRef) {
   const [muted, setMutedState] = React.useState(() => readStored(MUTE_KEY, '0') === '1');
@@ -166,7 +166,7 @@ export function useCypherVoice(voiceRef) {
     setSubtitle(envelope.text || '');
     if (!envelope.audio_b64 || muted) {
       // Text-only fallback (voice not configured, or muted): Cypher still
-      // "talks" — the talk clip plays while the subtitles show, so the
+      // "talks" — the talk clip plays while the words are shown, so the
       // experience degrades to silent speech, never to nothing.
       setLoading(false);
       setFallback(true);
@@ -234,7 +234,7 @@ export function useCypherVoice(voiceRef) {
       stopLevelLoop();
       setPlaying(false);
       setSubtitle('');
-      setError('Cipher’s voice couldn’t play here — the subtitles above still have the words.');
+      setError('Cipher’s voice couldn’t play here — the words are shown as text.');
       return envelope.text;
     }
   }, [muted, volume, voiceRef, stop, stopLevelLoop]);
