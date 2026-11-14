@@ -8,14 +8,23 @@ import {
 import { loadCypherCharacter } from '@/components/three/CypherCharacter';
 import { attachCypherNameTag, faceTagToCamera } from '@/components/three/nameTag';
 
-// Cypher's spot in the SOC: near the east wall, facing the room centre.
-// The model is real scale (1.70 m); the room reads at device scale, so he
-// is scaled up to stand beside the 5-unit devices. Rotation -PI/4 faces him
-// toward the room centre from (5.5, -5.5) — the model faces +Z in three.js.
-export const CYPHER_SPAWN = { x: 5.5, z: -5.5, scale: 2.2, rotationY: -Math.PI / 4 };
+// Cypher's spot in the SOC: open floor on the camera side of the room,
+// facing the camera (the learner) so his chest — and the name tag on it —
+// reads square-on at room distance. The model is real scale (1.70 m); the
+// room reads at device scale, so he is scaled 3x to stand beside the
+// 5-unit devices. Rotation atan2(7, 13) points him from (6, 2) at the
+// camera's ground position (13, 15): a presenter facing his audience, the
+// room behind him. The old spot (5.5, -5.5) put the 5-unit SRV rack
+// between him and the camera — his chest and tag were hidden behind it,
+// and at that distance the name rendered ~5px tall.
+// The camera is fixed (interactive={false} creates no OrbitControls):
+// nothing orbits or hides him. What moved in the live check was Cypher
+// himself (the walk-in) plus the 2D/3D view toggles remounting the scene.
+export const CYPHER_SPAWN = { x: 6, z: 2, scale: 3.0, rotationY: Math.atan2(13 - 6, 15 - 2) };
 
 // Fixed presenter camera for the video frame; the name tag yaws to face it.
-export const SOC_CAMERA_POS = [16, 12, 18];
+export const SOC_CAMERA_POS = [13, 9, 15];
+export const SOC_CAMERA_TARGET = [3, 2, 0];
 
 // The 3D SOC room for Operation Broken Shield. One room, kit-built from
 // primitives plus the existing device GLBs: floor + walls, a desk row, a
@@ -262,7 +271,7 @@ export default function MissionSocScene({
       <ModelViewer
         buildScene={buildScene}
         cameraPos={SOC_CAMERA_POS}
-        target={[0, 2, 0]}
+        target={SOC_CAMERA_TARGET}
         background={background}
         reducedMotion={reducedMotion}
         quality={quality}

@@ -15,10 +15,35 @@ export const NAME_TAG_CANVAS_WIDTH = 1024;
 export const NAME_TAG_CANVAS_HEIGHT = 592;
 
 // Tag size in character-local units (the model is 1.70 m, the SOC scales it
-// 2.2x): about the width of the torso, so it reads as a chest tag and the
+// 3.0x): about the width of the torso, so it reads as a chest tag and the
 // name stays legible from the SOC camera.
 export const NAME_TAG_WIDTH = 1.0;
 export const NAME_TAG_HEIGHT = 0.58;
+
+// The name is the readable part at room distance: it fills the tag width.
+// Fit-to-width: start large, shrink only if the font is too wide for the
+// canvas, so the name stays as big as the tag allows on any font.
+export const NAME_TAG_NAME_FONT_PX = 300;
+export const NAME_TAG_NAME_MAX_WIDTH_PX = 950;
+// Cap height of a bold sans name is ~0.716 of its font size (Inter/system-ui).
+export const NAME_CAP_HEIGHT_RATIO = 0.716;
+
+/**
+ * The font size that fits `text` inside `maxWidth` at `startPx`: the start
+ * size when it fits, shrunk proportionally when it does not. Never returns
+ * 0 — a broken measureText keeps the start size.
+ */
+export function fitNameFont(ctx, text, startPx, maxWidth) {
+  let measured = 0;
+  try {
+    ctx.font = `800 ${Math.round(startPx)}px Inter, system-ui, -apple-system, sans-serif`;
+    measured = ctx.measureText ? ctx.measureText(text).width : 0;
+  } catch {
+    measured = 0;
+  }
+  if (!measured || measured <= maxWidth) return startPx;
+  return Math.max(1, Math.floor((startPx * maxWidth) / measured));
+}
 
 // Tag centre, local to the chest bone (the bone sits at ~1.10 m; the torso
 // front is z 0.255 in the chest band, measured from cypher.glb): just proud
@@ -56,28 +81,33 @@ export function drawNameTag(ctx, width, height) {
   ctx.lineWidth = 4 * s;
   ctx.stroke();
 
-  // Red "HELLO / my name is" band, clipped to the body's rounded top.
+  // Red "HELLO / my name is" band, clipped to the body's rounded top —
+  // shallower now: the name owns the tag, the band is just the header.
   ctx.save();
   roundRectPath(ctx, 0, 0, width, height, 44 * s);
   ctx.clip();
   ctx.fillStyle = '#e11d48';
-  ctx.fillRect(0, 0, width, 190 * s);
+  ctx.fillRect(0, 0, width, 150 * s);
   ctx.restore();
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#ffffff';
-  ctx.font = font(800, 92);
-  ctx.fillText('HELLO', width / 2, 96 * s);
-  ctx.font = font(400, 44);
-  ctx.fillText('my name is', width / 2, 156 * s);
+  ctx.font = font(800, 76);
+  ctx.fillText('HELLO', width / 2, 74 * s);
+  ctx.font = font(400, 36);
+  ctx.fillText('my name is', width / 2, 124 * s);
 
-  // The greeting itself.
+  // The greeting itself — "Hi, I'm" small, the NAME as big as the tag
+  // allows (fit to the tag width). At the SOC camera the name's cap height
+  // is what reads: ~19px on the 706x400 frame, where the old 168px name
+  // rendered ~5px and was unreadable.
   ctx.fillStyle = '#111827';
-  ctx.font = font(600, 80);
-  ctx.fillText("Hi, I'm", width / 2, 300 * s);
-  ctx.font = font(800, 168);
-  ctx.fillText('Cypher', width / 2, 468 * s);
+  ctx.font = font(600, 64);
+  ctx.fillText("Hi, I'm", width / 2, 200 * s);
+  const namePx = fitNameFont(ctx, 'Cypher', NAME_TAG_NAME_FONT_PX * s, NAME_TAG_NAME_MAX_WIDTH_PX * s);
+  ctx.font = `800 ${Math.round(namePx)}px Inter, system-ui, -apple-system, sans-serif`;
+  ctx.fillText('Cypher', width / 2, 420 * s);
 }
 
 /**

@@ -176,6 +176,19 @@ export default function MissionWorkspace() {
     return () => { live = false; };
   }, [missionId]);
 
+  // Warm the Cypher GLB cache on mount: on direct entry the SOC scene would
+  // otherwise load cypher.glb cold (the lesson handoff path pre-warms it via
+  // the lesson panel, which is why Cypher appeared there first). Dynamic
+  // import so three.js stays out of the main chunk — this shares the chunk
+  // the lazy SOC scene loads, it just starts the fetch earlier.
+  useEffect(() => {
+    let cancelled = false;
+    import('@/components/three/CypherCharacter')
+      .then((m) => { if (!cancelled) m.preloadCypherCharacter(); })
+      .catch(() => { /* Cypher loads on demand in the SOC scene */ });
+    return () => { cancelled = true; };
+  }, []);
+
   // Debrief analytics: one debrief_viewed per completed mission (counts,
   // never conversation content). `debrief` is only set on completion.
   useEffect(() => {
