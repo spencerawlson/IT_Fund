@@ -74,7 +74,8 @@ export function preloadMissionRobots(fetchImpl) {
 }
 
 /**
- * The seated pose (lesson panel only): Cypher sits on a chair at a desk —
+ * The seated pose (the lesson panel's Cypher, and the mission SOC's
+ * Cypher — one table, shared): Cypher sits on a chair at a desk —
  * no walking, no sliding. Each entry is a rotation DELTA from the bone's
  * rest pose, in the bone's local frame (XYZ euler) — the same numbers
  * Blender's pose bones take, verified by a Blender render of the seated
@@ -120,10 +121,11 @@ export const SEATED_HIPS_LIFT_M = 0.08;
  *   the analyser level while audio plays, and the head bobs a little more
  *   with it. It is applied after mixer.update() each frame, so it rides on
  *   top of whatever clip is playing and never fights the mixer.
- * - sit() seats the robot in SEATED_POSE (lesson panel only): the mixer
- *   is stopped and play()/setTalking() stop starting clips, so nothing
- *   can pull him out of the chair; talking still shows through the head
- *   bob. The SOC never calls sit(), so its clip-driven robots are
+ * - sit() seats the robot in SEATED_POSE (the lesson panel's Cypher,
+ *   and the mission SOC's Cypher — same pose, one table): the mixer is
+ *   stopped and play()/setTalking() stop starting clips, so nothing can
+ *   pull him out of the chair; talking still shows through the head bob.
+ *   Sentinel and Patch never sit, so their clip-driven robots are
  *   untouched.
  * The caller owns the group: add it to the scene, remove + dispose() on cleanup.
  */

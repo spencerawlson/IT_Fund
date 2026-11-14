@@ -111,11 +111,16 @@ export async function execWithSessionRecovery({ sessionId, exec, refreshSession,
 // Mission opening timings (seconds). The opening plays like a video on
 // entry (fresh attempt only): a short cinematic establishing shot, then
 // the split briefing — each robot reads their paragraph with the camera
-// on them — then a tour of the four devices. Safety caps: a briefing turn
-// advances on its own if the voice stalls (the hook's suspended-context
-// fallback guarantees playing ends), so no phase can hang.
+// on them — then a tour of the four devices. The tour dwells 4 s per
+// device (was 2.5 s): the live check found the 2.5 s tour unreadable —
+// the camera was still gliding to each device for half the dwell, and
+// the tour was over before the check looked up from the briefing. The
+// scene also settles faster during the showcase (CAMERA_DAMP_SHOWCASE).
+// Safety caps: a briefing turn advances on its own if the voice stalls
+// (the hook's suspended-context fallback guarantees playing ends), so
+// no phase can hang.
 const OPEN_OPEN_S = 1.8;
-const OPEN_SHOWCASE_S = 2.5;
+const OPEN_SHOWCASE_S = 4.0;
 const OPEN_BRIEFING_CAP_S = 60;
 
 /** Full-screen mission workspace: Sentinel briefing, 3D SOC room (or the 2D

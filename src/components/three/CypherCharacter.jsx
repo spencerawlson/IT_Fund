@@ -56,7 +56,8 @@ export function preloadCypherCharacter(fetchImpl) {
  * { talking, level } the parent also hands to the voice hook — the tick
  * reads it every frame, so talking starts/stops without re-rendering.
  * Renders nothing (keeps the text tutor) when the GLB cannot load. No
- * name tag here: the tag is SOC-only.
+ * name tag: Spencer removed Cypher's chest tag (2026-11-14) — his
+ * greeting is spoken, never shown as text.
  *
  * Presenter-only: the viewer is NOT interactive (no drag, no zoom, no
  * click-for-info — the camera is fixed).
