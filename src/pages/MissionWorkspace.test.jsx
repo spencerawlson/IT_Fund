@@ -68,6 +68,13 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('<MissionTopology');
   });
 
+  it('frames the SOC room as a video card while it loads — 16:9, not a tall box', () => {
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain('Loading SOC room…');
+    expect(src).toContain('aspect-video');
+    expect(src).not.toContain('h-[26rem]');
+  });
+
   it('shows no objectives checklist or progress count on the page — the terminal is the only place to check', () => {
     // The page must not show where the student stands: no checklist panel,
     // no 7/9 or % progress. `objectives` / `progress` / `hint` in the
