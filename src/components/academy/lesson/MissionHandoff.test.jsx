@@ -3,31 +3,22 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import TestRenderer from 'react-test-renderer';
 import { StaticRouter } from 'react-router-dom';
-import MissionHandoff, { missionCtaLabel, handoffLine } from './MissionHandoff';
+import MissionHandoff, { HANDOFF_LINE } from './MissionHandoff';
 
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Mounted tests drive the real handoff with the network stubbed: the
-// mission API, analytics, and the 3D viewer (WebGL has no DOM here). The
-// voice speak fetch is stubbed per test with a controllable deferred, so
-// auto-play can be observed.
-const missionsMocks = vi.hoisted(() => ({
-  history: vi.fn(async () => ({ history: [] })),
-  getAttempt: vi.fn(async () => null),
-}));
-vi.mock('@/api/missions', () => ({
-  missionsApi: {
-    history: (...args) => missionsMocks.history(...args),
-    getAttempt: (...args) => missionsMocks.getAttempt(...args),
-  },
-}));
+// analytics and the 3D viewer (WebGL has no DOM here). The voice speak
+// fetch is stubbed per test with a controllable deferred, so auto-play can
+// be observed. The handoff reads no mission state anymore — the button is
+// always Launch Mission — so no mission API mock is needed.
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
 vi.mock('@/components/three/CypherCharacter', () => ({ default: () => null }));
 
-// SSR: effects (attempt history, analytics) do not run, so the handoff
-// renders its first paint — Cypher's one spoken line, the Listen control,
-// and the one mission button — without any network.
+// SSR: effects (analytics) do not run, so the handoff renders its first
+// paint — Cypher's one spoken line, the Listen control, and the one
+// mission button — without any network.
 // renderToString escapes apostrophes as &#x27;, so decode them before
 // asserting Spencer's exact line.
 function renderHandoff(props) {
@@ -46,13 +37,21 @@ describe('MissionHandoff', () => {
     const html = renderHandoff();
     // The line is spoken, not read: it is hidden until the voice falls
     // back or the student asks to read it. (The exact line itself is
-    // asserted by handoffLine() below and by the mounted fallback test.)
+    // asserted by HANDOFF_LINE below and by the mounted fallback test.)
     // Auto-play runs in an effect, so first paint carries the manual Hear
     // control — the mounted tests assert it becomes "Loading voice…".
     expect(html).not.toContain(EXACT_LINE);
     expect(html).toContain('Hear Cipher say it');
     expect(html).toContain('Launch Mission');
     expect(html).toContain('/missions/op-broken-shield');
+  });
+
+  it('is always Launch Mission — never Continue or Replay', () => {
+    const html = renderHandoff();
+    expect(html).toContain('Launch Mission');
+    expect(html).not.toContain('Continue Mission');
+    expect(html).not.toContain('Replay the mission');
+    expect(html).not.toContain('Start Mission');
   });
 
   it('replaces the old three-line sequence — none of its lines remain', () => {
@@ -94,29 +93,19 @@ describe('MissionHandoff', () => {
   });
 });
 
-describe('missionCtaLabel', () => {
-  it('is one CTA per state, never two at once', () => {
-    expect(missionCtaLabel({ completed: false, hasAttempt: false })).toBe('Launch Mission');
-    expect(missionCtaLabel({ completed: false, hasAttempt: true })).toBe('Continue Mission');
-    expect(missionCtaLabel({ completed: true, hasAttempt: true })).toBe('Replay the mission');
-  });
-});
-
-describe('handoffLine', () => {
-  it('is exactly Spencer’s line for the first run', () => {
-    expect(handoffLine('Launch Mission')).toBe(EXACT_LINE);
-  });
-
-  it('names the button the student actually sees in the other states', () => {
-    expect(handoffLine('Continue Mission')).toContain("Click the 'Continue Mission' button on your right to pick up where you left off.");
-    expect(handoffLine('Replay the mission')).toContain("Click the 'Replay the mission' button on your right to run it again.");
+describe('HANDOFF_LINE', () => {
+  it('is exactly Spencer’s line, always — the one spoken line and the one button never vary', () => {
+    expect(HANDOFF_LINE).toBe(EXACT_LINE);
   });
 });
 
 describe('MissionHandoff listen-first (mounted)', () => {
   // The handoff line and the voice's spoken text are deliberately
   // DIFFERENT strings, so the test can tell the hidden full line apart
-  // from the shown subtitle.
+  // from the spoken words: the backend strips Markdown before speaking,
+  // so envelope.text is never the raw tutor text. Voice-only: the spoken
+  // words are NOT shown as a subtitle paragraph — nothing of the line is
+  // on screen while he talks.
   const SPOKEN = 'The spoken words are cleaned and different.';
   const audioEnvelope = { character: 'cypher', text: SPOKEN, audio_b64: 'QUJD', mime: 'audio/mpeg', cached: false, fallback: false, reason: null };
   const fallbackEnvelope = { character: 'cypher', text: SPOKEN, audio_b64: null, mime: 'audio/mpeg', cached: false, fallback: true, reason: 'voice_not_configured' };
@@ -175,8 +164,6 @@ describe('MissionHandoff listen-first (mounted)', () => {
     globalThis.Audio = FakeAudio;
     fetchGate = deferred();
     globalThis.fetch = vi.fn(() => fetchGate.promise);
-    missionsMocks.history.mockImplementation(async () => ({ history: [] }));
-    missionsMocks.getAttempt.mockImplementation(async () => null);
   });
 
   afterEach(() => {
@@ -198,15 +185,16 @@ describe('MissionHandoff listen-first (mounted)', () => {
     expect(treeText()).toContain('Loading voice…');
     expect(treeText()).not.toContain(EXACT_LINE);
     expect(treeText()).not.toContain(SPOKEN);
+    expect(treeText()).toContain('Launch Mission');
   });
 
-  it('shows the spoken words as subtitles while audio plays, hides the line, and the Read message toggle reveals it', async () => {
+  it('is voice-only while audio plays — no subtitle paragraph — and the Read message toggle reveals the line', async () => {
     mountHandoff();
     await flush();
     await TestRenderer.act(async () => { fetchGate.resolve(jsonResponse(audioEnvelope)); });
     await flush();
     expect(treeText()).toContain('Speaking…');
-    expect(treeText()).toContain(SPOKEN); // subtitle
+    expect(treeText()).not.toContain(SPOKEN); // voice-only: no subtitle
     expect(treeText()).not.toContain(EXACT_LINE); // full line hidden
     const toggle = findButton('Read message');
     expect(toggle).toBeTruthy();
@@ -222,7 +210,7 @@ describe('MissionHandoff listen-first (mounted)', () => {
     await flush();
     expect(treeText()).toContain('Speaking…');
     expect(findButton('Hear again')).toBeFalsy();
-    // End the audio: the hook's onended clears playing and the subtitle.
+    // End the audio: the hook's onended clears playing.
     TestRenderer.act(() => { FakeAudio.instances[0].onended(); });
     expect(treeText()).not.toContain('Speaking…');
     const replay = findButton('Hear again');
@@ -256,24 +244,5 @@ describe('MissionHandoff listen-first (mounted)', () => {
     expect(treeText()).not.toContain('Speaking…');
     expect(findButton('Hear Cipher say it')).toBeTruthy();
     expect(findButton('Read message')).toBeFalsy();
-  });
-
-  it('auto-plays the Continue line when an in-progress attempt exists', async () => {
-    missionsMocks.history.mockImplementation(async () => ({ history: [{ mission_id: 'op-broken-shield', id: 'a1' }] }));
-    missionsMocks.getAttempt.mockImplementation(async () => ({
-      attempt: { status: 'in_progress' },
-      objectives: [
-        { id: 'o1', label: 'First', passed: true },
-        { id: 'o2', label: 'Second', passed: false },
-      ],
-    }));
-    mountHandoff();
-    await flush();
-    // The spoken line names the button the student actually sees.
-    const speakCalls = globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak');
-    expect(speakCalls.length).toBe(1);
-    expect(JSON.parse(speakCalls[0][1].body).text).toContain("Click the 'Continue Mission' button on your right");
-    expect(treeText()).toContain('Continue Mission');
-    expect(treeText()).not.toContain('Launch Mission');
   });
 });
