@@ -51,7 +51,7 @@ describe('CypherLessonPanel', () => {
     // No greeting paragraph anymore (and no "Stuck on a concept?" subtitle —
     // that lived in the lesson page, which now shows just the "Cypher"
     // heading): the panel opens straight onto the level selector.
-    expect(html).not.toContain('Hi, I’m Cipher');
+    expect(html).not.toContain('Hi, I’m Cypher');
     expect(html).not.toContain('Stuck on a concept');
     expect(html).not.toContain('Read answer');
     // SSR renders `{label} level` as `Beginner<!-- --> level`, so assert the
@@ -68,7 +68,7 @@ describe('CypherLessonPanel', () => {
     // No question box and no Ask button: free-form questions belong to
     // Ask the Tutor, not to this panel.
     expect(html).not.toContain('<input');
-    expect(html).not.toContain('Ask Cipher');
+    expect(html).not.toContain('Ask Cypher');
     expect(html).not.toContain('Ask the Tutor');
     // No mission section at all: the mission opens only from the handoff's
     // Launch Mission button after practice — nothing about Operation
@@ -81,7 +81,7 @@ describe('CypherLessonPanel', () => {
     expect(html).not.toContain('Start Mission');
     expect(html).not.toContain('Why are these still open?');
     // Listen-only: no answers card and no Hear again, in any render.
-    expect(html).not.toContain('CIPHER ANSWERS');
+    expect(html).not.toContain('CYPHER ANSWERS');
     expect(html).not.toContain('Hear again');
   });
 
@@ -96,7 +96,7 @@ describe('CypherLessonPanel', () => {
     expect(html).not.toContain('/videos/');
     expect(html).toContain('/images/cypher-face-happy.png');
     expect(html).toContain('bg-[#0D1B2A]');
-    expect(html).toContain('Cipher — your AI tutor');
+    expect(html).toContain('Cypher — your AI tutor');
     // No 3D viewer at all anymore: no manipulation hints, no model slot.
     expect(html).not.toContain('Drag to rotate');
     expect(html).not.toContain('Scroll to zoom');
@@ -313,15 +313,15 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
   it('has no answers card, no Hear again, and no answer text anywhere — in any state', async () => {
     mountPanel();
     await flush();
-    expect(treeText()).not.toContain('CIPHER ANSWERS');
+    expect(treeText()).not.toContain('CYPHER ANSWERS');
     expect(treeText()).not.toContain('Hear again');
-    expect(treeText()).not.toContain('Hear Cipher say it');
+    expect(treeText()).not.toContain('Hear Cypher say it');
     expect(treeText()).not.toContain(answerFor('explain'));
     expect(treeText()).not.toContain(SPOKEN);
     // …and still none after an answer has been heard.
     await askPreset();
     await flush();
-    expect(treeText()).not.toContain('CIPHER ANSWERS');
+    expect(treeText()).not.toContain('CYPHER ANSWERS');
     expect(treeText()).not.toContain('Hear again');
     expect(treeText()).not.toContain(answerFor('explain'));
     expect(treeText()).not.toContain(SPOKEN);
@@ -539,7 +539,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     // would waste tutor calls.
     expect(findButton('Explain this concept').props.disabled).toBe(true);
     expect(treeText()).not.toContain(answerFor('explain'));
-    expect(treeText()).not.toContain('CIPHER ANSWERS');
+    expect(treeText()).not.toContain('CYPHER ANSWERS');
   });
 
   it('when the voice comes back with no audio, the caption says why — still no answer text', async () => {
@@ -552,7 +552,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(treeText()).not.toContain(answerFor('explain'));
     expect(treeText()).not.toContain(SPOKEN);
     expect(findButtonByAria('Play Cypher’s explanation').props.disabled).toBe(true);
-    expect(treeText()).not.toContain('CIPHER ANSWERS');
+    expect(treeText()).not.toContain('CYPHER ANSWERS');
   });
 
   it('when voice is muted, the caption says so with an Unmute button — still no answer text', async () => {

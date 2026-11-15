@@ -2,15 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Sparkles, HelpCircle, RefreshCw, X, Eye } from 'lucide-react';
 import { getMascotItems, MASCOT_NAME } from '@/data/mascotFacts';
 
-/** Cipher, the study buddy: the rendered robot portrait (public/cipher-mascot.jpg).
+/** Cypher, the study buddy: the rendered robot portrait (public/cypher-mascot.jpg).
  *  Previously a flat SVG with drawn moods; Spencer approved the rendered look on
  *  2026-10-20, so the portrait is now one fixed happy/waving expression. The
  *  `mood` and `blink` props stay for API compatibility and now pick the motion
  *  and, for `pointing`, the pose: pointing shows Spencer's right-pointing
- *  portrait (public/cipher-mascot-point-right.jpg) — Cipher sits left of the
+ *  portrait (public/cypher-mascot-point-right.jpg) — Cypher sits left of the
  *  content and points right at it. The left-pointing portrait
- *  (public/cipher-mascot-point-left.jpg) is staged for mirrored layouts; no
- *  right-side Cipher slot exists yet. Celebrating spins the portrait;
+ *  (public/cypher-mascot-point-left.jpg) is staged for mirrored layouts; no
+ *  right-side Cypher slot exists yet. Celebrating spins the portrait;
  *  everything else idles with a gentle bob. The photo's arms cannot move on
  *  their own — new poses are new renders, not animation. Pointing poses are
  *  3:2 landscape, so they use `contain` (a square `cover` crop would cut the
@@ -23,7 +23,7 @@ export function MascotArt({ color = '#7dd3fc', size = 56, mood = 'neutral', blin
   const animation = pointing ? 'mascot-point' : mood === 'celebrating' ? 'mascot-spin' : 'mascot-idle';
   return (
     <img
-      src={pointing ? '/cipher-mascot-point-right.jpg' : '/cipher-mascot.jpg'}
+      src={pointing ? '/cypher-mascot-point-right.jpg' : '/cypher-mascot.jpg'}
       alt=""
       role="img"
       aria-label={`${MASCOT_NAME} the study mascot`}

@@ -53,14 +53,14 @@ export async function speakVoice({ character, text }) {
     // return a fallback envelope instead of a 500 for voice failures.
     const message =
       res.status === 401
-        ? 'Sign in to hear Cipher speak.'
+        ? 'Sign in to hear Cypher speak.'
         : res.status === 402
           ? 'Character voices need an active subscription.'
           : res.status === 429
             ? 'You’ve hit the voice limit for now. Try again a bit later.'
             : (res.status === 400 || res.status === 422) && typeof detail === 'string' && detail
               ? detail
-              : 'Cipher’s voice isn’t available right now.';
+              : 'Cypher’s voice isn’t available right now.';
     throw new Error(message);
   }
   return res.json();
@@ -399,7 +399,7 @@ export function useCypherVoice(voiceRef) {
         }
         setLoading(false);
         setFallback(true);
-        setError(e.message || 'Cipher’s voice isn’t available right now.');
+        setError(e.message || 'Cypher’s voice isn’t available right now.');
         setSubtitle('');
         return '';
       }
@@ -409,7 +409,7 @@ export function useCypherVoice(voiceRef) {
     if (playIdRef.current !== playId) return '';
     // The subtitle is the backend's cleaned text (Markdown stripped for
     // speech), not the raw answer — so the words on screen match the
-    // words Cipher speaks, with no "###" or "**" ever showing.
+    // words Cypher speaks, with no "###" or "**" ever showing.
     setSubtitle(envelope.text || '');
     // Long answers arrive as segments (the backend synthesizes them chunk
     // by chunk); a short answer has one. An older response shape carries
@@ -433,7 +433,7 @@ export function useCypherVoice(voiceRef) {
       // degrade to text, same as any other playback failure below.
       setLoading(false);
       setFallback(true);
-      setError('Cipher’s voice couldn’t play here.');
+      setError('Cypher’s voice couldn’t play here.');
       setSubtitle('');
       return envelope.text;
     }
@@ -532,7 +532,7 @@ export function useCypherVoice(voiceRef) {
       stopLevelLoop();
       setPlaying(false);
       setSubtitle('');
-      setError('Cipher’s voice couldn’t play here.');
+      setError('Cypher’s voice couldn’t play here.');
       return envelope.text;
     }
   }, [muted, volume, voiceRef, stop, stopLevelLoop, startLevelLoop]);

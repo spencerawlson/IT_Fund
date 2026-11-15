@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 // The listening waveform: what Cypher is saying, drawn — it replaces the
-// old "Cipher answers" card in the lesson panel. While audio plays the
+// old "Cypher answers" card in the lesson panel. While audio plays the
 // bars move with the real analyser data (the hook writes 24 frequency
 // bands into the shared voiceRef every animation frame); when nothing
 // plays they sit as a flat line. It is never a static decoration: the

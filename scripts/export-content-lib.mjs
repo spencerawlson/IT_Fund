@@ -6,13 +6,13 @@
 // src/data/academy/index.js used to, and produces two artifacts:
 //
 //   backend/data/content.json  — EVERYTHING (all decks/cards, lesson bodies,
-//                                module notes, puzzles, cipher notes). The
+//                                module notes, puzzles, cypher notes). The
 //                                backend loads it and gates premium items
 //                                behind an active subscription.
 //   src/data/content-public.js — the PUBLIC subset only: full structure
 //                                (tracks/tiers/decks, titles, summaries, tags,
 //                                card ids + counts) plus the FREE tier's card
-//                                bodies, lesson bodies, puzzles and cipher
+//                                bodies, lesson bodies, puzzles and cypher
 //                                notes. Premium bodies NEVER appear here.
 //
 // The app bundle imports only the public module (via src/data/academy/index.js),
@@ -58,7 +58,7 @@ import {
 } from '../src/data/academy/meta.js';
 import { LESSON_CONTENT } from '../src/data/catalog/lessonContent.js';
 import { MODULE_NOTES } from '../src/data/moduleNotes/index.js';
-import { CIPHER_NOTES } from '../src/data/cipherNotes.js';
+import { CYPHER_NOTES } from '../src/data/cypherNotes.js';
 
 // Mirror of src/lib/subscription.js (the single source of truth for the free
 // tier). Duplicated here because subscription.js imports React/AuthContext and
@@ -123,7 +123,7 @@ export function buildContentJson() {
     tracks,
     lessons: LESSON_CONTENT,
     notes: MODULE_NOTES,
-    cipherNotes: CIPHER_NOTES,
+    cipherNotes: CYPHER_NOTES,
   };
 }
 
@@ -152,14 +152,14 @@ export function buildPublicData() {
   const freeLessons = Object.fromEntries(
     FREE_LESSON_IDS.filter((id) => LESSON_CONTENT[id]).map((id) => [id, LESSON_CONTENT[id]]),
   );
-  const freeCipherNotes = Object.fromEntries(
-    FREE_LESSON_IDS.filter((id) => CIPHER_NOTES[id]).map((id) => [id, CIPHER_NOTES[id]]),
+  const freeCypherNotes = Object.fromEntries(
+    FREE_LESSON_IDS.filter((id) => CYPHER_NOTES[id]).map((id) => [id, CYPHER_NOTES[id]]),
   );
   return {
     version: 1,
     tracks: publicTracks,
     freeLessonContent: freeLessons,
-    freeCipherNotes,
+    freeCipherNotes: freeCypherNotes,
   };
 }
 
