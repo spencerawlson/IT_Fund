@@ -487,6 +487,91 @@ describe('useCypherVoice loading', () => {
     expect(bands[23]).toBeGreaterThan(bands[0]); // the fake analyser ramps up
     expect(level).toBeGreaterThan(0);
   });
+
+  it('reports playback progress — total from the decoded durations, elapsed from the segment clock', async () => {
+    // A two-segment answer; each segment decodes to 2 s, so the whole
+    // answer is 4 s. The player card reads this for its progress bar and
+    // elapsed / total time — the total is the real audio length, never a
+    // guess.
+    const multiEnvelope = {
+      character: 'cypher', text: 'Hello.', audio_b64: 'QUJDREVG', audio_segments: ['QUJD', 'REVG'],
+      mime: 'audio/mpeg', cached: false, fallback: false, reason: null,
+    };
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(multiEnvelope));
+      await playPromise;
+    });
+    expect(latest.progress).toEqual({ elapsed: 0, total: 4 });
+
+    // 0.5 s into the first segment: the position advances with the clock
+    // (the 250 ms tick picks it up).
+    const ctx = FakeAudioContext.instances[FakeAudioContext.instances.length - 1];
+    ctx.currentTime = 0.5;
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 300)); });
+    expect(latest.progress).toEqual({ elapsed: 0.5, total: 4 });
+
+    // Pause: the position freezes at the paused spot — it does not drift
+    // while paused, and the tick is off.
+    TestRenderer.act(() => { latest.pause(); });
+    expect(latest.progress).toEqual({ elapsed: 0.5, total: 4 });
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 300)); });
+    expect(latest.progress).toEqual({ elapsed: 0.5, total: 4 });
+
+    // Resume: the tick restarts and the position advances from the paused
+    // spot, not from the start.
+    TestRenderer.act(() => { latest.resume(); });
+    ctx.currentTime = 1;
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 300)); });
+    expect(latest.progress).toEqual({ elapsed: 1, total: 4 });
+
+    // Stop: the position resets to the start.
+    TestRenderer.act(() => { latest.stop(); });
+    expect(latest.progress).toEqual({ elapsed: 0, total: 0 });
+  });
+
+  it('resets progress to zero when the last segment ends', async () => {
+    const multiEnvelope = {
+      character: 'cypher', text: 'Hello.', audio_b64: 'QUJDREVG', audio_segments: ['QUJD', 'REVG'],
+      mime: 'audio/mpeg', cached: false, fallback: false, reason: null,
+    };
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(multiEnvelope));
+      await playPromise;
+    });
+    expect(latest.progress).toEqual({ elapsed: 0, total: 4 });
+    TestRenderer.act(() => { FakeSourceNode.instances[0].onended(); });
+    expect(latest.playing).toBe(true);
+    TestRenderer.act(() => { FakeSourceNode.instances[1].onended(); });
+    expect(latest.playing).toBe(false);
+    expect(latest.progress).toEqual({ elapsed: 0, total: 0 });
+  });
+
+  it('reports no total when there is no audio — the player shows elapsed only, never a fake total', async () => {
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(fallbackEnvelope));
+      await playPromise;
+    });
+    expect(latest.fallback).toBe(true);
+    expect(latest.progress).toEqual({ elapsed: 0, total: 0 });
+  });
 });
 
 describe('warmVoice', () => {

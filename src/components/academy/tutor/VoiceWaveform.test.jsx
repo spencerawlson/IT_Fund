@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import VoiceWaveform, { WAVEFORM_BARS, waveformHeights } from './VoiceWaveform';
+import VoiceWaveform, { waveformHeights, waveformBarStyle } from './VoiceWaveform';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -47,13 +47,11 @@ describe('VoiceWaveform', () => {
     return root;
   }
 
-  it('renders 24 bars as a flat idle line when inactive', () => {
+  it('renders nothing when inactive — no flat bars, no placeholder before it talks', () => {
     const levelRef = { current: { talking: true, level: 0.8, bands: new Float32Array(24).fill(0.9) } };
     const root = mount(levelRef, false);
-    const heights = barHeights(root);
-    expect(heights).toHaveLength(WAVEFORM_BARS);
-    expect(new Set(heights).size).toBe(1); // all the same height: flat
-    expect(heights[0]).toBe('8%'); // minimum height, not driven by the audio
+    expect(root.root.findAllByProps({ 'data-testid': 'cypher-waveform' })).toHaveLength(0);
+    expect(root.root.findAllByProps({ 'data-testid': 'cypher-waveform-bar' })).toHaveLength(0);
     TestRenderer.act(() => { root.unmount(); });
   });
 
@@ -69,14 +67,30 @@ describe('VoiceWaveform', () => {
     TestRenderer.act(() => { root.unmount(); });
   });
 
-  it('goes flat again when playback stops', () => {
+  it('renders nothing again when playback stops', () => {
     const levelRef = { current: { talking: true, level: 0.5, bands: new Float32Array(24).fill(0.8) } };
     const root = mount(levelRef, true);
     expect(barHeights(root)[0]).toBe('80%');
     TestRenderer.act(() => {
       root.update(React.createElement(VoiceWaveform, { levelRef, active: false }));
     });
-    expect(barHeights(root)[0]).toBe('8%');
+    expect(root.root.findAllByProps({ 'data-testid': 'cypher-waveform' })).toHaveLength(0);
+    TestRenderer.act(() => { root.unmount(); });
+  });
+
+  it('stays visible but frozen while paused — the last heights stay put', () => {
+    vi.useFakeTimers();
+    const levelRef = { current: { talking: true, level: 0.5, bands: new Float32Array(24).fill(0.5) } };
+    const root = mount(levelRef, true);
+    expect(barHeights(root)[0]).toBe('50%');
+    // The audio changes, but the waveform is paused: it must not follow.
+    levelRef.current = { talking: true, level: 0.5, bands: new Float32Array(24).fill(0.9) };
+    TestRenderer.act(() => {
+      root.update(React.createElement(VoiceWaveform, { levelRef, active: false, paused: true }));
+    });
+    expect(barHeights(root)[0]).toBe('50%');
+    TestRenderer.act(() => { vi.advanceTimersByTime(1000); });
+    expect(barHeights(root)[0]).toBe('50%');
     TestRenderer.act(() => { root.unmount(); });
   });
 
@@ -91,5 +105,20 @@ describe('VoiceWaveform', () => {
     TestRenderer.act(() => { vi.advanceTimersByTime(1000); });
     expect(barHeights(root)[0]).toBe('8%');
     TestRenderer.act(() => { root.unmount(); });
+  });
+});
+
+describe('waveformBarStyle', () => {
+  it('is bright violet with a neon glow at the centre and silver-white at the ends', () => {
+    const nums = (style) => style.backgroundColor.match(/\d+/g).map(Number);
+    const [r, g, b] = nums(waveformBarStyle(11, 50));
+    expect(r).toBeLessThan(180); // violet, not silver
+    expect(g).toBeLessThan(110);
+    expect(b).toBeGreaterThan(240);
+    expect(waveformBarStyle(11, 50).boxShadow).toContain('rgba(168, 85, 247');
+    expect(waveformBarStyle(11, 50).height).toBe('50%');
+    expect(waveformBarStyle(0, 50).backgroundColor).toBe('rgb(229, 231, 235)');
+    expect(waveformBarStyle(0, 50).boxShadow).toBeUndefined();
+    expect(waveformBarStyle(23, 50).backgroundColor).toBe('rgb(229, 231, 235)');
   });
 });

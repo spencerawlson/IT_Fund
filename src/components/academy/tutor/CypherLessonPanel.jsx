@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Pause, Play, Sparkles, Square } from 'lucide-react';
+import { Card } from '@/components/ui-glass';
 import CypherFace from '@/components/academy/tutor/CypherFace';
 import VoiceWaveform from '@/components/academy/tutor/VoiceWaveform';
 import { useTutor, useTutorEnabled, pillClass } from '@/components/academy/tutor/TutorAssist';
@@ -35,6 +36,14 @@ export function presetQuestion(mode, lessonTitle, level) {
 
 const WARM_UP_MODES = ['explain', 'example', 'simplify'];
 
+// Player time: elapsed / total as m:ss ("1:24 / 3:56"). The total is the
+// decoded audio length; when it is unknown the caller shows elapsed
+// only — never a made-up total.
+export function formatPlayerTime(seconds) {
+  const s = Math.max(0, Math.floor(Number(seconds) || 0));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
 // Cypher on the lesson page: the tutor offers assistance through the
 // existing server-side AI tutor (no duplicate chatbot). His visual is the
 // 2D face (CypherFace) on its dark chip — the six-emotion art Spencer
@@ -43,15 +52,21 @@ const WARM_UP_MODES = ['explain', 'example', 'simplify'];
 //
 // Listen-only: this panel never shows an answer as text, while speaking
 // or after — the student hears Cypher, they don't read him. The old
-// "Cypher answers" card and "Hear again" are gone. In their place: a
-// YouTube-style play button (Play / Pause / Stop, with a caption under
-// it saying what it does) and a waveform that moves with the audio. The
-// level selector stays where it was; the preset buttons sit further down
-// and centred now the answers card is gone. If voice is unavailable or
-// muted the play button is disabled and its caption says why — the
-// answer text is never the fallback. The mission lives in the handoff at
-// the end of practice, not here: nothing about Operation Broken Shield
-// shows in this panel.
+// "Cypher answers" card and "Hear again" are gone. Below the face, the
+// level selector and the preset buttons sits the player: its own
+// standalone black neon card (Spencer's mockup) — waveform on top,
+// progress bar + time, circular Play / Pause / Stop buttons, and a
+// caption saying what they do. The waveform is hidden until it talks
+// (nothing before playback starts, frozen while paused, gone on stop).
+// The level selector stays where it was; the preset buttons sit further
+// down and centred. If voice is unavailable or muted the play button is
+// disabled and its caption says why — the answer text is never the
+// fallback. The mission lives in the handoff at the end of practice, not
+// here: nothing about Operation Broken Shield shows in this panel.
+//
+// The panel renders its own section Card plus the player card as a
+// sibling — the player is NOT nested inside the section Card (or any
+// other card); LessonView renders this component bare.
 export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
   const tutorEnabled = useTutorEnabled();
   const voiceRef = useRef({ talking: false, level: 0 });
@@ -191,6 +206,16 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
   const showStop = isPlaying || isPaused || generating;
   const presetDisabled = voiceConfigured === false || voice.muted || tutorLoading;
 
+  // Playback position for the player card: elapsed / total from the
+  // voice hook's decoded audio clock. The waveform shows only while
+  // audio is playing or paused (hidden before it talks, gone on stop).
+  const { elapsed, total } = voice.progress || { elapsed: 0, total: 0 };
+  const showWaveform = isPlaying || isPaused;
+  const progressPct = total > 0 ? Math.max(0, Math.min(100, (elapsed / total) * 100)) : 0;
+  const timeText = total > 0
+    ? `${formatPlayerTime(elapsed)} / ${formatPlayerTime(total)}`
+    : formatPlayerTime(elapsed);
+
   // The caption says what the button does, and updates with the state.
   // The current activity wins over the static reasons (a generation in
   // flight, a failed play, or live playback is what the student is
@@ -244,8 +269,10 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
   };
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+    <>
+      <Card level={2} padding="sm" className="mb-8">
+        <h2 className="text-heading text-ink-1">Cypher</h2>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="w-full shrink-0 sm:w-56">
           <CypherFace emotion="happy" className="w-full" talking={voice.playing} levelRef={voiceRef} />
           <p className="mt-1 text-center text-caption text-ink-2">Cypher — your AI tutor</p>
@@ -266,63 +293,19 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
           </label>
 
           {tutorEnabled ? (
-            <>
-              {/* Listen-only player, where the "Cypher answers" card was:
-                  a YouTube-style play button, a caption saying what it
-                  does, and a waveform that moves with the audio. No
-                  answer text is rendered anywhere in this panel. */}
-              <div className="mt-3 rounded-control border border-black/10 bg-white p-3.5" data-testid="cypher-play-area">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={onPlayPause}
-                    disabled={playDisabled}
-                    aria-label={isPlaying ? 'Pause Cypher' : isPaused ? 'Resume Cypher' : 'Play Cypher’s explanation'}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-action text-white shadow-sm transition hover:bg-action-hover disabled:opacity-50"
-                  >
-                    {isPlaying ? <Pause size={20} className="fill-current" /> : <Play size={20} className="fill-current" />}
-                  </button>
-                  {showStop && (
-                    <button
-                      type="button"
-                      onClick={onStop}
-                      aria-label="Stop Cypher"
-                      className={pillClass}
-                    >
-                      <Square size={13} className="fill-current" /> Stop
-                    </button>
-                  )}
-                </div>
-                <p className="mt-2 text-small text-ink-2" aria-live="polite">
-                  {caption}
-                  {captionAction && (
-                    <button
-                      type="button"
-                      onClick={captionAction.onClick}
-                      className="ml-2 font-semibold text-action underline"
-                    >
-                      {captionAction.label}
-                    </button>
-                  )}
-                </p>
-                <VoiceWaveform levelRef={voiceRef} active={isPlaying} className="mt-3" />
-              </div>
-
-              {/* Presets: further down and centred now the answers card is
-                  gone — the play area sits where it was, the buttons sit
-                  below it in the middle of the panel. */}
-              <div className="mt-6 flex flex-wrap justify-center gap-2" data-testid="cypher-presets">
-                <button type="button" onClick={() => runMode('explain')} disabled={presetDisabled} className={pillClass}>
-                  <Sparkles size={15} className="text-action" /> Explain this concept
-                </button>
-                <button type="button" onClick={() => runMode('example')} disabled={presetDisabled} className={pillClass}>
-                  <Sparkles size={15} className="text-action" /> Give me an example
-                </button>
-                <button type="button" onClick={() => runMode('simplify')} disabled={presetDisabled} className={pillClass}>
-                  <Sparkles size={15} className="text-action" /> Explain it more simply
-                </button>
-              </div>
-            </>
+            /* Presets: further down and centred — the player card sits
+               below them, as its own card. */
+            <div className="mt-6 flex flex-wrap justify-center gap-2" data-testid="cypher-presets">
+              <button type="button" onClick={() => runMode('explain')} disabled={presetDisabled} className={pillClass}>
+                <Sparkles size={15} className="text-action" /> Explain this concept
+              </button>
+              <button type="button" onClick={() => runMode('example')} disabled={presetDisabled} className={pillClass}>
+                <Sparkles size={15} className="text-action" /> Give me an example
+              </button>
+              <button type="button" onClick={() => runMode('simplify')} disabled={presetDisabled} className={pillClass}>
+                <Sparkles size={15} className="text-action" /> Explain it more simply
+              </button>
+            </div>
           ) : (
             <p className="mt-3 text-small text-ink-2">
               The AI tutor isn’t available on this server right now.
@@ -330,6 +313,69 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
           )}
         </div>
       </div>
-    </div>
+      </Card>
+
+      {/* Standalone neon player card (Spencer's mockup): its own black
+          card below the face/level/presets — NOT nested inside any other
+          card. Waveform on top (hidden until it talks), then the progress
+          bar, the time, the circular buttons, and the caption saying what
+          they do. No download button. No answer text anywhere. */}
+      {tutorEnabled && (
+        <div data-testid="cypher-player-card" className="mb-8 rounded-[2rem] bg-black p-3 sm:p-4">
+          <div className="rounded-3xl border border-white/10 bg-[#0B0B0D] px-4 py-5 sm:px-6">
+            {showWaveform && (
+              <VoiceWaveform levelRef={voiceRef} active={isPlaying} paused={isPaused} />
+            )}
+            <div
+              data-testid="cypher-progress"
+              className="mt-4 h-1.5 w-full rounded-full bg-white/15"
+              role="progressbar"
+              aria-label="Playback progress"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(progressPct)}
+            >
+              <div data-testid="cypher-progress-fill" className="relative h-full rounded-full bg-red-500" style={{ width: `${progressPct}%` }}>
+                <span className="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-red-500" />
+              </div>
+            </div>
+            <p data-testid="cypher-time" className="mt-2 text-left text-small text-white/80">{timeText}</p>
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <button
+                type="button"
+                onClick={onPlayPause}
+                disabled={playDisabled}
+                aria-label={isPlaying ? 'Pause Cypher' : isPaused ? 'Resume Cypher' : 'Play Cypher’s explanation'}
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70 disabled:opacity-50"
+              >
+                {isPlaying ? <Pause size={20} className="fill-current" /> : <Play size={20} className="fill-current" />}
+              </button>
+              {showStop && (
+                <button
+                  type="button"
+                  onClick={onStop}
+                  aria-label="Stop Cypher"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70"
+                >
+                  <Square size={18} className="fill-current" />
+                </button>
+              )}
+            </div>
+            <p className="mt-3 text-center text-small text-white/60" aria-live="polite">
+              {caption}
+              {captionAction && (
+                <button
+                  type="button"
+                  onClick={captionAction.onClick}
+                  className="ml-2 font-semibold text-white underline"
+                >
+                  {captionAction.label}
+                </button>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
