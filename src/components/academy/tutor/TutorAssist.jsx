@@ -33,6 +33,18 @@ export function useTutor() {
     setLoading(false);
   }, []);
 
+  // Cancel any in-flight answer AND clear what it already produced, so
+  // the panel goes back to having no answer at all (the lesson panel's
+  // Stop-while-generating uses this: a half-made answer must not be left
+  // around to play).
+  const reset = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setText('');
+    setError('');
+    setLoading(false);
+  }, []);
+
   const ask = useCallback(async (body) => {
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -55,7 +67,7 @@ export function useTutor() {
   }, []);
 
   useEffect(() => () => abortRef.current?.abort(), []);
-  return { text, loading, error, ask, stop };
+  return { text, loading, error, ask, stop, reset };
 }
 
 // react-markdown escapes raw HTML (skipHtml), so model output can never inject markup.

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import { speakVoice, fetchVoiceStatus, useCypherVoice, __clearVoiceCache } from './voice';
+import { speakVoice, fetchVoiceStatus, useCypherVoice, warmVoice, __clearVoiceCache } from './voice';
 
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -76,10 +76,12 @@ describe('fetchVoiceStatus', () => {
 // render, so the test can drive play() and read loading/playing/fallback.
 describe('useCypherVoice loading', () => {
   let latest;
+  let voiceRefOut;
   let root;
 
   function Probe() {
     const voiceRef = React.useRef({ talking: false, level: 0 });
+    voiceRefOut = voiceRef;
     latest = useCypherVoice(voiceRef);
     return null;
   }
@@ -97,26 +99,30 @@ describe('useCypherVoice loading', () => {
   // Minimal stand-in for the Web Audio API: decodeAudioData resolves at
   // once (no real decoder), and start()/stop() just track calls — this
   // Node environment has no `window`, so play() resolves ctx via this fake.
+  // Each decoded buffer is 2 s long, and currentTime is a plain mutable
+  // property the test can advance, so pause/resume offsets are exact.
+  // The analyser fills a ramp (48 bins, 0..235) so the frequency bands
+  // the waveform reads actually vary with the audio.
   class FakeAnalyser {
-    constructor() { this.fftSize = 0; this.frequencyBinCount = 1; }
+    constructor() { this.fftSize = 0; this.frequencyBinCount = 48; }
     connect() {}
-    getByteFrequencyData() {}
+    getByteFrequencyData(data) { for (let i = 0; i < data.length; i++) data[i] = i * 5; }
   }
   class FakeGain {
     constructor() { this.gain = { value: 1 }; }
     connect() {}
   }
   class FakeSourceNode {
-    constructor() { FakeSourceNode.instances.push(this); }
+    constructor() { FakeSourceNode.instances.push(this); this.buffer = null; this.startWhen = null; this.startOffset = null; }
     connect() {}
-    start() { this.started = true; }
+    start(when = 0, offset = 0) { this.started = true; this.startWhen = when; this.startOffset = offset; }
     stop() { this.stopped = true; }
   }
   class FakeAudioContext {
-    constructor() { FakeAudioContext.instances.push(this); this.destination = {}; this.state = 'running'; }
+    constructor() { FakeAudioContext.instances.push(this); this.destination = {}; this.state = 'running'; this.currentTime = 0; }
     resume() { return Promise.resolve(); }
     close() { return Promise.resolve(); }
-    decodeAudioData() { FakeAudioContext.decodeCount += 1; return Promise.resolve({}); }
+    decodeAudioData() { FakeAudioContext.decodeCount += 1; return Promise.resolve({ duration: 2 }); }
     createBufferSource() { return new FakeSourceNode(); }
     createGain() { return new FakeGain(); }
     createAnalyser() { return new FakeAnalyser(); }
@@ -363,5 +369,209 @@ describe('useCypherVoice loading', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('pauses freeze playback at the exact spot and resume continues from there, not the start', async () => {
+    // A two-segment answer; each segment decodes to 2 s. Pause 0.5 s into
+    // the first segment: the source stops and the position is kept.
+    // Resume must start a new source in the SAME segment at 0.5 s — not
+    // from the start, and not in the next segment.
+    const multiEnvelope = {
+      character: 'cypher', text: 'Hello.', audio_b64: 'QUJDREVG', audio_segments: ['QUJD', 'REVG'],
+      mime: 'audio/mpeg', cached: false, fallback: false, reason: null,
+    };
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(multiEnvelope));
+      await playPromise;
+    });
+    expect(latest.playing).toBe(true);
+    expect(latest.paused).toBe(false);
+
+    const ctx = FakeAudioContext.instances[FakeAudioContext.instances.length - 1];
+    ctx.currentTime = 0.5;
+    TestRenderer.act(() => { latest.pause(); });
+    expect(latest.playing).toBe(false);
+    expect(latest.paused).toBe(true);
+    expect(FakeSourceNode.instances[0].stopped).toBe(true);
+
+    TestRenderer.act(() => { latest.resume(); });
+    expect(latest.playing).toBe(true);
+    expect(latest.paused).toBe(false);
+    expect(FakeSourceNode.instances.length).toBe(2);
+    expect(FakeSourceNode.instances[1].startOffset).toBe(0.5);
+    expect(FakeSourceNode.instances[1].buffer).toBe(FakeSourceNode.instances[0].buffer);
+  });
+
+  it('pausing at a segment end resumes in the next segment', async () => {
+    const multiEnvelope = {
+      character: 'cypher', text: 'Hello.', audio_b64: 'QUJDREVG', audio_segments: ['QUJD', 'REVG'],
+      mime: 'audio/mpeg', cached: false, fallback: false, reason: null,
+    };
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(multiEnvelope));
+      await playPromise;
+    });
+    const ctx = FakeAudioContext.instances[FakeAudioContext.instances.length - 1];
+    ctx.currentTime = 2; // exactly the end of the first 2 s segment
+    TestRenderer.act(() => { latest.pause(); });
+    TestRenderer.act(() => { latest.resume(); });
+    expect(FakeSourceNode.instances.length).toBe(2);
+    expect(FakeSourceNode.instances[1].startOffset).toBe(0);
+    expect(FakeSourceNode.instances[1].buffer).not.toBe(FakeSourceNode.instances[0].buffer);
+  });
+
+  it('stop after a pause discards the position, so the next play starts from the beginning', async () => {
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(audioEnvelope));
+      await playPromise;
+    });
+    const ctx = FakeAudioContext.instances[FakeAudioContext.instances.length - 1];
+    ctx.currentTime = 1;
+    TestRenderer.act(() => { latest.pause(); });
+    expect(latest.paused).toBe(true);
+
+    TestRenderer.act(() => { latest.stop(); });
+    expect(latest.paused).toBe(false);
+    expect(latest.playing).toBe(false);
+
+    // A resume after stop is a no-op (nothing paused); a fresh play
+    // starts at offset 0.
+    TestRenderer.act(() => { latest.resume(); });
+    expect(FakeSourceNode.instances.length).toBe(1);
+    await TestRenderer.act(async () => { await latest.play('Hello.'); });
+    expect(FakeSourceNode.instances[1].startOffset).toBe(0);
+    expect(latest.playing).toBe(true);
+  });
+
+  it('pause and resume are no-ops when nothing is playing or paused', async () => {
+    mount();
+    expect(latest.playing).toBe(false);
+    TestRenderer.act(() => { latest.pause(); });
+    expect(latest.paused).toBe(false);
+    TestRenderer.act(() => { latest.resume(); });
+    expect(FakeSourceNode.instances.length).toBe(0);
+  });
+
+  it('writes 24 frequency bands into the shared voice ref while playing', async () => {
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(audioEnvelope));
+      await playPromise;
+    });
+    const { bands, level } = voiceRefOut.current;
+    expect(bands).toHaveLength(24);
+    expect(bands[0]).toBeGreaterThanOrEqual(0);
+    expect(bands[23]).toBeGreaterThan(bands[0]); // the fake analyser ramps up
+    expect(level).toBeGreaterThan(0);
+  });
+});
+
+describe('warmVoice', () => {
+  class FakeAnalyser {
+    constructor() { this.fftSize = 0; this.frequencyBinCount = 48; }
+    connect() {}
+    getByteFrequencyData(data) { for (let i = 0; i < data.length; i++) data[i] = i * 5; }
+  }
+  class FakeGain {
+    constructor() { this.gain = { value: 1 }; }
+    connect() {}
+  }
+  class FakeSourceNode {
+    constructor() { FakeSourceNode.instances.push(this); this.buffer = null; }
+    connect() {}
+    start() { this.started = true; }
+    stop() { this.stopped = true; }
+  }
+  class FakeAudioContext {
+    constructor() { FakeAudioContext.instances.push(this); this.destination = {}; this.state = 'running'; this.currentTime = 0; }
+    resume() { return Promise.resolve(); }
+    close() { return Promise.resolve(); }
+    decodeAudioData() { FakeAudioContext.decodeCount += 1; return Promise.resolve({ duration: 2 }); }
+    createBufferSource() { return new FakeSourceNode(); }
+    createGain() { return new FakeGain(); }
+    createAnalyser() { return new FakeAnalyser(); }
+  }
+
+  const audioEnvelope = { character: 'cypher', text: 'Hello.', audio_b64: 'QUJD', mime: 'audio/mpeg', cached: false, fallback: false, reason: null };
+  const fallbackEnvelope = { character: 'cypher', text: 'Hello.', audio_b64: null, mime: 'audio/mpeg', cached: false, fallback: true, reason: 'voice_not_configured' };
+
+  beforeEach(() => {
+    FakeAudioContext.instances = [];
+    FakeAudioContext.decodeCount = 0;
+    FakeSourceNode.instances = [];
+    globalThis.window = { AudioContext: FakeAudioContext };
+    __clearVoiceCache();
+  });
+
+  afterEach(() => {
+    delete globalThis.window;
+  });
+
+  it('fetches and decodes the audio into the in-tab cache without playing anything', async () => {
+    globalThis.fetch = vi.fn(async () => jsonResponse(audioEnvelope));
+    await expect(warmVoice('Hello.')).resolves.toBe(true);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(FakeAudioContext.decodeCount).toBe(1);
+    expect(FakeSourceNode.instances.length).toBe(0); // warmed, not played
+
+    // A later play() of the same text finds the decoded buffers and
+    // starts at once: no second fetch, no re-decode.
+    let latest;
+    function Probe() {
+      const voiceRef = React.useRef({ talking: false, level: 0 });
+      latest = useCypherVoice(voiceRef);
+      return null;
+    }
+    let root;
+    TestRenderer.act(() => { root = TestRenderer.create(React.createElement(Probe)); });
+    try {
+      await TestRenderer.act(async () => { await latest.play('Hello.'); });
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+      expect(FakeAudioContext.decodeCount).toBe(1);
+      expect(latest.playing).toBe(true);
+      expect(FakeSourceNode.instances.length).toBe(1);
+    } finally {
+      TestRenderer.act(() => { root.unmount(); });
+    }
+  });
+
+  it('returns true immediately when the text is already warmed', async () => {
+    globalThis.fetch = vi.fn(async () => jsonResponse(audioEnvelope));
+    await expect(warmVoice('Hello.')).resolves.toBe(true);
+    await expect(warmVoice('Hello.')).resolves.toBe(true);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(FakeAudioContext.decodeCount).toBe(1);
+  });
+
+  it('returns false on a fallback envelope and on a fetch failure', async () => {
+    globalThis.fetch = vi.fn(async () => jsonResponse(fallbackEnvelope));
+    await expect(warmVoice('Hello.')).resolves.toBe(false);
+    expect(FakeAudioContext.decodeCount).toBe(0);
+
+    globalThis.fetch = vi.fn(async () => { throw new Error('network down'); });
+    await expect(warmVoice('Hello.')).resolves.toBe(false);
   });
 });
