@@ -12,8 +12,11 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Mounted tests drive the real panel (tutor + voice) with the network
 // stubbed: the tutor API module, analytics, and the 3D viewer (WebGL has
-// no DOM here). The voice speak fetch is stubbed per test with a
-// controllable deferred, so auto-play can be observed.
+// no DOM here). The fetch mock routes by URL: /voice/status answers at
+// once (configurable per test), /voice/speak resolves at once with the
+// configured envelope — the speak fetch is never the thing under test
+// here (src/api/voice.test.js covers its loading states); the panel
+// tests gate the TUTOR stream when they need a loading state.
 const tutorMocks = vi.hoisted(() => ({
   fetchTutorStatus: vi.fn(async () => ({ enabled: true })),
   streamTutor: vi.fn(),
@@ -77,6 +80,9 @@ describe('CypherLessonPanel', () => {
     expect(html).not.toContain('A live incident in the SOC');
     expect(html).not.toContain('Start Mission');
     expect(html).not.toContain('Why are these still open?');
+    // Listen-only: no answers card and no Hear again, in any render.
+    expect(html).not.toContain('CIPHER ANSWERS');
+    expect(html).not.toContain('Hear again');
   });
 
   it('renders the 2D face on its dark chip instead of the video, with the tutor caption', () => {
@@ -127,14 +133,13 @@ describe('presetQuestion', () => {
   });
 });
 
-describe('CypherLessonPanel listen-first (mounted)', () => {
+describe('CypherLessonPanel listen-only play experience (mounted)', () => {
   // The tutor's answer and the voice's spoken text are deliberately
   // DIFFERENT strings, so the test can tell the hidden full answer apart
   // from the spoken words: the backend strips Markdown before speaking,
-  // so envelope.text is never the raw tutor text. Voice-only: the spoken
-  // words are NOT shown as a subtitle paragraph — nothing of the answer
-  // is on screen while he talks.
-  const ANSWER = 'DHCP snooping drops untrusted DHCP replies.';
+  // so envelope.text is never the raw tutor text. Listen-only: NEITHER
+  // string is ever on screen — the answer is heard, not read.
+  const answerFor = (mode) => `Answer for ${mode}.`;
   const SPOKEN = 'The spoken words are cleaned and different.';
   const audioEnvelope = { character: 'cypher', text: SPOKEN, audio_b64: 'QUJD', mime: 'audio/mpeg', cached: false, fallback: false, reason: null };
   const fallbackEnvelope = { character: 'cypher', text: SPOKEN, audio_b64: null, mime: 'audio/mpeg', cached: false, fallback: true, reason: 'voice_not_configured' };
@@ -142,33 +147,39 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
   // Minimal stand-in for the Web Audio API (see src/api/voice.test.js for
   // the same fakes, used for the same reason: this test environment has no
   // `window`/AudioContext, and useCypherVoice now plays through one).
+  // Each decoded buffer is 2 s long and currentTime is mutable, so
+  // pause/resume offsets are exact; the analyser fills a ramp so the
+  // waveform bars actually move with the audio.
   class FakeAnalyser {
-    constructor() { this.fftSize = 0; this.frequencyBinCount = 1; }
+    constructor() { this.fftSize = 0; this.frequencyBinCount = 48; }
     connect() {}
-    getByteFrequencyData() {}
+    getByteFrequencyData(data) { for (let i = 0; i < data.length; i++) data[i] = i * 5; }
   }
   class FakeGain {
     constructor() { this.gain = { value: 1 }; }
     connect() {}
   }
   class FakeSourceNode {
-    constructor() { FakeSourceNode.instances.push(this); }
+    constructor() { FakeSourceNode.instances.push(this); this.buffer = null; this.startWhen = null; this.startOffset = null; }
     connect() {}
-    start() { this.started = true; }
+    start(when = 0, offset = 0) { this.started = true; this.startWhen = when; this.startOffset = offset; }
     stop() { this.stopped = true; }
   }
   class FakeAudioContext {
-    constructor() { this.destination = {}; this.state = 'running'; }
+    constructor() { FakeAudioContext.instances.push(this); this.destination = {}; this.state = 'running'; this.currentTime = 0; }
     resume() { return Promise.resolve(); }
     close() { return Promise.resolve(); }
-    decodeAudioData() { return Promise.resolve({}); }
+    decodeAudioData() { return Promise.resolve({ duration: 2 }); }
     createBufferSource() { return new FakeSourceNode(); }
     createGain() { return new FakeGain(); }
     createAnalyser() { return new FakeAnalyser(); }
   }
 
   let root;
-  let fetchGate;
+  let speakEnvelope;
+  let voiceStatusResponse;
+  let slowTutorGate;
+  let tutorSignals;
 
   // The lesson's own text (Overview + body) the panel sends so the tutor
   // explains only what this lesson covers.
@@ -189,14 +200,27 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     };
   }
 
+  function makeLocalStorage(initial = {}) {
+    const store = { ...initial };
+    return {
+      getItem: (k) => (k in store ? store[k] : null),
+      setItem: (k, v) => { store[k] = String(v); },
+      removeItem: (k) => { delete store[k]; },
+      _store: store,
+    };
+  }
+
   async function flush(times = 5) {
     for (let i = 0; i < times; i++) {
       await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
     }
   }
 
-  function mountPanel(lessonText = LESSON_TEXT) {
+  function mountPanel(lessonText = LESSON_TEXT, muted = false) {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    // The hook reads the mute flag from the BARE localStorage global (as
+    // '1'/'0'), not window.localStorage — so the fake goes there.
+    globalThis.localStorage = makeLocalStorage(muted ? { 'rtc-cypher-voice-muted': '1' } : {});
     TestRenderer.act(() => {
       root = TestRenderer.create(
         <QueryClientProvider client={queryClient}>
@@ -217,9 +241,25 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     return root.root.findAllByType('button').find((b) => b.children?.some((c) => typeof c === 'string' && c.includes(label)));
   }
 
-  async function askPreset() {
+  function findButtonByAria(label) {
+    return root.root.findAllByType('button').find((b) => b.props['aria-label'] === label);
+  }
+
+  function playArea() {
+    return root.root.findByProps({ 'data-testid': 'cypher-play-area' });
+  }
+
+  function presetsRow() {
+    return root.root.findByProps({ 'data-testid': 'cypher-presets' });
+  }
+
+  function waveformBars() {
+    return root.root.findAllByProps({ 'data-testid': 'cypher-waveform-bar' }).map((n) => n.props.style.height);
+  }
+
+  async function askPreset(label = 'Explain this concept') {
     await flush();
-    const preset = findButton('Explain this concept');
+    const preset = findButton(label);
     expect(preset).toBeTruthy();
     TestRenderer.act(() => { preset.props.onClick(); });
     await flush();
@@ -227,13 +267,38 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
 
   beforeEach(() => {
     FakeSourceNode.instances = [];
-    globalThis.window = { AudioContext: FakeAudioContext };
+    FakeAudioContext.instances = [];
+    globalThis.window = {
+      AudioContext: FakeAudioContext,
+      localStorage: makeLocalStorage(),
+      matchMedia: () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }),
+    };
     __clearVoiceCache(); // the cache is a module singleton — isolate each test
-    fetchGate = deferred();
-    globalThis.fetch = vi.fn(() => fetchGate.promise);
-    tutorMocks.streamTutor.mockImplementation(async (body, { onToken }) => {
-      onToken('tok', ANSWER);
-      return ANSWER;
+    speakEnvelope = audioEnvelope;
+    voiceStatusResponse = { configured: true, characters: { cypher: true } };
+    slowTutorGate = null;
+    tutorSignals = [];
+    globalThis.fetch = vi.fn(async (url) => {
+      if (url === '/api/voice/status') return jsonResponse(voiceStatusResponse);
+      return jsonResponse(speakEnvelope); // /api/voice/speak resolves at once
+    });
+    tutorMocks.streamTutor.mockImplementation((body, { onToken, signal } = {}) => {
+      const text = answerFor(body.mode);
+      const gate = slowTutorGate;
+      slowTutorGate = null; // only the next call is slow
+      tutorSignals.push(signal);
+      return new Promise((resolve, reject) => {
+        const onAbort = () => reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }));
+        signal?.addEventListener?.('abort', onAbort);
+        const finish = () => {
+          signal?.removeEventListener?.('abort', onAbort);
+          if (signal?.aborted) { reject(Object.assign(new Error('Aborted'), { name: 'AbortError' })); return; }
+          onToken?.('tok', text);
+          resolve(text);
+        };
+        if (gate) gate.promise.then(finish, (e) => { signal?.removeEventListener?.('abort', onAbort); reject(e); });
+        else finish();
+      });
     });
   });
 
@@ -241,19 +306,37 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     if (root) TestRenderer.act(() => { root.unmount(); });
     root = null;
     delete globalThis.window;
+    delete globalThis.localStorage;
     vi.clearAllMocks();
+  });
+
+  it('has no answers card, no Hear again, and no answer text anywhere — in any state', async () => {
+    mountPanel();
+    await flush();
+    expect(treeText()).not.toContain('CIPHER ANSWERS');
+    expect(treeText()).not.toContain('Hear again');
+    expect(treeText()).not.toContain('Hear Cipher say it');
+    expect(treeText()).not.toContain(answerFor('explain'));
+    expect(treeText()).not.toContain(SPOKEN);
+    // …and still none after an answer has been heard.
+    await askPreset();
+    await flush();
+    expect(treeText()).not.toContain('CIPHER ANSWERS');
+    expect(treeText()).not.toContain('Hear again');
+    expect(treeText()).not.toContain(answerFor('explain'));
+    expect(treeText()).not.toContain(SPOKEN);
   });
 
   it('each button requests its tutor mode directly, with no question box on screen', async () => {
     mountPanel();
     await flush();
-    // Exactly three buttons, each with its exact label — and no fourth:
+    // The play button plus exactly three presets — and no fourth preset:
     // no "Quiz me" (the tutor has no quiz mode).
-    expect(root.root.findAllByType('button').length).toBe(3);
     expect(findButton('Explain this concept')).toBeTruthy();
     expect(findButton('Give me an example')).toBeTruthy();
     expect(findButton('Explain it more simply')).toBeTruthy();
     expect(findButton('Quiz me')).toBeFalsy();
+    expect(findButtonByAria('Play Cypher’s explanation')).toBeTruthy();
     // No input box anywhere: the buttons ask directly.
     expect(root.root.findAllByType('input').length).toBe(0);
     expect(findButton('Ask')).toBeFalsy();
@@ -291,80 +374,200 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     expect(lastCall.lesson_text).toBeUndefined();
   });
 
-  it('auto-plays the answer when it arrives — no Hear click — and shows "Loading voice…" while the voice is being made', async () => {
+  it('auto-plays the answer when it arrives — no play press first — and shows the loading caption while it is being made', async () => {
     mountPanel();
-    await askPreset();
-    // Auto-play: the speak fetch fired with the answer text, untouched.
-    const speakCalls = globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak');
-    expect(speakCalls.length).toBe(1);
-    expect(JSON.parse(speakCalls[0][1].body).text).toBe(ANSWER);
-    // The tutor was called with the explain mode and the question the
-    // button built from the lesson context.
-    const tutorCall = tutorMocks.streamTutor.mock.calls.at(-1)[0];
-    expect(tutorCall.mode).toBe('explain');
-    expect(tutorCall.question).toBe(presetQuestion('explain', 'Network Security', 'intermediate'));
-    // While the fetch is pending the button says so, and the full answer
-    // text is nowhere on screen (listen-first: it is not a readable block).
-    expect(treeText()).toContain('Loading voice…');
-    expect(treeText()).not.toContain(ANSWER);
+    await flush();
+    // Warm-up already ran (see below); arm the slow gate for the tap's
+    // own tutor call so the loading state is observable. The gate is
+    // consumed by the mock on the call, so the test keeps its own
+    // reference to resolve it.
+    const gate = deferred();
+    slowTutorGate = gate;
+    const preset = findButton('Explain this concept');
+    TestRenderer.act(() => { preset.props.onClick(); });
+    await flush(2);
+    // While the answer is being made the caption says so, the play
+    // button is disabled, and the full answer text is nowhere on screen.
+    expect(treeText()).toContain('Getting your explanation ready…');
+    expect(findButtonByAria('Play Cypher’s explanation').props.disabled).toBe(true);
+    expect(treeText()).not.toContain(answerFor('explain'));
     expect(treeText()).not.toContain(SPOKEN);
+    // The answer arrives: it plays straight away, no separate play press.
+    await TestRenderer.act(async () => { gate.resolve(); });
+    await flush();
+    expect(treeText()).toContain('Playing — tap to pause.');
+    expect(treeText()).not.toContain(answerFor('explain'));
+    expect(treeText()).not.toContain(SPOKEN);
+    expect(FakeSourceNode.instances[0].started).toBe(true);
   });
 
-  it('is voice-only while audio plays — no subtitle paragraph — and there is no Read answer toggle', async () => {
+  it('is voice-only while audio plays — the caption says Playing, Pause and Stop show, the waveform moves', async () => {
     mountPanel();
     await askPreset();
-    await TestRenderer.act(async () => { fetchGate.resolve(jsonResponse(audioEnvelope)); });
-    await flush();
-    expect(treeText()).toContain('Speaking…');
+    expect(treeText()).toContain('Playing — tap to pause.');
     expect(treeText()).not.toContain(SPOKEN); // voice-only: no subtitle
-    expect(treeText()).not.toContain(ANSWER); // full text hidden
+    expect(treeText()).not.toContain(answerFor('explain')); // full text hidden
     // No way to read the answer while voice works: the toggle is gone.
     expect(findButton('Read answer')).toBeFalsy();
     expect(findButton('Hide answer')).toBeFalsy();
+    // Playing: the Play button became Pause, and Stop appears beside it.
+    expect(findButtonByAria('Pause Cypher')).toBeTruthy();
+    expect(findButton('Stop')).toBeTruthy();
+    // The waveform is present and driven by the audio — its bars are not
+    // all the same height (the fake analyser ramps up).
+    const heights = waveformBars();
+    expect(heights).toHaveLength(24);
+    expect(new Set(heights).size).toBeGreaterThan(1);
   });
 
-  it('replays with "Hear again" once playback finishes', async () => {
+  it('pauses freeze playback at the exact spot, resume continues from there, and Stop resets to the start', async () => {
     mountPanel();
     await askPreset();
-    await TestRenderer.act(async () => { fetchGate.resolve(jsonResponse(audioEnvelope)); });
+    expect(findButtonByAria('Pause Cypher')).toBeTruthy();
+    // 0.5 s into the answer (each decoded segment is 2 s).
+    const ctx = FakeAudioContext.instances[FakeAudioContext.instances.length - 1];
+    ctx.currentTime = 0.5;
+    // Pause: playback freezes — it does not stop, it does not reset.
+    TestRenderer.act(() => { findButtonByAria('Pause Cypher').props.onClick(); });
+    expect(treeText()).toContain('Paused — tap to continue.');
+    expect(FakeSourceNode.instances[0].stopped).toBe(true);
+    // The Pause button turned back into a Play (resume) and Stop stays.
+    expect(findButtonByAria('Resume Cypher')).toBeTruthy();
+    expect(findButton('Stop')).toBeTruthy();
+    // Resume: a new source starts in the SAME segment at 0.5 s — not
+    // from the start.
+    TestRenderer.act(() => { findButtonByAria('Resume Cypher').props.onClick(); });
+    expect(treeText()).toContain('Playing — tap to pause.');
+    expect(FakeSourceNode.instances.length).toBe(2);
+    expect(FakeSourceNode.instances[1].startOffset).toBe(0.5);
+    expect(FakeSourceNode.instances[1].buffer).toBe(FakeSourceNode.instances[0].buffer);
+    // Stop: playback ends completely and the position resets to the start;
+    // the controls go back to Play only.
+    TestRenderer.act(() => { findButton('Stop').props.onClick(); });
+    expect(treeText()).toContain('Tap to hear it again.');
+    expect(findButtonByAria('Play Cypher’s explanation')).toBeTruthy();
+    expect(findButtonByAria('Pause Cypher')).toBeFalsy();
+    expect(findButton('Stop')).toBeFalsy();
+    // Play again: replays from the start, from the in-tab cache — no new
+    // speak fetch.
+    const speakBefore = globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak').length;
+    TestRenderer.act(() => { findButtonByAria('Play Cypher’s explanation').props.onClick(); });
     await flush();
-    expect(treeText()).toContain('Speaking…');
-    expect(findButton('Hear again')).toBeFalsy();
-    // End the audio: the hook's onended clears playing.
-    TestRenderer.act(() => { FakeSourceNode.instances[0].onended(); });
-    expect(treeText()).not.toContain('Speaking…');
-    const replay = findButton('Hear again');
-    expect(replay).toBeTruthy();
-    expect(findButton('Read answer')).toBeFalsy(); // the toggle is gone; Hear again is the control
-    // The exact same answer was already heard this visit, so "Hear again"
-    // is served from the in-tab cache: no new fetch to /voice/speak (no
-    // ElevenLabs cost, no network round trip), and it starts right away —
-    // no "Loading voice…" step.
-    const fetchSpy = vi.fn();
-    globalThis.fetch = fetchSpy;
-    await TestRenderer.act(async () => { await replay.props.onClick(); });
-    expect(fetchSpy).not.toHaveBeenCalled();
-    expect(treeText()).toContain('Speaking…');
-    expect(FakeSourceNode.instances[1].started).toBe(true);
+    expect(FakeSourceNode.instances[2].startOffset).toBe(0);
+    expect(globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak').length).toBe(speakBefore);
   });
 
-  it('falls back to showing the answer text with the Hear button when voice is unavailable', async () => {
+  it('Stop while an answer is still being made cancels the generation', async () => {
+    mountPanel();
+    await flush();
+    const gate = deferred();
+    slowTutorGate = gate;
+    const preset = findButton('Explain this concept');
+    TestRenderer.act(() => { preset.props.onClick(); });
+    await flush(2);
+    expect(treeText()).toContain('Getting your explanation ready…');
+    // Stop is there while generating, and ends it: the partial text is
+    // cleared, so there is nothing half-made to play.
+    expect(findButton('Stop')).toBeTruthy();
+    TestRenderer.act(() => { findButton('Stop').props.onClick(); });
+    await TestRenderer.act(async () => { gate.resolve(); });
+    await flush();
+    expect(treeText()).toContain('Tap an explanation below to hear Cypher.');
+    expect(findButton('Stop')).toBeFalsy();
+    expect(treeText()).not.toContain(answerFor('explain'));
+  });
+
+  it('warms the three preset answers on lesson load, so a tap plays from the cache with no new fetch', async () => {
+    mountPanel();
+    await flush();
+    // On load, the three preset answers were generated (tutor) and their
+    // audio warmed (voice) — in order, for this lesson and level.
+    const warmCalls = tutorMocks.streamTutor.mock.calls.map(([b]) => b.mode);
+    expect(warmCalls).toEqual(['explain', 'example', 'simplify']);
+    expect(globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak').length).toBe(3);
+    // Tapping a preset now plays straight from the warmed cache: the
+    // tutor runs once for the tap, but no new voice fetch happens.
+    await askPreset();
+    expect(treeText()).toContain('Playing — tap to pause.');
+    expect(globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak').length).toBe(3);
+    expect(FakeSourceNode.instances[0].started).toBe(true);
+  });
+
+  it('a tap before warm-up finishes still plays — the tap wins and warm-up stops', async () => {
+    const gate = deferred(); // the warm-up's first tutor call stalls
+    slowTutorGate = gate;
+    mountPanel();
+    await flush();
+    // Warm-up is in flight (its first call hasn't resolved).
+    expect(tutorMocks.streamTutor.mock.calls.length).toBe(1);
+    // The tap runs its own generation at once — it is not blocked by the
+    // warm-up — and the warm-up's remaining modes never run.
+    const preset = findButton('Explain this concept');
+    TestRenderer.act(() => { preset.props.onClick(); });
+    await flush();
+    expect(tutorMocks.streamTutor.mock.calls.length).toBe(2);
+    expect(tutorSignals[0].aborted).toBe(true); // the warm-up was aborted
+    expect(treeText()).toContain('Playing — tap to pause.');
+    // Letting the stalled warm-up call resolve changes nothing: no more
+    // warm-up calls happen for the other modes.
+    await TestRenderer.act(async () => { gate.resolve(); });
+    await flush();
+    expect(tutorMocks.streamTutor.mock.calls.length).toBe(2);
+  });
+
+  it('the preset buttons sit lower and centred, with the play area where the answers card was', async () => {
+    mountPanel();
+    await flush();
+    const presets = presetsRow();
+    expect(presets.props.className).toContain('justify-center');
+    expect(presets.props.className).toContain('mt-6');
+    // DOM order: the play area (where the answers card was) comes first,
+    // the presets sit below it.
+    expect(treeText().indexOf('cypher-play-area')).toBeLessThan(treeText().indexOf('cypher-presets'));
+    // The level selector is still in its spot, above the play area.
+    expect(treeText()).toContain('Explanation difficulty level');
+    expect(treeText().indexOf('Explanation difficulty level')).toBeLessThan(treeText().indexOf('cypher-play-area'));
+  });
+
+  it('when voice is not configured, the play button is disabled and the caption says why — no text fallback', async () => {
+    voiceStatusResponse = { configured: false, characters: { cypher: false } };
+    mountPanel();
+    await flush();
+    expect(treeText()).toContain('Cypher’s voice isn’t available on this server.');
+    expect(findButtonByAria('Play Cypher’s explanation').props.disabled).toBe(true);
+    // The presets are disabled too: generating answers nobody can hear
+    // would waste tutor calls.
+    expect(findButton('Explain this concept').props.disabled).toBe(true);
+    expect(treeText()).not.toContain(answerFor('explain'));
+    expect(treeText()).not.toContain('CIPHER ANSWERS');
+  });
+
+  it('when the voice comes back with no audio, the caption says why — still no answer text', async () => {
+    speakEnvelope = fallbackEnvelope;
     mountPanel();
     await askPreset();
-    await TestRenderer.act(async () => { fetchGate.resolve(jsonResponse(fallbackEnvelope)); });
+    // The speak returned no audio: Cypher "talks" silently, and the
+    // caption says the voice is unavailable instead of showing the words.
+    expect(treeText()).toContain('Voice unavailable — check your sound.');
+    expect(treeText()).not.toContain(answerFor('explain'));
+    expect(treeText()).not.toContain(SPOKEN);
+    expect(findButtonByAria('Play Cypher’s explanation').props.disabled).toBe(true);
+    expect(treeText()).not.toContain('CIPHER ANSWERS');
+  });
+
+  it('when voice is muted, the caption says so with an Unmute button — still no answer text', async () => {
+    mountPanel(LESSON_TEXT, true);
     await flush();
-    // No audio: the student gets the words to read, as before — while
-    // Cypher "talks" silently (Speaking…), then the Hear button appears.
-    expect(treeText()).toContain(ANSWER);
-    expect(treeText()).not.toContain(SPOKEN); // the subtitle is not rendered
-    expect(treeText()).toContain('Speaking…');
-    expect(findButton('Read answer')).toBeFalsy();
-    // The silent talk lasts 2.8 s for this text (7 words at 2.5 words/s);
-    // afterwards the Hear button is the control.
-    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 3000)); });
-    expect(treeText()).not.toContain('Speaking…');
-    expect(findButton('Hear Cipher say it')).toBeTruthy();
-    expect(findButton('Read answer')).toBeFalsy();
+    expect(treeText()).toContain('Voice is muted.');
+    expect(findButton('Unmute')).toBeTruthy();
+    expect(findButtonByAria('Play Cypher’s explanation').props.disabled).toBe(true);
+    expect(treeText()).not.toContain(answerFor('explain'));
+    // Unmuting restores the panel: the caption goes back to the idle line
+    // and the presets enable.
+    TestRenderer.act(() => { findButton('Unmute').props.onClick(); });
+    await flush();
+    expect(treeText()).toContain('Tap an explanation below to hear Cypher.');
+    expect(findButton('Explain this concept').props.disabled).toBe(false);
   });
 
   it('shows the 2D face (Happy, on its dark chip) in the panel, with no video element', () => {

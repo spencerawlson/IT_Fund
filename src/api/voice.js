@@ -95,6 +95,56 @@ export function __clearVoiceCache() {
   voiceCache.clear();
 }
 
+// Warm the voice caches for `text` without playing anything: fetch the
+// audio (the backend disk cache serves repeats) and decode it into the
+// in-tab cache, so a later play() of the same text starts at once with no
+// fetch and no decode. Used by the lesson panel's warm-up: when a lesson
+// opens, the three preset answers are warmed in the background so tapping
+// one plays immediately. Returns true when audio is cached, false when
+// there is nothing to warm (fallback envelope, fetch failure, rate limit)
+// — never throws, so warm-up can stop quietly. It does spend voice budget
+// (the backend checks the rate limit before the cache), so callers warm
+// only a lesson at a time, never the catalog.
+export async function warmVoice(text) {
+  if (!text || !text.trim()) return false;
+  if (typeof window === 'undefined') return false;
+  const cacheKey = `cypher|${text}`;
+  const cached = voiceCache.get(cacheKey);
+  if (cached?.audioBuffers?.length) return true;
+  let envelope;
+  try {
+    envelope = await speakVoice({ character: 'cypher', text });
+  } catch {
+    return false;
+  }
+  const segments = envelope.audio_segments && envelope.audio_segments.length
+    ? envelope.audio_segments
+    : (envelope.audio_b64 ? [envelope.audio_b64] : []);
+  if (!segments.length) return false;
+  cacheVoice(cacheKey, { envelope, audioBuffers: null });
+  // Decode now (a suspended context decodes fine) so play() later finds
+  // decoded buffers and starts at once. A fresh context per warm call,
+  // closed afterwards — warm-ups run one at a time, so at most one is
+  // ever open.
+  let ctx = null;
+  try {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await Promise.all(segments.map(async (b64) => {
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      return ctx.decodeAudioData(bytes.buffer);
+    }));
+    const entry = voiceCache.get(cacheKey);
+    if (entry) entry.audioBuffers = decoded;
+    return true;
+  } catch {
+    return false;
+  } finally {
+    if (ctx) {
+      try { await ctx.close(); } catch { /* ignore */ }
+    }
+  }
+}
+
 function readStored(key, fallback) {
   try {
     const v = localStorage.getItem(key);
@@ -130,6 +180,11 @@ export function useCypherVoice(voiceRef) {
     return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.9;
   });
   const [playing, setPlaying] = React.useState(false);
+  // True only while playback is frozen by pause(): the audio stopped at
+  // an exact spot (segment + offset) and resume() continues from there.
+  // Distinct from playing=false after stop() or the natural end, where
+  // the position is gone and the next play starts from the beginning.
+  const [paused, setPaused] = React.useState(false);
   // True only while the speak fetch is in flight. Synthesis of a long
   // answer can take ~25 s, and until now the button gave no feedback in
   // that window — the silence read as "voice isn't available". While
@@ -151,6 +206,11 @@ export function useCypherVoice(voiceRef) {
   // decode finishing after a stop — can never start audio for a play
   // that is no longer current.
   const playIdRef = React.useRef(0);
+  const pauseRef = React.useRef(null); // { segmentIndex, offset } while paused
+  const segmentRef = React.useRef({ index: 0, offset: 0, startedAt: 0 });
+  const audioBuffersRef = React.useRef(null); // decoded buffers of the current play, for resume()
+  const playSegmentRef = React.useRef(null); // playSegment of the current play (its closure)
+  const bandsRef = React.useRef(null); // Float32Array(24) frequency bands, mutated in place
 
   const stopLevelLoop = React.useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -158,8 +218,48 @@ export function useCypherVoice(voiceRef) {
     if (voiceRef) voiceRef.current = { talking: false, level: 0 };
   }, [voiceRef]);
 
+  // The analyser loop: reads the frequency data every animation frame and
+  // writes { talking, level, bands } into voiceRef for the face's mouth
+  // and the panel's waveform. `bands` is 24 averaged frequency bands
+  // (0..1), mutated in place on one shared Float32Array so readers always
+  // see the latest snapshot without a re-render. A no-op when no analyser
+  // is live, and never starts a second loop while one runs. If
+  // requestAnimationFrame is unavailable (a non-browser environment) the
+  // first sample still lands and the loop simply doesn't continue — the
+  // mouth and waveform stay at that one reading instead of animating.
+  const startLevelLoop = React.useCallback(() => {
+    const analyser = analyserRef.current;
+    if (!analyser || rafRef.current) return;
+    if (!bandsRef.current) bandsRef.current = new Float32Array(24);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const loop = () => {
+      analyser.getByteFrequencyData(data);
+      const bands = bandsRef.current;
+      const per = data.length / bands.length;
+      for (let b = 0; b < bands.length; b++) {
+        const start = Math.floor(b * per);
+        const end = Math.max(start + 1, Math.floor((b + 1) * per));
+        let sum = 0;
+        for (let i = start; i < end; i++) sum += data[i];
+        bands[b] = sum / (end - start) / 255;
+      }
+      const level = data.reduce((a, b) => a + b, 0) / data.length / 255;
+      if (voiceRef) voiceRef.current = { talking: true, level, bands };
+      try {
+        rafRef.current = requestAnimationFrame(loop);
+      } catch {
+        rafRef.current = null;
+      }
+    };
+    loop();
+  }, [voiceRef]);
+
   const stop = React.useCallback(() => {
     playIdRef.current += 1;
+    pauseRef.current = null;
+    audioBuffersRef.current = null;
+    playSegmentRef.current = null;
+    setPaused(false);
     if (sourceNodeRef.current) {
       sourceNodeRef.current.onended = null;
       try { sourceNodeRef.current.stop(); } catch { /* already stopped */ }
@@ -176,6 +276,49 @@ export function useCypherVoice(voiceRef) {
     setLoading(false);
     setSubtitle('');
   }, [stopLevelLoop]);
+
+  // Freeze playback at the exact spot: stop the current source and
+  // remember which segment and how far into it (buffer sources cannot be
+  // paused — the standard pattern is stop + resume from the offset).
+  // The AudioContext and gain stay open, so resume() needs no fresh
+  // gesture and no re-fetch. While paused the level goes flat (the mouth
+  // settles, the waveform idles). A no-op when nothing is playing.
+  const pause = React.useCallback(() => {
+    const source = sourceNodeRef.current;
+    const ctx = audioCtxRef.current;
+    if (!source || !ctx || pauseRef.current) return;
+    const started = segmentRef.current;
+    const elapsed = Math.max(0, ctx.currentTime - started.startedAt);
+    const dur = source.buffer?.duration;
+    let offset = started.offset + elapsed;
+    if (Number.isFinite(dur)) offset = Math.min(offset, dur);
+    pauseRef.current = { segmentIndex: started.index, offset };
+    source.onended = null;
+    try { source.stop(); } catch { /* already stopped */ }
+    sourceNodeRef.current = null;
+    stopLevelLoop();
+    setPlaying(false);
+    setPaused(true);
+  }, [stopLevelLoop]);
+
+  // Continue from the paused spot: restart the analyser loop and the
+  // segment chain at the remembered segment + offset — not from the
+  // start. If the pause landed exactly at a segment's end, start the
+  // next one instead. A no-op when nothing is paused.
+  const resume = React.useCallback(() => {
+    const pausedAt = pauseRef.current;
+    const ctx = audioCtxRef.current;
+    if (!pausedAt || !ctx) return;
+    pauseRef.current = null;
+    let { segmentIndex, offset } = pausedAt;
+    const buf = audioBuffersRef.current?.[segmentIndex];
+    if (buf && Number.isFinite(buf.duration) && offset >= buf.duration) {
+      segmentIndex += 1;
+      offset = 0;
+    }
+    startLevelLoop();
+    playSegmentRef.current?.(segmentIndex, offset);
+  }, [startLevelLoop]);
 
   const setMuted = React.useCallback((next) => {
     setMutedState(next);
@@ -290,7 +433,7 @@ export function useCypherVoice(voiceRef) {
       // degrade to text, same as any other playback failure below.
       setLoading(false);
       setFallback(true);
-      setError('Cipher’s voice couldn’t play here — the words are shown as text.');
+      setError('Cipher’s voice couldn’t play here.');
       setSubtitle('');
       return envelope.text;
     }
@@ -332,32 +475,30 @@ export function useCypherVoice(voiceRef) {
       gain.gain.value = muted ? 0 : volume;
       gain.connect(ctx.destination);
       gainNodeRef.current = gain;
-      // Analyser for the audio-reactive face: the level feeds voiceRef. This
-      // is cosmetic — if it's unavailable (no requestAnimationFrame, e.g. an
-      // older or non-browser environment), Cypher still talks at a flat
-      // level and the real audio still plays.
+      // Analyser for the audio-reactive face and the panel waveform: the
+      // level and the 24 frequency bands feed voiceRef (see
+      // startLevelLoop). This is cosmetic — if it's unavailable (no
+      // requestAnimationFrame, e.g. an older or non-browser environment),
+      // Cypher still talks at a flat level and the real audio still plays.
       try {
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
         analyserRef.current = analyser;
         gain.connect(analyser);
-        const data = new Uint8Array(analyser.frequencyBinCount);
-        const loop = () => {
-          analyser.getByteFrequencyData(data);
-          const level = data.reduce((a, b) => a + b, 0) / data.length / 255;
-          if (voiceRef) voiceRef.current = { talking: true, level };
-          rafRef.current = requestAnimationFrame(loop);
-        };
-        loop();
+        startLevelLoop();
       } catch {
-        if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
+        if (voiceRef) voiceRef.current = { talking: true, level: 0.25, bands: bandsRef.current };
       }
       // Play the segments in order: each source's onended starts the next,
       // and the last one's ends playback. The generation guard stops the
       // chain the moment stop() (or a new play()) invalidates this play.
-      const playSegment = (index) => {
+      // `offset` is the resume point inside a segment (0 on a fresh play):
+      // pause() stops the source and remembers it, resume() starts a new
+      // source here — buffer sources cannot be paused.
+      const playSegment = (index, offset = 0) => {
         if (playIdRef.current !== playId) return;
         if (index >= audioBuffers.length) {
+          sourceNodeRef.current = null;
           stopLevelLoop();
           setPlaying(false);
           setSubtitle('');
@@ -367,11 +508,21 @@ export function useCypherVoice(voiceRef) {
         source.buffer = audioBuffers[index];
         source.connect(gain);
         sourceNodeRef.current = source;
-        source.onended = () => playSegment(index + 1);
+        source.onended = () => playSegment(index + 1, 0);
+        segmentRef.current = { index, offset, startedAt: ctx.currentTime };
         setPlaying(true);
-        if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
-        source.start();
+        setPaused(false);
+        // Flat level for the mouth while this segment plays; the analyser
+        // loop (when it runs) overwrites it with the live level and bands
+        // every frame. Keep the last band snapshot here too, so the
+        // waveform still has something to draw in the one frame before
+        // the loop's next write — and in environments with no rAF at all,
+        // where the loop ran exactly once.
+        if (voiceRef) voiceRef.current = { talking: true, level: 0.25, bands: bandsRef.current };
+        source.start(0, offset);
       };
+      playSegmentRef.current = playSegment;
+      audioBuffersRef.current = audioBuffers;
       setLoading(false);
       playSegment(0);
       return envelope.text;
@@ -381,12 +532,12 @@ export function useCypherVoice(voiceRef) {
       stopLevelLoop();
       setPlaying(false);
       setSubtitle('');
-      setError('Cipher’s voice couldn’t play here — the words are shown as text.');
+      setError('Cipher’s voice couldn’t play here.');
       return envelope.text;
     }
-  }, [muted, volume, voiceRef, stop, stopLevelLoop]);
+  }, [muted, volume, voiceRef, stop, stopLevelLoop, startLevelLoop]);
 
   React.useEffect(() => stop, [stop]);
 
-  return { play, stop, playing, loading, fallback, error, subtitle, muted, setMuted, volume, setVolume };
+  return { play, stop, pause, resume, playing, paused, loading, fallback, error, subtitle, muted, setMuted, volume, setVolume };
 }
