@@ -20,14 +20,23 @@ client = TestClient(main.app)
 
 
 class FakeCompletions:
-    def __init__(self, parts=("Hello", " world"), error=None):
+    def __init__(self, parts=("Hello", " world"), error=None, finish_reason=None):
         self.parts, self.error, self.calls = parts, error, []
+        # finish_reason to attach to the final chunk's choice (None = the
+        # model's default register: no reason reported on content chunks).
+        self.finish_reason = finish_reason
 
     def create(self, **kwargs):
         self.calls.append(kwargs)
         if self.error:
             raise self.error
-        return iter(SimpleNamespace(choices=[SimpleNamespace(delta=SimpleNamespace(content=p))]) for p in self.parts)
+        chunks = []
+        for i, p in enumerate(self.parts):
+            choice = SimpleNamespace(delta=SimpleNamespace(content=p))
+            if i == len(self.parts) - 1 and self.finish_reason is not None:
+                choice.finish_reason = self.finish_reason
+            chunks.append(SimpleNamespace(choices=[choice]))
+        return iter(chunks)
 
 
 @pytest.fixture
@@ -277,3 +286,35 @@ def test_lesson_text_changes_the_cache_key(fake):
 def test_oversized_lesson_text_is_422(fake):
     body = {**CARD, "lesson_text": "x" * (ai_tutor.LESSON_TEXT_MAX_CHARS + 1)}
     assert client.post("/api/ai/tutor", json=body).status_code == 422
+
+
+def test_explain_budget_fits_a_full_lesson_answer():
+    """Regression: lesson 3.3's "Explain this concept" answer was cut off
+    mid-sentence ("...firewalls, access control,") before ACLs, VPNs, DDoS
+    and NAC — its full answer needs ~500 tokens at the observed density
+    and the 350-token budget stopped it. The budget must stay comfortably
+    above a whole lesson answer."""
+    assert ai_tutor.MAX_TOKENS["explain"] >= 800
+
+
+def test_budget_change_invalidates_the_cache_key(fake, monkeypatch):
+    """A budget change must never keep serving an answer cached under the
+    old budget: lesson 3.3's truncated answer is on disk keyed to the
+    350-token budget, and the fix only lands if the new request misses
+    that cache entry and regenerates."""
+    key_before = ai_tutor.cache_key(ai_tutor.TutorReq(**CARD))
+    monkeypatch.setitem(ai_tutor.MAX_TOKENS, "explain", ai_tutor.MAX_TOKENS["explain"] + 1)
+    assert ai_tutor.cache_key(ai_tutor.TutorReq(**CARD)) != key_before
+
+
+def test_length_finish_reason_is_logged(fake, caplog):
+    """When the model stops because it hit the token budget, the cut-off
+    must be visible in the logs — the 3.3 truncation was silent, the
+    stream just ended with "done". The answer itself still streams."""
+    fake.finish_reason = "length"
+    with caplog.at_level("WARNING", logger="ai_tutor"):
+        r = client.post("/api/ai/tutor", json=CARD)
+    assert r.status_code == 200
+    assert "".join(e.get("t", "") for e in events(r)) == "Hello world"
+    assert "token budget" in caplog.text
+    assert "length" in caplog.text

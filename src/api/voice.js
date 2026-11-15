@@ -1,7 +1,10 @@
 // Client for the backend character-voice service (backend/voice.py).
 // The ElevenLabs key and voice IDs never reach the browser: the client
 // sends {character, text} and gets audio back (base64 MP3) or a text-only
-// fallback ({audio_b64: null, fallback: true}).
+// fallback ({audio_b64: null, fallback: true}). Long answers arrive as
+// segments (audio_segments, one base64 MP3 per synthesis chunk, in order)
+// and are played back to back; a short answer has one segment, and an
+// older response shape with only audio_b64 is read as a single segment.
 import React from 'react';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -23,9 +26,12 @@ export async function fetchVoiceStatus() {
 
 /**
  * Ask the backend to speak `text` as `character`. Resolves with the
- * envelope {character, text, audio_b64, mime, cached, fallback, reason?}.
- * Throws a learner-friendly Error on auth/paywall/rate-limit failures;
- * a fallback envelope is NOT an error — the caller shows the subtitles.
+ * envelope {character, text, audio_b64, audio_segments, mime, cached,
+ * fallback, reason?}. audio_segments is the audio in order (one base64
+ * MP3 per synthesis chunk); audio_b64 is the same audio concatenated
+ * for single-file consumers. Throws a learner-friendly Error on
+ * auth/paywall/rate-limit failures; a fallback envelope is NOT an error
+ * — the caller shows the subtitles.
  */
 export async function speakVoice({ character, text }) {
   const res = await fetch(`${API_BASE}/voice/speak`, {
@@ -63,15 +69,16 @@ export async function speakVoice({ character, text }) {
 const MUTE_KEY = 'rtc-cypher-voice-muted';
 const VOLUME_KEY = 'rtc-cypher-voice-volume';
 
-// In-tab cache of {character, text} -> {envelope, audioBuffer}, so asking
+// In-tab cache of {character, text} -> {envelope, audioBuffers}, so asking
 // Cypher to repeat something already heard this visit (a lesson he already
 // explained, "Hear again") never re-fetches or re-downloads: no request to
-// /voice/speak at all, and no re-decoding once the AudioBuffer is cached.
-// Module-level (not per-hook-instance) so it survives remounting the panel
-// while navigating between lessons in the same tab. Capped and FIFO-evicted
-// — this is a speed/bandwidth cache for the current visit, not meant to
-// grow without bound; the backend's own disk cache is what makes a lesson
-// "cached forever" across visits and restarts.
+// /voice/speak at all, and no re-decoding once the AudioBuffers are cached.
+// audioBuffers is one decoded buffer per segment, aligned with the
+// envelope's segments. Module-level (not per-hook-instance) so it survives
+// remounting the panel while navigating between lessons in the same tab.
+// Capped and FIFO-evicted — this is a speed/bandwidth cache for the
+// current visit, not meant to grow without bound; the backend's own disk
+// cache is what makes a lesson "cached forever" across visits and restarts.
 const MAX_CLIENT_VOICE_CACHE = 40;
 const voiceCache = new Map();
 
@@ -139,6 +146,11 @@ export function useCypherVoice(voiceRef) {
   const audioCtxRef = React.useRef(null);
   const sourceNodeRef = React.useRef(null);
   const gainNodeRef = React.useRef(null);
+  // Generation guard for the segment chain: stop() (and a new play(),
+  // which calls stop() first) bumps it, so a segment's onended — or a
+  // decode finishing after a stop — can never start audio for a play
+  // that is no longer current.
+  const playIdRef = React.useRef(0);
 
   const stopLevelLoop = React.useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -147,6 +159,7 @@ export function useCypherVoice(voiceRef) {
   }, [voiceRef]);
 
   const stop = React.useCallback(() => {
+    playIdRef.current += 1;
     if (sourceNodeRef.current) {
       sourceNodeRef.current.onended = null;
       try { sourceNodeRef.current.stop(); } catch { /* already stopped */ }
@@ -179,6 +192,11 @@ export function useCypherVoice(voiceRef) {
 
   const play = React.useCallback(async (text) => {
     stop();
+    // This play's generation: stop() (above) bumped the counter, and any
+    // later stop() invalidates this play — checked after each await and
+    // before each segment starts, so a stale onended or a decode finishing
+    // after a stop never starts audio for a play that is no longer current.
+    const playId = playIdRef.current;
     setError('');
     setFallback(false);
     if (!text || !text.trim()) return '';
@@ -216,12 +234,14 @@ export function useCypherVoice(voiceRef) {
     const cacheKey = `cypher|${text}`;
     const cached = voiceCache.get(cacheKey);
     let envelope;
-    let audioBuffer = null;
+    // Decoded audio, one AudioBuffer per segment, aligned with the
+    // envelope's segments (see below). A replay reuses them all.
+    let audioBuffers = null;
     if (cached) {
       // Already heard this exact text this visit: skip the fetch (and the
       // ElevenLabs/OpenAI cost it could trigger server-side) entirely.
       envelope = cached.envelope;
-      audioBuffer = cached.audioBuffer;
+      audioBuffers = cached.audioBuffers;
     } else {
       // The speak fetch (ElevenLabs synthesis) can take ~25 s for a long
       // answer. `loading` is true for exactly that window, so callers can
@@ -240,13 +260,21 @@ export function useCypherVoice(voiceRef) {
         setSubtitle('');
         return '';
       }
-      cacheVoice(cacheKey, { envelope, audioBuffer: null });
+      cacheVoice(cacheKey, { envelope, audioBuffers: null });
     }
+    // A stop() while the fetch was in flight ends this play here.
+    if (playIdRef.current !== playId) return '';
     // The subtitle is the backend's cleaned text (Markdown stripped for
     // speech), not the raw answer — so the words on screen match the
     // words Cipher speaks, with no "###" or "**" ever showing.
     setSubtitle(envelope.text || '');
-    if (!envelope.audio_b64 || muted) {
+    // Long answers arrive as segments (the backend synthesizes them chunk
+    // by chunk); a short answer has one. An older response shape carries
+    // only audio_b64 — read it as a single segment.
+    const segments = envelope.audio_segments && envelope.audio_segments.length
+      ? envelope.audio_segments
+      : (envelope.audio_b64 ? [envelope.audio_b64] : []);
+    if (!segments.length || muted) {
       // Text-only fallback (voice not configured, or muted): Cypher still
       // "talks" — the talk clip plays while the words are shown, so the
       // experience degrades to silent speech, never to nothing.
@@ -267,14 +295,20 @@ export function useCypherVoice(voiceRef) {
       return envelope.text;
     }
     try {
-      if (!audioBuffer) {
-        const bytes = Uint8Array.from(atob(envelope.audio_b64), (c) => c.charCodeAt(0));
-        audioBuffer = await ctx.decodeAudioData(bytes.buffer);
+      if (!audioBuffers || audioBuffers.length !== segments.length || audioBuffers.some((b) => !b)) {
+        const decoded = await Promise.all(segments.map(async (b64) => {
+          const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+          return ctx.decodeAudioData(bytes.buffer);
+        }));
         // An AudioBuffer isn't tied to the AudioContext that decoded it, so
         // it's safe to replay later through a different (future) context.
+        audioBuffers = decoded;
         const entry = voiceCache.get(cacheKey);
-        if (entry) entry.audioBuffer = audioBuffer;
+        if (entry) entry.audioBuffers = decoded;
       }
+      // A stop() while decoding must not start audio for a play that is
+      // no longer current.
+      if (playIdRef.current !== playId) return '';
       // Safari auto-play: the context may still be suspended — the
       // opening auto-plays with no user gesture, so the resume() above
       // cannot unlock it. Give resume() 1 s, then fall back to silent
@@ -291,14 +325,13 @@ export function useCypherVoice(voiceRef) {
         startSilentTimer(envelope.text);
         return envelope.text;
       }
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
+      // One shared gain for the whole answer: every segment connects to
+      // it, so volume/mute and the analyser below keep working across
+      // the joins between segments.
       const gain = ctx.createGain();
       gain.gain.value = muted ? 0 : volume;
-      source.connect(gain);
       gain.connect(ctx.destination);
       gainNodeRef.current = gain;
-      sourceNodeRef.current = source;
       // Analyser for the audio-reactive face: the level feeds voiceRef. This
       // is cosmetic — if it's unavailable (no requestAnimationFrame, e.g. an
       // older or non-browser environment), Cypher still talks at a flat
@@ -319,15 +352,28 @@ export function useCypherVoice(voiceRef) {
       } catch {
         if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
       }
-      source.onended = () => {
-        stopLevelLoop();
-        setPlaying(false);
-        setSubtitle('');
+      // Play the segments in order: each source's onended starts the next,
+      // and the last one's ends playback. The generation guard stops the
+      // chain the moment stop() (or a new play()) invalidates this play.
+      const playSegment = (index) => {
+        if (playIdRef.current !== playId) return;
+        if (index >= audioBuffers.length) {
+          stopLevelLoop();
+          setPlaying(false);
+          setSubtitle('');
+          return;
+        }
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffers[index];
+        source.connect(gain);
+        sourceNodeRef.current = source;
+        source.onended = () => playSegment(index + 1);
+        setPlaying(true);
+        if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
+        source.start();
       };
-      setPlaying(true);
-      if (voiceRef) voiceRef.current = { talking: true, level: 0.25 };
-      source.start();
       setLoading(false);
+      playSegment(0);
       return envelope.text;
     } catch {
       setLoading(false);

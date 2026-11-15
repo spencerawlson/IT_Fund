@@ -60,7 +60,18 @@ TUTOR_CACHE_DIR = Path(os.getenv("TUTOR_CACHE_DIR", Path(__file__).with_name(".t
 Mode = Literal["hint", "explain", "simplify", "example", "weakspots", "chat"]
 
 # Output budget per mode keeps answers short and costs predictable.
-MAX_TOKENS = {"hint": 150, "explain": 350, "simplify": 300, "example": 300, "weakspots": 500, "chat": 600}
+# The lesson-panel modes must fit a WHOLE lesson answer: "explain" was
+# 350 tokens and cut lesson 3.3 off mid-sentence ("...firewalls, access
+# control,") before its last section (ACLs, VPNs, DDoS, NAC) — a full
+# answer for that lesson needs ~500 tokens at the observed density, and
+# the longest lesson bodies (~7,400 chars) need more headroom still.
+# 900 is a ceiling, not a target: the model stops when the explanation is
+# done, and the voice pipeline chunks long answers, so a longer answer
+# still speaks. "example" gets the same treatment at 600 (one concrete
+# scenario for a dense lesson can run past 300). "simplify" stays 300 —
+# its prompt already caps it at 120 words (~160 tokens) — and hint (1-3
+# sentences), weakspots and chat are untouched.
+MAX_TOKENS = {"hint": 150, "explain": 900, "simplify": 300, "example": 600, "weakspots": 500, "chat": 600}
 
 #: Max lesson text the panel may send with a request. The longest lesson
 #: body is ~7,400 chars; 12,000 leaves headroom and bounds the prompt cost.
@@ -287,7 +298,12 @@ def cache_key(req: TutorReq) -> Optional[str]:
     # The lesson text is part of the key: the same question grounded on two
     # different lessons is two different answers, and a pre-grounding cached
     # answer (no lesson text) must never be served to a grounded request.
-    raw = json.dumps([req.mode, req.level, req.question, req.answer, req.user_answer, req.options, req.lesson_text], sort_keys=True)
+    # The token budget is part of the key too: when the budget changes, a
+    # stale answer generated under the old budget (e.g. lesson 3.3's
+    # mid-sentence cut-off, cached under the 350-token budget) must never
+    # be served as if it were generated under the new one — it regenerates
+    # once, then caches under the new budget.
+    raw = json.dumps([req.mode, MAX_TOKENS[req.mode], req.level, req.question, req.answer, req.user_answer, req.options, req.lesson_text], sort_keys=True)
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
@@ -354,6 +370,7 @@ def stream_answer(client, req: TutorReq, key: Optional[str], user_id: str) -> It
             return
     parts: list[str] = []
     usage = None
+    finish_reason = None
     try:
         stream = client.chat.completions.create(
             model=MODEL,
@@ -369,7 +386,16 @@ def stream_answer(client, req: TutorReq, key: Optional[str], user_id: str) -> It
                 usage = chunk_usage
             if not chunk.choices:
                 continue
-            delta = chunk.choices[0].delta.content
+            choice = chunk.choices[0]
+            # The model stops mid-sentence when it hits the token budget
+            # (finish_reason "length") — lesson 3.3's cut-off was exactly
+            # that, and it was silent: the stream just ended with "done".
+            # Record it so a future budget cut is visible in the logs
+            # instead of surfacing as a mysteriously short answer.
+            reason = getattr(choice, "finish_reason", None)
+            if reason is not None:
+                finish_reason = reason
+            delta = choice.delta.content
             if delta:
                 parts.append(delta)
                 yield _sse({"t": delta})
@@ -379,6 +405,15 @@ def stream_answer(client, req: TutorReq, key: Optional[str], user_id: str) -> It
         yield _sse({"error": msg})
         _log_call(user_id, req, MODEL, None, cached=False, error=True)
         return
+    if finish_reason == "length":
+        log.warning(
+            "tutor answer hit the token budget (mode=%s, budget=%s, finish_reason=%s, key=%s): "
+            "the answer was cut off mid-sentence; raise MAX_TOKENS for this mode",
+            req.mode,
+            MAX_TOKENS[req.mode],
+            finish_reason,
+            key,
+        )
     if key and parts:
         text = "".join(parts)
         _cache_put(key, text)
