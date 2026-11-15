@@ -23,7 +23,6 @@ vi.mock('@/api/tutor', () => ({
   streamTutor: (...args) => tutorMocks.streamTutor(...args),
 }));
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
-vi.mock('@/components/three/CypherCharacter', () => ({ default: () => null }));
 
 // SSR: effects (analytics, tutor status) do not run, so the panel renders
 // its first paint — greeting, difficulty selector, and the three
@@ -80,11 +79,22 @@ describe('CypherLessonPanel', () => {
     expect(html).not.toContain('Why are these still open?');
   });
 
-  it('renders the 3D Cypher viewer without any manipulation hint (presenter-only)', () => {
+  it('renders the background video loop instead of the 3D viewer, with the tutor caption', () => {
     const html = renderPanel({
       lesson: { id: 'net-security', title: 'Network Security', trackId: 'net' },
       missionId: 'op-broken-shield',
     });
+    // The video replaces the 3D model viewport: looped, muted, inline,
+    // autoplaying, served from public/videos.
+    expect(html).toContain('<video');
+    expect(html).toContain('/videos/cypher-bg-pilot-v2.mp4');
+    expect(html).toContain('autoplay=""');
+    expect(html).toContain('loop=""');
+    expect(html).toContain('muted=""');
+    expect(html).toContain('playsinline=""');
+    expect(html).toContain('preload="auto"');
+    expect(html).toContain('Cipher — your AI tutor');
+    // No 3D viewer at all anymore: no manipulation hints, no model slot.
     expect(html).not.toContain('Drag to rotate');
     expect(html).not.toContain('Scroll to zoom');
     expect(html).not.toContain('Click parts for info');
@@ -358,5 +368,38 @@ describe('CypherLessonPanel listen-first (mounted)', () => {
     expect(treeText()).not.toContain('Speaking…');
     expect(findButton('Hear Cipher say it')).toBeTruthy();
     expect(findButton('Read answer')).toBeFalsy();
+  });
+
+  it('plays the background video loop when motion is allowed', () => {
+    mountPanel();
+    const videos = root.root.findAllByType('video');
+    expect(videos.length).toBe(1);
+    const video = videos[0];
+    expect(video.props.src).toBe('/videos/cypher-bg-pilot-v2.mp4');
+    expect(video.props.autoPlay).toBe(true);
+    expect(video.props.loop).toBe(true);
+    expect(video.props.muted).toBe(true);
+    expect(video.props.playsInline).toBe(true);
+    expect(video.props.preload).toBe('auto');
+    expect(video.props['aria-hidden']).toBe(true);
+  });
+
+  it('shows the video paused on its first frame under prefers-reduced-motion', () => {
+    globalThis.window.matchMedia = () => ({
+      matches: true,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    });
+    mountPanel();
+    const videos = root.root.findAllByType('video');
+    expect(videos.length).toBe(1);
+    const video = videos[0];
+    expect(video.props.src).toBe('/videos/cypher-bg-pilot-v2.mp4');
+    expect(video.props.autoPlay).toBeFalsy();
+    expect(video.props.loop).toBeFalsy();
+    expect(video.props.preload).toBe('metadata');
+    // Still muted (autoplay policy) and hidden from assistive tech.
+    expect(video.props.muted).toBe(true);
+    expect(video.props['aria-hidden']).toBe(true);
   });
 });

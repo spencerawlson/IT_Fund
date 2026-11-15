@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Square, Volume2 } from 'lucide-react';
-import CypherViewer from '@/components/three/CypherCharacter';
+import CypherBgVideo from '@/components/academy/tutor/CypherBgVideo';
 import { useTutor, useTutorEnabled, TutorText, Thinking, pillClass } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
@@ -31,9 +31,11 @@ export function presetQuestion(mode, lessonTitle, level) {
   }
 }
 
-// Cypher on the lesson page (Network Security first): the 3D tutor offers
+// Cypher on the lesson page (Network Security first): the tutor offers
 // assistance through the existing server-side AI tutor (no duplicate
-// chatbot). Three buttons — explain, example, simplify — each ask directly
+// chatbot). His visual is the approved background loop (CypherBgVideo) —
+// the 12 s server-room clip, not the 3D viewport; the video already shows
+// him seated at his desk. Three buttons — explain, example, simplify — each ask directly
 // for the current lesson context, no typing. Answers are listen-first and
 // voice-only: Cypher speaks each answer as soon as it arrives, with no
 // subtitle paragraph while he talks; when voice is unavailable or muted the
@@ -107,7 +109,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="w-full shrink-0 sm:w-56">
-          <CypherViewer voiceRef={voiceRef} />
+          <CypherBgVideo />
           <p className="mt-1 text-center text-caption text-ink-2">Cipher — your AI tutor</p>
         </div>
         <div className="min-w-0 flex-1">
