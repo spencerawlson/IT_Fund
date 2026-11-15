@@ -5,7 +5,11 @@ import TestRenderer from 'react-test-renderer';
 import CypherFace, {
   CYPHER_EMOTIONS,
   CYPHER_FACE_SRC,
-  CYPHER_MOUTH_BOX,
+  MOUTH_SMILE_Y,
+  MOUTH_XS,
+  mouthGeometry,
+  mouthInnerPath,
+  mouthOuterPath,
   mouthOpenForLevel,
   mouthOpenRhythm,
 } from './CypherFace';
@@ -81,26 +85,103 @@ describe('CypherFace', () => {
 });
 
 describe('CypherFace talking mouth', () => {
-  // The mouth box is measured from the 320x320 Happy PNG, not eyeballed:
-  // the smile curve is x 133-188, y 188-211; the visor bottom is y 219
-  // (68.4%). The overlay is anchored on the smile's top edge and grows
-  // down to the visor's bottom edge.
-  it('positions the mouth overlay on the measured smile', () => {
-    expect(CYPHER_MOUTH_BOX).toEqual({ left: 41.6, top: 58.8, width: 17.2, height: 9.6 });
-    const html = renderToString(<CypherFace />);
-    expect(html).toContain('data-testid="cypher-mouth"');
-    expect(html).toContain('left:41.6%');
-    expect(html).toContain('top:58.8%');
-    expect(html).toContain('width:17.2%');
-    expect(html).toContain('height:9.6%');
-    // At rest the mouth is shut: the smile shows, the overlay is invisible.
-    expect(html).toContain('scale(0.85, 0)');
+  // The mouth geometry is measured from the 320x320 PNGs, not eyeballed:
+  // the Happy smile centreline is MOUTH_SMILE_Y at MOUTH_XS (x 131-189,
+  // y 191 at the ends, 208 in the middle); the open D is the Excited
+  // face's mouth (top y 182, bottom bowl to y 215). The fix for PR #75's
+  // split (a dark ellipse nested inside the white smile, a second mouth):
+  // the mouth IS the white line — one shape that morphs from the smile
+  // into the D, so the white smile is never visible beside it.
+
+  it('closed, the outer mouth covers the whole smile — ends included', () => {
+    const g = mouthGeometry(0);
+    // Interior points: the crescent sits ~1 px clear of the smile's
+    // ~7 px stroke on each side (top <= centreline - 4, bottom >=
+    // centreline + 4), so the original white line is fully covered.
+    for (let i = 1; i < MOUTH_XS.length - 1; i++) {
+      expect(g.outerTop[i]).toBeLessThanOrEqual(MOUTH_SMILE_Y[i] - 4);
+      expect(g.outerBottom[i]).toBeGreaterThanOrEqual(MOUTH_SMILE_Y[i] + 4);
+    }
+    // Pointed ends sit on the centreline, so the smile's rounded caps
+    // are covered too — this is the part PR #75 missed (its ellipse
+    // tapered to nothing at the ends, leaving the whole smile showing).
+    expect(g.outerTop[0]).toBe(MOUTH_SMILE_Y[0]);
+    expect(g.outerBottom[0]).toBe(MOUTH_SMILE_Y[0]);
+    expect(g.outerTop[MOUTH_XS.length - 1]).toBe(MOUTH_SMILE_Y[MOUTH_XS.length - 1]);
+    expect(g.outerBottom[MOUTH_XS.length - 1]).toBe(MOUTH_SMILE_Y[MOUTH_XS.length - 1]);
+    // Closed, the inner mouth is a zero-area line on the centreline:
+    // invisible, so the resting face is just the smile — one mouth.
+    for (let i = 0; i < MOUTH_XS.length; i++) {
+      expect(g.innerTop[i]).toBe(g.innerBottom[i]);
+      expect(g.innerTop[i]).toBe(MOUTH_SMILE_Y[i]);
+    }
+  });
+
+  it('fully open, the mouth is the Excited D — and the inner mouth sits inside the outer', () => {
+    const g = mouthGeometry(1);
+    expect(g.outerTop.every((y) => y === 182)).toBe(true);
+    expect(g.outerBottom[3]).toBe(215);
+    expect(Math.min(...g.outerTop, ...g.outerBottom)).toBe(182);
+    expect(Math.max(...g.outerTop, ...g.outerBottom)).toBe(215);
+    // The inner (visor) mouth is strictly inside the white outer mouth
+    // at every x, so the open mouth reads as a white outline with the
+    // visor showing through — exactly the Excited face's mouth.
+    for (let i = 0; i < MOUTH_XS.length; i++) {
+      expect(g.innerTop[i]).toBeGreaterThanOrEqual(g.outerTop[i]);
+      expect(g.innerBottom[i]).toBeLessThanOrEqual(g.outerBottom[i]);
+    }
+    expect(g.innerTop[3]).toBe(187);
+    expect(g.innerBottom[3]).toBe(209);
+  });
+
+  it('the mouth morphs monotonically: the top flattens and the bowl deepens as it opens', () => {
+    const closed = mouthGeometry(0);
+    const half = mouthGeometry(0.5);
+    const open = mouthGeometry(1);
+    expect(half.outerTop[3]).toBeLessThan(closed.outerTop[3]);
+    expect(open.outerTop[3]).toBeLessThan(half.outerTop[3]);
+    expect(half.outerBottom[3]).toBeGreaterThan(closed.outerBottom[3]);
+    expect(open.outerBottom[3]).toBeGreaterThan(half.outerBottom[3]);
+    // The dark interior stays shut while the mouth is still essentially
+    // a smile (below open 0.5): a slit appearing there would cut the
+    // white crescent into two stacked arcs — a second mouth. It only
+    // grows once the mouth is genuinely open.
+    const third = mouthGeometry(0.3);
+    for (let i = 0; i < MOUTH_XS.length; i++) {
+      expect(third.innerTop[i]).toBe(third.innerBottom[i]);
+    }
+    expect(half.innerBottom[3] - half.innerTop[3]).toBe(0);
+    const mostly = mouthGeometry(0.75);
+    expect(mostly.innerBottom[3]).toBeGreaterThan(mostly.innerTop[3]);
+    expect(open.innerBottom[3] - open.innerTop[3]).toBeGreaterThan(
+      mostly.innerBottom[3] - mostly.innerTop[3],
+    );
+  });
+
+  it('mouth paths are deterministic closed loops in the 320x320 face space', () => {
+    expect(mouthOuterPath(0)).toBe(mouthOuterPath(0));
+    expect(mouthInnerPath(0.5)).toBe(mouthInnerPath(0.5));
+    expect(mouthOuterPath(0)).not.toBe(mouthOuterPath(1));
+    expect(mouthInnerPath(0)).not.toBe(mouthInnerPath(1));
+    for (const d of [mouthOuterPath(0), mouthOuterPath(1), mouthInnerPath(0), mouthInnerPath(1)]) {
+      expect(d.startsWith('M ')).toBe(true);
+      expect(d.endsWith(' Z')).toBe(true);
+    }
   });
 
   it('renders the mouth only for the Happy (speaking) face', () => {
-    const html = renderToString(<CypherFace emotion="sad" />);
-    expect(html).toContain('/images/cypher-face-sad.png');
-    expect(html).not.toContain('cypher-mouth');
+    const html = renderToString(<CypherFace emotion="happy" />);
+    expect(html).toContain('data-testid="cypher-mouth"');
+    expect(html).toContain('<svg');
+    const sad = renderToString(<CypherFace emotion="sad" />);
+    expect(sad).toContain('/images/cypher-face-sad.png');
+    expect(sad).not.toContain('cypher-mouth');
+  });
+
+  it('at rest the mouth is the closed smile path', () => {
+    const html = renderToString(<CypherFace />);
+    expect(html).toContain(`d="${mouthOuterPath(0)}"`);
+    expect(html).toContain(`d="${mouthInnerPath(0)}"`);
   });
 
   it('mouthOpenForLevel: a small floor, fully open at full level, clamped', () => {
@@ -126,12 +207,12 @@ describe('CypherFace talking mouth', () => {
     expect(mouthOpenRhythm(1000)).not.toBeCloseTo(mouthOpenRhythm(1000 + 1000 / 4.4), 5);
   });
 
-  const mouthScaleY = (root) => {
-    const t = root.root.findByProps({ 'data-testid': 'cypher-mouth' }).props.style.transform;
-    return parseFloat(t.match(/scale\([\d.]+,\s*([\d.]+)\)/)[1]);
+  const mouthDs = (root) => {
+    const svg = root.root.findByProps({ 'data-testid': 'cypher-mouth' });
+    return svg.findAllByType('path').map((p) => p.props.d);
   };
 
-  it('opens the mouth while talking from the live level, and settles when speech stops', () => {
+  it('morphs the mouth while talking from the live level, and settles when speech stops', () => {
     const levelRef = { current: { level: 0.8 } };
     vi.useFakeTimers();
     let root;
@@ -139,17 +220,20 @@ describe('CypherFace talking mouth', () => {
       TestRenderer.act(() => {
         root = TestRenderer.create(<CypherFace emotion="happy" talking levelRef={levelRef} />);
       });
-      expect(mouthScaleY(root)).toBe(0);
+      expect(mouthDs(root)).toEqual([mouthOuterPath(0), mouthInnerPath(0)]);
       TestRenderer.act(() => {
         vi.advanceTimersByTime(300);
       });
-      // Three 100 ms ticks at level 0.8, smoothed: open ramps past half.
-      expect(mouthScaleY(root)).toBeGreaterThan(0.5);
+      // Three 100 ms ticks at level 0.8, smoothed: the mouth is well
+      // open — a different shape from the resting smile, not a second one.
+      const [outer] = mouthDs(root);
+      expect(outer).not.toBe(mouthOuterPath(0));
+      expect(outer).not.toBe(mouthOuterPath(1));
       // Stop talking: the mouth settles back to the resting smile.
       TestRenderer.act(() => {
         root.update(<CypherFace emotion="happy" talking={false} levelRef={levelRef} />);
       });
-      expect(mouthScaleY(root)).toBe(0);
+      expect(mouthDs(root)).toEqual([mouthOuterPath(0), mouthInnerPath(0)]);
     } finally {
       TestRenderer.act(() => {
         root.unmount();
@@ -171,14 +255,12 @@ describe('CypherFace talking mouth', () => {
       TestRenderer.act(() => {
         vi.advanceTimersByTime(800);
       });
-      const first = mouthScaleY(root);
+      const first = mouthDs(root);
       TestRenderer.act(() => {
         vi.advanceTimersByTime(150);
       });
-      const second = mouthScaleY(root);
-      expect(first).not.toBe(second);
-      expect(first).toBeGreaterThanOrEqual(0.2);
-      expect(first).toBeLessThanOrEqual(0.6);
+      const second = mouthDs(root);
+      expect(first).not.toEqual(second);
     } finally {
       TestRenderer.act(() => {
         root.unmount();
@@ -197,7 +279,7 @@ describe('CypherFace talking mouth', () => {
       TestRenderer.act(() => {
         vi.advanceTimersByTime(1000);
       });
-      expect(mouthScaleY(root)).toBe(0);
+      expect(mouthDs(root)).toEqual([mouthOuterPath(0), mouthInnerPath(0)]);
     } finally {
       TestRenderer.act(() => {
         root.unmount();
@@ -222,7 +304,7 @@ describe('CypherFace talking mouth', () => {
       TestRenderer.act(() => {
         vi.advanceTimersByTime(1000);
       });
-      expect(mouthScaleY(root)).toBe(0);
+      expect(mouthDs(root)).toEqual([mouthOuterPath(0), mouthInnerPath(0)]);
     } finally {
       TestRenderer.act(() => {
         root.unmount();
