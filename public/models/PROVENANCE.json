@@ -17,14 +17,14 @@
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 19,373 tris (v2: planar-dissolve 2°, Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 0.95 MB",
     "title": "R2C Wireless Access Point"
   },
   "lab-cloud": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 20,000 tris (v2: Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 0.84 MB",
     "title": "R2C Cloud Computing Architecture"
   },
   "lab-firewall": {
@@ -38,42 +38,42 @@
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris (two-stage: gltf-transform meshopt, then Blender)",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 59,999 tris (v2: weld UV-split verts, two-stage Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 2.46 MB",
     "title": "R2C NAS Storage Appliance"
   },
   "lab-rack-server": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 56,359 tris, untextured",
+    "source": "Meshy AI (meshy.ai), REGENERATED as Meshy N1 2026-11-14 on Spencer's PRO account (textured — fixes the plain-white PR #69 version), slimmed 2026-11-15 to 39,456 tris (v2: planar-dissolve 5°, Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 1.61 MB",
     "title": "R2C Rack Server 2U"
   },
   "lab-router": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 40,384 tris (v2: planar-dissolve 5°, Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 1.62 MB",
     "title": "R2C Enterprise Router ER1000"
   },
   "lab-server-rack": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris (two-stage: gltf-transform meshopt, then Blender)",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 42,364 tris (v2: two-stage meshopt + Blender, planar-dissolve 5°, Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 2.17 MB",
     "title": "R2C 42U Server Rack"
   },
   "lab-switch": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 41,216 tris (v2: planar-dissolve 5°, Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 1.57 MB",
     "title": "R2C 48-Port Managed Network Switch"
   },
   "lab-ups": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
     "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 59,999 tris (v2: weld UV-split verts, two-stage Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 2.33 MB",
     "title": "R2C Rack-Mounted UPS"
   },
   "pc": {

@@ -13,22 +13,35 @@ feed the mission SOC scene, so the Lab must never reuse those names.
 
 | File | Visual Lab subject | Notes |
 |---|---|---|
-| `lab-switch.glb` | 3D Network Switch | Spencer's own Meshy generation (2026-11-14), slimmed to 20,000 tris / ~1.3 MB. |
-| `lab-router.glb` | 3D Enterprise Router | Spencer's own Meshy generation (2026-11-14), slimmed to 20,000 tris / ~1.4 MB. |
-| `lab-firewall.glb` | 3D Next-Gen Firewall | Spencer's own Meshy generation (2026-11-14), slimmed to 100,896 tris / 1.34 MB. Untextured — Meshy generated it without a texture pass, so its look is pure geometry; a Planar pass + smooth normals keep the flat faces clean. |
-| `lab-access-point.glb` | 3D Wireless Access Point | Spencer's own Meshy generation (2026-11-14), slimmed to 20,000 tris / ~1.3 MB. |
-| `lab-nas.glb` | 3D NAS Storage | Spencer's own Meshy generation (2026-11-14), slimmed to 20,000 tris / 1.53 MB. Two-stage slim (gltf-transform meshopt, then Blender) — the 5.5M-tri source OOMs Blender's decimator. |
-| `lab-ups.glb` | 3D UPS | Spencer's own Meshy generation (2026-11-14), slimmed to 20,000 tris / 1.45 MB. |
-| `lab-rack-server.glb` | 3D Rack Server | Spencer's own Meshy generation (2026-11-14), slimmed to 56,359 tris / 1.16 MB. Untextured — see firewall. |
-| `lab-server-rack.glb` | 3D Server Rack | Spencer's own Meshy generation (2026-11-14), slimmed to 20,000 tris / 1.39 MB. The 42U rack. Two-stage slim (gltf-transform meshopt, then Blender) — the 7.8M-tri source OOMs Blender's decimator. |
-| `lab-cloud.glb` | 3D Cloud Architecture | Spencer's own Meshy generation (2026-11-14), slimmed to 20,000 tris / ~1.3 MB. The blueprint sheet as a standing panel. |
+| `lab-switch.glb` | 3D Network Switch | Spencer's own Meshy generation (2026-11-14), re-slimmed 2026-11-15 to 41,216 tris / 1.57 MB (v2). Flat clean top, crisp 48 ports, SFP+, vent grille. |
+| `lab-router.glb` | 3D Enterprise Router | Spencer's own Meshy generation (2026-11-14), re-slimmed 2026-11-15 to 40,384 tris / 1.62 MB (v2). Flat top, crisp front (R2C, LAN/WAN/Console/SFP), clean side vent. |
+| `lab-firewall.glb` | 3D Next-Gen Firewall | UNCHANGED in this PR — still the PR #69 version (slimmed to 100,896 tris / 1.34 MB, untextured). The Meshy N1 re-textured source could not be slimmed to the polished bar (front port cluster mangles under every decimation tried — see PR body); left for a follow-up. |
+| `lab-access-point.glb` | 3D Wireless Access Point | Spencer's own Meshy generation (2026-11-14), re-slimmed 2026-11-15 to 19,373 tris / 0.95 MB (v2). Clean white disc, ribbed vent ring reads well. |
+| `lab-nas.glb` | 3D NAS Storage | Spencer's own Meshy generation (2026-11-14), re-slimmed 2026-11-15 to 59,999 tris / 2.46 MB (v2, weld). 8 drive bays, handles, power/USB/LEDs readable; flat top; side vent reads as a grille. Small logo smear on the front-right panel. |
+| `lab-ups.glb` | 3D UPS | Spencer's own Meshy generation (2026-11-14), re-slimmed 2026-11-15 to 59,999 tris / 2.33 MB (v2, weld). Clean vent grille with R2C logo, crisp display, power button, outlets. |
+| `lab-rack-server.glb` | 3D Rack Server | Meshy N1 regeneration (2026-11-14) — TEXTURED, fixes the plain-white PR #69 version. Slimmed 2026-11-15 to 39,456 tris / 1.61 MB (v2). Blue chassis, vent grilles, drive bays, front ports, flat top. |
+| `lab-server-rack.glb` | 3D Server Rack | Spencer's own Meshy generation (2026-11-14), re-slimmed 2026-11-15 to 42,364 tris / 2.17 MB (v2). The 42U rack. Black frame, server units with coloured LEDs, R2C logo; side panel still slightly mottled. |
+| `lab-cloud.glb` | 3D Cloud Architecture | Spencer's own Meshy generation (2026-11-14), re-slimmed 2026-11-15 to 20,000 tris / 0.84 MB (v2). Architecture panel fully legible (R2C Cloud, diagram, reference tables). |
 
-Slimming recipe (all nine): Blender decimate to the tri target above,
-textures downscaled (base color 1024, normal 1024, other 512), exported as
-GLB with JPEG textures (quality 85), no Draco (the app's GLTFLoader has no
-DRACOLoader configured). Build script: `~/workspace/visual-lab-meshy/scripts/slim_equipment.py`;
-source GLBs (30–287 MB each) stay out of the repo in
-`~/workspace/browser_downloads/sess-637002319/`.
+Slimming recipe (v2, 2026-11-15): the raw look in PR #69 came from OUR
+slimming, not the sources — the port/vent detail is real geometry, and the
+20k-tri Collapse crushed it, while the normal map encoded Meshy's surface
+noise as lumpy rock. v2: meshopt pre-pass (gltf-transform weld → simplify)
+only where Blender OOMs on the raw source; Blender Planar-dissolve first
+(flattens the undulating soupy surface into true planes); gentle Collapse
+(30–60k tris, never the old 20k); merge duplicate UV-split verts first
+(`--weld-dist 0.00001`) — the atlas splits every island, and the decimator
+merges the wrong pairs without it, which is what made the vent 'coral' and
+shredded the thin shells; DROP the normal map (it encodes surface noise);
+base color kept at 1024, metallic-roughness 512; export GLB (JPEG q80, no
+Draco); final `gltf-transform quantize` pass (KHR_mesh_quantization, natively
+supported by three r171 — no loader change) for ~29% size saving, re-rendered
+to confirm no visual damage. Build script:
+`~/workspace/visual-lab-meshy-v2/scripts/slim_equipment_v2.py`; source GLBs
+stay out of the repo in `~/workspace/browser_downloads/sess-3698905686/`
+(the 7 re-downloads are byte-identical to the PR #69 sources in
+`sess-637002319/`, verified by SHA-256; firewall + rack server are the new
+Meshy N1 regenerations).
 
 ## Expected files (drop `.glb` here, these exact names)
 
@@ -69,12 +82,12 @@ and record the source + license below.
 | sentinel.glb | Meshy AI (meshy.ai), generated 2026-11-13 on Spencer's PRO account | Spencer's own generation | spencerawlson |
 | patch.glb | Meshy AI (meshy.ai), generated 2026-11-13 on Spencer's PRO account | Spencer's own generation | spencerawlson |
 | datacenter.glb | Meshy AI (meshy.ai), generated 2026-11-13 on Spencer's PRO account | Spencer's own generation | spencerawlson |
-| lab-switch.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris | Spencer's own generation | spencerawlson |
-| lab-router.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris | Spencer's own generation | spencerawlson |
-| lab-firewall.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 40,000 tris, untextured | Spencer's own generation | spencerawlson |
-| lab-access-point.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris | Spencer's own generation | spencerawlson |
-| lab-nas.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris | Spencer's own generation | spencerawlson |
-| lab-ups.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris | Spencer's own generation | spencerawlson |
-| lab-rack-server.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 40,000 tris, untextured | Spencer's own generation | spencerawlson |
-| lab-server-rack.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris | Spencer's own generation | spencerawlson |
-| lab-cloud.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 20,000 tris | Spencer's own generation | spencerawlson |
+| lab-switch.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 41,216 tris | Spencer's own generation | spencerawlson |
+| lab-router.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 40,384 tris | Spencer's own generation | spencerawlson |
+| lab-firewall.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 100,896 tris, untextured — UNCHANGED in this PR (see table above) | Spencer's own generation | spencerawlson |
+| lab-access-point.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 19,373 tris | Spencer's own generation | spencerawlson |
+| lab-nas.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 59,999 tris (weld) | Spencer's own generation | spencerawlson |
+| lab-ups.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 59,999 tris (weld) | Spencer's own generation | spencerawlson |
+| lab-rack-server.glb | Meshy AI (meshy.ai), REGENERATED as Meshy N1 2026-11-14 on Spencer's PRO account (textured), slimmed 2026-11-15 to 39,456 tris | Spencer's own generation | spencerawlson |
+| lab-server-rack.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 42,364 tris | Spencer's own generation | spencerawlson |
+| lab-cloud.glb | Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 20,000 tris | Spencer's own generation | spencerawlson |
