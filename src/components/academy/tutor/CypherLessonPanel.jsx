@@ -72,7 +72,7 @@ export function formatPlayerTime(seconds) {
 // card" direction that had made the player a standalone sibling below
 // the section Card. On mobile the column stacks, so the player sits
 // below the presets as before. LessonView renders this component bare.
-export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
+export default function CypherLessonPanel({ lesson, missionId, lessonText, furtherReading }) {
   const tutorEnabled = useTutorEnabled();
   const voiceRef = useRef({ talking: false, level: 0 });
   const voice = useCypherVoice(voiceRef);
@@ -95,6 +95,11 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
     // lesson covers. Omitted when the page has no reading body (a
     // practice-only lesson) — the backend then answers as before.
     ...(lessonText ? { lesson_text: lessonText } : {}),
+    // Further reading: the lesson page's public links, so the tutor can
+    // point at them by topic (never by URL) when the answer touches one.
+    // Omitted when the lesson lists none — the backend then says nothing
+    // about links, as before.
+    ...(furtherReading?.length ? { further_reading: furtherReading } : {}),
   };
 
   // A new question resets the listen-first state for the next answer.
@@ -161,6 +166,10 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
               topic: lesson.title,
               level,
               ...(lessonText ? { lesson_text: lessonText } : {}),
+              // Same links as the tap path: a warmed answer must be
+              // generated under the same prompt (with the mention), or the
+              // tap misses the cache and regenerates anyway.
+              ...(furtherReading?.length ? { further_reading: furtherReading } : {}),
               mode,
               question: presetQuestion(mode, lesson.title, level),
             },
@@ -178,7 +187,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
       }
     })();
     return undefined;
-  }, [tutorEnabled, voiceConfigured, voice.muted, lesson.id, lesson.title, level, lessonText]);
+  }, [tutorEnabled, voiceConfigured, voice.muted, lesson.id, lesson.title, level, lessonText, furtherReading]);
 
   // Leaving the lesson stops the warm-up: the audio it was making is for
   // a lesson nobody is looking at anymore. (A re-render is not an

@@ -23222,6 +23222,12 @@ export const freeLessonContent = {
         "f\"{x}\"",
         "Insert any expression into text"
       ]
+    ],
+    "further_reading": [
+      {
+        "title": "The Python Tutorial",
+        "url": "https://docs.python.org/3/tutorial/"
+      }
     ]
   },
   "lx-cli": {

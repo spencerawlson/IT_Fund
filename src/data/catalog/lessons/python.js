@@ -74,6 +74,13 @@ export default {
       ['Immutable strings', 'Methods return a new string; reassign the result'],
       ['f"{x}"', 'Insert any expression into text'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Python Tutorial', url: 'https://docs.python.org/3/tutorial/' },
+    ],
   },
 
   'py-flow': {
@@ -151,6 +158,13 @@ export default {
       ['No return', 'Function returns None'],
       ['Defaults', 'def f(x=None); never a mutable default like []'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'More Control Flow Tools — The Python Tutorial', url: 'https://docs.python.org/3/tutorial/controlflow.html' },
+    ],
   },
 
   'py-collections': {
@@ -215,6 +229,13 @@ export default {
       ['a[1:3]', 'Slice: start included, end excluded'],
       ['[f(x) for x in xs]', 'List comprehension'],
       ['.items() / enumerate()', '(key, value) pairs / (index, item) pairs'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Data Structures — The Python Tutorial', url: 'https://docs.python.org/3/tutorial/datastructures.html' },
     ],
   },
 
@@ -294,6 +315,14 @@ export default {
       ['__name__ == "__main__"', 'Runs only when executed directly'],
       ['venv + requirements.txt', 'Isolated, reproducible dependencies'],
       ['pickle on untrusted data', 'Can execute code; use JSON instead'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Input and Output — The Python Tutorial', url: 'https://docs.python.org/3/tutorial/inputoutput.html' },
+      { title: 'Errors and Exceptions — The Python Tutorial', url: 'https://docs.python.org/3/tutorial/errors.html' },
     ],
   },
 
@@ -393,6 +422,13 @@ export default {
       ['@decorator', 'Wraps a function to add behaviour'],
       ['snake_case / CapWords', 'Functions and variables / classes'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Classes — The Python Tutorial', url: 'https://docs.python.org/3/tutorial/classes.html' },
+    ],
   },
 
   'py-automation': {
@@ -485,6 +521,15 @@ export default {
       ['argparse / logging', 'CLI options with --help / levelled diagnostics'],
       ['paramiko / netmiko', 'SSH to servers / network devices'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Requests — HTTP for Humans', url: 'https://requests.readthedocs.io/en/stable/' },
+      { title: 'Logging HOWTO', url: 'https://docs.python.org/3/howto/logging.html' },
+      { title: 'argparse — Parser for command-line options', url: 'https://docs.python.org/3/library/argparse.html' },
+    ],
   },
 
   'py-concurrency': {
@@ -575,6 +620,14 @@ export default {
       ['lru_cache', 'Memoise repeated calls'],
       ['Generators / file iteration', 'Stream big data line by line'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'concurrent.futures — Launching parallel tasks', url: 'https://docs.python.org/3/library/concurrent.futures.html' },
+      { title: 'threading — Thread-based parallelism', url: 'https://docs.python.org/3/library/threading.html' },
+    ],
   },
 
   'py-testing-packaging': {
@@ -657,6 +710,14 @@ export default {
       ['Typosquatting', 'Look-alike malicious package names'],
       ['Bandit', 'Python SAST: eval, shell=True, secrets'],
       ['eval(user_input)', 'Arbitrary code execution; use ast.literal_eval'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'pytest documentation', url: 'https://docs.pytest.org/en/stable/' },
+      { title: 'Packaging Python Projects — Python Packaging User Guide', url: 'https://packaging.python.org/en/latest/tutorials/packaging-projects/' },
     ],
   },
 
@@ -742,6 +803,14 @@ export default {
       ['Scapy', 'Craft and sniff packets (authorised networks only)'],
       ['pandas', 'read_csv, groupby: fast log summaries'],
       ['execute(sql, (value,))', 'Parameterised query: stops SQL injection'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'secrets — Generate secure random numbers', url: 'https://docs.python.org/3/library/secrets.html' },
+      { title: 'sqlite3 — DB-API 2.0 interface for SQLite databases', url: 'https://docs.python.org/3/library/sqlite3.html' },
     ],
   },
 };

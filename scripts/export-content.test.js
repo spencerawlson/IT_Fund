@@ -111,6 +111,33 @@ describe('content export', () => {
     }
   });
 
+  it('further-reading links are valid, public, and ride the export to the right artifact', () => {
+    const full = buildContentJson();
+    const isHttp = (u) => typeof u === 'string' && (u.startsWith('https://') || u.startsWith('http://'));
+    for (const [id, c] of Object.entries(full.lessons)) {
+      if (c.further_reading === undefined) continue;
+      // At most 3 per lesson; each entry is a non-empty title plus a real
+      // http(s) URL — never a paywalled, login-gated, or invented one.
+      // (Every seeded URL was curl-checked 200 before it was added.)
+      expect(Array.isArray(c.further_reading), `${id}: further_reading is a list`).toBe(true);
+      expect(c.further_reading.length, `${id}: at most 3 links`).toBeLessThanOrEqual(3);
+      expect(c.further_reading.length, `${id}: at least 1 link`).toBeGreaterThanOrEqual(1);
+      for (const link of c.further_reading) {
+        expect(text(link.title), `${id}: link title`).toBe(true);
+        expect(isHttp(link.url), `${id}: link url is http(s): ${link.url}`).toBe(true);
+      }
+    }
+    // The seed is the Python track: every Python lesson carries links in
+    // the full dataset; the free one (py-basics) also carries them in the
+    // public module, and premium ones stay out of it entirely.
+    const pyIds = ['py-basics', 'py-flow', 'py-collections', 'py-files-errors', 'py-oop', 'py-automation', 'py-concurrency', 'py-testing-packaging', 'py-security-tools'];
+    for (const id of pyIds) {
+      expect(full.lessons[id].further_reading?.length, `${id}: seeded links`).toBeGreaterThanOrEqual(1);
+    }
+    expect(freeLessonContent['py-basics'].further_reading?.length).toBeGreaterThanOrEqual(1);
+    expect(freeLessonContent['py-flow']).toBeUndefined();
+  });
+
   it('every card has a question, an answer, and three distractors', () => {
     const full = buildContentJson();
     let count = 0;

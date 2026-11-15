@@ -76,6 +76,10 @@
  * @property {{ caption: string, diagram: string }} [architecture]  Monospace diagram.
  * @property {LessonExample[]} [examples]
  * @property {[string, string][]} [cheatSheet]  [term, meaning] rows.
+ * @property {{title: string, url: string}[]} [further_reading]  Public,
+ *   free further reading (official docs and open-source project docs
+ *   only — never paywalled, never login-gated, never invented). At most
+ *   3 links per lesson; each URL must be a real, verified public page.
  */
 
 export {};

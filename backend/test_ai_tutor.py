@@ -328,6 +328,82 @@ def test_lesson_text_changes_the_cache_key(fake):
     assert ai_tutor.cache_key(ai_tutor.TutorReq(**CARD)) != ai_tutor.cache_key(ai_tutor.TutorReq(**body))
 
 
+LINKS = [
+    {"title": "The Python Tutorial", "url": "https://docs.python.org/3/tutorial/"},
+    {"title": "More Control Flow Tools", "url": "https://docs.python.org/3/tutorial/controlflow.html"},
+]
+
+
+def test_further_reading_mention_names_topic_never_url(fake):
+    """The lesson page lists public further-reading links; the tutor may
+    close by naming a linked topic and pointing at the link on the page.
+    The prompt carries only the link TITLES — never the URLs — so the
+    model cannot read a web address aloud (the panel is listen-only) and
+    cannot invent a link. Holds for all three preset modes."""
+    for mode in ("explain", "example", "simplify"):
+        body = {**CARD, "mode": mode, "lesson_text": LESSON_TEXT, "further_reading": LINKS}
+        r = client.post("/api/ai/tutor", json=body)
+        assert r.status_code == 200
+    assert len(fake.calls) == 3
+    for call in fake.calls:
+        task = call["messages"][1]["content"]
+        assert "The Python Tutorial" in task
+        assert "More Control Flow Tools" in task
+        assert "link on the page" in task
+        assert "Never read out or spell a web address" in task
+        assert "never mention a link, site, or resource" in task
+        assert "never invent one" in task
+        # No URL anywhere in the prompt: the model must never see one.
+        assert "docs.python.org" not in task
+        assert "https://" not in task
+
+
+def test_no_further_reading_means_no_mention_block(fake):
+    client.post("/api/ai/tutor", json={**CARD, "lesson_text": LESSON_TEXT})
+    task = fake.calls[0]["messages"][1]["content"]
+    assert "further-reading" not in task
+    assert "link on the page" not in task
+
+
+def test_further_reading_changes_the_cache_key(fake):
+    """An answer generated without the links must never serve a request
+    that lists them (it would lack the mention), or vice versa."""
+    body = {**CARD, "lesson_text": LESSON_TEXT, "further_reading": LINKS}
+    client.post("/api/ai/tutor", json=body)
+    client.post("/api/ai/tutor", json=body)
+    assert len(fake.calls) == 1  # same links: cached
+    plain = {**CARD, "lesson_text": LESSON_TEXT}
+    client.post("/api/ai/tutor", json=plain)
+    assert len(fake.calls) == 2
+    assert ai_tutor.cache_key(ai_tutor.TutorReq(**body)) != ai_tutor.cache_key(ai_tutor.TutorReq(**plain))
+
+
+def test_further_reading_validation_is_422(fake):
+    """A forged request cannot smuggle a non-http(s) URL, a blank title,
+    or more than the per-lesson cap of 3 links through."""
+    base = {**CARD, "lesson_text": LESSON_TEXT}
+    bad_url = {**base, "further_reading": [{"title": "X", "url": "ftp://example.com/x"}]}
+    assert client.post("/api/ai/tutor", json=bad_url).status_code == 422
+    blank_title = {**base, "further_reading": [{"title": "  ", "url": "https://example.com/"}]}
+    assert client.post("/api/ai/tutor", json=blank_title).status_code == 422
+    too_many = {**base, "further_reading": [{"title": f"L{i}", "url": "https://example.com/"} for i in range(4)]}
+    assert client.post("/api/ai/tutor", json=too_many).status_code == 422
+
+
+def test_grounding_still_intact_with_further_reading(fake):
+    """Adding the mention must not weaken the grounding rule: with both
+    the lesson text and the links, the prompt still requires covering
+    every named topic and staying inside the lesson."""
+    body = {**CARD, "lesson_text": LESSON_TEXT, "further_reading": LINKS}
+    r = client.post("/api/ai/tutor", json=body)
+    assert r.status_code == 200
+    task = fake.calls[0]["messages"][1]["content"]
+    assert "Cover every topic" in task
+    assert "ONLY source you may draw on" in task
+    assert "Do not introduce topics" in task
+    assert "link on the page" in task
+
+
 def test_oversized_lesson_text_is_422(fake):
     body = {**CARD, "lesson_text": "x" * (ai_tutor.LESSON_TEXT_MAX_CHARS + 1)}
     assert client.post("/api/ai/tutor", json=body).status_code == 422
