@@ -26,6 +26,12 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    # The API echoes the server-signed guest id in the `X-RTC-Guest`
+    # response header (see auth/deps.py resolve_visitor_id) so the native
+    # apps — which can't keep the guest cookie cross-site — can read it and
+    # send it back. Browsers only expose non-safelisted response headers
+    # when they are listed here.
+    expose_headers=["X-RTC-Guest"],
 )
 
 # Authlib stores the OAuth state/nonce in a signed session cookie during the login round-trip.

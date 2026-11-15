@@ -7,6 +7,10 @@
 //     redeemed with a PKCE verifier for a session token (backend/auth/native.py);
 //   - every API request carries that token as `Authorization: Bearer`, plus a stable guest id
 //     (`X-RTC-Guest`) so labs can tell this visitor apart without the guest cookie.
+//     Guest ids are server-signed (backend/auth/deps.py): the app's first request carries a
+//     self-minted bootstrap id, the API answers with the signed one in the `X-RTC-Guest`
+//     response header, and installNativeFetch stores it — a client-minted id is never trusted
+//     as an identity, so presenting someone else's token can't reach their lab sessions.
 
 export const NATIVE_REDIRECT = 'com.road2cissp.app://auth/callback';
 const TOKEN_KEY = 'rtc_native_token';
@@ -44,6 +48,10 @@ export async function challengeFor(verifier) {
 // ---------- Request headers ----------
 
 function guestId() {
+  // Bootstrap id only: the API signs guest ids (backend/auth/deps.py), so
+  // this self-minted value is replaced by the signed one the server returns
+  // in the `X-RTC-Guest` response header — see installNativeFetch, which
+  // stores it. Until the first API answer it is just a placeholder.
   let id = store.get(GUEST_KEY);
   if (!id) {
     id = b64url(crypto.getRandomValues(new Uint8Array(24)));
@@ -70,7 +78,16 @@ export function installNativeFetch() {
     if (!Object.keys(extra).length) return original(input, init);
     const headers = new Headers(init.headers || (typeof input === 'string' ? undefined : input.headers));
     for (const [k, v] of Object.entries(extra)) if (!headers.has(k)) headers.set(k, v);
-    return original(input, { ...init, headers });
+    return original(input, { ...init, headers }).then((res) => {
+      // Adopt the server-signed guest id: the first request from a fresh
+      // install carries the self-minted bootstrap id, and the API answers
+      // with the signed one in this response header. Without this, every
+      // call would mint a new guest on the server and the app's lab sessions
+      // would become unreachable. (Exposed for CORS in backend/main.py.)
+      const issued = res.headers?.get?.('X-RTC-Guest');
+      if (issued && issued !== store.get(GUEST_KEY)) store.set(GUEST_KEY, issued);
+      return res;
+    });
   };
   wrapped.__rtcNative = true;
   globalThis.fetch = wrapped;

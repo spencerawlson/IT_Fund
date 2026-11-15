@@ -1,4 +1,5 @@
 import os
+import secrets
 import sys
 from datetime import timedelta
 from pathlib import Path
@@ -10,11 +11,19 @@ backend_dir = Path(__file__).resolve().parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
+from fastapi import Request, Response
 from fastapi.testclient import TestClient
 
 import db
 import main
 from auth import oauth as oauth_mod
+from auth.deps import (
+    GUEST_COOKIE,
+    GUEST_HEADER,
+    resolve_visitor_id,
+    sign_guest_token,
+    verify_guest_token,
+)
 from auth.identity import OAuthIdentity, upsert_identity
 from auth.sessions import COOKIE_NAME, create_session, delete_session, user_for_session
 from labs import api as labs_api
@@ -179,3 +188,84 @@ def test_providers_endpoint_reflects_configuration(monkeypatch):
 def test_providers_endpoint_is_public_no_auth():
     client.cookies.clear()
     assert client.get("/api/auth/providers").status_code == 200
+
+
+# ---- server-signed guest ids (auth/deps.py) ----
+
+def _guest_request(cookies=None, headers=None):
+    """A bare Request carrying a guest cookie and/or the native guest header."""
+    hdrs = []
+    if cookies:
+        hdrs.append((b"cookie", "; ".join(f"{k}={v}" for k, v in cookies.items()).encode()))
+    for k, v in (headers or {}).items():
+        hdrs.append((k.lower().encode(), v.encode()))
+    return Request({"type": "http", "headers": hdrs})
+
+
+def test_signed_guest_token_verifies_and_forgeries_do_not():
+    token = secrets.token_urlsafe(24)
+    signed = sign_guest_token(token)
+    assert verify_guest_token(signed) == token
+    assert verify_guest_token(token) is None  # unsigned: no signature at all
+    assert verify_guest_token(token + ".deadbeef") is None  # tampered signature
+    assert verify_guest_token("not-a-token." + signed.split(".")[1]) is None  # bad token part
+    assert verify_guest_token("") is None
+    assert verify_guest_token("no-dot-at-all") is None
+    assert verify_guest_token("a.b.c") is None  # extra dot: token part fails the charset check
+
+
+def test_guest_token_signed_with_another_secret_does_not_verify(monkeypatch):
+    suite_secret = os.environ["SESSION_SECRET"]
+    token = secrets.token_urlsafe(24)
+    monkeypatch.setenv("SESSION_SECRET", "a-different-secret")
+    forged = sign_guest_token(token)
+    monkeypatch.setenv("SESSION_SECRET", suite_secret)
+    assert verify_guest_token(forged) is None
+    assert verify_guest_token(sign_guest_token(token)) == token  # suite secret still works
+
+
+def test_resolve_visitor_id_accepts_a_signed_cookie():
+    token = secrets.token_urlsafe(24)
+    signed = sign_guest_token(token)
+    resp = Response()
+    assert resolve_visitor_id(_guest_request(cookies={GUEST_COOKIE: signed}), resp) == f"guest:{token}"
+    assert resp.headers[GUEST_HEADER] == signed  # same signed value echoed back
+    assert signed in resp.headers["set-cookie"]  # cookie re-issued, same value: stable identity
+
+
+def test_resolve_visitor_id_rejects_a_minted_cookie():
+    minted = secrets.token_urlsafe(24)
+    resp = Response()
+    visitor = resolve_visitor_id(_guest_request(cookies={GUEST_COOKIE: minted}), resp)
+    assert visitor != f"guest:{minted}"  # the claimed id is never trusted
+    issued = resp.headers[GUEST_HEADER]
+    assert verify_guest_token(issued) == visitor.removeprefix("guest:")
+    assert issued in resp.headers["set-cookie"]
+
+
+def test_resolve_visitor_id_mints_a_signed_id_when_absent():
+    resp = Response()
+    visitor = resolve_visitor_id(_guest_request(), resp)
+    assert visitor.startswith("guest:")
+    assert verify_guest_token(resp.headers[GUEST_HEADER]) == visitor.removeprefix("guest:")
+
+
+def test_resolve_visitor_id_accepts_a_signed_header():
+    token = secrets.token_urlsafe(24)
+    signed = sign_guest_token(token)
+    resp = Response()
+    assert resolve_visitor_id(_guest_request(headers={GUEST_HEADER: signed}), resp) == f"guest:{token}"
+    assert resp.headers[GUEST_HEADER] == signed
+
+
+def test_signed_in_session_wins_over_any_guest_value():
+    # A signed-in user never gets a guest id, even when the request also carries one.
+    with db.SessionLocal() as s:
+        u = upsert_identity(s, _google("g-1", "ada@example.com"))
+        raw = create_session(s, u.id)
+        s.commit()
+    req = _guest_request(cookies={
+        COOKIE_NAME: raw,
+        GUEST_COOKIE: sign_guest_token(secrets.token_urlsafe(24)),
+    })
+    assert resolve_visitor_id(req, Response()) == u.id

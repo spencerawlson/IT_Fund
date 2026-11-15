@@ -51,11 +51,13 @@ def test_one_visitor_cannot_hoard_live_sessions_over_http():
 
 
 def test_global_docker_cap_survives_guest_cookie_rotation(monkeypatch):
-    """L-06 regression: guest ids are client-chosen cookies, so rotating the
-    cookie defeats the per-owner caps. The GLOBAL live-Docker cap must still
-    refuse once the limit is reached, no matter how many identities the
-    caller mints. (Cap lowered via monkeypatch so the test need not start 50
-    real sessions; the production value is MAX_LIVE_DOCKER_SESSIONS_GLOBAL.)"""
+    """L-06 regression: guest ids live in a client-held cookie, so discarding
+    it mints a new identity and defeats the per-owner caps. (Server signing
+    stops a guest from claiming *someone else's* id, not from dropping their
+    own.) The GLOBAL live-Docker cap must still refuse once the limit is
+    reached, no matter how many identities the caller mints. (Cap lowered via
+    monkeypatch so the test need not start 50 real sessions; the production
+    value is MAX_LIVE_DOCKER_SESSIONS_GLOBAL.)"""
     monkeypatch.setattr(sessions_mod, "MAX_LIVE_DOCKER_SESSIONS_GLOBAL", 3)
     for _ in range(3):
         browser = TestClient(main.app)  # fresh guest cookie each time
