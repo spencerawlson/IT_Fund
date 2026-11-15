@@ -80,8 +80,12 @@ MAX_TOKENS = {"hint": 150, "explain": 900, "simplify": 300, "example": 600, "wea
 #: under the new prompt — the same mechanism as the token budget in the
 #: key. Version 1 is the prompt that requires covering every topic the
 #: lesson text names: lesson 3.3's cached answer skipped DDoS under the
-#: unversioned prompt, which only said what NOT to add.
-PROMPT_VERSION = 1
+#: unversioned prompt, which only said what NOT to add. Version 2 also
+#: bars importing a framing the lesson text does not name: 3.3's
+#: regenerated answer under version 1 opened with the CIA triad
+#: (integrity, confidentiality, availability) even though none of those
+#: words appear in the lesson text.
+PROMPT_VERSION = 2
 
 #: Max lesson text the panel may send with a request. The longest lesson
 #: body is ~7,400 chars; 12,000 leaves headroom and bounds the prompt cost.
@@ -201,14 +205,24 @@ def _lesson_grounding(req: TutorReq) -> str:
     when the client sends the lesson's own text, the tutor may draw ONLY on
     it. Without the text the model improvises from general knowledge — that
     is how a lesson with no CIA triad in it got an answer about the CIA
-    triad. No lesson text, no block: other callers keep the old behaviour."""
+    triad. Version 1 only barred introducing topics, terms, or examples the
+    lesson text does not name — the model still opened 3.3's regenerated
+    answer with the CIA triad as a generic definition of network security.
+    Version 2 also bars importing a framing, framework, or generic
+    definition the lesson does not name. No lesson text, no block: other
+    callers keep the old behaviour."""
     if not req.lesson_text:
         return ""
     return (
         "\n\nThe lesson the learner is studying is reproduced below. It is "
         "the ONLY source you may draw on: explain, exemplify, and simplify "
         "ONLY concepts that appear in it. Do not introduce topics, terms, or "
-        "examples that are not in the lesson text. Cover every topic, attack, "
+        "examples that are not in the lesson text. Do not frame the answer "
+        "with a concept, framework, or generic definition the lesson text "
+        "does not name — including the CIA triad (confidentiality, "
+        "integrity, availability) or any other named model — and never open "
+        "with such a definition. Start from the lesson's own material "
+        "instead. Cover every topic, attack, "
         "and defence the lesson text names — do not leave one out. A brief "
         "mention of each named topic is enough; keep the answer tight rather "
         "than covering one topic at length and dropping another. If the lesson "

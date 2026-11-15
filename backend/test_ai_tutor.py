@@ -290,6 +290,31 @@ def test_grounding_requires_covering_every_named_topic(fake):
         assert "Do not introduce topics" in task
 
 
+def test_grounding_bars_ungrounded_framing(fake):
+    """The version-1 prompt only barred introducing topics, terms, or
+    examples the lesson text does not name — the model still opened
+    lesson 3.3's regenerated answer with the CIA triad as a generic
+    definition of network security ("...ensuring the integrity,
+    confidentiality and availability of data"), even though none of those
+    words are in the lesson text. The prompt must now bar importing a
+    framing, framework, or generic definition the lesson text does not
+    name — and never opening with one — for all three preset modes,
+    without weakening the cover-every-named-topic rule that fixed the
+    DDoS gap."""
+    for mode in ("explain", "example", "simplify"):
+        body = {**CARD, "mode": mode, "lesson_text": LESSON_TEXT}
+        r = client.post("/api/ai/tutor", json=body)
+        assert r.status_code == 200
+    assert len(fake.calls) == 3
+    for call in fake.calls:
+        task = call["messages"][1]["content"]
+        assert "Do not frame the answer with a concept" in task
+        assert "CIA triad" in task
+        assert "never open with such a definition" in task
+        assert "Cover every topic" in task
+        assert "ONLY source you may draw on" in task
+
+
 def test_lesson_text_changes_the_cache_key(fake):
     """The same question grounded on two lessons is two answers — and a
     pre-grounding cached answer must never serve a grounded request."""
@@ -401,3 +426,24 @@ def test_lesson_3_3_text_contains_ddos():
     assert "VPNs, DDoS and network access control" in text
     assert "Remote access, DDoS and NAC" in text
     assert "A DDoS attack overwhelms a target with traffic from many sources." in text
+
+
+def test_lesson_3_3_text_has_no_cia_words():
+    """Diagnosis pin: lesson 3.3's regenerated answer opened with the CIA
+    triad ("...ensuring the integrity, confidentiality and availability
+    of data") even though NONE of those words appear in the lesson text
+    the tutor receives. The model imported the framing from general
+    knowledge — ungrounded. The lesson content needs no change; the
+    prompt guard is the fix. (The one "cia" substring in the text is
+    inside "associated" — no whole-word CIA, no "triad" at all.)"""
+    data_path = backend_dir / "data" / "content.json"
+    content = json.loads(data_path.read_text(encoding="utf-8"))
+    lesson = content["lessons"]["net-security"]
+    text = _lesson_text_from_content(lesson)
+    lower = text.lower()
+    assert "integrity" not in lower
+    assert "confidentiality" not in lower
+    assert "availability" not in lower
+    assert "triad" not in lower
+    assert "cia" not in lower.split()
+    assert "ddos" in lower  # the lesson does name DDoS — cover-everything still applies
