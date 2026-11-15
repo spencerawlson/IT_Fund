@@ -4,6 +4,7 @@ import { renderToString } from 'react-dom/server';
 import TestRenderer from 'react-test-renderer';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StaticRouter } from 'react-router-dom';
+import { Card } from '@/components/ui-glass';
 import CypherLessonPanel, { presetQuestion, formatPlayerTime } from './CypherLessonPanel';
 import { __clearVoiceCache } from '@/api/voice';
 
@@ -526,21 +527,29 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(tutorMocks.streamTutor.mock.calls.length).toBe(2);
   });
 
-  it('the preset buttons sit lower and centred, with the player card below them as its own card', async () => {
+  it('the preset buttons sit lower and centred, with the player card under them inside the section card, next to the face', async () => {
     mountPanel();
     await flush();
     const presets = presetsRow();
     expect(presets.props.className).toContain('justify-center');
     expect(presets.props.className).toContain('mt-6');
     // DOM order: the level selector first, then the presets, then the
-    // player card below them — the card is a standalone sibling, not
-    // nested inside the section card.
+    // player card under them.
     expect(treeText().indexOf('Explanation difficulty level')).toBeLessThan(treeText().indexOf('cypher-presets'));
     expect(treeText().indexOf('cypher-presets')).toBeLessThan(treeText().indexOf('cypher-player-card'));
+    // The player lives INSIDE the section Card's right column, next to
+    // the face (Spencer 2026-11-15: next to the head, not below the
+    // section) — a descendant of the Card, not a sibling after it.
+    const card = root.root.findByType(Card);
+    expect(() => card.findByProps({ 'data-testid': 'cypher-player-card' })).not.toThrow();
     // The player card is the mockup's black neon card: black, very large
-    // rounded corners — not the white lesson-panel card.
+    // rounded corners — not the white lesson-panel card. It sits below
+    // the presets (mt-6) and carries no bottom margin of its own — the
+    // section Card holds that spacing.
     expect(playerCard().props.className).toContain('bg-black');
     expect(playerCard().props.className).toContain('rounded-[2rem]');
+    expect(playerCard().props.className).toContain('mt-6');
+    expect(playerCard().props.className).not.toContain('mb-8');
     // The old play area is gone.
     expect(treeText()).not.toContain('cypher-play-area');
   });

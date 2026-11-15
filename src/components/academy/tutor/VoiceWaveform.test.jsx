@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import VoiceWaveform, { waveformHeights, waveformBarStyle } from './VoiceWaveform';
+import VoiceWaveform, { waveformHeights, waveformBarStyle, smoothHeights } from './VoiceWaveform';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -22,6 +22,33 @@ describe('waveformHeights', () => {
     expect(heights).toHaveLength(24);
     expect(heights[0]).toBeCloseTo(0);
     expect(heights[23]).toBeCloseTo(1);
+  });
+});
+
+describe('smoothHeights', () => {
+  it('rises instantly to the live value — speech starting shows at once', () => {
+    expect(smoothHeights(new Array(24).fill(0), new Array(24).fill(0.8))).toEqual(new Array(24).fill(0.8));
+    expect(smoothHeights([0.2, 0.5], [0.9, 0.5])).toEqual([0.9, 0.5]);
+  });
+
+  it('falls gradually toward the live value, never below it and never negative', () => {
+    // One tick closes only part of the gap: 0.8 -> 0.59, not 0.1.
+    expect(smoothHeights([0.8], [0.1])[0]).toBeCloseTo(0.59);
+    // Successive ticks keep falling but never under the live value.
+    let cur = [0.8];
+    for (let i = 0; i < 20; i++) cur = smoothHeights(cur, [0.1]);
+    expect(cur[0]).toBeGreaterThanOrEqual(0.1);
+    expect(cur[0]).toBeLessThan(0.12);
+    // Falling all the way to silence decays toward 0, never negative.
+    cur = [1];
+    for (let i = 0; i < 30; i++) cur = smoothHeights(cur, [0]);
+    expect(cur[0]).toBeGreaterThanOrEqual(0);
+    expect(cur[0]).toBeLessThan(0.01);
+  });
+
+  it('tolerates a missing previous reading', () => {
+    expect(smoothHeights(undefined, [0.5])).toEqual([0.5]);
+    expect(smoothHeights([], [0.5])).toEqual([0.5]);
   });
 });
 
@@ -64,6 +91,36 @@ describe('VoiceWaveform', () => {
     levelRef.current = { talking: true, level: 0.5, bands: new Float32Array(24).fill(0.8) };
     TestRenderer.act(() => { vi.advanceTimersByTime(100); });
     expect(barHeights(root)[0]).toBe('80%');
+    TestRenderer.act(() => { root.unmount(); });
+  });
+
+  it('spans the full width of the player card — the bars stretch, no short strip at the left', () => {
+    const levelRef = { current: { talking: true, level: 0.5, bands: new Float32Array(24).fill(0.5) } };
+    const root = mount(levelRef, true);
+    const container = root.root.findByProps({ 'data-testid': 'cypher-waveform' });
+    expect(container.props.className).toContain('w-full');
+    const bars = root.root.findAllByProps({ 'data-testid': 'cypher-waveform-bar' });
+    expect(bars).toHaveLength(24);
+    for (const bar of bars) {
+      expect(bar.props.className).toContain('flex-1');
+      expect(bar.props.className).not.toContain('w-1');
+    }
+    TestRenderer.act(() => { root.unmount(); });
+  });
+
+  it('falls gradually when the audio dips instead of collapsing in one tick', () => {
+    vi.useFakeTimers();
+    const levelRef = { current: { talking: true, level: 0.5, bands: new Float32Array(24).fill(0.8) } };
+    const root = mount(levelRef, true);
+    expect(barHeights(root)[0]).toBe('80%');
+    // The voice drops between words: the live value is 0.1, but the
+    // displayed bar only falls partway in one tick.
+    levelRef.current = { talking: true, level: 0.5, bands: new Float32Array(24).fill(0.1) };
+    TestRenderer.act(() => { vi.advanceTimersByTime(100); });
+    expect(barHeights(root)[0]).toBe('59%');
+    // …and it keeps falling over the next ticks, toward the live value.
+    TestRenderer.act(() => { vi.advanceTimersByTime(1000); });
+    expect(barHeights(root)[0]).toBe('11.4%');
     TestRenderer.act(() => { root.unmount(); });
   });
 

@@ -9,14 +9,25 @@ import React, { useEffect, useState } from 'react';
 // white/silver-grey at the ends rising to bright violet-purple with a
 // soft neon glow in the centre. The COLOURS are positional (ends silver,
 // centre violet); the HEIGHTS are the live audio — never the mockup's
-// static symmetrical shape.
+// static symmetrical shape. The bars stretch across the FULL width of
+// the player card's inner panel (flex-1): the first version rendered
+// them as a fixed ~165 px strip at the left, which read as a short wave.
 //
 // Hidden until it talks: the component renders nothing before playback
 // starts (no flat bars, no placeholder) and hides again on stop. While
 // paused it stays visible but frozen at the last heights — paused is
 // not stopped, the position is kept.
+//
+// Smoothing for the dips: a bar follows the live audio up instantly
+// (speech starting must show at once) but falls gradually — each tick
+// it closes only part of the gap to the live value. Without this the
+// bars collapse to the floor in the gaps between words and the wave
+// reads as flickering out on a phone; with it, a pause between words
+// dips the wave instead of killing it.
 export const WAVEFORM_BARS = 24;
 export const WAVEFORM_TICK_MS = 100;
+// Fraction of the remaining gap a falling bar closes per tick.
+export const WAVEFORM_FALL_RATE = 0.3;
 
 function prefersReducedMotion() {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
@@ -37,6 +48,17 @@ export function waveformHeights(levelRef) {
   }
   const l = Number.isFinite(cur.level) ? Math.max(0, Math.min(1, cur.level)) : 0;
   return new Array(WAVEFORM_BARS).fill(l);
+}
+
+// Next displayed heights from the previous ones and the live ones:
+// rise instantly to the live value, fall gradually toward it (see
+// WAVEFORM_FALL_RATE). Never goes below the live value, never negative.
+export function smoothHeights(prev, next) {
+  return next.map((v, i) => {
+    const p = Number.isFinite(prev?.[i]) ? prev[i] : 0;
+    if (v >= p) return v;
+    return Math.max(v, p + (v - p) * WAVEFORM_FALL_RATE);
+  });
 }
 
 // Bar style by position: silver-white at the ends, bright violet-purple
@@ -64,8 +86,11 @@ export default function VoiceWaveform({ levelRef, active, paused = false, classN
   useEffect(() => {
     if (!active || paused) return undefined; // paused: freeze at the last heights
     if (prefersReducedMotion()) return undefined;
-    setHeights(waveformHeights(levelRef));
-    const id = setInterval(() => setHeights(waveformHeights(levelRef)), WAVEFORM_TICK_MS);
+    setHeights((prev) => smoothHeights(prev, waveformHeights(levelRef)));
+    const id = setInterval(
+      () => setHeights((prev) => smoothHeights(prev, waveformHeights(levelRef))),
+      WAVEFORM_TICK_MS,
+    );
     return () => clearInterval(id);
   }, [active, paused, levelRef]);
 
@@ -74,7 +99,7 @@ export default function VoiceWaveform({ levelRef, active, paused = false, classN
   if (!active && !paused) return null;
 
   return (
-    <div data-testid="cypher-waveform" aria-hidden={true} className={`flex h-16 items-center gap-[3px] ${className}`}>
+    <div data-testid="cypher-waveform" aria-hidden={true} className={`flex h-16 w-full items-center gap-[3px] ${className}`}>
       {heights.map((h, i) => {
         // One decimal place: the bands are float32, and the raw product
         // (e.g. 20.000000298023224%) would otherwise leak into the style.
@@ -83,7 +108,7 @@ export default function VoiceWaveform({ levelRef, active, paused = false, classN
           <span
             key={i}
             data-testid="cypher-waveform-bar"
-            className="w-1 rounded-full transition-[height] duration-100"
+            className="min-w-0 flex-1 rounded-full transition-[height] duration-100"
             style={waveformBarStyle(i, pct)}
           />
         );
