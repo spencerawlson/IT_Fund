@@ -252,6 +252,73 @@ describe('useCypherVoice loading', () => {
     expect(latest.error).toBeTruthy();
   });
 
+  it('plays multi-segment audio in order and ends after the last segment', async () => {
+    // A long answer arrives as segments (one base64 MP3 per synthesis
+    // chunk, in order): each segment's end starts the next, and the last
+    // segment's end stops playback — the whole answer is heard, not just
+    // the first chunk.
+    const multiEnvelope = {
+      character: 'cypher', text: 'Hello.', audio_b64: 'QUJDREVG', audio_segments: ['QUJD', 'REVG'],
+      mime: 'audio/mpeg', cached: false, fallback: false, reason: null,
+    };
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(multiEnvelope));
+      await playPromise;
+    });
+    expect(FakeAudioContext.decodeCount).toBe(2);
+    expect(latest.playing).toBe(true);
+    expect(FakeSourceNode.instances.length).toBe(1);
+    expect(FakeSourceNode.instances[0].started).toBe(true);
+
+    // The first segment ends: the second starts, still playing.
+    TestRenderer.act(() => { FakeSourceNode.instances[0].onended(); });
+    expect(FakeSourceNode.instances.length).toBe(2);
+    expect(FakeSourceNode.instances[1].started).toBe(true);
+    expect(latest.playing).toBe(true);
+
+    // The last segment ends: playback stops.
+    TestRenderer.act(() => { FakeSourceNode.instances[1].onended(); });
+    expect(latest.playing).toBe(false);
+    expect(latest.subtitle).toBe('');
+  });
+
+  it('replaying a multi-segment text reuses the decoded buffers', async () => {
+    const multiEnvelope = {
+      character: 'cypher', text: 'Hello.', audio_b64: 'QUJDREVG', audio_segments: ['QUJD', 'REVG'],
+      mime: 'audio/mpeg', cached: false, fallback: false, reason: null,
+    };
+    const gate = deferred();
+    globalThis.fetch = vi.fn(() => gate.promise);
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(multiEnvelope));
+      await playPromise;
+    });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(FakeAudioContext.decodeCount).toBe(2);
+    // Finish the chain so the replay starts clean.
+    TestRenderer.act(() => { FakeSourceNode.instances[0].onended(); });
+    TestRenderer.act(() => { FakeSourceNode.instances[1].onended(); });
+    expect(latest.playing).toBe(false);
+
+    // Same text again: no second fetch, no re-decoding of either segment.
+    await TestRenderer.act(async () => { await latest.play('Hello.'); });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(FakeAudioContext.decodeCount).toBe(2);
+    expect(latest.playing).toBe(true);
+    expect(FakeSourceNode.instances.length).toBe(3);
+    expect(FakeSourceNode.instances[2].started).toBe(true);
+  });
+
   it('falls back to silent speech when the AudioContext stays suspended (Safari auto-play)', async () => {
     // The mission opening auto-plays with no user gesture, so Safari
     // leaves the AudioContext suspended: source.start() on a suspended

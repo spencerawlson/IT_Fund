@@ -28,15 +28,18 @@ FAKE_AUDIO = b"fake-mp3-bytes-for-tests"
 
 
 class FakeProvider:
-    def __init__(self, error=None):
+    def __init__(self, error=None, audio=None):
         self.calls = []
         self.error = error
+        # audio: optional callable(text) -> bytes, so a test can tell
+        # chunks apart in the response. Defaults to the same bytes.
+        self.audio = audio
 
     def synthesize(self, voice_id, text):
         self.calls.append((voice_id, text))
         if self.error is not None:
             raise self.error
-        return FAKE_AUDIO
+        return self.audio(text) if self.audio is not None else FAKE_AUDIO
 
 
 @pytest.fixture(autouse=True)
@@ -181,8 +184,109 @@ def test_status_reports_booleans_only(monkeypatch):
 def test_speak_text_too_long(monkeypatch):
     monkeypatch.setattr(voice, "get_provider", lambda: FakeProvider())
     _signed_in_user("voice-test", "v@example.com")
-    r = client.post("/api/voice/speak", json={"character": "cypher", "text": "x" * 2001})
+    # The cap is ElevenLabs' own per-request limit (5,000 characters), not
+    # the old 2,000: a full lesson answer is ~3,600 characters.
+    r = client.post("/api/voice/speak", json={"character": "cypher", "text": "x" * 5001})
     assert r.status_code == 422
+
+
+def _long_text(sentences=8, words_per_sentence=60):
+    """A multi-sentence text of ~2,400 characters: longer than the old
+    2,000-character request cap, so it must be chunked, not rejected.
+    Sentences are numbered so no two chunks are the same string."""
+    return " ".join(
+        f"Sentence {i} " + " ".join(["word"] * words_per_sentence) + "."
+        for i in range(sentences)
+    )
+
+
+def test_split_into_chunks_sentence_boundaries():
+    text = "First sentence here. Second sentence follows. " + "x" * 1500 + ". Last one."
+    chunks = voice.split_into_chunks(text)
+    assert len(chunks) == 3
+    assert all(len(c) <= voice.MAX_CHUNK_CHARS for c in chunks)
+    # Whole sentences stay whole: the first chunk ends at a sentence end.
+    assert chunks[0] == "First sentence here. Second sentence follows."
+    # No characters lost or duplicated by the split.
+    assert "".join(chunks).replace(" ", "") == text.replace(" ", "")
+    # A short text is a single chunk.
+    assert voice.split_into_chunks("Hello there.") == ["Hello there."]
+
+
+def test_long_text_is_chunked_and_segments_are_ordered(monkeypatch):
+    """A long answer is synthesized chunk by chunk (one provider call per
+    chunk), and the response carries the segments in order plus the
+    concatenated bytes — the fix for lesson answers that outgrew a single
+    ElevenLabs request."""
+    fake = FakeProvider(audio=lambda t: ("audio:" + t[:20]).encode())
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    monkeypatch.setenv("CYPHER_VOICE_ID", "voice-cypher-test")
+    _signed_in_user("voice-test", "v@example.com")
+    text = _long_text()
+    assert len(text) > 2000  # past the old request cap
+    r = client.post("/api/voice/speak", json={"character": "cypher", "text": text})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["fallback"] is False
+    assert body["cached"] is False
+    chunks = voice.split_into_chunks(text)
+    assert len(chunks) > 1
+    # One synthesis per chunk (order across parallel calls is not
+    # observable, so compare as a set); together they are the whole text.
+    assert sorted(c for _, c in fake.calls) == sorted(chunks)
+    assert " ".join(chunks) == text
+    # Segments in order, each the audio for its chunk; audio_b64 is the
+    # concatenation for single-file consumers.
+    assert [base64.b64decode(s) for s in body["audio_segments"]] == [
+        ("audio:" + c[:20]).encode() for c in chunks
+    ]
+    assert base64.b64decode(body["audio_b64"]) == b"".join(
+        ("audio:" + c[:20]).encode() for c in chunks
+    )
+
+
+def test_chunked_audio_is_cached_per_chunk(monkeypatch):
+    """Repeating a long answer synthesizes nothing: every chunk is a cache
+    hit, and the response is flagged cached."""
+    fake = FakeProvider()
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    monkeypatch.setenv("CYPHER_VOICE_ID", "voice-cypher-test")
+    _signed_in_user("voice-test", "v@example.com")
+    body = {"character": "cypher", "text": _long_text()}
+    r1 = client.post("/api/voice/speak", json=body)
+    assert r1.json()["cached"] is False
+    calls_after_first = len(fake.calls)
+    assert calls_after_first > 1
+
+    r2 = client.post("/api/voice/speak", json=body)
+    assert r2.status_code == 200
+    assert r2.json()["cached"] is True
+    assert len(fake.calls) == calls_after_first  # no second generation
+    assert r2.json()["audio_segments"] == r1.json()["audio_segments"]
+
+
+def test_shared_chunk_is_reused(monkeypatch):
+    """The cache is per chunk, not per answer: a longer answer sharing its
+    first chunks with an already-spoken one synthesizes only the new
+    chunk."""
+    fake = FakeProvider()
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    monkeypatch.setenv("CYPHER_VOICE_ID", "voice-cypher-test")
+    _signed_in_user("voice-test", "v@example.com")
+    first = _long_text(sentences=8)
+    assert client.post("/api/voice/speak", json={"character": "cypher", "text": first}).status_code == 200
+    calls_after_first = len(fake.calls)
+
+    longer = _long_text(sentences=11)
+    r = client.post("/api/voice/speak", json={"character": "cypher", "text": longer})
+    assert r.status_code == 200
+    assert r.json()["cached"] is False  # not a full hit: new chunk(s) exist
+    # Only the chunks the first answer did not already have are synthesized.
+    first_chunks = set(voice.split_into_chunks(first))
+    longer_chunks = voice.split_into_chunks(longer)
+    new_chunks = [c for c in longer_chunks if c not in first_chunks]
+    assert len(fake.calls) == calls_after_first + len(new_chunks)
+    assert len(new_chunks) > 0
 
 
 # ---------- Markdown -> speakable text (live defect: the voice read "###"

@@ -12,7 +12,12 @@ come with their milestones, after the Cypher pipeline is proven):
   spends real money, so it is a subscriber benefit, 402 for free users) +
   per-user rate limit, then the provider. Identical text is never
   regenerated: a disk cache keyed by character + model + text hash serves
-  repeats (mission briefings are reused constantly).
+  repeats (mission briefings are reused constantly). Long answers are
+  split into sentence-boundary chunks (see split_into_chunks) and each
+  chunk is synthesized — and cached — separately, so a whole lesson
+  answer speaks instead of hitting one request's character limit or the
+  call timeout; the response carries the chunks in order (audio_segments)
+  plus the concatenated bytes (audio_b64) for single-file consumers.
 - GET /voice/status — which characters have a voice configured (no key
   material, no voice IDs — just booleans the UI uses to show/hide Listen).
 - No key or no voice ID for the character -> HTTP 200 text-only fallback
@@ -34,6 +39,7 @@ import os
 import re
 import time
 from collections import defaultdict, deque
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
 
@@ -64,7 +70,23 @@ MODEL = os.getenv("ELEVENLABS_MODEL", "eleven_multilingual_v2")
 ELEVENLABS_URL = "https://api.elevenlabs.io/v1/text-to-speech"
 RATE_LIMIT = int(os.getenv("VOICE_RATE_LIMIT", "30"))  # generations per window per user
 RATE_WINDOW = int(os.getenv("VOICE_RATE_WINDOW", "3600"))  # seconds
-MAX_TEXT_CHARS = 2000
+#: Longest text one /voice/speak request accepts. This is ElevenLabs' own
+#: per-request limit (5,000 characters), not ours: a full lesson answer
+#: can be ~3,600 characters, and it is split into synthesis chunks below,
+#: so the request cap must admit the whole answer. Was 2,000 — a 900-token
+#: tutor answer would have been rejected with 422 at the speak step.
+MAX_TEXT_CHARS = 5000
+
+#: Longest text in one synthesis chunk. A ~1,400-character answer took
+#: ~25 s to synthesize live, against the provider call's 30 s timeout, so
+#: a chunk of 1,000 stays comfortably inside it while keeping the number
+#: of chunks (and requests) small: a 900-token answer is ~4 chunks.
+MAX_CHUNK_CHARS = 1000
+
+#: Max synthesis requests in flight for one answer. Chunks are synthesized
+#: in parallel so a 4-chunk answer waits ~25 s, not ~4 x 25 s; 3 bounds
+#: the concurrent load on the provider.
+MAX_CHUNK_WORKERS = 3
 
 #: Character -> env var holding that character's ElevenLabs voice ID.
 CHARACTER_VOICE_ENV = {
@@ -86,6 +108,49 @@ def voice_id_for(character: str) -> Optional[str]:
 
 def cache_key(character: str, text: str) -> str:
     return hashlib.sha256(f"{character}|{MODEL}|{text}".encode()).hexdigest()
+
+
+def split_into_chunks(text: str) -> list[str]:
+    """Split speakable text into synthesis chunks of at most
+    MAX_CHUNK_CHARS, at sentence boundaries.
+
+    One ElevenLabs request per chunk: a whole long answer in one request
+    would exceed the provider's per-request limit and the 30 s call
+    timeout, so the answer is spoken chunk by chunk and the frontend plays
+    the chunks in order. Joining the chunks with a single space reproduces
+    the input (modulo whitespace), so no words are lost or reordered.
+    """
+    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    chunks: list[str] = []
+    current = ""
+
+    def flush() -> None:
+        nonlocal current
+        if current:
+            chunks.append(current)
+            current = ""
+
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        if len(sentence) > MAX_CHUNK_CHARS:
+            # One over-long sentence (a URL, a run-on): flush what precedes
+            # it, then hard-split it at the cap, preferring a word boundary
+            # over a mid-word cut.
+            flush()
+            while len(sentence) > MAX_CHUNK_CHARS:
+                cut = sentence.rfind(" ", 0, MAX_CHUNK_CHARS)
+                cut = cut if cut > 0 else MAX_CHUNK_CHARS
+                chunks.append(sentence[:cut].strip())
+                sentence = sentence[cut:].strip()
+            current = sentence
+            continue
+        if current and len(current) + 1 + len(sentence) > MAX_CHUNK_CHARS:
+            flush()
+        current = f"{current} {sentence}" if current else sentence
+    flush()
+    return chunks or [text]
 
 
 # ---------- Markdown -> speakable plain text ----------
@@ -277,6 +342,64 @@ def voice_status():
     }
 
 
+def _synthesize_missing(provider, voice_id: str, character: str, chunks: list[str], cached_audios: list) -> list[bytes]:
+    """Synthesize the chunks the cache did not have, in parallel.
+
+    Returns the audio bytes per chunk, in order. A failure in any chunk
+    raises, so the caller degrades to the text-only fallback instead of
+    serving partial audio. Chunks that were already cached are never
+    re-synthesized, and a chunk synthesized here is cached before
+    returning, so a retry after a partial failure is cheap.
+    """
+    audios: list = list(cached_audios)
+
+    def _one(index: int) -> None:
+        chunk = chunks[index]
+        audio = provider.synthesize(voice_id, chunk)
+        _cache_write(cache_key(character, chunk), audio)
+        audios[index] = audio
+
+    missing = [i for i, a in enumerate(audios) if a is None]
+    if len(missing) == 1:
+        _one(missing[0])
+    elif missing:
+        with ThreadPoolExecutor(max_workers=min(MAX_CHUNK_WORKERS, len(missing))) as pool:
+            futures = [pool.submit(_one, i) for i in missing]
+            for f in futures:
+                f.result()  # raises the first chunk failure to the caller
+    return [a for a in audios if a is not None]
+
+
+def _audio_envelope(character: str, speakable: str, audios: list[bytes], cached: bool) -> dict:
+    """The success envelope for synthesized audio: the chunks in order for
+    the frontend to play sequentially, plus the concatenated bytes for any
+    consumer that plays a single file."""
+    import base64
+
+    return {
+        "character": character,
+        "text": speakable,
+        "audio_b64": base64.b64encode(b"".join(audios)).decode(),
+        "audio_segments": [base64.b64encode(a).decode() for a in audios],
+        "mime": "audio/mpeg",
+        "cached": cached,
+        "fallback": False,
+    }
+
+
+def _fallback_envelope(character: str, speakable: str, reason: str) -> dict:
+    return {
+        "character": character,
+        "text": speakable,
+        "audio_b64": None,
+        "audio_segments": [],
+        "mime": None,
+        "cached": False,
+        "fallback": True,
+        "reason": reason,
+    }
+
+
 @router.post("/voice/speak")
 def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
     character = body.character.lower()
@@ -296,20 +419,18 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
     # An input that strips to nothing (a lone code block) falls back to
     # the original text rather than synthesising silence.
     speakable = strip_markdown_to_speech(text) or text
-    key = cache_key(character, speakable)
-    cached_audio = _cache_read(key)
-    if cached_audio is not None:
+    # A long answer is spoken chunk by chunk (see split_into_chunks): one
+    # ElevenLabs request per chunk, each inside the provider's character
+    # limit and the 30 s call timeout. The cache is per chunk, so a repeat
+    # — or a new answer sharing sentences with a spoken one — reuses audio.
+    chunks = split_into_chunks(speakable)
+    cached_audios = [_cache_read(cache_key(character, c)) for c in chunks]
+    if all(a is not None for a in cached_audios):
+        # Full hit: serve without a provider or a key, exactly as the old
+        # whole-text cache did — a lesson already spoken once still speaks
+        # after the key is rotated or removed.
         _log_call(user_id, character, len(speakable), cached=True, error=False)
-        import base64
-
-        return {
-            "character": character,
-            "text": speakable,
-            "audio_b64": base64.b64encode(cached_audio).decode(),
-            "mime": "audio/mpeg",
-            "cached": True,
-            "fallback": False,
-        }
+        return _audio_envelope(character, speakable, cached_audios, cached=True)
 
     voice_id = voice_id_for(character)
     provider = get_provider()
@@ -318,42 +439,16 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
         # -> server env file). Text-only fallback: the frontend shows the
         # subtitles and Cypher still animates; nothing here is an error.
         _log_call(user_id, character, len(speakable), cached=False, error=False)
-        return {
-            "character": character,
-            "text": speakable,
-            "audio_b64": None,
-            "mime": None,
-            "cached": False,
-            "fallback": True,
-            "reason": "voice_not_configured",
-        }
+        return _fallback_envelope(character, speakable, "voice_not_configured")
 
     try:
-        audio = provider.synthesize(voice_id, speakable)
+        audios = _synthesize_missing(provider, voice_id, character, chunks, cached_audios)
     except Exception:
         # Upstream failure degrades to the same text-only fallback — a
         # voice outage must never 500 the lesson or the mission.
         log.warning("ElevenLabs synthesis failed for character %s", character, exc_info=True)
         _log_call(user_id, character, len(speakable), cached=False, error=True)
-        return {
-            "character": character,
-            "text": speakable,
-            "audio_b64": None,
-            "mime": None,
-            "cached": False,
-            "fallback": True,
-            "reason": "voice_unavailable",
-        }
+        return _fallback_envelope(character, speakable, "voice_unavailable")
 
-    _cache_write(key, audio)
     _log_call(user_id, character, len(speakable), cached=False, error=False)
-    import base64
-
-    return {
-        "character": character,
-        "text": speakable,
-        "audio_b64": base64.b64encode(audio).decode(),
-        "mime": "audio/mpeg",
-        "cached": False,
-        "fallback": False,
-    }
+    return _audio_envelope(character, speakable, audios, cached=False)
