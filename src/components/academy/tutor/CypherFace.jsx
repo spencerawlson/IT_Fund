@@ -25,23 +25,111 @@ export const CYPHER_FACE_SRC = {
 // index.css, so the swap is instant there.
 export const CYPHER_FACE_FADE_MS = 400;
 
-// The talking mouth: an overlay ellipse over the Happy face's smile, so
-// Cypher's mouth opens and closes while he speaks instead of the face
-// sitting still like an image. The box is MEASURED from the 320x320 Happy
-// PNG (Nov 15, PIL): the smile curve itself is x 133-188, y 188-211
-// (left 41.6%, top 58.8%, w 17.2%, h 7.2%, centre 50.2% / 62.3%); the
-// visor it sits in spans x 25.0-75.3%, y 38.4-68.4%, colour #3B3A3B. The
-// overlay is anchored on the smile's top edge and grows DOWN to the
-// visor's bottom edge (68.4%), so an open mouth never pokes past the
-// visor into the white chin. Its fill is the chip near-black (#0D1B2A) —
-// darker than the visor, so it reads as an open mouth, not a smudge.
-// Nothing about the art itself changes: the PNGs are untouched.
-export const CYPHER_MOUTH_BOX = {
-  left: 41.6,
-  top: 58.8,
-  width: 17.2,
-  height: 9.6, // 58.8% + 9.6% = 68.4% = the visor's bottom edge
-};
+// The talking mouth — ONE mouth, not two (PR #77 fixes PR #75's split).
+// PR #75 drew a dark ellipse INSIDE the white smile "u": at the smile's
+// ends the ellipse tapers to nothing, so the whole white smile showed
+// around it — a second mouth. Spencer's photo (Nov 15, lesson 3.3,
+// "Speaking..." active) shows it plainly: the white "u" unchanged, the
+// dark oval nested inside it like a tongue. The fix: the mouth IS the
+// white line. One SVG shape morphs from the smile (closed) into the
+// Excited face's open "D" — flat top, bowl bottom, white outline, visor
+// showing through — Spencer's own art language for an open mouth,
+// measured from cypher-face-excited.png (D: x 131-189, top y 182-187,
+// bottom bowl to y 210-215, outline ~5-6 px). The shape is two paths: a
+// white outer mouth and a visor-coloured inner mouth drawn on top of it.
+// Closed, the inner path is a zero-area line on the smile's centreline
+// (invisible) and the outer path is a crescent tracing the smile — the
+// resting face looks exactly as before. As it opens, the outer path
+// flattens on top and drops into a bowl, and the inner path grows from
+// nothing into the D's interior, so the white line itself opens: there
+// is never a second mouth, and the white smile is never visible beside
+// the animated one. Nothing about the art itself changes: the PNGs are
+// untouched.
+export const MOUTH_XS = [131, 140, 150, 160, 170, 180, 189];
+
+// Smile centreline, measured from the 320x320 Happy PNG (Nov 15, PIL):
+// the white "u" is x 133-188, centreline y 191 at the ends, 208 in the
+// middle, stroke ~7 px. The closed mouth covers it with ~1 px to spare
+// on each side (top = centreline - 6, bottom = centreline + 6, pointed
+// ends on the centreline so the rounded caps are covered too).
+export const MOUTH_SMILE_Y = [192, 199, 206.5, 208, 206, 198.5, 191];
+const MOUTH_CLOSED_TOP = [192, 193, 200.5, 202, 200, 192.5, 191];
+const MOUTH_CLOSED_BOTTOM = [192, 205, 212.5, 214, 212, 204.5, 191];
+// The open D, measured from cypher-face-excited.png (see above).
+const MOUTH_OPEN_TOP = [182, 182, 182, 182, 182, 182, 182];
+const MOUTH_OPEN_BOTTOM = [192, 205, 213, 215, 213, 205, 192];
+const MOUTH_INNER_OPEN_TOP = [187, 187, 187, 187, 187, 187, 187];
+const MOUTH_INNER_OPEN_BOTTOM = [187, 199, 207, 209, 207, 199, 187];
+
+// Visor colour in the mouth band, measured from the Happy PNG (mean
+// 59.7/59.2/59.4, std 3.4 — the visor is nearly flat there). The inner
+// mouth is surrounded by the white outline, so it never meets the real
+// visor edge-on; it only needs to read as the visor showing through.
+export const MOUTH_VISOR_FILL = '#3B3A3B';
+
+// Mouth geometry at openness `open` (0 = resting smile, 1 = full D):
+// the y of each edge at each x in MOUTH_XS, linearly interpolated. Pure,
+// so tests and the render harness can assert on it directly.
+//
+// The three edges do NOT all move at the same rate — that is what keeps
+// the mouth one shape instead of two stacked arcs (the first render of
+// this fix showed the failure: at intermediate open the dark interior
+// cut the white crescent into a top arc and a bottom arc, a double
+// smile). The top edge flattens fast (topOpen = open * 1.6, clamped),
+// so by half-open the mouth already reads as a D taking shape; the
+// bottom drops at the base rate; and the dark interior stays shut until
+// the mouth is genuinely open (innerOpen = 0 below open 0.5, then up to
+// 1), so the white shape is never split by a dark slit while it is
+// still essentially a smile.
+export function mouthGeometry(open) {
+  const o = Number.isFinite(open) ? Math.max(0, Math.min(1, open)) : 0;
+  const topOpen = Math.min(1, o * 1.6);
+  const innerOpen = Math.max(0, Math.min(1, (o - 0.5) / 0.5));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  return {
+    outerTop: MOUTH_XS.map((_, i) => lerp(MOUTH_CLOSED_TOP[i], MOUTH_OPEN_TOP[i], topOpen)),
+    outerBottom: MOUTH_XS.map((_, i) => lerp(MOUTH_CLOSED_BOTTOM[i], MOUTH_OPEN_BOTTOM[i], o)),
+    innerTop: MOUTH_XS.map((_, i) => lerp(MOUTH_SMILE_Y[i], MOUTH_INNER_OPEN_TOP[i], innerOpen)),
+    innerBottom: MOUTH_XS.map((_, i) => lerp(MOUTH_SMILE_Y[i], MOUTH_INNER_OPEN_BOTTOM[i], innerOpen)),
+  };
+}
+
+// Smooth closed loop through the top edge (left->right) and the bottom
+// edge (right->left): Catmull-Rom -> cubic Bezier, so the mouth reads as
+// hand-drawn, not a polygon. The pointed ends are single points (top and
+// bottom meet on the centreline), so the end points are not duplicated.
+function smoothClosedPath(topYs, bottomYs) {
+  const pts = [
+    ...MOUTH_XS.map((x, i) => [x, topYs[i]]),
+    ...MOUTH_XS.slice(1, -1)
+      .reverse()
+      .map((x, j) => [x, bottomYs[MOUTH_XS.length - 2 - j]]),
+  ];
+  const n = pts.length;
+  let d = `M ${pts[0][0]} ${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < n; i++) {
+    const p0 = pts[(i - 1 + n) % n];
+    const p1 = pts[i];
+    const p2 = pts[(i + 1) % n];
+    const p3 = pts[(i + 2) % n];
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0]} ${p2[1].toFixed(1)}`;
+  }
+  return `${d} Z`;
+}
+
+export function mouthOuterPath(open) {
+  const g = mouthGeometry(open);
+  return smoothClosedPath(g.outerTop, g.outerBottom);
+}
+
+export function mouthInnerPath(open) {
+  const g = mouthGeometry(open);
+  return smoothClosedPath(g.innerTop, g.innerBottom);
+}
 
 // The mouth is sampled at 10 Hz from the live audio level (see below):
 // fast enough for a mouth, cheap, and testable in this repo's node test
@@ -124,7 +212,7 @@ export default function CypherFace({ emotion = 'happy', talking = false, levelRe
   // { talking, level } from its analyser) and open the mouth with it.
   // When speech stops the mouth settles back to the resting smile.
   // Only the speaking face talks: the quiz faces never get talking=true,
-  // and the overlay only renders for Happy (the other mouths are shaped
+  // and the mouth only renders for Happy (the other mouths are shaped
   // differently and are never the speaking face). Under
   // prefers-reduced-motion the mouth stays still, matching the cross-fade
   // behaviour.
@@ -169,20 +257,15 @@ export default function CypherFace({ emotion = 'happy', talking = false, levelRe
         draggable={false}
       />
       {current === 'happy' && (
-        <div
+        <svg
           data-testid="cypher-mouth"
           aria-hidden={true}
-          className="absolute z-10 rounded-[50%] bg-[#0D1B2A]"
-          style={{
-            left: `${CYPHER_MOUTH_BOX.left}%`,
-            top: `${CYPHER_MOUTH_BOX.top}%`,
-            width: `${CYPHER_MOUTH_BOX.width}%`,
-            height: `${CYPHER_MOUTH_BOX.height}%`,
-            transform: `scale(${0.85 + open * 0.15}, ${open})`,
-            transformOrigin: '50% 0%',
-            transition: 'transform 100ms linear',
-          }}
-        />
+          viewBox="0 0 320 320"
+          className="absolute inset-0 z-10 h-full w-full"
+        >
+          <path d={mouthOuterPath(open)} fill="#FFFFFF" />
+          <path d={mouthInnerPath(open)} fill={MOUTH_VISOR_FILL} />
+        </svg>
       )}
     </div>
   );
