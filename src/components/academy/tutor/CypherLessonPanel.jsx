@@ -110,7 +110,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="w-full shrink-0 sm:w-56">
-          <CypherFace emotion="happy" className="w-full" />
+          <CypherFace emotion="happy" className="w-full" talking={voice.playing} levelRef={voiceRef} />
           <p className="mt-1 text-center text-caption text-ink-2">Cipher — your AI tutor</p>
         </div>
         <div className="min-w-0 flex-1">
