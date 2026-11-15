@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Square, Volume2 } from 'lucide-react';
-import CypherBgVideo from '@/components/academy/tutor/CypherBgVideo';
+import CypherFace from '@/components/academy/tutor/CypherFace';
 import { useTutor, useTutorEnabled, TutorText, Thinking, pillClass } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
@@ -33,15 +33,16 @@ export function presetQuestion(mode, lessonTitle, level) {
 
 // Cypher on the lesson page (Network Security first): the tutor offers
 // assistance through the existing server-side AI tutor (no duplicate
-// chatbot). His visual is the approved background loop (CypherBgVideo) —
-// the 12 s server-room clip, not the 3D viewport; the video already shows
-// him seated at his desk. Three buttons — explain, example, simplify — each ask directly
-// for the current lesson context, no typing. Answers are listen-first and
-// voice-only: Cypher speaks each answer as soon as it arrives, with no
-// subtitle paragraph while he talks; when voice is unavailable or muted the
-// full text is shown directly instead. The mission lives in the handoff at
-// the end of practice, not here: nothing about Operation Broken Shield
-// shows in this panel.
+// chatbot). His visual is the 2D face (CypherFace) on its dark chip — the
+// six-emotion art Spencer sent, resting at Happy here. It replaces the
+// background video loop: the face is Cypher himself, and the video's
+// server room is gone with it. Three buttons — explain, example,
+// simplify — each ask directly for the current lesson context, no typing.
+// Answers are listen-first and voice-only: Cypher speaks each answer as
+// soon as it arrives, with no subtitle paragraph while he talks; when
+// voice is unavailable or muted the full text is shown directly instead.
+// The mission lives in the handoff at the end of practice, not here:
+// nothing about Operation Broken Shield shows in this panel.
 export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
   const tutorEnabled = useTutorEnabled();
   const voiceRef = useRef({ talking: false, level: 0 });
@@ -109,7 +110,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="w-full shrink-0 sm:w-56">
-          <CypherBgVideo />
+          <CypherFace emotion="happy" className="w-full" />
           <p className="mt-1 text-center text-caption text-ink-2">Cipher — your AI tutor</p>
         </div>
         <div className="min-w-0 flex-1">

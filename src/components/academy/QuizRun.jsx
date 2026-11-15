@@ -3,6 +3,7 @@ import { Heart, ArrowRight, CheckCircle2, XCircle } from 'lucide-react';
 import { gradeCard, recordCombo, XP } from '@/lib/academy';
 import RichText from './RichText';
 import TutorAssist from './tutor/TutorAssist';
+import CypherFace from './tutor/CypherFace';
 
 const multiplier = (combo) => (combo >= 6 ? 2 : combo >= 3 ? 1.5 : 1);
 
@@ -155,7 +156,12 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
         )}
       </div>
 
-      <div className="mt-4 flex justify-end">
+      {/* Cypher reacts to the answer, same as the lesson player's
+          FeedbackBar: Happy at rest and on a right answer, Sad on a wrong
+          one. The face stays mounted, so the change cross-fades; the next
+          question resets `picked` to null and he is Happy again. */}
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <CypherFace emotion={picked === null || answeredRight ? 'happy' : 'sad'} className="h-[52px] w-[52px] shrink-0" />
         <button
           onClick={next}
           disabled={picked === null}

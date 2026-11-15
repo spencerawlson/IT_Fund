@@ -357,12 +357,18 @@ body::before {
   .animate-pop { animation: pop 0.25s ease-out; }
   .animate-shake { animation: shake 0.3s ease; }
   .animate-rise { animation: rise 0.28s ease-out; }
+  .animate-face-fade { animation: face-fade 0.4s ease-out; }
 }
 
 @keyframes pop { 0% { transform: scale(0.97); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes rise { 0% { transform: translateY(8px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+/* Cypher's 2D face cross-fade: a new emotion fades in over the old one
+   (the reference video morphs in ~half a second; raster PNGs cross-fade
+   instead). The old layer is retired by the component after 400 ms. */
+@keyframes face-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* Alive moments: celebrations, streak ignition, mascot life signals. These live
    on completion/report/dashboard surfaces only — study screens stay calm. */
@@ -419,7 +425,7 @@ body::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-pop, .animate-shake, .animate-rise { animation: none; }
+  .animate-pop, .animate-shake, .animate-rise, .animate-face-fade { animation: none; }
   .mascot-blink, .mascot-point, .mascot-idle, .mascot-spin, .mascot-bounce, .mascot-wiggle, .streak-ignited, .count-pop, .ring-complete { animation: none; }
   .soc-open { animation: none; }
 }
