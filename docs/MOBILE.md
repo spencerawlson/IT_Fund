@@ -11,6 +11,13 @@ The iOS and Android apps wrap the same web build (`dist/`) in native shells (`io
 | Sign-in | OAuth redirect, `rtc_session` cookie | OAuth in the **system browser**, deep link back, `Authorization: Bearer` token |
 | Lab guest id | `rtc_guest` cookie | `X-RTC-Guest` header |
 
+Guest ids are server-signed (`backend/auth/deps.py`): the value is `token.signature` (HMAC-SHA256
+with `SESSION_SECRET`), and only a value the server signed is trusted. A fresh app install mints a
+bootstrap id client-side, but the API answers with the signed one — in the `Set-Cookie` for the
+website and in the `X-RTC-Guest` response header for the apps (exposed for CORS in
+`backend/main.py`) — and `installNativeFetch` (`src/lib/native.js`) stores it. Presenting an
+unsigned or forged id never adopts it: the caller gets a fresh server-issued id instead.
+
 The backend always allows the two app origins in CORS (`NATIVE_APP_ORIGINS`, `backend/main.py`).
 
 ### Native sign-in (`backend/auth/native.py`, `src/lib/native.js`)

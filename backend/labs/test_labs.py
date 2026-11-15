@@ -16,7 +16,7 @@ import db
 import main
 from auth.sessions import COOKIE_NAME, create_session
 from db_models import LabCompletion, User
-from auth.deps import GUEST_COOKIE, _GUEST_TOKEN
+from auth.deps import GUEST_COOKIE, GUEST_HEADER, verify_guest_token
 from labs import api as labs_api
 from labs import sessions as sessions_mod
 from labs.registry import LABS
@@ -207,7 +207,45 @@ def test_a_forged_guest_cookie_is_replaced_not_trusted():
     r = c.post("/api/labs/cyber-nmap-001/start")
     assert r.status_code == 200
     issued = r.cookies[GUEST_COOKIE]
-    assert issued != "../../etc/passwd" and _GUEST_TOKEN.match(issued)
+    assert issued != "../../etc/passwd"
+    assert verify_guest_token(issued) is not None  # server-signed, not the forged value
+    assert r.headers[GUEST_HEADER] == issued  # native apps get the same signed value back
+
+
+def test_a_guests_raw_token_cannot_reach_another_guests_session():
+    """The hole this change closes: a guest's raw token (visible in a log, a
+    shared computer, a proxy) used to be enough to own their lab sessions.
+    The token alone is now worthless without the server's signature — the
+    thief is handed a fresh guest id instead, and the victim's session stays
+    unreachable to them."""
+    a = _guest()
+    sid = a.post("/api/labs/cyber-nmap-001/start").json()["id"]
+    signed = a.cookies[GUEST_COOKIE]
+    token = signed.split(".")[0]
+    thief = _guest()
+    thief.cookies.set(GUEST_COOKIE, token)  # the raw token, stripped of its signature
+    assert thief.get(f"/api/labs/sessions/{sid}").status_code == 404
+    assert thief.post(f"/api/labs/sessions/{sid}/validate").status_code == 404
+    assert thief.delete(f"/api/labs/sessions/{sid}").status_code == 204  # idempotent no-op
+    # The theft attempt never adopted the victim's identity: the next
+    # successful call issues the thief a fresh server-signed id.
+    r = thief.post("/api/labs/cyber-nmap-001/start")
+    assert r.status_code == 200
+    assert r.cookies[GUEST_COOKIE] != signed
+    assert verify_guest_token(r.cookies[GUEST_COOKIE]) is not None
+    assert a.get(f"/api/labs/sessions/{sid}").status_code == 200  # the real guest is unaffected
+
+
+def test_a_forged_guest_header_cannot_reach_another_guests_session():
+    """Same hole over the native header path: a raw token as X-RTC-Guest is
+    not trusted either."""
+    a = _guest()
+    sid = a.post("/api/labs/cyber-nmap-001/start").json()["id"]
+    signed = a.cookies[GUEST_COOKIE]
+    token = signed.split(".")[0]
+    assert client.get(f"/api/labs/sessions/{sid}", headers={"X-RTC-Guest": token}).status_code == 404
+    # The signed value does work over the header.
+    assert client.get(f"/api/labs/sessions/{sid}", headers={"X-RTC-Guest": signed}).status_code == 200
 
 
 def test_signing_in_separates_a_users_sessions_from_guest_ones():

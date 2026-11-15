@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { challengeFor, handleNativeAuthUrl, makeVerifier, nativeHeadersFor, NATIVE_REDIRECT, getNativeToken } from './native';
 
 // Minimal localStorage for the node test environment.
@@ -77,5 +77,56 @@ describe('handleNativeAuthUrl', () => {
     const reject = async () => ({ ok: false, json: async () => ({}) });
     expect(await handleNativeAuthUrl(`${NATIVE_REDIRECT}?code=abc`, reject)).toBe('error');
     expect(getNativeToken()).toBeNull();
+  });
+});
+
+describe('installNativeFetch', () => {
+  const api = 'https://api.example.test/api';
+  let realFetch;
+
+  beforeEach(() => {
+    realFetch = globalThis.fetch;
+    globalThis.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'ios' };
+    vi.stubEnv('VITE_API_BASE_URL', api);
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+    delete globalThis.Capacitor;
+    vi.unstubAllEnvs();
+  });
+
+  const installWith = async (respond) => {
+    const mod = await import('./native');
+    globalThis.fetch = respond;
+    mod.installNativeFetch();
+    return mod;
+  };
+
+  it('adopts the server-signed guest id from the response header', async () => {
+    await installWith(async () => ({ headers: new Headers({ 'X-RTC-Guest': 'tok123.abcdef' }) }));
+    localStorage.setItem('rtc_native_guest', 'bootstrap-id');
+    await globalThis.fetch(`${api}/labs/x`);
+    expect(localStorage.getItem('rtc_native_guest')).toBe('tok123.abcdef');
+  });
+
+  it('keeps the stored id when the response carries no guest header', async () => {
+    await installWith(async () => ({ headers: new Headers({}) }));
+    localStorage.setItem('rtc_native_guest', 'bootstrap-id');
+    await globalThis.fetch(`${api}/labs/x`);
+    expect(localStorage.getItem('rtc_native_guest')).toBe('bootstrap-id');
+  });
+
+  it('leaves non-API requests alone', async () => {
+    const seen = [];
+    await installWith(async (input, init) => {
+      seen.push(init?.headers);
+      return { headers: new Headers({ 'X-RTC-Guest': 'tok123.abcdef' }) };
+    });
+    await globalThis.fetch('https://example.com/other');
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toBeUndefined(); // no credentials attached
+    expect(localStorage.getItem('rtc_native_guest')).toBeNull(); // and nothing adopted
   });
 });

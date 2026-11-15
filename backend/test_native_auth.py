@@ -156,14 +156,38 @@ def test_failed_native_oauth_returns_to_the_app_with_an_error(oauth, monkeypatch
 
 
 def test_guest_header_keeps_one_visitor_across_cookieless_requests():
+    """A native app's guest identity persists across cookieless requests — but
+    only when the header carries a value the server signed. The app adopts the
+    signed value the server returns (see src/lib/native.js installNativeFetch)."""
     from fastapi import Response
     from starlette.requests import Request
 
-    from auth.deps import GUEST_HEADER, resolve_visitor_id
+    from auth.deps import GUEST_HEADER, resolve_visitor_id, sign_guest_token
 
-    token = secrets.token_urlsafe(24)
+    signed = sign_guest_token(secrets.token_urlsafe(24))
 
     def req():
-        return Request({"type": "http", "headers": [(GUEST_HEADER.lower().encode(), token.encode())]})
+        return Request({"type": "http", "headers": [(GUEST_HEADER.lower().encode(), signed.encode())]})
 
-    assert resolve_visitor_id(req(), Response()) == resolve_visitor_id(req(), Response()) == f"guest:{token}"
+    assert resolve_visitor_id(req(), Response()) == resolve_visitor_id(req(), Response()) == f"guest:{signed.split('.')[0]}"
+
+
+def test_unsigned_guest_header_gets_a_fresh_server_issued_id():
+    """A native app on first run mints its own guest id client-side. The
+    server must not trust it: the app gets a fresh server-issued id instead,
+    and the signed value comes back in the response header for the app to
+    store (see src/lib/native.js installNativeFetch)."""
+    from fastapi import Response
+    from starlette.requests import Request
+
+    from auth.deps import GUEST_HEADER, resolve_visitor_id, verify_guest_token
+
+    minted = secrets.token_urlsafe(24)
+    req = Request({"type": "http", "headers": [(GUEST_HEADER.lower().encode(), minted.encode())]})
+    resp = Response()
+    visitor = resolve_visitor_id(req, resp)
+    assert visitor != f"guest:{minted}"
+    assert verify_guest_token(resp.headers[GUEST_HEADER]) == visitor.removeprefix("guest:")
+    # Presenting the signed value back keeps the same identity.
+    req2 = Request({"type": "http", "headers": [(GUEST_HEADER.lower().encode(), resp.headers[GUEST_HEADER].encode())]})
+    assert resolve_visitor_id(req2, Response()) == visitor
