@@ -211,6 +211,54 @@ export function useCypherVoice(voiceRef) {
   const audioBuffersRef = React.useRef(null); // decoded buffers of the current play, for resume()
   const playSegmentRef = React.useRef(null); // playSegment of the current play (its closure)
   const bandsRef = React.useRef(null); // Float32Array(24) frequency bands, mutated in place
+  const [progress, setProgress] = React.useState({ elapsed: 0, total: 0 });
+  const progressTimerRef = React.useRef(null); // setInterval id ticking progress while playing
+  const PROGRESS_TICK_MS = 250;
+
+  // Playback position from the decoded buffers and the current segment
+  // clock: total is the sum of the segment durations, elapsed is the
+  // completed segments + the offset into the current one (+ the time
+  // since it started, when given). Frozen at the paused spot, 0 after a
+  // stop or the natural end. No audio (silent fallback) has no total —
+  // callers show elapsed only, never a made-up total.
+  const progressAt = React.useCallback((segmentIndex, offset, extra = 0) => {
+    const bufs = audioBuffersRef.current;
+    if (!bufs?.length) return { elapsed: 0, total: 0 };
+    const dur = (b) => (Number.isFinite(b?.duration) ? b.duration : 0);
+    const total = bufs.reduce((a, b) => a + dur(b), 0);
+    let elapsed = 0;
+    for (let i = 0; i < segmentIndex && i < bufs.length; i++) elapsed += dur(bufs[i]);
+    elapsed += (offset || 0) + extra;
+    return { elapsed: Math.round(Math.min(elapsed, total) * 10) / 10, total: Math.round(total * 10) / 10 };
+  }, []);
+
+  const computeProgress = React.useCallback(() => {
+    const seg = segmentRef.current;
+    const ctx = audioCtxRef.current;
+    const extra = ctx ? Math.max(0, ctx.currentTime - seg.startedAt) : 0;
+    return progressAt(seg.index, seg.offset, extra);
+  }, [progressAt]);
+
+  // Tick the position state while audio plays (rounded to 0.1 s, and
+  // skipped when nothing changed, so the panel doesn't re-render 4x/s
+  // for the same reading).
+  const updateProgress = React.useCallback(() => {
+    const next = computeProgress();
+    setProgress((prev) => (prev.elapsed === next.elapsed && prev.total === next.total ? prev : next));
+  }, [computeProgress]);
+
+  const startProgressTick = React.useCallback(() => {
+    if (progressTimerRef.current) return;
+    updateProgress();
+    progressTimerRef.current = setInterval(updateProgress, PROGRESS_TICK_MS);
+  }, [updateProgress]);
+
+  const stopProgressTick = React.useCallback(() => {
+    if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
+  }, []);
 
   const stopLevelLoop = React.useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -259,6 +307,8 @@ export function useCypherVoice(voiceRef) {
     pauseRef.current = null;
     audioBuffersRef.current = null;
     playSegmentRef.current = null;
+    stopProgressTick();
+    setProgress({ elapsed: 0, total: 0 });
     setPaused(false);
     if (sourceNodeRef.current) {
       sourceNodeRef.current.onended = null;
@@ -275,7 +325,7 @@ export function useCypherVoice(voiceRef) {
     setPlaying(false);
     setLoading(false);
     setSubtitle('');
-  }, [stopLevelLoop]);
+  }, [stopLevelLoop, stopProgressTick]);
 
   // Freeze playback at the exact spot: stop the current source and
   // remember which segment and how far into it (buffer sources cannot be
@@ -296,10 +346,14 @@ export function useCypherVoice(voiceRef) {
     source.onended = null;
     try { source.stop(); } catch { /* already stopped */ }
     sourceNodeRef.current = null;
+    // Freeze the position display at the paused spot (the tick is off,
+    // so the bar and time stay exactly where playback stopped).
+    stopProgressTick();
+    setProgress(progressAt(started.index, offset));
     stopLevelLoop();
     setPlaying(false);
     setPaused(true);
-  }, [stopLevelLoop]);
+  }, [stopLevelLoop, stopProgressTick, progressAt]);
 
   // Continue from the paused spot: restart the analyser loop and the
   // segment chain at the remembered segment + offset — not from the
@@ -499,6 +553,8 @@ export function useCypherVoice(voiceRef) {
         if (playIdRef.current !== playId) return;
         if (index >= audioBuffers.length) {
           sourceNodeRef.current = null;
+          stopProgressTick();
+          setProgress({ elapsed: 0, total: 0 });
           stopLevelLoop();
           setPlaying(false);
           setSubtitle('');
@@ -512,6 +568,9 @@ export function useCypherVoice(voiceRef) {
         segmentRef.current = { index, offset, startedAt: ctx.currentTime };
         setPlaying(true);
         setPaused(false);
+        // The position display starts ticking with this segment (and
+        // restarts on resume, which re-enters here at the paused spot).
+        startProgressTick();
         // Flat level for the mouth while this segment plays; the analyser
         // loop (when it runs) overwrites it with the live level and bands
         // every frame. Keep the last band snapshot here too, so the
@@ -535,9 +594,9 @@ export function useCypherVoice(voiceRef) {
       setError('Cypher’s voice couldn’t play here.');
       return envelope.text;
     }
-  }, [muted, volume, voiceRef, stop, stopLevelLoop, startLevelLoop]);
+  }, [muted, volume, voiceRef, stop, stopLevelLoop, startLevelLoop, startProgressTick, stopProgressTick]);
 
   React.useEffect(() => stop, [stop]);
 
-  return { play, stop, pause, resume, playing, paused, loading, fallback, error, subtitle, muted, setMuted, volume, setVolume };
+  return { play, stop, pause, resume, playing, paused, loading, fallback, error, subtitle, muted, setMuted, volume, setVolume, progress };
 }

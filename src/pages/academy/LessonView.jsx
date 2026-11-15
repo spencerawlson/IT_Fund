@@ -178,11 +178,10 @@ export default function LessonView() {
           undefined for most of them (it only feeds the panel_opened
           analytics event). The guided deck lessons
           (/academy/:trackId/lesson/:deckId) are a different surface and
-          don't use it — they have no reading body to ground on. */}
-      <Card level={2} padding="sm" className="mb-8">
-        <h2 className="text-heading text-ink-1">Cypher</h2>
-        <CypherLessonPanel lesson={lesson} missionId={missionId} lessonText={lessonTextFromContent(c)} />
-      </Card>
+          don't use it — they have no reading body to ground on. The panel
+          renders its own section Card plus the standalone player card as
+          a sibling below it, so the player is never nested inside a card. */}
+      <CypherLessonPanel lesson={lesson} missionId={missionId} lessonText={lessonTextFromContent(c)} />
 
       {sections.length > 2 && (
         <nav aria-label="On this page" className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-small">

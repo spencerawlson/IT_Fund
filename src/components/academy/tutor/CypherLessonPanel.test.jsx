@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server';
 import TestRenderer from 'react-test-renderer';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StaticRouter } from 'react-router-dom';
-import CypherLessonPanel, { presetQuestion } from './CypherLessonPanel';
+import CypherLessonPanel, { presetQuestion, formatPlayerTime } from './CypherLessonPanel';
 import { __clearVoiceCache } from '@/api/voice';
 
 // react-test-renderer needs the act environment flag in a DOM-less run.
@@ -133,6 +133,17 @@ describe('presetQuestion', () => {
   });
 });
 
+describe('formatPlayerTime', () => {
+  it('formats elapsed / total as m:ss', () => {
+    expect(formatPlayerTime(0)).toBe('0:00');
+    expect(formatPlayerTime(24)).toBe('0:24');
+    expect(formatPlayerTime(84)).toBe('1:24');
+    expect(formatPlayerTime(236)).toBe('3:56');
+    expect(formatPlayerTime(0.5)).toBe('0:00'); // floors — no partial seconds
+    expect(formatPlayerTime(NaN)).toBe('0:00');
+  });
+});
+
 describe('CypherLessonPanel listen-only play experience (mounted)', () => {
   // The tutor's answer and the voice's spoken text are deliberately
   // DIFFERENT strings, so the test can tell the hidden full answer apart
@@ -245,8 +256,8 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     return root.root.findAllByType('button').find((b) => b.props['aria-label'] === label);
   }
 
-  function playArea() {
-    return root.root.findByProps({ 'data-testid': 'cypher-play-area' });
+  function playerCard() {
+    return root.root.findByProps({ 'data-testid': 'cypher-player-card' });
   }
 
   function presetsRow() {
@@ -412,7 +423,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(findButton('Hide answer')).toBeFalsy();
     // Playing: the Play button became Pause, and Stop appears beside it.
     expect(findButtonByAria('Pause Cypher')).toBeTruthy();
-    expect(findButton('Stop')).toBeTruthy();
+    expect(findButtonByAria('Stop Cypher')).toBeTruthy();
     // The waveform is present and driven by the audio — its bars are not
     // all the same height (the fake analyser ramps up).
     const heights = waveformBars();
@@ -433,7 +444,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(FakeSourceNode.instances[0].stopped).toBe(true);
     // The Pause button turned back into a Play (resume) and Stop stays.
     expect(findButtonByAria('Resume Cypher')).toBeTruthy();
-    expect(findButton('Stop')).toBeTruthy();
+    expect(findButtonByAria('Stop Cypher')).toBeTruthy();
     // Resume: a new source starts in the SAME segment at 0.5 s — not
     // from the start.
     TestRenderer.act(() => { findButtonByAria('Resume Cypher').props.onClick(); });
@@ -443,11 +454,11 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(FakeSourceNode.instances[1].buffer).toBe(FakeSourceNode.instances[0].buffer);
     // Stop: playback ends completely and the position resets to the start;
     // the controls go back to Play only.
-    TestRenderer.act(() => { findButton('Stop').props.onClick(); });
+    TestRenderer.act(() => { findButtonByAria('Stop Cypher').props.onClick(); });
     expect(treeText()).toContain('Tap to hear it again.');
     expect(findButtonByAria('Play Cypher’s explanation')).toBeTruthy();
     expect(findButtonByAria('Pause Cypher')).toBeFalsy();
-    expect(findButton('Stop')).toBeFalsy();
+    expect(findButtonByAria('Stop Cypher')).toBeFalsy();
     // Play again: replays from the start, from the in-tab cache — no new
     // speak fetch.
     const speakBefore = globalThis.fetch.mock.calls.filter(([url]) => url === '/api/voice/speak').length;
@@ -468,12 +479,12 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(treeText()).toContain('Getting your explanation ready…');
     // Stop is there while generating, and ends it: the partial text is
     // cleared, so there is nothing half-made to play.
-    expect(findButton('Stop')).toBeTruthy();
-    TestRenderer.act(() => { findButton('Stop').props.onClick(); });
+    expect(findButtonByAria('Stop Cypher')).toBeTruthy();
+    TestRenderer.act(() => { findButtonByAria('Stop Cypher').props.onClick(); });
     await TestRenderer.act(async () => { gate.resolve(); });
     await flush();
     expect(treeText()).toContain('Tap an explanation below to hear Cypher.');
-    expect(findButton('Stop')).toBeFalsy();
+    expect(findButtonByAria('Stop Cypher')).toBeFalsy();
     expect(treeText()).not.toContain(answerFor('explain'));
   });
 
@@ -515,18 +526,74 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(tutorMocks.streamTutor.mock.calls.length).toBe(2);
   });
 
-  it('the preset buttons sit lower and centred, with the play area where the answers card was', async () => {
+  it('the preset buttons sit lower and centred, with the player card below them as its own card', async () => {
     mountPanel();
     await flush();
     const presets = presetsRow();
     expect(presets.props.className).toContain('justify-center');
     expect(presets.props.className).toContain('mt-6');
-    // DOM order: the play area (where the answers card was) comes first,
-    // the presets sit below it.
-    expect(treeText().indexOf('cypher-play-area')).toBeLessThan(treeText().indexOf('cypher-presets'));
-    // The level selector is still in its spot, above the play area.
-    expect(treeText()).toContain('Explanation difficulty level');
-    expect(treeText().indexOf('Explanation difficulty level')).toBeLessThan(treeText().indexOf('cypher-play-area'));
+    // DOM order: the level selector first, then the presets, then the
+    // player card below them — the card is a standalone sibling, not
+    // nested inside the section card.
+    expect(treeText().indexOf('Explanation difficulty level')).toBeLessThan(treeText().indexOf('cypher-presets'));
+    expect(treeText().indexOf('cypher-presets')).toBeLessThan(treeText().indexOf('cypher-player-card'));
+    // The player card is the mockup's black neon card: black, very large
+    // rounded corners — not the white lesson-panel card.
+    expect(playerCard().props.className).toContain('bg-black');
+    expect(playerCard().props.className).toContain('rounded-[2rem]');
+    // The old play area is gone.
+    expect(treeText()).not.toContain('cypher-play-area');
+  });
+
+  it('hides the waveform until it talks, and the player card shows real progress and time', async () => {
+    mountPanel();
+    await flush();
+    // Before playback: no waveform at all (no flat bars, no placeholder),
+    // but the player card is there with the progress bar at 0 and 0:00.
+    expect(root.root.findAllByProps({ 'data-testid': 'cypher-waveform' })).toHaveLength(0);
+    expect(root.root.findByProps({ 'data-testid': 'cypher-progress' }).props['aria-valuenow']).toBe(0);
+    expect(treeText()).toContain('0:00');
+    // 0.5 s into the answer (a single decoded segment of 2 s).
+    await askPreset();
+    expect(root.root.findAllByProps({ 'data-testid': 'cypher-waveform' })).toHaveLength(1);
+    const ctx = FakeAudioContext.instances[FakeAudioContext.instances.length - 1];
+    ctx.currentTime = 0.5;
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 300)); });
+    expect(root.root.findByProps({ 'data-testid': 'cypher-progress' }).props['aria-valuenow']).toBe(25); // 0.5 / 2 = 25%
+    expect(treeText()).toContain('0:00 / 0:02');
+    // Pause: the waveform stays visible but frozen, and the bar/time freeze.
+    TestRenderer.act(() => { findButtonByAria('Pause Cypher').props.onClick(); });
+    expect(root.root.findAllByProps({ 'data-testid': 'cypher-waveform' })).toHaveLength(1);
+    const frozenHeights = waveformBars();
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 300)); });
+    expect(waveformBars()).toEqual(frozenHeights);
+    expect(root.root.findByProps({ 'data-testid': 'cypher-progress' }).props['aria-valuenow']).toBe(25);
+    // Stop: the waveform hides again and the bar resets to the start.
+    TestRenderer.act(() => { findButtonByAria('Stop Cypher').props.onClick(); });
+    expect(root.root.findAllByProps({ 'data-testid': 'cypher-waveform' })).toHaveLength(0);
+    expect(root.root.findByProps({ 'data-testid': 'cypher-progress' }).props['aria-valuenow']).toBe(0);
+  });
+
+  it('the player buttons are circular with a light outline on black — the mockup look, not all three at once', async () => {
+    mountPanel();
+    await flush();
+    const play = findButtonByAria('Play Cypher’s explanation');
+    expect(play.props.className).toContain('rounded-full');
+    expect(play.props.className).toContain('border-white/40');
+    expect(play.props.className).toContain('bg-black');
+    // Idle: only Play shows — no Pause, no Stop (the mockup's still shows
+    // all three at once; Spencer's confirmed behaviour shows Play only).
+    expect(findButtonByAria('Pause Cypher')).toBeFalsy();
+    expect(findButtonByAria('Stop Cypher')).toBeFalsy();
+    await askPreset();
+    // Playing: Play turned into Pause, and Stop appears beside it.
+    expect(findButtonByAria('Pause Cypher')).toBeTruthy();
+    const stop = findButtonByAria('Stop Cypher');
+    expect(stop).toBeTruthy();
+    expect(stop.props.className).toContain('rounded-full');
+    expect(stop.props.className).toContain('border-white/40');
+    // No download button anywhere in the panel.
+    expect(treeText()).not.toContain('Download');
   });
 
   it('when voice is not configured, the play button is disabled and the caption says why — no text fallback', async () => {
