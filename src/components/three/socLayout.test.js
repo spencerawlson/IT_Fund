@@ -226,18 +226,48 @@ describe('device showcase', () => {
   });
 
   it('aims each showcase camera at its device, close and low', () => {
-    // Targets sit at the device's (x, z) at y = 3.5 (between the
-    // device centre and its label at y = 5.6, so the label fits too);
-    // every showcase camera is close (≤15 units) and low (≤35°
-    // elevation) — a close-up, not the top-down look-across.
+    // Targets sit at the device's (x, z) at y = 3.7 (between the
+    // device centre and its label at y = 5.6, so the label fits too —
+    // 3.5 still left GUEST's emphasised label top ~0.1° outside the
+    // 42° FOV, see the label-framing test below); every showcase camera
+    // is close (≤15 units) and low (≤35° elevation) — a close-up, not
+    // the top-down look-across.
     const pos = socPositions();
     for (const [id, shot] of Object.entries(DEVICE_SHOTS)) {
       // toBeCloseTo: GUEST's z is -0 (Blender y 0.0 x -5), the shot's is 0.
       expect(shot.target[0]).toBeCloseTo(pos[id].x, 5);
       expect(shot.target[2]).toBeCloseTo(pos[id].z, 5);
-      expect(shot.target[1]).toBe(3.5);
+      expect(shot.target[1]).toBe(3.7);
       expect(shotDistance(shot)).toBeLessThanOrEqual(15);
       expect(shotElevation(shot)).toBeLessThanOrEqual(35);
+    }
+  });
+
+  it('keeps every emphasised label and every device footprint in frame', () => {
+    // Regression for the live check (2026-11-14): GUEST's label was cut
+    // off at the top edge of the canvas in the 3D view. The label sprite
+    // is centred at y = 5.6 (MissionSocScene: FOOTPRINT + 1.6), 1.1 tall,
+    // and grows 1.6x on the device on camera — so its top sits at 6.48.
+    // The camera is 42° vertical FOV (ModelViewer), i.e. 21° half-FOV:
+    // the angle from the view direction to the label top and to the
+    // device-footprint bottom (y = 0) must both sit inside 21° for every
+    // showcase shot, or the label (or the device) is cut off. At the old
+    // target y = 3.5 GUEST's label top was ~21.2° — outside.
+    const HALF_FOV_DEG = 21;
+    const LABEL_TOP_Y = 5.6 + (1.1 * 1.6) / 2;
+    const pos = socPositions();
+    const angleTo = (shot, point) => {
+      const v = [shot.target[0] - shot.pos[0], shot.target[1] - shot.pos[1], shot.target[2] - shot.pos[2]];
+      const w = [point[0] - shot.pos[0], point[1] - shot.pos[1], point[2] - shot.pos[2]];
+      const dot = v[0] * w[0] + v[1] * w[1] + v[2] * w[2];
+      const lv = Math.hypot(v[0], v[1], v[2]);
+      const lw = Math.hypot(w[0], w[1], w[2]);
+      return (Math.acos(dot / (lv * lw)) * 180) / Math.PI;
+    };
+    for (const [id, shot] of Object.entries(DEVICE_SHOTS)) {
+      const p = pos[id];
+      expect(angleTo(shot, [p.x, LABEL_TOP_Y, p.z])).toBeLessThan(HALF_FOV_DEG);
+      expect(angleTo(shot, [p.x, 0, p.z])).toBeLessThan(HALF_FOV_DEG);
     }
   });
 });
