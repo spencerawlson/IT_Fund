@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { CheckCircle2, XCircle, Lightbulb } from 'lucide-react';
 import RichText from '../RichText';
 import TutorAssist from '../tutor/TutorAssist';
+import CypherFace from '../tutor/CypherFace';
 
 /**
  * Attempt tracking shared by every step: `check(isRight)` moves idle -> correct | wrong,
@@ -50,6 +51,12 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
   const tone =
     status === 'correct' ? 'border-success/40' : status === 'wrong' ? 'border-danger/40' : status === 'revealed' ? 'border-warning/40' : 'border-black/10';
   const label = status === 'idle' ? 'Check' : status === 'wrong' ? 'Try again' : 'Continue';
+  // Cypher reacts to the answer: Happy at rest and on a right answer, Sad
+  // on a wrong one (and on reveal, after the misses). The face is always
+  // mounted, so the Happy -> Sad change cross-fades instead of popping in
+  // already sad. Back to Happy is automatic: a retry resets status to
+  // 'idle', and the next question mounts a fresh bar.
+  const faceEmotion = status === 'wrong' || status === 'revealed' ? 'sad' : 'happy';
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe sm:px-6">
@@ -85,7 +92,8 @@ export default function FeedbackBar({ status, canCheck, onCheck, onRetry, onReve
             answerClassName="max-h-[26vh] overflow-y-auto"
           />
         )}
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <CypherFace emotion={faceEmotion} className="h-[52px] w-[52px] shrink-0" />
           {status === 'wrong' && onReveal && (
             <button type="button" onClick={onReveal} className="rounded-control border border-black/15 bg-black/[0.03] px-4 py-3.5 text-sm font-semibold text-ink-2 transition hover:bg-black/[0.04]">
               Show answer
