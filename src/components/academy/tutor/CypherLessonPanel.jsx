@@ -52,21 +52,26 @@ export function formatPlayerTime(seconds) {
 //
 // Listen-only: this panel never shows an answer as text, while speaking
 // or after — the student hears Cypher, they don't read him. The old
-// "Cypher answers" card and "Hear again" are gone. Below the face, the
-// level selector and the preset buttons sits the player: its own
-// standalone black neon card (Spencer's mockup) — waveform on top,
-// progress bar + time, circular Play / Pause / Stop buttons, and a
-// caption saying what they do. The waveform is hidden until it talks
-// (nothing before playback starts, frozen while paused, gone on stop).
-// The level selector stays where it was; the preset buttons sit further
-// down and centred. If voice is unavailable or muted the play button is
-// disabled and its caption says why — the answer text is never the
-// fallback. The mission lives in the handoff at the end of practice, not
-// here: nothing about Operation Broken Shield shows in this panel.
+// "Cypher answers" card and "Hear again" are gone. Next to the face,
+// the level selector and the preset buttons sit in the right column,
+// and under the buttons sits the player: the black neon card (Spencer's
+// mockup) — waveform on top, progress bar + time, circular Play / Pause
+// / Stop buttons, and a caption saying what they do. The waveform is
+// hidden until it talks (nothing before playback starts, frozen while
+// paused, gone on stop). The level selector stays where it was; the
+// preset buttons sit further down and centred. If voice is unavailable
+// or muted the play button is disabled and its caption says why — the
+// answer text is never the fallback. The mission lives in the handoff
+// at the end of practice, not here: nothing about Operation Broken
+// Shield shows in this panel.
 //
-// The panel renders its own section Card plus the player card as a
-// sibling — the player is NOT nested inside the section Card (or any
-// other card); LessonView renders this component bare.
+// Layout (Spencer, 2026-11-15 07:20 EST): the player lives INSIDE the
+// section Card's right column, under the preset buttons and next to the
+// face — the same black neon card, same size, not bigger; the time
+// counter stays. This SUPERSEDES the 05:50 EST "play button not in the
+// card" direction that had made the player a standalone sibling below
+// the section Card. On mobile the column stacks, so the player sits
+// below the presets as before. LessonView renders this component bare.
 export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
   const tutorEnabled = useTutorEnabled();
   const voiceRef = useRef({ talking: false, level: 0 });
@@ -294,7 +299,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
 
           {tutorEnabled ? (
             /* Presets: further down and centred — the player card sits
-               below them, as its own card. */
+               below them, inside this column. */
             <div className="mt-6 flex flex-wrap justify-center gap-2" data-testid="cypher-presets">
               <button type="button" onClick={() => runMode('explain')} disabled={presetDisabled} className={pillClass}>
                 <Sparkles size={15} className="text-action" /> Explain this concept
@@ -311,71 +316,74 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
               The AI tutor isn’t available on this server right now.
             </p>
           )}
+
+          {/* Neon player card (Spencer's mockup): the black card under
+              the preset buttons, next to the face — inside the section
+              Card's right column (Spencer 2026-11-15: next to the head,
+              not below the section). Same size and styling as the
+              standalone card it replaces: waveform on top (hidden until
+              it talks), then the progress bar, the time, the circular
+              buttons, and the caption saying what they do. No download
+              button. No answer text anywhere. */}
+          {tutorEnabled && (
+            <div data-testid="cypher-player-card" className="mt-6 rounded-[2rem] bg-black p-3 sm:p-4">
+              <div className="rounded-3xl border border-white/10 bg-[#0B0B0D] px-4 py-5 sm:px-6">
+                {showWaveform && (
+                  <VoiceWaveform levelRef={voiceRef} active={isPlaying} paused={isPaused} />
+                )}
+                <div
+                  data-testid="cypher-progress"
+                  className="mt-4 h-1.5 w-full rounded-full bg-white/15"
+                  role="progressbar"
+                  aria-label="Playback progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(progressPct)}
+                >
+                  <div data-testid="cypher-progress-fill" className="relative h-full rounded-full bg-red-500" style={{ width: `${progressPct}%` }}>
+                    <span className="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-red-500" />
+                  </div>
+                </div>
+                <p data-testid="cypher-time" className="mt-2 text-left text-small text-white/80">{timeText}</p>
+                <div className="mt-4 flex items-center justify-center gap-4">
+                  <button
+                    type="button"
+                    onClick={onPlayPause}
+                    disabled={playDisabled}
+                    aria-label={isPlaying ? 'Pause Cypher' : isPaused ? 'Resume Cypher' : 'Play Cypher’s explanation'}
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70 disabled:opacity-50"
+                  >
+                    {isPlaying ? <Pause size={20} className="fill-current" /> : <Play size={20} className="fill-current" />}
+                  </button>
+                  {showStop && (
+                    <button
+                      type="button"
+                      onClick={onStop}
+                      aria-label="Stop Cypher"
+                      className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70"
+                    >
+                      <Square size={18} className="fill-current" />
+                    </button>
+                  )}
+                </div>
+                <p className="mt-3 text-center text-small text-white/60" aria-live="polite">
+                  {caption}
+                  {captionAction && (
+                    <button
+                      type="button"
+                      onClick={captionAction.onClick}
+                      className="ml-2 font-semibold text-white underline"
+                    >
+                      {captionAction.label}
+                    </button>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       </Card>
-
-      {/* Standalone neon player card (Spencer's mockup): its own black
-          card below the face/level/presets — NOT nested inside any other
-          card. Waveform on top (hidden until it talks), then the progress
-          bar, the time, the circular buttons, and the caption saying what
-          they do. No download button. No answer text anywhere. */}
-      {tutorEnabled && (
-        <div data-testid="cypher-player-card" className="mb-8 rounded-[2rem] bg-black p-3 sm:p-4">
-          <div className="rounded-3xl border border-white/10 bg-[#0B0B0D] px-4 py-5 sm:px-6">
-            {showWaveform && (
-              <VoiceWaveform levelRef={voiceRef} active={isPlaying} paused={isPaused} />
-            )}
-            <div
-              data-testid="cypher-progress"
-              className="mt-4 h-1.5 w-full rounded-full bg-white/15"
-              role="progressbar"
-              aria-label="Playback progress"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(progressPct)}
-            >
-              <div data-testid="cypher-progress-fill" className="relative h-full rounded-full bg-red-500" style={{ width: `${progressPct}%` }}>
-                <span className="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-red-500" />
-              </div>
-            </div>
-            <p data-testid="cypher-time" className="mt-2 text-left text-small text-white/80">{timeText}</p>
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={onPlayPause}
-                disabled={playDisabled}
-                aria-label={isPlaying ? 'Pause Cypher' : isPaused ? 'Resume Cypher' : 'Play Cypher’s explanation'}
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70 disabled:opacity-50"
-              >
-                {isPlaying ? <Pause size={20} className="fill-current" /> : <Play size={20} className="fill-current" />}
-              </button>
-              {showStop && (
-                <button
-                  type="button"
-                  onClick={onStop}
-                  aria-label="Stop Cypher"
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70"
-                >
-                  <Square size={18} className="fill-current" />
-                </button>
-              )}
-            </div>
-            <p className="mt-3 text-center text-small text-white/60" aria-live="polite">
-              {caption}
-              {captionAction && (
-                <button
-                  type="button"
-                  onClick={captionAction.onClick}
-                  className="ml-2 font-semibold text-white underline"
-                >
-                  {captionAction.label}
-                </button>
-              )}
-            </p>
-          </div>
-        </div>
-      )}
     </>
   );
 }
