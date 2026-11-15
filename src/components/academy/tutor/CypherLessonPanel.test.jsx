@@ -228,7 +228,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     }
   }
 
-  function mountPanel(lessonText = LESSON_TEXT, muted = false) {
+  function mountPanel(lessonText = LESSON_TEXT, muted = false, furtherReading = undefined) {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     // The hook reads the mute flag from the BARE localStorage global (as
     // '1'/'0'), not window.localStorage — so the fake goes there.
@@ -237,7 +237,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
       root = TestRenderer.create(
         <QueryClientProvider client={queryClient}>
           <StaticRouter location="/academy/lessons/net-security">
-            <CypherLessonPanel lesson={{ id: 'net-security', title: 'Network Security', trackId: 'net' }} missionId="op-broken-shield" lessonText={lessonText} />
+            <CypherLessonPanel lesson={{ id: 'net-security', title: 'Network Security', trackId: 'net' }} missionId="op-broken-shield" lessonText={lessonText} furtherReading={furtherReading} />
           </StaticRouter>
         </QueryClientProvider>,
       );
@@ -384,6 +384,34 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     const lastCall = tutorMocks.streamTutor.mock.calls.at(-1)[0];
     expect(lastCall.mode).toBe('explain');
     expect(lastCall.lesson_text).toBeUndefined();
+  });
+
+  it('sends the lesson’s further-reading links with every preset ask and with the warm-up', async () => {
+    const LINKS = [
+      { title: 'The Python Tutorial', url: 'https://docs.python.org/3/tutorial/' },
+      { title: 'More Control Flow Tools', url: 'https://docs.python.org/3/tutorial/controlflow.html' },
+    ];
+    mountPanel(LESSON_TEXT, false, LINKS);
+    await flush();
+    // The warm-up already ran: all three preset generations carry the links,
+    // so a warmed answer is generated under the same prompt as the tap.
+    const warmBodies = tutorMocks.streamTutor.mock.calls.map(([b]) => b);
+    expect(warmBodies.map((b) => b.mode)).toEqual(['explain', 'example', 'simplify']);
+    for (const body of warmBodies) expect(body.further_reading).toEqual(LINKS);
+    // And the tap's own ask carries them too.
+    const button = findButton('Explain this concept');
+    TestRenderer.act(() => { button.props.onClick(); });
+    await flush();
+    expect(tutorMocks.streamTutor.mock.calls.at(-1)[0].further_reading).toEqual(LINKS);
+  });
+
+  it('omits further_reading when the lesson lists no links', async () => {
+    mountPanel();
+    await flush();
+    const button = findButton('Explain this concept');
+    TestRenderer.act(() => { button.props.onClick(); });
+    await flush();
+    expect(tutorMocks.streamTutor.mock.calls.at(-1)[0].further_reading).toBeUndefined();
   });
 
   it('auto-plays the answer when it arrives — no play press first — and shows the loading caption while it is being made', async () => {

@@ -114,8 +114,11 @@ export function ListLink({ to, href, title, text, meta }) {
     </>
   );
   if (href) {
+    // External link: new tab, and noopener so the opened page cannot
+    // reach back into this one through window.opener (noreferrer implies
+    // it, but the token is stated explicitly).
     return (
-      <a href={href} target="_blank" rel="noreferrer" className={classes}>
+      <a href={href} target="_blank" rel="noopener noreferrer" className={classes}>
         {body}
         <span className="sr-only">(opens in a new tab)</span>
       </a>

@@ -141,6 +141,7 @@ export default function LessonView() {
     (c.architecture || (BLUEPRINTS_FOR_LESSON[lesson.id]?.length ?? 0) > 0) && { id: 'architecture', label: 'Architecture' },
     c.examples?.length && { id: 'examples', label: 'Examples' },
     c.cheatSheet?.length && { id: 'cheat-sheet', label: 'Cheat sheet' },
+    c.further_reading?.length && { id: 'further-reading', label: 'Further reading' },
     { id: 'practice', label: 'Practice' },
     lesson.resources.length && { id: 'resources', label: 'Resources' },
   ].filter(Boolean);
@@ -181,7 +182,7 @@ export default function LessonView() {
           don't use it — they have no reading body to ground on. The panel
           renders its own section Card plus the standalone player card as
           a sibling below it, so the player is never nested inside a card. */}
-      <CypherLessonPanel lesson={lesson} missionId={missionId} lessonText={lessonTextFromContent(c)} />
+      <CypherLessonPanel lesson={lesson} missionId={missionId} lessonText={lessonTextFromContent(c)} furtherReading={c.further_reading} />
 
       {sections.length > 2 && (
         <nav aria-label="On this page" className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-small">
@@ -271,6 +272,28 @@ export default function LessonView() {
           </>
         )}
       </Card>
+
+      {/* Further reading: free public pages that go deeper on topics this
+          lesson only touches (official docs, open-source project docs).
+          Between the reading and practice — where a learner looks after
+          reading, before the practice handoff. Renders only when the
+          lesson lists links; Cypher points at them from the panel above
+          (by topic, never by URL). */}
+      {c.further_reading?.length > 0 && (
+        <section id="further-reading" aria-labelledby="further-reading-title" className="mt-10 scroll-mt-28">
+          <h2 id="further-reading-title" className="text-heading text-ink-1">Further reading</h2>
+          <p className="mt-2 text-body text-ink-2">
+            This lesson only touches these topics — these free public pages go deeper.
+          </p>
+          <Card level={2} padding="sm" className="mt-4">
+            <ul className="divide-y divide-black/[0.06]">
+              {c.further_reading.map((link) => (
+                <li key={link.url}><ListLink href={link.url} title={link.title} /></li>
+              ))}
+            </ul>
+          </Card>
+        </section>
+      )}
 
       <Card as="section" id="practice" aria-labelledby="practice-title" padding="lg" className="mt-6 scroll-mt-28">
         <h2 id="practice-title" className="text-heading text-ink-1">Practice</h2>

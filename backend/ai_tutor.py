@@ -21,7 +21,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from auth.deps import require_user_id
 from billing import is_subscribed
@@ -84,8 +84,11 @@ MAX_TOKENS = {"hint": 150, "explain": 900, "simplify": 300, "example": 600, "wea
 #: bars importing a framing the lesson text does not name: 3.3's
 #: regenerated answer under version 1 opened with the CIA triad
 #: (integrity, confidentiality, availability) even though none of those
-#: words appear in the lesson text.
-PROMPT_VERSION = 2
+#: words appear in the lesson text. Version 3 adds the further-reading
+#: mention on top of version 2's guard: when the lesson page lists public
+#: links for a topic the answer touches, the tutor closes by naming the
+#: topic and saying there is a link on the page — it never reads a URL aloud.
+PROMPT_VERSION = 3
 
 #: Max lesson text the panel may send with a request. The longest lesson
 #: body is ~7,400 chars; 12,000 leaves headroom and bounds the prompt cost.
@@ -167,6 +170,31 @@ class Turn(BaseModel):
     content: str = Field(max_length=1500)
 
 
+class FurtherReadingLink(BaseModel):
+    """One public further-reading link for the lesson the learner is on.
+    The title is what the tutor may name; the URL is never sent to the
+    model (it would read it aloud — the panel is listen-only and a spoken
+    web address is useless) and is validated here only so a forged request
+    cannot smuggle a non-http(s) scheme through."""
+
+    title: str = Field(max_length=120)
+    url: str = Field(max_length=500)
+
+    @field_validator("title")
+    @classmethod
+    def _title_non_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("further-reading title must not be blank")
+        return v
+
+    @field_validator("url")
+    @classmethod
+    def _url_http(cls, v: str) -> str:
+        if not (v.startswith("http://") or v.startswith("https://")):
+            raise ValueError("further-reading url must be http(s)")
+        return v
+
+
 class TutorReq(BaseModel):
     mode: Mode
     level: Optional[Literal["beginner", "intermediate", "advanced"]] = None
@@ -179,6 +207,13 @@ class TutorReq(BaseModel):
     # the tutor explains only what that lesson covers. Optional: other
     # callers (flashcards, chat) don't have it and keep the old behaviour.
     lesson_text: Optional[str] = Field(default=None, max_length=LESSON_TEXT_MAX_CHARS)
+    # The lesson page's public further-reading links, sent by the lesson
+    # panel alongside the lesson text. The tutor may NAME a linked topic
+    # at the end of an answer that touches it ("there's a link on the page
+    # for more on Python") — it never sees the URLs, so it can neither
+    # read one aloud nor invent one. At most 3: that is the per-lesson cap
+    # in the authoring schema (src/data/catalog/schema.js).
+    further_reading: list[FurtherReadingLink] = Field(default_factory=list, max_length=3)
     user_answer: Optional[str] = Field(default=None, max_length=600)
     options: list[Annotated[str, Field(max_length=300)]] = Field(default_factory=list, max_length=8)
     missed: list[Missed] = Field(default_factory=list, max_length=15)
@@ -230,6 +265,31 @@ def _lesson_grounding(req: TutorReq) -> str:
         "does cover instead of importing outside material. If you cannot explain "
         "from general knowledge, read and explain from the lesson text itself."
         f"\n\nLesson text:\n{req.lesson_text}"
+    )
+
+
+def _further_reading_note(req: TutorReq) -> str:
+    """Mention block for the lesson-panel modes (explain/simplify/example):
+    when the lesson page lists public further-reading links, the tutor may
+    close by naming ONE linked topic the answer touched and pointing at the
+    link on the page. The model sees only the link TITLES — never the URLs
+    — so it cannot read a web address aloud (the panel is listen-only and
+    a spoken URL is useless) and cannot invent a link. No links, no block:
+    other callers keep the old behaviour."""
+    if not req.further_reading:
+        return ""
+    titles = "\n".join(f"- {link.title}" for link in req.further_reading)
+    return (
+        "\n\nThe lesson page lists these further-reading links for the "
+        "learner, for topics this lesson only touches:\n"
+        f"{titles}\n"
+        "If your answer touches one of those topics, end with one short "
+        "sentence naming the topic and saying there is a link on the page "
+        "for more — for example: \"There's a link on the page if you want "
+        "to go deeper on Python.\" Never read out or spell a web address, "
+        "never give a URL, and never mention a link, site, or resource "
+        "that is not in this list — never invent one. If your answer did "
+        "not touch any of those topics, say nothing about links."
     )
 
 
@@ -295,8 +355,10 @@ def build_messages(req: TutorReq) -> list[dict]:
             task = _card(req) + "\n\nGive one concrete, real-world example or scenario that shows this concept in practice." + _level_note(req)
         if req.mode in ("explain", "simplify", "example"):
             # Lesson-panel modes ground on the lesson's own text when the
-            # client sent it; hint stays card-grounded as before.
+            # client sent it; hint stays card-grounded as before. The
+            # further-reading mention rides along only for these modes too.
             task += _lesson_grounding(req)
+            task += _further_reading_note(req)
 
     return [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": task}]
 
@@ -336,8 +398,11 @@ def cache_key(req: TutorReq) -> Optional[str]:
     # required covering every named topic, so it skips DDoS) must never be
     # served as if it were written under the new one. Bump PROMPT_VERSION
     # on any prompt change; the answer regenerates once, then caches
-    # under the new key.
-    raw = json.dumps([req.mode, PROMPT_VERSION, MAX_TOKENS[req.mode], req.level, req.question, req.answer, req.user_answer, req.options, req.lesson_text], sort_keys=True)
+    # under the new key. The further-reading links are part of the key
+    # too: an answer generated without them must never serve a request
+    # that lists them (it would lack the mention), or vice versa.
+    links = [[link.title, link.url] for link in req.further_reading]
+    raw = json.dumps([req.mode, PROMPT_VERSION, MAX_TOKENS[req.mode], req.level, req.question, req.answer, req.user_answer, req.options, req.lesson_text, links], sort_keys=True)
     return hashlib.sha256(raw.encode()).hexdigest()
 
 

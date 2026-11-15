@@ -43,6 +43,16 @@ const mockContent = {
     examples: [],
     cheatSheet: [],
   },
+  'py-basics': {
+    overview: ['Python basics.'],
+    learn: [],
+    architecture: null,
+    examples: [],
+    cheatSheet: [],
+    further_reading: [
+      { title: 'The Python Tutorial', url: 'https://docs.python.org/3/tutorial/' },
+    ],
+  },
 };
 
 vi.mock('@/lib/academy', () => ({
@@ -118,5 +128,24 @@ describe('LessonView blueprints', () => {
     expect(srcs).toContain('/blueprint-network-rack-42u.jpg');
     expect(srcs).toContain('/blueprint-equipment-poster.jpg');
     expect(JSON.stringify(root.toJSON())).toContain('Resources');
+  });
+});
+
+describe('LessonView further reading', () => {
+  it('py-basics shows its Further reading links (new tab, noopener)', async () => {
+    const root = await renderLesson('py-basics');
+    expect(JSON.stringify(root.toJSON())).toContain('Further reading');
+    // Scope to the section: the lesson's deck Resources may list the same
+    // URL, so count only the anchors inside Further reading.
+    const section = root.root.findByProps({ id: 'further-reading' });
+    const links = section.findAllByType('a').filter((n) => n.props.href === 'https://docs.python.org/3/tutorial/');
+    expect(links.length).toBe(1);
+    expect(links[0].props.target).toBe('_blank');
+    expect(links[0].props.rel).toContain('noopener');
+  });
+
+  it('a lesson with no links shows no Further reading section', async () => {
+    const root = await renderLesson('net-osi');
+    expect(JSON.stringify(root.toJSON())).not.toContain('Further reading');
   });
 });

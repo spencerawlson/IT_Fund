@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-15T11:05:29.179Z",
+  "generatedAt": "2026-11-15T11:56:30.311Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -48619,6 +48619,12 @@
           "f\"{x}\"",
           "Insert any expression into text"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "The Python Tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
       ]
     },
     "py-flow": {
@@ -48695,6 +48701,12 @@
           "Defaults",
           "def f(x=None); never a mutable default like []"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "More Control Flow Tools — The Python Tutorial",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
       ]
     },
     "py-collections": {
@@ -48771,6 +48783,12 @@
           ".items() / enumerate()",
           "(key, value) pairs / (index, item) pairs"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Data Structures — The Python Tutorial",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
       ]
     },
     "py-files-errors": {
@@ -48853,6 +48871,16 @@
           "pickle on untrusted data",
           "Can execute code; use JSON instead"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Input and Output — The Python Tutorial",
+          "url": "https://docs.python.org/3/tutorial/inputoutput.html"
+        },
+        {
+          "title": "Errors and Exceptions — The Python Tutorial",
+          "url": "https://docs.python.org/3/tutorial/errors.html"
+        }
       ]
     },
     "py-oop": {
@@ -48941,6 +48969,12 @@
           "snake_case / CapWords",
           "Functions and variables / classes"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Classes — The Python Tutorial",
+          "url": "https://docs.python.org/3/tutorial/classes.html"
+        }
       ]
     },
     "py-automation": {
@@ -49028,6 +49062,20 @@
           "paramiko / netmiko",
           "SSH to servers / network devices"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Requests — HTTP for Humans",
+          "url": "https://requests.readthedocs.io/en/stable/"
+        },
+        {
+          "title": "Logging HOWTO",
+          "url": "https://docs.python.org/3/howto/logging.html"
+        },
+        {
+          "title": "argparse — Parser for command-line options",
+          "url": "https://docs.python.org/3/library/argparse.html"
+        }
       ]
     },
     "py-concurrency": {
@@ -49114,6 +49162,16 @@
           "Generators / file iteration",
           "Stream big data line by line"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "concurrent.futures — Launching parallel tasks",
+          "url": "https://docs.python.org/3/library/concurrent.futures.html"
+        },
+        {
+          "title": "threading — Thread-based parallelism",
+          "url": "https://docs.python.org/3/library/threading.html"
+        }
       ]
     },
     "py-testing-packaging": {
@@ -49204,6 +49262,16 @@
           "eval(user_input)",
           "Arbitrary code execution; use ast.literal_eval"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "pytest documentation",
+          "url": "https://docs.pytest.org/en/stable/"
+        },
+        {
+          "title": "Packaging Python Projects — Python Packaging User Guide",
+          "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+        }
       ]
     },
     "py-security-tools": {
@@ -49291,6 +49359,16 @@
           "execute(sql, (value,))",
           "Parameterised query: stops SQL injection"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "secrets — Generate secure random numbers",
+          "url": "https://docs.python.org/3/library/secrets.html"
+        },
+        {
+          "title": "sqlite3 — DB-API 2.0 interface for SQLite databases",
+          "url": "https://docs.python.org/3/library/sqlite3.html"
+        }
       ]
     },
     "net-osi": {
