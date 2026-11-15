@@ -202,6 +202,14 @@ export default function MissionWorkspace() {
   // keeps a turn from re-speaking when the effect re-runs on a playing
   // flip; the state advances the turn once the voice ends.
   const briefingTurnSpokenRef = useRef(-1);
+  // The 60 s per-turn briefing safety cap, held in a ref so the phase
+  // machine's cleanup can't clear it on a voice flip (see the phase
+  // machine below). Cleared by the dedicated effect when the turn
+  // advances or the briefing ends.
+  const briefingCapRef = useRef(null);
+  // Wall-clock start of the device showcase (Date.now()), so the tour
+  // runs on deadlines, not fresh timeouts (see the showcase effect).
+  const showcaseStartRef = useRef(null);
   const voicePlayRef = useRef(null);
   voicePlayRef.current = cypherVoice.play;
   useEffect(() => {
@@ -231,20 +239,26 @@ export default function MissionWorkspace() {
     openingStartedRef.current = true;
     if (reducedMotion || resumedAttempt) setOpeningPhase('done');
   }, [missionDef, attempt, resumedAttempt, reducedMotion]);
-  // Opening phase machine. The 'briefing' step plays the split briefing
-  // one turn at a time: it starts the current turn's read-aloud once (the
-  // ref keeps it from re-speaking when the effect re-runs on a playing
-  // flip) and advances to the next turn when the voice ends after having
-  // played; the hook's suspended-context fallback guarantees playing ends
-  // even when Safari blocks audio, and the 60 s cap advances it regardless
-  // (per turn, so a stalled turn never hangs the sequence). A mission with
-  // no briefing lines skips straight to the showcase; the 'briefing' step
-  // waits for the mission to load rather than skipping on an empty turn
-  // list (the 'open' timer can fire before the API answers).
-  // The resumed/reduced-motion checks here are belt-and-suspenders for
-  // the fresh-vs-resumed effect above (same render, stale phase).
+  // Opening phase machine — split in two, on purpose. This effect owns
+  // 'open' + 'briefing' only, and it is the only one that watches the
+  // voice. The 'briefing' step plays the split briefing one turn at a
+  // time: it starts the current turn's read-aloud once (the ref keeps it
+  // from re-speaking when the effect re-runs on a playing flip) and
+  // advances to the next turn when the voice ends after having played;
+  // the hook's suspended-context fallback guarantees playing ends even
+  // when Safari blocks audio, and the 60 s cap advances it regardless
+  // (per turn, so a stalled turn never hangs the sequence). A mission
+  // with no briefing lines skips straight to the showcase; the
+  // 'briefing' step waits for the mission to load rather than skipping
+  // on an empty turn list (the 'open' timer can fire before the API
+  // answers). The resumed/reduced-motion checks here are
+  // belt-and-suspenders for the fresh-vs-resumed effect above (same
+  // render, stale phase). SPLIT: the showcase effect below does not
+  // watch the voice, because a voice flip re-running the showcase timer
+  // was the 2026-11-14 defect — each flip cleared the pending 4 s
+  // timeout and started a fresh one, stretching dwells to ~10-12 s live.
   useEffect(() => {
-    if (openingPhase === 'done') return undefined;
+    if (openingPhase === 'done' || openingPhase === 'showcase') return undefined;
     if (reducedMotion || resumedAttempt) {
       setOpeningPhase('done');
       return undefined;
@@ -269,8 +283,15 @@ export default function MissionWorkspace() {
         briefingTurnSpokenRef.current = briefingTurnIdx;
         voicePlayRef.current?.(turn.text);
         // Safety cap: if the voice stalls, the opening still advances.
-        const cap = setTimeout(() => setBriefingTurnIdx((i) => i + 1), OPEN_BRIEFING_CAP_S * 1000);
-        return () => clearTimeout(cap);
+        // The cap lives in a ref, NOT in this effect's cleanup: the
+        // effect re-runs on every voice flip, and a cleanup here cleared
+        // the cap on the first flip — so a turn whose voice actually
+        // started was never guarded (the 2026-11-14 defect). The
+        // dedicated effect below clears it when the turn advances or
+        // the briefing ends.
+        if (briefingCapRef.current) clearTimeout(briefingCapRef.current);
+        briefingCapRef.current = setTimeout(() => setBriefingTurnIdx((i) => i + 1), OPEN_BRIEFING_CAP_S * 1000);
+        return undefined;
       }
       if (!cypherVoice.loading && !cypherVoice.playing) {
         const t = setTimeout(() => setBriefingTurnIdx((i) => i + 1), 400);
@@ -278,28 +299,60 @@ export default function MissionWorkspace() {
       }
       return undefined;
     }
-    if (openingPhase === 'showcase') {
-      if (!showcaseDevice) {
-        setShowcaseDevice(SHOWCASE_ORDER[0]);
-        return undefined;
-      }
-      const idx = SHOWCASE_ORDER.indexOf(showcaseDevice);
-      if (idx < 0) {
-        setShowcaseDevice(SHOWCASE_ORDER[0]);
-        return undefined;
-      }
-      const t = setTimeout(() => {
-        if (idx + 1 >= SHOWCASE_ORDER.length) {
-          setShowcaseDevice(null);
-          setOpeningPhase('done');
-        } else {
-          setShowcaseDevice(SHOWCASE_ORDER[idx + 1]);
-        }
-      }, OPEN_SHOWCASE_S * 1000);
-      return () => clearTimeout(t);
-    }
     return undefined;
-  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, showcaseDevice, cypherVoice.loading, cypherVoice.playing, resumedAttempt, reducedMotion]);
+  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, cypherVoice.loading, cypherVoice.playing, resumedAttempt, reducedMotion]);
+  // Briefing safety-cap cleanup: the cap guards one turn, so it is
+  // cleared when the turn advances or the briefing ends (a new turn
+  // sets its own). Without this the cap would fire into a later turn
+  // and advance it early. Cleanups run before the phase machine above
+  // sets the next turn's cap (effects run in declaration order), so a
+  // fresh cap is never cleared by its predecessor's cleanup.
+  useEffect(() => () => {
+    if (briefingCapRef.current) {
+      clearTimeout(briefingCapRef.current);
+      briefingCapRef.current = null;
+    }
+  }, [openingPhase, briefingTurnIdx]);
+  // Showcase timer — voice-free on purpose. The tour runs on a
+  // wall-clock deadline, not a fresh timeout per device:
+  // showcaseStartRef records when the showcase phase began, and device
+  // idx's slot ends at start + (idx + 1) x 4 s. The effect depends only
+  // on [openingPhase, showcaseDevice] — a voice flip mid-tour cannot
+  // re-run it, and if it does re-run (device change) it reschedules
+  // only the *remaining* time to the same deadline. Main-thread
+  // saturation can only shrink a later slot, never stretch the tour
+  // past 16 s total.
+  useEffect(() => {
+    if (openingPhase !== 'showcase') {
+      showcaseStartRef.current = null;
+      return undefined;
+    }
+    if (reducedMotion || resumedAttempt) {
+      setOpeningPhase('done');
+      return undefined;
+    }
+    if (showcaseStartRef.current === null) showcaseStartRef.current = Date.now();
+    if (!showcaseDevice) {
+      setShowcaseDevice(SHOWCASE_ORDER[0]);
+      return undefined;
+    }
+    const idx = SHOWCASE_ORDER.indexOf(showcaseDevice);
+    if (idx < 0) {
+      setShowcaseDevice(SHOWCASE_ORDER[0]);
+      return undefined;
+    }
+    const deadline = showcaseStartRef.current + (idx + 1) * OPEN_SHOWCASE_S * 1000;
+    const remaining = Math.max(0, deadline - Date.now());
+    const t = setTimeout(() => {
+      if (idx + 1 >= SHOWCASE_ORDER.length) {
+        setShowcaseDevice(null);
+        setOpeningPhase('done');
+      } else {
+        setShowcaseDevice(SHOWCASE_ORDER[idx + 1]);
+      }
+    }, remaining);
+    return () => clearTimeout(t);
+  }, [openingPhase, showcaseDevice, resumedAttempt, reducedMotion]);
   // Skip the opening: stop the voice (its playing=false clears the
   // speaker flags, so the camera returns to wide) and hand the mission
   // controls over as today.

@@ -228,21 +228,24 @@ export function shotElevation(shot) {
 export const SHOWCASE_ORDER = ['PC1', 'GUEST', 'R1', 'SRV'];
 export const DEVICE_SHOTS = {
   // Close, low, in-room cameras (not the top-down look-across). Targets
-  // sit at y = 3.5 (between the device centre and its label at y = 5.6)
+  // sit at y = 3.7 (between the device centre and its label at y = 5.6)
   // so the label fits in frame too — aiming at the device centre put
-  // the label off the top edge. The cameras route around the ROBOTS as
-  // well as the room: a robot working next to a device blocks a
-  // straight-on shot (Patch hid GUEST, Sentinel hid R1 — proven by
-  // render, not just ray-cast). GUEST is shot from the south (Patch is
-  // north of it); R1 from inside the server room, east of Sentinel
-  // (the through-the-gap angle left the router half-hidden behind the
-  // partition frame); SRV from the desk room through the server-room
-  // doorway gap; PC1 from inside the desk room (Cypher is at his desk,
-  // west of the line).
-  PC1: { pos: [2.5, 7, 2.5], target: [10, 3.5, 7.5] },
-  GUEST: { pos: [5, 7, 5], target: [10.5, 3.5, 0] },
-  R1: { pos: [1.5, 7, -2], target: [0, 3.5, -11] },
-  SRV: { pos: [-7, 9, 8], target: [-7, 3.5, -2.75] },
+  // the label off the top edge, and 3.5 still left GUEST's emphasised
+  // label top ~0.1° outside the 42° FOV (live check 2026-11-14); 3.7
+  // pulls it to ~20°, inside, while every device footprint stays in
+  // frame (see the label-framing test in socLayout.test.js). The cameras
+  // route around the ROBOTS as well as the room: a robot working next to
+  // a device blocks a straight-on shot (Patch hid GUEST, Sentinel hid
+  // R1 — proven by render, not just ray-cast). GUEST is shot from the
+  // south (Patch is north of it); R1 from inside the server room, east
+  // of Sentinel (the through-the-gap angle left the router half-hidden
+  // behind the partition frame); SRV from the desk room through the
+  // server-room doorway gap; PC1 from inside the desk room (Cypher is
+  // at his desk, west of the line).
+  PC1: { pos: [2.5, 7, 2.5], target: [10, 3.7, 7.5] },
+  GUEST: { pos: [5, 7, 5], target: [10.5, 3.7, 0] },
+  R1: { pos: [1.5, 7, -2], target: [0, 3.7, -11] },
+  SRV: { pos: [-7, 9, 8], target: [-7, 3.7, -2.75] },
 };
 
 /** The showcase camera for a device id (falls back to wide). */

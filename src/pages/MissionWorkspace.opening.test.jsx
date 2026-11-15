@@ -53,7 +53,16 @@ const START_RESPONSE = {
 // The voice is the phase machine's clock: each briefing turn plays, then
 // ends, and the machine advances when loading and playing are both false.
 // The fake speaks each turn for 2 s of fake time after a 0.3 s fetch.
-const voiceControl = vi.hoisted(() => ({ playCalls: [] }));
+// stall: the mock voice never ends (a stalled turn — the briefing-cap
+// test). setPlaying/setLoading: stashed from the workspace's own
+// useCypherVoice instance so a test can flip the voice mid-showcase;
+// the child CypherVoiceButton mounts a second instance, so only the
+// FIRST call's setters are kept (setState dispatchers are stable, so
+// one stash per test is enough) — reset in beforeEach, because the
+// hoisted object persists across tests in the file.
+const voiceControl = vi.hoisted(() => ({
+  playCalls: [], stall: false, setPlaying: null, setLoading: null,
+}));
 const startControl = vi.hoisted(() => ({ resumed: false }));
 
 vi.mock('@/api/missions', () => ({
@@ -87,6 +96,12 @@ vi.mock('@/api/voice', async () => {
     const [playing, setPlaying] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [subtitle, setSubtitle] = React.useState('');
+    // First call wins: the workspace's own hook (children render after
+    // it); the second instance is CypherVoiceButton's.
+    if (voiceControl.setPlaying === null) {
+      voiceControl.setPlaying = setPlaying;
+      voiceControl.setLoading = setLoading;
+    }
     const play = React.useCallback(async (text) => {
       voiceControl.playCalls.push(text);
       setLoading(true);
@@ -95,10 +110,12 @@ vi.mock('@/api/voice', async () => {
         setLoading(false);
         setPlaying(true);
       }, 300);
-      setTimeout(() => {
-        setPlaying(false);
-        setSubtitle('');
-      }, 2300);
+      if (!voiceControl.stall) {
+        setTimeout(() => {
+          setPlaying(false);
+          setSubtitle('');
+        }, 2300);
+      }
       return text;
     }, []);
     const stop = React.useCallback(() => {
@@ -190,10 +207,24 @@ async function advance(ms) {
   }
 }
 
+async function jump(ms) {
+  // One big fake-timer jump (no 100 ms stepping): safe only when the
+  // window holds no turn-advance transition — here, only the mock's
+  // loading -> playing flip, which advances nothing. Used for the long
+  // 60 s briefing-cap stretch, where stepping would be ~600 act calls.
+  await act(async () => {
+    vi.advanceTimersByTime(ms);
+  });
+  await flush();
+}
+
 describe('MissionWorkspace opening — device showcase (live defect repro)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     voiceControl.playCalls.length = 0;
+    voiceControl.stall = false;
+    voiceControl.setPlaying = null;
+    voiceControl.setLoading = null;
     startControl.resumed = false;
   });
 
@@ -273,4 +304,67 @@ describe('MissionWorkspace opening — device showcase (live defect repro)', () 
 
     await act(async () => { renderer.unmount(); });
   });
+
+  it('a voice flip mid-showcase does not restart the 4 s dwell', async () => {
+    // Regression for the live defect (2026-11-14): the old phase machine
+    // watched cypherVoice.loading/playing, so a flip mid-tour cleared
+    // the pending 4 s timeout and started a fresh one — two flips
+    // stretched a dwell to ~10-12 s. The showcase timer must not watch
+    // the voice: flip it 2 s into the PC1 dwell and the tour is already
+    // on GUEST 4 s after PC1 started.
+    let renderer;
+    await act(async () => {
+      renderer = renderWorkspace();
+    });
+    await flush();
+    const root = renderer.root;
+    expect(captionOf(root)).toBe('Opening the SOC…');
+    await advance(2000);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    expect(captionOf(root)).toBe('Equipment tour — PC1');
+    // 2 s into the dwell, flip the voice: loading -> playing -> stopped.
+    await advance(2000);
+    expect(captionOf(root)).toBe('Equipment tour — PC1');
+    await act(async () => { voiceControl.setLoading(true); });
+    await act(async () => { voiceControl.setLoading(false); voiceControl.setPlaying(true); });
+    await act(async () => { voiceControl.setPlaying(false); });
+    await flush();
+    // 4 s after PC1 started the tour is on GUEST — the flip cost nothing.
+    await advance(2000);
+    expect(captionOf(root)).toBe('Equipment tour — GUEST');
+
+    await act(async () => { renderer.unmount(); });
+  });
+
+  it('a stalled briefing turn still advances on the 60 s cap, even after a voice flip', async () => {
+    // The cap lives in a ref, not in the phase effect's cleanup: the
+    // effect re-runs on every voice flip, and a cleanup there cleared
+    // the cap on the first flip — so a turn whose voice actually
+    // started was never guarded. Stall the voice (audio starts, then
+    // never ends) and the turn must still advance at 60 s.
+    voiceControl.stall = true;
+    let renderer;
+    await act(async () => {
+      renderer = renderWorkspace();
+    });
+    await flush();
+    const root = renderer.root;
+    expect(captionOf(root)).toBe('Opening the SOC…');
+    // Cinematic open (1.8 s) -> briefing turn 1 starts and stalls: the
+    // mock flips loading -> playing at 0.3 s, then never ends.
+    await advance(2000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+    // 59 s into the turn the cap has not fired yet.
+    await jump(59000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+    // Past 60 s from the turn start the cap advances to turn 2.
+    await jump(2000);
+    expect(voiceControl.playCalls).toHaveLength(2);
+    expect(voiceControl.playCalls[1]).toContain('topology');
+
+    await act(async () => { renderer.unmount(); });
+  }, 30000);
 });
