@@ -73,6 +73,16 @@ Mode = Literal["hint", "explain", "simplify", "example", "weakspots", "chat"]
 # sentences), weakspots and chat are untouched.
 MAX_TOKENS = {"hint": 150, "explain": 900, "simplify": 300, "example": 600, "weakspots": 500, "chat": 600}
 
+#: Prompt version, part of the tutor cache key. Bump this whenever the
+#: tutor prompt wording changes (the system prompt or the grounding/task
+#: blocks below) so an answer cached under the old prompt regenerates
+#: once under the new one instead of being served as if it were written
+#: under the new prompt — the same mechanism as the token budget in the
+#: key. Version 1 is the prompt that requires covering every topic the
+#: lesson text names: lesson 3.3's cached answer skipped DDoS under the
+#: unversioned prompt, which only said what NOT to add.
+PROMPT_VERSION = 1
+
 #: Max lesson text the panel may send with a request. The longest lesson
 #: body is ~7,400 chars; 12,000 leaves headroom and bounds the prompt cost.
 LESSON_TEXT_MAX_CHARS = 12000
@@ -198,9 +208,12 @@ def _lesson_grounding(req: TutorReq) -> str:
         "\n\nThe lesson the learner is studying is reproduced below. It is "
         "the ONLY source you may draw on: explain, exemplify, and simplify "
         "ONLY concepts that appear in it. Do not introduce topics, terms, or "
-        "examples that are not in the lesson text. If the lesson does not "
-        "cover something, say so plainly and point to what the lesson does "
-        "cover instead of importing outside material. If you cannot explain "
+        "examples that are not in the lesson text. Cover every topic, attack, "
+        "and defence the lesson text names — do not leave one out. A brief "
+        "mention of each named topic is enough; keep the answer tight rather "
+        "than covering one topic at length and dropping another. If the lesson "
+        "does not cover something, say so plainly and point to what the lesson "
+        "does cover instead of importing outside material. If you cannot explain "
         "from general knowledge, read and explain from the lesson text itself."
         f"\n\nLesson text:\n{req.lesson_text}"
     )
@@ -303,7 +316,14 @@ def cache_key(req: TutorReq) -> Optional[str]:
     # mid-sentence cut-off, cached under the 350-token budget) must never
     # be served as if it were generated under the new one — it regenerates
     # once, then caches under the new budget.
-    raw = json.dumps([req.mode, MAX_TOKENS[req.mode], req.level, req.question, req.answer, req.user_answer, req.options, req.lesson_text], sort_keys=True)
+    # The prompt version is part of the key for the same reason: when the
+    # prompt wording changes, a stale answer generated under the old
+    # prompt (e.g. lesson 3.3's answer, cached before the grounding block
+    # required covering every named topic, so it skips DDoS) must never be
+    # served as if it were written under the new one. Bump PROMPT_VERSION
+    # on any prompt change; the answer regenerates once, then caches
+    # under the new key.
+    raw = json.dumps([req.mode, PROMPT_VERSION, MAX_TOKENS[req.mode], req.level, req.question, req.answer, req.user_answer, req.options, req.lesson_text], sort_keys=True)
     return hashlib.sha256(raw.encode()).hexdigest()
 
 

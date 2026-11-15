@@ -270,6 +270,26 @@ def test_no_lesson_text_means_no_grounding_block(fake):
     assert "ONLY source you may draw on" not in task
 
 
+def test_grounding_requires_covering_every_named_topic(fake):
+    """The grounding block only told the model what NOT to add ("ONLY
+    concepts that appear in it") — it never said to cover them all, so
+    lesson 3.3's answer covered ACLs, VPNs and NAC and dropped DDoS even
+    though DDoS is named three times in the lesson text. The prompt must
+    now require every named topic, briefly, for all three preset modes —
+    without weakening the stay-inside-the-lesson rule."""
+    for mode in ("explain", "example", "simplify"):
+        body = {**CARD, "mode": mode, "lesson_text": LESSON_TEXT}
+        r = client.post("/api/ai/tutor", json=body)
+        assert r.status_code == 200
+    assert len(fake.calls) == 3
+    for call in fake.calls:
+        task = call["messages"][1]["content"]
+        assert "Cover every topic" in task
+        assert "do not leave one out" in task
+        assert "ONLY source you may draw on" in task
+        assert "Do not introduce topics" in task
+
+
 def test_lesson_text_changes_the_cache_key(fake):
     """The same question grounded on two lessons is two answers — and a
     pre-grounding cached answer must never serve a grounded request."""
@@ -307,6 +327,16 @@ def test_budget_change_invalidates_the_cache_key(fake, monkeypatch):
     assert ai_tutor.cache_key(ai_tutor.TutorReq(**CARD)) != key_before
 
 
+def test_prompt_version_change_invalidates_the_cache_key(fake, monkeypatch):
+    """A prompt change must never keep serving an answer cached under the
+    old prompt: lesson 3.3's answer without DDoS is on disk keyed to the
+    unversioned prompt, and the completeness fix only lands if the new
+    request misses that cache entry and regenerates."""
+    key_before = ai_tutor.cache_key(ai_tutor.TutorReq(**CARD))
+    monkeypatch.setattr(ai_tutor, "PROMPT_VERSION", ai_tutor.PROMPT_VERSION + 1)
+    assert ai_tutor.cache_key(ai_tutor.TutorReq(**CARD)) != key_before
+
+
 def test_length_finish_reason_is_logged(fake, caplog):
     """When the model stops because it hit the token budget, the cut-off
     must be visible in the logs — the 3.3 truncation was silent, the
@@ -318,3 +348,56 @@ def test_length_finish_reason_is_logged(fake, caplog):
     assert "".join(e.get("t", "") for e in events(r)) == "Hello world"
     assert "token budget" in caplog.text
     assert "length" in caplog.text
+
+
+def _lesson_text_from_content(content):
+    """Mirror of src/lib/content.js lessonTextFromContent: overview +
+    learn headings and body strings (stack items, architecture caption,
+    examples, cheat sheet). The lesson panel builds the tutor's lesson
+    text from these fields, so this is what the tutor actually receives."""
+    parts = []
+    for text in content.get("overview") or []:
+        if isinstance(text, str) and text.strip():
+            parts.append(text.strip())
+    for part in content.get("learn") or []:
+        if part.get("heading"):
+            parts.append(part["heading"])
+        for p in part.get("body") or []:
+            if isinstance(p, str):
+                parts.append(p)
+            elif isinstance(p, dict) and p.get("stack"):
+                if p["stack"].get("title"):
+                    parts.append(p["stack"]["title"])
+                for item in p["stack"].get("items") or []:
+                    bits = [item.get("name"), item.get("does")]
+                    if item.get("examples"):
+                        bits.append(f"Examples: {item['examples']}")
+                    bits = [b for b in bits if b]
+                    if bits:
+                        parts.append(" — ".join(bits))
+    if content.get("architecture") and content["architecture"].get("caption"):
+        parts.append(content["architecture"]["caption"])
+    for ex in content.get("examples") or []:
+        for key in ("title", "code", "explanation"):
+            if ex.get(key):
+                parts.append(ex[key])
+    for term, meaning in content.get("cheatSheet") or []:
+        parts.append(f"{term}: {meaning}")
+    return "\n".join(parts)
+
+
+def test_lesson_3_3_text_contains_ddos():
+    """Diagnosis pin: lesson 3.3's answer skipped DDoS, but the lesson
+    text the tutor receives names it three times — the Overview lists it
+    among the topics the lesson covers, a learn section is headed
+    "Remote access, DDoS and NAC", and a body sentence defines the attack
+    and its mitigation. This was a prompt gap (no cover-everything
+    instruction), not a thin lesson — the lesson content needs no change."""
+    data_path = backend_dir / "data" / "content.json"
+    content = json.loads(data_path.read_text(encoding="utf-8"))
+    lesson = content["lessons"]["net-security"]
+    text = _lesson_text_from_content(lesson)
+    assert text.lower().count("ddos") >= 3
+    assert "VPNs, DDoS and network access control" in text
+    assert "Remote access, DDoS and NAC" in text
+    assert "A DDoS attack overwhelms a target with traffic from many sources." in text
