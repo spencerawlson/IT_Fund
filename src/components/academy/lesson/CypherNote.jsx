@@ -3,10 +3,10 @@ import { Card } from '@/components/ui-glass';
 import { MascotArt } from '@/components/StudyMascot';
 
 /**
- * Cipher, pointing at the one thing worth remembering from this lesson.
+ * Cypher, pointing at the one thing worth remembering from this lesson.
  * Renders nothing without a note: the pointer never invents content.
  */
-export default function CipherNote({ text, className = '' }) {
+export default function CypherNote({ text, className = '' }) {
   if (!text) return null;
   return (
     <Card level={2} className={className}>
@@ -15,7 +15,7 @@ export default function CipherNote({ text, className = '' }) {
           <MascotArt size={64} mood="pointing" />
         </span>
         <div>
-          <p className="text-caption font-bold uppercase tracking-[0.14em] text-ink-2">Cipher points out</p>
+          <p className="text-caption font-bold uppercase tracking-[0.14em] text-ink-2">Cypher points out</p>
           <p className="mt-1 text-body text-ink-1">{text}</p>
         </div>
       </div>

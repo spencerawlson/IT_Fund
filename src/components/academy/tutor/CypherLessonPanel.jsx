@@ -43,7 +43,7 @@ const WARM_UP_MODES = ['explain', 'example', 'simplify'];
 //
 // Listen-only: this panel never shows an answer as text, while speaking
 // or after — the student hears Cypher, they don't read him. The old
-// "Cipher answers" card and "Hear again" are gone. In their place: a
+// "Cypher answers" card and "Hear again" are gone. In their place: a
 // YouTube-style play button (Play / Pause / Stop, with a caption under
 // it saying what it does) and a waveform that moves with the audio. The
 // level selector stays where it was; the preset buttons sit further down
@@ -248,7 +248,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="w-full shrink-0 sm:w-56">
           <CypherFace emotion="happy" className="w-full" talking={voice.playing} levelRef={voiceRef} />
-          <p className="mt-1 text-center text-caption text-ink-2">Cipher — your AI tutor</p>
+          <p className="mt-1 text-center text-caption text-ink-2">Cypher — your AI tutor</p>
         </div>
         <div className="min-w-0 flex-1">
           <label className="mt-3 flex items-center gap-2 text-small text-ink-2">
@@ -267,7 +267,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText }) {
 
           {tutorEnabled ? (
             <>
-              {/* Listen-only player, where the "Cipher answers" card was:
+              {/* Listen-only player, where the "Cypher answers" card was:
                   a YouTube-style play button, a caption saying what it
                   does, and a waveform that moves with the audio. No
                   answer text is rendered anywhere in this panel. */}

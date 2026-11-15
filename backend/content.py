@@ -11,7 +11,7 @@ memory (it is static per deploy; a redeploy picks up a regenerated file).
 Endpoints (mounted on both /content/* and /api/content/*, like the other routers):
   GET /content/catalog            public structure (no bodies) — anyone
   GET /content/deck/{deck_id}     cards + puzzles for one deck
-  GET /content/lesson/{lesson_id} reading body (+ cipher note) for one lesson
+  GET /content/lesson/{lesson_id} reading body (+ cypher note) for one lesson
   GET /content/note/{key}         one module study note
   GET /content/exam/{cert_id}     a freshly built timed exam (server-side pool)
 

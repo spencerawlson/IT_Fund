@@ -1,4 +1,4 @@
-// Fun facts and pop-quiz prompts for Cipher, the study mascot.
+// Fun facts and pop-quiz prompts for Cypher, the study mascot.
 // Keyed by concept id (see src/data/modules.js) with module-level and generic
 // fallbacks, so every lesson gets something grounded. Keep each item short —
 // one or two sentences — and accurate: these sit next to real study notes.
@@ -67,4 +67,4 @@ export function getMascotItems({ conceptId, moduleId } = {}) {
   return GENERIC;
 }
 
-export const MASCOT_NAME = 'Cipher';
+export const MASCOT_NAME = 'Cypher';

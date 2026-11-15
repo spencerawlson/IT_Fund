@@ -59,7 +59,7 @@ export default function MissionHandoff({ missionId, lessonId }) {
           <CypherViewer voiceRef={voiceRef} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-caption font-bold uppercase tracking-[0.14em] text-action-hover">Cipher</p>
+          <p className="text-caption font-bold uppercase tracking-[0.14em] text-action-hover">Cypher</p>
           {voice.fallback || showLine ? (
             // Voice unavailable or muted: listening can't happen, so the
             // line is shown as text with the Hear button, as before.
@@ -86,7 +86,7 @@ export default function MissionHandoff({ missionId, lessonId }) {
                 onClick={() => { setSpoken(true); voice.play(HANDOFF_LINE); }}
                 className={pillClass}
               >
-                <Volume2 size={15} className="text-action" /> Hear Cipher say it
+                <Volume2 size={15} className="text-action" /> Hear Cypher say it
               </button>
             ) : (
               <button

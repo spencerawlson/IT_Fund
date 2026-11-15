@@ -1,5 +1,5 @@
 /**
- * One-line "Cipher points out" notes, shown beside a lesson's cheat sheet.
+ * One-line "Cypher points out" notes, shown beside a lesson's cheat sheet.
  * Every note is lifted from that lesson's avatar tutor script (its COMMON
  * MISTAKES section), so the pointer never invents content the lesson doesn't
  * teach. Lessons without an entry get no note — nothing is faked to fill the slot.
@@ -16,8 +16,8 @@ const NOTES = {
 /** Raw map, exported for scripts/export-content.mjs. The app must not import this map
  * directly (it would bundle the premium note for net-switch-route); notes reach the
  * UI through the lesson content payload (src/lib/content.js). */
-export const CIPHER_NOTES = NOTES;
+export const CYPHER_NOTES = NOTES;
 
-export function getCipherNote(lessonId) {
+export function getCypherNote(lessonId) {
   return NOTES[lessonId] ?? null;
 }

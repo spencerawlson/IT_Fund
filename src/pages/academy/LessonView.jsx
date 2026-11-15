@@ -17,7 +17,7 @@ import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
 import { useSubscription, isLessonFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
-import CipherNote from '@/components/academy/lesson/CipherNote';
+import CypherNote from '@/components/academy/lesson/CypherNote';
 import { getLessonContent, getDeckContent, lessonTextFromContent } from '@/lib/content';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
@@ -48,7 +48,7 @@ export default function LessonView() {
   const course = lesson && getCourse(lesson.courseSlug);
   useDocumentTitle(lesson ? `${lesson.title} · Road to CISSP` : 'Lesson · Road to CISSP');
 
-  // Reading body + cipher note + deck puzzles. Free lessons are bundled;
+  // Reading body + cypher note + deck puzzles. Free lessons are bundled;
   // premium lessons come from the entitled content API. The paywall gate
   // below returns before this renders, so a non-subscriber never fetches.
   const [content, setContent] = useState(null);
@@ -251,7 +251,7 @@ export default function LessonView() {
 
         {c.cheatSheet?.length > 0 && (
           <>
-            <CipherNote text={content.cipherNote} />
+            <CypherNote text={content.cipherNote} />
             <Section id="cheat-sheet" title="Cheat sheet">
             <div className="overflow-x-auto">
             <table className="w-full text-left text-body">

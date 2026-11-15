@@ -18,8 +18,8 @@ describe('StudyMascot', () => {
   it('renders the mascot, its name, and the first fact', () => {
     vi.spyOn(facts, 'getMascotItems').mockReturnValue(items);
     const html = renderToString(<StudyMascot conceptId="c1" moduleId="m1" />);
-    expect(html).toContain('aria-label="Cipher the study mascot"');
-    expect(html).toContain('Cipher');
+    expect(html).toContain('aria-label="Cypher the study mascot"');
+    expect(html).toContain('Cypher');
     expect(html).toContain('Fact one');
     expect(html).toContain('did you know?');
   });
@@ -50,15 +50,15 @@ describe('MascotArt pointing mood', () => {
   it('renders the right-pointing portrait with the pointing animation, fully visible', () => {
     const html = renderToString(<MascotArt mood="pointing" />);
     expect(html).toContain('mascot-point');
-    expect(html).toContain('cipher-mascot-point-right.jpg');
+    expect(html).toContain('cypher-mascot-point-right.jpg');
     expect(html).toContain('object-fit:contain');
-    expect(html).toContain('aria-label="Cipher the study mascot"');
+    expect(html).toContain('aria-label="Cypher the study mascot"');
   });
 
   it('celebrating spins the portrait', () => {
     const html = renderToString(<MascotArt mood="celebrating" />);
     expect(html).toContain('mascot-spin');
-    expect(html).toContain('cipher-mascot.jpg');
+    expect(html).toContain('cypher-mascot.jpg');
   });
 
   it('does not render the pointing animation for other moods — they idle instead', () => {

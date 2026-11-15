@@ -57,7 +57,7 @@ export default function QuizSession({ module, onComplete }) {
         <div className="mt-4 flex justify-center">
           <MascotReaction
             mood={pct === 100 ? 'celebrating' : pct >= 70 ? 'happy' : 'encouraging'}
-            text={pct === 100 ? 'Flawless! Cipher is impressed.' : pct >= 70 ? 'Solid run — keep climbing.' : 'Every rep counts. Run it back!'}
+            text={pct === 100 ? 'Flawless! Cypher is impressed.' : pct >= 70 ? 'Solid run — keep climbing.' : 'Every rep counts. Run it back!'}
           />
         </div>
         <p className="mt-2 text-3xl font-bold text-ink-1">

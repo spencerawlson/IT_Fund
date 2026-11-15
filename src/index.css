@@ -375,17 +375,17 @@ body::before {
 .mascot-blink { transform-box: fill-box; transform-origin: center; animation: mascot-blink 4.6s ease-in-out infinite; }
 @keyframes mascot-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
 
-/* Cipher's pointing arm: a visible wave — the old 1.5px tap was invisible at
-   portrait size, so pointing now lifts and tilts. Every other Cipher gets the
+/* Cypher's pointing arm: a visible wave — the old 1.5px tap was invisible at
+   portrait size, so pointing now lifts and tilts. Every other Cypher gets the
    gentler idle bob below. Both stay slow and small: alive, not distracting. */
 .mascot-point { transform-origin: center; animation: mascot-point 2.4s ease-in-out infinite; }
 @keyframes mascot-point { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-3deg); } }
 
-/* Cipher's idle motion: a soft bob so the portrait is never a dead image. */
+/* Cypher's idle motion: a soft bob so the portrait is never a dead image. */
 .mascot-idle { transform-origin: center; animation: mascot-idle 3.2s ease-in-out infinite; }
 @keyframes mascot-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
 
-/* Cipher's bigger moves: a full spin for celebrations, a bounce and a wiggle
+/* Cypher's bigger moves: a full spin for celebrations, a bounce and a wiggle
    for attention moments. Spin plays twice and stops upright. */
 .mascot-spin { transform-origin: center; animation: mascot-spin 1.1s ease-in-out 2; }
 @keyframes mascot-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

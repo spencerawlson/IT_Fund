@@ -20,7 +20,7 @@ import { tracks, freeLessonContent, freeCipherNotes } from '@/data/content-publi
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 // Audit canary set (deliverable 03, F-01): verbatim premium strings that must
-// never appear in any public artifact. The last one is the premium cipher note
+// never appear in any public artifact. The last one is the premium cypher note
 // (net-switch-route) — it must also stay out of the public module.
 const CANARIES = [
   'Bell-LaPadula enforces confidentiality',

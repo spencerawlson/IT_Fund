@@ -65,7 +65,7 @@ export function getDeckCards(deckId) {
 }
 
 /**
- * Reading body + cipher note for one lesson. Free lessons come from the
+ * Reading body + cypher note for one lesson. Free lessons come from the
  * bundle; premium lessons from the API. Returns { content, cipherNote }
  * where content is null for lessons taught through practice alone.
  */

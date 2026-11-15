@@ -3,7 +3,7 @@
 // attached to a lesson inherits that lesson's existing free/Pro gate from the
 // lesson page itself (LessonView renders these inside the gated page).
 //
-// Assets live flat under public/ (same convention as cipher-mascot-*.jpg).
+// Assets live flat under public/ (same convention as cypher-mascot-*.jpg).
 // The sheets are full-page technical drawings (1206 px wide, ~200–270 KB
 // each, quality 82); LessonBlueprint loads them lazily.
 

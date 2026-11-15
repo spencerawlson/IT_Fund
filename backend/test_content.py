@@ -145,7 +145,7 @@ def test_free_lesson_is_public_anonymous():
     data = r.json()
     assert len(data["content"]["overview"]) >= 1
     assert len(data["content"]["learn"]) >= 2
-    assert data["cipherNote"]  # net-osi has a free cipher note
+    assert data["cipherNote"]  # net-osi has a free cypher note
 
 
 def test_newly_free_lessons_are_public_anonymous():
@@ -170,7 +170,7 @@ def test_premium_lesson_gating_and_canary():
     assert "Bell-LaPadula enforces confidentiality" in r.text
 
 
-def test_premium_cipher_note_travels_with_the_lesson():
+def test_premium_cypher_note_travels_with_the_lesson():
     cookies, _ = _subscriber()
     r = client.get("/api/content/lesson/net-switch-route", cookies=cookies)
     assert r.status_code == 200

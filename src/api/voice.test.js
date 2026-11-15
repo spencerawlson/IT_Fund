@@ -42,7 +42,7 @@ describe('speakVoice', () => {
 
   it('turns a 401 into a learner-friendly sign-in message', async () => {
     globalThis.fetch = vi.fn(async () => jsonResponse({ detail: 'Unauthorized' }, 401));
-    await expect(speakVoice({ character: 'cypher', text: 'Hi.' })).rejects.toThrow('Sign in to hear Cipher speak.');
+    await expect(speakVoice({ character: 'cypher', text: 'Hi.' })).rejects.toThrow('Sign in to hear Cypher speak.');
   });
 
   it('turns a 402 into a subscription message', async () => {
@@ -52,7 +52,7 @@ describe('speakVoice', () => {
 
   it('never puts key material in the error message', async () => {
     globalThis.fetch = vi.fn(async () => jsonResponse({ detail: 'ELEVENLABS_API_KEY is missing' }, 500));
-    await expect(speakVoice({ character: 'cypher', text: 'Hi.' })).rejects.toThrow('Cipher’s voice isn’t available right now.');
+    await expect(speakVoice({ character: 'cypher', text: 'Hi.' })).rejects.toThrow('Cypher’s voice isn’t available right now.');
     await expect(speakVoice({ character: 'cypher', text: 'Hi.' })).rejects.not.toThrow(/ELEVENLABS/);
   });
 });

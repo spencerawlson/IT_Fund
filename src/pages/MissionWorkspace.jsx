@@ -425,7 +425,7 @@ export default function MissionWorkspace() {
     }
   }, [debrief, missionId]);
 
-  // "Cipher explains the outcome": the question is built from the
+  // "Cypher explains the outcome": the question is built from the
   // server-validated state (score + passed/open objectives + debrief text).
   // The tutor explains from that state — nothing is re-graded client-side.
   const explainOutcome = () => {
@@ -1027,14 +1027,14 @@ export default function MissionWorkspace() {
               {debrief.debrief && <p className="mt-2 whitespace-pre-wrap text-body text-ink-2">{debrief.debrief}</p>}
               {tutorEnabled && (
                 <div className="mt-4 border-t border-black/10 pt-4">
-                  <p className="text-body font-semibold text-ink-1">Cipher explains the outcome</p>
+                  <p className="text-body font-semibold text-ink-1">Cypher explains the outcome</p>
                   <p className="mt-1 text-small text-ink-2">
-                    Cipher reads your validated results — score and which objectives
+                    Cypher reads your validated results — score and which objectives
                     passed — and explains what they mean. He never re-grades your work.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button size="sm" variant="secondary" onClick={explainOutcome} loading={explainLoading} disabled={explainLoading}>
-                      Ask Cipher to explain the outcome
+                      Ask Cypher to explain the outcome
                     </Button>
                     {explainLoading && (
                       <Button size="sm" variant="ghost" onClick={stopExplain}>Stop</Button>
@@ -1051,7 +1051,7 @@ export default function MissionWorkspace() {
                           onClick={() => { setDebriefPlaying(true); cypherVoice.play(explainText); }}
                           disabled={cypherVoice.playing}
                         >
-                          {cypherVoice.playing ? 'Speaking…' : 'Hear Cipher say it'}
+                          {cypherVoice.playing ? 'Speaking…' : 'Hear Cypher say it'}
                         </Button>
                         {cypherVoice.playing && (
                           <Button size="sm" variant="ghost" onClick={() => { setDebriefPlaying(false); cypherVoice.stop(); }}>Stop</Button>
@@ -1059,7 +1059,7 @@ export default function MissionWorkspace() {
                       </div>
                       {cypherVoice.subtitle && (
                         <p className="mt-2 text-small text-ink-2" aria-live="polite">
-                          <span className="font-bold text-action-hover">Cipher:</span> {cypherVoice.subtitle}
+                          <span className="font-bold text-action-hover">Cypher:</span> {cypherVoice.subtitle}
                         </p>
                       )}
                       {cypherVoice.error && <p className="mt-2 text-small text-danger">{cypherVoice.error}</p>}

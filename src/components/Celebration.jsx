@@ -1,4 +1,4 @@
-// Celebration: the reusable "alive moment" overlay. Confetti burst + Cipher in
+// Celebration: the reusable "alive moment" overlay. Confetti burst + Cypher in
 // celebrating pose + title/subtitle + dismiss. One instance is mounted at the
 // app root (CelebrationHost) and fed by useMilestoneCelebrations(); exam-pass
 // moments flow through the same queue, so every exam type celebrates identically.

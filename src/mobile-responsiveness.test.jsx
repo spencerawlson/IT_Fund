@@ -151,7 +151,7 @@ describe('dashboard card layouts (2026-11-08, phone screenshot)', () => {
   it('lesson page cards are all the same width (2026-11-13)', () => {
     const s = src('src/pages/academy/LessonView.jsx');
     // Spencer 2026-11-13: the lesson content card was wider than the Ask
-    // Cipher / mission cards above it — the top cards carried max-w-reading
+    // Cypher / mission cards above it — the top cards carried max-w-reading
     // (70ch) while the reading, Practice and Resources cards spanned the
     // full PageContainer (max-w-5xl). Every card is now a direct child of
     // PageContainer with no narrower max-width of its own, so they all

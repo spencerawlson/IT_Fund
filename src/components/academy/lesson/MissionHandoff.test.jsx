@@ -42,7 +42,7 @@ describe('MissionHandoff', () => {
     // Auto-play runs in an effect, so first paint carries the manual Hear
     // control — the mounted tests assert it becomes "Loading voice…".
     expect(html).not.toContain(EXACT_LINE);
-    expect(html).toContain('Hear Cipher say it');
+    expect(html).toContain('Hear Cypher say it');
     expect(html).toContain('Launch Mission');
     expect(html).toContain('/missions/op-broken-shield');
   });
@@ -79,8 +79,8 @@ describe('MissionHandoff', () => {
     expect(html).toContain('shrink-0 sm:self-center');
     // The button comes after the message in the DOM, in its own column.
     // The line itself is hidden on first paint (listen-first), so the
-    // message column is located by its "Cipher" header.
-    const msgAt = html.indexOf('Cipher</p>');
+    // message column is located by its "Cypher" header.
+    const msgAt = html.indexOf('Cypher</p>');
     const btnAt = html.indexOf('Launch Mission');
     expect(msgAt).toBeGreaterThan(-1);
     expect(btnAt).toBeGreaterThan(msgAt);
@@ -267,7 +267,7 @@ describe('MissionHandoff listen-first (mounted)', () => {
     // afterwards the Hear button is the control.
     await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 3000)); });
     expect(treeText()).not.toContain('Speaking…');
-    expect(findButton('Hear Cipher say it')).toBeTruthy();
+    expect(findButton('Hear Cypher say it')).toBeTruthy();
     expect(findButton('Read message')).toBeFalsy();
   });
 });
