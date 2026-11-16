@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TerminalSquare, ShieldCheck, Map, Boxes, Lock, SearchX } from 'lucide-react';
-import { Button, Card, EmptyState } from '@/components/ui-glass';
-import { MissionBrief } from '@/components/labs/Mission';
-import MissionTopology, { MISSION_TOPOLOGY_DEVICES } from '@/components/missions/MissionTopology';
+import { Lock, SearchX } from 'lucide-react';
+import { EmptyState } from '@/components/ui-glass';
+import { MISSION_TOPOLOGY_DEVICES } from '@/components/missions/MissionTopology';
 import { useCypherVoice } from '@/api/voice';
 import { SHOWCASE_ORDER } from '@/components/three/socLayout';
 import { splitBriefing } from '@/data/missions';
 import { missionsApi } from '@/api/missions';
+import { friendlyErrorMessage } from '@/lib/errors';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 import { useTheme } from '@/components/ThemeProvider';
@@ -18,19 +18,6 @@ import { useTheme } from '@/components/ThemeProvider';
 const MissionSocScene = React.lazy(() => import('@/components/three/MissionSocScene'));
 
 const SOC_MISSION_ID = 'op-broken-shield';
-
-const readStored = (key, fallback) => {
-  try {
-    const v = localStorage.getItem(key);
-    return v === null ? fallback : v;
-  } catch {
-    return fallback;
-  }
-};
-
-function titleCase(callsign) {
-  return (callsign || '').toLowerCase().replace(/(^|[\s-])\S/g, (c) => c.toUpperCase());
-}
 
 // Mission opening timings (seconds). The opening plays like a video on
 // entry (fresh attempt only): a short cinematic establishing shot, then
@@ -46,17 +33,29 @@ function titleCase(callsign) {
 const OPEN_OPEN_S = 1.8;
 const OPEN_SHOWCASE_S = 4.0;
 const OPEN_BRIEFING_CAP_S = 60;
+// The hand-off to the mission terminal is a visible transition, not a
+// jump: "Connecting to the mission portal…" (1.2 s), then "Connection
+// established" (0.8 s) — 2.0 s total — then the terminal page.
+const CONNECT_S = 1.2;
+const ESTABLISHED_S = 0.8;
 
-/** The mission briefing screen: the 3D SOC room delivers the incoming
- *  transmission — Cypher, Sentinel and Patch read the mission objective,
- *  spoken, with the transmission text visible below the room. When the
- *  briefing finishes (all turns played + the device tour, or the learner
- *  skips it) the screen closes and redirects to the mission terminal page
- *  (/missions/:missionId/terminal), which has no 3D room at all.
- *  Terminal missions and resumed attempts never see this screen — they go
- *  straight to the terminal (the old "opening skipped" behaviour, now a
- *  redirect instead of a silent phase change). The heavy 3D code loads
- *  ONLY here: the terminal page must never import the scene. */
+/** The mission briefing screen — full-screen 3D lab, nothing else.
+ * Standing structure rule (2026-11-16, all missions): this page is just
+ * the 3D lab with the three robots in it talking and explaining what the
+ * mission is about. No transmission panel (the text lives on the terminal
+ * page), no 3D/2D toggle and no 2D topology (the topology is the terminal
+ * page's inspection tool, and only there), no header, no cards. The
+ * caption stays — it is the only text on the page — at the BOTTOM of the
+ * screen. When the briefing finishes (all turns played + the device tour,
+ * or the learner skips it) the screen shows the connecting transition and
+ * hands the learner to the mission terminal page (/missions/:missionId/terminal),
+ * which has no 3D room at all. Terminal missions and resumed attempts never
+ * see this screen — they go straight to the terminal (the old "opening
+ * skipped" behaviour, now a redirect instead of a silent phase change).
+ * The heavy 3D code loads ONLY here: the terminal page must never import
+ * the scene. If the 3D renderer fails, there is no 2D fallback on this
+ * page anymore — the learner goes straight to the terminal, where the
+ * topology is. */
 export default function MissionBriefing() {
   useDocumentTitle('Mission Briefing · Road to CISSP');
   const { missionId } = useParams();
@@ -69,8 +68,6 @@ export default function MissionBriefing() {
   const [objectives, setObjectives] = useState([]);
   const [error, setError] = useState('');
   const [entitled, setEntitled] = useState(true);
-  const [view, setView] = useState(() => (readStored('rtc-mission-view', '3d') === '2d' ? '2d' : '3d'));
-  const [quality, setQuality] = useState(() => (readStored('rtc-mission-quality', 'high') === 'low' ? 'low' : 'high'));
   const [reducedMotion, setReducedMotion] = useState(() => {
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
   });
@@ -86,8 +83,6 @@ export default function MissionBriefing() {
   // frontend copy under `brief`.
   const briefLines = missionDef?.brief || missionDef?.briefing || missionDef?.lines
     || (missionDef?.description ? [missionDef.description] : []);
-  const callsign = missionDef?.callsign || 'OPERATION BROKEN SHIELD';
-  const title = missionDef?.title || titleCase(callsign);
   // The briefing, split into spoken turns — one per robot, from the
   // existing text only (see splitBriefing in src/data/missions.js):
   // Cypher opens with the introduction, Sentinel reads the servers part,
@@ -108,8 +103,8 @@ export default function MissionBriefing() {
   // Phases: 'open' (cinematic establishing shot) -> 'briefing' (the split
   // briefing, one turn at a time: each robot reads their paragraph with
   // the camera on them) -> 'showcase' (the four devices, one at a time,
-  // each shown + labelled in 3D) -> 'done' (redirect to the terminal).
-  // The phase lives in state (it drives the SOC card's caption + Skip
+  // each shown + labelled in 3D) -> 'done' (connecting transition, then
+  // the terminal). The phase lives in state (it drives the caption + Skip
   // button); the speaker/showcase refs are what the scene tick reads
   // every frame.
   const [openingPhase, setOpeningPhase] = useState('open');
@@ -132,6 +127,9 @@ export default function MissionBriefing() {
   voicePlayRef.current = cypherVoice.play;
   const voiceStopRef = useRef(null);
   voiceStopRef.current = cypherVoice.stop;
+  // Hand-off step once the opening is done: null | 'connecting' |
+  // 'established'. Drives the transition overlay (see the 'done' effect).
+  const [connectStep, setConnectStep] = useState(null);
 
   useEffect(() => {
     speakerRef.current = openingPhase === 'briefing'
@@ -246,14 +244,20 @@ export default function MissionBriefing() {
   }, [openingPhase, showcaseDevice]);
   // The briefing is over (all turns played + the device tour, or the
   // learner skipped it): stop the voice so no briefing audio bleeds into
-  // the terminal page, then close this screen and hand the learner to
-  // the mission terminal.
+  // the terminal page, then show the connecting transition — "Connecting
+  // to the mission portal…" (1.2 s), "Connection established" (0.8 s) —
+  // and hand the learner to the mission terminal. The transition is a
+  // visible beat, not a jump: the old code navigated the instant the
+  // tour ended, which read as the page vanishing.
   useEffect(() => {
-    if (openingPhase !== 'done') return;
+    if (openingPhase !== 'done') return undefined;
     voiceStopRef.current?.();
-    navigate(terminalUrl, { replace: true });
+    setConnectStep('connecting');
+    const t1 = setTimeout(() => setConnectStep('established'), CONNECT_S * 1000);
+    const t2 = setTimeout(() => navigate(terminalUrl, { replace: true }), (CONNECT_S + ESTABLISHED_S) * 1000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [openingPhase, terminalUrl, navigate]);
-  // Leaving mid-briefing (Exit, back): stop the voice too.
+  // Leaving mid-briefing (back): stop the voice too.
   useEffect(() => () => { voiceStopRef.current?.(); }, []);
 
   // Load the mission + start the attempt. Terminal missions have no
@@ -277,9 +281,9 @@ export default function MissionBriefing() {
         if (!live) return;
         if (e.status === 401 || e.status === 402) {
           setEntitled(false);
-          setError(e.message);
+          setError(friendlyErrorMessage(e));
         } else {
-          setError(e.message || 'Mission unavailable.');
+          setError(friendlyErrorMessage(e, { fallback: 'Mission unavailable.' }));
         }
       }
     })();
@@ -316,47 +320,16 @@ export default function MissionBriefing() {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  const setViewPersisted = useCallback((next) => {
-    setView(next);
-    try { localStorage.setItem('rtc-mission-view', next); } catch { /* ignore */ }
-  }, []);
-
-  const setQualityPersisted = useCallback((next) => {
-    setQuality(next);
-    try { localStorage.setItem('rtc-mission-quality', next); } catch { /* ignore */ }
-  }, []);
-
-  // WebGL failed: fall back to the 2D topology, which is fully playable.
+  // WebGL failed: there is no 2D fallback on this page anymore — the
+  // briefing is the 3D lab, and the 2D topology lives on the terminal
+  // page. Go straight there; the mission is fully playable from it.
   const handleRendererFailed = useCallback(() => {
-    setViewPersisted('2d');
-  }, [setViewPersisted]);
-
-  const applyAttemptState = useCallback((res) => {
-    if (!res) return;
-    if (res.attempt) setAttempt(res.attempt);
-    if (res.objectives) setObjectives(res.objectives);
-  }, []);
-
-  // Device inspection from the 2D fallback view: the same server action
-  // the terminal page sends, so an inspection here counts there too.
-  const doAction = useCallback(async (body) => {
-    if (!attempt) return null;
-    try {
-      const res = await missionsApi.action(attempt.id, body);
-      applyAttemptState(res);
-      return res;
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [attempt, applyAttemptState]);
-
-  const onInspect = useCallback((device) => {
-    doAction({ type: 'inspect_device', device }).catch(() => {});
-  }, [doAction]);
+    voiceStopRef.current?.();
+    navigate(terminalUrl, { replace: true });
+  }, [terminalUrl, navigate]);
 
   // Skip the opening: stop the voice and hand the mission over — the
-  // 'done' effect above redirects to the terminal.
+  // 'done' effect above runs the connecting transition, then redirects.
   const skipOpening = () => {
     cypherVoice.stop();
     setShowcaseDevice(null);
@@ -394,17 +367,16 @@ export default function MissionBriefing() {
     );
   }
 
-  const missionForBrief = { callsign, brief: briefLines };
   const background = theme === 'dark' ? '#111111' : '#F8F7FF';
   const passed = (id) => objectives.find((o) => o.id === id)?.passed || false;
-  const missionFindings = attempt?.findings || {};
-  const inspected = missionFindings?.topology?.inspected || [];
   const incidentActive = !passed('guest-blocked');
   const contained = passed('guest-blocked') && passed('trusted-allowed');
   // Opening caption: a label for the current moment (not dialogue — the
   // spoken lines are only the existing briefing text, read by Cypher's
   // voice). While a turn plays, the subtitle is the spoken words; before
-  // it starts, the label names the speaker and their room.
+  // it starts, the label names the speaker and their room. The caption
+  // sits at the BOTTOM of the screen, over the 3D lab — it is the only
+  // text on this page.
   const briefingTurn = openingPhase === 'briefing' ? briefingTurns[briefingTurnIdx] : null;
   const briefingTurnLabel = briefingTurn?.speaker === 'sentinel' ? 'Sentinel — server room'
     : briefingTurn?.speaker === 'patch' ? 'Patch — workshop'
@@ -416,88 +388,35 @@ export default function MissionBriefing() {
   const openingActive = openingPhase !== 'done';
 
   return (
-    <div className="min-h-[100dvh] text-ink-1">
-      <header className="sticky top-safe z-30 px-3 pt-3 sm:px-6 sm:pt-5">
-        <div className="glass-1 nav-solid mx-auto flex max-w-6xl flex-wrap items-center gap-2 rounded-card px-3 py-2 sm:px-4">
-          <ShieldCheck size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
-          <span className="min-w-0 flex-1 truncate text-body font-semibold">{callsign} — {title}</span>
-          <label className="flex items-center gap-1.5 text-caption text-ink-2">
-            Quality
-            <select
-              value={quality}
-              onChange={(e) => setQualityPersisted(e.target.value === 'low' ? 'low' : 'high')}
-              aria-label="3D quality"
-              className="rounded-control border border-black/10 bg-white/80 px-1.5 py-1 text-caption font-semibold text-ink-1"
-            >
-              <option value="high">High</option>
-              <option value="low">Low</option>
-            </select>
-          </label>
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={view === '3d' ? Map : Boxes}
-            onClick={() => setViewPersisted(view === '3d' ? '2d' : '3d')}
-          >
-            {view === '3d' ? '2D view' : '3D view'}
-          </Button>
-          <Button size="sm" variant="secondary" to="/labs">Exit</Button>
+    <div className={`fixed inset-0 overflow-hidden bg-black text-ink-1${openingActive ? ' soc-open' : ''}`}>
+      <React.Suspense fallback={<div className="flex h-full items-center justify-center text-ink-2">Loading SOC room…</div>}>
+        <MissionSocScene
+          devices={MISSION_TOPOLOGY_DEVICES}
+          incidentActive={incidentActive}
+          contained={contained}
+          onRendererFailed={handleRendererFailed}
+          background={background}
+          reducedMotion={reducedMotion}
+          cypherVoiceRef={cypherVoiceRef}
+          speakerRef={speakerRef}
+          showcaseRef={showcaseRef}
+        />
+      </React.Suspense>
+      {openingCaption && (
+        <p className="absolute inset-x-0 bottom-0 z-10 bg-black/60 px-4 py-3 text-center text-body text-white" aria-live="polite">{openingCaption}</p>
+      )}
+      {openingActive && (
+        <button type="button" onClick={skipOpening} className="absolute right-4 top-4 z-10 rounded-control border border-white/20 bg-black/60 px-2.5 py-1 text-caption font-semibold text-white">
+          Skip intro
+        </button>
+      )}
+      {connectStep && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70">
+          <p className="px-4 text-center text-title font-semibold text-white" aria-live="polite">
+            {connectStep === 'connecting' ? 'Connecting to the mission portal…' : 'Connection established'}
+          </p>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl space-y-4 px-3 py-4 sm:px-6">
-        {/* SOC room: the 3D frame is the briefing's centrepiece, and its
-            camera focuses on whoever is talking. When WebGL is unavailable
-            the 2D topology stands in — the briefing still plays. */}
-        <Card level={2} className={`mission-console${openingActive ? ' soc-open' : ''}`}>
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
-            <h2 className="font-mono text-heading text-terminal-bright">SOC Room</h2>
-            <span className="hidden text-caption text-terminal-muted sm:inline">
-              {view === '3d'
-                ? 'Cypher presents the SOC — the briefing plays itself, then hands you to the terminal'
-                : '2D topology — fully playable without WebGL'}
-            </span>
-            {openingActive && (
-              <button type="button" onClick={skipOpening} className="ml-auto rounded-control border border-black/10 bg-white/80 px-2.5 py-1 text-caption font-semibold text-ink-1">
-                Skip intro
-              </button>
-            )}
-          </div>
-          {openingCaption && (
-            <p className="mb-3 text-small text-terminal-muted" aria-live="polite">{openingCaption}</p>
-          )}
-          {view === '3d' ? (
-            <React.Suspense fallback={<div className="flex aspect-[16/10] items-center justify-center text-ink-2">Loading SOC room…</div>}>
-              <MissionSocScene
-                devices={MISSION_TOPOLOGY_DEVICES}
-                incidentActive={incidentActive}
-                contained={contained}
-                onRendererFailed={handleRendererFailed}
-                background={background}
-                reducedMotion={reducedMotion}
-                quality={quality}
-                cypherVoiceRef={cypherVoiceRef}
-                speakerRef={speakerRef}
-                showcaseRef={showcaseRef}
-              />
-            </React.Suspense>
-          ) : (
-            <MissionTopology
-              devices={MISSION_TOPOLOGY_DEVICES}
-              inspected={inspected}
-              onInspect={onInspect}
-              guestBlocked={passed('guest-blocked') ? true : null}
-              trustedAllowed={passed('trusted-allowed') ? true : null}
-              activeDevice={null}
-            />
-          )}
-        </Card>
-
-        {/* The incoming transmission, as text — the same words the robots
-            are speaking, so the objective is readable as well as heard. */}
-        <MissionBrief mission={missionForBrief} />
-      </main>
+      )}
     </div>
   );
 }

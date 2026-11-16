@@ -7,10 +7,10 @@ import MissionBriefing from './MissionBriefing';
 // Behavioural coverage for the briefing screen (the split, 2026-11-16):
 // the mission opening that used to live in MissionWorkspace now plays
 // here — the robots read the briefing in the 3D room, the showcase tours
-// the four devices, then the screen redirects to the terminal page.
-// Same harness as the old MissionWorkspace opening test: the network +
-// voice are stubbed, the whole opening runs on fake timers, and the
-// phase is read back from the SOC card's caption
+// the four devices, then the connecting transition hands the learner to
+// the terminal page. Same harness as the old MissionWorkspace opening
+// test: the network + voice are stubbed, the whole opening runs on fake
+// timers, and the phase is read back from the caption
 // ("Equipment tour — <device>") and the Skip button. Navigation is
 // captured from a MemoryRouter location watcher.
 //
@@ -322,8 +322,14 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     await advance(4000);
     expect(captionOf(root)).toBe('Equipment tour — SRV');
     await advance(4000);
-    // Showcase over: the briefing screen closes and the terminal page
-    // opens — no caption, no Skip button, the terminal route renders.
+    // Showcase over: the briefing screen does NOT jump straight to the
+    // terminal — the connecting transition shows first (1.2 s), then
+    // "Connection established" (0.8 s), then the terminal page opens.
+    expect(captionOf(root)).toBe('Connecting to the mission portal…');
+    expect(lastPath).toBe('/missions/op-broken-shield');
+    await advance(1200);
+    expect(captionOf(root)).toBe('Connection established');
+    await advance(800);
     expect(lastPath).toBe('/missions/op-broken-shield/terminal');
     expect(terminalVisible(root)).toBe(true);
     expect(voiceControl.playCalls).toHaveLength(4);

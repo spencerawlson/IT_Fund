@@ -54,22 +54,33 @@ describe('MissionTopology', () => {
     expect(html).toContain('ALLOWED');
   });
 
-  it('keeps the R1–SRV segment label clear of the R1 box, below the line', () => {
-    // The R1–SRV label ("Server LAN · 192.168.2.0/24") sat centred on
-    // the line at (435, 142), where its left end overlapped the R1 box
-    // (ends x = 372): it now sits below the line (midY + 42 = 192).
-    // The other two links' labels stay above their lines (midY − 8):
-    // PC1–R1 at 102, GUEST–R1 at 182. (The R1–SRV link never renders a
-    // BLOCKED/ALLOWED state — states only exist on the user-LAN links —
-    // so its state position below the line is untestable here; the
-    // GUEST–R1 BLOCKED state stays at midY + 18 = 208.)
+  it('puts the LAN labels under their cards, never on a link', () => {
+    // Live report (2026-11-16): the mid-link labels had a connecting line
+    // crossing straight through the text. One label per LAN now, under its
+    // cards — User LAN under the left cluster's lowest card (GUEST, box
+    // bottom 258 → label at 278), Server LAN under the SRV card (box
+    // bottom 178 → label at 198). The path state stays on its link
+    // (GUEST–R1 BLOCKED at midY + 18 = 208).
     const html = renderToString(<MissionTopology guestBlocked onInspect={() => {}} />);
     const labelYs = (text) => {
       const re = new RegExp(`<text x="\\d+" y="(\\d+)"[^>]*>${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</text>`, 'g');
       return [...html.matchAll(re)].map((m) => Number(m[1]));
     };
-    expect(labelYs('Server LAN · 192.168.2.0/24')).toEqual([192]);
-    expect(labelYs('User LAN · 192.168.1.0/24')).toEqual([102, 182]);
+    expect(labelYs('User LAN · 192.168.1.0/24')).toEqual([278]);
+    expect(labelYs('Server LAN · 192.168.2.0/24')).toEqual([198]);
     expect(labelYs('BLOCKED')).toEqual([208]);
+  });
+
+  it('renders R1’s two gateway IPs on two lines, inside the card', () => {
+    // Live report (2026-11-16): "192.168.1.1 / 192.168.2.1" on one line
+    // ran to the very edge of the 104-wide card and was unreadable. Each
+    // address is its own <text> now, both inside the box (y 10 and 22,
+    // box spans -28..28). The list below the diagram still shows the
+    // combined string, so the smoke test above still finds it there.
+    const html = renderToString(<MissionTopology />);
+    const svg = html.slice(0, html.indexOf('</svg>'));
+    expect(svg).toContain('>192.168.1.1</text>');
+    expect(svg).toContain('>192.168.2.1</text>');
+    expect(svg).not.toContain('192.168.1.1 / 192.168.2.1');
   });
 });

@@ -16,6 +16,7 @@ import { getMission } from '@/data/missions';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { recordMissionCompletion, recordVerifiedLabCompletion } from '@/lib/academy';
 import { LESSONS_FOR_LAB } from '@/data/labLessons';
 import UpgradePrompt from '@/components/UpgradePrompt';
@@ -233,9 +234,9 @@ export default function MissionWorkspace() {
         if (!live) return;
         if (e.status === 401 || e.status === 402) {
           setEntitled(false);
-          setError(e.message);
+          setError(friendlyErrorMessage(e));
         } else {
-          setError(e.message || 'Mission unavailable.');
+          setError(friendlyErrorMessage(e, { fallback: 'Mission unavailable.' }));
         }
       }
     })();
@@ -311,7 +312,7 @@ export default function MissionWorkspace() {
       applyAttemptState(res);
       return res;
     } catch (e) {
-      setError(e.message);
+      setError(friendlyErrorMessage(e));
       throw e;
     } finally {
       setBusy(false);
@@ -339,7 +340,7 @@ export default function MissionWorkspace() {
       if (attempt) applyAttemptState(await missionsApi.getAttempt(attempt.id));
       return true;
     } catch (e) {
-      setError(e.message);
+      setError(friendlyErrorMessage(e));
       return false;
     } finally {
       setBusy(false);
@@ -402,7 +403,7 @@ export default function MissionWorkspace() {
           // Fall through to the original error below.
         }
       }
-      setError(e.message);
+      setError(friendlyErrorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -452,7 +453,7 @@ export default function MissionWorkspace() {
           } catch { /* keep the lab-only count */ }
         }
         return { output: `Checked. ${Object.values(s.progress || {}).filter(Boolean).length} lab objectives complete.${missionCount}`, session: s };
-      } catch (e) { return { output: e.message, exit_code: 1 }; }
+      } catch (e) { return { output: friendlyErrorMessage(e, { fallback: 'The check could not run.' }), exit_code: 1 }; }
     }
     if (c === 'lab' && sub === 'reset') { reset(); return { output: 'Resetting the lab environment...' }; }
     if (c === 'lab' && sub === 'exit') {
@@ -499,7 +500,7 @@ export default function MissionWorkspace() {
       setTraffic({ host, output: output.trim() });
       applyAttemptState(await missionsApi.getAttempt(attempt.id));
     } catch (e) {
-      setError(e.message);
+      setError(friendlyErrorMessage(e));
     } finally {
       setTrafficBusy(false);
     }
@@ -531,7 +532,7 @@ export default function MissionWorkspace() {
     } catch (e) {
       // The server gates submit_report on the other objectives; surface its
       // missing-objectives error verbatim.
-      setReportError(e.message || 'The report could not be filed yet.');
+      setReportError(friendlyErrorMessage(e, { fallback: 'The report could not be filed yet.' }));
       throw e;
     }
   }, [doAction]);
@@ -551,7 +552,7 @@ export default function MissionWorkspace() {
       // is why the live first completion showed 0 XP awarded.
       if (res.xp_awarded > 0) recordMissionCompletion(missionId, res.xp_awarded);
     } catch (e) {
-      setError(e.message);
+      setError(friendlyErrorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -687,9 +688,13 @@ export default function MissionWorkspace() {
           + incident report right — so the key cards are all in the first
           viewport and the learner never has to scroll to the bottom to
           find the report. Below the gate the two-column stacked layout
-          stands. */}
-      <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr] min-[1810px]:max-w-[112rem] min-[1810px]:grid-cols-[16rem_minmax(0,1fr)_20rem]">
-        <div className="space-y-4 min-[1810px]:col-start-1 min-[1810px]:row-start-1">
+          stands. The three columns are equal height (grid items-stretch,
+          each column a flex column whose last card is flex-1), so the
+          bottom edges of the Traffic test, Firewall console and Incident
+          report cards sit exactly level — the firewall card used to hang
+          lower than the other two (2026-11-16 live report). */}
+      <main className="mx-auto grid max-w-6xl items-stretch gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr] min-[1810px]:max-w-[112rem] min-[1810px]:grid-cols-[16rem_minmax(0,1fr)_20rem]">
+        <div className="flex flex-col gap-4 min-[1810px]:col-start-1 min-[1810px]:row-start-1">
           <MissionBrief mission={missionForBrief} />
           {typeof missionDef.xp === 'number' && (
             <p className="text-small text-ink-2">
@@ -715,7 +720,7 @@ export default function MissionWorkspace() {
           {/* No objectives checklist lives on this page: the terminal is the
               only place the student checks where they stand (run `objectives`
               in the Mission Console). */}
-          <Card level={2}>
+          <Card level={2} className={isSocMission ? undefined : 'flex-1'}>
             <h2 className="text-heading text-ink-1">Where do you stand?</h2>
             <p className="mt-1 text-small text-ink-2">
               Check the Mission Console: run <code>objectives</code> for the list,{' '}
@@ -725,7 +730,7 @@ export default function MissionWorkspace() {
             </p>
           </Card>
           {isSocMission && (
-          <Card level={2}>
+          <Card level={2} className="flex-1">
             <h2 className="text-heading text-ink-1">Traffic test</h2>
             <p className="mt-1 text-small text-ink-2">
               Ping the server from each host and read the replies. To check whether the
@@ -754,7 +759,7 @@ export default function MissionWorkspace() {
             mission. Below the wide gate it sits in the right column under
             the brief cluster, as today; on wide desktops it is row 1
             centre. */}
-        <div className="space-y-4 lg:col-start-2 lg:row-start-1 min-[1810px]:col-start-2 min-[1810px]:row-start-1">
+        <div className="flex flex-col gap-4 lg:col-start-2 lg:row-start-1 min-[1810px]:col-start-2 min-[1810px]:row-start-1">
           {isSocMission && (
           <Card level={2}>
             <h2 className="text-heading text-ink-1">Topology — inspect the devices</h2>
@@ -774,7 +779,7 @@ export default function MissionWorkspace() {
           </Card>
           )}
           {isSocMission && (
-          <Card level={2}>
+          <Card level={2} className="flex-1">
             <h2 className="text-heading text-ink-1">Firewall console — R1, access-list 10</h2>
             <p className="mt-1 text-small text-ink-2">
               The buttons issue the real IOS commands on R1. Check the rules read-back after each step.
@@ -817,7 +822,7 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
           </Card>
           )}
           {!isSocMission && (
-            <Card level={2}>
+            <Card level={2} className="flex-1">
               <h2 className="text-heading text-ink-1">Packet analysis</h2>
               <p className="mt-1 text-small text-ink-2">
                 Work the capture in the Mission Console, then record each step — “I did this” is
@@ -840,14 +845,21 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
             in the first viewport instead of scrolling to the bottom.
             Below the wide gate this rail sits under the centre column,
             as today. */}
-        <div className="space-y-4 lg:col-start-2 lg:row-start-2 min-[1810px]:col-start-3 min-[1810px]:row-start-1">
-          <Card level={2} className="mission-console">
+        <div className="flex flex-col gap-4 lg:col-start-2 lg:row-start-2 min-[1810px]:col-start-3 min-[1810px]:row-start-1">
+          <Card level={2} className={done ? 'mission-console flex-1' : 'mission-console'}>
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
               <h2 className="font-mono text-heading text-terminal-bright">Mission Console</h2>
               <span className="hidden text-caption text-terminal-muted sm:inline">type `help` for available operations — run `objectives` to see where you stand</span>
             </div>
             <div className="crt crt-flicker overflow-hidden rounded-xl">
+              {/* Command errors show inline in the terminal (red line)
+                  and ONLY there: LabTerminal's onError used to promote
+                  every failed command to the page-level banner below,
+                  where a transient "Failed to fetch" stayed forever even
+                  after the command — and the topology — recovered
+                  (2026-11-16 live report). The banner is for action/load
+                  failures (doAction, reset, …), never for a typed command. */}
               <LabTerminal
                 ref={termRef}
                 sessionId={session.id}
@@ -858,7 +870,6 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
                 prompt={isSocMission ? 'R1# ' : 'analyst@analyst-ws:~$ '}
                 disabled={session.status === 'EXPIRED'}
                 onSession={setSession}
-                onError={setError}
               />
             </div>
           </Card>
@@ -887,13 +898,13 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
           )}
 
           {!done && (
-            <Card level={2}>
+            <Card level={2} className="flex flex-1 flex-col">
               <h2 className="text-heading text-ink-1">Incident report</h2>
               <p className="mt-1 text-small text-ink-2">
                 Write up what happened, why, and the fix — then file it. The server files it only
                 once the other objectives pass.
               </p>
-              <div className="mt-4">
+              <div className="mt-4 flex flex-1 flex-col">
                 <IncidentReportForm
                   initial={reportDraftInitial}
                   onSubmit={submitReport}
