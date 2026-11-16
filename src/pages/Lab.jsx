@@ -174,7 +174,9 @@ function metaFor(id) {
   return { id, label: LAB_LABELS[id] || id, kind: id.endsWith('-lab') || id === 'number-system' ? 'tool' : 'anim', icon: Boxes, blurb: '' };
 }
 
-function Stage({ id, onBack }) {
+// The way back to the subject list is the "← Visual Lab" link at the top of
+// the page (and the browser Back button); the stage has no back button of its own.
+function Stage({ id }) {
   const meta = metaFor(id);
   const k = KINDS[meta.kind] || KINDS.anim;
   const Icon = meta.icon;
@@ -257,12 +259,6 @@ function Stage({ id, onBack }) {
           </div>
         </div>
       )}
-
-      <div className="mt-6">
-        <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
-          <ArrowLeft size={15} /> All subjects
-        </button>
-      </div>
     </div>
   );
 }
@@ -343,7 +339,7 @@ export default function Lab() {
           </div>
         </header>
 
-        {active ? <Stage id={active} onBack={back} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} />}
+        {active ? <Stage id={active} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} />}
 
       </div>
     </div>
