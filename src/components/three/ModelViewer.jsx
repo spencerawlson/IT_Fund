@@ -265,7 +265,7 @@ export default function ModelViewer({
           <p className="mt-0.5 leading-relaxed text-ink-2">{info.desc}</p>
         </div>
       )}
-      {interactive && (
+      {interactive && !rendererFailed && (
         <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-black/10 bg-white/80 px-2 py-1 text-[10px] text-ink-2">
           Drag to rotate · Scroll to zoom · Click parts for info
         </div>

@@ -6,9 +6,10 @@ import { Maximize2 } from 'lucide-react';
 // the firewall's Meshy model only reached the polished bar at ~189k tris /
 // 3.5 MB, while its sheet is ~0.4 MB, needs no WebGL and labels every port.
 //
-// Renders at the sheet's natural aspect ratio (full stage width), so phones
-// get no letterboxing; "Open full size" opens the original in a new tab for
-// zooming into the port detail.
+// Renders at the sheet's natural aspect ratio (full stage width), capped at
+// the 3D stage height (440 / 560 px) so it never outgrows the card the other
+// Lab subjects use — scaled to fit, never cropped. "Open full size" opens the
+// original in a new tab for zooming into the port detail.
 export default function BlueprintSubject({ src, alt, label }) {
   return (
     <figure className="w-full overflow-hidden rounded-xl bg-[#0D1B2A]">
@@ -17,7 +18,7 @@ export default function BlueprintSubject({ src, alt, label }) {
         alt={alt}
         loading="lazy"
         decoding="async"
-        className="block h-auto w-full"
+        className="mx-auto block h-auto max-h-[440px] w-full object-contain sm:max-h-[560px]"
       />
       <figcaption className="flex items-center justify-between gap-3 border-t border-white/10 px-3 py-2 text-xs text-white/80">
         <span className="font-semibold text-white">{label} — technical blueprint</span>
