@@ -25,9 +25,9 @@ function renderWorkspace() {
   return renderToString(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <StaticRouter location="/missions/op-broken-shield">
+        <StaticRouter location="/missions/op-broken-shield/terminal">
           <Routes>
-            <Route path="/missions/:missionId" element={<MissionWorkspace />} />
+            <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
           </Routes>
         </StaticRouter>
       </ThemeProvider>
@@ -42,14 +42,15 @@ describe('MissionWorkspace', () => {
     expect(html).toContain('Starting mission');
   });
 
-  it('lazy-loads the 3D scene — three.js stays out of the main chunk', () => {
+  it('loads no 3D at all — the room lives on the briefing screen, three.js never enters this page', () => {
+    // The split (2026-11-16): /missions/:missionId is the briefing
+    // screen (the 3D room, route-lazy); this terminal page must never
+    // load the 3D bundle. Nothing in this file may mention the scene or
+    // import anything from the three.js components.
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
-    // The SOC scene arrives via React.lazy; nothing in this file may pull
-    // three.js (or ModelViewer) into the main bundle statically.
-    expect(src).toMatch(/React\.lazy\(\(\) => import\(['"]@\/components\/three\/MissionSocScene['"]\)\)/);
+    expect(src).not.toContain('MissionSocScene');
+    expect(src).not.toContain('components/three/');
     expect(src).not.toMatch(/^import .* from ['"]three['"]/m);
-    expect(src).not.toMatch(/from ['"]@\/components\/three\/ModelViewer['"]/);
-    expect(src).not.toMatch(/from ['"]@\/components\/three\/MissionSocScene['"]/);
   });
 
   it('uses the missions API for start/action/complete and the lab API for the terminal', () => {
@@ -61,25 +62,43 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('recordVerifiedLabCompletion(labId,');
   });
 
-  it('falls back to the 2D topology when the renderer fails', () => {
+  it('keeps the 2D topology as the inspection tool — the 3D room lives on the briefing screen', () => {
+    // The split (2026-11-16): the terminal page has no 3D room, so the
+    // topology is the inspection tool — click each device, the objective
+    // passes once all four are inspected. No renderer fallback exists
+    // here anymore (there is no renderer to fail).
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
-    expect(src).toContain('onRendererFailed={handleRendererFailed}');
-    expect(src).toContain("setViewPersisted('2d')");
     expect(src).toContain('<MissionTopology');
+    expect(src).toContain('Topology — inspect the devices');
+    expect(src).toContain('onInspect={onInspect}');
+    expect(src).not.toContain('handleRendererFailed');
+    expect(src).not.toContain('SOC Room');
   });
 
-  it('frames the SOC room as a video card while it loads — full width, 16:10', () => {
+  it('puts the console + incident report beside the topology + firewall on wide desktops — no scrolling to the bottom', () => {
+    // Live complaint (2026-11-16): the incident report sat at the bottom
+    // of a long vertical stack, and wide desktop monitors had unused room
+    // on both sides. On wide desktops the page is three columns — the
+    // transmission + brief cluster left, the topology + firewall centre,
+    // the console + incident report right — so the key cards are in the
+    // first viewport. The 1810 px gate is kept from the pre-split layout
+    // (the room rationale no longer applies — the room lives on the
+    // briefing screen — but the gate is the documented boundary): below
+    // it the two-column stacked layout stands.
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
-    expect(src).toContain('Loading SOC room…');
-    // The SOC card is the full-width first row of the mission grid, and
-    // its frame is 16:10 — taller than the old 16:9 box.
-    expect(src).toContain('aspect-[16/10]');
-    expect(src).toContain('lg:col-span-2');
-    expect(src).not.toContain('aspect-video');
-    expect(src).not.toContain('h-[26rem]');
+    expect(src).toContain('min-[1810px]:grid-cols-[16rem_minmax(0,1fr)_20rem]');
+    expect(src).toContain('min-[1810px]:max-w-[112rem]');
+    // The centre column (topology + firewall) is row 1 centre on wide
+    // desktops.
+    expect(src).toContain('min-[1810px]:col-start-2 min-[1810px]:row-start-1');
+    // The console + incident report rail is the right column on wide
+    // desktops, and the "below" wording is gone (the console is beside
+    // the centre column now, not below it).
+    expect(src).toContain('min-[1810px]:col-start-3 min-[1810px]:row-start-1');
+    expect(src).not.toContain('Check the Mission Console below');
   });
 
-  it('generalizes beyond Broken Shield: only the SOC mission gets the SOC room', () => {
+  it('generalizes beyond Broken Shield: only the SOC mission gets the topology + firewall', () => {
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
     // No mission/lab/lesson id is hardcoded anymore — the shape comes from
     // the route's mission id, the lab + lesson from the API.
@@ -88,9 +107,9 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('missionId === SOC_MISSION_ID');
     expect(src).toContain('missionDef?.lab_id || session?.lab_id');
     expect(src).toContain('missionDef?.lesson_id');
-    // Terminal missions skip the opening, the topology, the firewall
-    // console and the traffic test — and attest lab objectives + report
-    // the flooder instead.
+    // Terminal missions skip the topology, the firewall console and the
+    // traffic test — and attest lab objectives + report the flooder
+    // instead.
     expect(src).toContain('!isSocMission');
     expect(src).toContain('FloodReportForm');
     expect(src).toContain('MissionLabObjectives');
@@ -107,86 +126,37 @@ describe('MissionWorkspace', () => {
     expect(src).toMatch(/if \(!session\.attested && labId\) \{\s*recordVerifiedLabCompletion\(labId/);
   });
 
-  it('focuses the SOC camera on whoever is talking — briefing turn speaker, debrief Cypher, else wide', () => {
-    // The scene reads speakerRef every frame. During the opening the
-    // current briefing turn's speaker drives it (splitBriefing: Cypher
-    // opens, Sentinel reads the servers part, Patch the security part,
-    // Cypher closes); the debrief is Cypher's; otherwise the wide "look
-    // across" shot. A manual replay of the whole brief is Cypher reading
-    // it all, so the briefing button's playing state means Cypher too —
-    // the briefing no longer belongs to a single speaker. The briefing
-    // button reports its playing state via onPlayingChange; the debrief
-    // play/stop buttons set the debrief flag; the voice stopping clears
-    // both.
-    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
-    expect(src).toContain('speakerRef={speakerRef}');
-    expect(src).toContain('onPlayingChange={setBriefingPlaying}');
-    expect(src).toContain("briefingPlaying || debriefPlaying ? 'cypher' : 'wide'");
-    expect(src).toContain('splitBriefing(briefLines)');
-    expect(src).toContain("briefingTurns[briefingTurnIdx]?.speaker || 'cypher'");
-    expect(src).toContain("openingPhase === 'briefing'");
-    expect(src).not.toContain("openingPhase === 'sentinel'");
-    expect(src).not.toContain("openingPhase === 'patch'");
-    expect(src).toContain('setDebriefPlaying(true)');
-    expect(src).toContain('setDebriefPlaying(false)');
-  });
-
   it('drops the "Hear the briefing" wording and Listen button — only the sound controls stay', () => {
     // Spencer (2026-11-14): "No need to have any wording there." The
-    // briefing auto-plays on entry now, so the card's heading, its
-    // explanatory paragraph and the Listen button are gone. The sound
-    // controls stay (mute + volume) via the button's controlsOnly mode,
-    // and the onPlayingChange wiring stays so the camera still knows
-    // the briefing is playing. The "Where do you stand?" card and the
-    // XP line are untouched (see the checklist test above).
+    // briefing plays on the briefing screen now (the robots read it
+    // there), so the card's heading, its explanatory paragraph and the
+    // Listen button are gone. The sound controls stay (mute + volume)
+    // via the button's controlsOnly mode, so the learner can re-listen.
+    // The "Where do you stand?" card and the XP line are untouched
+    // (see the checklist test above).
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
     expect(src).not.toContain('Hear the briefing');
     expect(src).not.toContain('Listen to the briefing');
     expect(src).not.toContain('reads Sentinel’s briefing out loud');
     expect(src).not.toContain('The words show as subtitles');
     expect(src).toContain('controlsOnly');
-    expect(src).toContain('onPlayingChange={setBriefingPlaying}');
+    expect(src).not.toContain('onPlayingChange');
   });
 
-  it('plays the mission opening like a video on entry — fresh attempt only', () => {
-    // Phases: open (cinematic establishing shot) -> briefing (the split
-    // briefing, one turn at a time: each robot reads their paragraph
-    // with the camera on them) -> showcase (the four devices, one at a
-    // time) -> done. A Skip button stops the voice and hands the
-    // controls over. The opening runs only on a fresh attempt: the start
-    // endpoint returns resumed: true for an in-progress attempt, and
-    // reduced motion skips it too. Each briefing turn has a 60 s safety
-    // cap so a stalled voice can never hang the sequence, and the
-    // briefing step waits for the mission to load rather than skipping
-    // on an empty turn list.
+  it('auto-plays the debrief explanation when it arrives — one tap gives text AND voice, no "Hear Cypher say it" button', () => {
+    // Spencer (2026-11-16): tapping "Ask Cypher to explain the outcome"
+    // only wrote the debrief — no voice — with a separate "Hear Cypher
+    // say it" button. The listen-first pattern (PR #78): when the
+    // explanation finishes arriving, Cypher reads the whole outcome
+    // aloud. The spoken text is the server debrief first (it opens with
+    // the congratulation) and then the explanation. Behaviour is covered
+    // by MissionWorkspace.debrief.test.jsx; this pins the wiring here.
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
-    expect(src).toContain("setOpeningPhase('briefing')");
-    expect(src).toContain("setOpeningPhase('showcase')");
-    expect(src).not.toContain("setOpeningPhase('sentinel')");
-    expect(src).not.toContain("setOpeningPhase('patch')");
-    expect(src).not.toContain("openingPhase === 'sentinel' ? 'patch' : 'showcase'");
-    expect(src).toContain('briefingTurnIdx');
-    expect(src).toContain('setBriefingTurnIdx((i) => i + 1)');
-    expect(src).toContain('splitBriefing');
-    expect(src).toContain("setOpeningPhase('done')");
-    expect(src).toContain("setOpeningPhase('done')");
-    expect(src).toContain('showcaseRef={showcaseRef}');
-    expect(src).toContain('SHOWCASE_ORDER');
-    expect(src).toContain('Skip intro');
-    expect(src).toContain('Opening the SOC…');
-    expect(src).toContain('Sentinel — server room');
-    expect(src).toContain('Patch — workshop');
-    expect(src).toContain('Equipment tour');
-    expect(src).toContain('soc-open');
-    expect(src).toContain('started.resumed');
-    expect(src).toContain('resumedAttempt');
-    expect(src).toContain('OPEN_BRIEFING_CAP_S');
-    // The briefing is read aloud from the existing mission text only:
-    // no invented lines for Sentinel or Patch anywhere in the file —
-    // every turn is one of the original briefing paragraphs (see
-    // splitBriefing in src/data/missions.js, tested there).
-    expect(src).not.toContain('Sentinel says');
-    expect(src).not.toContain('Patch says');
+    expect(src).not.toContain('Hear Cypher say it');
+    expect(src).toContain('explainAutoPlayedRef');
+    expect(src).toContain('cypherVoice.play(explainSpokenText)');
+    expect(src).toContain('[debrief?.debrief, explainText].filter(Boolean).join');
+    expect(src).toContain('He reads it aloud as soon as it arrives.');
   });
 
   it('shows no objectives checklist or progress count on the page — the terminal is the only place to check', () => {

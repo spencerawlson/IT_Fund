@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Lightbulb, MessageCircle, Pause, Play, Sparkles, Square, X, Zap } from 'lucide-react';
+import { ArrowRight, Lightbulb, MessageCircle, Sparkles, Square, X, Zap } from 'lucide-react';
 import CypherFace from '@/components/academy/tutor/CypherFace';
 import VoiceWaveform from '@/components/academy/tutor/VoiceWaveform';
 import { useTutor, useTutorEnabled } from '@/components/academy/tutor/TutorAssist';
@@ -49,14 +49,6 @@ export function presetQuestion(mode, lessonTitle, level) {
 
 const WARM_UP_MODES = ['explain', 'example', 'simplify'];
 
-// Player time: elapsed / total as m:ss ("1:24 / 3:56"). The total is the
-// decoded audio length; when it is unknown the caller shows elapsed
-// only — never a made-up total.
-export function formatPlayerTime(seconds) {
-  const s = Math.max(0, Math.floor(Number(seconds) || 0));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
-
 // Cypher on the lesson page — the floating "Ask Cypher" panel (Spencer,
 // 2026-11-16). It no longer sits in the lesson flow: an "Ask Cypher" pill
 // floats bottom-right (above the phone tab bar) and opens Cypher as a panel
@@ -67,17 +59,21 @@ export function formatPlayerTime(seconds) {
 //
 // The panel stays mounted while closed (hidden + inert), so his voice
 // keeps playing after you close it: the pill turns into a small "Cypher
-// is speaking" player with Pause / Stop and his talking face.
+// is speaking" player with Stop and his talking face.
 //
 // Inside: the 2D face (CypherFace) with a Ready / Thinking / Speaking
 // badge, the Explanation Depth segmented control, the three preset chips,
-// the black neon player card (waveform hidden until it talks, progress +
-// time, Play / Pause / Stop, a caption saying what they do), and an
-// "Ask a follow-up" box (backend chat mode, at the chosen depth).
+// and an "Ask a follow-up" box (backend chat mode, at the chosen depth).
+// The player appears only after a preset is tapped — never before:
+// while the answer is being made it shows "Getting your explanation
+// ready…" + Stop; while Cypher speaks it shows ONLY the waveform + a
+// Stop button on its left. No progress bar, no time, no Pause, no Play
+// button (Spencer, 2026-11-16 — Stop only; tapping Stop ends playback
+// and hides the player, and a preset tap replays from the beginning).
 //
 // Listen-only, as before: answers are spoken, never shown as text. If
-// voice is unavailable or muted the play button is disabled and the
-// caption says why. Asking needs a signed-in learner (the tutor spends
+// voice is unavailable or muted the presets are disabled and a note
+// under them says why. Asking needs a signed-in learner (the tutor spends
 // money and the backend answers 401 otherwise), so signed-out visitors
 // see "Sign in to ask Cypher" instead of the controls. Nothing about the
 // mission shows here: it lives in the handoff at the end of practice.
@@ -249,76 +245,45 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
     });
   };
 
-  // ---- playback state machine (Play / Pause / Stop: three states, two buttons) ----
+  // ---- playback (Stop only — no Pause, Spencer 2026-11-16) ----
   const generating = tutorLoading || voice.loading;
-  const hasExplanation = Boolean(text) && !tutorLoading && !tutorError;
-  const isPlaying = voice.playing && !voice.paused && !voice.fallback;
-  const isPaused = voice.paused && !voice.fallback;
-  // Voice can't be heard: definitively unconfigured, muted, or the last
-  // play attempt ended without audio. The play button is disabled and
-  // its caption says why — the answer text is never shown instead.
-  const voiceBlocked = voiceConfigured === false || voice.muted || voice.fallback;
-  const playDisabled = voiceBlocked || generating || (!isPlaying && !isPaused && !hasExplanation);
-  const showStop = isPlaying || isPaused || generating;
+  const isPlaying = voice.playing && !voice.fallback;
+  // The player exists only once a preset has been tapped: while the
+  // answer is being made, and while Cypher speaks it. Before that there
+  // is no player at all — no progress bar, no time, no play button.
+  // While speaking it shows ONLY the waveform + the Stop button, the
+  // button on the left of the waveform. Stop ends playback and hides
+  // the player; a preset tap replays from the beginning.
+  const showPlayer = generating || isPlaying;
   const presetDisabled = voiceConfigured === false || voice.muted || tutorLoading;
 
-  const status = generating ? 'thinking' : isPlaying ? 'speaking' : isPaused ? 'paused' : 'ready';
+  const status = generating ? 'thinking' : isPlaying ? 'speaking' : 'ready';
 
-  // Playback position for the player card from the voice hook's decoded
-  // audio clock. The waveform shows only while playing or paused.
-  const { elapsed, total } = voice.progress || { elapsed: 0, total: 0 };
-  const showWaveform = isPlaying || isPaused;
-  const progressPct = total > 0 ? Math.max(0, Math.min(100, (elapsed / total) * 100)) : 0;
-  const timeText = total > 0
-    ? `${formatPlayerTime(elapsed)} / ${formatPlayerTime(total)}`
-    : formatPlayerTime(elapsed);
-
-  // The caption says what the button does, and updates with the state.
-  let caption;
-  let captionAction = null;
-  if (generating) {
-    caption = 'Getting your explanation ready…';
-  } else if (tutorError) {
-    caption = tutorError;
+  // Status notes (not the player): why the presets are disabled, or what
+  // went wrong with the last ask. They show under the presets, so the
+  // learner always sees why — the player itself never explains.
+  let statusNote = null;
+  let statusAction = null;
+  if (tutorError) {
+    statusNote = tutorError;
   } else if (voice.error) {
-    caption = voice.error;
+    statusNote = voice.error;
   } else if (voice.fallback) {
-    caption = 'Voice unavailable — check your sound.';
-  } else if (isPlaying) {
-    caption = 'Playing — tap to pause.';
-  } else if (isPaused) {
-    caption = 'Paused — tap to continue.';
+    statusNote = 'Voice unavailable — check your sound.';
   } else if (voiceConfigured === false) {
-    caption = 'Cypher’s voice isn’t available on this server.';
+    statusNote = 'Cypher’s voice isn’t available on this server.';
   } else if (voice.muted) {
-    caption = 'Voice is muted.';
-    captionAction = { label: 'Unmute', onClick: () => voice.setMuted(false) };
-  } else if (hasExplanation) {
-    caption = 'Tap to hear it again.';
-  } else {
-    caption = 'Tap an explanation above to hear Cypher.';
+    statusNote = 'Voice is muted.';
+    statusAction = { label: 'Unmute', onClick: () => voice.setMuted(false) };
   }
 
-  const onPlayPause = () => {
-    if (playDisabled) return;
-    voice.unlock?.();
-    if (isPaused) {
-      voice.resume();
-      return;
-    }
-    if (isPlaying) {
-      voice.pause();
-      return;
-    }
-    if (hasExplanation) voice.play(text);
-  };
-
-  // Stop ends whatever is happening and resets to the start: playback
+  // Stop ends whatever is happening and hides the player: playback
   // stops, or a generation in flight is cancelled and its partial text
-  // cleared so there is nothing half-made to play.
+  // cleared so there is nothing half-made to play. A stopped answer is
+  // heard again by tapping a preset — it replays from the beginning.
   const onStop = () => {
-    if (tutorLoading) resetTutor();
-    if (voice.playing || voice.paused || voice.loading) voice.stop();
+    if (tutorLoading || tutorError) resetTutor();
+    if (voice.playing || voice.loading) voice.stop();
     autoPlayedRef.current = '';
   };
 
@@ -343,11 +308,10 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
     ready: { label: 'Ready', cls: 'border-emerald-600/20 bg-emerald-500/10 text-emerald-700', dot: 'bg-emerald-500' },
     thinking: { label: 'Thinking', cls: 'border-amber-600/25 bg-amber-500/10 text-amber-700', dot: 'bg-amber-500 animate-pulse' },
     speaking: { label: 'Speaking', cls: 'border-violet-600/25 bg-violet-500/10 text-violet-700', dot: 'bg-violet-500 animate-pulse' },
-    paused: { label: 'Paused', cls: 'border-black/10 bg-slate-100 text-ink-2', dot: 'bg-ink-3' },
   }[status];
 
   // Mini player on the pill while Cypher talks with the panel closed.
-  const miniPlayer = !open && (isPlaying || isPaused || generating);
+  const miniPlayer = !open && (isPlaying || generating);
 
   return (
     <>
@@ -369,21 +333,11 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
               <CypherFace emotion="happy" className="h-full w-full" talking={isPlaying} levelRef={voiceRef} />
             </span>
             {miniPlayer ? (
-              <span className="text-ink-2" aria-live="polite">{generating ? 'Cypher is thinking…' : isPaused ? 'Cypher paused' : 'Cypher is speaking'}</span>
+              <span className="text-ink-2" aria-live="polite">{generating ? 'Cypher is thinking…' : 'Cypher is speaking'}</span>
             ) : (
               <span>Ask Cypher</span>
             )}
           </button>
-          {miniPlayer && !generating && (
-            <button
-              type="button"
-              onClick={onPlayPause}
-              aria-label={isPlaying ? 'Pause Cypher' : 'Resume Cypher'}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white"
-            >
-              {isPlaying ? <Pause size={16} className="fill-current" /> : <Play size={16} className="fill-current" />}
-            </button>
-          )}
           {miniPlayer && (
             <button
               type="button"
@@ -518,57 +472,57 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
                 ))}
               </div>
 
-              {/* Player: part of the panel (light surface, the mockup's
-                  indigo/violet accents) — waveform (hidden until it talks),
-                  progress, time, Play / Pause / Stop, and a caption. No answer text. */}
+              {/* Status note (not the player): why the presets are disabled,
+                  or what went wrong with the last ask — so the learner
+                  always sees why, even with no player on screen. */}
+              {statusNote && (
+                <p className="mt-3 text-caption text-ink-2" aria-live="polite">
+                  {statusNote}
+                  {statusAction && (
+                    <button type="button" onClick={statusAction.onClick} className="ml-2 font-semibold text-action underline">
+                      {statusAction.label}
+                    </button>
+                  )}
+                </p>
+              )}
+
+              {/* Player: part of the panel (light surface) — it exists only
+                  once a preset has been tapped. While the answer is being
+                  made: "Getting your explanation ready…" + Stop. While
+                  Cypher speaks: ONLY the waveform + the Stop button, the
+                  button on the left of the waveform. No progress bar, no
+                  time, no Pause, no Play button. Stop ends playback and
+                  hides the player; a preset tap replays from the start.
+                  No answer text. */}
+              {showPlayer && (
               <div data-testid="cypher-player-card" className="mt-5 rounded-2xl border border-black/10 bg-slate-50 px-4 py-4">
-                {showWaveform && (
-                  <VoiceWaveform levelRef={voiceRef} active={isPlaying} paused={isPaused} tone="light" className="mb-3 h-10" />
-                )}
-                <div
-                  data-testid="cypher-progress"
-                  className="h-1.5 w-full rounded-full bg-slate-200"
-                  role="progressbar"
-                  aria-label="Playback progress"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={Math.round(progressPct)}
-                >
-                  <div data-testid="cypher-progress-fill" className="relative h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-400" style={{ width: `${progressPct}%` }}>
-                    <span className="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-violet-500 bg-white shadow" />
-                  </div>
-                </div>
-                <p data-testid="cypher-time" className="mt-2 font-mono text-caption text-ink-2">{timeText}</p>
-                <div className="mt-2 flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={onPlayPause}
-                    disabled={playDisabled}
-                    aria-label={isPlaying ? 'Pause Cypher' : isPaused ? 'Resume Cypher' : 'Play Cypher’s explanation'}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-[0_6px_18px_-6px_rgba(124,58,237,0.7)] transition hover:scale-105 active:scale-95 disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100"
-                  >
-                    {isPlaying ? <Pause size={18} className="fill-current" /> : <Play size={18} className="ml-0.5 fill-current" />}
-                  </button>
-                  {showStop && (
+                {isPlaying ? (
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={onStop}
                       aria-label="Stop Cypher"
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/15 bg-white text-ink-1 transition hover:border-black/30"
+                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/15 bg-white text-ink-1 transition hover:border-black/30"
                     >
                       <Square size={14} className="fill-current" />
                     </button>
-                  )}
-                </div>
-                <p className="mt-2 text-center text-caption text-ink-2" aria-live="polite">
-                  {caption}
-                  {captionAction && (
-                    <button type="button" onClick={captionAction.onClick} className="ml-2 font-semibold text-action underline">
-                      {captionAction.label}
+                    <VoiceWaveform levelRef={voiceRef} active tone="light" className="h-10 min-w-0 flex-1" />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-3">
+                    <p className="text-caption text-ink-2" aria-live="polite">Getting your explanation ready…</p>
+                    <button
+                      type="button"
+                      onClick={onStop}
+                      aria-label="Stop Cypher"
+                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/15 bg-white text-ink-1 transition hover:border-black/30"
+                    >
+                      <Square size={14} className="fill-current" />
                     </button>
-                  )}
-                </p>
+                  </div>
+                )}
               </div>
+              )}
 
               {/* Follow-up question */}
               <form onSubmit={askFollowUp} data-testid="cypher-follow-up" className="relative mt-5 flex items-center">

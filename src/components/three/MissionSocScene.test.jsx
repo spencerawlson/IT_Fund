@@ -118,6 +118,30 @@ describe('MissionSocScene', () => {
     expect(src).not.toContain("cypher.play('walk')");
     expect(src).not.toContain('patrolX');
   });
+
+  it('keeps the robots moving under reduced motion — only the camera is gentled', () => {
+    // Live defect (2026-11-16): with prefers-reduced-motion the whole
+    // mission froze — no robots, no briefing — because ModelViewer never
+    // called the tick. The fix: the SOC opts the tick back in, and the
+    // tick itself gentles only the camera (cuts instead of glides, no
+    // greeting tour). The tick runs only in the browser; these are
+    // source pins on the gating, like the other tick rules.
+    const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'MissionSocScene.jsx'), 'utf8');
+    // The scene opts the tick back in under reduced motion…
+    expect(src).toContain('tickUnderReducedMotion');
+    // …and the tick reads the live reduced-motion flag (stateRef is
+    // re-assigned every render, so the tick never goes stale)…
+    expect(src).toContain('showcaseRef, reducedMotion }');
+    expect(src).toContain('reducedMotion: rm');
+    // …skips the greeting tour (no glide through the three rooms)…
+    expect(src).toContain('if (rm) tourDone = true;');
+    // …snaps the camera instead of damping it…
+    expect(src).toContain('// Reduced motion: cut, never glide');
+    // …but still runs the robot updates below.
+    expect(src).toContain('cypher.update(dt)');
+    expect(src).toContain('sentinel.update(dt)');
+    expect(src).toContain('patch.update(dt)');
+  });
 });
 
 describe('robot spawns', () => {
