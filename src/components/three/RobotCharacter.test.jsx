@@ -278,7 +278,7 @@ describe('preloadMissionRobots', () => {
     };
     await expect(mod.preloadMissionRobots(fetchImpl)).resolves.toBeUndefined();
     expect(urls).toHaveLength(4);
-    for (const key of ['cypher', 'sentinel', 'patch', 'datacenter']) {
+    for (const key of ['cypher', 'sentinel', 'patch', 'soc-room']) {
       expect(urls.some((u) => u.includes(`models/${key}.glb`))).toBe(true);
     }
     // A second call reuses the in-flight/completed fetches — no new requests.

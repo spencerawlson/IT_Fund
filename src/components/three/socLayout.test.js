@@ -21,6 +21,9 @@ import {
   socFrameSize,
   patrolX,
   ambientClipFor,
+  SOC_CAMERA_FOV,
+  SOC_DEVICE_LABEL_Y,
+  SHOWCASE_TARGET_Y,
 } from './socLayout';
 
 // The three rooms inside the data center (Spencer's assignment):
@@ -147,50 +150,50 @@ describe('camera shots', () => {
     expect(CYPHER_SEAT_M.y).toBeLessThanOrEqual(r.yMax);
   });
 
-  it('seats Cypher for his shot — fixed at his chair, close and over the bank', () => {
-    // No patrol any more (concept rebuild): he sits on the chair at his
-    // desk, so his shot is fixed at CYPHER_SEAT_M — a close medium over
-    // the 1.5 m monitor bank (a south camera at his height sees the
-    // bank, not him).
+  it('seats Cypher for his shot — fixed at his chair, a close eye-level medium', () => {
+    // He sits on the chair at his desk (no patrol), so his shot is fixed
+    // on CYPHER_SEAT_M: the target sits on him, the camera stands south
+    // of him (in front — he faces south) and close.
     const shot = cypherShot();
-    expect(shot.pos[0]).toBe(CYPHER_SEAT_M.x * ROOM_SCALE);
-    expect(shot.target[0]).toBe(CYPHER_SEAT_M.x * ROOM_SCALE);
-    expect(shot.target[2]).toBe(-CYPHER_SEAT_M.y * ROOM_SCALE);
+    const seatX = CYPHER_SEAT_M.x * ROOM_SCALE;
+    const seatZ = -CYPHER_SEAT_M.y * ROOM_SCALE;
+    expect(Math.abs(shot.target[0] - seatX)).toBeLessThanOrEqual(1);
+    expect(shot.target[2]).toBe(seatZ);
+    expect(shot.pos[2]).toBeGreaterThan(seatZ);
+    expect(shotDistance(shot)).toBeLessThanOrEqual(14);
     expect(shotForSpeaker('cypher')).toEqual(shot);
     expect(shotForSpeaker('cypher', 0.35)).toEqual(shot); // the patrol x is gone
   });
 
-  it('gives each speaker a genuinely different angle — not one top-down shot nudged', () => {
-    // Spencer (2026-11-14): "everything is just in one angle". The old
-    // scene was one steep top-down shot (~48° elevation). The focus
-    // shots here are under 30° elevation, and each differs from WIDE
-    // by bearing (≥15°) or by distance (a close-up at ≤60% of WIDE's
-    // distance). WIDE itself is 32° in the concept rebuild — steeper
-    // than the old 30° bar, because the seated Cypher only clears the
-    // desk monitors from a near, high camera (ray-cast + Blender
-    // renders); the bar for WIDE is 35°. Measured bearings: WIDE 0°,
-    // CYPHER 0°, SENTINEL −25°, PATCH +34°; distances: WIDE 33.0,
-    // CYPHER 8.5, SENTINEL 33.8, PATCH 33.2.
-    expect(shotElevation(CAMERA_SHOTS.sentinel)).toBeLessThan(30);
-    expect(shotElevation(CAMERA_SHOTS.patch)).toBeLessThan(30);
-    expect(shotElevation(CAMERA_SHOTS.wide)).toBeLessThan(35);
-    expect(shotBearing(CAMERA_SHOTS.wide)).toBeCloseTo(0, 5);
-    expect(shotBearing(CAMERA_SHOTS.sentinel)).toBeCloseTo(-25, 0);
-    expect(shotBearing(CAMERA_SHOTS.patch)).toBeCloseTo(34, 0);
-    expect(Math.abs(shotBearing(CAMERA_SHOTS.sentinel) - shotBearing(CAMERA_SHOTS.patch))).toBeGreaterThanOrEqual(40);
+  it('gives each speaker a genuinely different angle — eye level, not one shot nudged', () => {
+    // Spencer (2026-11-14): "everything is just in one angle". Since the
+    // Blender-built room (2026-11-16) every shot is taken from roughly
+    // eye level INSIDE the room, like the concept render: all under 25°
+    // elevation. Each focus shot differs from WIDE by bearing (≥15°) or
+    // by distance (a close-up at ≤60% of WIDE's distance). Measured:
+    // bearings WIDE −3°, CYPHER −15°, SENTINEL −27°, PATCH −20°;
+    // distances WIDE 28.3, CYPHER 11.8, SENTINEL 9.5, PATCH 15.3.
+    for (const shot of [CAMERA_SHOTS.wide, CAMERA_SHOTS.sentinel, CAMERA_SHOTS.patch, cypherShot()]) {
+      expect(shotElevation(shot)).toBeLessThan(25);
+    }
     const wideD = shotDistance(CAMERA_SHOTS.wide);
-    expect(shotDistance(cypherShot()) / wideD).toBeLessThanOrEqual(0.6);
-    expect(Math.abs(shotBearing(CAMERA_SHOTS.sentinel) - shotBearing(CAMERA_SHOTS.wide))).toBeGreaterThanOrEqual(15);
-    expect(Math.abs(shotBearing(CAMERA_SHOTS.patch) - shotBearing(CAMERA_SHOTS.wide))).toBeGreaterThanOrEqual(15);
+    for (const shot of [cypherShot(), CAMERA_SHOTS.sentinel, CAMERA_SHOTS.patch]) {
+      const bearingDiff = Math.abs(shotBearing(shot) - shotBearing(CAMERA_SHOTS.wide));
+      const closer = shotDistance(shot) / wideD <= 0.6;
+      expect(bearingDiff >= 15 || closer).toBe(true);
+    }
   });
 
   it('gives PATCH his own camera — not a pan from SENTINEL\'s', () => {
-    // The two north-room shots shared one south-east camera (a pan,
-    // not a viewpoint). PATCH now has his own south-west camera; the
-    // positions differ in x by 24 units and the bearings by ~59°.
-    expect(CAMERA_SHOTS.patch.pos).not.toEqual(CAMERA_SHOTS.sentinel.pos);
-    expect(CAMERA_SHOTS.patch.pos[0]).toBeLessThan(0);
-    expect(CAMERA_SHOTS.sentinel.pos[0]).toBeGreaterThan(0);
+    // Two north-room shots from one camera would be a pan, not a
+    // viewpoint: PATCH's camera stands in the desk room's east side
+    // (looking through the workshop doorway), SENTINEL's further west in
+    // front of the server room glass — ≥6 units (1.2 m) apart (measured
+    // 7.1), each aimed at its own robot.
+    const [a, b] = [CAMERA_SHOTS.patch.pos, CAMERA_SHOTS.sentinel.pos];
+    expect(Math.hypot(a[0] - b[0], a[2] - b[2])).toBeGreaterThanOrEqual(6);
+    expect(CAMERA_SHOTS.patch.target).not.toEqual(CAMERA_SHOTS.sentinel.target);
+    expect(CAMERA_SHOTS.patch.pos[0]).toBeGreaterThan(CAMERA_SHOTS.sentinel.pos[0]);
   });
 
   it('makes the robot body boxes facing-aware — width across, depth along', () => {
@@ -237,7 +240,7 @@ describe('device showcase', () => {
       // toBeCloseTo: GUEST's z is -0 (Blender y 0.0 x -5), the shot's is 0.
       expect(shot.target[0]).toBeCloseTo(pos[id].x, 5);
       expect(shot.target[2]).toBeCloseTo(pos[id].z, 5);
-      expect(shot.target[1]).toBe(3.7);
+      expect(shot.target[1]).toBe(SHOWCASE_TARGET_Y);
       expect(shotDistance(shot)).toBeLessThanOrEqual(15);
       expect(shotElevation(shot)).toBeLessThanOrEqual(35);
     }
@@ -253,8 +256,8 @@ describe('device showcase', () => {
     // device-footprint bottom (y = 0) must both sit inside 21° for every
     // showcase shot, or the label (or the device) is cut off. At the old
     // target y = 3.5 GUEST's label top was ~21.2° — outside.
-    const HALF_FOV_DEG = 21;
-    const LABEL_TOP_Y = 5.6 + (1.1 * 1.6) / 2;
+    const HALF_FOV_DEG = SOC_CAMERA_FOV / 2;
+    const LABEL_TOP_Y = SOC_DEVICE_LABEL_Y + (1.1 * 1.6) / 2;
     const pos = socPositions();
     const angleTo = (shot, point) => {
       const v = [shot.target[0] - shot.pos[0], shot.target[1] - shot.pos[1], shot.target[2] - shot.pos[2]];

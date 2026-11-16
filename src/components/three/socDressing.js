@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import {
   ROOM_SCALE,
   H_PARTITION_Y_M,
-  ROBOT_SPOTS_M,
-  CYPHER_SEAT_M,
 } from '@/components/three/socLayout';
 
 // The concept look (Spencer's render, 2026-11-14) on top of PR #63's
@@ -42,10 +40,14 @@ export const SOC_DRESSING = {
     opacity: 0.14,
   },
   // Hanging signs (Blender metres): plate + two rods to the ceiling.
+  // Wall-mounted, like the concept render (2026-11-16 rebuild): Cypher's
+  // plate on the front of his desk, Sentinel's and Patch's on the glass
+  // partition in front of their rooms, facing the cameras (south). No rods.
+  // x/y/zM are the plate centre in Blender metres; wM/hM its size.
   signs: [
-    { key: 'cypher', title: 'Cypher', sub: 'AI Learning Agent', x: CYPHER_SEAT_M.x, y: -1.0 },
-    { key: 'sentinel', title: 'Sentinel', sub: 'Infrastructure & Security', x: ROBOT_SPOTS_M.sentinel.work.x, y: 1.0 },
-    { key: 'patch', title: 'Patch', sub: 'Lab & Printing (3D / Fabrication)', x: ROBOT_SPOTS_M.patch.work.x, y: 1.0 },
+    { key: 'cypher', title: 'Cypher', sub: 'AI Learning Agent', x: -0.37, y: -0.6, zM: 0.45, wM: 0.46, hM: 0.15 },
+    { key: 'sentinel', title: 'Sentinel', sub: 'Infrastructure & Security', x: -0.68, y: H_PARTITION_Y_M - 0.03, zM: 2.28, wM: 0.9, hM: 0.28 },
+    { key: 'patch', title: 'Patch', sub: 'Lab & Printing (3D / Fabrication)', x: 2.0, y: H_PARTITION_Y_M - 0.03, zM: 2.28, wM: 0.78, hM: 0.25 },
   ],
   signPlateM: { w: 0.9, h: 0.28 },
   signCentreZM: 2.0,
@@ -131,7 +133,7 @@ function plateMesh(texture, wUnits, hUnits, name) {
   return mesh;
 }
 
-/** A hanging nameplate sign (plate + rods), or null without a canvas. */
+/** A wall-mounted nameplate sign (one glowing plate), or null without a canvas. */
 export function makeSign(sign, { createCanvas } = {}) {
   const texture = canvasTexture(createCanvas, SIGN_CANVAS_W, SIGN_CANVAS_H,
     (ctx, w, h) => drawSign(ctx, w, h, sign.title, sign.sub));
@@ -140,29 +142,16 @@ export function makeSign(sign, { createCanvas } = {}) {
   group.name = `soc-sign-${sign.key}`;
   const plate = plateMesh(
     texture,
-    SOC_DRESSING.signPlateM.w * ROOM_SCALE,
-    SOC_DRESSING.signPlateM.h * ROOM_SCALE,
+    (sign.wM ?? SOC_DRESSING.signPlateM.w) * ROOM_SCALE,
+    (sign.hM ?? SOC_DRESSING.signPlateM.h) * ROOM_SCALE,
     `soc-sign-plate-${sign.key}`,
   );
   plate.position.set(
     sign.x * ROOM_SCALE,
-    SOC_DRESSING.signCentreZM * ROOM_SCALE,
+    (sign.zM ?? SOC_DRESSING.signCentreZM) * ROOM_SCALE,
     -sign.y * ROOM_SCALE,
   );
   group.add(plate);
-  const rodMat = new THREE.MeshBasicMaterial({ color: 0x334155 });
-  // Rods run from the plate top (2.14 m) to the ceiling (2.70 m).
-  const rodGeo = new THREE.BoxGeometry(0.08, 0.56 * ROOM_SCALE, 0.08);
-  for (const dx of [-0.35, 0.35]) {
-    const rod = new THREE.Mesh(rodGeo, rodMat);
-    rod.position.set(
-      (sign.x + dx) * ROOM_SCALE,
-      2.42 * ROOM_SCALE,
-      -sign.y * ROOM_SCALE,
-    );
-    rod.name = `soc-sign-rod-${sign.key}`;
-    group.add(rod);
-  }
   return group;
 }
 
@@ -204,47 +193,15 @@ function glassMaterial() {
  * drops the signs/screen).
  */
 export function buildSocDressing({ createCanvas } = {}) {
+  // Since the Blender-built room (soc-room.glb, 2026-11-16) the glass
+  // partitions and the R2C wall display are part of the room itself, so
+  // the dressing is just the three nameplate signs (canvas textures;
+  // skipped headless). makeScreen / glassMaterial stay exported for reuse.
   const group = new THREE.Group();
   group.name = 'soc-dressing';
-  const m = ROOM_SCALE;
-  const glass = SOC_DRESSING.glass;
-
-  // --- Glass panes in the H-wall doorway + slim frames.
-  const glassMat = glassMaterial();
-  const frameMat = new THREE.MeshBasicMaterial({ color: 0x1f2937 });
-  for (const pane of glass.panes) {
-    const wM = pane.xMax - pane.xMin;
-    const paneMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(wM * m, glass.heightM * m),
-      glassMat,
-    );
-    paneMesh.name = 'soc-glass-pane';
-    paneMesh.position.set(
-      ((pane.xMin + pane.xMax) / 2) * m,
-      (glass.heightM / 2) * m,
-      -glass.wallY * m,
-    );
-    group.add(paneMesh);
-    // Frame: top rail + two side stiles (the floor is the bottom rail).
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(wM * m, glass.frameM * m, glass.frameM * m), frameMat);
-    rail.name = 'soc-glass-frame';
-    rail.position.set(((pane.xMin + pane.xMax) / 2) * m, glass.heightM * m, -glass.wallY * m);
-    group.add(rail);
-    for (const xM of [pane.xMin, pane.xMax]) {
-      const stile = new THREE.Mesh(new THREE.BoxGeometry(glass.frameM * m, glass.heightM * m, glass.frameM * m), frameMat);
-      stile.name = 'soc-glass-frame';
-      stile.position.set(xM * m, (glass.heightM / 2) * m, -glass.wallY * m);
-      group.add(stile);
-    }
-  }
-
-  // --- Hanging signs + R2C screen (canvas textures; skipped headless).
   for (const sign of SOC_DRESSING.signs) {
     const built = makeSign(sign, { createCanvas });
     if (built) group.add(built);
   }
-  const screen = makeScreen({ createCanvas });
-  if (screen) group.add(screen);
-
   return group;
 }

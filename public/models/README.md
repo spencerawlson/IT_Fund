@@ -58,6 +58,7 @@ Meshy N1 regenerations).
 | `sentinel.glb` | Sentinel, the commander robot in the SOC room. Spencer's own Meshy AI generation, same rig shape as Cypher (1.70 m, 20,000 triangles, 24 bones, 6 clips). |
 | `patch.glb` | Patch, the systems-engineer robot in the SOC room. Spencer's own Meshy AI generation, same rig shape (1.70 m, 1.40 m wide on tank treads, 20,000 triangles, 24 bones, 6 clips — his walk is a bob/rock, driven as-is). |
 | `datacenter.glb` | The data-center room the SOC scene lives in. Spencer's own Meshy AI generation, 4.85 × 2.70 × 5.21 m, 60,000 triangles, static (no bones, no clips). |
+| `soc-room.glb` | The mission SOC room since 2026-11-16 — built in Blender from `assets/blender/soc-room/` (see its README) to the same measured layout as `datacenter.glb`: white SOC, blue LED coves, glass partitions, Cypher's desk + monitor wall, Sentinel's racks, Patch's workshop. ~11k triangles, 1.1 MB. `datacenter.glb` stays for the lesson handoff's backdrop. |
 
 Keep each model reasonably low-poly (ideally < 1–2 MB) — they're scaled to a
 uniform footprint, so absolute size/orientation don't need to match, but a model

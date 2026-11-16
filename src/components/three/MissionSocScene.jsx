@@ -16,15 +16,22 @@ import {
   CYPHER_SEAT_M,
   spotToScene,
   socPositions,
-  placeDataCenterRoom,
+  placeSocRoom,
+  SOC_CAMERA_FOV,
+  SOC_DEVICE_FOOTPRINT,
+  SOC_DEVICE_LABEL_Y,
   shotForSpeaker,
   deviceShot,
   ambientClipFor,
   CAMERA_SHOTS,
 } from '@/components/three/socLayout';
 
-// The three Meshy robots live IN the data-center room (public/models/
-// datacenter.glb, 4.85 x 5.21 m, ceiling 2.70 m), at 5.0x scale — the
+// The three Meshy robots live IN the SOC room. Since 2026-11-16 that room
+// is public/models/soc-room.glb, built in Blender (assets/blender/soc-room/)
+// to the same measured layout as the original Meshy data center
+// (4.85 x 5.21 m, ceiling 2.70 m, partitions at y 0.18 / x 0.42 m) and
+// extended 2.4 m south so the eye-level cameras can stand back. Below is
+// the original description of the layout, which still holds; at 5.0x scale — the
 // room reads at device scale, so the real-scale 1.70 m robots are scaled
 // 5x to stand beside the 4-unit devices. The data center itself HAS
 // three rooms (Spencer's correction, verified against the real mesh):
@@ -107,7 +114,62 @@ export const SOC_DEVICES = [
 /** Pure layout: device id -> { x, z } on the room floor (scene units). */
 export { socPositions } from '@/components/three/socLayout';
 
-const FOOTPRINT = 4;
+// Device size: SOC_DEVICE_FOOTPRINT (socLayout.js — 0.52 m, a real
+// desktop tower). Labels sit at SOC_DEVICE_LABEL_Y.
+const FOOTPRINT = SOC_DEVICE_FOOTPRINT;
+
+
+// The room's own light rig (ModelViewer stage="none": no studio lights,
+// grid or fog). Bright, cool office light from the ceiling panels, a key
+// light for soft robot shadows, and a little blue bounce from the LEDs.
+export function addSocLights(scene) {
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc9d4e3, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 0.75);
+  key.position.set(6, 40, 18);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  Object.assign(key.shadow.camera, { left: -16, right: 16, top: 16, bottom: -16, near: 1, far: 80 });
+  key.shadow.bias = -0.0004;
+  key.shadow.normalBias = 0.03;
+  scene.add(key);
+  for (const [x, z, color, intensity] of [
+    [-6, 8, 0xffffff, 14], [6, 8, 0xffffff, 12], // desk room
+    [0, 18, 0xffffff, 10], // south (camera side)
+    [-5, -7, 0xdbeafe, 14], [7, -7, 0xffffff, 12], // server room / workshop
+    [-9, 2, 0x60a5fa, 10], // blue bounce by the desk LEDs
+  ]) {
+    const l = new THREE.PointLight(color, intensity, 30, 1.6);
+    l.position.set(x, 12.5, z);
+    scene.add(l);
+  }
+}
+
+// Material fix-ups on the loaded room: real see-through glass, glossy
+// floor, shadows on furniture (the room loads after ModelViewer's own
+// cast/receive pass, so it is done here).
+export function prepareSocRoom(room) {
+  room.traverse((obj) => {
+    if (!obj.isMesh) return;
+    const name = obj.material?.name || '';
+    obj.receiveShadow = true;
+    obj.castShadow = !/^(Glass|LED|LightPanel|Floor|FloorServer|Ceiling|CeilingGrid|Wall)$/.test(name);
+    if (name === 'Glass') {
+      obj.material.transparent = true;
+      obj.material.opacity = 0.12;
+      obj.material.depthWrite = false;
+      obj.material.roughness = 0.05;
+      obj.material.metalness = 0.1;
+      obj.renderOrder = 2;
+    } else if (name === 'LightPanel') {
+      // Bright white, not blown out (it would read as a hole in the ceiling).
+      obj.material.emissiveIntensity = 1.6;
+    } else if (name === 'Floor') {
+      obj.material.roughness = 0.14;
+      obj.material.envMapIntensity = 1.3;
+    }
+  });
+  return room;
+}
 // Seconds per robot on the greeting tour, and the greeting clip's window:
 // ambient work only starts once each robot has had time to greet.
 const TOUR_PHASE_S = 2.5;
@@ -152,8 +214,14 @@ export default function MissionSocScene({
   // current shot.
   const cameraRef = useRef(null);
 
-  const buildScene = useCallback((scene) => {
+  const buildScene = useCallback((scene, { camera: sceneCamera } = {}) => {
     const pos = socPositions();
+    // Eye-level shots inside the room need a wider lens than the studio's 42°.
+    if (sceneCamera) {
+      sceneCamera.fov = SOC_CAMERA_FOV;
+      sceneCamera.updateProjectionMatrix();
+    }
+    addSocLights(scene);
     let cypher = null;
     let sentinel = null;
     let patch = null;
@@ -172,19 +240,18 @@ export default function MissionSocScene({
     // The camera target the tick is damping toward.
     const currentTarget = new THREE.Vector3(...SOC_CAMERA_TARGET);
 
-    // The concept dressing (glass, signs, screen) is procedural
-    // and needs no asset: it goes in immediately, even if the room GLB
-    // fails to load.
+    // The nameplate signs are procedural and need no asset: they go in
+    // immediately, even if the room GLB fails to load.
     scene.add(buildSocDressing());
 
-    // The data-center room itself: the environment the robots live in.
-    // If it fails to load, the robots and devices still stand on the
-    // void floor — the mission still works.
-    loadDeviceModel('datacenter')
+    // The room itself (public/models/soc-room.glb, built in Blender from
+    // assets/blender/soc-room/ to the measured layout): walls, glass,
+    // desk, monitors, racks, workshop. If it fails to load, the robots and
+    // devices still stand in the lit void — the mission still works.
+    loadDeviceModel('soc-room')
       .then((room) => {
-        // Floor at y = 0 (the room's walkable surface, 0.17 m above its
-        // bbox min) — the robots and devices stand on it, not under it.
-        placeDataCenterRoom(room, ROOM_SCALE);
+        placeSocRoom(room, ROOM_SCALE);
+        prepareSocRoom(room);
         scene.add(room);
       })
       .catch(() => { /* room missing/unparseable — robots still present */ });
@@ -259,7 +326,10 @@ export default function MissionSocScene({
       scene.add(fallback);
 
       const label = makeLabel(d.id, { height: 1.1 });
-      label.position.set(p.x, FOOTPRINT + 1.6, p.z);
+      label.position.set(p.x, SOC_DEVICE_LABEL_Y, p.z);
+      // Device tags only show while the opening tours the devices; the
+      // rest of the time the room stays uncluttered.
+      label.visible = false;
       labels[d.id] = { sprite: label, baseScale: label.scale.clone() };
       scene.add(label);
 
@@ -305,6 +375,7 @@ export default function MissionSocScene({
       for (const [id, { sprite, baseScale }] of Object.entries(labels)) {
         const s = id === showcase ? 1.6 : 1;
         sprite.scale.set(baseScale.x * s, baseScale.y * s, baseScale.z);
+        sprite.visible = Boolean(showcase);
       }
       const camera = cameraRef.current;
       // --- Showcase cuts, not glides. A showcase change snaps the camera
@@ -403,6 +474,8 @@ export default function MissionSocScene({
         onRendererFailed={onRendererFailed}
         interactive={false}
         cameraRef={cameraRef}
+        stage="none"
+        exposure={0.95}
       />
     </div>
   );
