@@ -124,6 +124,13 @@ export const AuthProvider = ({ children, initialAuth }) => {
   );
 };
 
+/**
+ * Like useAuth, but returns null outside AuthProvider instead of throwing —
+ * for components that also render in isolation (tests, previews) and treat
+ * "no auth context" as "sign-in state unknown".
+ */
+export const useOptionalAuth = () => useContext(AuthContext);
+
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

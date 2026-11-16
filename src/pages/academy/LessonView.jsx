@@ -174,15 +174,13 @@ export default function LessonView() {
         </div>
       )}
 
-      {/* Cypher's lesson panel: ungated — it renders on every lesson page,
-          not just the one with a mission. The panel is a shared component,
-          so this one change reaches all 222 lessons; `missionId` is
-          undefined for most of them (it only feeds the panel_opened
-          analytics event). The guided deck lessons
+      {/* Cypher: ungated — on every lesson page, not just the one with a
+          mission (`missionId` only feeds the panel_opened analytics event).
+          Since 2026-11-16 it is a floating "Ask Cypher" pill + slide-in
+          panel (bottom sheet on phones), so it takes no space in the lesson
+          flow: the lesson starts at the top. The guided deck lessons
           (/academy/:trackId/lesson/:deckId) are a different surface and
-          don't use it — they have no reading body to ground on. The panel
-          renders its own section Card plus the standalone player card as
-          a sibling below it, so the player is never nested inside a card. */}
+          don't use it — they have no reading body to ground on. */}
       <CypherLessonPanel lesson={lesson} missionId={missionId} lessonText={lessonTextFromContent(c)} furtherReading={c.further_reading} />
 
       {sections.length > 2 && (

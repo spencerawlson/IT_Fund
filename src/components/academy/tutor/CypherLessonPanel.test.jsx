@@ -4,7 +4,6 @@ import { renderToString } from 'react-dom/server';
 import TestRenderer from 'react-test-renderer';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StaticRouter } from 'react-router-dom';
-import { Card } from '@/components/ui-glass';
 import CypherLessonPanel, { presetQuestion, formatPlayerTime } from './CypherLessonPanel';
 import { __clearVoiceCache } from '@/api/voice';
 
@@ -27,6 +26,9 @@ vi.mock('@/api/tutor', () => ({
   streamTutor: (...args) => tutorMocks.streamTutor(...args),
 }));
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
+// Sign-in state: null = no auth context (state unknown, treated as signed in).
+const authState = vi.hoisted(() => ({ value: null }));
+vi.mock('@/lib/AuthContext', () => ({ useOptionalAuth: () => authState.value }));
 
 // SSR: effects (analytics, tutor status) do not run, so the panel renders
 // its first paint — greeting, difficulty selector, and the three
@@ -44,7 +46,7 @@ function renderPanel(props) {
 }
 
 describe('CypherLessonPanel', () => {
-  it('renders the difficulty levels, with exactly three buttons and no mission section, no question box, no greeting, and no Read answer', () => {
+  it('renders the depth levels as a segmented control, the follow-up box, and no mission section, no greeting, and no Read answer', () => {
     const html = renderPanel({
       lesson: { id: 'net-security', title: 'Network Security', trackId: 'net' },
       missionId: 'op-broken-shield',
@@ -55,22 +57,27 @@ describe('CypherLessonPanel', () => {
     expect(html).not.toContain('Hi, I’m Cypher');
     expect(html).not.toContain('Stuck on a concept');
     expect(html).not.toContain('Read answer');
-    // SSR renders `{label} level` as `Beginner<!-- --> level`, so assert the
-    // option values (contiguous in the HTML) instead of the joined text.
-    expect(html).toContain('value="beginner"');
-    expect(html).toContain('value="intermediate"');
-    expect(html).toContain('value="advanced"');
+    // The depth selector is a segmented control (radiogroup), not a select.
+    expect(html).toContain('role="radiogroup"');
+    expect(html).toContain('data-level="beginner"');
+    expect(html).toContain('data-level="intermediate"');
+    expect(html).toContain('data-level="advanced"');
+    expect(html).not.toContain('<select');
     expect(html).toContain('Explanation difficulty level');
     // The three explanation buttons render only once the tutor-status
     // query resolves (client-side) — in SSR the tutor is not yet known to
     // be enabled, so the panel shows the unavailable fallback instead.
     // The mounted test asserts the three exact labels and no fourth button.
     expect(html).toContain('The AI tutor isn’t available on this server right now.');
-    // No question box and no Ask button: free-form questions belong to
-    // Ask the Tutor, not to this panel.
+    // Until the tutor is known to be enabled there is no follow-up box and
+    // no floating pill either (both need a working tutor).
     expect(html).not.toContain('<input');
-    expect(html).not.toContain('Ask Cypher');
-    expect(html).not.toContain('Ask the Tutor');
+    expect(html).not.toContain('data-testid="cypher-launcher"');
+    // The panel itself is rendered (closed: hidden + inert) so the voice can
+    // keep playing after the learner closes it.
+    expect(html).toContain('data-testid="cypher-panel"');
+    expect(html).toContain('data-open="false"');
+    expect(html).toContain('inert=""');
     // No mission section at all: the mission opens only from the handoff's
     // Launch Mission button after practice — nothing about Operation
     // Broken Shield shows on the lesson page.
@@ -253,8 +260,23 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     return root.root.findAllByType('button').find((b) => b.children?.some((c) => typeof c === 'string' && c.includes(label)));
   }
 
+  function panelNode() {
+    return root.root.findByProps({ 'data-testid': 'cypher-panel' });
+  }
+
+  // Scoped to the panel: while Cypher talks with the panel closed, the
+  // floating pill shows its own Pause / Stop with the same labels.
   function findButtonByAria(label) {
-    return root.root.findAllByType('button').find((b) => b.props['aria-label'] === label);
+    return panelNode().findAllByType('button').find((b) => b.props['aria-label'] === label);
+  }
+
+  function launcher() {
+    return root.root.findAllByProps({ 'data-testid': 'cypher-launcher' })[0];
+  }
+
+  function findLauncherButton(label) {
+    const l = launcher();
+    return l ? l.findAllByType('button').find((b) => b.props['aria-label'] === label) : undefined;
   }
 
   function playerCard() {
@@ -339,7 +361,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(treeText()).not.toContain(SPOKEN);
   });
 
-  it('each button requests its tutor mode directly, with no question box on screen', async () => {
+  it('each preset requests its tutor mode directly, without typing', async () => {
     mountPanel();
     await flush();
     // The play button plus exactly three presets — and no fourth preset:
@@ -349,9 +371,8 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(findButton('Explain it more simply')).toBeTruthy();
     expect(findButton('Quiz me')).toBeFalsy();
     expect(findButtonByAria('Play Cypher’s explanation')).toBeTruthy();
-    // No input box anywhere: the buttons ask directly.
-    expect(root.root.findAllByType('input').length).toBe(0);
-    expect(findButton('Ask')).toBeFalsy();
+    // The presets ask directly — the only input is the follow-up box.
+    expect(root.root.findAllByType('input').length).toBe(1);
     // Each button sends its own mode plus the question the mode needs,
     // built from the lesson context — no typing involved.
     const cases = [
@@ -512,7 +533,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     TestRenderer.act(() => { findButtonByAria('Stop Cypher').props.onClick(); });
     await TestRenderer.act(async () => { gate.resolve(); });
     await flush();
-    expect(treeText()).toContain('Tap an explanation below to hear Cypher.');
+    expect(treeText()).toContain('Tap an explanation above to hear Cypher.');
     expect(findButtonByAria('Stop Cypher')).toBeFalsy();
     expect(treeText()).not.toContain(answerFor('explain'));
   });
@@ -555,30 +576,20 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(tutorMocks.streamTutor.mock.calls.length).toBe(2);
   });
 
-  it('the preset buttons sit lower and centred, with the player card under them inside the section card, next to the face', async () => {
+  it('the panel holds, in order: depth selector, presets, the neon player card, then the follow-up box', async () => {
     mountPanel();
     await flush();
-    const presets = presetsRow();
-    expect(presets.props.className).toContain('justify-center');
-    expect(presets.props.className).toContain('mt-6');
-    // DOM order: the level selector first, then the presets, then the
-    // player card under them.
-    expect(treeText().indexOf('Explanation difficulty level')).toBeLessThan(treeText().indexOf('cypher-presets'));
-    expect(treeText().indexOf('cypher-presets')).toBeLessThan(treeText().indexOf('cypher-player-card'));
-    // The player lives INSIDE the section Card's right column, next to
-    // the face (Spencer 2026-11-15: next to the head, not below the
-    // section) — a descendant of the Card, not a sibling after it.
-    const card = root.root.findByType(Card);
-    expect(() => card.findByProps({ 'data-testid': 'cypher-player-card' })).not.toThrow();
-    // The player card is the mockup's black neon card: black, very large
-    // rounded corners — not the white lesson-panel card. It sits below
-    // the presets (mt-6) and carries no bottom margin of its own — the
-    // section Card holds that spacing.
-    expect(playerCard().props.className).toContain('bg-black');
-    expect(playerCard().props.className).toContain('rounded-[2rem]');
-    expect(playerCard().props.className).toContain('mt-6');
-    expect(playerCard().props.className).not.toContain('mb-8');
-    // The old play area is gone.
+    const order = ['Explanation difficulty level', 'cypher-presets', 'cypher-player-card', 'cypher-follow-up'];
+    for (let i = 1; i < order.length; i++) {
+      expect(treeText().indexOf(order[i - 1])).toBeLessThan(treeText().indexOf(order[i]));
+    }
+    // Everything lives inside the floating panel, not in the lesson flow.
+    expect(() => panelNode().findByProps({ 'data-testid': 'cypher-player-card' })).not.toThrow();
+    expect(() => panelNode().findByProps({ 'data-testid': 'cypher-presets' })).not.toThrow();
+    expect(panelNode().props.className).toContain('fixed');
+    // The player is part of the panel's light surface — no black card.
+    expect(playerCard().props.className).not.toContain('bg-black');
+    expect(playerCard().props.className).toContain('bg-slate-50');
     expect(treeText()).not.toContain('cypher-play-area');
   });
 
@@ -611,13 +622,13 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(root.root.findByProps({ 'data-testid': 'cypher-progress' }).props['aria-valuenow']).toBe(0);
   });
 
-  it('the player buttons are circular with a light outline on black — the mockup look, not all three at once', async () => {
+  it('the player buttons are circular, Play in the indigo-violet gradient — not all three at once', async () => {
     mountPanel();
     await flush();
     const play = findButtonByAria('Play Cypher’s explanation');
     expect(play.props.className).toContain('rounded-full');
-    expect(play.props.className).toContain('border-white/40');
-    expect(play.props.className).toContain('bg-black');
+    expect(play.props.className).toContain('from-indigo-600');
+    expect(play.props.className).not.toContain('bg-black');
     // Idle: only Play shows — no Pause, no Stop (the mockup's still shows
     // all three at once; Spencer's confirmed behaviour shows Play only).
     expect(findButtonByAria('Pause Cypher')).toBeFalsy();
@@ -628,7 +639,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     const stop = findButtonByAria('Stop Cypher');
     expect(stop).toBeTruthy();
     expect(stop.props.className).toContain('rounded-full');
-    expect(stop.props.className).toContain('border-white/40');
+    expect(stop.props.className).toContain('bg-white');
     // No download button anywhere in the panel.
     expect(treeText()).not.toContain('Download');
   });
@@ -670,7 +681,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     // and the presets enable.
     TestRenderer.act(() => { findButton('Unmute').props.onClick(); });
     await flush();
-    expect(treeText()).toContain('Tap an explanation below to hear Cypher.');
+    expect(treeText()).toContain('Tap an explanation above to hear Cypher.');
     expect(findButton('Explain this concept').props.disabled).toBe(false);
   });
 
@@ -694,5 +705,145 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(root.root.findAllByType('video').length).toBe(0);
     const imgs = root.root.findAllByType('img');
     expect(imgs.find((i) => i.props.src === '/images/cypher-face-happy.png')).toBeTruthy();
+  });
+});
+
+describe('CypherLessonPanel floating panel (mounted)', () => {
+  let root;
+  let voiceStatus;
+  let keyListeners = [];
+
+  beforeEach(() => {
+    globalThis.window = globalThis.window || {};
+    globalThis.window.matchMedia = () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} });
+    // The open panel listens for Escape on window.
+    keyListeners = [];
+    globalThis.window.addEventListener = (type, fn) => keyListeners.push([type, fn]);
+    globalThis.window.removeEventListener = (type, fn) => { keyListeners = keyListeners.filter(([t, f]) => t !== type || f !== fn); };
+    globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+    voiceStatus = { configured: true, characters: { cypher: true } };
+    globalThis.fetch = vi.fn(async (url) => {
+      if (String(url).includes('/voice/status')) return { ok: true, json: async () => voiceStatus };
+      return { ok: false, status: 503, json: async () => ({}) };
+    });
+    tutorMocks.fetchTutorStatus.mockResolvedValue({ enabled: true });
+    tutorMocks.streamTutor.mockReset();
+    tutorMocks.streamTutor.mockImplementation(async () => '');
+    authState.value = null;
+  });
+
+  afterEach(() => {
+    TestRenderer.act(() => root?.unmount());
+    root = null;
+  });
+
+  async function flush(times = 5) {
+    for (let i = 0; i < times; i++) {
+      await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    }
+  }
+
+  function mount() {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    TestRenderer.act(() => {
+      root = TestRenderer.create(
+        <QueryClientProvider client={queryClient}>
+          <StaticRouter location="/academy/lessons/net-security">
+            <CypherLessonPanel lesson={{ id: 'net-security', title: 'Network Security', trackId: 'net' }} lessonText="Firewalls filter traffic." />
+          </StaticRouter>
+        </QueryClientProvider>,
+      );
+    });
+  }
+
+  const panel = () => root.root.findByProps({ 'data-testid': 'cypher-panel' });
+  const launcher = () => root.root.findAllByProps({ 'data-testid': 'cypher-launcher' })[0];
+  const byAria = (node, label) => node.findAllByType('button').find((b) => b.props['aria-label'] === label);
+
+  it('starts closed with an "Ask Cypher" pill; the pill opens the panel and Close shuts it', async () => {
+    mount();
+    await flush();
+    expect(panel().props['data-open']).toBe('false');
+    expect(panel().props.inert).toBe('');
+    const ask = byAria(launcher(), 'Ask Cypher');
+    expect(ask).toBeTruthy();
+    TestRenderer.act(() => ask.props.onClick());
+    expect(panel().props['data-open']).toBe('true');
+    expect(panel().props.inert).toBeUndefined();
+    // The pill hides while the panel is open.
+    expect(launcher()).toBeUndefined();
+    TestRenderer.act(() => byAria(panel(), 'Close Cypher').props.onClick());
+    expect(panel().props['data-open']).toBe('false');
+    expect(launcher()).toBeTruthy();
+    // Escape closes it too.
+    TestRenderer.act(() => byAria(launcher(), 'Ask Cypher').props.onClick());
+    expect(panel().props['data-open']).toBe('true');
+    const onKey = keyListeners.find(([t]) => t === 'keydown')[1];
+    TestRenderer.act(() => onKey({ key: 'Escape' }));
+    expect(panel().props['data-open']).toBe('false');
+  });
+
+  it('is a side panel on a computer and a bottom sheet on a phone', async () => {
+    mount();
+    await flush();
+    const cls = panel().props.className;
+    expect(cls).toContain('bottom-0');
+    expect(cls).toContain('rounded-t-3xl');
+    expect(cls).toContain('max-h-[85dvh]');
+    expect(cls).toContain('sm:right-3');
+    expect(cls).toContain('sm:w-[440px]');
+  });
+
+  it('the follow-up box asks in chat mode, at the chosen depth, about this lesson', async () => {
+    mount();
+    await flush();
+    TestRenderer.act(() => panel().findByProps({ 'data-level': 'advanced' }).props.onClick());
+    const input = panel().findByType('input');
+    TestRenderer.act(() => input.props.onChange({ target: { value: 'Why does order matter in firewall rules?' } }));
+    const form = panel().findByProps({ 'data-testid': 'cypher-follow-up' });
+    TestRenderer.act(() => form.props.onSubmit({ preventDefault: () => {} }));
+    await flush();
+    const call = tutorMocks.streamTutor.mock.calls.at(-1)[0];
+    expect(call.mode).toBe('chat');
+    expect(call.level).toBe('advanced');
+    expect(call.track).toBe('Network Security');
+    expect(call.messages).toEqual([{ role: 'user', content: 'Why does order matter in firewall rules?' }]);
+    // The box clears after sending.
+    expect(panel().findByType('input').props.value).toBe('');
+  });
+
+  it('the depth selector is a radiogroup with one checked level', async () => {
+    mount();
+    await flush();
+    const radios = panel().findAllByProps({ role: 'radio' }).filter((n) => n.type === 'button');
+    expect(radios.map((r) => r.props['data-level'])).toEqual(['beginner', 'intermediate', 'advanced']);
+    expect(radios.filter((r) => r.props['aria-checked']).map((r) => r.props['data-level'])).toEqual(['intermediate']);
+    TestRenderer.act(() => radios[0].props.onClick());
+    const after = panel().findAllByProps({ role: 'radio' }).filter((n) => n.type === 'button');
+    expect(after.filter((r) => r.props['aria-checked']).map((r) => r.props['data-level'])).toEqual(['beginner']);
+  });
+
+  it('signed-out learners see "Sign in to ask Cypher" instead of the controls, and nothing is generated', async () => {
+    authState.value = { authChecked: true, isAuthenticated: false };
+    mount();
+    await flush();
+    expect(() => panel().findByProps({ 'data-testid': 'cypher-signin' })).not.toThrow();
+    expect(JSON.stringify(root.toJSON())).toContain('Sign in to ask Cypher');
+    expect(panel().findAllByProps({ 'data-testid': 'cypher-presets' })).toHaveLength(0);
+    expect(panel().findAllByType('input')).toHaveLength(0);
+    // No background warm-up for a learner the backend would refuse.
+    expect(tutorMocks.streamTutor).not.toHaveBeenCalled();
+  });
+
+  it('shows the tutor error in the caption (e.g. the backend refused the request)', async () => {
+    // Every tutor call fails as the backend does for a 401 (the silent
+    // warm-up swallows its failure; the tapped preset surfaces it).
+    tutorMocks.streamTutor.mockImplementation(async () => { throw new Error('Sign in to use the AI tutor.'); });
+    mount();
+    await flush();
+    const btn = panel().findAllByType('button').find((b) => b.children?.some((c) => typeof c === 'string' && c.includes('Explain this concept')));
+    TestRenderer.act(() => btn.props.onClick());
+    await flush();
+    expect(JSON.stringify(root.toJSON())).toContain('Sign in to use the AI tutor.');
   });
 });

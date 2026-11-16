@@ -61,12 +61,21 @@ export function smoothHeights(prev, next) {
   });
 }
 
-// Bar style by position: silver-white at the ends, bright violet-purple
-// at the centre, with a soft neon glow on the central bars. The height
-// is the live audio; the colour is the mockup.
-export function waveformBarStyle(index, heightPct) {
+// Bar style by position. Dark tone (the original neon card): silver-white
+// at the ends, bright violet-purple at the centre, with a soft neon glow on
+// the central bars. Light tone (the floating Cypher panel, white surface):
+// indigo at the ends to violet at the centre, no glow — silver would vanish
+// on white. The height is the live audio.
+export function waveformBarStyle(index, heightPct, tone = 'dark') {
   const centre = (WAVEFORM_BARS - 1) / 2;
   const t = Math.min(1, Math.abs(index - centre) / centre); // 0 centre → 1 ends
+  if (tone === 'light') {
+    // Violet #8B5CF6 at the centre → indigo #818CF8 at the ends.
+    const r = Math.round(139 + (129 - 139) * t);
+    const g = Math.round(92 + (140 - 92) * t);
+    const b = Math.round(246 + (248 - 246) * t);
+    return { height: `${heightPct}%`, backgroundColor: `rgb(${r}, ${g}, ${b})` };
+  }
   // Violet #A855F7 at the centre → silver #E5E7EB at the ends.
   const r = Math.round(168 + (229 - 168) * t);
   const g = Math.round(85 + (231 - 85) * t);
@@ -80,7 +89,7 @@ export function waveformBarStyle(index, heightPct) {
 
 // Decorative: the play button's caption says what is playing, so the
 // waveform itself is hidden from assistive tech.
-export default function VoiceWaveform({ levelRef, active, paused = false, className = '' }) {
+export default function VoiceWaveform({ levelRef, active, paused = false, className = '', tone = 'dark' }) {
   const [heights, setHeights] = useState(() => new Array(WAVEFORM_BARS).fill(0));
 
   useEffect(() => {
@@ -99,7 +108,7 @@ export default function VoiceWaveform({ levelRef, active, paused = false, classN
   if (!active && !paused) return null;
 
   return (
-    <div data-testid="cypher-waveform" aria-hidden={true} className={`flex h-16 w-full items-center gap-[3px] ${className}`}>
+    <div data-testid="cypher-waveform" aria-hidden={true} className={`flex w-full items-center gap-[3px] ${className || 'h-16'}`}>
       {heights.map((h, i) => {
         // One decimal place: the bands are float32, and the raw product
         // (e.g. 20.000000298023224%) would otherwise leak into the style.
@@ -109,7 +118,7 @@ export default function VoiceWaveform({ levelRef, active, paused = false, classN
             key={i}
             data-testid="cypher-waveform-bar"
             className="min-w-0 flex-1 rounded-full transition-[height] duration-100"
-            style={waveformBarStyle(i, pct)}
+            style={waveformBarStyle(i, pct, tone)}
           />
         );
       })}

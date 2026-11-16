@@ -551,6 +551,13 @@ html[data-theme="dark"] .bg-white\/80 { background-color: rgb(28 28 30 / 0.8); }
 html[data-theme="dark"] .bg-white\/85 { background-color: rgb(28 28 30 / 0.85); }
 html[data-theme="dark"] .bg-white\/95 { background-color: rgb(28 28 30 / 0.95); }
 
+/* ---- Slate surfaces (the floating Cypher panel's player, depth selector and
+   badges): light greys become raised dark surfaces, never light patches. ---- */
+html[data-theme="dark"] .bg-slate-50 { background-color: #1C1C1E; }
+html[data-theme="dark"] .bg-slate-100 { background-color: #2C2C2E; }
+html[data-theme="dark"] .hover\:bg-slate-100:hover { background-color: #2C2C2E; }
+html[data-theme="dark"] .bg-slate-200 { background-color: #3A3A3C; }
+
 /* ---- Violet tints: light lavender panels become a violet tint on black. ---- */
 html[data-theme="dark"] .bg-violet-50 { background-color: rgb(167 139 250 / 0.12); }
 html[data-theme="dark"] .hover\:bg-violet-50:hover { background-color: rgb(167 139 250 / 0.12); }
