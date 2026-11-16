@@ -41,6 +41,13 @@
     "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 59,999 tris (v2: weld UV-split verts, two-stage Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 2.46 MB",
     "title": "R2C NAS Storage Appliance"
   },
+  "lab-patch-panel": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own generation",
+    "query": "visual-lab",
+    "source": "Meshy AI (meshy.ai), generated 2026-11-15 on Spencer's PRO account, slimmed 2026-11-16 to 60,000 tris (v2: meshopt pre-pass, weld UV-split verts, NO planar-dissolve — it shredded the port rims, 6-stage Collapse with the front protected, normal map dropped, base color 1024, KHR_mesh_quantization) — 1.75 MB",
+    "title": "Black 24 Port Rack Mount Patch Panel"
+  },
   "lab-rack-server": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",

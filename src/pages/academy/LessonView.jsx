@@ -37,6 +37,7 @@ const VISUAL_LAB_FOR = {
   'it-binary-basics': 'number-system',
   'it-files-cli': 'terminal',
   'it-hardware': 'motherboard',
+  'net-devices-media': 'patch-panel',
 };
 
 /** One lesson: reading on a glass-2 surface, then practice (the interactive lesson). */
