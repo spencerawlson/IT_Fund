@@ -394,7 +394,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
 
       {/* ---- Phone backdrop: tap outside the sheet to close it ---- */}
       {open && (
-        <div aria-hidden="true" onClick={close} className="fixed inset-0 z-[45] bg-black/30 sm:hidden" />
+        <div aria-hidden="true" onClick={close} className="fixed inset-0 z-[45] bg-slate-950/40 sm:hidden" />
       )}
 
       {/* ---- The panel: right side on a computer, bottom sheet on a phone.
