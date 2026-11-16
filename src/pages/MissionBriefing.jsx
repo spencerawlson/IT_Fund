@@ -389,6 +389,12 @@ export default function MissionBriefing() {
 
   return (
     <div className={`fixed inset-0 overflow-hidden bg-black text-ink-1${openingActive ? ' soc-open' : ''}`}>
+      {/* The 3D room fills the screen on landscape screens. On a phone in
+          portrait it sits in a square window centred on black (letterbox):
+          the shots are framed for a wide frame, and a full-height portrait
+          view showed mostly floor. The lens widens to match (socFovForAspect). */}
+      <div className="flex h-full w-full items-center justify-center">
+      <div className="h-full w-full portrait:h-auto portrait:aspect-square">
       <React.Suspense fallback={<div className="flex h-full items-center justify-center text-ink-2">Loading SOC room…</div>}>
         <MissionSocScene
           devices={MISSION_TOPOLOGY_DEVICES}
@@ -402,6 +408,8 @@ export default function MissionBriefing() {
           showcaseRef={showcaseRef}
         />
       </React.Suspense>
+      </div>
+      </div>
       {openingCaption && (
         <p className="absolute inset-x-0 bottom-0 z-10 bg-black/60 px-4 py-3 text-center text-body text-white" aria-live="polite">{openingCaption}</p>
       )}

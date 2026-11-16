@@ -1,8 +1,9 @@
+import * as THREE from 'three';
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import NetworkScene3D, { layoutPositions, radiusFor } from './NetworkScene3D';
-import { modelKeyFor, fallbackBuilderFor, modelUrl } from '@/components/three/deviceModels';
+import { modelKeyFor, fallbackBuilderFor, modelUrl, buildTower } from '@/components/three/deviceModels';
 
 describe('layoutPositions', () => {
   it('places every device at a distinct point', () => {
@@ -43,6 +44,17 @@ describe('device model mapping', () => {
     for (const role of ['switch', 'router', 'server', 'firewall', 'cloud', 'host']) {
       expect(typeof fallbackBuilderFor(role)).toBe('function');
     }
+  });
+
+  it('shows a plain tower — not a labelled motherboard — while a PC model loads', () => {
+    // The old default placeholder was the Visual Lab motherboard, whose
+    // CPU/RAM/PCIe tags showed in the SOC on slow connections.
+    expect(fallbackBuilderFor('pc')).toBe(buildTower);
+    expect(fallbackBuilderFor('workstation')).toBe(buildTower);
+    const group = new THREE.Group();
+    expect(buildTower(group)).toEqual([]);
+    expect(group.children.length).toBe(3);
+    expect(group.children.every((c) => c.isMesh)).toBe(true); // no label sprites
   });
 });
 

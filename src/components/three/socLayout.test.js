@@ -22,6 +22,11 @@ import {
   patrolX,
   ambientClipFor,
   SOC_CAMERA_FOV,
+  SOC_DEVICE_LABEL,
+  SOC_SHOWCASE_LABEL_SCALE,
+  SOC_DESIGN_ASPECT,
+  SOC_MAX_FOV,
+  socFovForAspect,
   SOC_DEVICE_LABEL_Y,
   SHOWCASE_TARGET_Y,
 } from './socLayout';
@@ -257,7 +262,7 @@ describe('device showcase', () => {
     // showcase shot, or the label (or the device) is cut off. At the old
     // target y = 3.5 GUEST's label top was ~21.2° — outside.
     const HALF_FOV_DEG = SOC_CAMERA_FOV / 2;
-    const LABEL_TOP_Y = SOC_DEVICE_LABEL_Y + (1.1 * 1.6) / 2;
+    const LABEL_TOP_Y = SOC_DEVICE_LABEL_Y + (SOC_DEVICE_LABEL.height * SOC_SHOWCASE_LABEL_SCALE) / 2;
     const pos = socPositions();
     const angleTo = (shot, point) => {
       const v = [shot.target[0] - shot.pos[0], shot.target[1] - shot.pos[1], shot.target[2] - shot.pos[2]];
@@ -342,5 +347,28 @@ describe('ambientClipFor', () => {
   it('idles anything else', () => {
     expect(ambientClipFor('cypher', 0)).toBe('idle');
     expect(ambientClipFor('nobody', 0)).toBe('idle');
+  });
+});
+
+describe('socFovForAspect', () => {
+  it('keeps the 52° lens at the 16:10 design aspect and wider', () => {
+    expect(socFovForAspect(SOC_DESIGN_ASPECT)).toBe(SOC_CAMERA_FOV);
+    expect(socFovForAspect(16 / 9)).toBe(SOC_CAMERA_FOV);
+    expect(socFovForAspect(2.4)).toBe(SOC_CAMERA_FOV);
+  });
+
+  it('widens the vertical lens on narrower frames so horizontal coverage holds', () => {
+    // A square frame (a phone in portrait, letterboxed square): same
+    // horizontal field of view as the 16:10 design frame.
+    const hFov = (vFov, aspect) => (2 * Math.atan(Math.tan((vFov * Math.PI) / 360) * aspect) * 180) / Math.PI;
+    const designH = hFov(SOC_CAMERA_FOV, SOC_DESIGN_ASPECT);
+    expect(hFov(socFovForAspect(1), 1)).toBeCloseTo(designH, 5);
+    expect(socFovForAspect(1)).toBeGreaterThan(SOC_CAMERA_FOV);
+  });
+
+  it('caps the lens on very tall frames, and ignores a bad aspect', () => {
+    expect(socFovForAspect(0.46)).toBe(SOC_MAX_FOV);
+    expect(socFovForAspect(0)).toBe(SOC_CAMERA_FOV);
+    expect(socFovForAspect(Number.NaN)).toBe(SOC_CAMERA_FOV);
   });
 });

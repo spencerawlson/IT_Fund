@@ -17,9 +17,11 @@ import {
   spotToScene,
   socPositions,
   placeSocRoom,
-  SOC_CAMERA_FOV,
   SOC_DEVICE_FOOTPRINT,
   SOC_DEVICE_LABEL_Y,
+  SOC_DEVICE_LABEL,
+  SOC_SHOWCASE_LABEL_SCALE,
+  socFovForAspect,
   shotForSpeaker,
   deviceShot,
   ambientClipFor,
@@ -218,7 +220,7 @@ export default function MissionSocScene({
     const pos = socPositions();
     // Eye-level shots inside the room need a wider lens than the studio's 42°.
     if (sceneCamera) {
-      sceneCamera.fov = SOC_CAMERA_FOV;
+      sceneCamera.fov = socFovForAspect(sceneCamera.aspect);
       sceneCamera.updateProjectionMatrix();
     }
     addSocLights(scene);
@@ -325,7 +327,7 @@ export default function MissionSocScene({
       fitAndPlace(fallback, p, FOOTPRINT);
       scene.add(fallback);
 
-      const label = makeLabel(d.id, { height: 1.1 });
+      const label = makeLabel(d.id, SOC_DEVICE_LABEL);
       label.position.set(p.x, SOC_DEVICE_LABEL_Y, p.z);
       // Device tags only show while the opening tours the devices; the
       // rest of the time the room stays uncluttered.
@@ -380,11 +382,20 @@ export default function MissionSocScene({
       // the others stay at their base size. The scale is re-asserted
       // every frame (cheap, and the sprite is recreated on a remount).
       for (const [id, { sprite, baseScale }] of Object.entries(labels)) {
-        const s = id === showcase ? 1.6 : 1;
+        const s = id === showcase ? SOC_SHOWCASE_LABEL_SCALE : 1;
         sprite.scale.set(baseScale.x * s, baseScale.y * s, baseScale.z);
         sprite.visible = Boolean(showcase);
       }
       const camera = cameraRef.current;
+      // Keep the lens matched to the frame (a phone rotating, the window
+      // resizing): portrait frames get a wider lens, see socFovForAspect.
+      if (camera) {
+        const fov = socFovForAspect(camera.aspect);
+        if (Math.abs(camera.fov - fov) > 0.01) {
+          camera.fov = fov;
+          camera.updateProjectionMatrix();
+        }
+      }
       // --- Showcase cuts, not glides. A showcase change snaps the camera
       // straight onto the device shot: the opening plays like a video,
       // and a cut reads the instant its dwell starts at ANY frame rate.

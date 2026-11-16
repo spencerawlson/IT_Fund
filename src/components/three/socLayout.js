@@ -340,3 +340,27 @@ export const SOC_CAMERA_FOV = 52;
 // both read these, so the camera math and the scene never drift.
 export const SOC_DEVICE_FOOTPRINT = 2.6;
 export const SOC_DEVICE_LABEL_Y = SOC_DEVICE_FOOTPRINT + 1.6;
+
+// The aspect the SOC shots are framed for (the 16:10 video card / desktop).
+export const SOC_DESIGN_ASPECT = 16 / 10;
+// Widest vertical lens allowed on narrow (portrait) frames.
+export const SOC_MAX_FOV = 80;
+
+/**
+ * Vertical FOV for a frame of `aspect` (width / height). At the design
+ * aspect or wider it is SOC_CAMERA_FOV. Narrower frames (a phone in
+ * portrait) widen the vertical lens so the shots keep the HORIZONTAL
+ * coverage they were framed with — otherwise a tall frame sees only a
+ * thin slice of the room — capped at SOC_MAX_FOV to limit distortion.
+ */
+export function socFovForAspect(aspect) {
+  if (!(aspect > 0) || aspect >= SOC_DESIGN_ASPECT) return SOC_CAMERA_FOV;
+  const halfH = Math.tan(((SOC_CAMERA_FOV / 2) * Math.PI) / 180) * (SOC_DESIGN_ASPECT / aspect);
+  return Math.min(SOC_MAX_FOV, (2 * Math.atan(halfH) * 180) / Math.PI);
+}
+
+// Device tags during the equipment tour: drawn at a large font so they stay
+// crisp close up, shown at a modest size, and NOT enlarged for the device on
+// camera — the caption bar under the 3D view already names it.
+export const SOC_DEVICE_LABEL = { height: 0.8, fontSize: 96 };
+export const SOC_SHOWCASE_LABEL_SCALE = 1;
