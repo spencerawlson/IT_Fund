@@ -6,6 +6,11 @@
  * Shape: deckId -> [{ labId, blurb }]. Track-level fallbacks apply when a deck has
  * no specific entry. Lab titles come from the backend registry at runtime; the
  * static TITLE map here is a fallback for pre-hydration rendering.
+ *
+ * Labs that only run inside a mission (MISSION_ONLY_LABS in ./missions) are
+ * never listed here — a deck that would have pointed at one falls back to
+ * its track labs instead, so the results screen never offers a lab the
+ * learner can only reach through the mission.
  */
 
 export const LAB_TITLES = {
@@ -25,7 +30,6 @@ export const LAB_TITLES = {
   'net-vlan-001': 'VLANs and Inter-VLAN Routing',
   'net-static-routing-001': 'Static Routing Between Two Sites',
   'net-subnetting-001': 'Subnetting Mastery',
-  'net-acl-001': 'Filtering Traffic with ACLs',
   'net-ospf-001': 'OSPF Single-Area Configuration',
   'net-ospf-tshoot-001': 'OSPF Troubleshooting',
   'net-eigrp-001': 'EIGRP Configuration',
@@ -116,7 +120,6 @@ const DECK_LABS = {
     { labId: 'tools-wireshark-001', blurb: 'Read the capture: find the flood and the leak with tshark.' },
   ],
   'net-ops': [{ labId: 'linux-terminal-001', blurb: 'The CLI skills every net admin needs.' }],
-  'net-security': [{ labId: 'net-acl-001', blurb: 'Write ACLs that actually filter traffic.' }],
 
   // ---- Linux+ ----
   'lx-cli': [{ labId: 'linux-terminal-001', blurb: 'Navigate, manage files, and pipe like a pro.' }],
@@ -166,7 +169,6 @@ const DECK_LABS = {
     { labId: 'aws-cli-001', blurb: 'CloudWatch and CLI monitoring patterns.' },
   ],
   'awss-network-security': [
-    { labId: 'net-acl-001', blurb: 'Packet filtering that maps to security groups.' },
     { labId: 'net-vlan-001', blurb: 'Segmentation thinking for VPC design.' },
   ],
   'awss-iam-advanced': [{ labId: 'aws-iam-001', blurb: 'Cross-account roles, trust policies, boundaries.' }],
@@ -177,7 +179,6 @@ const DECK_LABS = {
   // ---- CISSP ----
   'cissp-d4': [
     { labId: 'net-vlan-001', blurb: 'Network segmentation in practice.' },
-    { labId: 'net-acl-001', blurb: 'Defense in depth at the packet filter.' },
   ],
   'cissp-d5': [{ labId: 'aws-iam-001', blurb: 'Identity and access management, hands-on.' }],
   'cissp-d7': [
@@ -200,7 +201,6 @@ const DECK_LABS = {
     { labId: 'net-rip-tshoot-001', blurb: 'Troubleshoot RIP.' },
   ],
   'rt-fundamentals': [{ labId: 'net-static-routing-001', blurb: 'Static routing between two sites.' }],
-  'rt-acls': [{ labId: 'net-acl-001', blurb: 'Filter traffic with ACLs.' }],
   'rt-routing-troubleshooting': [{ labId: 'net-dns-connectivity-001', blurb: 'Connectivity troubleshooting drill.' }],
 
   // ---- Cyber track ----

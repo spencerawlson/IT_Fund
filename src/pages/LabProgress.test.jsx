@@ -47,4 +47,23 @@ describe('LabProgress', () => {
     expect(SRC).toContain('to="/signin">Subscribe</Button>');
     expect(SRC).toContain('to="/pricing">See plans</Button>');
   });
+
+  it('hides mission-only labs from the progress list (Spencer, 2026-11-16)', () => {
+    // Operation Broken Shield is mission-only everywhere: the ACL lab
+    // gets no row, no Start button, and does not count toward
+    // "labs completed" — its attempts live in the Missions section.
+    expect(SRC).toContain('MISSION_ONLY_LABS');
+    expect(SRC).toContain('defs.filter((l) => !MISSION_ONLY_LABS[l.id])');
+  });
+
+  it('resolves mission callsigns without the lesson -> lab bridge', () => {
+    // The old lookup went lesson -> lab -> mission through
+    // LAB_FOR_LESSON, which no longer maps the mission's lessons to the
+    // lab — the callsign now resolves mission id -> lab directly, so
+    // Operation Broken Shield still shows its callsign, not "OP BROKEN SHIELD".
+    expect(SRC).toContain('labForMission(missionId)');
+    expect(SRC).toContain("MISSIONS[labForMission(missionId)]");
+    expect(SRC).not.toContain('LAB_FOR_LESSON');
+    expect(SRC).not.toContain('MISSION_FOR_LESSON');
+  });
 });

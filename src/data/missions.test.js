@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MISSIONS, MISSION_FOR_LESSON, getMission, beatFor, splitBriefing } from './missions';
+import { MISSIONS, MISSION_FOR_LESSON, MISSION_ONLY_LABS, labForMission, getMission, beatFor, splitBriefing } from './missions';
 
 const BROKEN_SHIELD_OBJECTIVES = [
   'topology',
@@ -75,6 +75,18 @@ describe('missions', () => {
   it('still falls back to a generated mission for unmapped labs', () => {
     const mission = getMission({ id: 'some-new-lab', slug: 'some-new-lab', title: 'Some Lab', description: 'Do it.' });
     expect(mission.callsign).toBe('OPERATION SOME NEW LAB');
+  });
+
+  it('runs the ACL lab only inside Operation Broken Shield — never standalone', () => {
+    // Spencer, 2026-11-16: mission-only everywhere. The lab definition,
+    // shell and validators stay, and getMission still returns the mission
+    // for the lab — only the standalone surfacing is gone.
+    expect(MISSION_ONLY_LABS['net-acl-001']).toBe('op-broken-shield');
+    expect(labForMission('op-broken-shield')).toBe('net-acl-001');
+    expect(labForMission('op-packet-flood')).toBeUndefined();
+    expect(labForMission('no-such-mission')).toBeUndefined();
+    expect(getMission({ id: 'net-acl-001', title: 'Network ACLs', description: 'Segment the network.' }).callsign)
+      .toBe('OPERATION BROKEN SHIELD');
   });
 });
 

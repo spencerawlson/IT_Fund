@@ -37,4 +37,18 @@ describe('deckLabs', () => {
       expect(LAB_TITLES[id], id).toBeTruthy();
     }
   });
+
+  it('never recommends the mission-only ACL lab (Spencer, 2026-11-16)', () => {
+    // Operation Broken Shield is mission-only everywhere: net-acl-001 runs
+    // inside the mission and is not a standalone lab anywhere. Decks that
+    // used to point at it fall back to their track labs instead, and decks
+    // that listed it alongside another lab keep only the other one.
+    const ids = (labs) => labs.map((l) => l.labId);
+    expect(ids(getLabsForDeck('net-security', 'network'))).not.toContain('net-acl-001');
+    expect(ids(getLabsForDeck('net-security', 'network'))).toEqual(['net-subnetting-001', 'net-vlan-001']);
+    expect(ids(getLabsForDeck('rt-acls', 'routing'))).not.toContain('net-acl-001');
+    expect(ids(getLabsForDeck('rt-acls', 'routing'))).toEqual(['net-ospf-001', 'net-static-routing-001']);
+    expect(ids(getLabsForDeck('awss-network-security', null))).toEqual(['net-vlan-001']);
+    expect(ids(getLabsForDeck('cissp-d4', null))).toEqual(['net-vlan-001']);
+  });
 });

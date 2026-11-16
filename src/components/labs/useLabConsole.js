@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { labsApi } from '@/api/labs';
+import { MISSION_ONLY_LABS } from '@/data/missions';
 
 // Shared command interpreter for the terminal-first Interactive Lab consoles.
 // Used by both the standalone /labs launcher (LabLauncher) and the Practice-page
@@ -48,6 +49,15 @@ const pad2 = (n) => String(n).padStart(2, '0');
 
 export function getOrderedCategories(labs) {
   return [...new Set(orderLabs(labs).map((l) => trackKey(l.category)))];
+}
+
+/**
+ * Labs a learner can launch standalone — mission-only labs (see
+ * MISSION_ONLY_LABS in @/data/missions) are excluded, so they never appear
+ * in the track lists, the counts, `search`, `lab info` or `lab start`.
+ */
+export function standaloneLabs(labs) {
+  return (labs || []).filter((l) => !MISSION_ONLY_LABS[l.id]);
 }
 
 export function buildTrackList(labs, categories) {
@@ -98,7 +108,7 @@ export function useLabConsole({ startHint = null } = {}) {
   useEffect(() => {
     let live = true;
     labsApi.listDefinitions()
-      .then(({ labs: defs }) => { if (live) setLabs(orderLabs(defs)); })
+      .then(({ labs: defs }) => { if (live) setLabs(orderLabs(standaloneLabs(defs))); })
       .catch((e) => { if (live) setError(e.message); });
     return () => { live = false; };
   }, []);

@@ -5,7 +5,7 @@ import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-gl
 import LabTerminal from '@/components/labs/LabTerminal';
 import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
 import TopologyBuilder from '@/components/labs/TopologyBuilder';
-import { getMission } from '@/data/missions';
+import { getMission, MISSION_ONLY_LABS } from '@/data/missions';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
 import { recordVerifiedLabCompletion } from '@/lib/academy';
@@ -132,6 +132,13 @@ export default function LabWorkspace() {
   const termRef = useRef(null);
 
   useEffect(() => {
+    // Mission-only labs have no standalone workspace: send the learner to
+    // the mission that runs the lab instead (before any session starts).
+    const missionId = MISSION_ONLY_LABS[labId];
+    if (missionId) {
+      navigate(`/missions/${missionId}`, { replace: true });
+      return;
+    }
     let live = true;
     (async () => {
       try {
@@ -156,7 +163,7 @@ export default function LabWorkspace() {
     return () => {
       live = false;
     };
-  }, [labId]);
+  }, [labId, navigate]);
 
   // Track the live session for the unmount cleanup without re-running that effect. Depending on
   // `session` there would destroy the session every time a command updates it (onSession), which

@@ -122,6 +122,26 @@ export const MISSION_FOR_LESSON = {
   'net-troubleshoot': 'op-packet-flood',
 };
 
+/**
+ * Labs that only run inside a mission, never as standalone labs.
+ * Lab id -> the mission id that runs it. Spencer, 2026-11-16: Operation
+ * Broken Shield is mission-only everywhere — the ACL lab (net-acl-001) is
+ * not launchable from lessons, the labs console, lab progress, or its own
+ * URL; it only runs inside the mission. The lab definition, shell and
+ * validators stay untouched — only the standalone surfacing is gone.
+ * Consumers: deckLabs.js and labLessons.js never list these labs;
+ * useLabConsole and LabProgress filter them from the catalogue;
+ * LabWorkspace redirects their URL to the mission.
+ */
+export const MISSION_ONLY_LABS = {
+  'net-acl-001': 'op-broken-shield',
+};
+
+/** The lab id a mission runs, or undefined — the reverse of MISSION_ONLY_LABS. */
+export function labForMission(missionId) {
+  return Object.entries(MISSION_ONLY_LABS).find(([, m]) => m === missionId)?.[0];
+}
+
 /** The callsign for a lab with no explicit mission: slug -> SPACED CAPS. */
 function fallbackCallsign(lab) {
   const base = (lab.slug || lab.id || 'operation').replace(/[-_]+/g, ' ').trim();

@@ -8,6 +8,9 @@
  *
  * Lab IDs are the canonical identifiers (not slugs) — the same IDs the
  * /labs/:labId route and the backend entitlement check use.
+ *
+ * Labs that only run inside a mission (MISSION_ONLY_LABS in ./missions)
+ * have no entry here, so no lesson shows a Launch Lab card for them.
  */
 export const LAB_FOR_LESSON = {
   // Python
@@ -21,7 +24,6 @@ export const LAB_FOR_LESSON = {
   'net-osi': 'net-vlan-001',
   'net-switch-route': 'net-vlan-001',
   'net-ip-subnet': 'net-subnetting-001',
-  'net-security': 'net-acl-001',
   'net-troubleshoot': 'net-dns-connectivity-001',
 
   // Routing
@@ -32,7 +34,6 @@ export const LAB_FOR_LESSON = {
   'rt-eigrp': 'net-eigrp-001',
   'rt-bgp': 'net-bgp-001',
   'rt-routing-troubleshooting': 'net-ospf-tshoot-001',
-  'rt-routing-security': 'net-acl-001',
 
   // Linux
   'lx-cli': 'linux-terminal-001',
