@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { labsApi } from '@/api/labs';
 import { MISSION_ONLY_LABS } from '@/data/missions';
+import { isLabFree } from '@/lib/subscription';
 
 // Shared command interpreter for the terminal-first Interactive Lab consoles.
 // Used by both the standalone /labs launcher (LabLauncher) and the Practice-page
@@ -60,11 +61,22 @@ export function standaloneLabs(labs) {
   return (labs || []).filter((l) => !MISSION_ONLY_LABS[l.id]);
 }
 
+/**
+ * Text marker for a free-tier lab in the terminal lists — Spencer's words
+ * (2026-11-16): a visitor must be able to tell at a glance which labs they
+ * can try without a plan. Keyed by lab id, never by title, so it follows the
+ * free set in @/lib/subscription wherever it is listed.
+ */
+export function freeLabel(lab) {
+  return isLabFree(lab.id) ? '  [Free — no plan needed]' : '';
+}
+
 export function buildTrackList(labs, categories) {
   const lines = ['LAB TRACKS', '==========', ''];
   categories.forEach((c, i) => {
     const n = labs.filter((l) => trackKey(l.category) === c).length;
-    lines.push(`  [${i + 1}] ${CATEGORY_LABEL[c] || c}   (${n} lab${n === 1 ? '' : 's'})`);
+    const free = labs.filter((l) => trackKey(l.category) === c && isLabFree(l.id)).length;
+    lines.push(`  [${i + 1}] ${CATEGORY_LABEL[c] || c}   (${n} lab${n === 1 ? '' : 's'}${free ? ` · ${free} free` : ''})`);
   });
   lines.push('', 'Type  labs <#>  to open a track (e.g. labs 1).');
   return lines.join('\n');
@@ -74,7 +86,7 @@ export function buildTrackLabs(labs, category) {
   const list = labs.filter((l) => trackKey(l.category) === trackKey(category));
   const label = CATEGORY_LABEL[trackKey(category)] || category;
   const lines = [label.toUpperCase(), '='.repeat(label.length), ''];
-  list.forEach((l, i) => lines.push(`  [${i + 1}] ${l.title}`));
+  list.forEach((l, i) => lines.push(`  [${i + 1}] ${l.title}${freeLabel(l)}`));
   lines.push('', 'Type  lab info <#>  for details,  lab start <#>  to begin,  back  for tracks.');
   return lines.join('\n');
 }
@@ -135,7 +147,8 @@ export function useLabConsole({ startHint = null } = {}) {
     const lines = ['LAB TRACKS', '==========', ''];
     categories.forEach((c, i) => {
       const n = labs.filter((l) => l.category === c).length;
-      lines.push(`  [${i + 1}] ${CATEGORY_LABEL[c] || c}   (${n} lab${n === 1 ? '' : 's'})`);
+      const free = labs.filter((l) => l.category === c && isLabFree(l.id)).length;
+      lines.push(`  [${i + 1}] ${CATEGORY_LABEL[c] || c}   (${n} lab${n === 1 ? '' : 's'}${free ? ` · ${free} free` : ''})`);
     });
     lines.push('', 'Type  labs <#>  to open a track (e.g. labs 1).');
     return { output: lines.join('\n'), clear: true };
@@ -145,7 +158,7 @@ export function useLabConsole({ startHint = null } = {}) {
     const list = labs.filter((l) => l.category === category);
     const label = CATEGORY_LABEL[category] || category;
     const lines = [label.toUpperCase(), '='.repeat(label.length), ''];
-    list.forEach((l, i) => lines.push(`  [${i + 1}] ${l.title}`));
+    list.forEach((l, i) => lines.push(`  [${i + 1}] ${l.title}${freeLabel(l)}`));
     lines.push('', 'Type  lab info <#>  for details,  lab start <#>  to begin,  back  for tracks.');
     return { output: lines.join('\n'), clear: true };
   };
@@ -158,7 +171,7 @@ export function useLabConsole({ startHint = null } = {}) {
     );
     if (!hits.length) return { output: `No labs match "${term}". Type 'labs' to browse tracks.` };
     const lines = [`${hits.length} match${hits.length === 1 ? '' : 'es'} for "${term}":`, ''];
-    hits.forEach((l) => lines.push(`  ${l.title}   (${l.slug})`));
+    hits.forEach((l) => lines.push(`  ${l.title}   (${l.slug})${freeLabel(l)}`));
     lines.push('', `Type  lab start <slug>  to begin (e.g. lab start ${hits[0].slug}).`);
     return { output: lines.join('\n'), clear: true };
   };
@@ -170,6 +183,7 @@ export function useLabConsole({ startHint = null } = {}) {
         l.title,
         '-'.repeat(l.title.length),
         `Difficulty: ${l.difficulty}   ·   ~${l.estimated_minutes} min   ·   ${l.objectives.length} objectives`,
+        ...(isLabFree(l.id) ? ['Free — no plan needed.'] : []),
         '',
         l.description,
         '',
@@ -223,11 +237,15 @@ export function useLabConsole({ startHint = null } = {}) {
   const banner = useMemo(() => {
     if (error) return [`Could not load labs: ${error}`];
     if (!labs) return ['Road to CISSP — Interactive Labs', 'Loading lab catalogue...'];
+    // Name the free labs up front: a visitor who wants to try a lab should
+    // know exactly which ones need no plan before typing anything.
+    const freeLabs = labs.filter((l) => isLabFree(l.id));
     const lines = [
       'Road to CISSP — Interactive Labs',
       '=================================',
       '',
       `${labs.length} hands-on labs across ${categories.length} tracks.`,
+      ...(freeLabs.length ? [`Free with no plan needed: ${freeLabs.map((l) => l.title).join(' · ')}.`] : []),
       '',
       'The terminal is your way in. Type labs to browse the tracks,',
       'labs <#> to open one, then lab start <#> to begin. Labs run',

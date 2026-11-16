@@ -7,6 +7,8 @@ import { MISSIONS, MISSION_ONLY_LABS, labForMission } from '@/data/missions';
 import { getLabProgress, aggregateServerHistory, mergeProgress, formatDuration } from '@/lib/labProgress';
 import { useAuth } from '@/lib/AuthContext';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
+import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
+import { isLabFree } from '@/lib/subscription';
 
 /** Callsign for a mission id, via the mission -> lab map (missions.js). */
 function missionCallsign(missionId) {
@@ -126,7 +128,10 @@ export default function LabProgress() {
               {rows.map(({ def, p }) => (
                 <Card key={def.id} level={2} className="flex flex-wrap items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-body font-semibold text-ink-1">{def.title}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="min-w-0 flex-1 truncate text-body font-semibold text-ink-1">{def.title}</p>
+                      {isLabFree(def.id) && <FreeLabBadge />}
+                    </div>
                     <p className="mt-0.5 text-caption text-ink-3">
                       {def.category} · {def.difficulty} · ~{def.estimated_minutes} min
                     </p>

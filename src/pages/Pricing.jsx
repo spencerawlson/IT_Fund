@@ -3,16 +3,43 @@ import { Link } from 'react-router-dom';
 import { BookOpen, FlaskConical, Target, RefreshCw, Check, X, Loader2 } from 'lucide-react';
 import { Button, Card } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
-import { useSubscription } from '@/lib/subscription';
+import { useSubscription, FREE_LABS } from '@/lib/subscription';
+import { labTitle } from '@/data/deckLabs';
 import { getAttributionTag } from '@/lib/attribution';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// The two free-tier labs, named and linked — a visitor deciding whether to
+// try a lab must know exactly which ones need no plan (Spencer, 2026-11-16).
+// Titles come from the lab registry fallback (deckLabs) and ids from the
+// free-tier source of truth (subscription.js); never hardcode either list.
+const FREE_LAB_LINKS = [...FREE_LABS].map((labId) => ({
+  labId,
+  title: labTitle(labId),
+}));
+
 const FEATURES = [
   { icon: BookOpen, title: 'Every track, every lesson', text: 'Networking, Security+, Linux, Python, Cloud, and the CISSP capstone — all flashcards, lessons, and cheat sheets.' },
-  { icon: FlaskConical, title: 'All 23+ hands-on labs', text: 'Real terminals: Cisco IOS, Linux triage, Python automation, cloud sandboxes. The free tier gets two; members get them all.' },
+  {
+    icon: FlaskConical,
+    title: 'All 23+ hands-on labs',
+    text: (
+      <>
+        Real terminals: Cisco IOS, Linux triage, Python automation, cloud sandboxes. The free tier gets two —{' '}
+        {FREE_LAB_LINKS.map((lab, i) => (
+          <span key={lab.labId}>
+            {i > 0 && ' and '}
+            <Link to={`/labs/${lab.labId}`} className="font-semibold text-ink-1 underline decoration-black/30 underline-offset-2 hover:decoration-black/60">
+              {lab.title}
+            </Link>
+          </span>
+        ))}
+        , free with no plan needed; members get them all.
+      </>
+    ),
+  },
   { icon: Target, title: 'Exam simulators', text: 'Timed Security+ and CISSP practice exams with domain-weighted scoring and per-domain breakdowns.' },
   { icon: RefreshCw, title: 'Progress that syncs', text: 'Streaks, XP, badges, and Leitner review saved to your account across every device.' },
 ];

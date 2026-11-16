@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  getOrderedCategories, buildTrackList, buildTrackLabs, resolveTrack, buildSearchResults, standaloneLabs,
+  getOrderedCategories, buildTrackList, buildTrackLabs, resolveTrack, buildSearchResults, standaloneLabs, freeLabel,
 } from './useLabConsole';
 
 const labs = [
@@ -21,10 +21,10 @@ describe('lab console track navigation', () => {
 
   it('buildTrackList shows numbered tracks with counts and nothing else', () => {
     const out = buildTrackList(labs, categories);
-    expect(out).toContain('[1] Networking & Routing   (2 labs)');
+    expect(out).toContain('[1] Networking & Routing   (2 labs · 1 free)');
     expect(out).toContain('[2] Cloud & IaC   (1 lab)');
     expect(out).toContain('[3] DevOps & IaC   (1 lab)');
-    expect(out).toContain('[4] Python Automation   (1 lab)');
+    expect(out).toContain('[4] Python Automation   (1 lab · 1 free)');
     expect(out).toContain('[5] Linux   (1 lab)');
     // no individual lab titles leak into the track list
     expect(out).not.toContain('Subnetting Mastery');
@@ -38,6 +38,21 @@ describe('lab console track navigation', () => {
     expect(out).toContain('[2] VLANs');
     expect(out).not.toContain('AWS CLI Fundamentals');
     expect(out).not.toContain('Terraform for AWS');
+  });
+
+  it('marks the free labs in the track list, by id — "Free — no plan needed" (Spencer, 2026-11-16)', () => {
+    // A visitor who wants to try a lab must see at a glance which ones need
+    // no plan. The marker keys off the lab id (the free set in
+    // @/lib/subscription), never the title, so it survives renames.
+    expect(freeLabel({ id: 'net-vlan-001' })).toBe('  [Free — no plan needed]');
+    expect(freeLabel({ id: 'py-basics-001' })).toBe('  [Free — no plan needed]');
+    expect(freeLabel({ id: 'net-subnetting-001' })).toBe('');
+    expect(freeLabel({ id: 'terraform-aws-001' })).toBe('');
+    const networking = buildTrackLabs(labs, 'networking');
+    expect(networking).toContain('[2] VLANs  [Free — no plan needed]');
+    expect(networking).not.toContain('[1] Subnetting Mastery  [Free');
+    const python = buildTrackLabs(labs, 'python');
+    expect(python).toContain('[1] Python Basics  [Free — no plan needed]');
   });
 
   it('resolveTrack handles numbers, names, and rejects garbage', () => {

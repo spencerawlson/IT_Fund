@@ -16,8 +16,9 @@ import { MISSION_FOR_LESSON } from '@/data/missions';
 import CypherLessonPanel from '@/components/academy/tutor/CypherLessonPanel';
 import { useAcademy } from '@/lib/academy';
 import { lessonStatus, lessonPrerequisites, PASS_PCT } from '@/lib/progress/engine';
-import { useSubscription, isLessonFree } from '@/lib/subscription';
+import { useSubscription, isLessonFree, isLabFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
 import CypherNote from '@/components/academy/lesson/CypherNote';
 import { getLessonContent, getDeckContent, lessonTextFromContent } from '@/lib/content';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
@@ -194,9 +195,12 @@ export default function LessonView() {
             </Button>
           )}
           {lessonLabs.map((labId) => (
-            <Button key={labId} to={`/labs/${labId}`} variant="primary" size="sm" icon={TerminalSquare} className="w-full justify-center sm:w-auto">
-              {lessonLabs.length > 1 ? `Launch Lab: ${labTitle(labId)}` : 'Launch Lab'}
-            </Button>
+            <span key={labId} className="inline-flex flex-wrap items-center gap-3">
+              <Button to={`/labs/${labId}`} variant="primary" size="sm" icon={TerminalSquare} className="w-full justify-center sm:w-auto">
+                {lessonLabs.length > 1 ? `Launch Lab: ${labTitle(labId)}` : 'Launch Lab'}
+              </Button>
+              {isLabFree(labId) && <FreeLabBadge />}
+            </span>
           ))}
         </div>
       )}
