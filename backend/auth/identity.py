@@ -4,8 +4,13 @@ Rules (docs/ACCOUNTS_PLAN.md, D3+D4):
   - A returning identity (same provider + subject) always maps to its existing user.
   - A new identity whose email is provider-VERIFIED and matches an existing identity's verified
     email links to that same user (auto-merge Google <-> GitHub).
+  - A new identity whose email is provider-VERIFIED and matches an admin-created account
+    (a customer enrolled in person, before ever signing in — see ManualGrant) links to
+    that account instead of creating a duplicate.
   - Otherwise a new user is created.
-Merging never happens on an unverified email, which is what makes it safe against takeover.
+Merging never happens on an unverified email, which is what makes it safe against takeover:
+the incoming claim must be provider-verified, whether it matches an identity or an
+admin-entered account email.
 """
 from __future__ import annotations
 
@@ -34,7 +39,17 @@ def _find_user_by_verified_email(db, email: str) -> User | None:
     row = db.execute(
         select(Identity).where(func.lower(Identity.email) == email, Identity.email_verified.is_(True))
     ).scalars().first()
-    return row.user if row else None
+    if row is not None:
+        return row.user
+    # No identity carries this email yet: fall back to an admin-created
+    # account with the same email (a customer enrolled in person before
+    # ever signing in). The incoming claim is provider-verified, so this
+    # is the same safety bar as the identity match above — and it is the
+    # only way that account ever gains a sign-in. Deleted accounts never
+    # match: a deleted account stays deleted.
+    return db.execute(
+        select(User).where(func.lower(User.email) == email, User.deleted_at.is_(None))
+    ).scalars().first()
 
 
 def upsert_identity(db, info: OAuthIdentity) -> User:

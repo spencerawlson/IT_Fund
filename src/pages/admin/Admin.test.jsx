@@ -4,7 +4,9 @@ import { renderToString } from 'react-dom/server';
 import {
   AdminLoginForm,
   AccountsTable,
+  AddCustomerForm,
   OverviewView,
+  ReportView,
   SubscriptionsView,
   AiCallsView,
 } from './Admin';
@@ -109,5 +111,90 @@ describe('AiCallsView', () => {
     const unknown = { ...data, recent: [{ ...data.recent[0], cost_usd: null, prompt_tokens: null, completion_tokens: null }] };
     const html = renderToString(<AiCallsView data={unknown} />);
     expect(html).toContain('unknown');
+  });
+});
+
+describe('AccountsTable manual access', () => {
+  const items = [
+    {
+      id: 'u1', display_name: 'Alice', email: 'a@example.com',
+      created_at: '2026-11-01T10:00:00+00:00', last_active: null,
+      lessons_passed: 0, labs_completed: 0, subscription_status: 'none',
+      manual_grant: { active: true, granted_at: '2026-11-16T10:00:00+00:00', note: 'Met at the meetup', revoked_at: null, revoked_note: '' },
+    },
+    {
+      id: 'u2', display_name: 'Bob', email: 'b@example.com',
+      created_at: null, last_active: null,
+      lessons_passed: 0, labs_completed: 0, subscription_status: 'none',
+      manual_grant: null,
+    },
+  ];
+
+  it('shows grant state and Grant/Revoke actions when handlers are given', () => {
+    const html = renderToString(
+      <AccountsTable items={items} total={2} page={1} pageSize={25} onPage={() => {}} onGrant={() => {}} onRevoke={() => {}} />,
+    );
+    expect(html).toContain('Granted');
+    expect(html).toContain('Met at the meetup');
+    expect(html).toContain('Revoke');
+    expect(html).toContain('Grant access');
+  });
+
+  it('hides the actions column without handlers (report mode)', () => {
+    const html = renderToString(
+      <AccountsTable items={items} total={2} page={1} pageSize={25} onPage={() => {}} />,
+    );
+    expect(html).not.toContain('Grant access');
+    expect(html).not.toContain('Revoke');
+  });
+});
+
+describe('AddCustomerForm', () => {
+  it('renders name, email and note fields', () => {
+    const html = renderToString(<AddCustomerForm onSubmit={() => {}} busy={false} error="" success="" />);
+    expect(html).toContain('Add a customer');
+    expect(html).toContain('Name');
+    expect(html).toContain('Email');
+    expect(html).toContain('Note (optional)');
+    expect(html).toContain('Add customer + grant access');
+  });
+});
+
+describe('OverviewView manual enrollments', () => {
+  it('shows the manual enrollment count', () => {
+    const html = renderToString(
+      <OverviewView data={{ total_users: 4, paying_subscribers: 1, subscriptions_by_status: { active: 1 }, mrr: null, ai_calls_30d: 2, ai_cost_30d_usd: 0.0001, manual_grants_active: 3 }} />,
+    );
+    expect(html).toContain('Manual enrollments');
+    expect(html).toContain('3');
+  });
+});
+
+describe('ReportView', () => {
+  const data = {
+    generated_at: '2026-11-16T10:00:00+00:00',
+    days: 30,
+    overview: { total_users: 1, paying_subscribers: 0, subscriptions_by_status: {}, manual_grants_active: 1, mrr: null, ai_calls_30d: 0, ai_cost_30d_usd: 0 },
+    accounts: {
+      total: 1,
+      items: [{
+        id: 'u1', display_name: 'Alice', email: 'a@example.com',
+        created_at: '2026-11-01T10:00:00+00:00', last_active: null,
+        lessons_passed: 0, labs_completed: 0, subscription_status: 'none',
+        manual_grant: { active: true, granted_at: '2026-11-16T10:00:00+00:00', note: '', revoked_at: null, revoked_note: '' },
+      }],
+      truncated: false,
+    },
+    subscriptions: { totals_by_status: {}, mrr: null, items: [] },
+    ai_costs: { days: 30, totals: { calls: 0, prompt_tokens: 0, completion_tokens: 0, cost_usd: 0 }, per_day: [], per_user: [], total: 0, page: 1, page_size: 100, recent: [] },
+  };
+
+  it('renders the report with print and CSV actions', () => {
+    const html = renderToString(<ReportView data={data} onDownloadCsv={() => {}} />);
+    expect(html).toContain('Report generated');
+    expect(html).toContain('Print');
+    expect(html).toContain('Download CSV');
+    expect(html).toContain('Alice');
+    expect(html).toContain('Manual enrollments');
   });
 });

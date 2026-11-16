@@ -1171,3 +1171,58 @@ def test_plain_and_period_end_helpers():
     assert billing._period_end({"current_period_end": 5}) == 5
     assert billing._period_end({"items": {"data": [{"current_period_end": 3}, {"current_period_end": 9}]}}) == 9
     assert billing._period_end({}) is None
+
+# ---------- manual grants ----------
+
+
+def _grant(uid, note="Enrolled in person"):
+    from db_models import ManualGrant
+
+    with db.SessionLocal() as s:
+        s.add(ManualGrant(user_id=uid, note=note))
+        s.commit()
+
+
+def test_manual_grant_counts_as_subscribed():
+    _, uid = _signed_in()
+    assert billing.is_subscribed(uid) is False
+    _grant(uid)
+    assert billing.is_subscribed(uid) is True
+    assert billing.has_active_manual_grant(uid) is True
+
+
+def test_revoked_manual_grant_grants_nothing():
+    from datetime import datetime, timezone
+
+    from db_models import ManualGrant
+
+    _, uid = _signed_in()
+    _grant(uid)
+    with db.SessionLocal() as s:
+        row = s.get(ManualGrant, uid)
+        row.revoked_at = datetime.now(timezone.utc)
+        s.commit()
+    assert billing.is_subscribed(uid) is False
+    assert billing.has_active_manual_grant(uid) is False
+
+
+def test_manual_grant_status_is_manual_not_stripe():
+    cookies, uid = _signed_in()
+    _grant(uid)
+    r = client.get("/api/billing/status", cookies=cookies)
+    assert r.json()["subscribed"] is True
+    assert r.json()["status"] == "manual"
+    # Stripe state still wins when present: an active Stripe row reports "active".
+    _set_sub(uid, "active")
+    r = client.get("/api/billing/status", cookies=cookies)
+    assert r.json()["status"] == "active"
+
+
+def test_manual_grantee_can_still_check_out():
+    # A manual enrollee may convert to a real Stripe subscription — the
+    # grant is no reason to block checkout with a 409.
+    cookies, uid = _signed_in()
+    _grant(uid)
+    r = client.post("/api/billing/checkout", cookies=cookies)
+    assert r.status_code == 200
+    assert r.json()["checkout_url"].startswith("https://checkout.stripe.test/")

@@ -14,8 +14,10 @@ async function req(path, options = {}) {
     throw err;
   }
   if (!res.ok) {
-    const err = new Error(`Admin request failed (${res.status})`);
+    const data = await res.json().catch(() => null);
+    const err = new Error(data?.detail || `Admin request failed (${res.status})`);
     err.status = res.status;
+    err.detail = data?.detail || null;
     throw err;
   }
   return res.json();
@@ -31,4 +33,18 @@ export const adminApi = {
   subscriptions: () => req('/admin/subscriptions'),
   aiCalls: ({ days = 30, page = 1, pageSize = 25 } = {}) =>
     req(`/admin/ai-calls?days=${days}&page=${page}&page_size=${pageSize}`),
+  addAccount: ({ display_name, email, note }) =>
+    req('/admin/accounts', { method: 'POST', body: JSON.stringify({ display_name, email, note: note || '' }) }),
+  grantAccess: (userId, note) =>
+    req(`/admin/accounts/${encodeURIComponent(userId)}/manual-grant`, {
+      method: 'POST',
+      body: JSON.stringify({ note: note || '' }),
+    }),
+  revokeAccess: (userId, note) =>
+    req(`/admin/accounts/${encodeURIComponent(userId)}/manual-grant/revoke`, {
+      method: 'POST',
+      body: JSON.stringify({ note: note || '' }),
+    }),
+  report: ({ days = 30 } = {}) => req(`/admin/report?days=${days}`),
+  reportCsvUrl: ({ days = 30 } = {}) => `${API_BASE}/admin/report.csv?days=${days}`,
 };

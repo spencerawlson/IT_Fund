@@ -14,20 +14,24 @@ Env vars (never hardcoded, never in the repo):
 """
 from __future__ import annotations
 
+import csv
 import hashlib
 import hmac
+import io
 import logging
 import os
+import re
 import secrets
 import time
 from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_
 
 import db
-from db_models import AiTutorCall, AuthSession, LabCompletion, Progress, Subscription, User
+from db_models import AiTutorCall, AuthSession, LabCompletion, ManualGrant, Progress, Subscription, User
 
 log = logging.getLogger("admin")
 
@@ -227,6 +231,79 @@ def _iso(dt: datetime | None) -> str | None:
     return aware.isoformat() if aware else None
 
 
+#: Manual-grant note length (admin-entered, stored verbatim, shown on the board).
+MAX_NOTE_CHARS = 500
+
+_EMAIL_RE = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
+
+
+def _valid_email(email: str) -> bool:
+    return isinstance(email, str) and len(email) <= 320 and bool(_EMAIL_RE.match(email))
+
+
+def _clean_note(raw) -> str:
+    return (raw or "").strip() if isinstance(raw, str) else ""
+
+
+def _grant_dict(grant: ManualGrant | None) -> dict | None:
+    """The manual-grant state for one account, or None when never granted."""
+    if grant is None:
+        return None
+    return {
+        "active": grant.revoked_at is None,
+        "granted_at": _iso(grant.granted_at),
+        "note": grant.note or "",
+        "revoked_at": _iso(grant.revoked_at),
+        "revoked_note": grant.revoked_note or "",
+    }
+
+
+def _account_maps(s, ids: list[str]) -> dict:
+    """Prefetched per-user maps for account rows: subscriptions, progress,
+    last session seen, lab counts, manual grants."""
+    if not ids:
+        return {"subs": {}, "progress": {}, "last_seen": {}, "labs": {}, "grants": {}}
+    return {
+        "subs": {r.user_id: r for r in s.query(Subscription).filter(Subscription.user_id.in_(ids)).all()},
+        "progress": {r.user_id: r for r in s.query(Progress).filter(Progress.user_id.in_(ids)).all()},
+        "last_seen": {
+            r.user_id: r.last
+            for r in s.query(AuthSession.user_id, func.max(AuthSession.last_seen_at).label("last"))
+            .filter(AuthSession.user_id.in_(ids))
+            .group_by(AuthSession.user_id)
+            .all()
+        },
+        "labs": {
+            r.user_id: r.n
+            for r in s.query(LabCompletion.user_id, func.count().label("n"))
+            .filter(LabCompletion.user_id.in_(ids))
+            .group_by(LabCompletion.user_id)
+            .all()
+        },
+        "grants": {g.user_id: g for g in s.query(ManualGrant).filter(ManualGrant.user_id.in_(ids)).all()},
+    }
+
+
+def _account_item(u: User, sub: Subscription | None, prog: Progress | None,
+                  seen: datetime | None, lab_count: int, grant: ManualGrant | None) -> dict:
+    """One row of the accounts list, with Stripe state and manual-grant state."""
+    seen_aware = _aware(seen)
+    updated = _aware(prog.updated_at) if prog else None
+    last_active = max([d for d in (seen_aware, updated) if d], default=None)
+    return {
+        "id": u.id,
+        "display_name": u.display_name or "",
+        "email": u.email,
+        "created_at": _iso(u.created_at),
+        "last_active": _iso(last_active),
+        "lessons_passed": _lessons_passed(prog.state if prog else None),
+        "labs_completed": lab_count,
+        "subscription_status": sub.status if sub else "none",
+        "subscription_period_end": _iso(sub.current_period_end) if sub else None,
+        "manual_grant": _grant_dict(grant),
+    }
+
+
 def _mrr() -> dict | None:
     """Monthly recurring revenue at the live Stripe price, or None when Stripe
     is not configured (shown as "unknown", never a made-up figure)."""
@@ -279,10 +356,18 @@ def admin_overview() -> dict:
             .scalar()
             or 0
         )
+        manual_grants_active = (
+            s.query(func.count())
+            .select_from(ManualGrant)
+            .filter(ManualGrant.revoked_at.is_(None))
+            .scalar()
+            or 0
+        )
     return {
         "total_users": total_users,
         "paying_subscribers": paying,
         "subscriptions_by_status": subs,
+        "manual_grants_active": manual_grants_active,
         "mrr": _mrr(),
         "ai_calls_30d": calls_30d,
         "ai_cost_30d_usd": round(float(cost_30d), 6),
@@ -321,42 +406,18 @@ def admin_accounts(q: str = "", page: int = 1, page_size: int = 25) -> dict:
             .all()
         )
         ids = [u.id for u in users]
-        subs = {r.user_id: r for r in s.query(Subscription).filter(Subscription.user_id.in_(ids)).all()} if ids else {}
-        progress = {r.user_id: r for r in s.query(Progress).filter(Progress.user_id.in_(ids)).all()} if ids else {}
-        last_seen = {
-            r.user_id: r.last
-            for r in s.query(AuthSession.user_id, func.max(AuthSession.last_seen_at).label("last"))
-            .filter(AuthSession.user_id.in_(ids))
-            .group_by(AuthSession.user_id)
-            .all()
-        } if ids else {}
-        labs = {
-            r.user_id: r.n
-            for r in s.query(LabCompletion.user_id, func.count().label("n"))
-            .filter(LabCompletion.user_id.in_(ids))
-            .group_by(LabCompletion.user_id)
-            .all()
-        } if ids else {}
-    items = []
-    for u in users:
-        sub = subs.get(u.id)
-        prog = progress.get(u.id)
-        seen = _aware(last_seen.get(u.id))
-        updated = _aware(prog.updated_at) if prog else None
-        last_active = max([d for d in (seen, updated) if d], default=None)
-        items.append(
-            {
-                "id": u.id,
-                "display_name": u.display_name or "",
-                "email": u.email,
-                "created_at": _iso(u.created_at),
-                "last_active": _iso(last_active),
-                "lessons_passed": _lessons_passed(prog.state if prog else None),
-                "labs_completed": labs.get(u.id, 0),
-                "subscription_status": sub.status if sub else "none",
-                "subscription_period_end": _iso(sub.current_period_end) if sub else None,
-            }
+        maps = _account_maps(s, ids)
+    items = [
+        _account_item(
+            u,
+            maps["subs"].get(u.id),
+            maps["progress"].get(u.id),
+            maps["last_seen"].get(u.id),
+            maps["labs"].get(u.id, 0),
+            maps["grants"].get(u.id),
         )
+        for u in users
+    ]
     return {"total": total, "page": page, "page_size": page_size, "items": items}
 
 
@@ -489,3 +550,285 @@ def admin_ai_calls(days: int = 30, page: int = 1, page_size: int = 25) -> dict:
             for c in recent
         ],
     }
+
+# ---------- manual enrollment (in-person sign-ups) ----------
+
+
+def _require_account(s, user_id: str) -> User:
+    """The non-deleted account for `user_id`, or 404."""
+    user = s.get(User, user_id)
+    if user is None or user.deleted_at is not None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found.")
+    return user
+
+
+@router.post("/accounts", dependencies=[Depends(require_admin)], status_code=status.HTTP_201_CREATED)
+def admin_add_account(body: dict) -> dict:
+    """Add a customer who enrolled in person: create the account by email and
+    grant paid access in the same call. The customer signs in later with
+    Google/GitHub — the first provider-verified sign-in with this email
+    merges into this account (see auth/identity.py), so no password is ever
+    set here. The grant is recorded in manual_grants, never in the Stripe
+    subscriptions table."""
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid request body.")
+    display_name = body.get("display_name") if isinstance(body.get("display_name"), str) else ""
+    display_name = (display_name or "").strip()
+    email = body.get("email") if isinstance(body.get("email"), str) else ""
+    email = (email or "").strip().lower()
+    note = _clean_note(body.get("note"))
+    if not display_name or len(display_name) > 120:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Display name is required (max 120 characters).",
+        )
+    if not _valid_email(email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="A valid email address is required."
+        )
+    if len(note) > MAX_NOTE_CHARS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Note must be at most 500 characters."
+        )
+    with db.SessionLocal() as s:
+        existing = (
+            s.query(User)
+            .filter(func.lower(User.email) == email, User.deleted_at.is_(None))
+            .first()
+        )
+        if existing is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="An account with this email already exists.",
+            )
+        user = User(display_name=display_name, email=email)
+        s.add(user)
+        s.flush()
+        grant = ManualGrant(user_id=user.id, note=note)
+        s.add(grant)
+        s.commit()
+        item = _account_item(user, None, None, None, 0, grant)
+        result = {"user": item, "manual_grant": _grant_dict(grant)}
+    log.info("admin added customer %s (%s) with a manual grant", user.id, email)
+    return result
+
+
+@router.post("/accounts/{user_id}/manual-grant", dependencies=[Depends(require_admin)], status_code=status.HTTP_201_CREATED)
+def admin_grant_access(user_id: str, body: dict | None = None) -> dict:
+    """Grant paid access to an existing account (mark paid). A grant lasts
+    until revoked from the board — it is not a Stripe subscription and it
+    never writes the subscriptions table."""
+    note = _clean_note((body or {}).get("note")) if isinstance(body, dict) else ""
+    if len(note) > MAX_NOTE_CHARS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Note must be at most 500 characters."
+        )
+    with db.SessionLocal() as s:
+        _require_account(s, user_id)
+        grant = s.get(ManualGrant, user_id)
+        if grant is not None and grant.revoked_at is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This account already has an active manual grant.",
+            )
+        if grant is None:
+            grant = ManualGrant(user_id=user_id, note=note)
+            s.add(grant)
+        else:  # re-grant after a revoke: a fresh grant period on the same row
+            grant.note = note
+            grant.granted_at = _now()
+            grant.revoked_at = None
+            grant.revoked_note = None
+        s.commit()
+        result = {"manual_grant": _grant_dict(grant)}
+    log.info("admin granted manual access to %s", user_id)
+    return result
+
+
+@router.post("/accounts/{user_id}/manual-grant/revoke", dependencies=[Depends(require_admin)])
+def admin_revoke_access(user_id: str, body: dict | None = None) -> dict:
+    """Revoke a manual grant. Stamps revoked_at (and the reason) — the row is
+    never deleted, so the record of the grant survives. Idempotent: a grant
+    that is already revoked is returned unchanged."""
+    note = _clean_note((body or {}).get("note")) if isinstance(body, dict) else ""
+    if len(note) > MAX_NOTE_CHARS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Note must be at most 500 characters."
+        )
+    with db.SessionLocal() as s:
+        _require_account(s, user_id)
+        grant = s.get(ManualGrant, user_id)
+        if grant is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="This account has no manual grant."
+            )
+        if grant.revoked_at is None:
+            grant.revoked_at = _now()
+            grant.revoked_note = note
+            s.commit()
+        result = {"manual_grant": _grant_dict(grant)}
+    log.info("admin revoked manual access for %s", user_id)
+    return result
+
+
+# ---------- report ----------
+
+#: The report carries the full accounts list (the accounts tab is paginated;
+#: a report is not) — capped so one download cannot dump an unbounded table.
+REPORT_ACCOUNTS_CAP = 1000
+#: Recent AI calls carried in the report (JSON and CSV alike).
+REPORT_RECENT_CALLS = 100
+REPORT_SECTIONS = ("all", "overview", "accounts", "subscriptions", "ai-costs")
+
+
+def _all_account_items(cap: int = REPORT_ACCOUNTS_CAP) -> dict:
+    """Every non-deleted account, newest first, in accounts-list shape."""
+    with db.SessionLocal() as s:
+        total = s.query(func.count()).select_from(User).filter(User.deleted_at.is_(None)).scalar() or 0
+        users = (
+            s.query(User)
+            .filter(User.deleted_at.is_(None))
+            .order_by(User.created_at.desc())
+            .limit(cap)
+            .all()
+        )
+        maps = _account_maps(s, [u.id for u in users])
+    items = [
+        _account_item(
+            u,
+            maps["subs"].get(u.id),
+            maps["progress"].get(u.id),
+            maps["last_seen"].get(u.id),
+            maps["labs"].get(u.id, 0),
+            maps["grants"].get(u.id),
+        )
+        for u in users
+    ]
+    return {"total": total, "items": items, "truncated": total > len(items)}
+
+
+def _report_data(days: int = 30) -> dict:
+    """The whole admin board as one report: overview, every account, every
+    subscription record, AI costs for the window. The sub-objects are the
+    same shapes the tabs return, so the on-screen report reuses the tab
+    components and the CSV renders the same figures."""
+    days = min(max(days, 1), 365)
+    return {
+        "generated_at": _now().isoformat(),
+        "days": days,
+        "overview": admin_overview(),
+        "accounts": _all_account_items(),
+        "subscriptions": admin_subscriptions(),
+        "ai_costs": admin_ai_calls(days=days, page=1, page_size=REPORT_RECENT_CALLS),
+    }
+
+
+@router.get("/report", dependencies=[Depends(require_admin)])
+def admin_report(days: int = 30) -> dict:
+    """On-screen report data: the same figures as the tabs, in one payload."""
+    return _report_data(days)
+
+
+def _report_csv(data: dict, section: str) -> str:
+    """The report as CSV. One file, one block per section, each with its own
+    header row — the same figures as the on-screen report, never invented.
+    "unknown" stays "unknown" where the data genuinely does not exist."""
+    out = io.StringIO()
+    w = csv.writer(out)
+    w.writerow(["Road to CISSP admin report", data["generated_at"]])
+    w.writerow([])
+    ov = data["overview"]
+    if section in ("all", "overview"):
+        w.writerow(["Overview"])
+        w.writerow(["Accounts", ov["total_users"]])
+        w.writerow(["Paying subscribers (Stripe)", ov["paying_subscribers"]])
+        w.writerow(["Manual enrollments (active)", ov["manual_grants_active"]])
+        mrr = ov["mrr"]
+        w.writerow(["Monthly recurring revenue (USD)", mrr["amount"] if mrr else "unknown"])
+        w.writerow(["AI tutor cost, last 30 days (USD)", ov["ai_cost_30d_usd"]])
+        w.writerow(["AI tutor calls, last 30 days", ov["ai_calls_30d"]])
+        w.writerow([])
+    if section in ("all", "accounts"):
+        w.writerow(["Accounts"])
+        w.writerow(["Name", "Email", "Signed up", "Last active", "Lessons passed", "Labs done", "Stripe subscription", "Manual grant"])
+        for a in data["accounts"]["items"]:
+            g = a.get("manual_grant") or {}
+            grant = "none" if not g else ("active" if g.get("active") else "revoked")
+            w.writerow([
+                a["display_name"],
+                a["email"],
+                a["created_at"] or "unknown",
+                a["last_active"] or "unknown",
+                a["lessons_passed"],
+                a["labs_completed"],
+                a["subscription_status"],
+                grant,
+            ])
+        if data["accounts"].get("truncated"):
+            w.writerow([f"Truncated to the first {len(data['accounts']['items'])} accounts."])
+        w.writerow([])
+    if section in ("all", "subscriptions"):
+        w.writerow(["Subscriptions (stored Stripe state)"])
+        w.writerow(["Name", "Email", "Status", "Current period ends", "Stripe customer", "Stripe subscription"])
+        for s in data["subscriptions"]["items"]:
+            w.writerow([
+                s["display_name"],
+                s["email"],
+                s["status"],
+                s["current_period_end"] or "unknown",
+                s["stripe_customer_id"] or "unknown",
+                s["stripe_subscription_id"] or "unknown",
+            ])
+        w.writerow([])
+    ai = data["ai_costs"]
+    if section in ("all", "ai-costs"):
+        w.writerow([f"AI costs — last {ai['days']} days"])
+        w.writerow(["Calls", ai["totals"]["calls"]])
+        w.writerow(["Prompt tokens", ai["totals"]["prompt_tokens"]])
+        w.writerow(["Completion tokens", ai["totals"]["completion_tokens"]])
+        w.writerow(["Cost (USD)", ai["totals"]["cost_usd"]])
+        w.writerow([])
+        w.writerow(["Calls per day"])
+        w.writerow(["Day", "Calls", "Cost (USD)"])
+        for d in ai["per_day"]:
+            w.writerow([d["day"], d["calls"], d["cost_usd"]])
+        w.writerow([])
+        w.writerow(["Top users by cost"])
+        w.writerow(["Name", "Email", "Calls", "Cost (USD)"])
+        for u in ai["per_user"]:
+            w.writerow([u["display_name"] or "", u["email"] or "", u["calls"], u["cost_usd"]])
+        w.writerow([])
+        w.writerow(["Recent calls"])
+        w.writerow(["When", "Name", "Email", "Mode", "Model", "Prompt tokens", "Completion tokens", "Cost (USD)", "Cached", "Error"])
+        for c in ai["recent"]:
+            w.writerow([
+                c["created_at"] or "unknown",
+                c["display_name"] or "",
+                c["email"] or "",
+                c["mode"],
+                c["model"],
+                c["prompt_tokens"] if c["prompt_tokens"] is not None else "unknown",
+                c["completion_tokens"] if c["completion_tokens"] is not None else "unknown",
+                c["cost_usd"] if c["cost_usd"] is not None else "unknown",
+                "yes" if c["cached"] else "no",
+                "yes" if c["error"] else "no",
+            ])
+    return out.getvalue()
+
+
+@router.get("/report.csv", dependencies=[Depends(require_admin)])
+def admin_report_csv(days: int = 30, section: str = "all"):
+    """The report as a CSV download. Same data as GET /admin/report;
+    `section` picks one block (overview, accounts, subscriptions, ai-costs)
+    or all of them."""
+    if section not in REPORT_SECTIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown report section."
+        )
+    body = _report_csv(_report_data(days), section)
+    filename = f"admin-report-{_now().date().isoformat()}.csv"
+    return StreamingResponse(
+        io.StringIO(body),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

@@ -29,7 +29,10 @@ class User(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     display_name: Mapped[str] = mapped_column(String(120), default="")
     avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
-    # Provider-verified email. Stored to enable safe auto-merge; only ever set from a verified claim.
+    # Provider-verified email. Stored to enable safe auto-merge; set from a verified claim,
+    # or entered by Spencer in the admin for a manually enrolled customer (see ManualGrant)
+    # — the first provider-verified sign-in with that email merges into that row
+    # (see auth/identity.py).
     email: Mapped[str | None] = mapped_column(String(320), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -147,6 +150,27 @@ class Subscription(Base):
     # (unpaid) period on a failed renewal. NULL unless status is past_due.
     past_due_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class ManualGrant(Base):
+    """One admin-granted paid-access grant per user (in-person enrollment).
+
+    Recorded distinctly from Stripe state: the `subscriptions` table is written
+    only by the Stripe webhook and is never touched by manual enrollment
+    (see billing.py). A grant is active while `revoked_at` is NULL; revoking
+    sets `revoked_at` (never deletes the row) so the record of who/when/why
+    survives. `billing.is_subscribed` treats an active grant as paid access —
+    the same check that gates premium content, labs, missions, voice and the
+    tutor — so a grant lasts until Spencer revokes it, even if a Stripe
+    subscription is added or cancelled later.
+    """
+    __tablename__ = "manual_grants"
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    note: Mapped[str] = mapped_column(String(500), default="")
+    granted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoked_note: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
 
 class ProcessedWebhookEvent(Base):

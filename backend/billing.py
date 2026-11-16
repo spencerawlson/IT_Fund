@@ -14,7 +14,9 @@ Subscription state lives in the `subscriptions` table and is written ONLY by the
 Stripe webhook — client input is never trusted for access decisions. Gate premium
 content with is_subscribed(user_id): True when status is "active" or "trialing"
 and the current period has not provably ended (see _row_is_subscribed), or when
-status is "past_due" and the 7-day grace from past_due_since has not expired.
+status is "past_due" and the 7-day grace from past_due_since has not expired,
+or when the admin granted the user paid access in person (see ManualGrant —
+recorded distinctly from Stripe state, never billed, revocable from /admin).
 
 Refund / failed-payment policy (published on Pricing and in Terms):
   - 14-day money-back on a FIRST subscription; after that, refunds are
@@ -37,7 +39,7 @@ from sqlalchemy import func
 
 import db
 from auth.deps import require_user_id
-from db_models import ProcessedWebhookEvent, Subscription
+from db_models import ManualGrant, ProcessedWebhookEvent, Subscription
 
 log = logging.getLogger("billing")
 
@@ -182,8 +184,11 @@ def _row_is_subscribed(row: Subscription | None) -> bool:
 
 def is_subscribed(user_id: str) -> bool:
     """True when the user has an active (or trialing) subscription whose
-    current period has not ended. Never raises."""
+    current period has not ended, or an active admin-granted manual
+    enrollment (in-person sign-up, see ManualGrant). Never raises."""
     if is_owner(user_id):
+        return True
+    if has_active_manual_grant(user_id):
         return True
     try:
         with db.SessionLocal() as s:
@@ -191,6 +196,18 @@ def is_subscribed(user_id: str) -> bool:
             return _row_is_subscribed(row)
     except Exception:  # fail closed on DB trouble, but don't take the app down
         log.exception("is_subscribed check failed for user %s", user_id)
+        return False
+
+
+def has_active_manual_grant(user_id: str) -> bool:
+    """True when the admin granted this user paid access in person and it
+    has not been revoked. Never raises — a DB failure fails closed."""
+    try:
+        with db.SessionLocal() as s:
+            row = s.get(ManualGrant, user_id)
+            return row is not None and row.revoked_at is None
+    except Exception:
+        log.exception("manual grant check failed for user %s", user_id)
         return False
 
 
@@ -411,7 +428,12 @@ async def create_checkout(request: Request,
             attribution_tag = raw_tag
     except Exception:
         pass  # no body, or not JSON — attribution is optional
-    if is_subscribed(user_id):
+    # Stripe-row check only (not is_subscribed): a manual enrollee may still
+    # convert to a real Stripe subscription — the grant is no reason to block
+    # checkout, and the webhook then becomes the source of truth.
+    with db.SessionLocal() as s:
+        _stripe_row = s.get(Subscription, user_id)
+    if is_owner(user_id) or _row_is_subscribed(_stripe_row):
         # Already paying: never open a second Checkout Session (a second
         # live subscription would double-charge while the single
         # subscriptions row tracks only the newest). Manage/cancel via the
@@ -470,12 +492,18 @@ def subscription_status(user_id: str = Depends(require_user_id)) -> dict:
         return {"subscribed": True, "status": "owner", "current_period_end": None}
     with db.SessionLocal() as s:
         row = s.get(Subscription, user_id)
-    if row is None:
-        return {"subscribed": False, "status": "none", "current_period_end": None}
+    subscribed = _row_is_subscribed(row)
+    status = row.status if row else "none"
+    if not subscribed and has_active_manual_grant(user_id):
+        # Admin-granted access (in-person enrollment): paid access with no
+        # Stripe record. The status is "manual" so the paywall and the
+        # admin board never mistake it for a Stripe subscription.
+        subscribed = True
+        status = "manual"
     return {
-        "subscribed": _row_is_subscribed(row),
-        "status": row.status,
-        "current_period_end": row.current_period_end.isoformat() if row.current_period_end else None,
+        "subscribed": subscribed,
+        "status": status,
+        "current_period_end": row.current_period_end.isoformat() if row and row.current_period_end else None,
     }
 
 
