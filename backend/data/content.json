@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-16T21:54:36.698Z",
+  "generatedAt": "2026-11-16T22:00:45.574Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -34067,7 +34067,7 @@
                   "id": "cissp-d7-0",
                   "deckId": "cissp-d7",
                   "trackId": "cissp",
-                  "q": "What does the (ISC)² incident management process begin with?",
+                  "q": "What does the ISC2 CISSP incident management process begin with?",
                   "a": "Detection, then response (containment)",
                   "x": "Detection, response, mitigation, reporting, recovery, remediation, lessons learned.",
                   "wrong": [
@@ -34448,9 +34448,9 @@
                   "id": "cissp-d8-14",
                   "deckId": "cissp-d8",
                   "trackId": "cissp",
-                  "q": "What are the Scrum roles?",
-                  "a": "Product owner, Scrum master, and the development team",
-                  "x": "The product owner prioritises the backlog; the Scrum master removes impediments.",
+                  "q": "What are the Scrum accountabilities (roles)?",
+                  "a": "Product Owner, Scrum Master, and the Developers",
+                  "x": "The Scrum Guide (2020) names three accountabilities: the Product Owner orders the backlog, the Scrum Master removes impediments, and the Developers build each increment.",
                   "wrong": [
                     "Manager, tester, client — the usual project trio",
                     "Admin, user, auditor — the operations trio together",
