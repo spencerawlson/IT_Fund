@@ -1,4 +1,4 @@
-"""Stripe subscription billing: $19/mo for premium access.
+"""Stripe subscription billing: $29 USD/mo for premium access.
 
 Free tier (no payment): 5 sample lessons, 57 flashcards, 2 labs, all marketing pages.
 Everything else requires an active subscription.
@@ -6,7 +6,7 @@ Everything else requires an active subscription.
 Env vars (never hardcoded):
   STRIPE_SECRET_KEY     — Stripe secret key (sk_...). If unset, billing endpoints 503.
   STRIPE_WEBHOOK_SECRET — signing secret for /billing/webhook (whsec_...).
-  STRIPE_PRICE_ID       — the $19/mo recurring Price id (price_...).
+  STRIPE_PRICE_ID       — the $29 USD/mo recurring Price id (price_...).
   BILLING_APP_URL       — where to send users after checkout/cancel (default: https://www.road2cissp.com).
   BILLING_OWNER_EMAILS  — comma-separated emails with full access, never billed (the owner's accounts).
 
@@ -266,7 +266,7 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
 
 #: Shown when the live Stripe price can't be read (local dev / billing unconfigured).
 #: The frontend uses this so the page never renders a blank or wrong price.
-PRICE_FALLBACK = {"configured": False, "display": "$19", "interval": "month"}
+PRICE_FALLBACK = {"configured": False, "display": "$29", "interval": "month"}
 
 #: Shape Ventoryn signs into a campaign link's utm_content param
 #: (ventoryn/signature.py: make_tag). Road to CISSP has no way to

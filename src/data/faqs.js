@@ -157,7 +157,7 @@ export const FAQ_GROUPS = [
     faqs: [
       {
         q: 'What does Pro unlock?',
-        a: 'One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators — $19/month, cancel anytime. Your progress syncs across devices.',
+        a: 'One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators — $29 USD/month, cancel anytime. Your progress syncs across devices.',
       },
       {
         q: 'Can I cancel anytime?',

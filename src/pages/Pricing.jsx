@@ -18,7 +18,7 @@ const FEATURES = [
 ];
 
 // Fallback matches billing.PRICE_FALLBACK; replaced by the live Stripe price.
-const PRICE_FALLBACK = { display: '$19', interval: 'month', amount: '19.00', currency: 'USD' };
+const PRICE_FALLBACK = { display: '$29', interval: 'month', amount: '29.00', currency: 'USD' };
 const INTERVAL_LABEL = { month: 'month', year: 'year', week: 'week', day: 'day' };
 const INTERVAL_SHORT = { month: 'mo', year: 'yr', week: 'wk', day: 'day' };
 
