@@ -238,6 +238,14 @@ export default {
           'In a star topology every node connects to a central device; most Ethernet LANs are a star, or a hierarchy of stars, around switches. A full mesh connects every node to every other node, giving the most redundancy but needing n(n-1)/2 links, so it is usually reserved for the network core or the WAN.',
         ],
       },
+      {
+        heading: 'The physical plant: racks, patch panels and power',
+        body: [
+          'Every device in this lesson lives in a rack. Rack space is measured in rack units: 1U is 44.45 mm, and the cabinet on the blueprint below is 42U — 2,010 mm tall, 600 mm wide (the 19-inch standard) and 1,000 mm deep, with 1,867 mm of usable height and a static load rating up to 1,500 kg. Devices bolt to the front rails; perforated doors and fan trays (two to four 120/140 mm fans) move air front to back, and cable management channels keep the runs tidy.',
+          'A patch panel is the permanent end of every copper run. The cable from the wall or ceiling terminates on the rear 110 punch-down blocks — punched down to the T568A or T568B wiring order (the two differ only in which pair is green and which is orange; pick one standard and use it everywhere) — and the front is 48 numbered RJ45 ports. Short patch cords connect those ports to the switch. Moving a device means moving one patch cord, never re-terminating a cable, which is the whole point of structured cabling.',
+          'Power in the rack comes from a PDU (power distribution unit): 8, 12 or 24 outlets in a 1U strip or a 0U vertical bar, with surge protection and optional remote monitoring. Plan the power the same way you plan the ports — a rack full of switches and servers that trips its breaker is down just as surely as one with a cut cable.',
+        ],
+      },
     ],
     cheatSheet: [
       ['Hub', 'L1: repeats everything; one collision domain'],
@@ -251,6 +259,10 @@ export default {
       ['RJ45 / RJ11', 'Ethernet / telephone'],
       ['PoE: af / at / bt', 'PoE / PoE+ / PoE++'],
       ['Full mesh links', 'n(n-1)/2'],
+      ['1U', '44.45 mm of rack height; a 42U cabinet is about 2 m tall.'],
+      ['Patch panel', 'Permanent end of copper runs: rear punch-down, front RJ45.'],
+      ['T568A vs T568B', 'Two wiring orders; pick one and use it everywhere.'],
+      ['PDU', 'Rack power distribution: 8, 12 or 24 outlets.'],
     ],
   },
 
@@ -381,6 +393,14 @@ export default {
         ],
       },
       {
+        heading: 'The access point',
+        body: [
+          'An access point is a radio with an Ethernet port: it bridges Wi-Fi clients onto the wired LAN. The enterprise unit on the blueprint below is a ceiling-mount disc, 220 mm across, with separate radio modules for 2.4 GHz and 5/6 GHz and a 4×4 MIMO antenna array — four spatial streams on each band, radiating in all directions (360°). A CPU runs the Wi-Fi controller, and one cable carries both data and power: 2.5 GbE with PoE (802.3af/at).',
+          'The LED light ring is the status at a glance: solid blue while booting, solid green when operational, blinking yellow while provisioning, solid red on error or fault. Placement is half the job — mounted high and central on a ceiling, one unit covers 200–350 m² and 256 or more concurrent users; a survey beats guessing.',
+          'In an enterprise the access points are managed, not configured one by one: a controller (or a cloud console) pushes the SSIDs, channels and firmware to every unit, and each unit enforces WPA3 and 802.1X as the lesson describes. That is why the access point is the authenticator in 802.1X — it is the gate every wireless client must pass.',
+        ],
+      },
+      {
         heading: 'Securing wireless',
         body: [
           'Use WPA3 today. WPA3-Personal replaces the pre-shared-key handshake with SAE, which resists offline password guessing; WPA3-Enterprise authenticates each user with 802.1X. WEP and the original WPA are broken.',
@@ -420,6 +440,10 @@ export default {
       ['1, 6, 11', 'Non-overlapping 2.4 GHz channels (US)'],
       ['WPA3 (SAE)', 'Current Wi-Fi security; WEP/WPA broken'],
       ['802.1X', 'Supplicant, authenticator, RADIUS server'],
+      ['Access point', 'Bridges Wi-Fi clients onto the wired LAN.'],
+      ['4×4 MIMO', 'Four spatial streams on each band.'],
+      ['PoE', 'Power and data over one Ethernet cable.'],
+      ['LED ring', 'Blue booting, green up, yellow provisioning, red fault.'],
     ],
   },
 
@@ -523,6 +547,14 @@ export default {
         ],
       },
       {
+        heading: 'Power: the UPS and the generator',
+        body: [
+          'A UPS is a battery with a job: it provides short-term battery power and clean power, bridging the gap until a generator takes over for long outages. The rack-mount unit on the blueprint below is a 2U device rated 1,500–3,000 VA with eight IEC C13 outlets and a runtime of 10–120 minutes at 50% load, depending on the model — and that runtime is for a graceful shutdown, not for working through the outage.',
+          '"Clean power" is the half people forget: the UPS conditions the mains, smoothing out sags and brownouts, and switches to battery instantly on a blackout, so the servers never see the gap. When the battery runs low it signals the servers (SNMP, web or SSH) to shut down cleanly — virtualization hosts, virtual machines, domain controllers — instead of crashing mid-write. That is the difference between an outage and data corruption.',
+          'The battery modules are hot-swappable — sealed lead-acid (VRLA) or lithium-ion (LiFePO4), 12 V per module — so a dead battery is replaced without taking the UPS down. The front LCD shows status, load and battery at a glance (the example reads 32% load, 58 minutes of runtime), and the EPO port — emergency power off — kills power to everything in one action, for a fire or a flood. The generator is the long game: it runs for hours, but it takes time to start and stabilise, and the minutes it needs are exactly the gap the UPS covers.',
+        ],
+      },
+      {
         heading: 'Disaster recovery targets and sites',
         body: [
           'RPO (recovery point objective) is the maximum acceptable data loss, measured in time: an RPO of one hour means backing up or replicating at least hourly. RTO (recovery time objective) is the maximum acceptable time to restore service.',
@@ -547,6 +579,8 @@ export default {
       ['MTBF / MTTR', 'Time between failures / time to repair'],
       ['Active-active vs passive', 'Both serve vs one on standby'],
       ['UPS vs generator', 'Bridge the gap vs long outages'],
+      ['UPS runtime', '10–120 min at 50% load: time to shut down cleanly.'],
+      ['EPO', 'Emergency power off: kills everything in one action.'],
       ['Change management', 'Review, schedule, rollback plan'],
       ['SD-WAN', 'Policy-based steering over mixed links'],
     ],
@@ -579,6 +613,13 @@ export default {
         body: [
           'A screened subnet (DMZ) holds public-facing services, isolated from the internal LAN, with firewalls controlling traffic between the internet, the DMZ and the inside. A compromised web server should not be one hop from the database of every customer.',
           'An access control list permits or denies traffic by address, port and protocol. ACLs are evaluated top-down, first match wins, and most end with an implicit deny. Apply least privilege: default deny, then explicitly allow only what is required.',
+        ],
+      },
+      {
+        heading: 'The next-generation firewall',
+        body: [
+          'A firewall is a filtering point between zones; a next-generation firewall (NGFW) inspects far beyond ports and addresses. It recognises applications (app control), inspects encrypted traffic (SSL inspection), and runs intrusion detection and prevention (IDS/IPS) fed by threat intelligence — so it can stop a malicious download inside an allowed HTTPS session, where a port-based rule would wave it through. The unit on the blueprint below is a 1U box: two WAN and eight LAN ports, two 10 GbE SFP+ ports, and a console port, driven by a dedicated security processor with hardware crypto acceleration (AES-NI), 32–128 GB of ECC RAM, and dual SSDs in RAID 1 holding the OS, logs and threat intelligence.',
+          'It sits where traffic changes trust: at the perimeter between the internet, the screened subnet and the internal LAN, and between segments inside the network. Policy decides what crosses, NAT translates the addresses, and every denied connection is logged — those logs are what the SOC reads when something goes wrong. Redundant power supplies keep it up, because a dead firewall is either a closed door or, worse, an open one.',
         ],
       },
       {
@@ -645,6 +686,9 @@ export default {
       ['Site-to-site vs client VPN', 'Networks vs individual users'],
       ['NAC', 'Identity + posture check, else quarantine VLAN'],
       ['Unused ports', 'Shut down, black-hole VLAN'],
+      ['NGFW', 'Firewall + app control + IDS/IPS + SSL inspection.'],
+      ['SSL inspection', 'Decrypts, inspects and re-encrypts TLS traffic.'],
+      ['IDS vs IPS', 'Detects (alerts) vs prevents (blocks in line).'],
     ],
   },
 
@@ -681,6 +725,13 @@ export default {
           'A router matches each packet’s destination against its routing table and uses the longest prefix match: a `/24` route beats a `/16`, which beats the default route `0.0.0.0/0`.',
           'Routes come from directly connected networks, static routes you configure, or dynamic routing protocols. When several sources offer the same prefix, the lowest administrative distance wins (connected 0, static 1, OSPF 110, RIP 120).',
           'OSPF is a link-state protocol: each router floods its links, builds a full map of the area and runs Dijkstra’s shortest-path algorithm, using cost (based on bandwidth) as the metric. BGP is the path-vector protocol that routes between organisations on the internet.',
+        ],
+      },
+      {
+        heading: 'Reading the box',
+        body: [
+          'The front panel tells you the state of the device at a glance. Numbered RJ45 ports carry the traffic, with link and activity LEDs per port; SFP+ uplink ports run 10 GbE between switches. A console port gives out-of-band CLI access — the way in when the network itself is the problem — and a USB port holds a configuration backup. The PWR, SYS and FAN LEDs are solid green when healthy; amber on FAN means a fan fault or overheating. Behind the panel, a switching ASIC does the forwarding at line rate while a management CPU runs the CLI, web interface and SNMP, and the MAC table (32,000 entries on the switch below) is the memory of every address it has learned.',
+          'The router wears the same layout with different labels: two WAN ports face the internet or the next network, four LAN ports face inside, and a separate management port keeps administration traffic off the data path. WAN versus LAN is a wiring decision as much as a configuration one — plug the internet into a LAN port and the filtering, NAT and routing rules all apply to the wrong side.',
         ],
       },
     ],
@@ -732,6 +783,8 @@ export default {
       ['OSPF', 'Link-state IGP, cost metric, Dijkstra SPF, AD 110'],
       ['BGP', 'Path-vector EGP that routes between autonomous systems'],
       ['Default route', '0.0.0.0/0, used when nothing more specific matches'],
+      ['Console port', 'Out-of-band CLI access when the network is down.'],
+      ['SFP+', '10 GbE uplink ports between switches.'],
     ],
   },
 };

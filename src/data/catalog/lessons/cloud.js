@@ -249,6 +249,14 @@ export default {
         ],
       },
       {
+        heading: 'The anatomy of a cloud architecture',
+        body: [
+          'The sheet below is a map of one: a virtual network (a VPC or VNet, 10.0.0.0/16) split into three subnets — public (10.0.1.0/24) for the web tier, app (10.0.2.0/24) for containers and the Kubernetes cluster, and data (10.0.3.0/24) for the database. Each subnet carries its own security group, a virtual firewall that only allows what that tier needs, so the database subnet never accepts traffic from the internet at all.',
+          'Traffic enters through a firewall/WAF for threat protection, then a load balancer (Layer 7, HTTP/HTTPS, with health checks) spreads it across the stateless web instances — the horizontal scaling of the previous section, made concrete: dead instances are pulled out of rotation automatically. Object storage holds the backups, media and logs, scaling without any server to manage.',
+          'Two things hold the whole picture together. Identity and access management decides who and what may touch each piece, and monitoring — metrics, logs, traces and alerts — watches all of it. Encryption runs TLS 1.3 in transit and AES-256 at rest, and administrators connect over an encrypted VPN, never over the open internet. Run the same stack in more than one availability zone and one zone failing becomes a failover, not an outage — the multi-AZ design the reference rates at 99.9% availability.',
+        ],
+      },
+      {
         heading: 'Disaster recovery strategies',
         body: [
           'From cheapest and slowest to most expensive and fastest: backup and restore; pilot light (core data replicated and minimal services running, scaled up on failover); warm standby (a scaled-down but fully working copy); and multi-site active/active. Choose by the RTO and RPO the business actually needs.',
@@ -273,6 +281,10 @@ export default {
       ['DR ladder', 'Backup/restore → pilot light → warm standby → active/active'],
       ['Immutable infra', 'Replace, don\'t patch in place'],
       ['Blue/green vs canary', 'Switch all vs shift a slice first'],
+      ['VPC / VNet', 'Isolated virtual network; subnets split the tiers.'],
+      ['Security group', 'Per-tier virtual firewall.'],
+      ['Load balancer', 'Spreads traffic; health checks drop dead instances.'],
+      ['Object storage', 'Backups, media, logs — scales without servers.'],
     ],
   },
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-15T11:56:30.311Z",
+  "generatedAt": "2026-11-16T18:29:24.115Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -49884,6 +49884,14 @@
           "body": [
             "In a star topology every node connects to a central device; most Ethernet LANs are a star, or a hierarchy of stars, around switches. A full mesh connects every node to every other node, giving the most redundancy but needing n(n-1)/2 links, so it is usually reserved for the network core or the WAN."
           ]
+        },
+        {
+          "heading": "The physical plant: racks, patch panels and power",
+          "body": [
+            "Every device in this lesson lives in a rack. Rack space is measured in rack units: 1U is 44.45 mm, and the cabinet on the blueprint below is 42U — 2,010 mm tall, 600 mm wide (the 19-inch standard) and 1,000 mm deep, with 1,867 mm of usable height and a static load rating up to 1,500 kg. Devices bolt to the front rails; perforated doors and fan trays (two to four 120/140 mm fans) move air front to back, and cable management channels keep the runs tidy.",
+            "A patch panel is the permanent end of every copper run. The cable from the wall or ceiling terminates on the rear 110 punch-down blocks — punched down to the T568A or T568B wiring order (the two differ only in which pair is green and which is orange; pick one standard and use it everywhere) — and the front is 48 numbered RJ45 ports. Short patch cords connect those ports to the switch. Moving a device means moving one patch cord, never re-terminating a cable, which is the whole point of structured cabling.",
+            "Power in the rack comes from a PDU (power distribution unit): 8, 12 or 24 outlets in a 1U strip or a 0U vertical bar, with surge protection and optional remote monitoring. Plan the power the same way you plan the ports — a rack full of switches and servers that trips its breaker is down just as surely as one with a cut cable."
+          ]
         }
       ],
       "cheatSheet": [
@@ -49930,6 +49938,22 @@
         [
           "Full mesh links",
           "n(n-1)/2"
+        ],
+        [
+          "1U",
+          "44.45 mm of rack height; a 42U cabinet is about 2 m tall."
+        ],
+        [
+          "Patch panel",
+          "Permanent end of copper runs: rear punch-down, front RJ45."
+        ],
+        [
+          "T568A vs T568B",
+          "Two wiring orders; pick one and use it everywhere."
+        ],
+        [
+          "PDU",
+          "Rack power distribution: 8, 12 or 24 outlets."
         ]
       ]
     },
@@ -50174,6 +50198,14 @@
           ]
         },
         {
+          "heading": "The access point",
+          "body": [
+            "An access point is a radio with an Ethernet port: it bridges Wi-Fi clients onto the wired LAN. The enterprise unit on the blueprint below is a ceiling-mount disc, 220 mm across, with separate radio modules for 2.4 GHz and 5/6 GHz and a 4×4 MIMO antenna array — four spatial streams on each band, radiating in all directions (360°). A CPU runs the Wi-Fi controller, and one cable carries both data and power: 2.5 GbE with PoE (802.3af/at).",
+            "The LED light ring is the status at a glance: solid blue while booting, solid green when operational, blinking yellow while provisioning, solid red on error or fault. Placement is half the job — mounted high and central on a ceiling, one unit covers 200–350 m² and 256 or more concurrent users; a survey beats guessing.",
+            "In an enterprise the access points are managed, not configured one by one: a controller (or a cloud console) pushes the SSIDs, channels and firmware to every unit, and each unit enforces WPA3 and 802.1X as the lesson describes. That is why the access point is the authenticator in 802.1X — it is the gate every wireless client must pass."
+          ]
+        },
+        {
           "heading": "Securing wireless",
           "body": [
             "Use WPA3 today. WPA3-Personal replaces the pre-shared-key handshake with SAE, which resists offline password guessing; WPA3-Enterprise authenticates each user with 802.1X. WEP and the original WPA are broken.",
@@ -50249,6 +50281,22 @@
         [
           "802.1X",
           "Supplicant, authenticator, RADIUS server"
+        ],
+        [
+          "Access point",
+          "Bridges Wi-Fi clients onto the wired LAN."
+        ],
+        [
+          "4×4 MIMO",
+          "Four spatial streams on each band."
+        ],
+        [
+          "PoE",
+          "Power and data over one Ethernet cable."
+        ],
+        [
+          "LED ring",
+          "Blue booting, green up, yellow provisioning, red fault."
         ]
       ]
     },
@@ -50406,6 +50454,14 @@
           ]
         },
         {
+          "heading": "Power: the UPS and the generator",
+          "body": [
+            "A UPS is a battery with a job: it provides short-term battery power and clean power, bridging the gap until a generator takes over for long outages. The rack-mount unit on the blueprint below is a 2U device rated 1,500–3,000 VA with eight IEC C13 outlets and a runtime of 10–120 minutes at 50% load, depending on the model — and that runtime is for a graceful shutdown, not for working through the outage.",
+            "\"Clean power\" is the half people forget: the UPS conditions the mains, smoothing out sags and brownouts, and switches to battery instantly on a blackout, so the servers never see the gap. When the battery runs low it signals the servers (SNMP, web or SSH) to shut down cleanly — virtualization hosts, virtual machines, domain controllers — instead of crashing mid-write. That is the difference between an outage and data corruption.",
+            "The battery modules are hot-swappable — sealed lead-acid (VRLA) or lithium-ion (LiFePO4), 12 V per module — so a dead battery is replaced without taking the UPS down. The front LCD shows status, load and battery at a glance (the example reads 32% load, 58 minutes of runtime), and the EPO port — emergency power off — kills power to everything in one action, for a fire or a flood. The generator is the long game: it runs for hours, but it takes time to start and stabilise, and the minutes it needs are exactly the gap the UPS covers."
+          ]
+        },
+        {
           "heading": "Disaster recovery targets and sites",
           "body": [
             "RPO (recovery point objective) is the maximum acceptable data loss, measured in time: an RPO of one hour means backing up or replicating at least hourly. RTO (recovery time objective) is the maximum acceptable time to restore service.",
@@ -50458,6 +50514,14 @@
           "Bridge the gap vs long outages"
         ],
         [
+          "UPS runtime",
+          "10–120 min at 50% load: time to shut down cleanly."
+        ],
+        [
+          "EPO",
+          "Emergency power off: kills everything in one action."
+        ],
+        [
           "Change management",
           "Review, schedule, rollback plan"
         ],
@@ -50494,6 +50558,13 @@
           "body": [
             "A screened subnet (DMZ) holds public-facing services, isolated from the internal LAN, with firewalls controlling traffic between the internet, the DMZ and the inside. A compromised web server should not be one hop from the database of every customer.",
             "An access control list permits or denies traffic by address, port and protocol. ACLs are evaluated top-down, first match wins, and most end with an implicit deny. Apply least privilege: default deny, then explicitly allow only what is required."
+          ]
+        },
+        {
+          "heading": "The next-generation firewall",
+          "body": [
+            "A firewall is a filtering point between zones; a next-generation firewall (NGFW) inspects far beyond ports and addresses. It recognises applications (app control), inspects encrypted traffic (SSL inspection), and runs intrusion detection and prevention (IDS/IPS) fed by threat intelligence — so it can stop a malicious download inside an allowed HTTPS session, where a port-based rule would wave it through. The unit on the blueprint below is a 1U box: two WAN and eight LAN ports, two 10 GbE SFP+ ports, and a console port, driven by a dedicated security processor with hardware crypto acceleration (AES-NI), 32–128 GB of ECC RAM, and dual SSDs in RAID 1 holding the OS, logs and threat intelligence.",
+            "It sits where traffic changes trust: at the perimeter between the internet, the screened subnet and the internal LAN, and between segments inside the network. Policy decides what crosses, NAT translates the addresses, and every denied connection is logged — those logs are what the SOC reads when something goes wrong. Redundant power supplies keep it up, because a dead firewall is either a closed door or, worse, an open one."
           ]
         },
         {
@@ -50565,6 +50636,18 @@
         [
           "Unused ports",
           "Shut down, black-hole VLAN"
+        ],
+        [
+          "NGFW",
+          "Firewall + app control + IDS/IPS + SSL inspection."
+        ],
+        [
+          "SSL inspection",
+          "Decrypts, inspects and re-encrypts TLS traffic."
+        ],
+        [
+          "IDS vs IPS",
+          "Detects (alerts) vs prevents (blocks in line)."
         ]
       ]
     },
@@ -50601,6 +50684,13 @@
             "A router matches each packet’s destination against its routing table and uses the longest prefix match: a `/24` route beats a `/16`, which beats the default route `0.0.0.0/0`.",
             "Routes come from directly connected networks, static routes you configure, or dynamic routing protocols. When several sources offer the same prefix, the lowest administrative distance wins (connected 0, static 1, OSPF 110, RIP 120).",
             "OSPF is a link-state protocol: each router floods its links, builds a full map of the area and runs Dijkstra’s shortest-path algorithm, using cost (based on bandwidth) as the metric. BGP is the path-vector protocol that routes between organisations on the internet."
+          ]
+        },
+        {
+          "heading": "Reading the box",
+          "body": [
+            "The front panel tells you the state of the device at a glance. Numbered RJ45 ports carry the traffic, with link and activity LEDs per port; SFP+ uplink ports run 10 GbE between switches. A console port gives out-of-band CLI access — the way in when the network itself is the problem — and a USB port holds a configuration backup. The PWR, SYS and FAN LEDs are solid green when healthy; amber on FAN means a fan fault or overheating. Behind the panel, a switching ASIC does the forwarding at line rate while a management CPU runs the CLI, web interface and SNMP, and the MAC table (32,000 entries on the switch below) is the memory of every address it has learned.",
+            "The router wears the same layout with different labels: two WAN ports face the internet or the next network, four LAN ports face inside, and a separate management port keeps administration traffic off the data path. WAN versus LAN is a wiring decision as much as a configuration one — plug the internet into a LAN port and the filtering, NAT and routing rules all apply to the wrong side."
           ]
         }
       ],
@@ -50666,6 +50756,14 @@
         [
           "Default route",
           "0.0.0.0/0, used when nothing more specific matches"
+        ],
+        [
+          "Console port",
+          "Out-of-band CLI access when the network is down."
+        ],
+        [
+          "SFP+",
+          "10 GbE uplink ports between switches."
         ]
       ]
     },
@@ -50694,6 +50792,12 @@
           "body": [
             "The control plane runs the routing protocols and builds the routing table (the RIB); the data plane forwards packets using the derived forwarding table (the FIB). Separating them lets forwarding stay fast while protocols think.",
             "After any topology change, the network is converging until every router again has an up-to-date, loop-free view. Fast convergence and good summarization (advertising many prefixes as one) are what keep large networks stable."
+          ]
+        },
+        {
+          "heading": "The box that routes",
+          "body": [
+            "The router making these decisions is a 1U box: two WAN ports facing the internet or the next network, four LAN ports facing inside, and a separate management port so administration traffic never rides the data path. A console port gives serial CLI access for the day the network itself is down. Inside, a multi-core CPU and ECC RAM hold the routing table and the forwarding table the lesson describes — the control plane and the data plane are software, but they run on this hardware, and a router carrying a full internet table needs the memory to hold it."
           ]
         },
         {
@@ -55906,6 +56010,14 @@
           ]
         },
         {
+          "heading": "The anatomy of a cloud architecture",
+          "body": [
+            "The sheet below is a map of one: a virtual network (a VPC or VNet, 10.0.0.0/16) split into three subnets — public (10.0.1.0/24) for the web tier, app (10.0.2.0/24) for containers and the Kubernetes cluster, and data (10.0.3.0/24) for the database. Each subnet carries its own security group, a virtual firewall that only allows what that tier needs, so the database subnet never accepts traffic from the internet at all.",
+            "Traffic enters through a firewall/WAF for threat protection, then a load balancer (Layer 7, HTTP/HTTPS, with health checks) spreads it across the stateless web instances — the horizontal scaling of the previous section, made concrete: dead instances are pulled out of rotation automatically. Object storage holds the backups, media and logs, scaling without any server to manage.",
+            "Two things hold the whole picture together. Identity and access management decides who and what may touch each piece, and monitoring — metrics, logs, traces and alerts — watches all of it. Encryption runs TLS 1.3 in transit and AES-256 at rest, and administrators connect over an encrypted VPN, never over the open internet. Run the same stack in more than one availability zone and one zone failing becomes a failover, not an outage — the multi-AZ design the reference rates at 99.9% availability."
+          ]
+        },
+        {
           "heading": "Disaster recovery strategies",
           "body": [
             "From cheapest and slowest to most expensive and fastest: backup and restore; pilot light (core data replicated and minimal services running, scaled up on failover); warm standby (a scaled-down but fully working copy); and multi-site active/active. Choose by the RTO and RPO the business actually needs."
@@ -55962,6 +56074,22 @@
         [
           "Blue/green vs canary",
           "Switch all vs shift a slice first"
+        ],
+        [
+          "VPC / VNet",
+          "Isolated virtual network; subnets split the tiers."
+        ],
+        [
+          "Security group",
+          "Per-tier virtual firewall."
+        ],
+        [
+          "Load balancer",
+          "Spreads traffic; health checks drop dead instances."
+        ],
+        [
+          "Object storage",
+          "Backups, media, logs — scales without servers."
         ]
       ]
     },
@@ -65474,6 +65602,14 @@
             "RAM is the computer's working memory: fast, temporary, and gone the moment the power goes off. ROM and its modern flash-based forms hold firmware that survives without power — the code the machine needs to start at all. Storage — hard drives and SSDs — holds everything else, permanently.",
             "Everything connects through buses. PCIe is the high-speed expansion bus: graphics cards, network cards, and NVMe drives plug into PCIe slots for a direct, fast path to the CPU and RAM. USB, HDMI, and Ethernet are the external ports — slower, but hot-swappable and universal."
           ]
+        },
+        {
+          "heading": "From a desktop to a rack: server hardware",
+          "body": [
+            "The parts above are the same parts inside a server — a rack server is the same CPU, RAM, storage and motherboard, repackaged into a flat 19-inch chassis that bolts into a cabinet. Rack space is measured in rack units: 1U is 44.45 mm high, so the 2U server on the blueprint below is 88 mm tall, 482 mm wide and 710 mm deep. A standard cabinet is 42U — about two metres of stackable slots.",
+            "Server hardware is built to be serviced without downtime. The front panel holds eight hot-swappable drive bays: a failed drive slides out and a replacement slides in while the machine keeps running, and RAID (covered in the storage lesson) protects the data while one drive is out. Two redundant power supplies and hot-swap fans do the same job for power and cooling — if one fails, the other carries the load.",
+            "The rear panel holds a dedicated management port (iLO, iDRAC or IPMI): an administrator can power the machine on or off and reach its console over the network, even when the operating system is down. That is what makes a room full of servers manageable — nobody walks to the machine. These are the boxes that run virtualization (Proxmox, VMware, Hyper-V), cloud platforms, directory services and security tools, which is why they are built for uptime first."
+          ]
         }
       ],
       "cheatSheet": [
@@ -65508,6 +65644,18 @@
         [
           "PCIe",
           "The high-speed bus for expansion cards and NVMe drives."
+        ],
+        [
+          "Rack unit (U)",
+          "44.45 mm of vertical rack space; a 2U server is 88 mm high."
+        ],
+        [
+          "Hot-swap",
+          "Replace a drive, PSU or fan without powering the machine down."
+        ],
+        [
+          "Management port",
+          "iLO / iDRAC / IPMI: remote power and console, even with the OS down."
         ]
       ]
     },
@@ -65544,6 +65692,14 @@
             "Partitioning divides one physical disk into separate logical volumes — one for the system, one for data, or one per operating system on a dual-boot machine. The partition table records where each volume starts and ends; MBR and GPT are the two formats, covered in the operating-systems lesson.",
             "Formatting writes a file system on a volume so the operating system can store and find files — the empty index of files, folders, and free space. Quick format writes a fresh index; full format also checks every sector. A growing count of bad sectors — damaged areas that can no longer hold data — is a warning: back the drive up and replace it."
           ]
+        },
+        {
+          "heading": "Network storage and RAID",
+          "body": [
+            "A NAS — network-attached storage — is a computer whose whole job is serving files over the network. The appliance on the blueprint below has eight hot-swappable drive bays, redundant power supplies and four 2.5/10 GbE network ports; it sits on the LAN and every machine maps drives to it. Typical uses: central file storage (SMB/NFS), backup and disaster recovery, storage for virtual machines (iSCSI/NFS), and holding logs and packet captures in a lab. Its M.2 NVMe slots act as cache, speeding up the data people touch most.",
+            "RAID groups disks so one disk dying does not mean data loss. RAID 0 stripes data across disks for speed, with no redundancy — lose one disk, lose everything. RAID 1 mirrors two disks, so either one alone holds the data. RAID 5 spreads parity across the disks and survives one failure (minimum three disks). RAID 6 uses dual parity and survives two failures (minimum four). RAID 10 mirrors striped pairs, combining performance and redundancy (minimum four). The exam expects you to match each level to its minimum disk count and its failure tolerance.",
+            "Because the bays are hot-swappable, a failed drive slides out and a replacement rebuilds from parity or mirror while the NAS keeps serving files. That is the point of the whole design: the storage stays up while its parts are replaced underneath it."
+          ]
         }
       ],
       "cheatSheet": [
@@ -65578,6 +65734,22 @@
         [
           "TRIM",
           "The OS telling an SSD which blocks are free, keeping it fast."
+        ],
+        [
+          "NAS",
+          "Network-attached storage: shared files over SMB/NFS."
+        ],
+        [
+          "RAID 5",
+          "Parity; survives one disk failure (min 3 disks)."
+        ],
+        [
+          "RAID 6",
+          "Dual parity; survives two failures (min 4 disks)."
+        ],
+        [
+          "RAID 10",
+          "Mirrored stripes; speed + redundancy (min 4 disks)."
         ]
       ]
     },
