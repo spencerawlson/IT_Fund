@@ -182,6 +182,16 @@ export default function Pricing() {
                 </p>
               )}
               <p className="mt-3 text-small text-ink-3">Cancel anytime. Secure checkout by Stripe.</p>
+              {/* B-29 (audit 2026-11-16): surface the refund + grace terms where the
+                  buyer decides. Wording is the FAQ/Terms policy, shortened — the
+                  FAQ and Terms stay the single source of truth. */}
+              <p className="mt-3 text-small text-ink-2">
+                <strong className="font-semibold text-ink-1">First subscription? Full refund if you ask within 14 days</strong>
+                {' '}— email{' '}
+                <a href="mailto:support@road2cissp.com" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">support@road2cissp.com</a>.
+                If a payment fails, you keep full access for 7 days while you fix it.{' '}
+                <Link to="/terms" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">Terms</Link>
+              </p>
             </div>
           </Card>
         </section>
