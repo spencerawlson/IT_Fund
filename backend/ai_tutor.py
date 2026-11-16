@@ -451,17 +451,25 @@ def _sse(payload: dict) -> str:
     return f"data: {json.dumps(payload)}\n\n"
 
 
+def cached_answer(key: Optional[str]) -> Optional[str]:
+    """The cached answer for a key (memory first, then disk), or None."""
+    if not key:
+        return None
+    cached_text = _cache.get(key)
+    if cached_text is None:
+        # Cold process (a restart wiped the in-memory cache): the disk
+        # cache still has it, so this is still a cache hit, not a fresh
+        # OpenAI call. Warm the in-memory cache so the next request on
+        # this process skips the disk read too.
+        cached_text = _disk_cache_read(key)
+        if cached_text is not None:
+            _cache_put(key, cached_text)
+    return cached_text
+
+
 def stream_answer(client, req: TutorReq, key: Optional[str], user_id: str) -> Iterator[str]:
     if key:
-        cached_text = _cache.get(key)
-        if cached_text is None:
-            # Cold process (a restart wiped the in-memory cache): the disk
-            # cache still has it, so this is still a cache hit, not a fresh
-            # OpenAI call. Warm the in-memory cache so the next request on
-            # this process skips the disk read too.
-            cached_text = _disk_cache_read(key)
-            if cached_text is not None:
-                _cache_put(key, cached_text)
+        cached_text = cached_answer(key)
         if cached_text is not None:
             yield _sse({"t": cached_text, "cached": True})
             yield _sse({"done": True})
@@ -544,10 +552,16 @@ def ai_tutor(body: TutorReq, user_id: str = Depends(require_user_id)):
             detail="AI tutor requires an active subscription.",
         )
     build_messages(body)  # validate the mode's required fields before rate limiting
-    # Spend control: sign-in required, and the per-user limit can't be dodged by IP spoofing.
-    check_rate(f"user:{user_id}")
+    key = cache_key(body)
+    # Spend control: sign-in required, and the per-user limit can't be dodged
+    # by IP spoofing. The limit guards OpenAI spend, so it only counts
+    # requests that will actually call OpenAI: an answer already in the
+    # cache costs nothing and is served without touching the learner's
+    # budget (replaying a lesson's explanation never hits "slow down").
+    if cached_answer(key) is None:
+        check_rate(f"user:{user_id}")
     return StreamingResponse(
-        stream_answer(client, body, cache_key(body), user_id),
+        stream_answer(client, body, key, user_id),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

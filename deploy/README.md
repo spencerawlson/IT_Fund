@@ -178,6 +178,18 @@ systemctl --user restart itfund-backend     # migrations auto-run at startup
 curl http://127.0.0.1:8001/health/db        # confirm
 ```
 
+### AI and voice caches — keep them
+
+Cypher's answers and voice audio are cached on disk in `backend/.tutor-cache/`
+and `backend/.voice-cache/` (git-ignored; override with `TUTOR_CACHE_DIR` /
+`VOICE_CACHE_DIR`). They are what keeps a lesson's explanation from being paid
+for twice, and `git pull` + restart keeps them. **Never run `git clean -fdx`
+(or re-clone) in `~/IT_Fund`** — that deletes both caches and every lesson's
+explanation and audio is regenerated (and billed) again. Back them up with the
+database if you move hosts. Checked on the production host 2026-11-16: 19
+tutor answers and 62 voice files (54 MB), oldest from 2026-11-13, intact
+across updates and restarts.
+
 ## Rollback
 
 ```bash
