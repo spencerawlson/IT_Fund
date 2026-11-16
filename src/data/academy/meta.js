@@ -188,6 +188,18 @@ export const RESOURCES = {
   'nist-ai-rmf': { title: 'NIST AI Risk Management Framework', url: 'https://www.nist.gov/itl/ai-risk-management-framework' },
   // CISSP
   'cissp-outline': { title: 'ISC2 CISSP exam outline', url: 'https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline' },
+  // Registered 2026-11-16 (educational audit): these ids were already cited by
+  // decks but missing here, so the sources never rendered. URLs checked live
+  // (ISO's page blocks scripted requests; it is the canonical standard page).
+  'nist-sp800-30': { title: 'NIST SP 800-30 Rev. 1 — Guide for Conducting Risk Assessments', url: 'https://csrc.nist.gov/pubs/sp/800/30/r1/final' },
+  'nist-sp800-34': { title: 'NIST SP 800-34 Rev. 1 — Contingency Planning Guide for Federal Information Systems', url: 'https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final' },
+  'nist-sp800-52': { title: 'NIST SP 800-52 Rev. 2 — Guidelines for TLS Implementations', url: 'https://csrc.nist.gov/pubs/sp/800/52/r2/final' },
+  'nist-sp800-53': { title: 'NIST SP 800-53 Rev. 5 — Security and Privacy Controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final' },
+  'nist-sp800-210': { title: 'NIST SP 800-210 — General Access Control Guidance for Cloud Systems', url: 'https://csrc.nist.gov/pubs/sp/800/210/final' },
+  'iso27001': { title: 'ISO/IEC 27001 — Information security management systems', url: 'https://www.iso.org/standard/27001' },
+  'aws-saa': { title: 'AWS Certified Solutions Architect – Associate (exam page)', url: 'https://aws.amazon.com/certification/certified-solutions-architect-associate/' },
+  'aws-scs': { title: 'AWS Certified Security – Specialty (exam page)', url: 'https://aws.amazon.com/certification/certified-security-specialty/' },
+  'comptia-cysa': { title: 'CompTIA CySA+ (exam page)', url: 'https://www.comptia.org/certifications/cybersecurity-analyst' },
   'isc2-ethics': { title: 'ISC2 Code of Ethics', url: 'https://www.isc2.org/ethics' },
   'nist-800-53': { title: 'NIST SP 800-53 security controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final' },
   'nist-rmf': { title: 'NIST Risk Management Framework (SP 800-37)', url: 'https://csrc.nist.gov/projects/risk-management' },

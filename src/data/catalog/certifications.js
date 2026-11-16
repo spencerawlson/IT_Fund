@@ -11,6 +11,10 @@ export const CERTIFICATIONS = {
   'cysa-plus': { id: 'cysa-plus', name: 'CySA+', vendor: 'CompTIA' },
   'aws-ccp': { id: 'aws-ccp', name: 'AWS Cloud Practitioner', vendor: 'AWS' },
   'aws-ai-practitioner': { id: 'aws-ai-practitioner', name: 'AWS AI Practitioner', vendor: 'AWS' },
+  // Cited by the aws-solutions-architect / aws-security-specialty courses but
+  // missing here, so their certification badges never rendered (audit 2026-11-16).
+  'aws-saa': { id: 'aws-saa', name: 'AWS Certified Solutions Architect – Associate', vendor: 'AWS' },
+  'aws-security-specialty': { id: 'aws-security-specialty', name: 'AWS Certified Security – Specialty', vendor: 'AWS' },
   ccsp: { id: 'ccsp', name: 'CCSP', vendor: 'ISC2' },
   cissp: { id: 'cissp', name: 'CISSP', vendor: 'ISC2' },
   'terraform-associate': { id: 'terraform-associate', name: 'Terraform Associate (003)', vendor: 'HashiCorp' },

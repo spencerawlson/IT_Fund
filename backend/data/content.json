@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-16T19:53:40.546Z",
+  "generatedAt": "2026-11-16T21:54:36.698Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -3997,9 +3997,9 @@
                   "id": "rt-static-5",
                   "deckId": "rt-static",
                   "trackId": "routing",
-                  "q": "Why give a floating static route AD 5 behind OSPF?",
+                  "q": "Why give a floating static route an AD of 115, behind OSPF?",
                   "a": "OSPF (AD 110) is preferred; the static installs only if OSPF fails",
-                  "x": "Any AD higher than the dynamic protocol works as long as it still beats nothing.",
+                  "x": "Lower AD wins, so the backup static needs an AD higher than the protocol it backs up (OSPF 110); a static at its default AD 1 would replace OSPF instead.",
                   "wrong": [
                     "So it is always used",
                     "To disable OSPF on the interface so that no OSPF routes are ever learned there",
@@ -12038,6 +12038,11 @@
                   "id": "comptia-sec",
                   "title": "CompTIA Security+ exam objectives",
                   "url": "https://www.comptia.org/certifications/security"
+                },
+                {
+                  "id": "nist-sp800-210",
+                  "title": "NIST SP 800-210 — General Access Control Guidance for Cloud Systems",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/210/final"
                 }
               ],
               "puzzles": []
@@ -12391,6 +12396,11 @@
                   "id": "comptia-sec",
                   "title": "CompTIA Security+ exam objectives",
                   "url": "https://www.comptia.org/certifications/security"
+                },
+                {
+                  "id": "nist-sp800-53",
+                  "title": "NIST SP 800-53 Rev. 5 — Security and Privacy Controls",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
                 }
               ],
               "puzzles": []
@@ -12861,6 +12871,11 @@
                   "id": "comptia-sec",
                   "title": "CompTIA Security+ exam objectives",
                   "url": "https://www.comptia.org/certifications/security"
+                },
+                {
+                  "id": "nist-sp800-52",
+                  "title": "NIST SP 800-52 Rev. 2 — Guidelines for TLS Implementations",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/52/r2/final"
                 }
               ],
               "puzzles": []
@@ -13448,6 +13463,11 @@
                   "id": "messer-sec",
                   "title": "Professor Messer SY0-701 Security+ course",
                   "url": "https://www.professormesser.com/security-plus/sy0-701/sy0-701-video/sy0-701-comptia-security-plus-course/"
+                },
+                {
+                  "id": "nist-sp800-30",
+                  "title": "NIST SP 800-30 Rev. 1 — Guide for Conducting Risk Assessments",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/30/r1/final"
                 },
                 {
                   "id": "isc2-cc",
@@ -14220,6 +14240,11 @@
                   "id": "nist-rmf",
                   "title": "NIST Risk Management Framework (SP 800-37)",
                   "url": "https://csrc.nist.gov/projects/risk-management"
+                },
+                {
+                  "id": "iso27001",
+                  "title": "ISO/IEC 27001 — Information security management systems",
+                  "url": "https://www.iso.org/standard/27001"
                 }
               ],
               "puzzles": []
@@ -18563,6 +18588,11 @@
                   "id": "comptia-sec",
                   "title": "CompTIA Security+ exam objectives",
                   "url": "https://www.comptia.org/certifications/security"
+                },
+                {
+                  "id": "nist-sp800-210",
+                  "title": "NIST SP 800-210 — General Access Control Guidance for Cloud Systems",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/210/final"
                 }
               ],
               "puzzles": []
@@ -18915,6 +18945,11 @@
                   "id": "comptia-sec",
                   "title": "CompTIA Security+ exam objectives",
                   "url": "https://www.comptia.org/certifications/security"
+                },
+                {
+                  "id": "nist-sp800-53",
+                  "title": "NIST SP 800-53 Rev. 5 — Security and Privacy Controls",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
                 }
               ],
               "puzzles": []
@@ -19267,6 +19302,11 @@
                   "id": "comptia-sec",
                   "title": "CompTIA Security+ exam objectives",
                   "url": "https://www.comptia.org/certifications/security"
+                },
+                {
+                  "id": "nist-sp800-53",
+                  "title": "NIST SP 800-53 Rev. 5 — Security and Privacy Controls",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
                 }
               ],
               "puzzles": []
@@ -19619,6 +19659,11 @@
                   "id": "comptia-sec",
                   "title": "CompTIA Security+ exam objectives",
                   "url": "https://www.comptia.org/certifications/security"
+                },
+                {
+                  "id": "nist-sp800-34",
+                  "title": "NIST SP 800-34 Rev. 1 — Contingency Planning Guide for Federal Information Systems",
+                  "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
                 }
               ],
               "puzzles": []
@@ -23294,7 +23339,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -23548,7 +23599,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -23802,7 +23859,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -24063,7 +24126,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -24314,7 +24383,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -24568,7 +24643,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -24819,7 +24900,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -25070,7 +25157,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -25328,7 +25421,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -25579,7 +25678,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -25830,7 +25935,13 @@
               ],
               "trackId": "aws-saa",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-saa",
+                  "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -26126,7 +26237,13 @@
               ],
               "trackId": "cysa",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -26406,7 +26523,13 @@
               ],
               "trackId": "cysa",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -26693,7 +26816,13 @@
               ],
               "trackId": "cysa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -26973,7 +27102,13 @@
               ],
               "trackId": "cysa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -27253,7 +27388,13 @@
               ],
               "trackId": "cysa",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -27540,7 +27681,13 @@
               ],
               "trackId": "cysa",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -27820,7 +27967,13 @@
               ],
               "trackId": "cysa",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -28100,7 +28253,13 @@
               ],
               "trackId": "cysa",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "comptia-cysa",
+                  "title": "CompTIA CySA+ (exam page)",
+                  "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -28292,7 +28451,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -28494,7 +28659,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -28696,7 +28867,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "beginner",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -28879,7 +29056,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -29094,7 +29277,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -29322,7 +29511,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -29498,7 +29693,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "intermediate",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -29889,7 +30090,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -30117,7 +30324,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             },
             {
@@ -30423,7 +30636,13 @@
               ],
               "trackId": "aws-security",
               "tierId": "advanced",
-              "resources": [],
+              "resources": [
+                {
+                  "id": "aws-scs",
+                  "title": "AWS Certified Security – Specialty (exam page)",
+                  "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+                }
+              ],
               "puzzles": []
             }
           ]
@@ -48413,7 +48632,7 @@
                   "deckId": "it-files-cli",
                   "trackId": "intro-it",
                   "q": "Which of these is an absolute path?",
-                  "a": "C:\\Users\\Sam\\report.pdf.",
+                  "a": "C:\\Users\\Sam\\report.pdf",
                   "x": "It starts at the root of the C: drive, so it points to the same file no matter where you are. \"..\\report.pdf\" and \"report.pdf\" are relative.",
                   "wrong": [
                     "..\\report.pdf",
