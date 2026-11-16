@@ -65,15 +65,15 @@ const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Secur
 export const SUBJECTS = [
   // Hardware
   { id: 'motherboard', category: 'Hardware', kind: '3d', icon: Cpu, label: '3D Motherboard', blurb: 'Rotate a real board — CPU socket, RAM, PCIe, chipset, and power paths.' },
-  { id: 'switch', category: 'Hardware', kind: '3d', icon: Network, label: '3D Network Switch', blurb: 'Explore ports, uplinks, and status LEDs on a managed switch.' },
-  { id: 'server-rack', category: 'Hardware', kind: '3d', icon: Server, label: '3D Server Rack', blurb: 'Inspect servers, top-of-rack switch, PDU, and UPS in a data-center rack.' },
-  { id: 'rack-server', category: 'Hardware', kind: '3d', icon: Server, label: '3D Rack Server', blurb: 'A real 2U rack server — drive bays, power supplies, cooling fans, and management port.' },
-  { id: 'ups', category: 'Hardware', kind: '3d', icon: BatteryCharging, label: '3D UPS', blurb: 'Rack-mounted battery backup — status display, protected outlets, and how it keeps servers alive.' },
-  { id: 'patch-panel', category: 'Hardware', kind: '3d', icon: Network, label: '3D Patch Panel', blurb: 'A real 24-port patch panel — numbered RJ45 ports, punched down to T568B, patched to the switch.' },
+  { id: 'switch', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Network Switch Blueprint', blurb: 'A managed 48-port switch — ports, SFP+ uplinks, status LEDs, internals and specs.' },
+  { id: 'server-rack', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Server Rack Blueprint', blurb: 'A 42U rack cabinet — rack units, rails, cable management, cooling and power distribution.' },
+  { id: 'rack-server', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Rack Server Blueprint', blurb: 'A 2U rack server — drive bays, power supplies, cooling fans, management port and internals.' },
+  { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Rack-mounted battery backup — status display, protected outlets, battery module and internals.' },
+  { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'A 48-port Cat6 patch panel — numbered RJ45 ports, 110 punch-down termination, T568A/T568B wiring.' },
   // Networking
   { id: 'osi', category: 'Networking', kind: '3d', icon: Layers, label: 'OSI Model', blurb: 'Climb the seven layers as a 3D stack, from cabling to application.' },
-  { id: 'router', category: 'Networking', kind: '3d', icon: Router, label: '3D Enterprise Router', blurb: 'A real edge router — WAN and LAN ports, management and console access, and where it sits in the topology.' },
-  { id: 'access-point', category: 'Networking', kind: '3d', icon: Wifi, label: '3D Wireless Access Point', blurb: 'Ceiling-mounted Wi-Fi — status ring, PoE uplink, and how far its signal reaches.' },
+  { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'An edge router — WAN and LAN ports, management and console access, internals and specs.' },
+  { id: 'access-point', category: 'Networking', kind: 'blueprint', icon: Wifi, label: 'Wireless Access Point Blueprint', blurb: 'Ceiling-mounted Wi-Fi — status ring, PoE uplink, MIMO antenna layout and internals.' },
   { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
   { id: 'udp', category: 'Networking', kind: 'anim', icon: Radio, label: 'UDP Datagrams', blurb: 'See fire-and-forget delivery — fast, connectionless, and lossy.' },
   { id: 'dns', category: 'Networking', kind: 'anim', icon: Globe, label: 'DNS Resolution', blurb: 'Follow a name through root, TLD, and authoritative servers.' },
@@ -90,7 +90,7 @@ export const SUBJECTS = [
   { id: 'rt-link-failure', category: 'Routing', kind: 'anim', icon: Zap, label: 'Link Failure & Reconvergence', blurb: 'A link fails; watch the network recompute paths and reroute.' },
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
-  { id: 'cloud', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: '3D Cloud Architecture', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
+  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
   { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'See traffic fan out with health checks and fast failover.' },
   { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
   { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
@@ -104,7 +104,7 @@ export const SUBJECTS = [
   { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
   // Data & Systems
   { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
-  { id: 'nas', category: 'Data & Systems', kind: '3d', icon: HardDrive, label: '3D NAS Storage', blurb: 'A real 8-bay NAS appliance — hot-swap drive bays, network ports, and redundant power.' },
+  { id: 'nas', category: 'Data & Systems', kind: 'blueprint', icon: HardDrive, label: 'NAS Storage Blueprint', blurb: 'An 8-bay NAS appliance — hot-swap drive bays, network ports, redundant power and RAID levels.' },
   { id: 'system-architecture', category: 'Data & Systems', kind: 'flow', icon: Boxes, label: 'System Architecture', blurb: 'A resilient request path with caching, failover, and observability.' },
   { id: 'cloud-migration', category: 'Data & Systems', kind: 'flow', icon: CloudCog, label: 'Cloud Migration', blurb: 'Assess, lift-and-shift, refactor, then optimize.' },
   { id: 'capacity-planning', category: 'Data & Systems', kind: 'flow', icon: Gauge, label: 'Capacity Planning', blurb: 'From workload inputs to a validated, cost-aware plan.' },
@@ -277,17 +277,38 @@ export default function Lab() {
   });
   const topRef = useRef(null);
 
-  // Keep the URL in sync so a subject can be shared/deep-linked and the back button works.
+  // Keep the URL in sync so a subject can be shared/deep-linked. Opening a
+  // subject from the list pushes a history entry, so the browser Back button
+  // returns to the subject list (not out of the Visual Lab).
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (active) url.searchParams.set('item', active);
-    else url.searchParams.delete('item');
-    window.history.replaceState(null, '', url);
+    const current = url.searchParams.get('item');
+    if (active && current !== active) {
+      url.searchParams.set('item', active);
+      window.history.pushState({ labItem: active }, '', url);
+    } else if (!active && current) {
+      url.searchParams.delete('item');
+      window.history.replaceState(null, '', url);
+    }
     if (topRef.current) topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [active]);
 
+  useEffect(() => {
+    const onPop = () => {
+      const item = new URLSearchParams(window.location.search).get('item');
+      setActive(item && RENDERERS[resolveId(item)] ? resolveId(item) : null);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   const open = useCallback((id) => setActive(resolveId(id)), []);
-  const back = useCallback(() => setActive(null), []);
+  // Return to the subject list. If we pushed this subject's history entry,
+  // step back through it so Back/Forward stay consistent.
+  const back = useCallback(() => {
+    if (window.history.state && window.history.state.labItem) window.history.back();
+    else setActive(null);
+  }, []);
 
   return (
     <div className="min-h-screen text-ink-1">
@@ -297,17 +318,23 @@ export default function Lab() {
         path="/lab"
       />
       <div ref={topRef} className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
-        <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
-          <ArrowLeft size={15} /> Practice
-        </Link>
+        {active ? (
+          <button type="button" onClick={back} className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
+            <ArrowLeft size={15} /> Visual Lab
+          </button>
+        ) : (
+          <Link to="/practice" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
+            <ArrowLeft size={15} /> Practice
+          </Link>
+        )}
 
         <header className="mb-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Visual Lab</h1>
               <p className="mt-2 max-w-xl text-body leading-relaxed text-ink-2">
-                Interactive 3D models, animated protocols, and hands-on tools. Pick a subject to explore
-                — rotate, play, and step through how each one works.
+                Equipment blueprints, interactive 3D models, animated protocols, and hands-on tools.
+                Pick a subject to explore — study, rotate, play, and step through how each one works.
               </p>
             </div>
             <Link to="/challenge" className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">

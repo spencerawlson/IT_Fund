@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { SUBJECTS, RENDERERS } from './Lab';
 
 // The Visual Lab gallery registry: every 3D subject id must resolve to a
-// renderer, ids must be unique, and the nine Meshy GLB subjects must be
-// present with kind '3d' in their categories. The firewall left the GLB set
-// on 2026-11-16: it is a 'blueprint' subject (its R2C sheet, no WebGL). Importing the page module only — nothing renders.
-const GLB_SUBJECTS = [
+// renderer, ids must be unique, and the ten equipment subjects must be
+// present with kind 'blueprint' in their categories (2026-11-16: the Visual
+// Lab shows Spencer's R2C blueprint sheets instead of the Meshy 3D models). Importing the page module only — nothing renders.
+const BLUEPRINT_SUBJECTS = [
   ['switch', 'Hardware'],
   ['server-rack', 'Hardware'],
   ['rack-server', 'Hardware'],
@@ -14,6 +14,7 @@ const GLB_SUBJECTS = [
   ['router', 'Networking'],
   ['access-point', 'Networking'],
   ['cloud', 'Cloud & Scale'],
+  ['firewall-3d', 'Security'],
   ['nas', 'Data & Systems'],
 ];
 
@@ -23,20 +24,15 @@ describe('Lab subject registry', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('lists all nine Meshy GLB subjects as 3D in their categories', () => {
-    for (const [id, category] of GLB_SUBJECTS) {
+  it('lists all ten equipment subjects as blueprints in their categories', () => {
+    for (const [id, category] of BLUEPRINT_SUBJECTS) {
       const subject = SUBJECTS.find((s) => s.id === id);
       expect(subject, id).toBeDefined();
-      expect(subject.kind).toBe('3d');
+      expect(subject.kind, id).toBe('blueprint');
       expect(subject.category).toBe(category);
     }
   });
 
-  it('shows the firewall as a blueprint subject in Security', () => {
-    const fw = SUBJECTS.find((s) => s.id === 'firewall-3d');
-    expect(fw.kind).toBe('blueprint');
-    expect(fw.category).toBe('Security');
-  });
 
   it('has a renderer for every 3D and blueprint subject', () => {
     for (const subject of SUBJECTS) {
