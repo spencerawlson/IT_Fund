@@ -8,6 +8,9 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
+import CookieConsent from '@/components/CookieConsent';
+import { loadAnalytics } from '@/lib/analytics';
+import { readConsent } from '@/lib/consent';
 import GlobalTutorChat from '@/components/academy/tutor/GlobalTutorChat';
 import { CelebrationHost } from '@/components/Celebration';
 import AcronymTooltips from '@/components/AcronymTooltips';
@@ -128,7 +131,6 @@ const AuthenticatedApp = () => {
         <Route path="/challenge" element={<Challenge />} />
         <Route path="/learning-path" element={<LearningPath />} />
         <Route path="/registry" element={<RegistryEditor />} />
-        <Route path="*" element={<PageNotFound />} />
       </Route>
 
       {/* Public front door: the marketing landing. Signed-in visitors go straight to /app. */}
@@ -138,6 +140,13 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/faq" element={<Faq />} />
+
+      {/* Catch-all (R-05): every path no route above matches renders the 404
+          page. It lives here, outside the app shell, so an unknown public
+          path shows the standalone 404 instead of the sidebar shell — and
+          the edge (vercel.json + public/404.html) answers the same paths
+          with a real HTTP 404, not the SPA shell with a 200. */}
+      <Route path="*" element={<PageNotFound />} />
 
       {/* Focus mode: lessons, quizzes, assessments, review and labs run full-screen, no navigation. */}
       <Route path="/labs" element={<LabLauncher />} />
@@ -165,6 +174,12 @@ const AuthenticatedApp = () => {
 
 
 function App({ RouterComponent = Router, routerProps = {}, initialAuth }) {
+  // Consent-gated analytics (R-04): a returning visitor who already
+  // accepted gets the tags on load; a first visit waits for the banner.
+  // No-op during the SSR prerender (no document / no stored choice there).
+  useEffect(() => {
+    if (readConsent() === 'accepted') loadAnalytics();
+  }, []);
 
   return (
     <ThemeProvider>
@@ -184,6 +199,9 @@ function App({ RouterComponent = Router, routerProps = {}, initialAuth }) {
               <CelebrationHost />
               <ErrorBoundary label="Acronyms">
                 <AcronymTooltips />
+              </ErrorBoundary>
+              <ErrorBoundary label="Consent">
+                <CookieConsent />
               </ErrorBoundary>
             </TutorProvider>
           </div>

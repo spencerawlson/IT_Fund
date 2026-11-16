@@ -25,6 +25,35 @@ function renderLanding() {
   return html;
 }
 
+describe('Landing primary CTA (R-11)', () => {
+  // Whole class tokens: 'hover:bg-action-surface-hover' contains the
+  // substring 'bg-action-surface', so match tokens, not raw text.
+  const classTokens = (attrs) => ((attrs.match(/class="([^"]*)"/) || [])[1] || '').split(/\s+/);
+  const anchorsOf = (html) => [...html.matchAll(/<a([^>]*)>([\s\S]*?)<\/a>/g)];
+
+  it('has exactly one primary CTA: the hero "Start learning free"', () => {
+    const html = renderLanding();
+    const primary = anchorsOf(html).filter(([, attrs]) =>
+      classTokens(attrs).includes('bg-action-surface'),
+    );
+    expect(primary).toHaveLength(1);
+    expect(primary[0][1]).toContain('href="/signin"');
+    expect(primary[0][2]).toContain('Start learning free');
+  });
+
+  it('demotes the competing "Create free account" and "Try a lab" actions to secondary', () => {
+    const html = renderLanding();
+    const competing = anchorsOf(html).filter(
+      ([, , inner]) => inner.includes('Create free account') || inner.includes('Try a lab'),
+    );
+    expect(competing.length).toBeGreaterThanOrEqual(2);
+    for (const [, attrs] of competing) {
+      expect(classTokens(attrs)).toContain('bg-white/70');
+      expect(classTokens(attrs)).not.toContain('bg-action-surface');
+    }
+  });
+});
+
 describe('Landing navigation (audit F-05)', () => {
   it('links to /pricing from the header and the footer', () => {
     const html = renderLanding();
@@ -37,6 +66,11 @@ describe('Landing navigation (audit F-05)', () => {
     const html = renderLanding();
     expect(html).toContain('href="/privacy"');
     expect(html).toContain('href="/terms"');
+  });
+
+  it('offers a Cookie settings control in the footer (R-04)', () => {
+    const html = renderLanding();
+    expect(html).toContain('Cookie settings');
   });
 });
 

@@ -20,6 +20,7 @@
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Road to CISSP — Networking, Security & Cloud Training</title>
     <meta name="description" content="Road to CISSP — the go-to platform for networking, security, Python, cloud, and cybersecurity training. Thousands of flashcards, guided lessons, hands-on labs, and 3D visual explainers, from IT foundations to the CISSP." />
@@ -72,13 +73,16 @@
       }
     </script>
 
-    <!-- Analytics: Plausible (privacy-friendly, no cookies). The tag only
-         counts visits once a Plausible account exists for road2cissp.com
-         and the site is added there — until Spencer creates that account
-         it sends nothing useful. -->
-    <script defer data-domain="road2cissp.com" src="https://plausible.io/js/script.js"></script>
-    <!-- Ventoryn Analytics: first-party, cookieless (no cookies, no storage, no personal data). -->
-    <script defer data-site="418e926be25e251d95badb9e" src="https://ventoryn.app/v.js"></script>
+    <!-- Analytics: Plausible + Ventoryn, BOTH consent-gated (R-04). Neither
+         tag is in this shell: src/components/CookieConsent.jsx shows the
+         banner, and src/lib/analytics.js injects the two scripts only
+         after the visitor accepts. Both are privacy-friendly and cookieless
+         (Plausible: no cookies, no cross-site tracking; Ventoryn: first-
+         party, no cookies, no storage, no personal data) — but they are
+         still third-party scripts, so they stay behind the consent gate.
+         The tags only count visits once a Plausible account exists for
+         road2cissp.com and the site is added there — until Spencer creates
+         that account they send nothing useful. -->
   </head>
   <body>
     <div id="root"></div>
