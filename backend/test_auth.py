@@ -26,6 +26,7 @@ from auth.deps import (
 )
 from auth.identity import OAuthIdentity, upsert_identity
 from auth.sessions import COOKIE_NAME, create_session, delete_session, user_for_session
+from db_models import User
 from labs import api as labs_api
 
 client = TestClient(main.app)
@@ -269,3 +270,31 @@ def test_signed_in_session_wins_over_any_guest_value():
         GUEST_COOKIE: sign_guest_token(secrets.token_urlsafe(24)),
     })
     assert resolve_visitor_id(req, Response()) == u.id
+
+# ---- admin-created accounts merge on first verified sign-in ----
+
+
+def test_admin_created_account_merges_on_verified_sign_in():
+    # Spencer adds a customer in person (no identity row yet); the first
+    # provider-verified sign-in with that email joins the same account
+    # instead of creating a duplicate.
+    with db.SessionLocal() as s:
+        u = User(display_name="Carol", email="carol@example.com")
+        s.add(u)
+        s.commit()
+        uid = u.id
+        merged = upsert_identity(s, _google("g-9", "Carol@Example.com", verified=True, name="Carol"))
+        s.commit()
+        assert merged.id == uid
+        assert len(s.query(User).all()) == 1
+
+
+def test_admin_created_account_not_merged_on_unverified_claim():
+    with db.SessionLocal() as s:
+        u = User(display_name="Carol", email="carol@example.com")
+        s.add(u)
+        s.commit()
+        uid = u.id
+        other = upsert_identity(s, _google("g-9", "carol@example.com", verified=False, name="Carol"))
+        s.commit()
+        assert other.id != uid

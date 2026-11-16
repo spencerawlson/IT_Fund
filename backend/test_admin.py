@@ -20,6 +20,7 @@ from fastapi.testclient import TestClient
 
 import admin as admin_mod
 import ai_tutor
+import billing
 import db
 import main
 from auth.identity import OAuthIdentity, upsert_identity
@@ -347,3 +348,170 @@ def test_ai_calls_endpoint_aggregates(monkeypatch):
     assert body["per_user"][0]["user_id"] == uid
     assert len(body["recent"]) == 1
     assert body["recent"][0]["mode"] == "explain"
+
+# ---------- manual enrollment ----------
+
+
+def _grant(uid, note="Enrolled in person"):
+    from db_models import ManualGrant
+
+    with db.SessionLocal() as s:
+        s.add(ManualGrant(user_id=uid, note=note))
+        s.commit()
+
+
+def _learner_cookies(uid):
+    from auth.sessions import COOKIE_NAME, create_session
+
+    with db.SessionLocal() as s:
+        raw = create_session(s, uid)
+        s.commit()
+    return {COOKIE_NAME: raw}
+
+
+def test_manual_endpoints_reject_without_admin_session():
+    for method, path in (
+        ("get", "/api/admin/report"),
+        ("get", "/api/admin/report.csv"),
+        ("post", "/api/admin/accounts"),
+        ("post", "/api/admin/accounts/u-aaa/manual-grant"),
+        ("post", "/api/admin/accounts/u-aaa/manual-grant/revoke"),
+    ):
+        r = client.request(method, path, json={} if method == "post" else None)
+        assert r.status_code == 401, path
+
+
+def test_add_account_creates_user_and_grant():
+    _admin_login()
+    r = client.post(
+        "/api/admin/accounts",
+        json={"display_name": "Carol", "email": "CAROL@Example.com", "note": "Met at the meetup"},
+    )
+    assert r.status_code == 201
+    body = r.json()
+    assert body["user"]["email"] == "carol@example.com"  # lowercased
+    assert body["user"]["display_name"] == "Carol"
+    assert body["manual_grant"]["active"] is True
+    assert body["manual_grant"]["note"] == "Met at the meetup"
+    uid = body["user"]["id"]
+    # The grant is paid access, and the Stripe table was never touched.
+    assert billing.is_subscribed(uid) is True
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid) is None
+
+
+def test_added_customer_status_is_manual():
+    _admin_login()
+    r = client.post(
+        "/api/admin/accounts",
+        json={"display_name": "Carol", "email": "carol@example.com", "note": ""},
+    )
+    uid = r.json()["user"]["id"]
+    client.cookies.clear()
+    r = client.get("/api/billing/status", cookies=_learner_cookies(uid))
+    assert r.json() == {"subscribed": True, "status": "manual", "current_period_end": None}
+
+
+def test_add_account_rejects_duplicate_email_case_insensitive():
+    _seed_user("u-aaa", "a@example.com", "Alice")
+    _admin_login()
+    r = client.post(
+        "/api/admin/accounts",
+        json={"display_name": "Alice 2", "email": "A@EXAMPLE.COM", "note": ""},
+    )
+    assert r.status_code == 409
+    assert "already exists" in r.json()["detail"]
+
+
+def test_add_account_validates_input():
+    _admin_login()
+    assert client.post(
+        "/api/admin/accounts", json={"display_name": "", "email": "a@example.com"}
+    ).status_code == 400
+    assert client.post(
+        "/api/admin/accounts", json={"display_name": "A", "email": "not-an-email"}
+    ).status_code == 400
+    assert client.post(
+        "/api/admin/accounts",
+        json={"display_name": "A", "email": "a@example.com", "note": "x" * 501},
+    ).status_code == 400
+
+
+def test_grant_revoke_cycle():
+    uid = _seed_user("u-aaa", "a@example.com", "Alice")
+    _admin_login()
+    r = client.post(f"/api/admin/accounts/{uid}/manual-grant", json={"note": "Paid cash"})
+    assert r.status_code == 201
+    assert r.json()["manual_grant"]["active"] is True
+    assert billing.is_subscribed(uid) is True
+    # A second grant while active is a conflict.
+    assert client.post(f"/api/admin/accounts/{uid}/manual-grant", json={}).status_code == 409
+    # Revoke ends access; the row survives with the reason.
+    r = client.post(
+        f"/api/admin/accounts/{uid}/manual-grant/revoke", json={"note": "Refunded"}
+    )
+    assert r.status_code == 200
+    assert r.json()["manual_grant"]["active"] is False
+    assert r.json()["manual_grant"]["revoked_note"] == "Refunded"
+    assert billing.is_subscribed(uid) is False
+    # Revoking again is idempotent.
+    assert client.post(f"/api/admin/accounts/{uid}/manual-grant/revoke", json={}).status_code == 200
+    # And a re-grant after a revoke works.
+    r = client.post(
+        f"/api/admin/accounts/{uid}/manual-grant", json={"note": "Re-enrolled"}
+    )
+    assert r.status_code == 201
+    assert r.json()["manual_grant"]["active"] is True
+    assert billing.is_subscribed(uid) is True
+
+
+def test_grant_unknown_user_and_revoke_without_grant():
+    _admin_login()
+    assert client.post("/api/admin/accounts/nope/manual-grant", json={}).status_code == 404
+    assert client.post("/api/admin/accounts/nope/manual-grant/revoke", json={}).status_code == 404
+    uid = _seed_user("u-aaa", "a@example.com", "Alice")
+    assert client.post(f"/api/admin/accounts/{uid}/manual-grant/revoke", json={}).status_code == 404
+
+
+def test_overview_and_accounts_show_manual_grants():
+    uid = _seed_user("u-aaa", "a@example.com", "Alice")
+    _grant(uid)
+    _admin_login()
+    assert client.get("/api/admin/overview").json()["manual_grants_active"] == 1
+    body = client.get("/api/admin/accounts").json()
+    alice = [a for a in body["items"] if a["email"] == "a@example.com"][0]
+    assert alice["manual_grant"]["active"] is True
+    assert alice["manual_grant"]["note"] == "Enrolled in person"
+
+
+# ---------- report ----------
+
+
+def test_report_json_and_csv_match():
+    uid = _seed_user("u-aaa", "a@example.com", "Alice")
+    _grant(uid)
+    _admin_login()
+    r = client.get("/api/admin/report")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["days"] == 30 and "generated_at" in data
+    assert data["overview"]["manual_grants_active"] == 1
+    assert data["accounts"]["total"] == 1
+    assert data["accounts"]["items"][0]["manual_grant"]["active"] is True
+    assert data["subscriptions"]["items"] == []
+    assert data["ai_costs"]["totals"]["calls"] == 0
+    r = client.get("/api/admin/report.csv")
+    assert r.status_code == 200
+    assert "text/csv" in r.headers["content-type"]
+    assert "attachment" in r.headers["content-disposition"]
+    assert "admin-report-" in r.headers["content-disposition"]
+    text = r.text
+    assert "Road to CISSP admin report" in text
+    assert "a@example.com" in text
+    assert "Manual enrollments (active),1" in text
+    # One section only.
+    r = client.get("/api/admin/report.csv?section=accounts")
+    assert "a@example.com" in r.text
+    assert "Road to CISSP admin report" in r.text
+    assert "Subscriptions (stored Stripe state)" not in r.text
+    assert client.get("/api/admin/report.csv?section=nope").status_code == 400

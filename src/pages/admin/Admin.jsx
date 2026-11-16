@@ -116,12 +116,21 @@ export function OverviewView({ data }) {
         value={fmtUsd(data.ai_cost_30d_usd, 6)}
         sub={`${data.ai_calls_30d} calls in the last 30 days`}
       />
+      <StatCard
+        label="Manual enrollments"
+        value={data.manual_grants_active ?? 0}
+        sub="Granted in person — access until revoked, never billed through Stripe."
+      />
     </div>
   );
 }
 
-export function AccountsTable({ items, total, page, pageSize, onPage }) {
+export function AccountsTable({ items, total, page, pageSize, onPage, onGrant, onRevoke, busyId }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
+  const [grantingId, setGrantingId] = useState(null);
+  const [grantNote, setGrantNote] = useState('');
+  const [confirmRevokeId, setConfirmRevokeId] = useState(null);
+  const showActions = typeof onGrant === 'function';
   return (
     <Card level={1}>
       <CardHeader title="Accounts" description={`${total} account${total === 1 ? '' : 's'} total.`} />
@@ -134,26 +143,115 @@ export function AccountsTable({ items, total, page, pageSize, onPage }) {
               <th className="py-2 pr-3">Last active</th>
               <th className="py-2 pr-3">Lessons passed</th>
               <th className="py-2 pr-3">Labs done</th>
-              <th className="py-2">Subscription</th>
+              <th className="py-2 pr-3">Subscription</th>
+              {showActions && <th className="py-2">Manual access</th>}
             </tr>
           </thead>
           <tbody>
-            {items.map((a) => (
-              <tr key={a.id} className="border-b border-black/[0.06] text-ink-1">
-                <td className="py-2 pr-3">
-                  <span className="block font-semibold">{a.display_name || a.email || UNKNOWN}</span>
-                  {a.email && a.display_name && <span className="block text-ink-2">{a.email}</span>}
-                </td>
-                <td className="py-2 pr-3">{fmtDate(a.created_at)}</td>
-                <td className="py-2 pr-3">{fmtDate(a.last_active)}</td>
-                <td className="py-2 pr-3">{a.lessons_passed}</td>
-                <td className="py-2 pr-3">{a.labs_completed}</td>
-                <td className="py-2">{a.subscription_status}</td>
-              </tr>
-            ))}
+            {items.map((a) => {
+              const grant = a.manual_grant || null;
+              const grantActive = grant?.active === true;
+              return (
+                <tr key={a.id} className="border-b border-black/[0.06] text-ink-1">
+                  <td className="py-2 pr-3">
+                    <span className="block font-semibold">{a.display_name || a.email || UNKNOWN}</span>
+                    {a.email && a.display_name && <span className="block text-ink-2">{a.email}</span>}
+                  </td>
+                  <td className="py-2 pr-3">{fmtDate(a.created_at)}</td>
+                  <td className="py-2 pr-3">{fmtDate(a.last_active)}</td>
+                  <td className="py-2 pr-3">{a.lessons_passed}</td>
+                  <td className="py-2 pr-3">{a.labs_completed}</td>
+                  <td className="py-2 pr-3">{a.subscription_status}</td>
+                  {showActions && (
+                    <td className="py-2">
+                      {grantActive ? (
+                        <div className="space-y-1">
+                          <span className="block font-semibold">Granted {fmtDate(grant.granted_at)}</span>
+                          {grant.note && <span className="block text-ink-2">{grant.note}</span>}
+                          {confirmRevokeId === a.id ? (
+                            <span className="flex gap-2">
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                disabled={busyId === a.id}
+                                onClick={() => {
+                                  setConfirmRevokeId(null);
+                                  onRevoke(a.id);
+                                }}
+                              >
+                                Confirm revoke?
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => setConfirmRevokeId(null)}>
+                                Cancel
+                              </Button>
+                            </span>
+                          ) : (
+                            <Button variant="secondary" size="sm" disabled={busyId === a.id} onClick={() => setConfirmRevokeId(a.id)}>
+                              Revoke
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {grant?.revoked_at && (
+                            <span className="block text-ink-2">Revoked {fmtDate(grant.revoked_at)}</span>
+                          )}
+                          {grantingId === a.id ? (
+                            <span className="block space-y-2">
+                              <input
+                                type="text"
+                                value={grantNote}
+                                onChange={(e) => setGrantNote(e.target.value)}
+                                placeholder="Note (optional)"
+                                aria-label="Grant note"
+                                maxLength={500}
+                                className="h-9 w-full min-w-[160px] rounded-control border border-black/10 bg-white px-2 text-small text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
+                              />
+                              <span className="flex gap-2">
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  disabled={busyId === a.id}
+                                  onClick={() => {
+                                    onGrant(a.id, grantNote);
+                                    setGrantingId(null);
+                                    setGrantNote('');
+                                  }}
+                                >
+                                  Grant access
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setGrantingId(null);
+                                    setGrantNote('');
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </span>
+                            </span>
+                          ) : (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              disabled={busyId === a.id}
+                              onClick={() => setGrantingId(a.id)}
+                            >
+                              Grant access
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
             {items.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-4 text-ink-2">
+                <td colSpan={showActions ? 7 : 6} className="py-4 text-ink-2">
                   No accounts match.
                 </td>
               </tr>
@@ -324,11 +422,128 @@ export function AiCallsView({ data }) {
   );
 }
 
+export function AddCustomerForm({ onSubmit, busy, error, success }) {
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [note, setNote] = useState('');
+  return (
+    <Card level={1}>
+      <CardHeader
+        title="Add a customer"
+        description="For someone who enrolled in person. Creates the account and grants paid access — they sign in later with Google or GitHub using this email. Access lasts until you revoke it."
+      />
+      <form
+        className="mt-4 space-y-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit({ display_name: displayName.trim(), email: email.trim(), note: note.trim() });
+        }}
+      >
+        <div>
+          <label className="block text-small font-semibold text-ink-1" htmlFor="add-customer-name">
+            Name
+          </label>
+          <input
+            id="add-customer-name"
+            type="text"
+            required
+            maxLength={120}
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="mt-1 h-11 w-full rounded-control border border-black/10 bg-white px-3 text-body text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
+            placeholder="Customer name"
+          />
+        </div>
+        <div>
+          <label className="block text-small font-semibold text-ink-1" htmlFor="add-customer-email">
+            Email
+          </label>
+          <input
+            id="add-customer-email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-1 h-11 w-full rounded-control border border-black/10 bg-white px-3 text-body text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
+            placeholder="customer@example.com"
+          />
+        </div>
+        <div>
+          <label className="block text-small font-semibold text-ink-1" htmlFor="add-customer-note">
+            Note (optional)
+          </label>
+          <input
+            id="add-customer-note"
+            type="text"
+            maxLength={500}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className="mt-1 h-11 w-full rounded-control border border-black/10 bg-white px-3 text-body text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
+            placeholder="e.g. Enrolled in person, Nov 16"
+          />
+        </div>
+        {error && (
+          <p role="alert" className="text-small font-semibold text-red-700">
+            {error}
+          </p>
+        )}
+        {success && (
+          <p role="status" className="text-small font-semibold text-green-700">
+            {success}
+          </p>
+        )}
+        <Button type="submit" loading={busy}>
+          Add customer + grant access
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
+export function ReportView({ data, onDownloadCsv }) {
+  if (!data) return <p className="text-body text-ink-2">Loading…</p>;
+  return (
+    <div className="space-y-3">
+      <Card level={1} padding="sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-small text-ink-2">
+            Report generated {fmtDate(data.generated_at)} · last {data.days} days · same figures as the tabs above.
+          </p>
+          <div className="flex gap-2 print:hidden">
+            <Button variant="secondary" size="sm" onClick={() => window.print()}>
+              Print
+            </Button>
+            <Button variant="secondary" size="sm" onClick={onDownloadCsv}>
+              Download CSV
+            </Button>
+          </div>
+        </div>
+      </Card>
+      <OverviewView data={data.overview} />
+      <AccountsTable
+        items={data.accounts.items}
+        total={data.accounts.total}
+        page={1}
+        pageSize={Math.max(data.accounts.total, 1)}
+        onPage={() => {}}
+      />
+      {data.accounts.truncated && (
+        <p className="text-small text-ink-2">
+          Report shows the first {data.accounts.items.length} accounts of {data.accounts.total}.
+        </p>
+      )}
+      <SubscriptionsView data={data.subscriptions} />
+      <AiCallsView data={data.ai_costs} />
+    </div>
+  );
+}
+
 const TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'accounts', label: 'Accounts' },
   { id: 'subscriptions', label: 'Subscriptions' },
   { id: 'ai', label: 'AI costs' },
+  { id: 'report', label: 'Report' },
 ];
 
 export default function Admin() {
@@ -342,6 +557,13 @@ export default function Admin() {
   const [accountsPage, setAccountsPage] = useState(1);
   const [subscriptions, setSubscriptions] = useState(null);
   const [aiCalls, setAiCalls] = useState(null);
+  const [report, setReport] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addError, setAddError] = useState('');
+  const [addSuccess, setAddSuccess] = useState('');
+  const [addBusy, setAddBusy] = useState(false);
+  const [addFormKey, setAddFormKey] = useState(0);
+  const [rowBusy, setRowBusy] = useState(null);
   const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
@@ -359,6 +581,7 @@ export default function Admin() {
         if (which === 'accounts') setAccounts(await adminApi.accounts({ q: accountsQ, page: accountsPage }));
         if (which === 'subscriptions') setSubscriptions(await adminApi.subscriptions());
         if (which === 'ai') setAiCalls(await adminApi.aiCalls({ days: 30 }));
+        if (which === 'report') setReport(await adminApi.report({ days: 30 }));
       } catch {
         setLoadError('Could not load admin data. The backend may be unreachable.');
       }
@@ -394,6 +617,65 @@ export default function Admin() {
     setAccounts(null);
     setSubscriptions(null);
     setAiCalls(null);
+    setReport(null);
+  };
+
+  const handleAddCustomer = async ({ display_name, email, note }) => {
+    setAddError('');
+    setAddSuccess('');
+    setAddBusy(true);
+    try {
+      const res = await adminApi.addAccount({ display_name, email, note });
+      setAddSuccess(`Added ${res.user.display_name || res.user.email} — paid access granted.`);
+      setAddFormKey((k) => k + 1);
+      load('accounts');
+      load('overview');
+    } catch (e) {
+      setAddError(
+        e.status === 409
+          ? 'An account with this email already exists.'
+          : e.detail || 'Could not add this customer.',
+      );
+    } finally {
+      setAddBusy(false);
+    }
+  };
+
+  const handleGrant = async (userId, note) => {
+    setRowBusy(userId);
+    try {
+      await adminApi.grantAccess(userId, note);
+      load('accounts');
+      load('overview');
+    } catch {
+      setLoadError('Could not grant access. Try again.');
+    } finally {
+      setRowBusy(null);
+    }
+  };
+
+  const handleRevoke = async (userId) => {
+    setRowBusy(userId);
+    try {
+      await adminApi.revokeAccess(userId, '');
+      load('accounts');
+      load('overview');
+    } catch {
+      setLoadError('Could not revoke access. Try again.');
+    } finally {
+      setRowBusy(null);
+    }
+  };
+
+  const handleDownloadCsv = () => {
+    // Same-origin anchor download: the admin session cookie rides along,
+    // and Content-Disposition makes it a file download, not a navigation.
+    const a = document.createElement('a');
+    a.href = adminApi.reportCsvUrl({ days: 30 });
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
   if (authed === null) {
@@ -410,12 +692,14 @@ export default function Admin() {
   return (
     <Shell
       action={
-        <Button variant="secondary" size="sm" icon={LogOut} onClick={handleLogout}>
-          Log out
-        </Button>
+        <span className="print:hidden">
+          <Button variant="secondary" size="sm" icon={LogOut} onClick={handleLogout}>
+            Log out
+          </Button>
+        </span>
       }
     >
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Admin sections">
+      <div className="flex flex-wrap gap-2 print:hidden" role="tablist" aria-label="Admin sections">
         {TABS.map((t) => (
           <Button
             key={t.id}
@@ -438,31 +722,49 @@ export default function Admin() {
         {tab === 'overview' && <OverviewView data={overview} />}
         {tab === 'accounts' && (
           <div className="space-y-3">
-            <div className="relative max-w-sm">
-              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-2" aria-hidden="true" />
-              <input
-                type="search"
-                value={accountsQ}
-                onChange={(e) => {
-                  setAccountsQ(e.target.value);
-                  setAccountsPage(1);
-                }}
-                placeholder="Search name or email"
-                aria-label="Search accounts by name or email"
-                className="h-11 w-full rounded-control border border-black/10 bg-white pl-9 pr-3 text-body text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
-              />
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative max-w-sm flex-1">
+                <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-2" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={accountsQ}
+                  onChange={(e) => {
+                    setAccountsQ(e.target.value);
+                    setAccountsPage(1);
+                  }}
+                  placeholder="Search name or email"
+                  aria-label="Search accounts by name or email"
+                  className="h-11 w-full rounded-control border border-black/10 bg-white pl-9 pr-3 text-body text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
+                />
+              </div>
+              <Button variant="secondary" size="sm" onClick={() => setShowAddForm((v) => !v)}>
+                {showAddForm ? 'Close add-customer form' : 'Add customer'}
+              </Button>
             </div>
+            {showAddForm && (
+              <AddCustomerForm
+                key={addFormKey}
+                onSubmit={handleAddCustomer}
+                busy={addBusy}
+                error={addError}
+                success={addSuccess}
+              />
+            )}
             <AccountsTable
               items={accounts?.items || []}
               total={accounts?.total || 0}
               page={accounts?.page || 1}
               pageSize={accounts?.page_size || 25}
               onPage={setAccountsPage}
+              onGrant={handleGrant}
+              onRevoke={handleRevoke}
+              busyId={rowBusy}
             />
           </div>
         )}
         {tab === 'subscriptions' && <SubscriptionsView data={subscriptions} />}
         {tab === 'ai' && <AiCallsView data={aiCalls} />}
+        {tab === 'report' && <ReportView data={report} onDownloadCsv={handleDownloadCsv} />}
       </div>
     </Shell>
   );
