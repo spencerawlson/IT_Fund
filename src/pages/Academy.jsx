@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Repeat, Crown, ArrowRight, Zap, Award, Play } from 'lucide-react';
+import { Repeat, Crown, ArrowRight, Zap, Award, Play, Crosshair, Shield, Waves, FlaskConical } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader, ProgressBar, SectionHeader } from '@/components/ui-glass';
 import { ContinueLearning, LearningPathCard } from '@/components/academy/ui/cards';
 import { StreakFlame } from '@/components/Celebration';
@@ -77,6 +77,38 @@ function ReviewHero({ due }) {
 /** Home: the one next lesson, then review, then where you are on your path. */
 const LANDING_TITLE = 'Road to CISSP — Networking, Security & Cloud Training';
 
+// Missions on the home page (audit B-25, Spencer 2026-11-16): until now the
+// three missions were reachable only from a lesson handoff, so a signed-in
+// learner could not find them from home. Names + descriptions come from
+// src/data/missions.js (callsigns + briefs); duration, difficulty and XP
+// come from backend/labs/missions.py where recorded — nothing is invented.
+// Operation Glasshouse has no backend mission record and no /missions page
+// (no op-glasshouse anywhere in src or backend), so it links to its lab
+// instead of a mission page that would 404.
+const HOME_MISSIONS = [
+  {
+    to: '/labs/sec-pentest-web-001',
+    icon: Crosshair,
+    title: 'Operation Glasshouse',
+    text: 'Get into the ACME intranet web app and prove how deep it goes — recon, auth bypass, SQL injection, XSS, and seizing the shell.',
+    meta: null, // no duration/difficulty recorded for this mission
+  },
+  {
+    to: '/missions/op-broken-shield',
+    icon: Shield,
+    title: 'Operation Broken Shield',
+    text: 'Unauthorized traffic between two network segments at Orion Technologies. Investigate the topology, inspect the firewall policies, and fix the configuration with least privilege — then document the incident and file your report.',
+    meta: 'Beginner · 30 min · 80 XP',
+  },
+  {
+    to: '/missions/op-packet-flood',
+    icon: Waves,
+    title: 'Operation Packet Flood',
+    text: 'The Orion intranet barely responds and the link is saturated. Capture the traffic, find which host is flooding it and what kind of flood it is, stop it at its source, then document the incident and file your report.',
+    meta: 'Intermediate · 30 min · 80 XP',
+  },
+];
+
 export default function Academy() {
   const state = useAcademy();
   const { isAuthenticated, isLoadingAuth } = useAuth();
@@ -150,6 +182,44 @@ export default function Academy() {
             <ProgressBar className="mt-4" value={overallProgress(state)} label="Overall progress" />
           </Card>
         </div>
+      </section>
+
+      {/* B-25: missions were invisible from home — no section, no nav link.
+          Each card names and describes one mission and links to its page. */}
+      <section aria-labelledby="missions-heading" className="mt-12">
+        <SectionHeader
+          id="missions-heading"
+          title="Missions"
+          description="Story-driven operations over real labs — investigate, fix, and report. Included with your membership."
+        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {HOME_MISSIONS.map(({ to, icon: Icon, title, text, meta }) => (
+            <Card key={title} to={to} level={1} padding="lg">
+              <IconTile icon={Icon} />
+              <h3 className="mt-3 text-heading font-semibold text-ink-1">{title}</h3>
+              <p className="mt-2 text-body text-ink-2">{text}</p>
+              {meta && <p className="mt-3 text-small font-semibold text-ink-2">{meta}</p>}
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* B-25: a way into the labs from home. Link only — the clickable lab
+          list itself is B-04 and is not rebuilt here. */}
+      <section aria-labelledby="labs-heading" className="mt-12">
+        <SectionHeader id="labs-heading" title="Hands-on labs" />
+        <Card to="/labs" level={1} padding="lg">
+          <div className="flex items-center gap-4">
+            <IconTile icon={FlaskConical} />
+            <div className="min-w-0 flex-1">
+              <p className="text-heading text-ink-1">Open the lab console</p>
+              <p className="mt-0.5 text-small text-ink-2">
+                Real terminals, real tools: Cisco IOS, Linux triage, Python automation, cloud sandboxes. Type labs in the console to browse the tracks.
+              </p>
+            </div>
+            <ArrowRight size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
+          </div>
+        </Card>
       </section>
     </PageContainer>
   );
