@@ -6,9 +6,10 @@ import MissionWorkspace from './MissionWorkspace';
 
 // Terminal-only mission (Operation Packet Flood): the workspace must render
 // the lab's real shell, the attestation list and the flooder report — and
-// NONE of Broken Shield's SOC room: no 3D/2D topology, no firewall console,
-// no traffic test, no cinematic opening. Same mock harness as
-// MissionWorkspace.opening.test.jsx (network + voice stubbed), but the
+// NONE of Broken Shield's SOC surface: no topology, no firewall console,
+// no traffic test, no briefing. The briefing screen owns the 3D room and
+// the opening; this page is the terminal. Same mock harness as
+// MissionBriefing.opening.test.jsx (network + voice stubbed), but the
 // mission served is the flood one.
 //
 // react-test-renderer needs the act environment flag in a DOM-less run.
@@ -180,9 +181,9 @@ vi.mock('@/components/UpgradePrompt', () => ({ default: () => null }));
 
 function renderWorkspace() {
   return TestRenderer.create(
-    <StaticRouter location="/missions/op-packet-flood">
+    <StaticRouter location="/missions/op-packet-flood/terminal">
       <Routes>
-        <Route path="/missions/:missionId" element={<MissionWorkspace />} />
+        <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
       </Routes>
     </StaticRouter>,
   );
@@ -269,7 +270,9 @@ describe('MissionWorkspace — Operation Packet Flood (terminal-only mission)', 
     await act(async () => { renderer.unmount(); });
   });
 
-  it('never plays the SOC opening for a terminal mission — no briefing turns, no tour', async () => {
+  it('never plays anything on the terminal page — no briefing, no tour', async () => {
+    // The briefing screen owns the opening now; the terminal page has no
+    // 3D room and no opening to play — it must stay silent.
     let renderer;
     await act(async () => {
       renderer = renderWorkspace();
@@ -280,6 +283,33 @@ describe('MissionWorkspace — Operation Packet Flood (terminal-only mission)', 
     await advance(10000);
     expect(voiceControl.playCalls).toHaveLength(0);
     expect(hasText(root, 'Skip intro')).toBe(false);
+
+    await act(async () => { renderer.unmount(); });
+  });
+
+  it('`hint` shows the next unfinished objective’s written hint — not the generic fallback', async () => {
+    // Live defect (2026-11-16): Spencer ran `hint` and got no hint at
+    // all — the handler showed the objective's last validation message
+    // (empty before the first `check`), never the written hints. The
+    // first unfinished objective is `open`, whose written hint is the
+    // tshark command for flood.pcap.
+    let renderer;
+    await act(async () => {
+      renderer = renderWorkspace();
+    });
+    await flush();
+    const root = renderer.root;
+    // No hint text in the terminal output before the command runs.
+    expect(hasText(root, 'Hint for "Open the capture and list its packets"')).toBe(false);
+    const input = root.findByProps({ 'aria-label': 'Terminal command' });
+    await act(async () => { input.props.onChange({ target: { value: 'hint' } }); });
+    await flush();
+    const form = input.parent;
+    await act(async () => { await form.props.onSubmit({ preventDefault: () => {} }); });
+    await flush();
+    expect(hasText(root, 'Hint for "Open the capture and list its packets"')).toBe(true);
+    expect(hasText(root, 'tshark -r flood.pcap')).toBe(true);
+    expect(hasText(root, 'Work through the mission step by step.')).toBe(false);
 
     await act(async () => { renderer.unmount(); });
   });

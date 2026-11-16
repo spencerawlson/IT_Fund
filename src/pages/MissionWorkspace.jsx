@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Check, X, Lock, RotateCcw, SearchX, TerminalSquare, ShieldCheck, Map, Boxes } from 'lucide-react';
+import { Check, X, Lock, RotateCcw, SearchX, TerminalSquare, ShieldCheck } from 'lucide-react';
 import { Button, Card, EmptyState } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
@@ -12,8 +12,7 @@ import CypherVoiceButton from '@/components/missions/CypherVoiceButton';
 import { useTutor, useTutorEnabled, TutorText, Thinking } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
-import { SHOWCASE_ORDER } from '@/components/three/socLayout';
-import { splitBriefing, getMission } from '@/data/missions';
+import { getMission } from '@/data/missions';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
@@ -21,12 +20,6 @@ import { recordMissionCompletion, recordVerifiedLabCompletion } from '@/lib/acad
 import { LESSONS_FOR_LAB } from '@/data/labLessons';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
-import { useTheme } from '@/components/ThemeProvider';
-
-// The 3D SOC room is lazy-loaded so three.js never enters the main chunk.
-// (Static imports of three/ModelViewer must stay out of this file — see
-// MissionWorkspace.test.jsx.)
-const MissionSocScene = React.lazy(() => import('@/components/three/MissionSocScene'));
 
 // The draft autosave debounce: keystrokes are saved 750ms after the last
 // one, and immediately on blur, so a reload restores what was typed.
@@ -171,34 +164,18 @@ export async function execWithSessionRecovery({ sessionId, exec, refreshSession,
   }
 }
 
-// Mission opening timings (seconds). The opening plays like a video on
-// entry (fresh attempt only): a short cinematic establishing shot, then
-// the split briefing — each robot reads their paragraph with the camera
-// on them — then a tour of the four devices. The tour dwells 4 s per
-// device (was 2.5 s): the live check found the 2.5 s tour unreadable —
-// the camera was still gliding to each device for half the dwell, and
-// the tour was over before the check looked up from the briefing. The
-// scene also settles faster during the showcase (CAMERA_DAMP_SHOWCASE).
-// Safety caps: a briefing turn advances on its own if the voice stalls
-// (the hook's suspended-context fallback guarantees playing ends), so
-// no phase can hang.
-const OPEN_OPEN_S = 1.8;
-const OPEN_SHOWCASE_S = 4.0;
-const OPEN_BRIEFING_CAP_S = 60;
-
-/** Full-screen mission workspace: Sentinel briefing, 3D SOC room (or the 2D
- *  topology when WebGL is unavailable), firewall console, traffic tests, the
- *  real lab terminal, and the incident report — ending in a debrief. The 2D
- *  path is fully playable without WebGL. */
+/** Full-screen mission workspace: the incoming transmission, the 2D
+ *  topology (SOC) or the evidence (flood), the firewall console, traffic
+ *  tests, the real lab terminal, and the incident report — ending in a
+ *  debrief. The 3D SOC room lives on the briefing screen; this page
+ *  never loads it. */
 export default function MissionWorkspace() {
   useDocumentTitle('Cyber Mission · Road to CISSP');
   const { missionId } = useParams();
   const isSocMission = missionId === SOC_MISSION_ID;
   const navigate = useNavigate();
-  const { theme } = useTheme();
   const [missionDef, setMissionDef] = useState(null);
   const [attempt, setAttempt] = useState(null);
-  const [resumedAttempt, setResumedAttempt] = useState(false);
   const [session, setSession] = useState(null);
   const [objectives, setObjectives] = useState([]);
   const [error, setError] = useState('');
@@ -208,23 +185,17 @@ export default function MissionWorkspace() {
   const [reportError, setReportError] = useState('');
   const [traffic, setTraffic] = useState(null); // { host, output }
   const [trafficBusy, setTrafficBusy] = useState(false);
-  const [view, setView] = useState(() => (readStored('rtc-mission-view', '3d') === '2d' ? '2d' : '3d'));
-  const [quality, setQuality] = useState(() => (readStored('rtc-mission-quality', 'high') === 'low' ? 'low' : 'high'));
-  const [reducedMotion, setReducedMotion] = useState(() => {
-    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
-  });
   const termRef = useRef(null);
-  // Shared Cypher voice state { talking, level }: the voice hook writes it
-  // while audio plays and the SOC scene's tick reads it every frame, so the
-  // 3D Cypher talks (talk clip + audio-reactive head bob) without
-  // re-rendering the scene. One useCypherVoice instance serves the briefing
-  // Listen button and the debrief explanation, so two clips never overlap.
+  // One useCypherVoice instance serves the briefing replay (the sound
+  // controls) and the debrief explanation, so two clips never overlap.
+  // The voice hook takes the shared voice ref; the SOC scene that used
+  // to read it lives on the briefing screen now.
   const cypherVoiceRef = useRef({ talking: false, level: 0 });
   const cypherVoice = useCypherVoice(cypherVoiceRef);
   // Briefing lines come from the API; fall back to the mission description.
-  // (Computed here, before the opening effects below, because the turn
-  // split feeds them.) The backend serves them under `briefing`; the
-  // frontend copy under `brief`.
+  // The backend serves them under `briefing`; the frontend copy under
+  // `brief`. The briefing screen reads the same lines aloud; this page
+  // shows them as the incoming transmission (MissionBrief).
   const briefLines = missionDef?.brief || missionDef?.briefing || missionDef?.lines
     || (missionDef?.description ? [missionDef.description] : []);
   // The lab under this mission and the lesson it belongs to (served by the
@@ -234,210 +205,6 @@ export default function MissionWorkspace() {
   const lessonId = missionDef?.lesson_id || (isSocMission ? 'net-security' : null);
   const callsign = missionDef?.callsign || 'OPERATION BROKEN SHIELD';
   const title = missionDef?.title || titleCase(callsign);
-  // The briefing, split into spoken turns — one per robot, from the
-  // existing text only (see splitBriefing in src/data/missions.js):
-  // Cypher opens with the introduction, Sentinel reads the servers part,
-  // Patch reads the security part, Cypher closes with the console
-  // instructions. All four turns are read by Cypher's voice: it is the
-  // only character voice configured (/api/voice/status: cypher true,
-  // sentinel/patch false), so until per-character voices exist the camera
-  // and the caption — not the voice — say who is speaking.
-  const briefingTurns = useMemo(
-    () => splitBriefing(briefLines),
-    [briefLines],
-  );
-  // Who is talking, for the SOC camera: during the opening each briefing
-  // turn's speaker drives it (the camera is on whoever is speaking); the
-  // debrief is Cypher's; otherwise the wide shot. A manual replay of the
-  // whole brief (the sound-controls button below) is Cypher reading it
-  // all, so briefingPlaying means Cypher too. The scene reads speakerRef
-  // every frame; the booleans below drive it.
-  const [briefingPlaying, setBriefingPlaying] = useState(false);
-  const [debriefPlaying, setDebriefPlaying] = useState(false);
-  const speakerRef = useRef('wide');
-  // --- Mission opening (plays like a video, on entry, fresh attempt only).
-  // Phases: 'open' (cinematic establishing shot) -> 'briefing' (the split
-  // briefing, one turn at a time: each robot reads their paragraph with
-  // the camera on them, Cypher walking while he reads his) -> 'showcase'
-  // (the four devices, one at a time, each shown + labelled in 3D) ->
-  // 'done'. 'done' also means "no opening" (a resumed attempt, reduced
-  // motion, or the user skipped). The phase lives in state (it drives the
-  // SOC card's caption + Skip button); the speaker/showcase refs are what
-  // the scene tick reads every frame.
-  const [openingPhase, setOpeningPhase] = useState('open');
-  const [briefingTurnIdx, setBriefingTurnIdx] = useState(0);
-  const [showcaseDevice, setShowcaseDevice] = useState(null);
-  const showcaseRef = useRef(null);
-  const openingStartedRef = useRef(false);
-  // Index of the briefing turn already started (-1: none yet). The ref
-  // keeps a turn from re-speaking when the effect re-runs on a playing
-  // flip; the state advances the turn once the voice ends.
-  const briefingTurnSpokenRef = useRef(-1);
-  // The 60 s per-turn briefing safety cap, held in a ref so the phase
-  // machine's cleanup can't clear it on a voice flip (see the phase
-  // machine below). Cleared by the dedicated effect when the turn
-  // advances or the briefing ends.
-  const briefingCapRef = useRef(null);
-  // Wall-clock start of the device showcase (Date.now()), so the tour
-  // runs on deadlines, not fresh timeouts (see the showcase effect).
-  const showcaseStartRef = useRef(null);
-  const voicePlayRef = useRef(null);
-  voicePlayRef.current = cypherVoice.play;
-  useEffect(() => {
-    if (openingPhase === 'briefing') {
-      speakerRef.current = briefingTurns[briefingTurnIdx]?.speaker || 'cypher';
-    } else {
-      speakerRef.current = briefingPlaying || debriefPlaying ? 'cypher' : 'wide';
-    }
-  }, [openingPhase, briefingTurnIdx, briefingTurns, briefingPlaying, debriefPlaying]);
-  useEffect(() => { showcaseRef.current = showcaseDevice; }, [showcaseDevice]);
-  // When the voice stops for any reason (natural end, Stop), clear both
-  // flags so the camera returns to the wide shot.
-  useEffect(() => {
-    if (!cypherVoice.playing) {
-      setBriefingPlaying(false);
-      setDebriefPlaying(false);
-    }
-  }, [cypherVoice.playing]);
-  // Fresh vs resumed: the opening plays only on a fresh attempt (the
-  // start endpoint returns resumed: true when it hands back an
-  // in-progress attempt). A resumed learner is mid-mission, not watching
-  // the intro again. Reduced motion skips it too (no camera moves, no
-  // auto-play). Terminal missions have no SOC room to open, so they skip
-  // it entirely. Runs once, when the mission + attempt have loaded.
-  useEffect(() => {
-    if (openingStartedRef.current) return;
-    if (!missionDef || !attempt) return;
-    openingStartedRef.current = true;
-    if (reducedMotion || resumedAttempt || !isSocMission) setOpeningPhase('done');
-  }, [missionDef, attempt, resumedAttempt, reducedMotion, isSocMission]);
-  // Opening phase machine — split in two, on purpose. This effect owns
-  // 'open' + 'briefing' only, and it is the only one that watches the
-  // voice. The 'briefing' step plays the split briefing one turn at a
-  // time: it starts the current turn's read-aloud once (the ref keeps it
-  // from re-speaking when the effect re-runs on a playing flip) and
-  // advances to the next turn when the voice ends after having played;
-  // the hook's suspended-context fallback guarantees playing ends even
-  // when Safari blocks audio, and the 60 s cap advances it regardless
-  // (per turn, so a stalled turn never hangs the sequence). A mission
-  // with no briefing lines skips straight to the showcase; the
-  // 'briefing' step waits for the mission to load rather than skipping
-  // on an empty turn list (the 'open' timer can fire before the API
-  // answers). The resumed/reduced-motion checks here are
-  // belt-and-suspenders for the fresh-vs-resumed effect above (same
-  // render, stale phase). SPLIT: the showcase effect below does not
-  // watch the voice, because a voice flip re-running the showcase timer
-  // was the 2026-11-14 defect — each flip cleared the pending 4 s
-  // timeout and started a fresh one, stretching dwells to ~10-12 s live.
-  useEffect(() => {
-    if (openingPhase === 'done' || openingPhase === 'showcase') return undefined;
-    if (!isSocMission) {
-      // Terminal missions never open the SOC room: no cinematic, no tour.
-      setOpeningPhase('done');
-      return undefined;
-    }
-    if (reducedMotion || resumedAttempt) {
-      setOpeningPhase('done');
-      return undefined;
-    }
-    if (openingPhase === 'open') {
-      const t = setTimeout(() => setOpeningPhase('briefing'), OPEN_OPEN_S * 1000);
-      return () => clearTimeout(t);
-    }
-    if (openingPhase === 'briefing') {
-      if (!missionDef) return undefined;
-      const turns = briefingTurns;
-      if (!turns.length) {
-        setOpeningPhase('showcase');
-        return undefined;
-      }
-      if (briefingTurnIdx >= turns.length) {
-        setOpeningPhase('showcase');
-        return undefined;
-      }
-      const turn = turns[briefingTurnIdx];
-      if (briefingTurnSpokenRef.current !== briefingTurnIdx) {
-        briefingTurnSpokenRef.current = briefingTurnIdx;
-        voicePlayRef.current?.(turn.text);
-        // Safety cap: if the voice stalls, the opening still advances.
-        // The cap lives in a ref, NOT in this effect's cleanup: the
-        // effect re-runs on every voice flip, and a cleanup here cleared
-        // the cap on the first flip — so a turn whose voice actually
-        // started was never guarded (the 2026-11-14 defect). The
-        // dedicated effect below clears it when the turn advances or
-        // the briefing ends.
-        if (briefingCapRef.current) clearTimeout(briefingCapRef.current);
-        briefingCapRef.current = setTimeout(() => setBriefingTurnIdx((i) => i + 1), OPEN_BRIEFING_CAP_S * 1000);
-        return undefined;
-      }
-      if (!cypherVoice.loading && !cypherVoice.playing) {
-        const t = setTimeout(() => setBriefingTurnIdx((i) => i + 1), 400);
-        return () => clearTimeout(t);
-      }
-      return undefined;
-    }
-    return undefined;
-  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, cypherVoice.loading, cypherVoice.playing, resumedAttempt, reducedMotion, isSocMission]);
-  // Briefing safety-cap cleanup: the cap guards one turn, so it is
-  // cleared when the turn advances or the briefing ends (a new turn
-  // sets its own). Without this the cap would fire into a later turn
-  // and advance it early. Cleanups run before the phase machine above
-  // sets the next turn's cap (effects run in declaration order), so a
-  // fresh cap is never cleared by its predecessor's cleanup.
-  useEffect(() => () => {
-    if (briefingCapRef.current) {
-      clearTimeout(briefingCapRef.current);
-      briefingCapRef.current = null;
-    }
-  }, [openingPhase, briefingTurnIdx]);
-  // Showcase timer — voice-free on purpose. The tour runs on a
-  // wall-clock deadline, not a fresh timeout per device:
-  // showcaseStartRef records when the showcase phase began, and device
-  // idx's slot ends at start + (idx + 1) x 4 s. The effect depends only
-  // on [openingPhase, showcaseDevice] — a voice flip mid-tour cannot
-  // re-run it, and if it does re-run (device change) it reschedules
-  // only the *remaining* time to the same deadline. Main-thread
-  // saturation can only shrink a later slot, never stretch the tour
-  // past 16 s total.
-  useEffect(() => {
-    if (openingPhase !== 'showcase') {
-      showcaseStartRef.current = null;
-      return undefined;
-    }
-    if (reducedMotion || resumedAttempt) {
-      setOpeningPhase('done');
-      return undefined;
-    }
-    if (showcaseStartRef.current === null) showcaseStartRef.current = Date.now();
-    if (!showcaseDevice) {
-      setShowcaseDevice(SHOWCASE_ORDER[0]);
-      return undefined;
-    }
-    const idx = SHOWCASE_ORDER.indexOf(showcaseDevice);
-    if (idx < 0) {
-      setShowcaseDevice(SHOWCASE_ORDER[0]);
-      return undefined;
-    }
-    const deadline = showcaseStartRef.current + (idx + 1) * OPEN_SHOWCASE_S * 1000;
-    const remaining = Math.max(0, deadline - Date.now());
-    const t = setTimeout(() => {
-      if (idx + 1 >= SHOWCASE_ORDER.length) {
-        setShowcaseDevice(null);
-        setOpeningPhase('done');
-      } else {
-        setShowcaseDevice(SHOWCASE_ORDER[idx + 1]);
-      }
-    }, remaining);
-    return () => clearTimeout(t);
-  }, [openingPhase, showcaseDevice, resumedAttempt, reducedMotion]);
-  // Skip the opening: stop the voice (its playing=false clears the
-  // speaker flags, so the camera returns to wide) and hand the mission
-  // controls over as today.
-  const skipOpening = () => {
-    cypherVoice.stop();
-    setShowcaseDevice(null);
-    setOpeningPhase('done');
-  };
   const tutorEnabled = useTutorEnabled();
   const {
     text: explainText, loading: explainLoading, error: explainError,
@@ -460,9 +227,6 @@ export default function MissionWorkspace() {
         if (!live) return;
         setMissionDef(def);
         setAttempt(started.attempt || null);
-        // The start endpoint returns resumed: true when it hands back an
-        // in-progress attempt — the opening plays only on a fresh one.
-        setResumedAttempt(Boolean(started.resumed));
         setSession(started.session || null);
         if (started.objectives) setObjectives(started.objectives);
       } catch (e) {
@@ -478,21 +242,6 @@ export default function MissionWorkspace() {
     return () => { live = false; };
   }, [missionId]);
 
-  // Warm the mission GLB cache on mount: on direct entry the SOC scene
-  // would otherwise load cypher.glb cold (the lesson handoff path
-  // pre-warms it via the lesson panel, which is why Cypher appeared there
-  // first). The SOC now needs all four mission models — the three robots
-  // plus the data-center room — so preload them all. Dynamic import so
-  // three.js stays out of the main chunk — this shares the chunk the lazy
-  // SOC scene loads, it just starts the fetches earlier.
-  useEffect(() => {
-    let cancelled = false;
-    import('@/components/three/RobotCharacter')
-      .then((m) => { if (!cancelled) m.preloadMissionRobots(); })
-      .catch(() => { /* The robots load on demand in the SOC scene */ });
-    return () => { cancelled = true; };
-  }, []);
-
   // Debrief analytics: one debrief_viewed per completed mission (counts,
   // never conversation content). `debrief` is only set on completion.
   useEffect(() => {
@@ -506,6 +255,9 @@ export default function MissionWorkspace() {
   // server-validated state (score + passed/open objectives + debrief text).
   // The tutor explains from that state — nothing is re-graded client-side.
   const explainOutcome = () => {
+    // A re-ask speaks again: the auto-play guard below remembers the last
+    // spoken outcome, so clear it before the new answer arrives.
+    explainAutoPlayedRef.current = '';
     const passed = objectives.filter((o) => o.passed).map((o) => o.label || o.id);
     const open = objectives.filter((o) => !o.passed).map((o) => o.label || o.id);
     const q = `I just completed ${title} with a score of ${debrief?.score ?? '—'} out of 100. `
@@ -522,29 +274,26 @@ export default function MissionWorkspace() {
     });
   };
 
-  // Keep reduced-motion in step with the OS while the mission is open.
+  // The spoken outcome: the server debrief first, then Cypher's
+  // explanation. The debrief opens with the congratulation ("Great job
+  // completing … with a perfect score! …"), so speaking it first
+  // guarantees the congratulation is heard — the tutor's answer alone
+  // might not open with it. Both parts are shown in this card; the
+  // voice reads the whole outcome aloud, in the order it is read.
+  const explainSpokenText = [debrief?.debrief, explainText].filter(Boolean).join('\n');
+  // Listen-first (PR #78 pattern): when Cypher's explanation finishes
+  // arriving, he reads the outcome aloud — one tap on "Ask Cypher to
+  // explain the outcome" gives text AND voice together, no second tap.
+  // The ref guards against replays on re-renders; explainOutcome resets
+  // it so a re-ask speaks again. (cypherVoice.play is a stable
+  // callback, so it is safe in the dep array.)
+  const explainAutoPlayedRef = useRef('');
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const onChange = () => setReducedMotion(mq.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
-
-  const setViewPersisted = useCallback((next) => {
-    setView(next);
-    try { localStorage.setItem('rtc-mission-view', next); } catch { /* ignore */ }
-  }, []);
-
-  const setQualityPersisted = useCallback((next) => {
-    setQuality(next);
-    try { localStorage.setItem('rtc-mission-quality', next); } catch { /* ignore */ }
-  }, []);
-
-  // WebGL failed: fall back to the 2D topology, which is fully playable.
-  const handleRendererFailed = useCallback(() => {
-    setViewPersisted('2d');
-  }, [setViewPersisted]);
+    if (!explainText || explainLoading || explainError) return;
+    if (explainAutoPlayedRef.current === explainSpokenText) return;
+    explainAutoPlayedRef.current = explainSpokenText;
+    cypherVoice.play(explainSpokenText);
+  }, [explainText, explainLoading, explainError, explainSpokenText, cypherVoice.play]);
 
   const applyAttemptState = useCallback((res) => {
     if (!res) return;
@@ -672,7 +421,17 @@ export default function MissionWorkspace() {
       const open = objectives.find((o) => !o.passed);
       if (!open) return { output: 'Every objective is complete — file the incident report.' };
       logCypherEvent({ event: 'hint_viewed', mission_id: missionId, meta: { objective_id: open.id } });
-      return { output: `Hint for "${open.label || MISSION_OBJECTIVE_LABELS[open.id] || open.id}":\n  ${open.message || 'Work through the mission step by step.'}` };
+      // The written hints live on the mission definition (getMission's
+      // public_dict covers lab + mission objectives) — the attempt
+      // payload carries no hints, only the last validation message,
+      // which is empty before the first `check`, so the old code showed
+      // the generic fallback and no hint at all. Show the written hints
+      // first; the validation message only fills the gap when the
+      // definition has no hint for the objective.
+      const written = (missionDef?.objectives || []).find((o) => o.id === open.id)?.hints;
+      const hints = Array.isArray(written) ? written.filter(Boolean) : [];
+      const body = hints.length ? hints.join('\n  ') : (open.message || 'Work through the mission step by step.');
+      return { output: `Hint for "${open.label || MISSION_OBJECTIVE_LABELS[open.id] || open.id}":\n  ${body}` };
     }
     if (c === 'check') {
       try {
@@ -717,7 +476,7 @@ export default function MissionWorkspace() {
       } catch { return { output: meta }; }
     }
     return labsApi.exec(session.id, raw);
-  }, [session, objectives, attempt, applyAttemptState, reset, navigate]);
+  }, [session, objectives, attempt, applyAttemptState, reset, navigate, missionDef]);
 
   // Traffic test: ping the server from a host, then re-validate so the
   // blocked/allowed display comes from the latest validation state — never
@@ -805,8 +564,6 @@ export default function MissionWorkspace() {
   // chain would silently hide the session's config.
   const missionFindings = attempt?.findings || {};
   const inspected = missionFindings?.topology?.inspected || [];
-  const incidentActive = !passed('guest-blocked');
-  const contained = passed('guest-blocked') && passed('trusted-allowed');
   const config = session?.findings?.config || {};
   const report = missionFindings?.incident_report || {};
   const reportSubmitted = report.submitted === true || passed('report');
@@ -889,20 +646,6 @@ export default function MissionWorkspace() {
   }
 
   const missionForBrief = { callsign, brief: briefLines };
-  const background = theme === 'dark' ? '#111111' : '#F8F7FF';
-  // Opening caption: a label for the current moment (not dialogue — the
-  // spoken lines are only the existing briefing text, read by Cypher's
-  // voice). While a turn plays, the subtitle is the spoken words; before
-  // it starts, the label names the speaker and their room.
-  const briefingTurn = openingPhase === 'briefing' ? briefingTurns[briefingTurnIdx] : null;
-  const briefingTurnLabel = briefingTurn?.speaker === 'sentinel' ? 'Sentinel — server room'
-    : briefingTurn?.speaker === 'patch' ? 'Patch — workshop'
-    : 'Cypher reads the briefing…';
-  const openingCaption = openingPhase === 'open' ? 'Opening the SOC…'
-    : openingPhase === 'briefing' ? (cypherVoice.subtitle || briefingTurnLabel)
-    : openingPhase === 'showcase' ? (showcaseDevice ? `Equipment tour — ${showcaseDevice}` : 'Equipment tour')
-    : null;
-  const openingActive = openingPhase !== 'done';
   const done = attempt.status === 'COMPLETED' || !!debrief;
   const labObjectiveIds = LAB_OBJECTIVE_IDS_BY_LAB[labId] || [];
   const labObjectives = objectives.filter((o) => labObjectiveIds.includes(o.id));
@@ -927,139 +670,42 @@ export default function MissionWorkspace() {
   return (
     <div className="min-h-[100dvh] text-ink-1">
       <header className="sticky top-safe z-30 px-3 pt-3 sm:px-6 sm:pt-5">
-        <div className="glass-1 nav-solid mx-auto flex max-w-6xl flex-wrap items-center gap-2 rounded-card px-3 py-2 sm:px-4">
+        <div className="glass-1 nav-solid mx-auto flex max-w-6xl flex-wrap items-center gap-2 rounded-card px-3 py-2 sm:px-4 min-[1810px]:max-w-[112rem]">
           <ShieldCheck size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate text-body font-semibold">{callsign} — {title}</span>
-          {isSocMission && (
-            <>
-              <label className="flex items-center gap-1.5 text-caption text-ink-2">
-                Quality
-                <select
-                  value={quality}
-                  onChange={(e) => setQualityPersisted(e.target.value === 'low' ? 'low' : 'high')}
-                  aria-label="3D quality"
-                  className="rounded-control border border-black/10 bg-white/80 px-1.5 py-1 text-caption font-semibold text-ink-1"
-                >
-                  <option value="high">High</option>
-                  <option value="low">Low</option>
-                </select>
-              </label>
-              <Button
-                size="sm"
-                variant="secondary"
-                icon={view === '3d' ? Map : Boxes}
-                onClick={() => setViewPersisted(view === '3d' ? '2d' : '3d')}
-              >
-                {view === '3d' ? '2D view' : '3D view'}
-              </Button>
-            </>
-          )}
           <Button size="sm" variant="ghost" icon={RotateCcw} onClick={reset} disabled={busy}>Reset</Button>
           <Button size="sm" variant="secondary" to={lessonId ? `/academy/lessons/${lessonId}` : '/labs'}>Lesson</Button>
           <Button size="sm" variant="secondary" to="/labs">Exit</Button>
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr]">
-        {/* SOC room first, full width: the 3D frame is the mission's
-            centrepiece, and its camera focuses on whoever is talking.
-            Terminal missions have no SOC room — they get the evidence card
-            below instead, in the same full-width slot. */}
-        {isSocMission && (
-        <div className="lg:col-span-2">
-          <Card level={2} className={`mission-console${openingActive ? ' soc-open' : ''}`}>
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
-              <h2 className="font-mono text-heading text-terminal-bright">SOC Room</h2>
-              <span className="hidden text-caption text-terminal-muted sm:inline">
-                {view === '3d'
-                  ? 'Cypher presents the SOC — switch to the 2D topology to inspect devices'
-                  : '2D topology — fully playable without WebGL'}
-              </span>
-              {openingActive && (
-                <button type="button" onClick={skipOpening} className="ml-auto rounded-control border border-black/10 bg-white/80 px-2.5 py-1 text-caption font-semibold text-ink-1">
-                  Skip intro
-                </button>
-              )}
-            </div>
-            {openingCaption && (
-              <p className="mb-3 text-small text-terminal-muted" aria-live="polite">{openingCaption}</p>
-            )}
-            {view === '3d' ? (
-              <React.Suspense fallback={<div className="flex aspect-[16/10] items-center justify-center text-ink-2">Loading SOC room…</div>}>
-                <MissionSocScene
-                  devices={MISSION_TOPOLOGY_DEVICES}
-                  incidentActive={incidentActive}
-                  contained={contained}
-                  onRendererFailed={handleRendererFailed}
-                  background={background}
-                  reducedMotion={reducedMotion}
-                  quality={quality}
-                  cypherVoiceRef={cypherVoiceRef}
-                  speakerRef={speakerRef}
-                  showcaseRef={showcaseRef}
-                />
-              </React.Suspense>
-            ) : (
-              <MissionTopology
-                devices={MISSION_TOPOLOGY_DEVICES}
-                inspected={inspected}
-                onInspect={onInspect}
-                guestBlocked={passed('guest-blocked') ? true : null}
-                trustedAllowed={passed('trusted-allowed') ? true : null}
-                activeDevice={null}
-              />
-            )}
-          </Card>
-        </div>
-        )}
-        {!isSocMission && (
-        <div className="lg:col-span-2">
-          <Card level={2} className="mission-console">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
-              <h2 className="font-mono text-heading text-terminal-bright">Your evidence</h2>
-              <span className="hidden text-caption text-terminal-muted sm:inline">
-                flood.pcap is in your home directory — read it with tshark, tcpdump, or Wireshark
-              </span>
-            </div>
-            <p className="text-small leading-relaxed text-terminal-muted">
-              The flood is in <code>flood.pcap</code>: a little ordinary traffic, then a burst of
-              packets against the web server from a single internal host. <code>capture.pcap</code> and{' '}
-              <code>dns-exfil.pcap</code> are there too, from the lab&apos;s earlier objectives.
-              Any tool works — the mission checks your finding, not your tool.
-            </p>
-            <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-black/10 bg-terminal-bg p-3 font-mono text-[12px] leading-relaxed text-terminal-text">
-{`tshark -r flood.pcap -q -z io,phs
-tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
-            </pre>
-          </Card>
-        </div>
-        )}
-
-        <div className="space-y-4">
+      {/* Terminal page: no 3D room — the briefing screen owns it. Wide
+          desktops (min 1810 px) get three columns: the transmission +
+          brief cluster left, the topology + firewall centre, the console
+          + incident report right — so the key cards are all in the first
+          viewport and the learner never has to scroll to the bottom to
+          find the report. Below the gate the two-column stacked layout
+          stands. */}
+      <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr] min-[1810px]:max-w-[112rem] min-[1810px]:grid-cols-[16rem_minmax(0,1fr)_20rem]">
+        <div className="space-y-4 min-[1810px]:col-start-1 min-[1810px]:row-start-1">
           <MissionBrief mission={missionForBrief} />
           {typeof missionDef.xp === 'number' && (
             <p className="text-small text-ink-2">
               First completion earns {missionDef.xp} XP — replays earn none.
             </p>
           )}
-          {/* The briefing plays itself on mission entry (the opening
-              auto-plays it, one robot's paragraph at a time), so the "Hear
-              the briefing" card's wording and its Listen button are gone
+          {/* The briefing plays on the briefing screen (the robots read
+              it there, one paragraph at a time), so the "Hear the
+              briefing" card's wording and its Listen button are gone
               — Spencer, 2026-11-14: "No need to have any wording there."
               Only the sound controls stay, slim and unobtrusive, so the
-              learner can still mute or turn Cypher down. The
-              onPlayingChange wiring stays: it is what tells the SOC
-              camera the replay is playing (Cypher reads the whole brief,
-              so the camera stays on him). */}
+              learner can re-listen, mute, or turn Cypher down. */}
           {briefLines.length > 0 && (
             <div className="px-1">
               <CypherVoiceButton
                 text={briefLines.join('\n')}
                 voice={cypherVoice}
                 eventContext={{ mission_id: missionId }}
-                onPlayingChange={setBriefingPlaying}
                 controlsOnly
               />
             </div>
@@ -1070,7 +716,7 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
           <Card level={2}>
             <h2 className="text-heading text-ink-1">Where do you stand?</h2>
             <p className="mt-1 text-small text-ink-2">
-              Check the Mission Console below: run <code>objectives</code> for the list,{' '}
+              Check the Mission Console: run <code>objectives</code> for the list,{' '}
               <code>progress</code> for the count, and <code>hint</code> when you are stuck.
               {isSocMission ? ' After changing the firewall, run ' : ' After capturing, run '}
               <code>check</code> to re-validate first.
@@ -1100,7 +746,31 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
           )}
         </div>
 
-        <div className="space-y-4">
+        {/* Centre column: the 2D topology (the inspection tool — the 3D
+            room lives on the briefing screen now) + the firewall for
+            Broken Shield; the evidence + packet analysis for the flood
+            mission. Below the wide gate it sits in the right column under
+            the brief cluster, as today; on wide desktops it is row 1
+            centre. */}
+        <div className="space-y-4 lg:col-start-2 lg:row-start-1 min-[1810px]:col-start-2 min-[1810px]:row-start-1">
+          {isSocMission && (
+          <Card level={2}>
+            <h2 className="text-heading text-ink-1">Topology — inspect the devices</h2>
+            <p className="mt-1 text-small text-ink-2">
+              Click each device to inspect it — the topology objective passes once all four are inspected.
+            </p>
+            <div className="mt-4">
+              <MissionTopology
+                devices={MISSION_TOPOLOGY_DEVICES}
+                inspected={inspected}
+                onInspect={onInspect}
+                guestBlocked={passed('guest-blocked') ? true : null}
+                trustedAllowed={passed('trusted-allowed') ? true : null}
+                activeDevice={null}
+              />
+            </div>
+          </Card>
+          )}
           {isSocMission && (
           <Card level={2}>
             <h2 className="text-heading text-ink-1">Firewall console — R1, access-list 10</h2>
@@ -1120,9 +790,30 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
           </Card>
           )}
 
-          {/* Terminal missions: the lab objectives are attestation-based, so
-              the learner records each step here after running it for real
-              in the console below. */}
+          {/* Terminal missions: the evidence first, then the attestation
+              list — the learner records each step here after running it
+              for real in the console below. */}
+          {!isSocMission && (
+          <Card level={2} className="mission-console">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
+              <h2 className="font-mono text-heading text-terminal-bright">Your evidence</h2>
+              <span className="hidden text-caption text-terminal-muted sm:inline">
+                flood.pcap is in your home directory — read it with tshark, tcpdump, or Wireshark
+              </span>
+            </div>
+            <p className="text-small leading-relaxed text-terminal-muted">
+              The flood is in <code>flood.pcap</code>: a little ordinary traffic, then a burst of
+              packets against the web server from a single internal host. <code>capture.pcap</code> and{' '}
+              <code>dns-exfil.pcap</code> are there too, from the lab&apos;s earlier objectives.
+              Any tool works — the mission checks your finding, not your tool.
+            </p>
+            <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-black/10 bg-terminal-bg p-3 font-mono text-[12px] leading-relaxed text-terminal-text">
+{`tshark -r flood.pcap -q -z io,phs
+tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
+            </pre>
+          </Card>
+          )}
           {!isSocMission && (
             <Card level={2}>
               <h2 className="text-heading text-ink-1">Packet analysis</h2>
@@ -1140,7 +831,14 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
               </div>
             </Card>
           )}
+        </div>
 
+        {/* Right rail: the console and the incident report live beside the
+            topology + firewall on wide desktops, so the learner sees both
+            in the first viewport instead of scrolling to the bottom.
+            Below the wide gate this rail sits under the centre column,
+            as today. */}
+        <div className="space-y-4 lg:col-start-2 lg:row-start-2 min-[1810px]:col-start-3 min-[1810px]:row-start-1">
           <Card level={2} className="mission-console">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
@@ -1225,7 +923,10 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
               )}
             </Card>
           )}
+        </div>
 
+        {/* Bottom row: outcome cards, full width. */}
+        <div className="space-y-4 lg:col-span-2 lg:row-start-3 min-[1810px]:col-span-3 min-[1810px]:row-start-2">
           {done && debrief && (
             <Card level={2} className="border-success/30">
               <p className="flex items-center gap-2 text-body font-semibold text-success">
@@ -1242,6 +943,7 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
                   <p className="mt-1 text-small text-ink-2">
                     Cypher reads your validated results — score and which objectives
                     passed — and explains what they mean. He never re-grades your work.
+                    He reads it aloud as soon as it arrives.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button size="sm" variant="secondary" onClick={explainOutcome} loading={explainLoading} disabled={explainLoading}>
@@ -1255,19 +957,11 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
                   {explainText && (
                     <div className="mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-3.5 text-sm leading-relaxed text-ink-1" aria-live="polite">
                       <TutorText text={explainText} />
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => { setDebriefPlaying(true); cypherVoice.play(explainText); }}
-                          disabled={cypherVoice.playing}
-                        >
-                          {cypherVoice.playing ? 'Speaking…' : 'Hear Cypher say it'}
-                        </Button>
-                        {cypherVoice.playing && (
-                          <Button size="sm" variant="ghost" onClick={() => { setDebriefPlaying(false); cypherVoice.stop(); }}>Stop</Button>
-                        )}
-                      </div>
+                      {cypherVoice.playing && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => { cypherVoice.stop(); }}>Stop</Button>
+                        </div>
+                      )}
                       {cypherVoice.subtitle && (
                         <p className="mt-2 text-small text-ink-2" aria-live="polite">
                           <span className="font-bold text-action-hover">Cypher:</span> {cypherVoice.subtitle}

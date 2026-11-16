@@ -208,8 +208,8 @@ export default function MissionSocScene({
   // mesh has no separable screens) — incidentActive/contained are kept
   // in the API because the 2D topology and the mission flow still use
   // them; the 3D room is ambient only.
-  const stateRef = useRef({ incidentActive, contained, cypherVoiceRef, speakerRef, showcaseRef });
-  stateRef.current = { incidentActive, contained, cypherVoiceRef, speakerRef, showcaseRef };
+  const stateRef = useRef({ incidentActive, contained, cypherVoiceRef, speakerRef, showcaseRef, reducedMotion });
+  stateRef.current = { incidentActive, contained, cypherVoiceRef, speakerRef, showcaseRef, reducedMotion };
   // The live camera, filled by ModelViewer: the tick damps it toward the
   // current shot.
   const cameraRef = useRef(null);
@@ -345,16 +345,23 @@ export default function MissionSocScene({
     // --- Animation: Cypher sits at his desk and talks with the voice;
     // Sentinel and Patch keep working in their rooms; the camera glides
     // to whoever is speaking (or tours the three on load). Under reduced
-    // motion the tick never runs, so the camera holds the wide shot.
+    // motion the tick still runs (tickUnderReducedMotion on ModelViewer):
+    // the robots keep moving and the briefing keeps advancing — only the
+    // camera is gentled (cuts instead of glides, no greeting tour).
+    // Freezing the tick here would freeze the whole mission, which reads
+    // as a broken page (2026-11-16 live report).
     const tick = (t) => {
-      const { cypherVoiceRef: voiceRef, speakerRef: spkRef, showcaseRef: showRef } = stateRef.current;
+      const { cypherVoiceRef: voiceRef, speakerRef: spkRef, showcaseRef: showRef, reducedMotion: rm } = stateRef.current;
       const dt = lastT === null ? 0 : Math.min(t - lastT, 0.1);
       lastT = t;
 
       // --- Speaker + camera. A speaker change interrupts the tour; so
-      // does a showcase change (the opening's device tour).
+      // does a showcase change (the opening's device tour). Reduced
+      // motion skips the greeting tour outright — the camera cuts to the
+      // shot instead of gliding through the three rooms.
       const speaker = spkRef?.current || 'wide';
       const showcase = showRef?.current || null;
+      if (rm) tourDone = true;
       if (!tourDone && (speaker !== 'wide' || showcase)) tourDone = true;
       let shot;
       if (!tourDone) {
@@ -393,15 +400,23 @@ export default function MissionSocScene({
       }
       lastShowcase = showcase;
       if (camera && dt > 0) {
-        // The showcase settles faster so each device reads, not glides.
-        const damp = showcase ? CAMERA_DAMP_SHOWCASE : CAMERA_DAMP;
-        camera.position.x = THREE.MathUtils.damp(camera.position.x, shot.pos[0], damp, dt);
-        camera.position.y = THREE.MathUtils.damp(camera.position.y, shot.pos[1], damp, dt);
-        camera.position.z = THREE.MathUtils.damp(camera.position.z, shot.pos[2], damp, dt);
-        currentTarget.x = THREE.MathUtils.damp(currentTarget.x, shot.target[0], damp, dt);
-        currentTarget.y = THREE.MathUtils.damp(currentTarget.y, shot.target[1], damp, dt);
-        currentTarget.z = THREE.MathUtils.damp(currentTarget.z, shot.target[2], damp, dt);
-        camera.lookAt(currentTarget);
+        if (rm) {
+          // Reduced motion: cut, never glide — the camera jumps straight
+          // to the shot each frame (no damping, no tour).
+          camera.position.set(shot.pos[0], shot.pos[1], shot.pos[2]);
+          currentTarget.set(shot.target[0], shot.target[1], shot.target[2]);
+          camera.lookAt(currentTarget);
+        } else {
+          // The showcase settles faster so each device reads, not glides.
+          const damp = showcase ? CAMERA_DAMP_SHOWCASE : CAMERA_DAMP;
+          camera.position.x = THREE.MathUtils.damp(camera.position.x, shot.pos[0], damp, dt);
+          camera.position.y = THREE.MathUtils.damp(camera.position.y, shot.pos[1], damp, dt);
+          camera.position.z = THREE.MathUtils.damp(camera.position.z, shot.pos[2], damp, dt);
+          currentTarget.x = THREE.MathUtils.damp(currentTarget.x, shot.target[0], damp, dt);
+          currentTarget.y = THREE.MathUtils.damp(currentTarget.y, shot.target[1], damp, dt);
+          currentTarget.z = THREE.MathUtils.damp(currentTarget.z, shot.target[2], damp, dt);
+          camera.lookAt(currentTarget);
+        }
       }
 
       // --- Cypher: seated at his desk, talking shows through the
@@ -470,6 +485,12 @@ export default function MissionSocScene({
         target={SOC_CAMERA_TARGET}
         background={background}
         reducedMotion={reducedMotion}
+        // The tick is what makes the robots move and the briefing advance:
+        // under reduced motion it MUST keep running (the scene itself
+        // gentles the camera — cuts instead of glides, no greeting tour).
+        // Freezing the tick would freeze the whole mission, which reads
+        // as a broken page (2026-11-16 live report).
+        tickUnderReducedMotion
         quality={quality}
         onRendererFailed={onRendererFailed}
         interactive={false}

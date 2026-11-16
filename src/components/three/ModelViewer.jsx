@@ -10,7 +10,11 @@ export default function ModelViewer({
   target = [0, 0.5, 0],
   // Additive optional props (defaults preserve the original behaviour):
   // background — scene + fog colour; reducedMotion — no auto-rotate and the
-  // buildScene tick is never called, so scenes stay static; quality 'low' —
+  // buildScene tick is never called, so scenes stay static, UNLESS the
+  // scene opts back in with tickUnderReducedMotion (the mission SOC: its
+  // tick is what makes the robots move and the briefing advance, so
+  // freezing it reads as a broken page — reduced motion there only
+  // gentles the camera, it never stops the robots); quality 'low' —
   // pixel ratio capped at 1 and shadows off; onRendererFailed — called with
   // the throw when the WebGL renderer cannot be created, in addition to the
   // fallback UI; onInspect — called with an interactive's `id` on click.
@@ -30,6 +34,7 @@ export default function ModelViewer({
   // brings its own lights and floor. exposure — tone-mapping exposure.
   background = '#F8F7FF',
   reducedMotion = false,
+  tickUnderReducedMotion = false,
   quality = 'high',
   onRendererFailed,
   onInspect,
@@ -221,8 +226,12 @@ export default function ModelViewer({
       // and timers resume seamlessly when the tab becomes visible again.
       if (hidden) return;
       const t = clock.getElapsedTime();
-      // Reduced motion: the scene stays static — tick (pulses, sweeps) never runs.
-      if (tick && !reducedMotion) tick(t);
+      // Reduced motion: the scene stays static — tick (pulses, sweeps)
+      // never runs — unless the scene opted back in (tickUnderReducedMotion):
+      // a tick that carries the scene's whole activity (robots moving,
+      // the briefing advancing) must keep running, and the scene itself
+      // gentles its camera instead.
+      if (tick && (!reducedMotion || tickUnderReducedMotion)) tick(t);
       if (controls) controls.update();
       renderer.render(scene, camera);
     };

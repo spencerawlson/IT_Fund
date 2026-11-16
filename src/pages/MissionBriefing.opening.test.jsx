@@ -1,16 +1,18 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import TestRenderer, { act } from 'react-test-renderer';
-import { StaticRouter, Routes, Route } from 'react-router-dom';
-import MissionWorkspace from './MissionWorkspace';
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
+import MissionBriefing from './MissionBriefing';
 
-// Behavioural reproduction for the live camera-tour defect (2026-11-14):
-// two live checks (PR #63, PR #66) never saw the mission opening's device
-// showcase dwell on PC1/GUEST/R1/SRV. The phase machine is only covered by
-// source-string assertions elsewhere, so this mounts the real workspace
-// with the network + voice stubbed and drives the whole opening on fake
-// timers, reading the phase back from the SOC card's caption
-// ("Equipment tour — <device>") and the Skip button.
+// Behavioural coverage for the briefing screen (the split, 2026-11-16):
+// the mission opening that used to live in MissionWorkspace now plays
+// here — the robots read the briefing in the 3D room, the showcase tours
+// the four devices, then the screen redirects to the terminal page.
+// Same harness as the old MissionWorkspace opening test: the network +
+// voice are stubbed, the whole opening runs on fake timers, and the
+// phase is read back from the SOC card's caption
+// ("Equipment tour — <device>") and the Skip button. Navigation is
+// captured from a MemoryRouter location watcher.
 //
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -29,6 +31,15 @@ const MISSION_DEF = {
   brief: BRIEF,
   xp: 80,
   description: 'Broken Shield',
+};
+
+const FLOOD_DEF = {
+  id: 'op-packet-flood',
+  title: 'Operation Packet Flood',
+  callsign: 'OPERATION PACKET FLOOD',
+  brief: ['A flood of packets is hitting the web server. Find the source.'],
+  xp: 120,
+  description: 'Packet Flood',
 };
 
 const OBJECTIVES = [
@@ -54,7 +65,7 @@ const START_RESPONSE = {
 // ends, and the machine advances when loading and playing are both false.
 // The fake speaks each turn for 2 s of fake time after a 0.3 s fetch.
 // stall: the mock voice never ends (a stalled turn — the briefing-cap
-// test). setPlaying/setLoading: stashed from the workspace's own
+// test). setPlaying/setLoading: stashed from the briefing screen's own
 // useCypherVoice instance so a test can flip the voice mid-showcase;
 // the child CypherVoiceButton mounts a second instance, so only the
 // FIRST call's setters are kept (setState dispatchers are stable, so
@@ -64,29 +75,16 @@ const voiceControl = vi.hoisted(() => ({
   playCalls: [], stall: false, setPlaying: null, setLoading: null,
 }));
 const startControl = vi.hoisted(() => ({ resumed: false }));
+const defControl = vi.hoisted(() => ({ def: null }));
 
 vi.mock('@/api/missions', () => ({
   missionsApi: {
-    getMission: vi.fn(async () => MISSION_DEF),
+    getMission: vi.fn(async () => defControl.def),
     start: vi.fn(async () => ({ ...START_RESPONSE, resumed: startControl.resumed })),
     getAttempt: vi.fn(async () => ({ attempt: { id: 'att-1' }, objectives: OBJECTIVES })),
     action: vi.fn(async () => ({})),
     complete: vi.fn(async () => ({})),
     history: vi.fn(async () => []),
-  },
-}));
-
-vi.mock('@/api/labs', () => ({
-  labsApi: {
-    listDefinitions: vi.fn(async () => []),
-    history: vi.fn(async () => []),
-    start: vi.fn(async () => ({ id: 'sess-1' })),
-    getSession: vi.fn(async () => ({ id: 'sess-1', status: 'ACTIVE' })),
-    recordFindings: vi.fn(async () => ({})),
-    exec: vi.fn(async () => ({ output: '', exit_code: 0 })),
-    validate: vi.fn(async () => ({ id: 'sess-1', status: 'ACTIVE', progress: {} })),
-    reset: vi.fn(async () => ({ id: 'sess-1', status: 'ACTIVE' })),
-    destroy: vi.fn(async () => null),
   },
 }));
 
@@ -96,8 +94,8 @@ vi.mock('@/api/voice', async () => {
     const [playing, setPlaying] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [subtitle, setSubtitle] = React.useState('');
-    // First call wins: the workspace's own hook (children render after
-    // it); the second instance is CypherVoiceButton's.
+    // First call wins: the briefing screen's own hook (children render
+    // after it); the second instance is CypherVoiceButton's.
     if (voiceControl.setPlaying === null) {
       voiceControl.setPlaying = setPlaying;
       voiceControl.setLoading = setLoading;
@@ -156,14 +154,44 @@ vi.mock('@/components/ThemeProvider', () => ({
 }));
 vi.mock('@/components/UpgradePrompt', () => ({ default: () => null }));
 
-function renderWorkspace() {
+// The router location, captured on every render — the redirect assertion.
+let lastPath = null;
+function LocationCapture() {
+  const loc = useLocation();
+  lastPath = loc.pathname;
+  return null;
+}
+
+function renderBriefing(path = '/missions/op-broken-shield') {
   return TestRenderer.create(
-    <StaticRouter location="/missions/op-broken-shield">
+    <MemoryRouter initialEntries={[path]}>
+      <LocationCapture />
       <Routes>
-        <Route path="/missions/:missionId" element={<MissionWorkspace />} />
+        <Route path="/missions/:missionId" element={<MissionBriefing />} />
+        <Route path="/missions/:missionId/terminal" element={<div>TERMINAL</div>} />
       </Routes>
-    </StaticRouter>,
+    </MemoryRouter>,
   );
+}
+
+// Reduced-motion stub: installed by the reduced-motion test, restored in
+// afterEach. The briefing screen reads matchMedia at mount (state
+// initializer) and in its change-listener effect, so the stub must exist
+// before render. This file runs in the node environment (no jsdom
+// window), so the stub creates globalThis.window when it does not exist.
+let savedMatchMedia;
+let matchMediaStubbed = false;
+function stubMatchMedia(matches) {
+  if (!matchMediaStubbed) {
+    savedMatchMedia = typeof globalThis.window === 'undefined' ? undefined : globalThis.window.matchMedia;
+    matchMediaStubbed = true;
+  }
+  if (typeof globalThis.window === 'undefined') globalThis.window = {};
+  globalThis.window.matchMedia = () => ({
+    matches,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  });
 }
 
 /** The SOC card's opening caption (aria-live) — the phase readout. */
@@ -179,6 +207,14 @@ function skipVisible(root) {
     (node) => node.type === 'button'
       && Array.isArray(node.children)
       && node.children.includes('Skip intro'),
+  ).length > 0;
+}
+
+function terminalVisible(root) {
+  return root.findAll(
+    (node) => node.type === 'div'
+      && Array.isArray(node.children)
+      && node.children.includes('TERMINAL'),
   ).length > 0;
 }
 
@@ -218,7 +254,7 @@ async function jump(ms) {
   await flush();
 }
 
-describe('MissionWorkspace opening — device showcase (live defect repro)', () => {
+describe('MissionBriefing opening — briefing, showcase, redirect', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     voiceControl.playCalls.length = 0;
@@ -226,17 +262,27 @@ describe('MissionWorkspace opening — device showcase (live defect repro)', () 
     voiceControl.setPlaying = null;
     voiceControl.setLoading = null;
     startControl.resumed = false;
+    defControl.def = MISSION_DEF;
+    lastPath = null;
   });
 
   afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
+    if (matchMediaStubbed) {
+      if (savedMatchMedia === undefined) {
+        delete globalThis.window.matchMedia;
+      } else {
+        globalThis.window.matchMedia = savedMatchMedia;
+      }
+      matchMediaStubbed = false;
+    }
   });
 
-  it('runs the full opening on a fresh attempt: briefing turns, then a 4 s dwell per device, then done', async () => {
+  it('runs the full opening on a fresh attempt, then redirects to the terminal page', async () => {
     let renderer;
     await act(async () => {
-      renderer = renderWorkspace();
+      renderer = renderBriefing();
     });
     await flush();
     const root = renderer.root;
@@ -244,6 +290,7 @@ describe('MissionWorkspace opening — device showcase (live defect repro)', () 
     // The mission loaded and the opening started.
     expect(captionOf(root)).toBe('Opening the SOC…');
     expect(skipVisible(root)).toBe(true);
+    expect(lastPath).toBe('/missions/op-broken-shield');
 
     // Cinematic open (1.8 s) -> briefing turn 1 (Cypher opens).
     await advance(2000);
@@ -275,32 +322,83 @@ describe('MissionWorkspace opening — device showcase (live defect repro)', () 
     await advance(4000);
     expect(captionOf(root)).toBe('Equipment tour — SRV');
     await advance(4000);
-    // Showcase over: no caption, no Skip button — the mission is handed over.
-    expect(captionOf(root)).toBeNull();
-    expect(skipVisible(root)).toBe(false);
+    // Showcase over: the briefing screen closes and the terminal page
+    // opens — no caption, no Skip button, the terminal route renders.
+    expect(lastPath).toBe('/missions/op-broken-shield/terminal');
+    expect(terminalVisible(root)).toBe(true);
     expect(voiceControl.playCalls).toHaveLength(4);
 
     await act(async () => { renderer.unmount(); });
   });
 
-  it('a resumed attempt skips the opening entirely — no briefing, no showcase', async () => {
-    // By design: the opening plays only on a fresh attempt. A resumed
-    // learner is mid-mission, not watching an intro (MissionWorkspace
-    // fresh-vs-resumed effect). So a resumed attempt must never speak a
-    // briefing turn and never show the tour caption.
+  it('a resumed attempt redirects to the terminal immediately — no briefing, no showcase', async () => {
+    // By design: the briefing plays only on a fresh attempt. A resumed
+    // learner is mid-mission, not watching an intro, so the briefing
+    // screen hands them straight to the terminal.
     startControl.resumed = true;
     let renderer;
     await act(async () => {
-      renderer = renderWorkspace();
+      renderer = renderBriefing();
+    });
+    await flush();
+    expect(lastPath).toBe('/missions/op-broken-shield/terminal');
+    expect(terminalVisible(renderer.root)).toBe(true);
+    await advance(10000);
+    expect(voiceControl.playCalls).toHaveLength(0);
+
+    await act(async () => { renderer.unmount(); });
+  });
+
+  it('a non-SOC mission redirects to the terminal immediately — no room, no briefing', async () => {
+    // The flood mission has no 3D room: Launch Mission must land on the
+    // terminal page, never on a briefing screen with nothing to show.
+    defControl.def = FLOOD_DEF;
+    let renderer;
+    await act(async () => {
+      renderer = renderBriefing('/missions/op-packet-flood');
+    });
+    await flush();
+    expect(lastPath).toBe('/missions/op-packet-flood/terminal');
+    expect(terminalVisible(renderer.root)).toBe(true);
+    await advance(10000);
+    expect(voiceControl.playCalls).toHaveLength(0);
+
+    await act(async () => { renderer.unmount(); });
+  });
+
+  it('runs the opening under reduced motion — the briefing speaks, the tour runs (no freeze)', async () => {
+    // Live defect (2026-11-16): with prefers-reduced-motion the whole
+    // mission froze — no briefing, no showcase, robots still — because
+    // the opening was skipped outright and ModelViewer never called the
+    // scene tick. Reduced motion must only gentle the camera (the scene
+    // cuts instead of gliding, no greeting tour); speech is not motion,
+    // so the opening still plays.
+    stubMatchMedia(true);
+    let renderer;
+    await act(async () => {
+      renderer = renderBriefing();
     });
     await flush();
     const root = renderer.root;
-    expect(captionOf(root)).toBeNull();
-    expect(skipVisible(root)).toBe(false);
-    await advance(10000);
-    expect(voiceControl.playCalls).toHaveLength(0);
-    expect(captionOf(root)).toBeNull();
-    expect(skipVisible(root)).toBe(false);
+
+    // The opening started — not skipped (the old code set the phase to
+    // 'done' before the first frame, so the caption was null).
+    expect(captionOf(root)).toBe('Opening the SOC…');
+    expect(skipVisible(root)).toBe(true);
+
+    // Cinematic open (1.8 s) -> briefing turn 1 speaks.
+    await advance(2000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+    expect(voiceControl.playCalls[0]).toContain('Orion Technologies');
+
+    // The rest of the briefing, then the showcase tours the devices.
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    expect(captionOf(root)).toBe('Equipment tour — PC1');
+    await advance(4000);
+    expect(captionOf(root)).toBe('Equipment tour — GUEST');
 
     await act(async () => { renderer.unmount(); });
   });
@@ -314,7 +412,7 @@ describe('MissionWorkspace opening — device showcase (live defect repro)', () 
     // on GUEST 4 s after PC1 started.
     let renderer;
     await act(async () => {
-      renderer = renderWorkspace();
+      renderer = renderBriefing();
     });
     await flush();
     const root = renderer.root;
@@ -348,7 +446,7 @@ describe('MissionWorkspace opening — device showcase (live defect repro)', () 
     voiceControl.stall = true;
     let renderer;
     await act(async () => {
-      renderer = renderWorkspace();
+      renderer = renderBriefing();
     });
     await flush();
     const root = renderer.root;

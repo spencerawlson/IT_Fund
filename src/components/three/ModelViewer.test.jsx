@@ -1,6 +1,9 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import ModelViewer from './ModelViewer';
 
 // The hint bar is plain JSX (not the WebGL effect), so SSR can assert it.
@@ -24,6 +27,20 @@ describe('ModelViewer interactive prop', () => {
     expect(html).not.toContain('Drag to rotate');
     expect(html).not.toContain('Scroll to zoom');
     expect(html).not.toContain('Click parts for info');
+  });
+});
+
+// tickUnderReducedMotion — a scene whose tick IS the activity (the mission
+// SOC: robots moving, the briefing advancing) opts back in, so reduced
+// motion freezes only the camera glide, never the scene. The WebGL effect
+// never runs under SSR, so this pins the gate in source; the behaviour is
+// covered by the MissionSocScene reduced-motion test.
+describe('ModelViewer tickUnderReducedMotion prop', () => {
+  it('keeps calling tick under reduced motion when a scene opts in', () => {
+    const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'ModelViewer.jsx'), 'utf8');
+    expect(src).toContain('if (tick && (!reducedMotion || tickUnderReducedMotion)) tick(t);');
+    // Default stays frozen: without the opt-in the tick never runs.
+    expect(src).toContain('tickUnderReducedMotion = false');
   });
 });
 
