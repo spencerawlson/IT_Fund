@@ -211,6 +211,44 @@ def test_iac_image_pins_toolchain_and_verifies_checksums():
     assert "terraform providers mirror" in text  # offline provider seed
 
 
+def test_iac_image_ships_write_helper():
+    """The iac image ships the `write` helper terraform-aws-001 needs: the
+    terminal runs commands directly (no shell), so learners author .tf files
+    with `write <file.tf> '<hcl>'` instead of redirects/heredocs. The lab's
+    workdir must exist in the image or exec fails on start."""
+    text = (IMAGES_DIR / "Dockerfile.iac").read_text(encoding="utf-8")
+    assert "seeds/iac/write" in text and "/usr/local/bin/write" in text
+    assert "/home/student/aws-infra" in text  # terraform-aws-001 workdir
+    script = SEEDS_DIR / "iac" / "write"
+    assert script.is_file()
+    assert script.read_text(encoding="utf-8").startswith("#!/bin/sh")
+
+
+def test_iac_write_helper_behaviour(tmp_path):
+    """Run the helper for real: writes content, creates subdirectories,
+    and refuses non-.tf files and paths outside the working directory."""
+    import shutil
+    import subprocess
+    script = SEEDS_DIR / "iac" / "write"
+    sh = shutil.which("sh")
+    assert sh, "sh required to exercise the write helper"
+    r = subprocess.run([sh, str(script), "provider.tf",
+                        'provider "aws" { region = "us-east-1" }'],
+                       cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert (tmp_path / "provider.tf").read_text() == 'provider "aws" { region = "us-east-1" }'
+    r = subprocess.run([sh, str(script), "modules/vpc/main.tf", 'resource "aws_vpc" "this" {}'],
+                       cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert (tmp_path / "modules" / "vpc" / "main.tf").read_text() == 'resource "aws_vpc" "this" {}'
+    r = subprocess.run([sh, str(script), "notes.txt", "hi"],
+                       cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 1 and "not a .tf file" in r.stderr
+    r = subprocess.run([sh, str(script), "../evil.tf", "hi"],
+                       cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 1 and "working directory" in r.stderr
+
+
 def test_cloudshell_image_pins_cli_and_simulator():
     text = (IMAGES_DIR / "Dockerfile.cloudshell").read_text(encoding="utf-8")
     assert "awscli==1.46.1" in text

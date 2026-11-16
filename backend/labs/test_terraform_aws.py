@@ -287,7 +287,7 @@ def _v(name, findings):
 
 def _provider_files():
     return {'tfa_files': {
-        'provider.tf': 'terraform { required_providers { aws = { source = "hashicorp/aws" version = "~> 5.0" } } } provider "aws" { region = "us-east-1" }',
+        'provider.tf': 'terraform { required_providers { aws = { source = "hashicorp/aws" version = "~> 5.0" } } } provider "aws" { region = "us-east-1" skip_credentials_validation = true skip_metadata_api_check = true skip_requesting_account_id = true }',
     }}
 
 
@@ -298,6 +298,13 @@ def test_v_provider():
     assert ok is False and 'required_providers' in msg
     ok, _ = _v('tfa_provider_configured', {'tfa_files': {}})
     assert ok is False
+    # provider without the offline skip stanza cannot plan offline
+    no_stanza = {'tfa_files': {'provider.tf': 'terraform { required_providers { aws = { source = "hashicorp/aws" version = "~> 5.0" } } } provider "aws" { region = "us-east-1" }'}}
+    ok, msg = _v('tfa_provider_configured', no_stanza)
+    assert ok is False and 'skip_credentials_validation' in msg
+    # Docker attestation path
+    ok, _ = _v('tfa_provider_configured', {'tfa_provider_configured': {'attested': True}})
+    assert ok is True
 
 
 def test_v_vpc():
@@ -355,11 +362,15 @@ def test_v_module():
 
 
 def test_v_backend():
-    good = {'tfa_files': {'provider.tf': 'terraform { backend "s3" { bucket = "b" key = "k" region = "r" } }'}, 'tfa_backend_configured': True}
+    good = {'tfa_files': {'provider.tf': 'terraform { backend "s3" { bucket = "b" key = "k" region = "r" skip_credentials_validation = true skip_metadata_api_check = true skip_requesting_account_id = true } }'}, 'tfa_backend_configured': True}
     ok, _ = _v('tfa_backend_configured', good)
     assert ok is True
     ok, _ = _v('tfa_backend_configured', {'tfa_files': {}})
     assert ok is False
+    # backend without the offline skip stanza: init would try to reach AWS
+    no_flags = {'tfa_files': {'provider.tf': 'terraform { backend "s3" { bucket = "b" key = "k" region = "r" } }'}, 'tfa_backend_configured': True}
+    ok, msg = _v('tfa_backend_configured', no_flags)
+    assert ok is False and 'skip_credentials_validation' in msg
 
 
 def test_v_workspace():
@@ -383,11 +394,28 @@ def test_v_capstone():
     hcl = ('resource "aws_lb" "app" {} resource "aws_autoscaling_group" "app" {} '
            'resource "aws_db_instance" "main" {}')
     ok, msg = _v('tfa_capstone', {'tfa_files': {'main.tf': hcl}})
-    assert ok is False and 'apply' in msg  # not applied yet
-    ok, _ = _v('tfa_capstone', {'tfa_files': {'main.tf': hcl}, 'tfa_applied': True})
+    assert ok is False and 'plan' in msg  # configured but no saved plan reviewed yet
+    ok, _ = _v('tfa_capstone', {'tfa_files': {'main.tf': hcl}, 'tfa_plan_saved': 'tfplan'})
+    assert ok is True
+    # Docker attestation path: the saved plan is reviewed, never applied live
+    ok, _ = _v('tfa_capstone', {'tfa_capstone': {'attested': True}})
     assert ok is True
     ok, _ = _v('tfa_capstone', {'tfa_files': {'main.tf': 'resource "aws_lb" "app" {}'}})
     assert ok is False
+
+
+def test_validators_accept_docker_attestation():
+    """Every tfa_* validator passes on its own attestation key — the Docker
+    path, where the learner presses "I did this" after the real work in the
+    container. No attestation, no pass."""
+    for name in ['tfa_provider_configured', 'tfa_vpc_defined', 'tfa_ec2_defined',
+                 'tfa_variables_iam', 'tfa_rds_outputs', 'tfa_module_defined',
+                 'tfa_backend_configured', 'tfa_workspace_used', 'tfa_data_source',
+                 'tfa_capstone']:
+        ok, _ = _v(name, {name: {'attested': True}})
+        assert ok is True, f'{name} must pass on attestation'
+        ok, _ = _v(name, {})
+        assert ok is False, f'{name} must fail with no findings'
 
 
 def test_validators_registered():
@@ -405,6 +433,9 @@ def test_validators_registered():
 def test_lab_definition():
     assert LAB.id == 'terraform-aws-001'
     assert LAB.shell == 'terraform_cli'
+    assert LAB.environment.provider == 'docker'
+    assert LAB.environment.image == 'road-to-cissp/iac:latest'
+    assert LAB.environment.workdir == '/home/student/aws-infra'
     assert len(LAB.objectives) == 10
     ids = [o.id for o in LAB.objectives]
     assert len(set(ids)) == 10

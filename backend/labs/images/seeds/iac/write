@@ -1,0 +1,39 @@
+#!/bin/sh
+# write — file authoring helper for the iac lab image.
+#
+# The lab terminal runs commands directly (no shell), so redirects and
+# heredocs do not work in the container. This helper mirrors the mock
+# terraform_cli shell's `write` command so the same
+# `write <file.tf> '<hcl>'` the lab teaches works for real:
+#   write provider.tf 'provider "aws" { region = "us-east-1" }'
+# Subdirectories are allowed (parent dirs are created); absolute paths and
+# `..` are rejected — everything stays inside the working directory.
+set -eu
+
+if [ "$#" -lt 1 ]; then
+  echo "Usage: write <file.tf> '<hcl content>'" >&2
+  exit 1
+fi
+
+file="$1"
+case "$file" in
+  /*|*..*) echo "write: only files in the working directory (no absolute paths, no '..')." >&2; exit 1 ;;
+esac
+case "$file" in
+  *.tf) ;;
+  *) echo "write: \"$file\" is not a .tf file." >&2; exit 1 ;;
+esac
+
+if [ "$#" -lt 2 ]; then
+  echo "Usage: write $file '<hcl content>'" >&2
+  echo "Tip: the objective description shows the HCL to write." >&2
+  exit 1
+fi
+shift
+content="$*"
+dir=$(dirname -- "$file")
+if [ "$dir" != "." ]; then
+  mkdir -p -- "$dir"
+fi
+printf '%s' "$content" > "$file"
+echo "Wrote $file (${#content} bytes)."
