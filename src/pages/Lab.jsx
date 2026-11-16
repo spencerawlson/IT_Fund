@@ -71,7 +71,7 @@ export const SUBJECTS = [
   { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Rack-mounted battery backup — status display, protected outlets, battery module and internals.' },
   { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'A 48-port Cat6 patch panel — numbered RJ45 ports, 110 punch-down termination, T568A/T568B wiring.' },
   // Networking
-  { id: 'osi', category: 'Networking', kind: '3d', icon: Layers, label: 'OSI Model', blurb: 'Climb the seven layers as a 3D stack, from cabling to application.' },
+  { id: 'osi', category: 'Networking', kind: 'blueprint', icon: Layers, label: 'OSI Model Blueprint', blurb: 'All seven layers — functions, protocols, encapsulation, and the PDU at each layer.' },
   { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'An edge router — WAN and LAN ports, management and console access, internals and specs.' },
   { id: 'access-point', category: 'Networking', kind: 'blueprint', icon: Wifi, label: 'Wireless Access Point Blueprint', blurb: 'Ceiling-mounted Wi-Fi — status ring, PoE uplink, MIMO antenna layout and internals.' },
   { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
