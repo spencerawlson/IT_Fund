@@ -6,12 +6,13 @@ import { ArrowRight } from 'lucide-react';
 
 export const KINDS = {
   '3d': { label: '3D model', dot: 'bg-teal-400', pill: 'border-teal-400/30 bg-teal-400/10 text-teal-700', grad: 'from-teal-500/30 to-cyan-500/10', icon: 'text-teal-700' },
+  blueprint: { label: 'Blueprint', dot: 'bg-sky-400', pill: 'border-sky-400/30 bg-sky-400/10 text-sky-700', grad: 'from-sky-500/30 to-blue-500/10', icon: 'text-sky-700' },
   anim: { label: 'Animated', dot: 'bg-blue-400', pill: 'border-blue-400/30 bg-blue-400/10 text-blue-700', grad: 'from-blue-500/30 to-indigo-500/10', icon: 'text-blue-700' },
   tool: { label: 'Interactive', dot: 'bg-amber-400', pill: 'border-amber-400/30 bg-amber-400/10 text-amber-700', grad: 'from-amber-500/30 to-orange-500/10', icon: 'text-amber-700' },
   flow: { label: 'Walkthrough', dot: 'bg-violet-400', pill: 'border-violet-400/30 bg-violet-400/10 text-violet-700', grad: 'from-violet-500/30 to-fuchsia-500/10', icon: 'text-violet-700' },
 };
 
-const FILTERS = [['all', 'All'], ['3d', '3D'], ['anim', 'Animated'], ['tool', 'Interactive'], ['flow', 'Walkthroughs']];
+const FILTERS = [['all', 'All'], ['3d', '3D'], ['blueprint', 'Blueprints'], ['anim', 'Animated'], ['tool', 'Interactive'], ['flow', 'Walkthroughs']];
 
 function Tile({ subject, onSelect }) {
   const k = KINDS[subject.kind] || KINDS.anim;

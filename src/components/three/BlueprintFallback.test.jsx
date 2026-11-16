@@ -46,7 +46,7 @@ describe('3D subjects pass a blueprint fallback only where one fits', () => {
   it('the new Meshy GLB subjects fall back to their matching sheets', () => {
     const cases = [
       [Router3D, '/blueprint-network-router.jpg'],
-      [Firewall3D, '/blueprint-firewall-ngfw.jpg'],
+      [PatchPanel3D, '/blueprint-patch-panel-48-port.jpg'],
       [AccessPoint3D, '/blueprint-wireless-access-point.jpg'],
       [Nas3D, '/blueprint-nas-storage.jpg'],
       [Ups3D, '/blueprint-ups-rackmount-2u.jpg'],
@@ -59,8 +59,26 @@ describe('3D subjects pass a blueprint fallback only where one fits', () => {
   });
 
   it('the other 3D subjects have no fallback image', () => {
-    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D, Osi3D, PatchPanel3D]) {
+    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D, Osi3D]) {
       expect(viewerPropsFor(Component).fallbackImage, Component.name).toBeUndefined();
     }
+  });
+});
+
+describe('Firewall3D shows the blueprint sheet instead of a 3D model', () => {
+  it('renders the NGFW sheet with a full-size link and no ModelViewer', () => {
+    mockModelViewer.mockClear();
+    let root;
+    act(() => {
+      root = TestRenderer.create(<Firewall3D />);
+    });
+    expect(mockModelViewer).not.toHaveBeenCalled();
+    const img = root.root.findByType('img');
+    expect(img.props.src).toBe('/blueprint-firewall-ngfw.jpg');
+    expect(img.props.alt).toMatch(/firewall/i);
+    const link = root.root.findByType('a');
+    expect(link.props.href).toBe('/blueprint-firewall-ngfw.jpg');
+    expect(link.props.target).toBe('_blank');
+    expect(link.props.rel).toContain('noopener');
   });
 });

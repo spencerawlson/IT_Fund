@@ -122,10 +122,11 @@ describe('LessonView blueprints', () => {
     expect(imgSrcs(root).filter((s) => s.includes('blueprint-'))).toEqual([]);
   });
 
-  it('net-devices-media shows the rack sheet and the full poster in Resources', async () => {
+  it('net-devices-media shows the rack and patch panel sheets and the full poster in Resources', async () => {
     const root = await renderLesson('net-devices-media');
     const srcs = imgSrcs(root);
     expect(srcs).toContain('/blueprint-network-rack-42u.jpg');
+    expect(srcs).toContain('/blueprint-patch-panel-48-port.jpg');
     expect(srcs).toContain('/blueprint-equipment-poster.jpg');
     expect(JSON.stringify(root.toJSON())).toContain('Resources');
   });

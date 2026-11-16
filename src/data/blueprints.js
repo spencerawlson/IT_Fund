@@ -4,70 +4,77 @@
 // lesson page itself (LessonView renders these inside the gated page).
 //
 // Assets live flat under public/ (same convention as cypher-mascot-*.jpg).
-// The sheets are full-page technical drawings (1206 px wide, ~200–270 KB
-// each, quality 82); LessonBlueprint loads them lazily.
+// The sheets are full-page technical drawings; LessonBlueprint loads them
+// lazily. The nine equipment sheets were replaced 2026-11-16 with Spencer's
+// standalone R2C-BP set (1536 px wide, ~380–420 KB each, quality 80); the
+// cloud sheet and the poster are the earlier 1206 px versions.
 
 /** Lesson id -> the blueprint sheet(s) that belong in its Architecture section. */
 export const BLUEPRINTS_FOR_LESSON = {
   'it-hardware': [
     {
       src: '/blueprint-rack-server-2u.jpg',
-      alt: 'R2C technical blueprint of a 2U rack server: three-quarter, front, rear, side and top views with specifications and key components',
-      caption: 'Rack Server (2U) — full technical blueprint. Front, rear, side and top views, dimensions, specifications and key components.',
+      alt: 'R2C technical blueprint of a 2U rack server (R2C-SRV-02): perspective, labeled front and rear panels, top and side views, internal layout, hot-swap drive bay and specifications',
+      caption: 'Rack Server (2U) — full technical blueprint. Labeled front and rear panels, internal components, hot-swap drive bays, dimensions and specifications.',
     },
   ],
   'it-storage-memory': [
     {
       src: '/blueprint-nas-storage.jpg',
-      alt: 'R2C technical blueprint of a NAS storage appliance: 8 hot-swap drive bays, front, rear, side and top views with specifications',
-      caption: 'NAS Storage Appliance — full technical blueprint. 8 hot-swap drive bays, front, rear, side and top views, specifications and use cases.',
+      alt: 'R2C technical blueprint of an enterprise NAS storage appliance (R2C-NAS-01): 8 hot-swap drive bays, front, rear and side views, internal cutaway, RAID levels and specifications',
+      caption: 'Enterprise NAS Storage Appliance — full technical blueprint. 8 hot-swap drive bays, front and rear panels, internal cutaway, RAID configurations and specifications.',
     },
   ],
   'net-devices-media': [
     {
       src: '/blueprint-network-rack-42u.jpg',
-      alt: 'R2C technical character sheet of a 42U server rack: front, rear, side and top views with the rack-unit plan',
-      caption: 'Network Rack (42U) — full technical character sheet. Front, rear, side and top views, the rack-unit plan, and key features.',
+      alt: 'R2C technical blueprint of a 42U server rack cabinet (R2C-RACK-42U): front, rear and side views, rack-unit reference, exploded structure, cooling and PDU options',
+      caption: '42U Server Rack Cabinet — full technical blueprint. Front, rear and side views, the rack-unit reference, exploded structure, cooling and power distribution.',
+    },
+    {
+      src: '/blueprint-patch-panel-48-port.jpg',
+      alt: 'R2C technical blueprint of a 48-port Cat6 patch panel (R2C-PP-48): labeled front ports 1–48, rear 110 punch-down termination, T568A/T568B wiring and specifications',
+      caption: 'Patch Panel (48-Port, Cat6) — full technical blueprint. Numbered front ports, rear 110 punch-down termination, T568A/T568B wiring standards and dimensions.',
     },
   ],
   'net-switch-route': [
     {
       src: '/blueprint-network-switch-48-port.jpg',
-      alt: 'R2C technical blueprint of a managed 48-port network switch: front, rear, side and top views with specifications',
-      caption: 'Managed Network Switch (48-Port) — full technical blueprint. Front, rear, side and top views, port layout and specifications.',
+      alt: 'R2C technical blueprint of a managed 48-port network switch (R2C-SW-48): front, rear, side and top views, internal cutaway, port and LED detail and specifications',
+      caption: 'Managed Network Switch (48-Port) — full technical blueprint. Front, rear, side and top views, internal cutaway, port and LED detail, and specifications.',
     },
     {
       src: '/blueprint-network-router.jpg',
-      alt: 'R2C technical blueprint of an enterprise router (R2C-ER1000): front, rear, side and top views with port detail',
-      caption: 'Enterprise Router (R2C-ER1000) — full technical blueprint. Front, rear, side and top views, port detail and network role.',
+      alt: 'R2C technical blueprint of an enterprise network router (R2C-RTR-01): labeled front and rear panels, side and top views, internal cutaway and specifications',
+      caption: 'Enterprise Network Router (R2C-RTR-01) — full technical blueprint. Labeled front and rear panels, internal cutaway, dimensions and specifications.',
     },
   ],
   'rt-fundamentals': [
     {
       src: '/blueprint-network-router.jpg',
-      alt: 'R2C technical blueprint of an enterprise router (R2C-ER1000): front, rear, side and top views with port detail',
-      caption: 'Enterprise Router (R2C-ER1000) — full technical blueprint. Front, rear, side and top views, port detail and network role.',
+      alt: 'R2C technical blueprint of an enterprise network router (R2C-RTR-01): labeled front and rear panels, side and top views, internal cutaway and specifications',
+      caption: 'Enterprise Network Router (R2C-RTR-01) — full technical blueprint. Labeled front and rear panels, internal cutaway, dimensions and specifications.',
     },
   ],
   'net-services-wireless': [
     {
       src: '/blueprint-wireless-access-point.jpg',
-      alt: 'R2C technical blueprint of a wireless access point (R2C-AP6000): top, bottom, front, rear and side views with coverage pattern',
-      caption: 'Wireless Access Point (R2C-AP6000) — full technical blueprint. Top, bottom, front, rear and side views, LED status ring and coverage pattern.',
+      alt: 'R2C technical blueprint of an enterprise wireless access point (R2C-AP-01): top, front, rear and bottom views, internal and exploded views, MIMO antenna layout and status LEDs',
+      caption: 'Enterprise Wireless Access Point (R2C-AP-01) — full technical blueprint. Orthographic, internal and exploded views, 4×4 MIMO antenna layout, status LEDs and specifications.',
     },
   ],
   'net-security': [
     {
       src: '/blueprint-firewall-ngfw.jpg',
-      alt: 'R2C technical blueprint of a next-generation firewall: front, rear, side and top views with port detail and specifications',
-      caption: 'Next-Gen Firewall (NGFW) — full technical blueprint. Front, rear, side and top views, port detail and specifications.',
+      alt: 'R2C technical blueprint of a next-generation firewall (R2C-FW-01): perspective, labeled front and rear views, top and side views, internal cutaway and specifications',
+      caption: 'Next-Generation Firewall (R2C-FW-01) — full technical blueprint. Labeled front and rear panels, internal cutaway, dimensions, specifications and use cases.',
     },
   ],
   'net-ops': [
     {
       src: '/blueprint-ups-rackmount-2u.jpg',
-      alt: 'R2C technical character sheet of a rack-mounted UPS: front, rear, side and top views with status display and internal layout',
-      caption: 'Rack-Mounted UPS (2U) — full technical character sheet. Front, rear, side and top views, status display, specifications and internal layout.',
+      alt: 'R2C technical blueprint of a rack-mount UPS (R2C-UPS-02): labeled front and rear panels, internal cutaway, battery module, LCD display and specifications',
+      caption: 'Rack-Mount UPS (2U) — full technical blueprint. Labeled front and rear panels, internal cutaway, battery module, LCD display and specifications.',
     },
   ],
   'cl-architecture': [
@@ -91,7 +98,10 @@ export const BLUEPRINT_POSTER = {
   caption: 'Equipment & Infrastructure Blueprints — the full R2C poster: every device in this track, the 42U rack layout, the data center floor plan, the network topology, cloud architecture and the defense-in-depth stack.',
 };
 
-/** Visual Lab subject id -> the blueprint shown when its 3D scene cannot load. */
+/**
+ * Visual Lab subject id -> the blueprint shown when its 3D scene cannot load.
+ * 'firewall-3d' is different: its subject IS the sheet (BlueprintSubject).
+ */
 export const FALLBACK_BLUEPRINT_FOR_SUBJECT = {
   switch: '/blueprint-network-switch-48-port.jpg',
   'server-rack': '/blueprint-network-rack-42u.jpg',
@@ -101,5 +111,6 @@ export const FALLBACK_BLUEPRINT_FOR_SUBJECT = {
   nas: '/blueprint-nas-storage.jpg',
   ups: '/blueprint-ups-rackmount-2u.jpg',
   'rack-server': '/blueprint-rack-server-2u.jpg',
+  'patch-panel': '/blueprint-patch-panel-48-port.jpg',
   cloud: '/blueprint-cloud-architecture.jpg',
 };
