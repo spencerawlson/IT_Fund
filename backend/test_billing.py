@@ -1056,3 +1056,118 @@ def test_price_reads_live_stripe_when_configured():
 def test_price_is_public_no_auth():
     client.cookies.clear()
     assert client.get("/api/billing/price").status_code == 200
+
+
+# ---- stripe-python >= 15: API objects are NOT dicts ----
+# The fakes above return plain dicts, which is how a crash on the live
+# library (stripe 16: "'get' is a dict method, but a Price is not a dict")
+# slipped through: /billing/price always fell back to $19 and the webhook
+# could not read its own event. _NotADict behaves like the real objects:
+# item access and to_dict(), but no .get(), and not a dict subclass.
+
+
+class _NotADict:
+    def __init__(self, data):
+        self._data = data
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def __getattr__(self, name):
+        if name == "get":
+            raise AttributeError("'get' is a dict method, but a StripeObject is not a dict.")
+        try:
+            return self._data[name]
+        except KeyError as exc:
+            raise AttributeError(name) from exc
+
+    def to_dict(self):
+        import copy
+
+        return copy.deepcopy(self._data)
+
+
+def test_price_reads_a_non_dict_stripe_object(monkeypatch):
+    monkeypatch.setattr(
+        _FakePrice,
+        "retrieve",
+        staticmethod(lambda price_id: _NotADict({"unit_amount": 2900, "currency": "usd", "recurring": {"interval": "month"}})),
+    )
+    body = client.get("/api/billing/price").json()
+    assert body["configured"] is True
+    assert body["unit_amount"] == 2900
+    assert body["display"] == "$29"
+
+
+def test_webhook_reads_a_non_dict_event_and_subscription(monkeypatch):
+    """Real construct_event / Subscription.retrieve return objects, not dicts.
+    The period end may live only on the subscription items (Stripe API
+    2025-03-31+)."""
+    import json
+
+    _, uid = _signed_in()
+    monkeypatch.setattr(
+        _FakeWebhook,
+        "construct_event",
+        staticmethod(lambda payload, sig, secret: _NotADict(json.loads(payload.decode()))),
+    )
+    monkeypatch.setattr(
+        _FakeSubscription,
+        "retrieve",
+        staticmethod(
+            lambda sub_id: _NotADict(
+                {
+                    "id": sub_id,
+                    "customer": "cus_test_1",
+                    "status": "active",
+                    "metadata": {},
+                    "items": {"data": [{"current_period_end": 1893456000}]},
+                }
+            )
+        ),
+    )
+    r = _webhook_post(
+        {
+            "id": "evt_notadict_1",
+            "type": "checkout.session.completed",
+            "data": {"object": {"metadata": {"user_id": uid}, "subscription": "sub_test_1"}},
+        }
+    )
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, uid)
+        assert row.status == "active"
+        end = row.current_period_end
+        assert end is not None
+        assert (end if end.tzinfo else end.replace(tzinfo=timezone.utc)).year == 2030
+    assert billing.is_subscribed(uid) is True
+
+
+def test_refund_finds_the_subscription_on_newer_invoices(monkeypatch):
+    """Stripe API 2025-03-31+ moved invoice.subscription under
+    invoice.parent.subscription_details.subscription."""
+    _, uid = _signed_in()
+    _set_sub(uid, "active")
+    monkeypatch.setattr(
+        _FakeInvoice,
+        "retrieve",
+        staticmethod(
+            lambda invoice_id: _NotADict(
+                {"id": invoice_id, "parent": {"subscription_details": {"subscription": "sub_test_1"}}}
+            )
+        ),
+    )
+    r = _webhook_post(_refund_event("evt_ref_parent_1"))
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        assert s.get(Subscription, uid).status == "canceled"
+    assert billing.is_subscribed(uid) is False
+
+
+def test_plain_and_period_end_helpers():
+    assert billing._plain({"a": 1}) == {"a": 1}
+    assert billing._plain(None) is None
+    assert billing._plain(_NotADict({"a": {"b": 2}})) == {"a": {"b": 2}}
+    assert billing._period_end({"current_period_end": 5}) == 5
+    assert billing._period_end({"items": {"data": [{"current_period_end": 3}, {"current_period_end": 9}]}}) == 9
+    assert billing._period_end({}) is None

@@ -59,11 +59,50 @@ def _stripe():
     stripe.api_key = key
     # Fail fast on network trouble: without this, a blackholed route (e.g. broken
     # IPv6 on the host) hangs checkout for minutes instead of erroring in seconds.
-    try:
-        stripe.default_http_client = stripe.http_client.RequestsClient(timeout=10)
-    except Exception:
-        pass
+    # stripe-python exposes RequestsClient at the top level (>= 8); the old
+    # stripe.http_client module path is gone in current releases, which made
+    # this silently fall back to the 80 s default.
+    client_cls = getattr(stripe, "RequestsClient", None) or getattr(
+        getattr(stripe, "http_client", None), "RequestsClient", None
+    )
+    if client_cls is not None:
+        try:
+            stripe.default_http_client = client_cls(timeout=10)
+        except Exception:
+            log.warning("could not set the Stripe HTTP timeout; using the library default")
     return stripe
+
+
+def _plain(obj):
+    """A Stripe API object as a plain (recursive) dict.
+
+    stripe-python >= 15 objects are no longer dict subclasses: `obj.get(...)`
+    raises AttributeError ("'get' is a dict method, but a Price is not a
+    dict"). Every Stripe response is converted here, where it enters our
+    code, so the rest of billing reads plain dicts on any library version.
+    Plain dicts (tests, already-converted data) pass through unchanged."""
+    if obj is None or type(obj) is dict:
+        return obj
+    to_dict = getattr(obj, "to_dict", None)
+    if callable(to_dict):
+        return to_dict()
+    if isinstance(obj, dict):
+        return dict(obj)
+    if hasattr(obj, "__dict__"):  # plain attribute objects (e.g. SimpleNamespace)
+        return dict(vars(obj))
+    return obj
+
+
+def _period_end(sub: dict) -> int | None:
+    """The subscription's current period end (unix seconds). Stripe API
+    versions from 2025-03-31 moved it from the subscription onto its items;
+    read the top level first, then the latest item period end."""
+    top = sub.get("current_period_end")
+    if top:
+        return top
+    items = ((sub.get("items") or {}).get("data")) or []
+    ends = [it.get("current_period_end") for it in items if isinstance(it, dict) and it.get("current_period_end")]
+    return max(ends) if ends else None
 
 
 def _require_stripe():
@@ -187,7 +226,8 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
     no anchor yet); later updated events while past_due must NOT reset it,
     or the grace would never expire. Leaving past_due clears it.
     """
-    period_end = sub.get("current_period_end")
+    sub = _plain(sub)
+    period_end = _period_end(sub)
     with db.SessionLocal() as s:
         row = s.get(Subscription, user_id)
         if row is None:
@@ -331,7 +371,7 @@ def plan_price() -> dict:
     if stripe is None or not price_id:
         return dict(PRICE_FALLBACK)
     try:
-        price = stripe.Price.retrieve(price_id)
+        price = _plain(stripe.Price.retrieve(price_id))
         unit = price.get("unit_amount")
         currency = price.get("currency", "usd")
         interval = (price.get("recurring") or {}).get("interval", "month")
@@ -545,11 +585,11 @@ def _revoke_for_refund(stripe, charge: dict) -> str | None:
     invoice_id = charge.get("invoice")
     sub_id = None
     if invoice_id:
-        invoice = stripe.Invoice.retrieve(invoice_id)
-        sub_id = (
-            invoice.get("subscription")
-            if isinstance(invoice, dict)
-            else getattr(invoice, "subscription", None)
+        invoice = _plain(stripe.Invoice.retrieve(invoice_id))
+        # API versions from 2025-03-31 moved invoice.subscription under
+        # invoice.parent.subscription_details.subscription.
+        sub_id = invoice.get("subscription") or (
+            ((invoice.get("parent") or {}).get("subscription_details") or {}).get("subscription")
         )
     if not sub_id:
         log.info("refunded charge %s has no subscription invoice; access unchanged", charge_id)
@@ -617,7 +657,7 @@ async def stripe_webhook(request: Request) -> dict:
     payload = await request.body()
     sig = request.headers.get("stripe-signature", "")
     try:
-        event = stripe.Webhook.construct_event(payload, sig, webhook_secret)
+        event = _plain(stripe.Webhook.construct_event(payload, sig, webhook_secret))
     except Exception as exc:  # bad signature or malformed payload
         log.warning("webhook signature verification failed: %s", exc)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid signature")
