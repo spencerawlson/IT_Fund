@@ -39,6 +39,7 @@ export const LAB_LABELS = {
   'proto-tcp': 'TCP Deep Dive',
   'proto-tls': 'HTTPS / TLS Journey',
   'packet-builder': 'Packet Builder',
+  'patch-panel': '3D Patch Panel',
 };
 
 export const NOTES = {
@@ -80,6 +81,7 @@ export const NOTES = {
   'proto-tcp': 'Handshake, data and ACKs, a lost segment retransmitted, and the four-packet teardown.',
   'proto-tls': 'ClientHello, certificate, key exchange, and encrypted application data — TLS 1.3 in one round trip.',
   'packet-builder': 'Set real header fields and watch the actual bytes appear, checksums included.',
+  'patch-panel': 'See how every wall jack terminates on numbered ports, punched down to T568B, and patches to the switch.',
 };
 
 export const LAB_LINKS = [

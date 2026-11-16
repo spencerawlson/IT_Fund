@@ -14,6 +14,7 @@ import Nas3D from './Nas3D';
 import Ups3D from './Ups3D';
 import RackServer3D from './RackServer3D';
 import Cloud3D from './Cloud3D';
+import PatchPanel3D from './PatchPanel3D';
 
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -58,7 +59,7 @@ describe('3D subjects pass a blueprint fallback only where one fits', () => {
   });
 
   it('the other 3D subjects have no fallback image', () => {
-    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D, Osi3D]) {
+    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D, Osi3D, PatchPanel3D]) {
       expect(viewerPropsFor(Component).fallbackImage, Component.name).toBeUndefined();
     }
   });

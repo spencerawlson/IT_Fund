@@ -21,6 +21,7 @@ const Nas3D = React.lazy(() => import('@/components/three/Nas3D'));
 const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
 const RackServer3D = React.lazy(() => import('@/components/three/RackServer3D'));
 const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
+const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'));
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
@@ -68,6 +69,7 @@ export const SUBJECTS = [
   { id: 'server-rack', category: 'Hardware', kind: '3d', icon: Server, label: '3D Server Rack', blurb: 'Inspect servers, top-of-rack switch, PDU, and UPS in a data-center rack.' },
   { id: 'rack-server', category: 'Hardware', kind: '3d', icon: Server, label: '3D Rack Server', blurb: 'A real 2U rack server — drive bays, power supplies, cooling fans, and management port.' },
   { id: 'ups', category: 'Hardware', kind: '3d', icon: BatteryCharging, label: '3D UPS', blurb: 'Rack-mounted battery backup — status display, protected outlets, and how it keeps servers alive.' },
+  { id: 'patch-panel', category: 'Hardware', kind: '3d', icon: Network, label: '3D Patch Panel', blurb: 'A real 24-port patch panel — numbered RJ45 ports, punched down to T568B, patched to the switch.' },
   // Networking
   { id: 'osi', category: 'Networking', kind: '3d', icon: Layers, label: 'OSI Model', blurb: 'Climb the seven layers as a 3D stack, from cabling to application.' },
   { id: 'router', category: 'Networking', kind: '3d', icon: Router, label: '3D Enterprise Router', blurb: 'A real edge router — WAN and LAN ports, management and console access, and where it sits in the topology.' },
@@ -128,7 +130,7 @@ export const RENDERERS = {
   motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
   'rack-server': RackServer3D, ups: Ups3D,
   router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: Nas3D,
+  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: Nas3D, 'patch-panel': PatchPanel3D,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
