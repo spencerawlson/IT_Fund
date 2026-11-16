@@ -315,12 +315,17 @@ export function useCypherVoice(voiceRef) {
       try { sourceNodeRef.current.stop(); } catch { /* already stopped */ }
       sourceNodeRef.current = null;
     }
-    gainNodeRef.current = null;
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close().catch(() => {});
-      audioCtxRef.current = null;
-      analyserRef.current = null;
+    if (gainNodeRef.current) {
+      try { gainNodeRef.current.disconnect(); } catch { /* already disconnected */ }
     }
+    gainNodeRef.current = null;
+    // The AudioContext stays OPEN across stop(): it is the one a tap
+    // unlocked (see unlock()), and phones only let an AudioContext make
+    // sound if it was started inside a user gesture. Closing it here
+    // would make the next auto-played answer (started seconds after the
+    // tap, when the tutor's text arrives) silent on iOS. It is closed on
+    // unmount instead.
+    analyserRef.current = null;
     stopLevelLoop();
     setPlaying(false);
     setLoading(false);
@@ -387,6 +392,65 @@ export function useCypherVoice(voiceRef) {
     if (gainNodeRef.current && !muted) gainNodeRef.current.gain.value = v;
   }, [muted]);
 
+  // The hook's one AudioContext, created on first need and kept open for
+  // the component's lifetime (a fresh context created outside a tap is
+  // born suspended on iOS and stays silent).
+  const ensureContext = React.useCallback(() => {
+    let c = audioCtxRef.current;
+    if (!c || c.state === 'closed') {
+      c = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtxRef.current = c;
+    }
+    if (c.state !== 'running') c.resume().catch(() => {});
+    return c;
+  }, []);
+
+  // Call synchronously inside a tap/click handler (before any await): it
+  // creates/resumes the AudioContext while the gesture is live and plays a
+  // one-sample silent buffer (the iOS unlock), and asks iOS to treat this
+  // page's audio as media playback so the ring/silent switch doesn't mute
+  // Web Audio (navigator.audioSession, Safari 16.4+; ignored elsewhere).
+  // Safe to call repeatedly; never throws.
+  const unlock = React.useCallback(() => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.audioSession) {
+        navigator.audioSession.type = 'playback';
+      }
+    } catch { /* not supported */ }
+    try {
+      const c = ensureContext();
+      const buf = c.createBuffer(1, 1, 22050);
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      src.connect(c.destination);
+      src.start(0);
+    } catch { /* no Web Audio: play() falls back to text */ }
+  }, [ensureContext]);
+
+  // Unlock on the first tap/click/key anywhere on the page, so audio that
+  // starts later without a gesture of its own (the lesson panel's answer
+  // when it arrives, a mission briefing that auto-plays) can still be
+  // heard on phones. touchend, not touchstart: iOS only unlocks audio on
+  // touchend. One-shot; listeners are removed after the first gesture.
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    const events = ['touchend', 'click', 'keydown'];
+    const onGesture = () => {
+      unlock();
+      events.forEach((ev) => document.removeEventListener(ev, onGesture, true));
+    };
+    events.forEach((ev) => document.addEventListener(ev, onGesture, true));
+    return () => events.forEach((ev) => document.removeEventListener(ev, onGesture, true));
+  }, [unlock]);
+
+  // Close the context when the component using the voice goes away.
+  React.useEffect(() => () => {
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+  }, []);
+
   const play = React.useCallback(async (text) => {
     stop();
     // This play's generation: stop() (above) bumped the counter, and any
@@ -420,11 +484,12 @@ export function useCypherVoice(voiceRef) {
     // this is still inside the click's user gesture. Once resumed, the
     // context stays unlocked for as long as it's open, so the real audio
     // can start on it later — after the fetch — with no fresh gesture.
+    // Reuse the context a tap already unlocked (unlock()), so an answer
+    // auto-played after the tutor's text arrives — outside any gesture —
+    // still has sound on phones.
     let ctx = null;
     try {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      audioCtxRef.current = ctx;
-      ctx.resume().catch(() => {});
+      ctx = ensureContext();
     } catch {
       ctx = null;
     }
@@ -447,10 +512,6 @@ export function useCypherVoice(voiceRef) {
       try {
         envelope = await speakVoice({ character: 'cypher', text });
       } catch (e) {
-        if (audioCtxRef.current) {
-          audioCtxRef.current.close().catch(() => {});
-          audioCtxRef.current = null;
-        }
         setLoading(false);
         setFallback(true);
         setError(e.message || 'Cypher’s voice isn’t available right now.');
@@ -475,10 +536,6 @@ export function useCypherVoice(voiceRef) {
       // Text-only fallback (voice not configured, or muted): Cypher still
       // "talks" — the talk clip plays while the words are shown, so the
       // experience degrades to silent speech, never to nothing.
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close().catch(() => {});
-        audioCtxRef.current = null;
-      }
       startSilentTimer(envelope.text);
       return envelope.text;
     }
@@ -594,9 +651,9 @@ export function useCypherVoice(voiceRef) {
       setError('Cypher’s voice couldn’t play here.');
       return envelope.text;
     }
-  }, [muted, volume, voiceRef, stop, stopLevelLoop, startLevelLoop, startProgressTick, stopProgressTick]);
+  }, [muted, volume, voiceRef, stop, stopLevelLoop, startLevelLoop, startProgressTick, stopProgressTick, ensureContext]);
 
   React.useEffect(() => stop, [stop]);
 
-  return { play, stop, pause, resume, playing, paused, loading, fallback, error, subtitle, muted, setMuted, volume, setVolume, progress };
+  return { play, stop, pause, resume, unlock, playing, paused, loading, fallback, error, subtitle, muted, setMuted, volume, setVolume, progress };
 }
