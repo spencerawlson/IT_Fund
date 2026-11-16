@@ -155,4 +155,30 @@ describe('content export', () => {
     }
     expect(count).toBeGreaterThan(3000);
   });
+
+  it('quiz answers are not length-biased: the correct answer is the longest in at most 35% of questions', () => {
+    // 2026-11-16: the correct answer was the strictly longest option in
+    // 88.5% of questions (mean 10.0 words vs 3.3 for distractors), so a
+    // learner could pass by always picking the longest answer without
+    // knowing the concept. Quiz options are shuffled at runtime, so only
+    // length leaks — the rebalance targets ~25% (chance level for 4
+    // options); this guard fails the build if the bias creeps back.
+    const full = buildContentJson();
+    const words = (s) => s.trim().split(/\s+/).filter(Boolean).length;
+    let quiz = 0;
+    let longest = 0;
+    for (const track of full.tracks) {
+      for (const tier of track.tiers) {
+        for (const deck of tier.decks) {
+          for (const card of deck.cards) {
+            if (!Array.isArray(card.wrong) || card.wrong.length < 2 || typeof card.a !== 'string') continue;
+            quiz += 1;
+            if (words(card.a) > Math.max(...card.wrong.map(words))) longest += 1;
+          }
+        }
+      }
+    }
+    expect(quiz).toBeGreaterThan(3000);
+    expect(longest / quiz).toBeLessThanOrEqual(0.35);
+  });
 });

@@ -110,7 +110,7 @@ export const tracks = [
                 "wrong": [
                   "\"Hi \" . name",
                   "\"Hi %name\"",
-                  "concat(\"Hi\", name)"
+                  "concat(\"Hi\", name), joining the pieces together"
                 ]
               },
               {
@@ -121,7 +121,7 @@ export const tracks = [
                 "a": "No, strings are immutable",
                 "x": "Methods like .upper() return a new string; the original is unchanged.",
                 "wrong": [
-                  "Yes, always",
+                  "Yes, always — any character can change in place",
                   "Only ASCII strings",
                   "Only inside functions"
                 ]
@@ -972,7 +972,7 @@ export const tracks = [
                 "a": "Data Link layer",
                 "x": "Frames, MAC addresses, and switches.",
                 "wrong": [
-                  "Physical layer",
+                  "The Physical layer",
                   "Network layer",
                   "Transport layer"
                 ]
@@ -1025,7 +1025,7 @@ export const tracks = [
                 "x": "Formatting, encoding, compression, and encryption such as TLS.",
                 "wrong": [
                   "Session layer",
-                  "Application layer",
+                  "Application layer, the topmost layer of all",
                   "Network layer"
                 ]
               },
@@ -3664,9 +3664,9 @@ export const tracks = [
                 "a": "Owner read/write only; nobody else can access it",
                 "x": "r=4, w=2, x=1 for owner, group, others. SSH rejects world-readable private keys.",
                 "wrong": [
-                  "Everyone can read it",
-                  "Makes it executable",
-                  "Deletes it"
+                  "Everyone can read it: chmod 600 opens the key",
+                  "Makes it executable: chmod 600 adds execute rights only",
+                  "Deletes it: chmod 600 erases the key file entirely"
                 ]
               },
               {
@@ -3703,9 +3703,9 @@ export const tracks = [
                 "a": "Runs a command as another user, root by default",
                 "x": "Audit sudoers: overly broad sudo rules are a privilege escalation path.",
                 "wrong": [
-                  "Switches the shell",
-                  "Shows processes",
-                  "Encrypts files"
+                  "Switches the shell: sudo changes your shell session entirely",
+                  "Shows processes: sudo lists the running programs for you",
+                  "Encrypts files: sudo scrambles files for secrecy, not privilege"
                 ]
               },
               {
@@ -3716,9 +3716,9 @@ export const tracks = [
                 "a": "Sends one command’s output into the next command’s input",
                 "x": "cat access.log | sort | uniq -c | sort -nr counts repeat lines.",
                 "wrong": [
-                  "Writes to a file",
-                  "Runs in the background",
-                  "Comments a line"
+                  "Writes to a file: the pipe saves output to disk",
+                  "Runs in the background: the pipe detaches commands to background",
+                  "Comments a line: the pipe marks text as notes"
                 ]
               },
               {
@@ -3729,7 +3729,7 @@ export const tracks = [
                 "a": "A program that runs with its owner’s privileges",
                 "x": "SUID-root binaries are a classic privilege escalation target (see GTFOBins).",
                 "wrong": [
-                  "A system update",
+                  "A system service: a program the OS starts automatically at boot",
                   "A shell alias",
                   "A signed binary"
                 ]
@@ -3742,9 +3742,9 @@ export const tracks = [
                 "a": "ps aux (or top/htop)",
                 "x": "Look for odd parents, names, or high CPU.",
                 "wrong": [
-                  "ls /proc only",
-                  "netstat",
-                  "kill"
+                  "ls /proc only: listing proc alone shows running processes",
+                  "netstat: the tool that lists all running processes",
+                  "kill: the command that lists all running processes"
                 ]
               },
               {
@@ -9798,9 +9798,9 @@ export const tracks = [
                 "a": "Their data, users, and access configuration",
                 "x": "Identity and data are always the customer’s responsibility.",
                 "wrong": [
-                  "The OS",
-                  "The hardware",
-                  "Nothing at all"
+                  "The OS, patching and configuring it themselves",
+                  "The hardware, racks and servers in the data centre",
+                  "Nothing at all, the provider manages everything"
                 ]
               },
               {
@@ -9811,9 +9811,9 @@ export const tracks = [
                 "a": "Serverless / FaaS (a form of PaaS)",
                 "x": "You deploy functions; the provider runs and scales servers.",
                 "wrong": [
-                  "IaaS",
-                  "SaaS",
-                  "On-premises"
+                  "IaaS, renting virtual machines by the hour",
+                  "SaaS, using finished software in the browser",
+                  "On-premises, running code on your own servers"
                 ]
               },
               {
@@ -9821,12 +9821,12 @@ export const tracks = [
                 "deckId": "cl-concepts",
                 "trackId": "cloud",
                 "q": "What is a hybrid cloud?",
-                "a": "A mix of on-premises/private and public cloud working together",
+                "a": "On-premises/private and public cloud together",
                 "x": "Community cloud is shared by organisations with common needs.",
                 "wrong": [
-                  "Two public clouds",
-                  "Only private cloud",
-                  "A cloud with no internet"
+                  "Two public clouds from two different providers",
+                  "Only private cloud, nothing public at all",
+                  "A cloud with no internet, completely offline"
                 ]
               },
               {
@@ -9850,9 +9850,9 @@ export const tracks = [
                 "a": "OpEx (pay as you go)",
                 "x": "No up-front hardware purchase.",
                 "wrong": [
-                  "CapEx",
-                  "Neither",
-                  "Depreciation only"
+                  "CapEx, buying hardware up front",
+                  "Neither, spending stays exactly the same",
+                  "Depreciation only, spreading costs over years"
                 ]
               },
               {
@@ -9860,12 +9860,12 @@ export const tracks = [
                 "deckId": "cl-concepts",
                 "trackId": "cloud",
                 "q": "What is elasticity?",
-                "a": "Automatically scaling resources up and down with demand",
+                "a": "Scaling resources up and down with demand",
                 "x": "Scalability is the ability to grow; elasticity is doing it automatically, both ways.",
                 "wrong": [
-                  "Fixed capacity",
-                  "Manual provisioning",
-                  "Data replication"
+                  "Fixed capacity, the same servers all year round",
+                  "Manual provisioning, adding servers by hand",
+                  "Data replication, copying data across regions"
                 ]
               },
               {
@@ -9873,12 +9873,12 @@ export const tracks = [
                 "deckId": "cl-concepts",
                 "trackId": "cloud",
                 "q": "What is a region vs an availability zone?",
-                "a": "Geographic area vs isolated data centre(s) within it",
+                "a": "Geographic area vs isolated data centres within it",
                 "x": "Spread workloads across AZs for high availability.",
                 "wrong": [
-                  "Same thing",
-                  "An AZ contains regions",
-                  "A region is one data centre"
+                  "A region and an AZ are the same thing",
+                  "An AZ contains regions, several regions inside each zone",
+                  "A region is one data centre, nothing more"
                 ]
               },
               {
@@ -9902,9 +9902,9 @@ export const tracks = [
                 "a": "Dependence on one provider’s proprietary services",
                 "x": "Mitigate with open standards, containers, and portable IaC.",
                 "wrong": [
-                  "A security lock",
-                  "A contract discount",
-                  "An encryption type"
+                  "A security lock, a padlock on the data centre door",
+                  "A contract discount, cheaper rates for committing early",
+                  "An encryption type, scrambling data with a key"
                 ]
               }
             ],
@@ -16240,7 +16240,7 @@ export const tracks = [
                 "a": "The current working directory as an absolute path",
                 "x": "pwd = \"print working directory\". It answers \"where am I?\", e.g. /home/ana.",
                 "wrong": [
-                  "The parent directory",
+                  "The parent directory of wherever you happen to be",
                   "The PATH variable",
                   "The logged-in username"
                 ]
@@ -16266,7 +16266,7 @@ export const tracks = [
                 "a": "Absolute starts at / (root); relative starts from the current directory",
                 "x": "/etc/ssh works from anywhere; ../logs only works from the right place.",
                 "wrong": [
-                  "Absolute paths are always shorter",
+                  "Absolute paths are always shorter than relative ones, by definition, in every case",
                   "Relative paths always start with ~",
                   "There is no difference on Linux"
                 ]
@@ -16319,7 +16319,7 @@ export const tracks = [
                 "x": "find walks the tree; -name matches the basename. Quote the pattern so the shell does not glob it.",
                 "wrong": [
                   "`locate -r /var/app.log`",
-                  "`grep -r \"app.log\" /var`",
+                  "`grep -r \"app.log\" /var`, searching file contents for the name",
                   "`ls -R /var | app.log`"
                 ]
               },
