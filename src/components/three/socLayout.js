@@ -165,9 +165,9 @@ export function spotToScene(p, scale = ROOM_SCALE) {
 // the concept render's level look — the height is what buys the clear
 // view over the bank. See the elevation bar in socLayout.test.js.
 export const CAMERA_SHOTS = {
-  wide: { pos: [0, 19.5, 26], target: [0, 2, -2] },
-  sentinel: { pos: [12, 16, 24], target: [-1.5, 5, -5] },
-  patch: { pos: [-12, 12, 22], target: [6, 5, -5] },
+  wide: { pos: [1.5, 9, 24], target: [0, 5.5, -4] },
+  sentinel: { pos: [4, 8.5, 8], target: [-1.5, 5.5, -5] },
+  patch: { pos: [11, 8.5, 9], target: [6, 5, -5] },
 };
 
 // Cypher's shot is fixed at his chair: he sits, he never patrols in
@@ -178,7 +178,7 @@ export const CAMERA_SHOTS = {
 export function cypherShot() {
   const x = CYPHER_SEAT_M.x * ROOM_SCALE;
   const z = -CYPHER_SEAT_M.y * ROOM_SCALE;
-  return { pos: [x, 11, 12], target: [x, 5, z] };
+  return { pos: [x + 3.5, 8, z + 11], target: [x + 0.5, 5, z] };
 }
 
 export const SPEAKERS = ['wide', 'cypher', 'sentinel', 'patch'];
@@ -226,26 +226,24 @@ export function shotElevation(shot) {
 // the real room mesh, and each device is checked in-frame and large
 // (see socLayout.test.js + the Blender renders).
 export const SHOWCASE_ORDER = ['PC1', 'GUEST', 'R1', 'SRV'];
+// Showcase aim height: between the device top (2.6) and its label (4.2),
+// so both fit the frame — at 2.4 SRV's emphasised label top sat 27°
+// off-axis, outside the 26° half-FOV; 2.8 puts every label within 23.4°.
+export const SHOWCASE_TARGET_Y = 2.8;
 export const DEVICE_SHOTS = {
-  // Close, low, in-room cameras (not the top-down look-across). Targets
-  // sit at y = 3.7 (between the device centre and its label at y = 5.6)
-  // so the label fits in frame too — aiming at the device centre put
-  // the label off the top edge, and 3.5 still left GUEST's emphasised
-  // label top ~0.1° outside the 42° FOV (live check 2026-11-14); 3.7
-  // pulls it to ~20°, inside, while every device footprint stays in
-  // frame (see the label-framing test in socLayout.test.js). The cameras
-  // route around the ROBOTS as well as the room: a robot working next to
-  // a device blocks a straight-on shot (Patch hid GUEST, Sentinel hid
-  // R1 — proven by render, not just ray-cast). GUEST is shot from the
-  // south (Patch is north of it); R1 from inside the server room, east
-  // of Sentinel (the through-the-gap angle left the router half-hidden
-  // behind the partition frame); SRV from the desk room through the
-  // server-room doorway gap; PC1 from inside the desk room (Cypher is
-  // at his desk, west of the line).
-  PC1: { pos: [2.5, 7, 2.5], target: [10, 3.7, 7.5] },
-  GUEST: { pos: [5, 7, 5], target: [10.5, 3.7, 0] },
-  R1: { pos: [1.5, 7, -2], target: [0, 3.7, -11] },
-  SRV: { pos: [-7, 9, 8], target: [-7, 3.7, -2.75] },
+  // Close, low, eye-level cameras inside the rebuilt room (2026-11-16).
+  // Targets sit at SHOWCASE_TARGET_Y, between the device (0..SOC_DEVICE_FOOTPRINT)
+  // and its label (SOC_DEVICE_LABEL_Y), so device and label both fit the
+  // SOC_CAMERA_FOV frame (see the label-framing test in socLayout.test.js).
+  // The cameras route around the ROBOTS as well as the room: GUEST is
+  // shot from the south-west (Patch is north of it, behind the glass),
+  // R1 from inside the server room east of Sentinel, SRV from inside the
+  // server room by the glass (from the desk room the monitor wall blocks
+  // it), PC1 from the desk room's open floor (Cypher is far to the west).
+  PC1: { pos: [6, 5, 12], target: [10, SHOWCASE_TARGET_Y, 7.5] },
+  GUEST: { pos: [6.5, 5, 4], target: [10.5, SHOWCASE_TARGET_Y, 0] },
+  R1: { pos: [1.5, 5, -5], target: [0, SHOWCASE_TARGET_Y, -11] },
+  SRV: { pos: [-2, 5, -1], target: [-7, SHOWCASE_TARGET_Y, -2.75] },
 };
 
 /** The showcase camera for a device id (falls back to wide). */
@@ -319,3 +317,26 @@ export function placeDataCenterRoom(room, scale) {
   );
   return room;
 }
+
+/**
+ * Stand the rebuilt SOC room (public/models/soc-room.glb) in the scene. It
+ * is authored in the same frame socLayout measures in — Blender metres,
+ * centred on the origin, floor top at 0 — so placing it is just the scale.
+ */
+export function placeSocRoom(room, scale) {
+  room.scale.setScalar(scale);
+  room.position.set(0, 0, 0);
+  return room;
+}
+
+// Vertical field of view of the SOC camera (degrees). The rebuilt room is
+// shot from eye level inside it, which needs a wider lens than the
+// studio viewers' 42°.
+export const SOC_CAMERA_FOV = 52;
+
+// The lab devices (PC1, GUEST, R1, SRV): their size in scene units
+// (longest side; 2.6 = 0.52 m, a real desktop tower) and the height of
+// their label sprites' centre. MissionSocScene and the showcase shots
+// both read these, so the camera math and the scene never drift.
+export const SOC_DEVICE_FOOTPRINT = 2.6;
+export const SOC_DEVICE_LABEL_Y = SOC_DEVICE_FOOTPRINT + 1.6;

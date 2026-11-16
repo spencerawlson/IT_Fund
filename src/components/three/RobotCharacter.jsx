@@ -19,8 +19,9 @@ export const ROBOT_ONE_SHOT_CLIPS = new Set(['point', 'greeting']);
 
 export const ROBOT_KEYS = ['cypher', 'sentinel', 'patch'];
 // Everything the mission SOC needs pre-warmed on mount: the three robots
-// plus the data-center room they live in.
-export const MISSION_MODEL_KEYS = ['cypher', 'sentinel', 'patch', 'datacenter'];
+// plus the room they live in (soc-room.glb, the Blender-built room since
+// 2026-11-16; datacenter.glb is now only the lesson handoff's backdrop).
+export const MISSION_MODEL_KEYS = ['cypher', 'sentinel', 'patch', 'soc-room'];
 
 let _loader = null;
 function loader() {
@@ -63,7 +64,7 @@ export function preloadRobotCharacter(key, fetchImpl) {
 
 /**
  * Warm the browser cache for every GLB the mission SOC needs — the three
- * robots plus the data-center room — so the scene loads fast on direct
+ * robots plus their room — so the scene loads fast on direct
  * entry, not only on the handoff path. Fire-and-forget, never rejects,
  * and fetches each model at most once per page load.
  */

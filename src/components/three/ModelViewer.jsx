@@ -24,6 +24,10 @@ export default function ModelViewer({
   // fallbackImage — optional image shown in the WebGL-failure fallback
   // (a blueprint sheet for the equipment the scene depicts); without it
   // the fallback is the plain text notice.
+  // stage — 'studio' (default): the generic studio rig (fog, ambient /
+  // hemisphere / key / fill / rim lights, grid floor, shadow catcher).
+  // 'none': none of that — a scene that is its own room (the mission SOC)
+  // brings its own lights and floor. exposure — tone-mapping exposure.
   background = '#F8F7FF',
   reducedMotion = false,
   quality = 'high',
@@ -32,6 +36,8 @@ export default function ModelViewer({
   interactive = true,
   cameraRef = null,
   fallbackImage = null,
+  stage = 'studio',
+  exposure = 1.15,
 }) {
   const mountRef = useRef(null);
   const buildRef = useRef(buildScene);
@@ -64,7 +70,7 @@ export default function ModelViewer({
       renderer.setPixelRatio(quality === 'low' ? 1 : Math.min(window.devicePixelRatio, 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.15;
+      renderer.toneMappingExposure = exposure;
       renderer.shadowMap.enabled = quality !== 'low';
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     } catch (err) {
@@ -80,6 +86,11 @@ export default function ModelViewer({
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = envTexture;
+
+    // The studio rig: fog, lights, grid floor and shadow catcher. A scene
+    // that is its own room (stage 'none') lights itself instead.
+    let ground = null;
+    if (stage !== 'none') {
     scene.fog = new THREE.Fog(background, 40, 82);
 
     // Lights — the environment handles soft ambient, so direct lights shape and rim the model.
@@ -109,7 +120,7 @@ export default function ModelViewer({
     const grid = new THREE.GridHelper(60, 60, 0xb6a8e0, 0xd9d4ea);
     grid.position.y = -2;
     scene.add(grid);
-    const ground = new THREE.Mesh(
+    ground = new THREE.Mesh(
       new THREE.PlaneGeometry(140, 140),
       new THREE.ShadowMaterial({ opacity: 0.4 }),
     );
@@ -117,6 +128,7 @@ export default function ModelViewer({
     ground.position.y = -1.98;
     ground.receiveShadow = true;
     scene.add(ground);
+    }
 
     // Controls — only for interactive scenes. A presenter-only scene
     // (interactive={false}) keeps the camera fixed on the target: no
@@ -140,7 +152,7 @@ export default function ModelViewer({
 
     // Build scene — may return an array of interactives, or { parts, tick } where
     // tick(t) is called each animation frame for scene animation.
-    const built = buildRef.current(scene) || [];
+    const built = buildRef.current(scene, { camera, renderer }) || [];
     let tick = null;
     let interactives = built;
     if (built && !Array.isArray(built)) {

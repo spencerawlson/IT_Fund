@@ -12,6 +12,9 @@ import MissionSocScene, {
 import {
   ROOMS_M, ROBOT_SPOTS_M, CYPHER_SEAT_M, CAMERA_SHOTS, cypherShot, spotToScene,
   SHOWCASE_ORDER, deviceShot, robotWorkBox,
+  SOC_CAMERA_FOV,
+  SOC_DEVICE_FOOTPRINT,
+  SOC_DEVICE_LABEL_Y,
 } from './socLayout';
 
 describe('socPositions', () => {
@@ -200,7 +203,7 @@ const CYPHER_HEIGHT = 1.704; // full model height in the real cypher.glb, model 
 const ROBOT_HALF_WIDTH = { cypher: 0.49, sentinel: 0.48, patch: 0.70 }; // metres
 
 function cameraFor(shot) {
-  const cam = new THREE.PerspectiveCamera(42, FRAME_W / FRAME_H, 0.1, 1000);
+  const cam = new THREE.PerspectiveCamera(SOC_CAMERA_FOV, FRAME_W / FRAME_H, 0.1, 1000);
   cam.position.set(...shot.pos);
   cam.lookAt(...shot.target);
   cam.updateMatrixWorld(true);
@@ -405,38 +408,32 @@ describe('robot visibility from the SOC cameras', () => {
 });
 
 describe('speaker focus shots', () => {
-  it('centres the speaker and shows the other two working in the background', () => {
-    // The speaker is the one the camera is centred on (head within
-    // 60px of the frame centre) and at least 120px tall; the other two
-    // robots' heads are in frame — visible through the glass/doorways in
-    // their rooms. Measured: Sentinel 211px centred, Patch 229px +
-    // Cypher in frame; Patch 224px centred, Sentinel 253px + Cypher
-    // in frame. Cypher reads larger in the north-room shots because
-    // his desk room is nearest the south cameras — he never covers
-    // the speaker's head (checked above at WIDE and by the
-    // head-separation below). The Patch shot's closest heads are
-    // 94px apart (Patch–Cypher), so its bar is 90px, not 100px.
+  it('centres the speaker and shows another robot working in the background', () => {
+    // The speaker is the one the camera is centred on (head within 60px
+    // of the frame centre) and at least 120px tall. Since the eye-level
+    // rebuild the focus cameras stand in the desk room, so Cypher (in
+    // that room, behind the camera) is not in the north-room shots by
+    // design — the WIDE shot holds all three. Each focus shot still
+    // shows the other north-room robot through the glass, its head in
+    // frame and clear of the speaker's.
     const cases = [
-      [CAMERA_SHOTS.sentinel, SENTINEL_SPAWN, [CYPHER_SPAWN, PATCH_SPAWN], 100],
-      [CAMERA_SHOTS.patch, PATCH_SPAWN, [CYPHER_SPAWN, SENTINEL_SPAWN], 90],
+      [CAMERA_SHOTS.sentinel, SENTINEL_SPAWN, PATCH_SPAWN],
+      [CAMERA_SHOTS.patch, PATCH_SPAWN, SENTINEL_SPAWN],
     ];
-    for (const [shot, speaker, others, minSep] of cases) {
+    for (const [shot, speaker, other] of cases) {
       const cam = cameraFor(shot);
       const { feet, head } = robotRect(cam, speaker);
       expect(head.behind).toBe(false);
       expect(feet.behind).toBe(false);
       expect(Math.abs(head.x - FRAME_W / 2)).toBeLessThanOrEqual(60);
       expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
-      for (const other of others) {
-        const o = robotRect(cam, other);
-        expect(o.head.behind).toBe(false);
-        expect(o.head.x).toBeGreaterThanOrEqual(0);
-        expect(o.head.x).toBeLessThanOrEqual(FRAME_W);
-        expect(o.head.y).toBeGreaterThanOrEqual(0);
-        expect(o.head.y).toBeLessThanOrEqual(FRAME_H);
-        // The background robot's head stays clear of the speaker's head.
-        expect(Math.hypot(o.head.x - head.x, o.head.y - head.y)).toBeGreaterThanOrEqual(minSep);
-      }
+      const o = robotRect(cam, other);
+      expect(o.head.behind).toBe(false);
+      expect(o.head.x).toBeGreaterThanOrEqual(0);
+      expect(o.head.x).toBeLessThanOrEqual(FRAME_W);
+      expect(o.head.y).toBeGreaterThanOrEqual(0);
+      expect(o.head.y).toBeLessThanOrEqual(FRAME_H);
+      expect(Math.hypot(o.head.x - head.x, o.head.y - head.y)).toBeGreaterThanOrEqual(90);
     }
   });
 
@@ -475,11 +472,11 @@ describe('device showcase shots', () => {
     for (const id of SHOWCASE_ORDER) {
       const cam = cameraFor(deviceShot(id));
       const p = pos[id];
-      const centre = projectPx(cam, new THREE.Vector3(p.x, 2, p.z));
-      const top = projectPx(cam, new THREE.Vector3(p.x, 4, p.z));
+      const centre = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_FOOTPRINT / 2, p.z));
+      const top = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_FOOTPRINT, p.z));
       const bottom = projectPx(cam, new THREE.Vector3(p.x, 0, p.z));
-      const labelTop = projectPx(cam, new THREE.Vector3(p.x, 5.6 + 0.55, p.z));
-      const labelBottom = projectPx(cam, new THREE.Vector3(p.x, 5.6 - 0.55, p.z));
+      const labelTop = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_LABEL_Y + 0.55, p.z));
+      const labelBottom = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_LABEL_Y - 0.55, p.z));
       expect(centre.behind).toBe(false);
       expect(Math.abs(centre.x - FRAME_W / 2)).toBeLessThanOrEqual(60);
       expect(bottom.y - top.y).toBeGreaterThanOrEqual(200);

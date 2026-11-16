@@ -96,5 +96,12 @@
     "query": "server",
     "source": "https://poly.pizza",
     "title": "server rack"
+  },
+  "soc-room": {
+    "author": "spencerawlson",
+    "licence": "Spencer's own (procedural build)",
+    "query": "mission-soc",
+    "source": "Built in Blender 5.2.2 from assets/blender/soc-room/build_soc_room.py (procedural geometry + Pillow-generated screen/rack textures), 2026-11-16 — ~11k tris, 1.1 MB",
+    "title": "R2C SOC room (Cypher desk room, Sentinel server room, Patch workshop)"
   }
 }
