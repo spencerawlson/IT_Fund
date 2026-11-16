@@ -4,7 +4,6 @@ import { buildSwitch } from './switchBuilder';
 import { buildRack } from './rackBuilder';
 import { buildVpc } from './Vpc3D';
 import { buildLoadBalancer } from './LoadBalancer3D';
-import { buildMotherboard } from './Motherboard3D';
 
 // Realistic device models for the 3D topology view. Each device role maps to a
 // glTF/GLB asset under public/models/ (served at /models/*.glb). Those are real
@@ -34,7 +33,33 @@ export function fallbackBuilderFor(role = '') {
   if (r.includes('firewall')) return buildLoadBalancer;
   if (r.includes('switch')) return buildSwitch;
   if (r.includes('router') || r.includes('gateway')) return buildSwitch;
-  return buildMotherboard;
+  return buildTower;
+}
+
+/**
+ * Placeholder for a workstation / PC while its GLB loads (or if it never
+ * does): a plain dark desktop tower — no floating part labels. The old
+ * default (the Visual Lab motherboard, with its CPU/RAM/PCIe tags) showed
+ * through on slow connections as a labelled circuit board in the SOC.
+ */
+export function buildTower(scene) {
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 2.2, 2),
+    new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.5, metalness: 0.3 }),
+  );
+  body.position.y = 1.1;
+  const front = new THREE.Mesh(
+    new THREE.BoxGeometry(0.02, 1.9, 0.9),
+    new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.3, metalness: 0.4 }),
+  );
+  front.position.set(0.51, 1.15, 0);
+  const led = new THREE.Mesh(
+    new THREE.BoxGeometry(0.02, 0.05, 0.05),
+    new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 2 }),
+  );
+  led.position.set(0.52, 1.9, 0.3);
+  scene.add(body, front, led);
+  return [];
 }
 
 const base = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) || '/';

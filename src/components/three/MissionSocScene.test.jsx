@@ -13,6 +13,7 @@ import {
   ROOMS_M, ROBOT_SPOTS_M, CYPHER_SEAT_M, CAMERA_SHOTS, cypherShot, spotToScene,
   SHOWCASE_ORDER, deviceShot, robotWorkBox,
   SOC_CAMERA_FOV,
+  SOC_DEVICE_LABEL,
   SOC_DEVICE_FOOTPRINT,
   SOC_DEVICE_LABEL_Y,
 } from './socLayout';
@@ -490,7 +491,7 @@ describe('device showcase shots', () => {
     // Spencer's complaint is that the equipment is only clearly visible
     // in the 2D view. Each showcase shot is a close-up: the device is
     // centred (within 60px of the frame centre), at least 200px tall
-    // and fully in frame, and its label (1.1 units tall at y = 5.6) is
+    // and fully in frame, and its label (SOC_DEVICE_LABEL.height tall at SOC_DEVICE_LABEL_Y) is
     // fully in frame too — aiming at the device centre put the label
     // off the top edge, so the shots aim at y = 3.5 instead. Measured:
     // PC1 334px, GUEST 378px, R1 254px, SRV 256px; labels at y 96–259.
@@ -501,8 +502,8 @@ describe('device showcase shots', () => {
       const centre = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_FOOTPRINT / 2, p.z));
       const top = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_FOOTPRINT, p.z));
       const bottom = projectPx(cam, new THREE.Vector3(p.x, 0, p.z));
-      const labelTop = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_LABEL_Y + 0.55, p.z));
-      const labelBottom = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_LABEL_Y - 0.55, p.z));
+      const labelTop = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_LABEL_Y + SOC_DEVICE_LABEL.height / 2, p.z));
+      const labelBottom = projectPx(cam, new THREE.Vector3(p.x, SOC_DEVICE_LABEL_Y - SOC_DEVICE_LABEL.height / 2, p.z));
       expect(centre.behind).toBe(false);
       expect(Math.abs(centre.x - FRAME_W / 2)).toBeLessThanOrEqual(60);
       expect(bottom.y - top.y).toBeGreaterThanOrEqual(200);
