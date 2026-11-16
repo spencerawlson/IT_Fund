@@ -1036,7 +1036,7 @@ def test_price_falls_back_without_stripe_key():
     assert r.status_code == 200
     body = r.json()
     assert body["configured"] is False
-    assert body["display"] == "$19"  # page still renders a price
+    assert body["display"] == "$29"  # page still renders a price
 
 
 def test_price_reads_live_stripe_when_configured():

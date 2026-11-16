@@ -65,7 +65,7 @@ describe('Terms page (audit F-06)', () => {
   });
 
   it('covers the plan, cancellation, refunds, free tier, and non-affiliation', () => {
-    expect(html).toContain('$19 per month');
+    expect(html).toContain('$29 USD per month');
     expect(html).toContain('Stripe Customer Portal');
     expect(html).toContain('end of the billing period');
     expect(html).toContain('5 sample lessons, 57 flashcards');
