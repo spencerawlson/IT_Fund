@@ -422,9 +422,13 @@ export default function LabWorkspace() {
               <div className="mt-2 flex flex-wrap gap-2">
                 <Badge>{lab.difficulty}</Badge>
                 <Badge>{lab.estimated_minutes} min</Badge>
+                {isLabFree(labId) && <Badge>Free</Badge>}
                 {lab.environment?.deny_internet_egress && <Badge icon={ShieldCheck}>isolated</Badge>}
               </div>
               <p className="mt-3 text-small text-ink-2">{lab.description}</p>
+              {isLabFree(labId) && (
+                <p className="mt-2 text-small font-semibold text-ink-1">Free — no plan needed.</p>
+              )}
             </Card>
           )}
           {/* In mission mode the objectives live in the terminal only (run

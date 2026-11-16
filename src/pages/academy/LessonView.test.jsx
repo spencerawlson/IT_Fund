@@ -68,6 +68,8 @@ vi.mock('@/lib/academy', () => ({
 vi.mock('@/lib/subscription', () => ({
   useSubscription: () => ({ subscribed: true, loading: false }),
   isLessonFree: () => false,
+  // Mirrors the real free set in @/lib/subscription: exactly these two labs.
+  isLabFree: (id) => id === 'net-vlan-001' || id === 'py-basics-001',
 }));
 vi.mock('@/lib/content', () => ({
   getLessonContent: async (id) => ({
@@ -175,6 +177,25 @@ describe('LessonView mission-only lab removal', () => {
     const json = JSON.stringify(root.toJSON());
     expect(json).not.toContain('Launch Lab');
     expect(json).not.toContain('/labs/net-acl-001');
+  });
+});
+
+describe('LessonView free-lab labelling', () => {
+  it('marks the free lab on its lesson page — "Free" and "No plan needed" (Spencer, 2026-11-16)', async () => {
+    // net-osi's lab is net-vlan-001, one of the two free labs: a visitor
+    // deciding whether to try it must see at a glance that it needs no plan.
+    const root = await renderLesson('net-osi');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).toContain('Launch Lab');
+    expect(json).toContain('Free');
+    expect(json).toContain('No plan needed');
+  });
+
+  it('shows no free marker on a lesson whose labs are paid', async () => {
+    const root = await renderLesson('net-troubleshoot');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).toContain('Launch Lab: DNS & Connectivity Troubleshooting');
+    expect(json).not.toContain('No plan needed');
   });
 });
 

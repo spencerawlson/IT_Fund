@@ -56,6 +56,8 @@ import LabGallery, { KINDS } from '@/components/lab/LabGallery';
 import { LAB_FLOWS } from '@/data/labFlows';
 import { ROUTING_SCENARIOS } from '@/data/routingScenarios';
 import { getModulesForLab, NOTES, LAB_LABELS } from '@/data/labLinks';
+import { isLabFree } from '@/lib/subscription';
+import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
 import Seo from '@/components/Seo';
 
 // Ordered categories for the gallery.
@@ -237,8 +239,9 @@ function Stage({ id }) {
             {BUILD_IN_LAB[id].map((labId) => (
               // Terminal-first: hand the lab context to the launcher (?start=) which shows
               // "To begin, type: lab start <name>". The learner types it — we never auto-launch.
-              <Link key={labId} to={`/labs?start=${labId}`} className="inline-flex items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
+              <Link key={labId} to={`/labs?start=${labId}`} className="inline-flex flex-wrap items-center gap-2 glass-btn rounded-control px-4 py-2 text-small font-semibold">
                 Build this in the Interactive Lab <ArrowRight size={16} aria-hidden="true" />
+                {isLabFree(labId) && <FreeLabBadge />}
               </Link>
             ))}
           </div>

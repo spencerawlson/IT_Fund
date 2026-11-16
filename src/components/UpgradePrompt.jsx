@@ -1,13 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { Button, Card } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
+import { FREE_LABS } from '@/lib/subscription';
+import { labTitle } from '@/data/deckLabs';
 
 // Friendly paywall: shown where premium content is gated, never a dead end.
 // Signed-out visitors get the pricing page (and a sign-in button); signed-in
 // users go to their account page, where the subscription card subscribes.
 export default function UpgradePrompt({ what = 'this content' }) {
   const { isAuthenticated } = useAuth();
+  // Name the free labs here too: a visitor who just hit the paywall should
+  // know exactly which labs they can try with no plan (Spencer, 2026-11-16).
+  const freeLabs = [...FREE_LABS].map((labId) => ({ labId, title: labTitle(labId) }));
   return (
     <Card level={2} padding="lg" className="text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-black/[0.04]">
@@ -17,6 +23,18 @@ export default function UpgradePrompt({ what = 'this content' }) {
       <p className="mx-auto mt-2 max-w-md text-body text-ink-2">
         {what} is part of Premium — every track, all labs, and the exam simulators,
         for $29 USD/month. The free tier includes 5 sample lessons, 57 flashcards, and 2 labs.
+      </p>
+      <p className="mx-auto mt-3 max-w-md text-small text-ink-2">
+        Try a lab free first — no plan needed:{' '}
+        {freeLabs.map((lab, i) => (
+          <span key={lab.labId}>
+            {i > 0 && ' · '}
+            <Link to={`/labs/${lab.labId}`} className="font-semibold text-ink-1 underline decoration-black/30 underline-offset-2 hover:decoration-black/60">
+              {lab.title}
+            </Link>
+          </span>
+        ))}
+        .
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         {isAuthenticated ? (

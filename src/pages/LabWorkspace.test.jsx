@@ -39,6 +39,14 @@ describe('LabWorkspace', () => {
     expect(html).toContain('Starting lab environment');
   });
 
+  it('shows the Free badge with "No plan needed" on free labs (Spencer, 2026-11-16)', () => {
+    // A visitor must be able to tell at a glance that this lab needs no
+    // plan. The badge keys off the free set in @/lib/subscription, never a
+    // hardcoded list, so it follows the entitlement if it ever changes.
+    expect(SRC).toContain('isLabFree(labId) && <Badge>Free</Badge>');
+    expect(SRC).toContain('Free — no plan needed.');
+  });
+
   it('in mission mode the page shows no objectives checklist, hints, count or progress bar — the terminal is the only place to check', () => {
     // Same rule as Operation Broken Shield (MissionWorkspace): the student
     // checks where they stand with `objectives` / `progress` / `hint` in the

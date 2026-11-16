@@ -13,9 +13,10 @@ import {
   useAcademy, buildQuestions, cardState, recordBoss, checkDeckMastered, bossKey, shuffle, BOSS_PASS_PCT,
 } from '@/lib/academy';
 import { isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
-import { useSubscription, isDeckFree } from '@/lib/subscription';
+import { useSubscription, isDeckFree, isLabFree } from '@/lib/subscription';
 import { getDeckCards, resolveCards } from '@/lib/content';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
 import { getModule } from '@/data/catalog';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
@@ -272,6 +273,9 @@ function Results({ result, kind, mode, onRestart, backTo, meta, deck, track }) {
                   <span>
                     <span className="block text-body font-semibold text-ink-1">{labTitle(l.labId)}</span>
                     <span className="mt-0.5 block text-small text-ink-2">{l.blurb}</span>
+                    {isLabFree(l.labId) && (
+                      <span className="mt-1.5 block"><FreeLabBadge /></span>
+                    )}
                   </span>
                   <ArrowRight size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
                 </Link>

@@ -48,6 +48,13 @@ describe('LabProgress', () => {
     expect(SRC).toContain('to="/pricing">See plans</Button>');
   });
 
+  it('marks the free labs in the progress list (Spencer, 2026-11-16)', () => {
+    // A visitor checking their progress must see at a glance which labs
+    // needed no plan. Keyed off the free set, never hardcoded.
+    expect(SRC).toContain('isLabFree(def.id)');
+    expect(SRC).toContain('<FreeLabBadge />');
+  });
+
   it('hides mission-only labs from the progress list (Spencer, 2026-11-16)', () => {
     // Operation Broken Shield is mission-only everywhere: the ACL lab
     // gets no row, no Start button, and does not count toward
