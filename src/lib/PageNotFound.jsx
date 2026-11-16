@@ -30,8 +30,11 @@ export default function PageNotFound({}) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 text-ink-1">
-      {/* Unknown routes serve HTTP 200 from the SPA shell (soft 404), so this
-          page must at least tell crawlers not to index it. */}
+      {/* Unknown routes now get a real HTTP 404 from the edge (vercel.json
+          routes only known client paths to the shell; everything else
+          serves public/404.html with a 404). This page is the client-side
+          fallback for in-app navigation to an unknown path — still noindex,
+          since a crawler should never index a URL that doesn't exist. */}
       <Seo
         title="Page not found · Road to CISSP"
         description="This page does not exist on Road to CISSP. Head back to the learning tracks, labs, or practice exams."

@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
 import LandingBackground from '@/components/landing/LandingBackground';
+import { openConsentSettings } from '@/lib/consent';
 import { COUNTS } from '@/data/counts';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
@@ -148,7 +149,9 @@ export default function Landing() {
           <Button variant="ghost" size="sm" to="/labs">Labs</Button>
           <Button variant="ghost" size="sm" to="/pricing" className="hidden sm:inline-flex">Pricing</Button>
           <Button variant="ghost" size="sm" to="/signin" className="hidden sm:inline-flex">Sign in</Button>
-          <Button size="sm" to="/signin">
+          {/* R-11: one primary CTA per homepage — the hero's "Start learning
+              free". This header action is secondary so it doesn't compete. */}
+          <Button size="sm" variant="secondary" to="/signin">
             <span className="sm:hidden">Sign in</span>
             <span className="hidden sm:inline">Create free account</span>
           </Button>
@@ -278,7 +281,9 @@ export default function Landing() {
               across devices from day one.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" to="/signin" icon={ArrowRight}>Create free account</Button>
+              {/* R-11: the hero's "Start learning free" is the page's one
+                  primary CTA; this closing action is secondary. */}
+              <Button size="lg" variant="secondary" to="/signin" icon={ArrowRight}>Create free account</Button>
               <Button size="lg" variant="ghost" to="/signin">Sign in</Button>
             </div>
             <ul className="mx-auto mt-6 flex max-w-md flex-col gap-2 text-left text-small text-ink-2">
@@ -302,6 +307,7 @@ export default function Landing() {
             <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
             <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>
+            <button type="button" onClick={openConsentSettings} className="hover:text-ink-1">Cookie settings</button>
             <Link to="/contact" className="hover:text-ink-1">Contact</Link>
             <Link to="/signin" className="hover:text-ink-1">Sign in</Link>
           </div>

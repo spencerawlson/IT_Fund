@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui-glass';
 import Seo from '@/components/Seo';
+import { openConsentSettings } from '@/lib/consent';
 import ThemeToggle from '@/components/ThemeToggle';
 
 // Privacy policy, drawn only from what the codebase does. No invented
@@ -31,7 +32,7 @@ export default function Privacy() {
           Privacy Policy
         </h1>
         <p className="mt-4 text-body text-ink-2">
-          Last updated 11 November 2026. This page describes what Road to CISSP collects, what it stores, and what it does not do with your data.
+          Last updated 16 November 2026. This page describes what Road to CISSP collects, what it stores, and what it does not do with your data.
         </p>
 
         <section className="mt-10">
@@ -58,14 +59,18 @@ export default function Privacy() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">Analytics</h2>
           <p className="mt-2 text-body text-ink-2">
-            We measure visits with Plausible Analytics, a privacy-friendly analytics tool that does not use cookies and does not track you across sites. We do not run advertising trackers on this site.
+            We measure visits with Plausible Analytics and Ventoryn Analytics, privacy-friendly tools that do not use cookies and do not track you across sites. Neither loads until you accept analytics in the cookie banner — decline, and we measure nothing. You can change your choice at any time with the{' '}
+            <button type="button" onClick={openConsentSettings} className="font-semibold text-ink-1 underline">
+              Cookie settings
+            </button>{' '}
+            link in the footer. We do not run advertising trackers on this site.
           </p>
         </section>
 
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">What we do not do</h2>
           <p className="mt-2 text-body text-ink-2">
-            We do not sell your personal data to anyone, and we do not share it with third parties except the providers above (Google or GitHub for sign-in, Stripe for payments, Plausible for analytics), each of which receives only what it needs to do its job.
+            We do not sell your personal data to anyone, and we do not share it with third parties except the providers above (Google or GitHub for sign-in, Stripe for payments, Plausible and Ventoryn for analytics), each of which receives only what it needs to do its job.
           </p>
         </section>
 

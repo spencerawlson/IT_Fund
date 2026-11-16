@@ -11,7 +11,7 @@
 //   - a JSON-LD block (the site shell carries one; per-page blocks add more)
 //   - a unique <title> across routes (duplicates read as one page)
 // Also asserts the Plausible analytics tag and llms.txt made it into dist.
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -86,8 +86,19 @@ function main() {
     }
   }
   const home = readFileSync(join(DIST, 'index.html'), 'utf8');
-  if (!home.includes('plausible.io')) {
-    failures.push('dist/index.html: no Plausible analytics tag');
+  // R-04: the analytics tags are consent-gated — they are NOT in the shell
+  // anymore. What must ship instead: (a) the cookie-consent banner in the
+  // prerendered homepage, and (b) the loader that injects the tags after
+  // consent, in the built JS bundle (src/lib/analytics.js).
+  if (!home.includes('data-cookie-consent="banner"')) {
+    failures.push('dist/index.html: no cookie-consent banner (R-04)');
+  }
+  const assetFiles = readdirSync(join(DIST, 'assets')).filter((f) => f.endsWith('.js'));
+  const bundleHasPlausible = assetFiles.some((f) =>
+    readFileSync(join(DIST, 'assets', f), 'utf8').includes('plausible.io'),
+  );
+  if (!bundleHasPlausible) {
+    failures.push('dist/assets: no Plausible loader in the built JS (R-04 consent-gated analytics)');
   }
   if (!existsSync(join(DIST, 'llms.txt'))) {
     failures.push('dist/llms.txt is missing (public/llms.txt not copied?)');

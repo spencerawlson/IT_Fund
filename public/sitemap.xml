@@ -4,7 +4,7 @@
      (tracks, courses, modules, lessons) are client-rendered and omitted until
      prerendering lands. Keep lastmod current on meaningful content changes. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.road2cissp.com/</loc><lastmod>2026-11-13</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.road2cissp.com/</loc><lastmod>2026-11-16</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://www.road2cissp.com/pricing</loc><lastmod>2026-11-13</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.road2cissp.com/academy/roadmap</loc><lastmod>2026-11-13</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.road2cissp.com/academy/paths</loc><lastmod>2026-11-13</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -19,7 +19,7 @@
   <url><loc>https://www.road2cissp.com/roadmap</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.road2cissp.com/challenge</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.road2cissp.com/learning-path</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.road2cissp.com/privacy</loc><lastmod>2026-11-11</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.road2cissp.com/privacy</loc><lastmod>2026-11-16</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.road2cissp.com/terms</loc><lastmod>2026-11-11</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.road2cissp.com/contact</loc><lastmod>2026-11-11</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.road2cissp.com/faq</loc><lastmod>2026-11-13</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
