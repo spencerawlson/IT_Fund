@@ -1,24 +1,18 @@
-import GltfSubject, { labModelUrl } from './GltfSubject';
+import BlueprintSubject from './BlueprintSubject';
 import { FALLBACK_BLUEPRINT_FOR_SUBJECT } from '@/data/blueprints';
 
-// 3D next-generation firewall — Spencer's own Meshy model, slimmed for the
-// web (see GltfSubject.jsx). The model ships untextured (Meshy generated
-// it without a texture pass), so its look is pure geometry — ports, vents,
-// and the module bay. Distinct subject id from the animated 'firewall'
-// (Firewall Rules) subject.
+// Next-generation firewall — shown as Spencer's R2C blueprint sheet rather
+// than a 3D model (2026-11-16, Spencer's call). The Meshy firewall could not
+// be slimmed cleanly: its fragmented texture atlas smeared below ~189k tris,
+// and the version that held up weighed 3.5 MB. The sheet is ~0.4 MB, needs
+// no WebGL, and labels every port, LED and module. The subject id stays
+// 'firewall-3d' so existing lesson links keep working.
 export default function Firewall3D() {
   return (
-    <GltfSubject
-      modelUrl={labModelUrl('lab-firewall.glb')}
-      cameraPos={[13, 8, 15]}
-      target={[0, 1, 0]}
-      fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT['firewall-3d']}
+    <BlueprintSubject
+      src={FALLBACK_BLUEPRINT_FOR_SUBJECT['firewall-3d']}
+      alt="R2C next-generation firewall blueprint: perspective, labeled front and rear views, top and side views, internal cutaway, specifications and use cases"
       label="Next-Gen Firewall"
-      desc="A next-generation firewall inspects traffic between the trusted LAN and the internet, enforcing the rule set before packets reach the router."
-      annotations={[
-        { text: 'LAN / WAN Ports', at: [-0.3, 0.75, 1.08] },
-        { text: 'SFP+ Uplinks', at: [0.7, 0.75, 1.08] },
-      ]}
     />
   );
 }

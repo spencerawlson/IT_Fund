@@ -100,7 +100,7 @@ export const SUBJECTS = [
   { id: 'tls', category: 'Security', kind: 'anim', icon: Lock, label: 'TLS Handshake', blurb: 'Certificate validation, key exchange, and encrypted records.' },
   { id: 'encryption', category: 'Security', kind: 'anim', icon: KeyRound, label: 'Encryption', blurb: 'Watch plaintext become ciphertext, and back again.' },
   { id: 'firewall', category: 'Security', kind: 'anim', icon: Shield, label: 'Firewall Rules', blurb: 'See packets allowed or dropped as rule order is evaluated.' },
-  { id: 'firewall-3d', category: 'Security', kind: '3d', icon: ShieldCheck, label: '3D Next-Gen Firewall', blurb: 'A real NGFW appliance — LAN and WAN ports, SFP+ uplinks, and the security module bay.' },
+  { id: 'firewall-3d', category: 'Security', kind: 'blueprint', icon: ShieldCheck, label: 'Next-Gen Firewall Blueprint', blurb: 'The full R2C NGFW technical blueprint — labeled WAN, LAN and SFP+ ports, rear panel, internal cutaway and specs.' },
   { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
   // Data & Systems
   { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
@@ -219,6 +219,9 @@ function Stage({ id, onBack }) {
                 {Renderer ? <Renderer /> : null}
               </React.Suspense>
             </div>
+          ) : SUBJECT_BY_ID[id]?.kind === 'blueprint' ? (
+            // A blueprint sheet keeps its own aspect ratio (no fixed-height stage).
+            <React.Suspense fallback={null}>{Renderer ? <Renderer /> : null}</React.Suspense>
           ) : (
             <div className="mx-auto max-w-3xl">{Renderer ? <Renderer /> : null}</div>
           )}

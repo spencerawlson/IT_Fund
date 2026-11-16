@@ -27,13 +27,6 @@
     "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, re-slimmed 2026-11-15 to 20,000 tris (v2: Collapse, normal map dropped, base color 1024, KHR_mesh_quantization) — 0.84 MB",
     "title": "R2C Cloud Computing Architecture"
   },
-  "lab-firewall": {
-    "author": "spencerawlson",
-    "licence": "Spencer's own generation",
-    "query": "visual-lab",
-    "source": "Meshy AI (meshy.ai), generated 2026-11-14 on Spencer's PRO account, slimmed to 100,896 tris, untextured",
-    "title": "R2C Next-Generation Firewall"
-  },
   "lab-nas": {
     "author": "spencerawlson",
     "licence": "Spencer's own generation",
