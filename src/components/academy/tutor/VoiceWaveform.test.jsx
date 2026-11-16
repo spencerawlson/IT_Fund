@@ -179,3 +179,14 @@ describe('waveformBarStyle', () => {
     expect(waveformBarStyle(23, 50).backgroundColor).toBe('rgb(229, 231, 235)');
   });
 });
+
+describe('waveformBarStyle light tone (floating Cypher panel)', () => {
+  it('runs indigo at the ends to violet at the centre, with no glow — visible on white', () => {
+    expect(waveformBarStyle(0, 40, 'light').backgroundColor).toBe('rgb(129, 140, 248)');
+    expect(waveformBarStyle(23, 40, 'light').backgroundColor).toBe('rgb(129, 140, 248)');
+    const centre = waveformBarStyle(11, 40, 'light');
+    expect(centre.backgroundColor.match(/\d+/g).map(Number)[1]).toBeLessThan(110);
+    expect(centre.boxShadow).toBeUndefined();
+    expect(centre.height).toBe('40%');
+  });
+});

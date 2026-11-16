@@ -374,7 +374,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
               type="button"
               onClick={onPlayPause}
               aria-label={isPlaying ? 'Pause Cypher' : 'Resume Cypher'}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white"
             >
               {isPlaying ? <Pause size={16} className="fill-current" /> : <Play size={16} className="fill-current" />}
             </button>
@@ -513,57 +513,56 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
                 ))}
               </div>
 
-              {/* Neon player card: waveform (hidden until it talks), progress,
-                  time, Play / Pause / Stop, and a caption. No answer text. */}
-              <div data-testid="cypher-player-card" className="mt-5 rounded-[2rem] bg-black p-3">
-                <div className="rounded-3xl border border-white/10 bg-[#0B0B0D] px-4 py-5">
-                  {showWaveform && (
-                    <VoiceWaveform levelRef={voiceRef} active={isPlaying} paused={isPaused} />
-                  )}
-                  <div
-                    data-testid="cypher-progress"
-                    className="mt-4 h-1.5 w-full rounded-full bg-white/15"
-                    role="progressbar"
-                    aria-label="Playback progress"
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-valuenow={Math.round(progressPct)}
-                  >
-                    <div data-testid="cypher-progress-fill" className="relative h-full rounded-full bg-red-500" style={{ width: `${progressPct}%` }}>
-                      <span className="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-red-500" />
-                    </div>
+              {/* Player: part of the panel (light surface, the mockup's
+                  indigo/violet accents) — waveform (hidden until it talks),
+                  progress, time, Play / Pause / Stop, and a caption. No answer text. */}
+              <div data-testid="cypher-player-card" className="mt-5 rounded-2xl border border-black/10 bg-slate-50 px-4 py-4">
+                {showWaveform && (
+                  <VoiceWaveform levelRef={voiceRef} active={isPlaying} paused={isPaused} tone="light" className="mb-3 h-10" />
+                )}
+                <div
+                  data-testid="cypher-progress"
+                  className="h-1.5 w-full rounded-full bg-slate-200"
+                  role="progressbar"
+                  aria-label="Playback progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(progressPct)}
+                >
+                  <div data-testid="cypher-progress-fill" className="relative h-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-400" style={{ width: `${progressPct}%` }}>
+                    <span className="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-violet-500 bg-white shadow" />
                   </div>
-                  <p data-testid="cypher-time" className="mt-2 text-left text-small text-white/80">{timeText}</p>
-                  <div className="mt-4 flex items-center justify-center gap-4">
+                </div>
+                <p data-testid="cypher-time" className="mt-2 font-mono text-caption text-ink-2">{timeText}</p>
+                <div className="mt-2 flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={onPlayPause}
+                    disabled={playDisabled}
+                    aria-label={isPlaying ? 'Pause Cypher' : isPaused ? 'Resume Cypher' : 'Play Cypher’s explanation'}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-[0_6px_18px_-6px_rgba(124,58,237,0.7)] transition hover:scale-105 active:scale-95 disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100"
+                  >
+                    {isPlaying ? <Pause size={18} className="fill-current" /> : <Play size={18} className="ml-0.5 fill-current" />}
+                  </button>
+                  {showStop && (
                     <button
                       type="button"
-                      onClick={onPlayPause}
-                      disabled={playDisabled}
-                      aria-label={isPlaying ? 'Pause Cypher' : isPaused ? 'Resume Cypher' : 'Play Cypher’s explanation'}
-                      className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70 disabled:opacity-50"
+                      onClick={onStop}
+                      aria-label="Stop Cypher"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/15 bg-white text-ink-1 transition hover:border-black/30"
                     >
-                      {isPlaying ? <Pause size={20} className="fill-current" /> : <Play size={20} className="fill-current" />}
+                      <Square size={14} className="fill-current" />
                     </button>
-                    {showStop && (
-                      <button
-                        type="button"
-                        onClick={onStop}
-                        aria-label="Stop Cypher"
-                        className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black text-white transition hover:border-white/70"
-                      >
-                        <Square size={18} className="fill-current" />
-                      </button>
-                    )}
-                  </div>
-                  <p className="mt-3 text-center text-small text-white/60" aria-live="polite">
-                    {caption}
-                    {captionAction && (
-                      <button type="button" onClick={captionAction.onClick} className="ml-2 font-semibold text-white underline">
-                        {captionAction.label}
-                      </button>
-                    )}
-                  </p>
+                  )}
                 </div>
+                <p className="mt-2 text-center text-caption text-ink-2" aria-live="polite">
+                  {caption}
+                  {captionAction && (
+                    <button type="button" onClick={captionAction.onClick} className="ml-2 font-semibold text-action underline">
+                      {captionAction.label}
+                    </button>
+                  )}
+                </p>
               </div>
 
               {/* Follow-up question */}

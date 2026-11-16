@@ -587,9 +587,9 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(() => panelNode().findByProps({ 'data-testid': 'cypher-player-card' })).not.toThrow();
     expect(() => panelNode().findByProps({ 'data-testid': 'cypher-presets' })).not.toThrow();
     expect(panelNode().props.className).toContain('fixed');
-    // The player card is still the mockup's black neon card.
-    expect(playerCard().props.className).toContain('bg-black');
-    expect(playerCard().props.className).toContain('rounded-[2rem]');
+    // The player is part of the panel's light surface — no black card.
+    expect(playerCard().props.className).not.toContain('bg-black');
+    expect(playerCard().props.className).toContain('bg-slate-50');
     expect(treeText()).not.toContain('cypher-play-area');
   });
 
@@ -622,13 +622,13 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     expect(root.root.findByProps({ 'data-testid': 'cypher-progress' }).props['aria-valuenow']).toBe(0);
   });
 
-  it('the player buttons are circular with a light outline on black — the mockup look, not all three at once', async () => {
+  it('the player buttons are circular, Play in the indigo-violet gradient — not all three at once', async () => {
     mountPanel();
     await flush();
     const play = findButtonByAria('Play Cypher’s explanation');
     expect(play.props.className).toContain('rounded-full');
-    expect(play.props.className).toContain('border-white/40');
-    expect(play.props.className).toContain('bg-black');
+    expect(play.props.className).toContain('from-indigo-600');
+    expect(play.props.className).not.toContain('bg-black');
     // Idle: only Play shows — no Pause, no Stop (the mockup's still shows
     // all three at once; Spencer's confirmed behaviour shows Play only).
     expect(findButtonByAria('Pause Cypher')).toBeFalsy();
@@ -639,7 +639,7 @@ describe('CypherLessonPanel listen-only play experience (mounted)', () => {
     const stop = findButtonByAria('Stop Cypher');
     expect(stop).toBeTruthy();
     expect(stop.props.className).toContain('rounded-full');
-    expect(stop.props.className).toContain('border-white/40');
+    expect(stop.props.className).toContain('bg-white');
     // No download button anywhere in the panel.
     expect(treeText()).not.toContain('Download');
   });
