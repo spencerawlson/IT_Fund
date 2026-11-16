@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui-glass';
 
-// Incident report for Operation Broken Shield: what happened, why, and the
+// Incident report for a Cyber Mission: what happened, why, and the
 // fix. Submitting saves the report to the attempt (document action) and then
 // files it (submit_report action) — the parent owns both calls, so the form
 // stays a dumb controlled form. The server is the gate for submit_report:
 // if objectives are still open it returns the missing list, shown here.
 // `canSubmit` is a client-side hint only (8 other objectives passing).
+// `gateHint` + `placeholders` carry the mission-specific copy (Broken Shield
+// by default; the flood mission passes its own).
 // Drafts autosave through `onDraftChange` (debounced by the parent) and
 // `onDraftBlur` (flush); filing still goes through `onSubmit` only. The
 // parent owns the network calls, so the form stays a dumb controlled form.
@@ -14,6 +16,15 @@ import { Button } from '@/components/ui-glass';
 export function reportIsComplete({ summary = '', root_cause = '', fix = '' } = {}) {
   return [summary, root_cause, fix].every((v) => v.trim().length > 0);
 }
+
+const DEFAULT_PLACEHOLDERS = {
+  summary: 'e.g. The guest host could reach the internal server — the firewall had no ACL.',
+  root_cause: 'e.g. No access list on R1, so nothing filtered guest traffic from the server LAN.',
+  fix: 'e.g. Standard ACL 10 denies 192.168.1.20, permits everything else, applied outbound on Gi0/1.',
+};
+
+const DEFAULT_GATE_HINT =
+  'Finish the other objectives first — the report files once the topology, firewall and traffic checks pass.';
 
 export default function IncidentReportForm({
   initial = {},
@@ -24,6 +35,11 @@ export default function IncidentReportForm({
   busy = false,
   disabled = false,
   serverError = '',
+  // Mission-specific copy: the defaults describe Operation Broken Shield.
+  // Terminal missions pass their own gate hint + examples (see
+  // MissionWorkspace — Operation Packet Flood).
+  gateHint = DEFAULT_GATE_HINT,
+  placeholders = DEFAULT_PLACEHOLDERS,
 }) {
   const [summary, setSummary] = useState(initial.summary || '');
   const [rootCause, setRootCause] = useState(initial.root_cause || '');
@@ -78,7 +94,7 @@ export default function IncidentReportForm({
           onBlur={flushDraft}
           rows={2}
           disabled={busy || disabled}
-          placeholder="e.g. The guest host could reach the internal server — the firewall had no ACL."
+          placeholder={placeholders.summary}
           className="mt-1 w-full rounded-control border border-black/15 bg-white/80 px-3 py-2 text-body text-ink-1 outline-none focus:border-violet-500"
         />
       </div>
@@ -93,7 +109,7 @@ export default function IncidentReportForm({
           onBlur={flushDraft}
           rows={2}
           disabled={busy || disabled}
-          placeholder="e.g. No access list on R1, so nothing filtered guest traffic from the server LAN."
+          placeholder={placeholders.root_cause}
           className="mt-1 w-full rounded-control border border-black/15 bg-white/80 px-3 py-2 text-body text-ink-1 outline-none focus:border-violet-500"
         />
       </div>
@@ -108,14 +124,14 @@ export default function IncidentReportForm({
           onBlur={flushDraft}
           rows={2}
           disabled={busy || disabled}
-          placeholder="e.g. Standard ACL 10 denies 192.168.1.20, permits everything else, applied outbound on Gi0/1."
+          placeholder={placeholders.fix}
           className="mt-1 w-full rounded-control border border-black/15 bg-white/80 px-3 py-2 text-body text-ink-1 outline-none focus:border-violet-500"
         />
       </div>
       {!canSubmit && (
         <p className="text-small text-ink-2">
-          Finish the other objectives first — the report files once the topology, firewall and traffic checks pass.
-          Run <code>objectives</code> in the Mission Console to see what is still open.
+          {gateHint}
+          {' '}Run <code>objectives</code> in the Mission Console to see what is still open.
         </p>
       )}
       {(error || serverError) && (

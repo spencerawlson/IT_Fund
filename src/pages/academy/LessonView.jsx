@@ -8,7 +8,8 @@ import {
   Button, Card, EmptyState, ListLink, PageContainer, PageHeader, StatusBadge,
 } from '@/components/ui-glass';
 import { getCourse, getLesson, getModule, courseHref, moduleHref, lessonHref, playerHref } from '@/data/catalog';
-import { labForLesson } from '@/data/labLessons';
+import { labsForLesson } from '@/data/labLessons';
+import { labTitle } from '@/data/deckLabs';
 import { BLUEPRINTS_FOR_LESSON, BLUEPRINT_POSTER } from '@/data/blueprints';
 import LessonBlueprint from '@/components/academy/lesson/LessonBlueprint';
 import { MISSION_FOR_LESSON } from '@/data/missions';
@@ -39,6 +40,26 @@ const VISUAL_LAB_FOR = {
   'it-hardware': 'motherboard',
   'net-devices-media': 'patch-panel',
 };
+
+// Recorded GUI walkthroughs ("Watch"), one per lesson. The video itself is
+// Spencer's step: he records the same capture open in desktop Wireshark.
+// The slot renders an honest coming-soon note while `url` is null — no fake
+// player, no dead link — and the real video from this ONE field once he
+// pastes the URL (a direct .mp4/.webm/.mov file plays inline; anything else
+// links out). A lesson renders a Watch section only when it has an entry
+// here. (There is no video-placeholder pattern to reuse: PR #52 removed the
+// Video Explainer placeholders, so this slot follows the Further reading
+// section's shape instead — between the reading article and Practice.)
+const WALKTHROUGH_VIDEO_FOR = {
+  'net-troubleshoot': {
+    url: null, // <-- paste the recording URL here when it exists
+    title: 'Watch: reading a capture in Wireshark',
+    blurb: 'The same capture from the lab, opened in desktop Wireshark: the packet list, the HTTP login stream, and the DNS TXT queries — about 2–3 minutes, 1080p.',
+    comingSoon: 'Coming soon — the walkthrough is being recorded. The hands-on lab on this page is ready now.',
+  },
+};
+
+const isDirectVideo = (url) => /\.(mp4|webm|mov)(\?|#|$)/i.test(url || '');
 
 /** One lesson: reading on a glass-2 surface, then practice (the interactive lesson). */
 export default function LessonView() {
@@ -91,6 +112,11 @@ export default function LessonView() {
   const module = getModule(lesson.moduleKey);
   const status = lessonStatus(state, lesson);
   const missionId = MISSION_FOR_LESSON[lesson.id];
+  // Every lab for this lesson: the primary first, then any extras
+  // (net-troubleshoot adds the Wireshark lab beside the DNS lab — the
+  // primary's link never moves). One Launch Lab button per lab.
+  const lessonLabs = labsForLesson(lesson.id);
+  const walkthrough = WALKTHROUGH_VIDEO_FOR[lesson.id];
   const crumbs = [
     { label: 'Home', to: '/' },
     { label: course.title, to: courseHref(course) },
@@ -142,6 +168,7 @@ export default function LessonView() {
     (c.architecture || (BLUEPRINTS_FOR_LESSON[lesson.id]?.length ?? 0) > 0) && { id: 'architecture', label: 'Architecture' },
     c.examples?.length && { id: 'examples', label: 'Examples' },
     c.cheatSheet?.length && { id: 'cheat-sheet', label: 'Cheat sheet' },
+    walkthrough && { id: 'watch', label: 'Watch' },
     c.further_reading?.length && { id: 'further-reading', label: 'Further reading' },
     { id: 'practice', label: 'Practice' },
     lesson.resources.length && { id: 'resources', label: 'Resources' },
@@ -159,18 +186,18 @@ export default function LessonView() {
 
       <PrereqNotice className="mb-8" items={prereqItems} />
 
-      {(VISUAL_LAB_FOR[lesson.id] || labForLesson(lesson.id)) && (
+      {(VISUAL_LAB_FOR[lesson.id] || lessonLabs.length > 0) && (
         <div className="mb-8 flex flex-wrap gap-3">
           {VISUAL_LAB_FOR[lesson.id] && (
             <Button to={`/lab?item=${VISUAL_LAB_FOR[lesson.id]}`} variant="secondary" size="sm" icon={Eye} className="w-full justify-center sm:w-auto">
               Open in Visual Lab
             </Button>
           )}
-          {labForLesson(lesson.id) && (
-            <Button to={`/labs/${labForLesson(lesson.id)}`} variant="primary" size="sm" icon={TerminalSquare} className="w-full justify-center sm:w-auto">
-              Launch Lab
+          {lessonLabs.map((labId) => (
+            <Button key={labId} to={`/labs/${labId}`} variant="primary" size="sm" icon={TerminalSquare} className="w-full justify-center sm:w-auto">
+              {lessonLabs.length > 1 ? `Launch Lab: ${labTitle(labId)}` : 'Launch Lab'}
             </Button>
-          )}
+          ))}
         </div>
       )}
 
@@ -273,6 +300,32 @@ export default function LessonView() {
           </>
         )}
       </Card>
+
+      {/* Watch: the recorded GUI walkthrough for this lesson. Between the
+          reading article and Practice, like Further reading below. While
+          the recording does not exist yet this is an honest coming-soon
+          note — never a fake player or a dead link. Once the URL is pasted
+          into WALKTHROUGH_VIDEO_FOR above, the real video renders here. */}
+      {walkthrough && (
+        <section id="watch" aria-labelledby="watch-title" className="mt-10 scroll-mt-28">
+          <h2 id="watch-title" className="text-heading text-ink-1">Watch</h2>
+          <Card level={2} padding="lg" className="mt-4">
+            <p className="text-body font-semibold text-ink-1">{walkthrough.title}</p>
+            <p className="mt-2 text-body text-ink-2">{walkthrough.blurb}</p>
+            {walkthrough.url ? (
+              isDirectVideo(walkthrough.url) ? (
+                <video controls preload="metadata" src={walkthrough.url} className="mt-4 w-full rounded-control" />
+              ) : (
+                <Button href={walkthrough.url} size="lg" icon={Play} className="mt-4">
+                  Watch the walkthrough
+                </Button>
+              )
+            ) : (
+              <p className="mt-3 text-body text-ink-2">{walkthrough.comingSoon}</p>
+            )}
+          </Card>
+        </section>
+      )}
 
       {/* Further reading: free public pages that go deeper on topics this
           lesson only touches (official docs, open-source project docs).

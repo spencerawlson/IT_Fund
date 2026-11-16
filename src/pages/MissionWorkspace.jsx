@@ -7,12 +7,13 @@ import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
 import MissionTopology, { MISSION_TOPOLOGY_DEVICES } from '@/components/missions/MissionTopology';
 import FirewallConsole from '@/components/missions/FirewallConsole';
 import IncidentReportForm from '@/components/missions/IncidentReportForm';
+import FloodReportForm from '@/components/missions/FloodReportForm';
 import CypherVoiceButton from '@/components/missions/CypherVoiceButton';
 import { useTutor, useTutorEnabled, TutorText, Thinking } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
 import { SHOWCASE_ORDER } from '@/components/three/socLayout';
-import { splitBriefing } from '@/data/missions';
+import { splitBriefing, getMission } from '@/data/missions';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
@@ -31,21 +32,39 @@ const MissionSocScene = React.lazy(() => import('@/components/three/MissionSocSc
 // one, and immediately on blur, so a reload restores what was typed.
 const DRAFT_SAVE_DELAY_MS = 750;
 
-// Operation Broken Shield runs the net-acl-001 lab; the mission API owns the
-// attempt, the lab API owns the terminal session underneath it.
-const MISSION_LAB_ID = 'net-acl-001';
-const MISSION_LESSON_ID = 'net-security';
+// Mission shapes. Operation Broken Shield is the SOC mission: it runs the
+// net-acl-001 lab in the 3D SOC room, with a topology to inspect and a
+// firewall console. Every other mission runs the terminal-only workspace:
+// the lab's real shell, attestation buttons, and the report form — no SOC
+// room, because there is no topology to walk. The mission id (from the
+// route) is the switch: the shape is a property of the mission, not of the
+// lab underneath it.
+const SOC_MISSION_ID = 'op-broken-shield';
 
-// The four mission objectives (the other five are the lab's own). Labels are
-// fallbacks — the attempt endpoint returns the authoritative label per id.
+// The mission objectives (the lab's own objectives come from the attempt).
+// Labels are fallbacks — the attempt endpoint returns the authoritative
+// label per id.
 const MISSION_OBJECTIVE_LABELS = {
   topology: 'Inspect every device in the topology',
   'firewall-inspect': 'Inspect the firewall',
+  'flood-source': 'Name the flooding host and the flood type',
   document: 'Write up the incident report',
   report: 'File the incident report',
 };
 
-const LAB_OBJECTIVE_IDS = ['deny-guest', 'permit-others', 'apply', 'guest-blocked', 'trusted-allowed'];
+// Lab objective ids per lab, for the completion dossier (which lists the
+// lab's objectives only) and the terminal workspace's attestation list.
+// The attempt's combined objective list carries no lab/mission marker, so
+// the workspace carries the split.
+const LAB_OBJECTIVE_IDS_BY_LAB = {
+  'net-acl-001': ['deny-guest', 'permit-others', 'apply', 'guest-blocked', 'trusted-allowed'],
+  'tools-wireshark-001': ['open', 'protocols', 'stream', 'creds', 'exfil', 'writeup'],
+};
+
+/** "OPERATION BROKEN SHIELD" -> "Operation Broken Shield" (the API serves no title). */
+function titleCase(callsign) {
+  return (callsign || '').toLowerCase().replace(/(^|[\s-])\S/g, (c) => c.toUpperCase());
+}
 
 /** The terminal `objectives` listing: `[x]`/`[ ]` per objective, in order.
  *  The page shows no objectives list — the terminal is the only place the
@@ -58,6 +77,50 @@ export function formatObjectives(objectives = []) {
     return `  [${o.passed ? 'x' : ' '}] ${label}`;
   });
   return `Mission objectives (${count}):\n${lines.join('\n')}`;
+}
+
+/** Lab objectives with live pass/fail from the last validation, for
+ *  terminal missions. Live-execution labs can't fabricate findings, so each
+ *  open objective gets an "I did this" attestation button that records the
+ *  finding and re-validates — the same contract as LabWorkspace's
+ *  LabObjectives, trimmed to this page (no device tabs, no draft). */
+function MissionLabObjectives({ objectives, results, onAttest, busy = false }) {
+  const resultFor = (id) => (results || []).find((r) => r.objective_id === id);
+  return (
+    <ol className="space-y-2">
+      {objectives.map((o) => {
+        const r = resultFor(o.id);
+        const passed = r?.passed;
+        return (
+          <li key={o.id} className="flex gap-3">
+            <span
+              className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
+                passed ? 'border-success/40 bg-success/15 text-success' : 'border-black/15 text-ink-2'
+              }`}
+            >
+              {passed ? <Check size={14} aria-hidden="true" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-body text-ink-1">{o.label}</span>
+              {r && !passed && <span className="block text-small text-ink-2">{r.message}</span>}
+              {!r && o.hints?.[0] && <span className="block text-small text-ink-2">Hint: {o.hints[0]}</span>}
+            </span>
+            {!passed && (
+              <button
+                type="button"
+                onClick={() => onAttest(o)}
+                disabled={busy}
+                title="You ran this step for real — record it as done"
+                className="shrink-0 self-start rounded-control border border-black/10 px-2 py-1 text-caption font-semibold text-ink-2 transition hover:border-black/25 hover:text-ink-1 disabled:opacity-50"
+              >
+                I did this
+              </button>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
 }
 
 const readStored = (key, fallback) => {
@@ -130,6 +193,7 @@ const OPEN_BRIEFING_CAP_S = 60;
 export default function MissionWorkspace() {
   useDocumentTitle('Cyber Mission · Road to CISSP');
   const { missionId } = useParams();
+  const isSocMission = missionId === SOC_MISSION_ID;
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [missionDef, setMissionDef] = useState(null);
@@ -163,6 +227,13 @@ export default function MissionWorkspace() {
   // frontend copy under `brief`.
   const briefLines = missionDef?.brief || missionDef?.briefing || missionDef?.lines
     || (missionDef?.description ? [missionDef.description] : []);
+  // The lab under this mission and the lesson it belongs to (served by the
+  // API; the SOC mission predates the lab_id field, so the route-known lab
+  // is the fallback — and the only fallback, for test stubs).
+  const labId = missionDef?.lab_id || session?.lab_id || (isSocMission ? 'net-acl-001' : null);
+  const lessonId = missionDef?.lesson_id || (isSocMission ? 'net-security' : null);
+  const callsign = missionDef?.callsign || 'OPERATION BROKEN SHIELD';
+  const title = missionDef?.title || titleCase(callsign);
   // The briefing, split into spoken turns — one per robot, from the
   // existing text only (see splitBriefing in src/data/missions.js):
   // Cypher opens with the introduction, Sentinel reads the servers part,
@@ -232,13 +303,14 @@ export default function MissionWorkspace() {
   // start endpoint returns resumed: true when it hands back an
   // in-progress attempt). A resumed learner is mid-mission, not watching
   // the intro again. Reduced motion skips it too (no camera moves, no
-  // auto-play). Runs once, when the mission + attempt have loaded.
+  // auto-play). Terminal missions have no SOC room to open, so they skip
+  // it entirely. Runs once, when the mission + attempt have loaded.
   useEffect(() => {
     if (openingStartedRef.current) return;
     if (!missionDef || !attempt) return;
     openingStartedRef.current = true;
-    if (reducedMotion || resumedAttempt) setOpeningPhase('done');
-  }, [missionDef, attempt, resumedAttempt, reducedMotion]);
+    if (reducedMotion || resumedAttempt || !isSocMission) setOpeningPhase('done');
+  }, [missionDef, attempt, resumedAttempt, reducedMotion, isSocMission]);
   // Opening phase machine — split in two, on purpose. This effect owns
   // 'open' + 'briefing' only, and it is the only one that watches the
   // voice. The 'briefing' step plays the split briefing one turn at a
@@ -259,6 +331,11 @@ export default function MissionWorkspace() {
   // timeout and started a fresh one, stretching dwells to ~10-12 s live.
   useEffect(() => {
     if (openingPhase === 'done' || openingPhase === 'showcase') return undefined;
+    if (!isSocMission) {
+      // Terminal missions never open the SOC room: no cinematic, no tour.
+      setOpeningPhase('done');
+      return undefined;
+    }
     if (reducedMotion || resumedAttempt) {
       setOpeningPhase('done');
       return undefined;
@@ -300,7 +377,7 @@ export default function MissionWorkspace() {
       return undefined;
     }
     return undefined;
-  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, cypherVoice.loading, cypherVoice.playing, resumedAttempt, reducedMotion]);
+  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, cypherVoice.loading, cypherVoice.playing, resumedAttempt, reducedMotion, isSocMission]);
   // Briefing safety-cap cleanup: the cap guards one turn, so it is
   // cleared when the turn advances or the briefing ends (a new turn
   // sets its own). Without this the cap would fire into a later turn
@@ -431,15 +508,15 @@ export default function MissionWorkspace() {
   const explainOutcome = () => {
     const passed = objectives.filter((o) => o.passed).map((o) => o.label || o.id);
     const open = objectives.filter((o) => !o.passed).map((o) => o.label || o.id);
-    const q = `I just completed Operation Broken Shield with a score of ${debrief?.score ?? '—'} out of 100. `
+    const q = `I just completed ${title} with a score of ${debrief?.score ?? '—'} out of 100. `
       + `Objectives passed (${passed.length}/${objectives.length}): ${passed.join('; ') || 'none'}. `
       + `Still open: ${open.join('; ') || 'none'}. `
       + `The debrief says: ${debrief?.debrief || '—'}. `
       + `Explain what I did well, what the open objectives mean, and the one concept I should review next. Do not re-grade my work — explain from this state.`;
     askExplain({
       mode: 'chat',
-      track: 'net-security',
-      topic: 'Operation Broken Shield — mission debrief',
+      track: lessonId || 'net-security',
+      topic: `${title} — mission debrief`,
       level: 'intermediate',
       messages: [{ role: 'user', content: q }],
     });
@@ -500,15 +577,49 @@ export default function MissionWorkspace() {
     doAction({ type: 'inspect_firewall' }).catch(() => {});
   }, [doAction]);
 
+  // Terminal missions only: attest a lab objective ("I did this") — the
+  // same record-findings + re-validate step LabWorkspace performs for live
+  // labs, then refresh the attempt so the mission objectives update too.
+  const attestLabObjective = useCallback(async (objective) => {
+    if (!session || !objective?.validator) return false;
+    setBusy(true);
+    setError('');
+    try {
+      await labsApi.recordFindings(session.id, { [objective.validator]: { attested: true } });
+      setSession(await labsApi.validate(session.id));
+      if (attempt) applyAttemptState(await missionsApi.getAttempt(attempt.id));
+      return true;
+    } catch (e) {
+      setError(e.message);
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }, [session, attempt, applyAttemptState]);
+
+  // Terminal missions only (Operation Packet Flood): report the flooding
+  // host + flood type. A wrong report is stored, not an error — the
+  // validator's message comes back on the objective (see FloodReportForm).
+  const reportFlooder = useCallback(async ({ source_ip, flood_type }) => {
+    await doAction({ type: 'report_flooder', source_ip, flood_type });
+  }, [doAction]);
+
   // Lab session reached COMPLETED (server-verified): award XP once and mark
-  // the related lessons complete — same gate as LabWorkspace.
+  // the related lessons complete — same gate as LabWorkspace. Attested-only
+  // completions earn nothing and mark nothing: the Wireshark lab's
+  // objectives are "I did this", so its session is attested and the lab's
+  // own XP stays server-verified-only. The mission still pays its own XP
+  // on completion (see completeMission) — that award is keyed to the
+  // mission, not the lab.
   const recordedRef = useRef(new Set());
   useEffect(() => {
     if (session?.status === 'COMPLETED' && session.completed_at && !recordedRef.current.has(session.id)) {
       recordedRef.current.add(session.id);
-      recordVerifiedLabCompletion(MISSION_LAB_ID, LESSONS_FOR_LAB[MISSION_LAB_ID] || []);
+      if (!session.attested && labId) {
+        recordVerifiedLabCompletion(labId, LESSONS_FOR_LAB[labId] || []);
+      }
     }
-  }, [session]);
+  }, [session, labId]);
 
   const reset = useCallback(async () => {
     if (!session || !attempt) return;
@@ -777,9 +888,7 @@ export default function MissionWorkspace() {
     );
   }
 
-  const callsign = missionDef.callsign || 'OPERATION BROKEN SHIELD';
   const missionForBrief = { callsign, brief: briefLines };
-  const title = missionDef.title || 'Operation Broken Shield';
   const background = theme === 'dark' ? '#111111' : '#F8F7FF';
   // Opening caption: a label for the current moment (not dialogue — the
   // spoken lines are only the existing briefing text, read by Cypher's
@@ -795,13 +904,25 @@ export default function MissionWorkspace() {
     : null;
   const openingActive = openingPhase !== 'done';
   const done = attempt.status === 'COMPLETED' || !!debrief;
-  const labObjectives = objectives.filter((o) => LAB_OBJECTIVE_IDS.includes(o.id));
+  const labObjectiveIds = LAB_OBJECTIVE_IDS_BY_LAB[labId] || [];
+  const labObjectives = objectives.filter((o) => labObjectiveIds.includes(o.id));
   const labLike = {
-    id: MISSION_LAB_ID,
+    id: labId,
     objectives: labObjectives.map((o) => ({ id: o.id, label: o.label || MISSION_OBJECTIVE_LABELS[o.id] || o.id })),
   };
+  // Lab objectives as the definition serves them (with hints) for the
+  // terminal workspace's attestation list; pass/fail comes from the last
+  // lab validation (see MissionLabObjectives).
+  const labDefObjectives = (missionDef?.objectives || []).filter((o) => labObjectiveIds.includes(o.id));
   const results = session.validation_results || [];
-  const missionForDossier = { callsign, brief: briefLines, beats: {}, intelKeys: ['flags'] };
+  // The dossier's beats + intel come from the frontend mission framing for
+  // this lab. The flood mission's intel is the reported flooder, which lives
+  // in the ATTEMPT findings, not the lab session's — so the dossier reads
+  // the two merged.
+  const missionForDossier = getMission({ id: labId }) || { callsign, brief: briefLines, beats: {}, intelKeys: ['flags'] };
+  const dossierFindings = isSocMission
+    ? session.findings
+    : { ...(session.findings || {}), flood: missionFindings?.flood };
 
   return (
     <div className="min-h-[100dvh] text-ink-1">
@@ -809,35 +930,42 @@ export default function MissionWorkspace() {
         <div className="glass-1 nav-solid mx-auto flex max-w-6xl flex-wrap items-center gap-2 rounded-card px-3 py-2 sm:px-4">
           <ShieldCheck size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate text-body font-semibold">{callsign} — {title}</span>
-          <label className="flex items-center gap-1.5 text-caption text-ink-2">
-            Quality
-            <select
-              value={quality}
-              onChange={(e) => setQualityPersisted(e.target.value === 'low' ? 'low' : 'high')}
-              aria-label="3D quality"
-              className="rounded-control border border-black/10 bg-white/80 px-1.5 py-1 text-caption font-semibold text-ink-1"
-            >
-              <option value="high">High</option>
-              <option value="low">Low</option>
-            </select>
-          </label>
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={view === '3d' ? Map : Boxes}
-            onClick={() => setViewPersisted(view === '3d' ? '2d' : '3d')}
-          >
-            {view === '3d' ? '2D view' : '3D view'}
-          </Button>
+          {isSocMission && (
+            <>
+              <label className="flex items-center gap-1.5 text-caption text-ink-2">
+                Quality
+                <select
+                  value={quality}
+                  onChange={(e) => setQualityPersisted(e.target.value === 'low' ? 'low' : 'high')}
+                  aria-label="3D quality"
+                  className="rounded-control border border-black/10 bg-white/80 px-1.5 py-1 text-caption font-semibold text-ink-1"
+                >
+                  <option value="high">High</option>
+                  <option value="low">Low</option>
+                </select>
+              </label>
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={view === '3d' ? Map : Boxes}
+                onClick={() => setViewPersisted(view === '3d' ? '2d' : '3d')}
+              >
+                {view === '3d' ? '2D view' : '3D view'}
+              </Button>
+            </>
+          )}
           <Button size="sm" variant="ghost" icon={RotateCcw} onClick={reset} disabled={busy}>Reset</Button>
-          <Button size="sm" variant="secondary" to={`/academy/lessons/${MISSION_LESSON_ID}`}>Lesson</Button>
+          <Button size="sm" variant="secondary" to={lessonId ? `/academy/lessons/${lessonId}` : '/labs'}>Lesson</Button>
           <Button size="sm" variant="secondary" to="/labs">Exit</Button>
         </div>
       </header>
 
       <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr]">
         {/* SOC room first, full width: the 3D frame is the mission's
-            centrepiece, and its camera focuses on whoever is talking. */}
+            centrepiece, and its camera focuses on whoever is talking.
+            Terminal missions have no SOC room — they get the evidence card
+            below instead, in the same full-width slot. */}
+        {isSocMission && (
         <div className="lg:col-span-2">
           <Card level={2} className={`mission-console${openingActive ? ' soc-open' : ''}`}>
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -884,6 +1012,30 @@ export default function MissionWorkspace() {
             )}
           </Card>
         </div>
+        )}
+        {!isSocMission && (
+        <div className="lg:col-span-2">
+          <Card level={2} className="mission-console">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <TerminalSquare size={18} className="text-terminal-bright" aria-hidden="true" />
+              <h2 className="font-mono text-heading text-terminal-bright">Your evidence</h2>
+              <span className="hidden text-caption text-terminal-muted sm:inline">
+                flood.pcap is in your home directory — read it with tshark, tcpdump, or Wireshark
+              </span>
+            </div>
+            <p className="text-small leading-relaxed text-terminal-muted">
+              The flood is in <code>flood.pcap</code>: a little ordinary traffic, then a burst of
+              packets against the web server from a single internal host. <code>capture.pcap</code> and{' '}
+              <code>dns-exfil.pcap</code> are there too, from the lab&apos;s earlier objectives.
+              Any tool works — the mission checks your finding, not your tool.
+            </p>
+            <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-black/10 bg-terminal-bg p-3 font-mono text-[12px] leading-relaxed text-terminal-text">
+{`tshark -r flood.pcap -q -z io,phs
+tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
+            </pre>
+          </Card>
+        </div>
+        )}
 
         <div className="space-y-4">
           <MissionBrief mission={missionForBrief} />
@@ -920,9 +1072,11 @@ export default function MissionWorkspace() {
             <p className="mt-1 text-small text-ink-2">
               Check the Mission Console below: run <code>objectives</code> for the list,{' '}
               <code>progress</code> for the count, and <code>hint</code> when you are stuck.
-              After changing the firewall, run <code>check</code> to re-validate first.
+              {isSocMission ? ' After changing the firewall, run ' : ' After capturing, run '}
+              <code>check</code> to re-validate first.
             </p>
           </Card>
+          {isSocMission && (
           <Card level={2}>
             <h2 className="text-heading text-ink-1">Traffic test</h2>
             <p className="mt-1 text-small text-ink-2">
@@ -943,9 +1097,11 @@ export default function MissionWorkspace() {
               </pre>
             )}
           </Card>
+          )}
         </div>
 
         <div className="space-y-4">
+          {isSocMission && (
           <Card level={2}>
             <h2 className="text-heading text-ink-1">Firewall console — R1, access-list 10</h2>
             <p className="mt-1 text-small text-ink-2">
@@ -962,6 +1118,28 @@ export default function MissionWorkspace() {
               />
             </div>
           </Card>
+          )}
+
+          {/* Terminal missions: the lab objectives are attestation-based, so
+              the learner records each step here after running it for real
+              in the console below. */}
+          {!isSocMission && (
+            <Card level={2}>
+              <h2 className="text-heading text-ink-1">Packet analysis</h2>
+              <p className="mt-1 text-small text-ink-2">
+                Work the capture in the Mission Console, then record each step — “I did this” is
+                how this lab&apos;s objectives are checked.
+              </p>
+              <div className="mt-4">
+                <MissionLabObjectives
+                  objectives={labDefObjectives}
+                  results={results}
+                  onAttest={attestLabObjective}
+                  busy={busy}
+                />
+              </div>
+            </Card>
+          )}
 
           <Card level={2} className="mission-console">
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -974,14 +1152,39 @@ export default function MissionWorkspace() {
                 ref={termRef}
                 sessionId={session.id}
                 runner={runner}
-                banner={['[ MISSION CONSOLE v1 ]', 'establishing uplink ............ OK', 'routing to R1 ............ ONLINE', `objectives: ${total} · callsign: ${callsign}`, 'type `help` for available operations', '']}
-                prompt="R1# "
+                banner={isSocMission
+                  ? ['[ MISSION CONSOLE v1 ]', 'establishing uplink ............ OK', 'routing to R1 ............ ONLINE', `objectives: ${total} · callsign: ${callsign}`, 'type `help` for available operations', '']
+                  : ['[ MISSION CONSOLE v1 ]', 'analyst workstation ............ ONLINE', `objectives: ${total} · callsign: ${callsign}`, 'capture: flood.pcap is in your home directory', 'type `help` for available operations', '']}
+                prompt={isSocMission ? 'R1# ' : 'analyst@analyst-ws:~$ '}
                 disabled={session.status === 'EXPIRED'}
                 onSession={setSession}
                 onError={setError}
               />
             </div>
           </Card>
+
+          {/* Terminal missions only: report the flooding host + flood type.
+              A wrong report is stored, not an error — the objective's message
+              says which half is wrong. */}
+          {!isSocMission && !done && (
+            <Card level={2}>
+              <h2 className="text-heading text-ink-1">Report the flooder</h2>
+              <p className="mt-1 text-small text-ink-2">
+                Name the flooding host and the kind of flood. Any tool works — tshark, tcpdump,
+                Wireshark — this checks your finding, not your tool.
+              </p>
+              <div className="mt-4">
+                <FloodReportForm
+                  initial={missionFindings?.flood || {}}
+                  feedback={objectives.find((o) => o.id === 'flood-source')?.message || ''}
+                  reported={passed('flood-source')}
+                  onSubmit={reportFlooder}
+                  busy={busy}
+                  disabled={session.status === 'EXPIRED'}
+                />
+              </div>
+            </Card>
+          )}
 
           {!done && (
             <Card level={2}>
@@ -1000,6 +1203,14 @@ export default function MissionWorkspace() {
                   busy={busy}
                   disabled={session.status === 'EXPIRED'}
                   serverError={reportError}
+                  {...(!isSocMission ? {
+                    gateHint: 'Finish the other objectives first — the report files once the flood is identified and the capture work is done.',
+                    placeholders: {
+                      summary: 'e.g. The intranet barely responded — one internal host was flooding the web server with SYNs.',
+                      root_cause: 'e.g. One internal host sent a burst of SYNs with no handshake; the server’s backlog filled and it stopped answering.',
+                      fix: 'e.g. Blocked the flooding host and rate-limited SYNs, then verified the intranet responds.',
+                    },
+                  } : {})}
                 />
               </div>
               {reportSubmitted && (
@@ -1071,7 +1282,7 @@ export default function MissionWorkspace() {
             </Card>
           )}
           {done && (
-            <MissionDossier lab={labLike} mission={missionForDossier} results={results} findings={session.findings} />
+            <MissionDossier lab={labLike} mission={missionForDossier} results={results} findings={dossierFindings} />
           )}
           {session.status === 'EXPIRED' && (
             <Card level={2}>

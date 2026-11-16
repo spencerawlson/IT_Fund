@@ -13,6 +13,18 @@ const BROKEN_SHIELD_OBJECTIVES = [
   'report',
 ];
 
+const PACKET_FLOOD_OBJECTIVES = [
+  'open',
+  'protocols',
+  'stream',
+  'creds',
+  'exfil',
+  'writeup',
+  'flood-source',
+  'document',
+  'report',
+];
+
 describe('missions', () => {
   it('returns the Operation Broken Shield entry for the net-acl-001 lab', () => {
     const mission = getMission({ id: 'net-acl-001', title: 'Network ACLs', description: 'Segment the network.' });
@@ -33,6 +45,27 @@ describe('missions', () => {
 
   it('maps the net-security lesson to op-broken-shield', () => {
     expect(MISSION_FOR_LESSON['net-security']).toBe('op-broken-shield');
+  });
+
+  it('returns the Operation Packet Flood entry for the tools-wireshark-001 lab', () => {
+    const mission = getMission({ id: 'tools-wireshark-001', title: 'Wireshark / tshark', description: 'Read the capture.' });
+    expect(mission.callsign).toBe('OPERATION PACKET FLOOD');
+    expect(mission).toBe(MISSIONS['tools-wireshark-001']);
+    expect(mission.brief.length).toBe(4);
+    expect(mission.intelKeys).toEqual(['flood']);
+  });
+
+  it('has a beat for every one of the 9 Packet Flood objectives', () => {
+    const mission = MISSIONS['tools-wireshark-001'];
+    expect(Object.keys(mission.beats)).toHaveLength(9);
+    for (const objectiveId of PACKET_FLOOD_OBJECTIVES) {
+      expect(mission.beats[objectiveId]).toBeTruthy();
+      expect(beatFor(mission, { id: objectiveId, label: 'plain label' })).toBe(mission.beats[objectiveId]);
+    }
+  });
+
+  it('maps the net-troubleshoot lesson to op-packet-flood', () => {
+    expect(MISSION_FOR_LESSON['net-troubleshoot']).toBe('op-packet-flood');
   });
 
   it('keeps the existing Glasshouse mission intact', () => {
@@ -61,6 +94,32 @@ describe('splitBriefing', () => {
     expect(turns[1].text).toMatch(/Investigate the topology/);
     expect(turns[2].text).toMatch(/least privilege/);
     expect(turns[3].text).toMatch(/Mission Console/);
+  });
+
+  it('splits Operation Packet Flood by content — Cypher intro, Sentinel network, Patch fix, Cypher close', () => {
+    // Same robot rules as Broken Shield, applied to the flood briefing:
+    // the network-segment investigation is Sentinel's, the fix is Patch's,
+    // the Mission Console instructions stay with Cypher the presenter.
+    const turns = splitBriefing(MISSIONS['tools-wireshark-001'].brief);
+    expect(turns).toHaveLength(4);
+    expect(turns.map((t) => t.speaker)).toEqual(['cypher', 'sentinel', 'patch', 'cypher']);
+    expect(turns[0].text).toMatch(/^Orion Technologies — the intranet barely responds/);
+    expect(turns[1].text).toMatch(/Investigate the network segment/);
+    expect(turns[2].text).toMatch(/correct the configuration/);
+    expect(turns[3].text).toMatch(/Mission Console/);
+  });
+
+  it('classifies the API-served flood briefing the same way', () => {
+    // The backend (backend/labs/missions.py) serves the same four
+    // paragraphs; the split must hold on the API wording too, not just the
+    // frontend copy in missions.js.
+    const turns = splitBriefing([
+      'Orion Technologies — the intranet barely responds and the link is saturated. Users report the network crawling, and nobody knows why yet.',
+      'Investigate the network segment: capture the traffic with Wireshark or tcpdump, and find which host is flooding it — and what kind of flood it is.',
+      'Once you know the source, correct the configuration to stop the flood at its source and keep legitimate traffic flowing — then document the incident and file your report.',
+      'Check where you stand in the Mission Console below: run `objectives` for the list, `progress` for the count, and `hint` when you are stuck. The terminal is the only place your progress is shown — after capturing, run `check` to re-validate first.',
+    ]);
+    expect(turns.map((t) => t.speaker)).toEqual(['cypher', 'sentinel', 'patch', 'cypher']);
   });
 
   it('invents no lines — every turn is one of the original briefing lines, verbatim', () => {

@@ -12,14 +12,19 @@ Scenario (all traffic inside 10.10.10.0/24, entirely fictional):
   - a compromised process on the workstation exfiltrates data over DNS TXT
     queries to exfil.evil-dns.net (classic DNS tunneling)
   - a TLS ClientHello to 10.10.10.30:443 rounds out the protocol mix
+  - flood.pcap: a SYN flood from a single internal host (10.10.10.9) against
+    the web server, with a little ordinary traffic before it so the burst
+    stands out against a baseline — the mission capture for op-packet-flood.
 
-Run:  python3 gen_pcap.py   -> writes capture.pcap and dns-exfil.pcap here.
+Run:  python3 gen_pcap.py   -> writes capture.pcap, dns-exfil.pcap and flood.pcap here.
 
 Learners analyse with: tshark -r capture.pcap
   - protocols:      tshark -r capture.pcap -q -z io,phs
   - follow stream:  tshark -r capture.pcap -q -z follow,tcp,ascii,0
   - cleartext:      tshark -r capture.pcap -Y http -T fields -e http.authorization -e urlencoded-form.key -e urlencoded-form.value
   - DNS exfil:      tshark -r capture.pcap -Y dns -T fields -e dns.qry.name -e dns.qry.type
+  - flood source:   tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n
+  - flood SYNs:     tshark -r flood.pcap -Y "tcp.flags.syn==1 && tcp.flags.ack==0" | wc -l
 """
 from __future__ import annotations
 
@@ -30,11 +35,23 @@ SERVER_MAC = bytes.fromhex("02420a0a0a14")
 GW_MAC = bytes.fromhex("02420a0a0a01")
 TLS_MAC = bytes.fromhex("02420a0a0a1e")
 BROADCAST = bytes.fromhex("ffffffffffff")
+# Flooder: a host that appears in no other capture, so the source is
+# unambiguous — one IP owns the burst, and the rest is baseline noise.
+FLOODER_MAC = bytes.fromhex("02420a0a0a09")
 
 CLIENT_IP = "10.10.10.5"
 SERVER_IP = "10.10.10.20"
 DNS_IP = "10.10.10.1"
 TLS_IP = "10.10.10.30"
+FLOODER_IP = "10.10.10.9"
+#: Ground truth for the flood mission (op-packet-flood): the flooding host
+#: and the flood type. The mission validator checks the learner's report
+#: against these values — keep them in sync with backend/labs/missions.py.
+FLOOD_SOURCE_IP = FLOODER_IP
+FLOOD_TYPE = "syn flood"
+#: Size of the burst. Large enough that the source dominates any per-host
+#: count, small enough to stay a teaching capture.
+FLOOD_SYN_COUNT = 120
 
 
 def mac(b: bytes) -> bytes:
@@ -323,6 +340,76 @@ def build_dns_exfil() -> None:
     print("wrote dns-exfil.pcap")
 
 
+def build_flood() -> None:
+    """SYN-flood capture for the flood mission (op-packet-flood).
+
+    Why a SYN flood from a single host: it is the classic shape, it reads
+    clearest in tshark for a learner (one source IP owns the packet count,
+    and a SYN-only filter counts the burst directly), and the answer is
+    unambiguous — one flooding host, one flood type. Any tool works:
+    tshark, tcpdump, or Wireshark; the mission validator checks the
+    FINDING (which host, what kind of flood), never the tool used.
+
+    Shape: a short baseline of ordinary traffic (two DNS lookups and one
+    completed HTTP request from the workstation), then the burst — 120
+    SYN-only segments from 10.10.10.9 to 10.10.10.20:80, 10 ms apart,
+    incrementing source ports, never completing a handshake. The server
+    answers the first few SYNs with SYN-ACKs that are never ACKed, then
+    stops answering — its backlog is full, which is why the intranet
+    barely responds."""
+    p = Pcap("flood.pcap")
+    t = BASE_TS + 3600.0  # one hour after the other captures: a separate incident
+
+    def emit(frame: bytes, dt: float = 0.1) -> None:
+        nonlocal t
+        t += dt
+        p.pkt(t, frame)
+
+    SYN, ACK = 0x02, 0x10
+
+    # --- baseline: ordinary traffic before the flood starts ---
+    for i, name in enumerate(("www.example.com", "mail.example.com")):
+        txid = 0x5000 + i
+        emit(eth(GW_MAC, CLIENT_MAC, 0x0800,
+                 udp_seg(CLIENT_IP, DNS_IP, 53333 + i, 53, dns_query(txid, name, 1))))
+        emit(eth(CLIENT_MAC, GW_MAC, 0x0800,
+                 udp_seg(DNS_IP, CLIENT_IP, 53, 53333 + i,
+                         dns_response(txid, name, 1, 0, dns_a_answer(300, "93.184.216.34")))), 0.03)
+    # one completed HTTP request from the workstation: SYN, SYN-ACK, ACK,
+    # GET, 200 OK — the shape legitimate traffic has, and the flood lacks.
+    sport, cseq, sseq = 43111, 1000, 5000
+    emit(eth(SERVER_MAC, CLIENT_MAC, 0x0800,
+             tcp_seg(CLIENT_IP, SERVER_IP, sport, 80, cseq, 0, SYN)), 0.2)
+    cseq += 1
+    emit(eth(CLIENT_MAC, SERVER_MAC, 0x0800,
+             tcp_seg(SERVER_IP, CLIENT_IP, 80, sport, sseq, cseq, SYN | ACK)), 0.02)
+    sseq += 1
+    emit(eth(SERVER_MAC, CLIENT_MAC, 0x0800,
+             tcp_seg(CLIENT_IP, SERVER_IP, sport, 80, cseq, sseq, ACK)), 0.02)
+    get = (b"GET / HTTP/1.1\r\nHost: intranet.lan\r\n\r\n")
+    emit(eth(SERVER_MAC, CLIENT_MAC, 0x0800,
+             tcp_seg(CLIENT_IP, SERVER_IP, sport, 80, cseq, sseq, ACK | 0x08, get)), 0.02)
+    cseq += len(get)
+    emit(eth(CLIENT_MAC, SERVER_MAC, 0x0800,
+             tcp_seg(SERVER_IP, CLIENT_IP, 80, sport, sseq, cseq, ACK)), 0.02)
+
+    # --- the flood: SYN-only, one source, no handshake ever completes ---
+    # The server SYN-ACKs the first 5, then its backlog fills and it goes
+    # silent — the last 115 SYNs get no reply at all.
+    fseq = 900_000
+    for i in range(FLOOD_SYN_COUNT):
+        fsport = 40000 + i
+        emit(eth(SERVER_MAC, FLOODER_MAC, 0x0800,
+                 tcp_seg(FLOODER_IP, SERVER_IP, fsport, 80, fseq + i, 0, SYN)), 0.01)
+        if i < 5:
+            emit(eth(FLOODER_MAC, SERVER_MAC, 0x0800,
+                     tcp_seg(SERVER_IP, FLOODER_IP, 80, fsport, 7000 + i, fseq + i + 1, SYN | ACK)), 0.002)
+
+    p.close()
+    print("wrote flood.pcap")
+
+
 if __name__ == "__main__":
     build_capture()
     build_dns_exfil()
+    build_flood()

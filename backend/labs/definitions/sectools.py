@@ -48,7 +48,12 @@ WIRESHARK_LAB = LabDefinition(
                      hints=["Read the reassembled stream: the login POST body and an Authorization header both leak credentials."]),
         LabObjective(id="exfil", label="Spot the DNS exfiltration", validator="ws_dns_exfil_found",
                      hints=["tshark -r capture.pcap -Y dns — look for the odd domain with many TXT queries."]),
-        LabObjective(id="report", label="Write up your findings", validator="ws_report_written",
+        # NOTE: the id was 'report' until the flood mission (op-packet-flood)
+        # arrived — its mission-only file-the-report objective is also 'report',
+        # and the mission's combined objective list must have unique ids
+        # (the workspace looks objectives up by id). Same label, same
+        # validator; only the id changed, and lab sessions are ephemeral.
+        LabObjective(id="writeup", label="Write up your findings", validator="ws_report_written",
                      hints=["echo your summary > findings.txt: protocol mix, where the credentials were, how the exfil worked."]),
     ],
 )

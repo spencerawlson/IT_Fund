@@ -13,8 +13,17 @@ dns-exfil.pcap — a focused DNS-tunneling capture: TXT queries carrying
 base64-looking data chunks to data.exfil.evil-dns.net, with a little
 ordinary DNS noise mixed in.
 
+flood.pcap — the Operation Packet Flood mission capture: the network is
+crawling and the link is saturated. A short baseline of ordinary traffic
+(DNS lookups, one completed HTTP request from 10.10.10.5), then a burst of
+packets against the web server 10.10.10.20:80 from a single internal host.
+Find which host is flooding and what kind of flood it is — with tshark,
+tcpdump, or Wireshark, whichever you prefer; the mission checks your
+finding, not your tool.
+
 Useful tshark invocations:
   tshark -r capture.pcap -q -z io,phs            # protocol hierarchy
   tshark -r capture.pcap -Y dns -T fields -e dns.qry.name -e dns.qry.type
   tshark -r capture.pcap -q -z follow,tcp,ascii,0 # follow the login stream
   tshark -r capture.pcap -Y http -T fields -e http.authorization
+  tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n

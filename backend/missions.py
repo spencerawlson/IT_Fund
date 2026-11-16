@@ -66,6 +66,10 @@ _STATUS = {"not_found": 404, "invalid": 400, "unavailable": 503}
 #: Max length of one incident-report field (document / save_draft actions).
 MAX_REPORT_FIELD_CHARS = 2000
 
+#: Max length of one flood-report field (report_flooder action): an IP
+#: address and a flood type are both short; anything longer is not an answer.
+MAX_FLOOD_FIELD_CHARS = 64
+
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
@@ -126,7 +130,7 @@ def _mission_objective_results(definition, findings: dict[str, Any]) -> list[dic
 
 
 def _objective_results(definition, lab_session, findings: dict[str, Any]) -> list[dict[str, Any]]:
-    """All 9 objectives in order: the lab's 5, then the mission's 4."""
+    """Lab objectives first, then the mission-only objectives, in order."""
     return _lab_objective_results(definition, lab_session) + _mission_objective_results(definition, findings)
 
 
@@ -360,6 +364,29 @@ async def mission_action(
         elif action_type == "inspect_firewall":
             findings["firewall"]["inspected"] = True
             choices.append({"type": "inspect_firewall"})
+        elif action_type == "report_flooder":
+            # Operation Packet Flood: the learner reports which host is
+            # flooding and what kind of flood it is. The finding is stored,
+            # never graded here — the flood_source_identified validator
+            # checks it against the ground truth in flood.pcap, so a wrong
+            # report is a 200 with the objective still open (and the
+            # validator's message saying which half is wrong), not an
+            # error. Only missions with that objective accept the action.
+            if not any(o.validator == "flood_source_identified" for o in definition.objectives):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="This mission has no flood to report.",
+                )
+            flood = findings["flood"]
+            for key in ("source_ip", "flood_type"):
+                value = body.get(key)
+                if not isinstance(value, str) or len(value) > MAX_FLOOD_FIELD_CHARS:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"{key} must be a string of at most {MAX_FLOOD_FIELD_CHARS} characters.",
+                    )
+                flood[key] = value.strip()
+            choices.append({"type": "report_flooder"})
         elif action_type == "document":
             report = findings["incident_report"]
             for key in ("summary", "root_cause", "fix"):

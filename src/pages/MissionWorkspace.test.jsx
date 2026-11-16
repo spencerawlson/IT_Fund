@@ -58,7 +58,7 @@ describe('MissionWorkspace', () => {
     expect(src).toContain("missionsApi.action(attempt.id");
     expect(src).toContain('missionsApi.complete(attempt.id)');
     expect(src).toContain('labsApi.exec(session.id');
-    expect(src).toContain("recordVerifiedLabCompletion(MISSION_LAB_ID");
+    expect(src).toContain('recordVerifiedLabCompletion(labId,');
   });
 
   it('falls back to the 2D topology when the renderer fails', () => {
@@ -77,6 +77,34 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('lg:col-span-2');
     expect(src).not.toContain('aspect-video');
     expect(src).not.toContain('h-[26rem]');
+  });
+
+  it('generalizes beyond Broken Shield: only the SOC mission gets the SOC room', () => {
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    // No mission/lab/lesson id is hardcoded anymore — the shape comes from
+    // the route's mission id, the lab + lesson from the API.
+    expect(src).not.toContain('MISSION_LAB_ID');
+    expect(src).not.toContain('MISSION_LESSON_ID');
+    expect(src).toContain('missionId === SOC_MISSION_ID');
+    expect(src).toContain('missionDef?.lab_id || session?.lab_id');
+    expect(src).toContain('missionDef?.lesson_id');
+    // Terminal missions skip the opening, the topology, the firewall
+    // console and the traffic test — and attest lab objectives + report
+    // the flooder instead.
+    expect(src).toContain('!isSocMission');
+    expect(src).toContain('FloodReportForm');
+    expect(src).toContain('MissionLabObjectives');
+    expect(src).toContain('attestLabObjective');
+    expect(src).toContain('report_flooder');
+    expect(src).toContain('Your evidence');
+  });
+
+  it('never awards lab XP for an attested-only completion', () => {
+    // Spencer's 2026-11-11 rule, same gate as LabWorkspace: the Wireshark
+    // lab's objectives are "I did this", so its session is attested and
+    // recordVerifiedLabCompletion must not run for it.
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toMatch(/if \(!session\.attested && labId\) \{\s*recordVerifiedLabCompletion\(labId/);
   });
 
   it('focuses the SOC camera on whoever is talking — briefing turn speaker, debrief Cypher, else wide', () => {
