@@ -10,12 +10,12 @@ import { __clearVoiceCache } from '@/api/voice';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Mounted tests drive the real handoff with the network stubbed: the
-// analytics and the 3D viewer (WebGL has no DOM here). The voice speak
-// fetch is stubbed per test with a controllable deferred, so auto-play can
-// be observed. The handoff reads no mission state anymore — the button is
-// always Launch Mission — so no mission API mock is needed.
+// analytics and the voice speak fetch are stubbed per test with a
+// controllable deferred, so auto-play can be observed. The handoff reads
+// no mission state anymore — the button is always Launch Mission — so no
+// mission API mock is needed. The face is the real CypherFace (2D PNG +
+// SVG mouth, no WebGL), so it renders in this DOM-less run as-is.
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
-vi.mock('@/components/three/CypherCharacter', () => ({ default: () => null }));
 
 // SSR: effects (analytics) do not run, so the handoff renders its first
 // paint — Cypher's one spoken line, the Listen control, and the one
@@ -86,8 +86,13 @@ describe('MissionHandoff', () => {
     expect(btnAt).toBeGreaterThan(msgAt);
   });
 
-  it('shows no manipulation hint on the Cypher viewer', () => {
+  it('shows the floating Cypher face (happy) instead of the 3D room viewer', () => {
     const html = renderHandoff();
+    // The 2D face on its dark chip, same as the lesson panel — no 3D
+    // viewer, no room, no manipulation hints.
+    expect(html).toContain('/images/cypher-face-happy.png');
+    expect(html).toContain('cypher-mouth');
+    expect(html).toContain('bg-[#0D1B2A]');
     expect(html).not.toContain('Drag to rotate');
     expect(html).not.toContain('Scroll to zoom');
     expect(html).not.toContain('Click parts for info');
@@ -218,6 +223,10 @@ describe('MissionHandoff listen-first (mounted)', () => {
     await TestRenderer.act(async () => { fetchGate.resolve(jsonResponse(audioEnvelope)); });
     await flush();
     expect(treeText()).toContain('Speaking…');
+    // The floating face talks with the line: its mouth is on screen while
+    // audio plays (the mouth animation itself is covered by
+    // CypherFace.test.jsx).
+    expect(treeText()).toContain('cypher-mouth');
     expect(treeText()).not.toContain(SPOKEN); // voice-only: no subtitle
     expect(treeText()).not.toContain(EXACT_LINE); // full line hidden
     const toggle = findButton('Read message');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, Square } from 'lucide-react';
-import CypherViewer from '@/components/three/CypherCharacter';
+import CypherFace from '@/components/academy/tutor/CypherFace';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
 import { Button, Card } from '@/components/ui-glass';
@@ -26,6 +26,10 @@ import { pillClass } from '@/components/academy/tutor/TutorAssist';
 // Placement: the button sits to the RIGHT of Cypher's message on desktop
 // (sm:flex-row, its own column) and BELOW it on mobile (flex-col) — the
 // line says "on your right", so the layout must match the words.
+// The face is the floating 2D Cypher (CypherFace, happy, talking mouth
+// wired to the same voice state as the lesson panel) — the 3D room viewer
+// used to sit here; the face is lighter (no cypher.glb load) and matches
+// the lesson panel. Spencer, Nov 16.
 export const HANDOFF_LINE = "Excellent work, Agent. Now that you've learned and practiced, I have a mission for you. Click the 'Launch Mission' button on your right to begin.";
 
 export default function MissionHandoff({ missionId, lessonId }) {
@@ -56,7 +60,7 @@ export default function MissionHandoff({ missionId, lessonId }) {
     <Card level={2} className="mt-6 text-left">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="w-full shrink-0 sm:w-44">
-          <CypherViewer voiceRef={voiceRef} />
+          <CypherFace emotion="happy" className="w-full" talking={voice.playing} levelRef={voiceRef} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-caption font-bold uppercase tracking-[0.14em] text-action-hover">Cypher</p>
