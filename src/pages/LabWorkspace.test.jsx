@@ -92,4 +92,12 @@ describe('LabWorkspace', () => {
     expect(SRC).toContain('{done && gameMode && (');
     expect(SRC).toContain('<MissionDossier lab={lab} mission={mission}');
   });
+
+  it('redirects mission-only labs to their mission instead of starting a session (Spencer, 2026-11-16)', () => {
+    // Operation Broken Shield is mission-only everywhere: /labs/net-acl-001
+    // sends the learner to /missions/op-broken-shield before any session
+    // starts — the lab has no standalone workspace anymore.
+    expect(SRC).toContain('MISSION_ONLY_LABS[labId]');
+    expect(SRC).toContain('navigate(`/missions/${missionId}`, { replace: true })');
+  });
 });

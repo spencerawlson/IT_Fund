@@ -353,13 +353,15 @@ export default function MissionWorkspace() {
     await doAction({ type: 'report_flooder', source_ip, flood_type });
   }, [doAction]);
 
-  // Lab session reached COMPLETED (server-verified): award XP once and mark
-  // the related lessons complete — same gate as LabWorkspace. Attested-only
-  // completions earn nothing and mark nothing: the Wireshark lab's
-  // objectives are "I did this", so its session is attested and the lab's
-  // own XP stays server-verified-only. The mission still pays its own XP
-  // on completion (see completeMission) — that award is keyed to the
-  // mission, not the lab.
+  // Lab session reached COMPLETED (server-verified): award the lab's own XP
+  // once, and mark the lessons the lab is attached to complete — same gate
+  // as LabWorkspace. Mission-only labs (MISSION_ONLY_LABS) are attached to
+  // no lessons, so completing the mission marks nothing via the lab; the
+  // mission still pays its own XP on completion (see completeMission) — that
+  // award is keyed to the mission, not the lab. Attested-only completions
+  // earn nothing and mark nothing: the Wireshark lab's objectives are
+  // "I did this", so its session is attested and the lab's own XP stays
+  // server-verified-only.
   const recordedRef = useRef(new Set());
   useEffect(() => {
     if (session?.status === 'COMPLETED' && session.completed_at && !recordedRef.current.has(session.id)) {

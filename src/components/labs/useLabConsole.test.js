@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  getOrderedCategories, buildTrackList, buildTrackLabs, resolveTrack, buildSearchResults,
+  getOrderedCategories, buildTrackList, buildTrackLabs, resolveTrack, buildSearchResults, standaloneLabs,
 } from './useLabConsole';
 
 const labs = [
@@ -73,5 +73,19 @@ describe('lab console track navigation', () => {
     expect(trackOut).toContain('Nmap');
     expect(trackOut).toContain('PortBlast');
     expect(resolveTrack(cats, 'portblast')).toBe('cybersecurity');
+  });
+
+  it('standaloneLabs drops mission-only labs (Spencer, 2026-11-16)', () => {
+    // Operation Broken Shield is mission-only everywhere: the ACL lab
+    // never reaches the console's track lists, counts, search or
+    // `lab start` — the hook filters the catalogue through this helper.
+    const mixed = [
+      ...labs,
+      { id: 'net-acl-001', slug: 'acl', title: 'Filtering Traffic with ACLs', category: 'networking', description: 'ACLs' },
+    ];
+    expect(standaloneLabs(mixed).map((l) => l.id)).not.toContain('net-acl-001');
+    expect(standaloneLabs(mixed)).toHaveLength(labs.length);
+    expect(standaloneLabs([])).toEqual([]);
+    expect(standaloneLabs(null)).toEqual([]);
   });
 });

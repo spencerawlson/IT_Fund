@@ -158,6 +158,26 @@ describe('LessonView further reading', () => {
   });
 });
 
+describe('LessonView mission-only lab removal', () => {
+  it('net-security shows no Launch Lab button and no lab row (Spencer, 2026-11-16)', async () => {
+    // Operation Broken Shield is mission-only everywhere: the ACL lab
+    // runs inside the mission, so the lesson offers no standalone lab.
+    // This lesson has no Visual Lab either, so the whole button row is gone.
+    const root = await renderLesson('net-security');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).not.toContain('Launch Lab');
+    expect(json).not.toContain('/labs/net-acl-001');
+    expect(json).not.toContain('Open in Visual Lab');
+  });
+
+  it('rt-routing-security shows no Launch Lab button either', async () => {
+    const root = await renderLesson('rt-routing-security');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).not.toContain('Launch Lab');
+    expect(json).not.toContain('/labs/net-acl-001');
+  });
+});
+
 describe('LessonView net-troubleshoot labs + Watch', () => {
   it('renders both lab buttons — the DNS primary and the Wireshark extra — plus the Visual Lab button', async () => {
     const root = await renderLesson('net-troubleshoot');

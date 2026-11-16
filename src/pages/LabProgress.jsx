@@ -3,19 +3,15 @@ import { FlaskConical, Timer, Trophy, RotateCcw, Play } from 'lucide-react';
 import { Button, Card } from '@/components/ui-glass';
 import { labsApi } from '@/api/labs';
 import { missionsApi } from '@/api/missions';
-import { MISSIONS, MISSION_FOR_LESSON } from '@/data/missions';
-import { LAB_FOR_LESSON } from '@/data/labLessons';
+import { MISSIONS, MISSION_ONLY_LABS, labForMission } from '@/data/missions';
 import { getLabProgress, aggregateServerHistory, mergeProgress, formatDuration } from '@/lib/labProgress';
 import { useAuth } from '@/lib/AuthContext';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
-/** Callsign for a mission id, from the lesson -> lab -> mission data. */
+/** Callsign for a mission id, via the mission -> lab map (missions.js). */
 function missionCallsign(missionId) {
-  for (const [lessonId, id] of Object.entries(MISSION_FOR_LESSON)) {
-    if (id !== missionId) continue;
-    const mission = MISSIONS[LAB_FOR_LESSON[lessonId]];
-    if (mission) return mission.callsign;
-  }
+  const mission = MISSIONS[labForMission(missionId)];
+  if (mission) return mission.callsign;
   return missionId.replace(/[-_]+/g, ' ').toUpperCase();
 }
 
@@ -46,7 +42,10 @@ export default function LabProgress() {
     labsApi.listDefinitions()
       .then(({ labs: defs }) => {
         if (!live) return;
-        setLabs(defs);
+        // Mission-only labs never appear here: no row, no Start button,
+        // and they don't count toward "labs completed" — they live in the
+        // Missions section below, reached through the mission.
+        setLabs(defs.filter((l) => !MISSION_ONLY_LABS[l.id]));
         const local = getLabProgress();
         if (!isAuthenticated) {
           setProgress(local);
