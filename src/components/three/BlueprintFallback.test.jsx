@@ -34,7 +34,7 @@ function viewerPropsFor(Component) {
   return mockModelViewer.mock.calls[0][0];
 }
 
-describe('Visual Lab equipment subjects show their blueprint sheet, not a 3D model', () => {
+describe('Visual Lab equipment subjects and OSI show their blueprint sheet, not a 3D model', () => {
   const cases = [
     [Switch3D, '/blueprint-network-switch-48-port.jpg'],
     [ServerRack3D, '/blueprint-network-rack-42u.jpg'],
@@ -46,6 +46,7 @@ describe('Visual Lab equipment subjects show their blueprint sheet, not a 3D mod
     [Cloud3D, '/blueprint-cloud-architecture.jpg'],
     [Firewall3D, '/blueprint-firewall-ngfw.jpg'],
     [Nas3D, '/blueprint-nas-storage.jpg'],
+    [Osi3D, '/blueprint-osi-model.jpg'],
   ];
 
   it.each(cases)('%o renders its sheet with a full-size link and no ModelViewer', (Component, sheet) => {
@@ -67,7 +68,7 @@ describe('Visual Lab equipment subjects show their blueprint sheet, not a 3D mod
 
 describe('the procedural 3D subjects stay 3D (no blueprint sheet exists)', () => {
   it('they render ModelViewer with no fallback image', () => {
-    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D, Osi3D]) {
+    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D]) {
       expect(viewerPropsFor(Component).fallbackImage, Component.name).toBeUndefined();
     }
   });

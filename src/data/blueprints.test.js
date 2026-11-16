@@ -66,6 +66,7 @@ describe('blueprints map', () => {
       'cloud',
       'firewall-3d',
       'nas',
+      'osi',
       'patch-panel',
       'rack-server',
       'router',

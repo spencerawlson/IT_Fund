@@ -100,7 +100,8 @@ export const BLUEPRINT_POSTER = {
 
 /**
  * Visual Lab subject id -> the blueprint shown when its 3D scene cannot load.
- * 'firewall-3d' is different: its subject IS the sheet (BlueprintSubject).
+ * Since 2026-11-16 the equipment subjects and OSI render these sheets as the
+ * subject itself (BlueprintSubject) rather than as a 3D fallback.
  */
 export const FALLBACK_BLUEPRINT_FOR_SUBJECT = {
   switch: '/blueprint-network-switch-48-port.jpg',
@@ -112,5 +113,6 @@ export const FALLBACK_BLUEPRINT_FOR_SUBJECT = {
   ups: '/blueprint-ups-rackmount-2u.jpg',
   'rack-server': '/blueprint-rack-server-2u.jpg',
   'patch-panel': '/blueprint-patch-panel-48-port.jpg',
+  osi: '/blueprint-osi-model.jpg',
   cloud: '/blueprint-cloud-architecture.jpg',
 };

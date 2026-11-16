@@ -44,11 +44,11 @@ export const LAB_LABELS = {
 
 export const NOTES = {
   motherboard: 'Explore CPU, RAM, expansion slots, and power paths on a realistic board.',
-  switch: 'See how frames arrive, get MAC-learned, and fan out across ports.',
+  switch: 'Study the 48 ports, SFP+ uplinks, status LEDs and internals of a managed switch.',
   'server-rack': 'Inspect redundant power, switching, and cable management in a rack.',
   vpc: 'See how public/private subnets, gateways, and route tables shape traffic.',
   'lb-3d': 'Watch a load balancer map healthy targets and reroute around failures.',
-  osi: 'Walk through the 7 layers and how data is encapsulated end to end.',
+  osi: 'Study all 7 layers — what each does, its protocols, and how data is encapsulated end to end.',
   tcp: 'Watch the 3-way handshake, sequence numbers, ACKs, retransmits, and teardown.',
   udp: 'See datagrams fly without handshakes, including loss and out-of-order behavior.',
   'load-balancer': 'Watch L7 routing, health checks, and failover across a target pool.',

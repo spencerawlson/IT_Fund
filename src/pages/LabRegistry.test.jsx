@@ -11,6 +11,7 @@ const BLUEPRINT_SUBJECTS = [
   ['rack-server', 'Hardware'],
   ['ups', 'Hardware'],
   ['patch-panel', 'Hardware'],
+  ['osi', 'Networking'],
   ['router', 'Networking'],
   ['access-point', 'Networking'],
   ['cloud', 'Cloud & Scale'],
@@ -24,7 +25,7 @@ describe('Lab subject registry', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('lists all ten equipment subjects as blueprints in their categories', () => {
+  it('lists the ten equipment subjects and OSI as blueprints in their categories', () => {
     for (const [id, category] of BLUEPRINT_SUBJECTS) {
       const subject = SUBJECTS.find((s) => s.id === id);
       expect(subject, id).toBeDefined();
