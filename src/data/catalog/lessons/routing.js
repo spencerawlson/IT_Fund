@@ -34,6 +34,12 @@ export default {
         ],
       },
       {
+        heading: 'The box that routes',
+        body: [
+          'The router making these decisions is a 1U box: two WAN ports facing the internet or the next network, four LAN ports facing inside, and a separate management port so administration traffic never rides the data path. A console port gives serial CLI access for the day the network itself is down. Inside, a multi-core CPU and ECC RAM hold the routing table and the forwarding table the lesson describes — the control plane and the data plane are software, but they run on this hardware, and a router carrying a full internet table needs the memory to hold it.',
+        ],
+      },
+      {
         heading: 'The routing protocols at a glance',
         body: [
           'Every dynamic protocol is an answer to the same question — how do routers agree on paths without a human drawing the map — but the answers differ in algorithm, metric and scale. Colour groups the families: IGPs (Interior Gateway Protocols) run inside one organization; BGP, the lone EGP (Exterior Gateway Protocol), stitches organizations together.',

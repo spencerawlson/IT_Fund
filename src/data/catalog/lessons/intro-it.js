@@ -154,6 +154,14 @@ export default {
           'Everything connects through buses. PCIe is the high-speed expansion bus: graphics cards, network cards, and NVMe drives plug into PCIe slots for a direct, fast path to the CPU and RAM. USB, HDMI, and Ethernet are the external ports — slower, but hot-swappable and universal.',
         ],
       },
+      {
+        heading: 'From a desktop to a rack: server hardware',
+        body: [
+          'The parts above are the same parts inside a server — a rack server is the same CPU, RAM, storage and motherboard, repackaged into a flat 19-inch chassis that bolts into a cabinet. Rack space is measured in rack units: 1U is 44.45 mm high, so the 2U server on the blueprint below is 88 mm tall, 482 mm wide and 710 mm deep. A standard cabinet is 42U — about two metres of stackable slots.',
+          'Server hardware is built to be serviced without downtime. The front panel holds eight hot-swappable drive bays: a failed drive slides out and a replacement slides in while the machine keeps running, and RAID (covered in the storage lesson) protects the data while one drive is out. Two redundant power supplies and hot-swap fans do the same job for power and cooling — if one fails, the other carries the load.',
+          'The rear panel holds a dedicated management port (iLO, iDRAC or IPMI): an administrator can power the machine on or off and reach its console over the network, even when the operating system is down. That is what makes a room full of servers manageable — nobody walks to the machine. These are the boxes that run virtualization (Proxmox, VMware, Hyper-V), cloud platforms, directory services and security tools, which is why they are built for uptime first.',
+        ],
+      },
     ],
     cheatSheet: [
       ['CPU', 'The processor: fetches, decodes, and executes instructions.'],
@@ -164,6 +172,9 @@ export default {
       ['Chipset', 'Governs which CPUs, memory speeds, and cards the board supports.'],
       ['RAM', 'Volatile working memory for programs running right now.'],
       ['PCIe', 'The high-speed bus for expansion cards and NVMe drives.'],
+      ['Rack unit (U)', '44.45 mm of vertical rack space; a 2U server is 88 mm high.'],
+      ['Hot-swap', 'Replace a drive, PSU or fan without powering the machine down.'],
+      ['Management port', 'iLO / iDRAC / IPMI: remote power and console, even with the OS down.'],
     ],
   },
   'it-storage-memory': {
@@ -200,6 +211,14 @@ export default {
           'Formatting writes a file system on a volume so the operating system can store and find files — the empty index of files, folders, and free space. Quick format writes a fresh index; full format also checks every sector. A growing count of bad sectors — damaged areas that can no longer hold data — is a warning: back the drive up and replace it.',
         ],
       },
+      {
+        heading: 'Network storage and RAID',
+        body: [
+          'A NAS — network-attached storage — is a computer whose whole job is serving files over the network. The appliance on the blueprint below has eight hot-swappable drive bays, redundant power supplies and four 2.5/10 GbE network ports; it sits on the LAN and every machine maps drives to it. Typical uses: central file storage (SMB/NFS), backup and disaster recovery, storage for virtual machines (iSCSI/NFS), and holding logs and packet captures in a lab. Its M.2 NVMe slots act as cache, speeding up the data people touch most.',
+          'RAID groups disks so one disk dying does not mean data loss. RAID 0 stripes data across disks for speed, with no redundancy — lose one disk, lose everything. RAID 1 mirrors two disks, so either one alone holds the data. RAID 5 spreads parity across the disks and survives one failure (minimum three disks). RAID 6 uses dual parity and survives two failures (minimum four). RAID 10 mirrors striped pairs, combining performance and redundancy (minimum four). The exam expects you to match each level to its minimum disk count and its failure tolerance.',
+          'Because the bays are hot-swappable, a failed drive slides out and a replacement rebuilds from parity or mirror while the NAS keeps serving files. That is the point of the whole design: the storage stays up while its parts are replaced underneath it.',
+        ],
+      },
     ],
     cheatSheet: [
       ['Storage', 'Keeps data after the power goes off — SSDs and hard drives.'],
@@ -210,6 +229,10 @@ export default {
       ['Partition', 'A logical division of a disk, behaving as a separate volume.'],
       ['Formatting', 'Writing a file system on a volume so the OS can store files.'],
       ['TRIM', 'The OS telling an SSD which blocks are free, keeping it fast.'],
+      ['NAS', 'Network-attached storage: shared files over SMB/NFS.'],
+      ['RAID 5', 'Parity; survives one disk failure (min 3 disks).'],
+      ['RAID 6', 'Dual parity; survives two failures (min 4 disks).'],
+      ['RAID 10', 'Mirrored stripes; speed + redundancy (min 4 disks).'],
     ],
   },
   'it-os-boot': {
