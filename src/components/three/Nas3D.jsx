@@ -1,22 +1,15 @@
-import GltfSubject, { labModelUrl } from './GltfSubject';
+import BlueprintSubject from './BlueprintSubject';
 import { FALLBACK_BLUEPRINT_FOR_SUBJECT } from '@/data/blueprints';
 
-// 3D NAS storage appliance — Spencer's own Meshy model, slimmed for the
-// web (see GltfSubject.jsx). Replaces no procedural builder: the Lab never
-// had a NAS subject before.
+// Enterprise NAS Storage Appliance — shown as Spencer's R2C blueprint sheet rather than a 3D model
+// (2026-11-16, Spencer's call: the Visual Lab equipment subjects are
+// blueprints). The subject id stays 'nas' so existing links keep working.
 export default function Nas3D() {
   return (
-    <GltfSubject
-      modelUrl={labModelUrl('lab-nas.glb')}
-      cameraPos={[13, 9, 15]}
-      target={[0, 2.5, 0]}
-      fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT.nas}
-      label="NAS Storage Appliance"
-      desc="A NAS appliance serves shared storage over the network — hot-swap drive bays in front, network and power in back, running 24/7."
-      annotations={[
-        { text: 'Drive Bays', at: [-0.25, 0.7, 1.08] },
-        { text: 'Power Button', at: [0.72, 0.8, 1.08] },
-      ]}
+    <BlueprintSubject
+      src={FALLBACK_BLUEPRINT_FOR_SUBJECT['nas']}
+      alt="R2C enterprise NAS storage appliance blueprint: 8 hot-swap drive bays, front, rear and side views, internal cutaway, RAID levels and specifications"
+      label="Enterprise NAS Storage Appliance"
     />
   );
 }

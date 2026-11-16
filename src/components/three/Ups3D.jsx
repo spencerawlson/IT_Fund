@@ -1,23 +1,15 @@
-import GltfSubject, { labModelUrl } from './GltfSubject';
+import BlueprintSubject from './BlueprintSubject';
 import { FALLBACK_BLUEPRINT_FOR_SUBJECT } from '@/data/blueprints';
 
-// 3D rack-mounted UPS — Spencer's own Meshy model, slimmed for the web
-// (see GltfSubject.jsx). Replaces no procedural builder: the Lab never had
-// a UPS subject before.
+// Rack-Mount UPS (2U) — shown as Spencer's R2C blueprint sheet rather than a 3D model
+// (2026-11-16, Spencer's call: the Visual Lab equipment subjects are
+// blueprints). The subject id stays 'ups' so existing links keep working.
 export default function Ups3D() {
   return (
-    <GltfSubject
-      modelUrl={labModelUrl('lab-ups.glb')}
-      cameraPos={[13, 8, 15]}
-      target={[0, 1, 0]}
-      fallbackImage={FALLBACK_BLUEPRINT_FOR_SUBJECT.ups}
-      label="Rack-Mounted UPS"
-      desc="A rack-mounted UPS keeps servers running through a power cut — batteries and an inverter bridge the gap until the generator starts or systems shut down cleanly."
-      annotations={[
-        { text: 'Ventilation Grille', at: [-0.55, 0.7, 1.08] },
-        { text: 'Status Display', at: [0.3, 0.7, 1.08] },
-        { text: 'Power Button', at: [0.55, 0.7, 1.08] },
-      ]}
+    <BlueprintSubject
+      src={FALLBACK_BLUEPRINT_FOR_SUBJECT['ups']}
+      alt="R2C rack-mount UPS blueprint: labeled front and rear panels, internal cutaway, battery module, LCD display and specifications"
+      label="Rack-Mount UPS (2U)"
     />
   );
 }

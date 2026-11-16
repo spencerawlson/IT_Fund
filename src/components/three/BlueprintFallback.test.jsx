@@ -34,51 +34,41 @@ function viewerPropsFor(Component) {
   return mockModelViewer.mock.calls[0][0];
 }
 
-describe('3D subjects pass a blueprint fallback only where one fits', () => {
-  it('Switch3D falls back to the switch sheet', () => {
-    expect(viewerPropsFor(Switch3D).fallbackImage).toBe('/blueprint-network-switch-48-port.jpg');
-  });
+describe('Visual Lab equipment subjects show their blueprint sheet, not a 3D model', () => {
+  const cases = [
+    [Switch3D, '/blueprint-network-switch-48-port.jpg'],
+    [ServerRack3D, '/blueprint-network-rack-42u.jpg'],
+    [RackServer3D, '/blueprint-rack-server-2u.jpg'],
+    [Ups3D, '/blueprint-ups-rackmount-2u.jpg'],
+    [PatchPanel3D, '/blueprint-patch-panel-48-port.jpg'],
+    [Router3D, '/blueprint-network-router.jpg'],
+    [AccessPoint3D, '/blueprint-wireless-access-point.jpg'],
+    [Cloud3D, '/blueprint-cloud-architecture.jpg'],
+    [Firewall3D, '/blueprint-firewall-ngfw.jpg'],
+    [Nas3D, '/blueprint-nas-storage.jpg'],
+  ];
 
-  it('ServerRack3D falls back to the 42U rack sheet', () => {
-    expect(viewerPropsFor(ServerRack3D).fallbackImage).toBe('/blueprint-network-rack-42u.jpg');
-  });
-
-  it('the new Meshy GLB subjects fall back to their matching sheets', () => {
-    const cases = [
-      [Router3D, '/blueprint-network-router.jpg'],
-      [PatchPanel3D, '/blueprint-patch-panel-48-port.jpg'],
-      [AccessPoint3D, '/blueprint-wireless-access-point.jpg'],
-      [Nas3D, '/blueprint-nas-storage.jpg'],
-      [Ups3D, '/blueprint-ups-rackmount-2u.jpg'],
-      [RackServer3D, '/blueprint-rack-server-2u.jpg'],
-      [Cloud3D, '/blueprint-cloud-architecture.jpg'],
-    ];
-    for (const [Component, sheet] of cases) {
-      expect(viewerPropsFor(Component).fallbackImage, Component.name).toBe(sheet);
-    }
-  });
-
-  it('the other 3D subjects have no fallback image', () => {
-    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D, Osi3D]) {
-      expect(viewerPropsFor(Component).fallbackImage, Component.name).toBeUndefined();
-    }
-  });
-});
-
-describe('Firewall3D shows the blueprint sheet instead of a 3D model', () => {
-  it('renders the NGFW sheet with a full-size link and no ModelViewer', () => {
+  it.each(cases)('%o renders its sheet with a full-size link and no ModelViewer', (Component, sheet) => {
     mockModelViewer.mockClear();
     let root;
     act(() => {
-      root = TestRenderer.create(<Firewall3D />);
+      root = TestRenderer.create(<Component />);
     });
     expect(mockModelViewer).not.toHaveBeenCalled();
     const img = root.root.findByType('img');
-    expect(img.props.src).toBe('/blueprint-firewall-ngfw.jpg');
-    expect(img.props.alt).toMatch(/firewall/i);
+    expect(img.props.src).toBe(sheet);
+    expect(img.props.alt).toMatch(/blueprint/i);
     const link = root.root.findByType('a');
-    expect(link.props.href).toBe('/blueprint-firewall-ngfw.jpg');
+    expect(link.props.href).toBe(sheet);
     expect(link.props.target).toBe('_blank');
     expect(link.props.rel).toContain('noopener');
+  });
+});
+
+describe('the procedural 3D subjects stay 3D (no blueprint sheet exists)', () => {
+  it('they render ModelViewer with no fallback image', () => {
+    for (const Component of [Motherboard3D, Vpc3D, LoadBalancer3D, Osi3D]) {
+      expect(viewerPropsFor(Component).fallbackImage, Component.name).toBeUndefined();
+    }
   });
 });

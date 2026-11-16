@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { buildSwitch } from './Switch3D';
-import { buildRack } from './ServerRack3D';
+import { buildSwitch } from './switchBuilder';
+import { buildRack } from './rackBuilder';
 import { buildVpc } from './Vpc3D';
 import { buildLoadBalancer } from './LoadBalancer3D';
 import { buildMotherboard } from './Motherboard3D';
