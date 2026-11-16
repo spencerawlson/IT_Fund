@@ -222,6 +222,9 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
   // The tap wins over the background warm-up: stop warming so the explicit
   // request is the only generation running; the answer auto-plays.
   const runMode = (mode) => {
+    // Unlock audio inside this tap: the answer plays seconds later, when
+    // the tutor's text arrives, and phones block sound that a tap didn't start.
+    voice.unlock?.();
     warmUpAbortRef.current?.abort();
     autoPlayedRef.current = '';
     ask({ ...context, mode, question: presetQuestion(mode, lesson.title, level) });
@@ -234,6 +237,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
     e.preventDefault();
     const q = followUp.trim().slice(0, FOLLOW_UP_MAX);
     if (!q || tutorLoading) return;
+    voice.unlock?.();
     warmUpAbortRef.current?.abort();
     autoPlayedRef.current = '';
     setFollowUp('');
@@ -297,6 +301,7 @@ export default function CypherLessonPanel({ lesson, missionId, lessonText, furth
 
   const onPlayPause = () => {
     if (playDisabled) return;
+    voice.unlock?.();
     if (isPaused) {
       voice.resume();
       return;

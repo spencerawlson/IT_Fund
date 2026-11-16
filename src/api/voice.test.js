@@ -121,7 +121,8 @@ describe('useCypherVoice loading', () => {
   class FakeAudioContext {
     constructor() { FakeAudioContext.instances.push(this); this.destination = {}; this.state = 'running'; this.currentTime = 0; }
     resume() { return Promise.resolve(); }
-    close() { return Promise.resolve(); }
+    close() { this.closed = true; this.state = 'closed'; return Promise.resolve(); }
+    createBuffer() { return { duration: 0 }; }
     decodeAudioData() { FakeAudioContext.decodeCount += 1; return Promise.resolve({ duration: 2 }); }
     createBufferSource() { return new FakeSourceNode(); }
     createGain() { return new FakeGain(); }
@@ -177,6 +178,41 @@ describe('useCypherVoice loading', () => {
     expect(FakeSourceNode.instances[0].started).toBe(true);
   });
 
+  it('unlock() opens the audio inside the tap, and a later play() reuses that same context (phones)', async () => {
+    // Phones only let an AudioContext make sound if a tap started it. The
+    // lesson panel's answer auto-plays seconds after the tap (when the
+    // tutor's text arrives), so the tap calls unlock() and play() must
+    // reuse THAT context instead of creating a new, suspended one.
+    globalThis.fetch = vi.fn(async () => jsonResponse(audioEnvelope));
+    mount();
+    TestRenderer.act(() => { latest.unlock(); });
+    expect(FakeAudioContext.instances.length).toBe(1);
+    const unlocked = FakeAudioContext.instances[0];
+    // The silent one-sample buffer was started on it (the iOS unlock).
+    expect(FakeSourceNode.instances.some((n) => n.started)).toBe(true);
+    await TestRenderer.act(async () => { await latest.play('Hello.'); });
+    expect(FakeAudioContext.instances.length).toBe(1);
+    expect(latest.playing).toBe(true);
+    // stop() keeps the unlocked context open for the next answer...
+    TestRenderer.act(() => { latest.stop(); });
+    expect(unlocked.closed).toBeUndefined();
+    await TestRenderer.act(async () => { await latest.play('Hello.'); });
+    expect(FakeAudioContext.instances.length).toBe(1);
+    // ...and it is closed only when the component goes away.
+    TestRenderer.act(() => { root.unmount(); });
+    root = null;
+    expect(unlocked.closed).toBe(true);
+  });
+
+  it('unlock() asks iOS to treat the audio as media playback (not muted by the silent switch)', () => {
+    const audioSession = { type: 'auto' };
+    vi.stubGlobal('navigator', { audioSession });
+    mount();
+    TestRenderer.act(() => { latest.unlock(); });
+    expect(audioSession.type).toBe('playback');
+    vi.unstubAllGlobals();
+  });
+
   it('replaying the same text this visit skips the fetch and the decode entirely', async () => {
     const gate = deferred();
     globalThis.fetch = vi.fn(() => gate.promise);
@@ -194,8 +230,7 @@ describe('useCypherVoice loading', () => {
 
     // Same text again: already cached in this tab, so no second fetch to
     // /voice/speak (no ElevenLabs cost, no network) and no re-decoding —
-    // it plays straight through a fresh AudioContext (stop() tears down
-    // the previous one each play()).
+    // it plays straight through the same (still-open) AudioContext.
     await TestRenderer.act(async () => { await latest.play('Hello.'); });
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     expect(FakeAudioContext.decodeCount).toBe(1);
