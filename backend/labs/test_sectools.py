@@ -166,7 +166,7 @@ def test_dockerfiles_exist_and_follow_conventions():
 def test_wireshark_seeds_present_and_valid_pcap():
     seed = SEEDS_DIR / "tools-wireshark-001"
     assert (seed / "gen_pcap.py").is_file()
-    for pcap in ("capture.pcap", "dns-exfil.pcap"):
+    for pcap in ("capture.pcap", "dns-exfil.pcap", "flood.pcap"):
         data = (seed / pcap).read_bytes()
         magic, = struct.unpack("<I", data[:4])
         assert magic == 0xA1B2C3D4, f"{pcap}: bad pcap magic"
@@ -175,6 +175,37 @@ def test_wireshark_seeds_present_and_valid_pcap():
     assert b"password=Sup3rS3cret!" in raw  # cleartext creds seed
     assert b"YWRtaW46cGFzc3dvcmQxMjM=" in raw  # Basic auth seed
     assert b"\x05exfil\x08evil-dns\x03net\x00" in raw  # DNS exfil seed (label-encoded)
+
+
+def test_flood_pcap_is_one_syn_flood_from_one_host():
+    """The mission capture's ground truth: 120 SYN-only segments from
+    10.10.10.9 (the flood), a small ordinary baseline around them, and no
+    other host with a comparable packet count — so the learner's finding
+    (which host, what kind of flood) is unambiguous."""
+    import collections
+
+    data = (SEEDS_DIR / "tools-wireshark-001" / "flood.pcap").read_bytes()
+    off, total, srcs, syn_only = 24, 0, collections.Counter(), 0
+    while off < len(data):
+        _ts_s, _ts_u, cap, _wire = struct.unpack("<IIII", data[off:off + 16])
+        off += 16
+        frame = data[off:off + cap]
+        off += cap
+        total += 1
+        if struct.unpack("!H", frame[12:14])[0] != 0x0800:
+            continue
+        ip = frame[14:]
+        src = ".".join(str(b) for b in ip[12:16])
+        srcs[src] += 1
+        if ip[9] == 6:  # TCP: SYN-only means flags == 0x02
+            flags = struct.unpack("!H", ip[20 + 12:20 + 14])[0] & 0x1FF
+            if flags == 0x02:
+                syn_only += 1
+    assert total == 134
+    assert syn_only == 121  # 120 flood SYNs + 1 baseline SYN
+    assert srcs["10.10.10.9"] == 120
+    assert srcs.most_common(2)[1][1] <= 7  # the next host is baseline noise
+    assert set(srcs) == {"10.10.10.5", "10.10.10.1", "10.10.10.20", "10.10.10.9"}
 
 
 def test_webapp_seeds_present():

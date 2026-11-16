@@ -24,7 +24,7 @@ describe('deckLabs', () => {
 
   it('has a title for every mapped lab', () => {
     // spot check a sample of deck mappings
-    const samples = ['sec-iam', 'saa-iam', 'cysa-threat-hunting', 'awss-iam-advanced', 'cissp-d5'];
+    const samples = ['sec-iam', 'saa-iam', 'cysa-threat-hunting', 'awss-iam-advanced', 'cissp-d5', 'net-troubleshoot'];
     for (const deckId of samples) {
       for (const l of getLabsForDeck(deckId, null)) {
         expect(labTitle(l.labId), l.labId).not.toBe(l.labId);

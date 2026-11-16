@@ -62,12 +62,13 @@ class MissionDefinition:
         return list(lab.objectives)
 
     def all_objectives(self) -> list:
-        """All 9 objectives in order: the lab's 5, then the mission's 4."""
+        """Lab objectives first, then the mission-only ones, in order."""
         return self.lab_objectives() + list(self.objectives)
 
     def public_list_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
+            "lab_id": self.lab_id,
             "callsign": self.callsign,
             "lesson_id": self.lesson_id,
             "cissp_domain": self.cissp_domain,
@@ -105,6 +106,11 @@ def initial_findings() -> dict[str, Any]:
         # reads incident_report only, so a draft can never pass the document
         # objective on its own. Cleared when the report is filed.
         "incident_report_draft": {"summary": "", "root_cause": "", "fix": ""},
+        # The flood finding for op-packet-flood (report_flooder action):
+        # which host is flooding, and what kind of flood. Empty until the
+        # learner reports it; the flood_source_identified validator checks
+        # it against the ground truth in flood.pcap.
+        "flood": {"source_ip": "", "flood_type": ""},
     }
 
 
@@ -123,6 +129,8 @@ def copy_findings(findings: dict[str, Any] | None) -> dict[str, Any]:
         out["firewall"] = {"inspected": False}
     if not isinstance(out.get("incident_report"), dict):
         out["incident_report"] = {"summary": "", "root_cause": "", "fix": "", "submitted": False}
+    if not isinstance(out.get("flood"), dict):
+        out["flood"] = {"source_ip": "", "flood_type": ""}
     return out
 
 
@@ -184,9 +192,73 @@ BROKEN_SHIELD = MissionDefinition(
     ],
 )
 
+PACKET_FLOOD = MissionDefinition(
+    id="op-packet-flood",
+    lab_id="tools-wireshark-001",
+    lesson_id="net-troubleshoot",
+    cissp_domain=4,
+    version=1,
+    callsign="OPERATION PACKET FLOOD",
+    difficulty="intermediate",
+    estimated_minutes=30,
+    # Grounded in the net-troubleshoot lesson (CompTIA seven-step method):
+    # step 1 identify the problem (users report the symptoms), the lesson's
+    # own line "Wireshark (or tcpdump on the command line) captures packets
+    # for deep analysis", step 7 document. The frontend copy in
+    # src/data/missions.js must match this briefing line for line — the
+    # splitBriefing test asserts the split on both wordings.
+    briefing=[
+        "Orion Technologies — the intranet barely responds and the link is saturated. Users report the network crawling, and nobody knows why yet.",
+        "Investigate the network segment: capture the traffic with Wireshark or tcpdump, and find which host is flooding it — and what kind of flood it is.",
+        "Once you know the source, correct the configuration to stop the flood at its source and keep legitimate traffic flowing — then document the incident and file your report.",
+        "Check where you stand in the Mission Console below: run `objectives` for the list, `progress` for the count, and `hint` when you are stuck. The terminal is the only place your progress is shown — after capturing, run `check` to re-validate first.",
+    ],
+    debrief_win=(
+        "Mission complete, Agent. The flood is traced to its source, the network is breathing "
+        "again, and your report is filed. That is troubleshooting in practice — identify, "
+        "theorise, test, then document."
+    ),
+    debrief_fail=(
+        "The mission is not complete yet, Agent. Review the open objectives — the flood is "
+        "only found when you can name the host and the kind of flood it is."
+    ),
+    scoring={"per_objective": 10, "completion_bonus": 10},
+    # Same XP rule as Broken Shield: 80 on first completion, replays 0.
+    xp=80,
+    objectives=[
+        MissionObjective(
+            id="flood-source",
+            label="Name the flooding host and the flood type",
+            validator="flood_source_identified",
+            # Ground truth baked into flood.pcap — keep in sync with
+            # backend/labs/images/seeds/tools-wireshark-001/gen_pcap.py
+            # (FLOOD_SOURCE_IP / FLOOD_TYPE). A SYN flood from one internal
+            # host: unambiguous, classic, and clearest in tshark.
+            args={"source_ip": "10.10.10.9",
+                  "flood_types": ["syn flood", "tcp syn flood", "syn"]},
+            hints=[
+                "Count packets per source: tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n",
+                "Once you have the source, look at what its packets actually are — flags, ports, and whether any handshake completes",
+            ],
+        ),
+        MissionObjective(
+            id="document",
+            label="Document the incident",
+            validator="incident_documented",
+            hints=["Write what happened, the flooding host and flood type, and the fix you applied"],
+        ),
+        MissionObjective(
+            id="report",
+            label="Submit the mission report",
+            validator="incident_report_submitted",
+            hints=["File the report once every other objective passes"],
+        ),
+    ],
+)
+
 MISSION_DEFINITIONS: dict[str, MissionDefinition] = {}
 
-for _mission in (BROKEN_SHIELD,):
+for _mission in (BROKEN_SHIELD, PACKET_FLOOD):
     if _mission.id in MISSION_DEFINITIONS:
         raise ValueError(f"duplicate mission id: {_mission.id}")
     lab = get_lab(_mission.lab_id)

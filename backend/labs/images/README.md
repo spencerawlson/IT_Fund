@@ -17,7 +17,7 @@ hardened container per session). Build them on the VM that runs the backend
 | `road-to-cissp/portblast-lab` | cyber-portblast-001 | security-tools + the real `portblast` orchestrated scanner |
 | `road-to-cissp/cloudshell` | cloud-aws-audit-001 | real `aws` CLI (1.46.1) vs a local moto API (5.2.3) seeded with the misconfigured account |
 | `road-to-cissp/iac` | cloud-terraform-001 | real terraform 1.9.8 + tfsec v1.28.14, pre-seeded provider mirror (offline) |
-| `road-to-cissp/wireshark` | tools-wireshark-001 | real tshark + seeded pcaps |
+| `road-to-cissp/wireshark` | tools-wireshark-001 | real tshark + tcpdump + seeded pcaps (incl. flood.pcap for op-packet-flood) |
 | `road-to-cissp/webapp` | sec-webapp-001 | in-house vulnerable Flask app on loopback (seeded SQLi/XSS) |
 | `road-to-cissp/pentest-web` | sec-pentest-web-001 | in-house vulnerable Flask target on loopback (SQLi auth-bypass + UNION, reflected XSS, IDOR, command injection) attacked with real nmap/curl/sqlmap |
 | `road-to-cissp/gitleaks` | sec-gitleaks-001 | real gitleaks + seeded repo with committed secrets |

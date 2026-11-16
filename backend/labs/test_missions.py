@@ -217,8 +217,9 @@ def test_definitions_hide_validator_internals():
     r = client.get("/api/missions/definitions", cookies=h)
     assert r.status_code == 200
     missions = r.json()["missions"]
-    assert len(missions) == 1 and missions[0]["id"] == MISSION_ID
-    assert missions[0]["callsign"] == "OPERATION BROKEN SHIELD"
+    assert {m["id"] for m in missions} == {MISSION_ID, "op-packet-flood"}
+    shield = next(m for m in missions if m["id"] == MISSION_ID)
+    assert shield["callsign"] == "OPERATION BROKEN SHIELD"
     assert "validator" not in r.text
     r = client.get(f"/api/missions/{MISSION_ID}", cookies=h)
     assert r.status_code == 200
@@ -341,7 +342,8 @@ def test_definition_xp_is_the_single_source_of_truth():
     assert definition.xp == 80
     h = _user("xpdef1")
     missions = client.get("/api/missions/definitions", cookies=h).json()["missions"]
-    assert missions[0]["xp"] == 80
+    shield = next(m for m in missions if m["id"] == MISSION_ID)
+    assert shield["xp"] == 80
     body = client.get(f"/api/missions/{MISSION_ID}", cookies=h).json()
     assert body["xp"] == 80
 

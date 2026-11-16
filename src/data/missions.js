@@ -52,6 +52,32 @@ export const MISSIONS = {
     // findings keys that hold recovered "intel" to show on the dossier
     intelKeys: ['flags'],
   },
+  'tools-wireshark-001': {
+    callsign: 'OPERATION PACKET FLOOD',
+    // Must match backend/labs/missions.py (PACKET_FLOOD) line for line —
+    // the splitBriefing test asserts the split on both wordings.
+    brief: [
+      'Orion Technologies — the intranet barely responds and the link is saturated. Users report the network crawling, and nobody knows why yet.',
+      'Investigate the network segment: capture the traffic with Wireshark or tcpdump, and find which host is flooding it — and what kind of flood it is.',
+      'Once you know the source, correct the configuration to stop the flood at its source and keep legitimate traffic flowing — then document the incident and file your report.',
+      'Check where you stand in the Mission Console below: run `objectives` for the list, `progress` for the count, and `hint` when you are stuck. The terminal is the only place your progress is shown — after capturing, run `check` to re-validate first.',
+    ],
+    // objective id -> story beat shown in place of the plain label
+    beats: {
+      open: 'Open the flood capture',
+      protocols: 'Read the protocol mix',
+      stream: 'Follow the login stream',
+      creds: 'Find the cleartext login',
+      exfil: 'Catch the DNS exfiltration',
+      writeup: 'Write up the capture findings',
+      'flood-source': 'Name the flooding host',
+      document: 'Write up the incident',
+      report: 'File the mission report',
+    },
+    // findings keys that hold recovered "intel" to show on the dossier:
+    // the reported flooding host + flood type (attempt findings).
+    intelKeys: ['flood'],
+  },
 };
 
 /**
@@ -93,6 +119,7 @@ export function splitBriefing(brief) {
 /** Lesson id -> mission id, for the lesson-page mission invitation. */
 export const MISSION_FOR_LESSON = {
   'net-security': 'op-broken-shield',
+  'net-troubleshoot': 'op-packet-flood',
 };
 
 /** The callsign for a lab with no explicit mission: slug -> SPACED CAPS. */

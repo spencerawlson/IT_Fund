@@ -482,3 +482,50 @@ def incident_report_submitted(args, findings):
     if (findings or {}).get("incident_report", {}).get("submitted") is True:
         return True, "The mission report has been filed.", None
     return False, "File the mission report once every other objective passes.", None
+
+
+def _normalise_flood_type(value: object) -> str:
+    """One spelling for a flood type: lowercased, hyphens/underscores become
+    spaces, whitespace collapsed — so "SYN-flood", "syn flood" and "Syn Flood"
+    are the same answer."""
+    import re
+
+    text = str(value or "").strip().lower()
+    text = re.sub(r"[-_]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+@validator("flood_source_identified")
+def flood_source_identified(args, findings):
+    """Operation Packet Flood: the learner reports the flooding host and the
+    flood type (mission action `report_flooder`, stored under findings["flood"]).
+
+    The validator checks the FINDING against the ground truth baked into
+    flood.pcap (see the mission definition's args) — never which tool the
+    learner used (tshark, tcpdump, or Wireshark all read the same capture).
+    Feedback names which half is wrong without revealing the answer: the
+    learner re-reads the capture, not the validator."""
+    flood = (findings or {}).get("flood", {}) or {}
+    expected_ip = str((args or {}).get("source_ip", "")).strip()
+    expected_types = {
+        _normalise_flood_type(t) for t in ((args or {}).get("flood_types") or [])
+    }
+    reported_ip = str(flood.get("source_ip", "")).strip()
+    reported_type = _normalise_flood_type(flood.get("flood_type", ""))
+    if not reported_ip or not reported_type:
+        return False, "Report the flooding host and the flood type first.", None
+    if reported_ip != expected_ip:
+        return (
+            False,
+            f"{reported_ip} is not the flooding host — count packets per source "
+            "address and see which host owns the burst.",
+            None,
+        )
+    if expected_types and reported_type not in expected_types:
+        return (
+            False,
+            f"That is not the kind of flood in this capture — look at what the "
+            "flooding packets actually are (flags, handshake or none).",
+            None,
+        )
+    return True, f"You identified the flood: {reported_ip}, {reported_type}.", {"source_ip": reported_ip, "flood_type": reported_type}

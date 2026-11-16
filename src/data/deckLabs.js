@@ -40,6 +40,7 @@ export const LAB_TITLES = {
   'aws-iam-001': 'IAM Policies & Least Privilege',
   'sec-docker-siem-001': 'Docker + SIEM: Container Security Monitoring',
   'docker-fundamentals-001': 'Docker Fundamentals: Containers by Doing',
+  'tools-wireshark-001': 'Wireshark / tshark Packet Analysis',
   'sec-c2beacon-001': 'C2 Beacon Hunt',
   'sec-dns-typo-001': 'DNS Tunneling & Typosquatting',
   'sec-ransomware-001': 'Ransomware over SMB',
@@ -112,6 +113,7 @@ const DECK_LABS = {
   'net-troubleshoot': [
     { labId: 'net-dns-connectivity-001', blurb: 'Systematic connectivity troubleshooting.' },
     { labId: 'net-ospf-tshoot-001', blurb: 'Diagnose broken OSPF adjacencies.' },
+    { labId: 'tools-wireshark-001', blurb: 'Read the capture: find the flood and the leak with tshark.' },
   ],
   'net-ops': [{ labId: 'linux-terminal-001', blurb: 'The CLI skills every net admin needs.' }],
   'net-security': [{ labId: 'net-acl-001', blurb: 'Write ACLs that actually filter traffic.' }],

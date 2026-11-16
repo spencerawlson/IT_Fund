@@ -43,6 +43,13 @@ const mockContent = {
     examples: [],
     cheatSheet: [],
   },
+  'net-troubleshoot': {
+    overview: ['Troubleshooting is the skill employers actually pay for.'],
+    learn: [],
+    architecture: null,
+    examples: [],
+    cheatSheet: [],
+  },
   'py-basics': {
     overview: ['Python basics.'],
     learn: [],
@@ -148,5 +155,49 @@ describe('LessonView further reading', () => {
   it('a lesson with no links shows no Further reading section', async () => {
     const root = await renderLesson('net-osi');
     expect(JSON.stringify(root.toJSON())).not.toContain('Further reading');
+  });
+});
+
+describe('LessonView net-troubleshoot labs + Watch', () => {
+  it('renders both lab buttons — the DNS primary and the Wireshark extra — plus the Visual Lab button', async () => {
+    const root = await renderLesson('net-troubleshoot');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).toContain('Launch Lab: DNS & Connectivity Troubleshooting');
+    expect(json).toContain('Launch Lab: Wireshark / tshark Packet Analysis');
+    expect(json).toContain('Open in Visual Lab');
+    const links = root.root.findAllByType('a').map((n) => n.props.href);
+    expect(links).toContain('/labs/net-dns-connectivity-001');
+    expect(links).toContain('/labs/tools-wireshark-001');
+    expect(links).toContain('/lab?item=proto-dns');
+  });
+
+  it('renders the Watch section as an honest coming-soon note — no fake video, no dead link', async () => {
+    const root = await renderLesson('net-troubleshoot');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).toContain('Watch: reading a capture in Wireshark');
+    expect(json).toContain('Coming soon');
+    expect(root.root.findAllByType('video')).toHaveLength(0);
+    // ...and a lesson with no walkthrough shows no Watch section.
+    const other = await renderLesson('net-osi');
+    expect(JSON.stringify(other.toJSON())).not.toContain('Watch: reading a capture in Wireshark');
+  });
+
+  it('shows the loading state while the lesson content is still null', async () => {
+    // No flush: the content promises have not resolved yet, so the page
+    // must render its loading state without throwing.
+    let renderer;
+    act(() => {
+      renderer = TestRenderer.create(
+        <ThemeProvider>
+          <StaticRouter location="/academy/lessons/net-troubleshoot">
+            <Routes>
+              <Route path="/academy/lessons/:lessonId" element={<LessonView />} />
+            </Routes>
+          </StaticRouter>
+        </ThemeProvider>,
+      );
+    });
+    expect(JSON.stringify(renderer.toJSON())).toContain('Loading lesson');
+    await act(async () => { renderer.unmount(); });
   });
 });

@@ -111,3 +111,21 @@ export const LESSONS_FOR_LAB = Object.entries(LAB_FOR_LESSON).reduce((acc, [less
 export function labForLesson(lessonId) {
   return LAB_FOR_LESSON[lessonId];
 }
+
+/**
+ * Extra labs for a lesson, beyond the primary above. A lesson with more than
+ * one hands-on angle keeps one primary (the "Launch Lab" button's first
+ * target) and lists the rest beside it — the primary's link never moves.
+ * net-troubleshoot: DNS connectivity is the primary; the Wireshark lab is
+ * the packet-capture angle for the same troubleshooting method.
+ */
+export const EXTRA_LABS_FOR_LESSON = {
+  'net-troubleshoot': ['tools-wireshark-001'],
+};
+
+/** Every lab launchable from a lesson page: the primary first, then extras. */
+export function labsForLesson(lessonId) {
+  const primary = LAB_FOR_LESSON[lessonId];
+  if (!primary) return [];
+  return [primary, ...(EXTRA_LABS_FOR_LESSON[lessonId] || [])];
+}
