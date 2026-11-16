@@ -167,6 +167,25 @@ def test_rate_limit(monkeypatch):
     assert r.status_code == 429
 
 
+def test_cached_audio_does_not_count_against_the_rate_limit(monkeypatch):
+    """The limit guards ElevenLabs spend: replaying already-spoken audio is
+    served past the limit; new text is still limited."""
+    fake = FakeProvider()
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    monkeypatch.setenv("CYPHER_VOICE_ID", "voice-cypher-test")
+    monkeypatch.setattr(voice, "RATE_LIMIT", 2)
+    _signed_in_user("voice-test", "v@example.com")
+    body = {"character": "cypher", "text": "Hello"}
+    assert client.post("/api/voice/speak", json=body).status_code == 200  # synthesizes (1 of 2)
+    for _ in range(5):
+        r = client.post("/api/voice/speak", json=body)
+        assert r.status_code == 200 and r.json()["cached"] is True
+    assert len(fake.calls) == 1
+    assert client.post("/api/voice/speak", json={**body, "text": "Second"}).status_code == 200
+    assert client.post("/api/voice/speak", json={**body, "text": "Third"}).status_code == 429
+    assert client.post("/api/voice/speak", json=body).status_code == 200  # cached still plays
+
+
 def test_status_reports_booleans_only(monkeypatch):
     monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
     monkeypatch.delenv("CYPHER_VOICE_ID", raising=False)

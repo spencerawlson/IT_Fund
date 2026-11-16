@@ -409,7 +409,6 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
     # owner) benefit, not a free signed-in benefit — same gate as the tutor.
     if not is_subscribed(user_id):
         raise HTTPException(status_code=402, detail="Character voices require an active subscription.")
-    check_rate(f"user:{user_id}")
 
     text = body.text.strip()
     # The single chokepoint: every spoken text is stripped to clean,
@@ -431,6 +430,11 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
         # after the key is rotated or removed.
         _log_call(user_id, character, len(speakable), cached=True, error=False)
         return _audio_envelope(character, speakable, cached_audios, cached=True)
+
+    # Spend control: the per-user limit guards ElevenLabs spend, so it only
+    # counts requests that will synthesize something — a full cache hit
+    # (above) costs nothing and never touches the learner's budget.
+    check_rate(f"user:{user_id}")
 
     voice_id = voice_id_for(character)
     provider = get_provider()

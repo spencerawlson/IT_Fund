@@ -222,6 +222,24 @@ def test_chat_with_only_assistant_turns_is_400(fake):
     assert client.post("/api/ai/tutor", json=body).status_code == 400
 
 
+def test_cached_answers_do_not_count_against_the_rate_limit(fake, monkeypatch):
+    """The limit guards OpenAI spend: replaying a cached explanation costs
+    nothing, so it is served past the limit; a NEW question is still limited."""
+    monkeypatch.setattr(ai_tutor, "RATE_LIMIT", 2)
+    assert client.post("/api/ai/tutor", json=CARD).status_code == 200  # generates (1 of 2)
+    for _ in range(5):
+        r = client.post("/api/ai/tutor", json=CARD)
+        assert r.status_code == 200
+        assert events(r)[0]["cached"] is True
+    assert len(fake.calls) == 1
+    other = {**CARD, "question": "A different question?"}
+    assert client.post("/api/ai/tutor", json=other).status_code == 200  # generates (2 of 2)
+    r = client.post("/api/ai/tutor", json={**CARD, "question": "Yet another?"})
+    assert r.status_code == 429
+    # ...while the cached ones still play.
+    assert client.post("/api/ai/tutor", json=CARD).status_code == 200
+
+
 def test_level_changes_the_task_and_the_cache_key(fake):
     """A difficulty level appends its instruction to the task and makes a
     separate cache entry, so the same question at two levels is two answers."""
