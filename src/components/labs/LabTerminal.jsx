@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { labsApi } from '@/api/labs';
+import { friendlyErrorMessage } from '@/lib/errors';
 
 // A shell for a lab session. The learner types real tools (nmap, Cisco IOS config, dig,
 // ping...) and the backend answers through the LabProvider `exec` seam. Simulated labs return
@@ -67,8 +68,14 @@ const LabTerminal = forwardRef(function LabTerminal(
       }
       if (res.session && onSession) onSession(res.session);
     } catch (err) {
-      append([{ kind: 'err', text: err.message || 'Command failed.' }]);
-      if (onError) onError(err.message || 'Command failed.');
+      // A command's failure shows inline in the terminal (red line) — and
+      // only there. The raw fetch TypeError ("Failed to fetch") used to
+      // leak verbatim here and, on the mission page, up to a page-level
+      // banner that stayed after recovery (2026-11-16 live report); map
+      // it to plain language at the source.
+      const message = friendlyErrorMessage(err, { fallback: 'Command failed.' });
+      append([{ kind: 'err', text: message }]);
+      if (onError) onError(message);
     } finally {
       busyRef.current = false;
       setBusy(false);

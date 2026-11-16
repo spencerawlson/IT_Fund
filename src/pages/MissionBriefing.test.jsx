@@ -7,9 +7,10 @@ import { readFileSync } from 'node:fs';
 import MissionBriefing from './MissionBriefing';
 
 // Smoke + structure pins for the briefing screen (the split, 2026-11-16):
-// it renders its loading state server-side, it shows the incoming
-// transmission once the mission loads, and the heavy 3D code loads only
-// here — route-lazy — never on the terminal page.
+// it renders its loading state server-side, it is ONLY the 3D lab (no
+// transmission panel, no 2D view, no header — the standing structure rule,
+// 2026-11-16), and the heavy 3D code loads only here — route-lazy —
+// never on the terminal page.
 //
 // react-test-renderer needs the act environment flag in a DOM-less run.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -113,12 +114,10 @@ async function flush() {
 }
 
 describe('MissionBriefing — smoke + split pins', () => {
-  // Reduced-motion stub: MissionBrief types its text out character by
-  // character, in full at once under prefers-reduced-motion — so the
-  // stub makes the transmission assertable without waiting out the
-  // typewriter. This file runs in the node environment (no jsdom
-  // window), so the stub creates globalThis.window when it does not
-  // exist yet.
+  // Reduced-motion stub: the briefing screen reads matchMedia at mount
+  // (reduced-motion state + change listener). This file runs in the node
+  // environment (no jsdom window), so the stub creates globalThis.window
+  // when it does not exist yet.
   let savedWindow;
   beforeEach(() => {
     vi.clearAllMocks();
@@ -151,7 +150,12 @@ describe('MissionBriefing — smoke + split pins', () => {
     expect(html).toContain('Starting mission');
   });
 
-  it('shows the incoming transmission once the mission loads', async () => {
+  it('is only the 3D lab once the mission loads — no transmission panel, no 2D view, no header', async () => {
+    // Standing structure rule (2026-11-16): the briefing page is just
+    // the 3D lab with the three robots talking. The transmission text
+    // lives on the terminal page, the 2D topology is the terminal page's
+    // inspection tool, and there is no header bar at all — the caption
+    // (bottom of the screen) is the only text, plus Skip intro.
     let renderer;
     await act(async () => {
       renderer = TestRenderer.create(
@@ -164,14 +168,15 @@ describe('MissionBriefing — smoke + split pins', () => {
     });
     await flush();
     const text = textOf(renderer.root);
-    // The transmission card: the header plus the brief paragraphs the
-    // robots read aloud — the learner sees the objective as text here
-    // as well as hearing it.
-    expect(text).toContain('INCOMING TRANSMISSION');
-    expect(text).toContain('Orion Technologies');
-    expect(text).toContain('OPERATION BROKEN SHIELD');
-    // And the room card is on the page (its lazy scene is loading).
-    expect(text).toContain('SOC Room');
+    expect(text).not.toContain('INCOMING TRANSMISSION');
+    expect(text).not.toContain('Orion Technologies');
+    expect(text).not.toContain('OPERATION BROKEN SHIELD');
+    expect(text).not.toContain('SOC Room');
+    expect(text).not.toContain('2D view');
+    expect(text).not.toContain('3D view');
+    // The opening plays: the caption is up, and Skip intro is offered.
+    expect(text).toContain('Opening the SOC…');
+    expect(text).toContain('Skip intro');
 
     await act(async () => { renderer.unmount(); });
   });

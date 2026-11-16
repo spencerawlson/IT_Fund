@@ -62,13 +62,15 @@ describe('MissionSocScene', () => {
     expect(html).not.toContain('Click parts for info');
   });
 
-  it('frames the SOC as a video card — full width, taller than 16:9', () => {
+  it('frames the SOC full-screen — it fills the briefing page, no card ratio', () => {
     const html = renderToString(
       <MissionSocScene devices={SOC_DEVICES} incidentActive contained={false} />,
     );
-    // The SOC frame is the mission's centrepiece: full width of the
-    // content area, 16:10 — taller than the old 16:9 box.
-    expect(html).toContain('aspect-[16/10]');
+    // The briefing page is just this room, full screen (2026-11-16):
+    // the scene fills its parent — no 16:10 card ratio, no video ratio,
+    // no fixed terminal heights.
+    expect(html).toContain('h-full w-full');
+    expect(html).not.toContain('aspect-[16/10]');
     expect(html).not.toContain('aspect-video');
     expect(html).not.toContain('h-[26rem]');
     expect(html).not.toContain('sm:h-[30rem]');
@@ -87,7 +89,7 @@ describe('MissionSocScene', () => {
       />,
     );
     expect(typeof html).toBe('string');
-    expect(html).toContain('aspect-[16/10]');
+    expect(html).toContain('h-full w-full');
   });
 
   it('never walks Cypher, and lets the speaker talk — the tick is speaker-gated', () => {

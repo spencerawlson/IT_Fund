@@ -476,9 +476,10 @@ export default function MissionSocScene({
   }, [devices]);
 
   return (
-    // Video card: the SOC presents like a video player frame — full width
-    // of the mission content area, taller than the old 16:9 box.
-    <div className="aspect-[16/10] w-full">
+    // Full-screen frame: the briefing page is just this room — the scene
+    // fills the viewport (the camera aspect follows the container, see
+    // ModelViewer), it is no longer a 16:10 card inside a content column.
+    <div className="h-full w-full">
       <ModelViewer
         buildScene={buildScene}
         cameraPos={SOC_CAMERA_POS}

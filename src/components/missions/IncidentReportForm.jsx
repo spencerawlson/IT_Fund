@@ -81,8 +81,12 @@ export default function IncidentReportForm({
     }
   };
 
+  // The card stretches to its column's height on wide desktops (the
+  // terminal page's equal-height columns): the form fills it and the
+  // submit button anchors at the card's bottom instead of floating
+  // mid-card under a dead gap.
   return (
-    <form onSubmit={submit} className="space-y-3">
+    <form onSubmit={submit} className="flex h-full flex-col gap-3">
       <div>
         <label htmlFor="mission-report-summary" className="block text-small font-semibold text-ink-1">
           What happened?
@@ -140,10 +144,13 @@ export default function IncidentReportForm({
       {/* type="submit" is load-bearing: the shared Button hardcodes
           type="button", so without it this button never submits the form and
           the report can never be filed (the form has only textareas, so Enter
-          cannot submit it either). */}
-      <Button type="submit" size="lg" loading={busy} disabled={blocked} className="w-full">
-        File incident report
-      </Button>
+          cannot submit it either). mt-auto anchors it at the card's bottom
+          when the card is stretched (see the note on the form above). */}
+      <div className="mt-auto pt-3">
+        <Button type="submit" size="lg" loading={busy} disabled={blocked} className="w-full">
+          File incident report
+        </Button>
+      </div>
     </form>
   );
 }

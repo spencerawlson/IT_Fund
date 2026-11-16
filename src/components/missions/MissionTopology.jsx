@@ -19,12 +19,22 @@ export const MISSION_TOPOLOGY_LINKS = [
   ['R1', 'SRV'],
 ];
 
-// Segment labels shown under each link.
+// Segment labels, one per LAN (the two user-LAN links share one).
+// They are drawn under each LAN's cards — not on the links, where a
+// connecting line crossed straight through the text (2026-11-16 live
+// report). Positions: User LAN centred under the left cluster's lowest
+// card (GUEST, box bottom 258); Server LAN under the SRV card (box
+// bottom 178).
 export const MISSION_TOPOLOGY_SEGMENTS = {
   'PC1-R1': 'User LAN · 192.168.1.0/24',
   'GUEST-R1': 'User LAN · 192.168.1.0/24',
   'R1-SRV': 'Server LAN · 192.168.2.0/24',
 };
+
+const LAN_LABELS = [
+  { x: 90, y: 278, text: MISSION_TOPOLOGY_SEGMENTS['PC1-R1'] },
+  { x: 550, y: 198, text: MISSION_TOPOLOGY_SEGMENTS['R1-SRV'] },
+];
 
 /** Pure SVG layout: device id -> { x, y }. Fixed viewBox 640x300. */
 export function topologyPositions() {
@@ -65,19 +75,13 @@ export default function MissionTopology({
           const stroke = state === 'blocked' ? '#dc2626' : state === 'open' ? '#16a34a' : '#94a3b8';
           const midX = (pa.x + pb.x) / 2;
           const midY = (pa.y + pb.y) / 2;
-          // The R1–SRV segment label sat centred on the line at (435, 142),
-          // where its left end overlapped the R1 box (ends x = 372): move
-          // it — and its BLOCKED/ALLOWED state — below the line, clear of
-          // both boxes. The other two links' labels already clear theirs.
-          const isServerLink = linkKey(a, b) === 'R1-SRV';
-          const labelY = isServerLink ? midY + 42 : midY - 8;
-          const stateY = isServerLink ? midY + 60 : midY + 18;
+          // Only the path state (BLOCKED / ALLOWED) sits on a link, below
+          // it (midY + 18) — the LAN label itself moved under the cards
+          // (see LAN_LABELS below).
+          const stateY = midY + 18;
           return (
             <g key={linkKey(a, b)}>
               <line x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={stroke} strokeWidth={state ? 3 : 2} strokeDasharray={state === 'blocked' ? '6 4' : undefined} />
-              <text x={midX} y={labelY} textAnchor="middle" fontSize="11" fill="#64748b">
-                {MISSION_TOPOLOGY_SEGMENTS[linkKey(a, b)] || ''}
-              </text>
               {state && (
                 <text x={midX} y={stateY} textAnchor="middle" fontSize="11" fontWeight="700" fill={stroke}>
                   {state === 'blocked' ? 'BLOCKED' : 'ALLOWED'}
@@ -91,6 +95,10 @@ export default function MissionTopology({
           if (!p) return null;
           const inspectedState = isInspected(d.id);
           const active = activeDevice === d.id;
+          // A node with several addresses (R1: one per gateway) gets one
+          // line per address — the single line ran to the very edge of the
+          // 104-wide card and was unreadable (2026-11-16 live report).
+          const ipLines = d.ip.split(' / ');
           return (
             <g
               key={d.id}
@@ -109,13 +117,18 @@ export default function MissionTopology({
                 strokeWidth={active ? 2.5 : 1.5}
               />
               <text y={-2} textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e1b2e">{d.label}</text>
-              <text y={16} textAnchor="middle" fontSize="10" fill="#64748b">{d.ip}</text>
+              {ipLines.map((line, i) => (
+                <text key={line} y={ipLines.length > 1 ? 10 + i * 12 : 16} textAnchor="middle" fontSize="10" fill="#64748b">{line}</text>
+              ))}
               {inspectedState && (
                 <text x={44} y={-32} textAnchor="middle" fontSize="13" fill="#16a34a" aria-label="inspected">✓</text>
               )}
             </g>
           );
         })}
+        {LAN_LABELS.map(({ x, y, text }) => (
+          <text key={text} x={x} y={y} textAnchor="middle" fontSize="11" fill="#64748b">{text}</text>
+        ))}
       </svg>
       <ul className="mt-2 space-y-1 text-small text-ink-2">
         {devices.map((d) => (

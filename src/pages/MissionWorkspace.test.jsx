@@ -1,5 +1,6 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import TestRenderer, { act } from 'react-test-renderer';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter, Routes, Route } from 'react-router-dom';
 import { readFileSync } from 'node:fs';
@@ -12,6 +13,111 @@ import MissionWorkspace, {
   formatObjectives,
   isSessionGoneError,
 } from './MissionWorkspace';
+
+// react-test-renderer needs the act environment flag in a DOM-less run.
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+const { WS_OBJECTIVES, WS_MISSION_DEF, WS_SESSION, WS_START } = vi.hoisted(() => {
+  const WS_OBJECTIVES = [
+    { id: 'topology', label: 'Inspect every device in the topology', passed: false },
+    { id: 'firewall-inspect', label: 'Read the firewall rules', passed: false },
+    { id: 'deny-guest', label: 'Block the intruder', passed: false },
+    { id: 'permit-others', label: 'Keep the door open for friends', passed: false },
+    { id: 'apply', label: 'Apply the rule where it counts', passed: false },
+    { id: 'guest-blocked', label: 'Prove the guest is locked out', passed: false },
+    { id: 'trusted-allowed', label: 'Prove friends still get in', passed: false },
+    { id: 'document', label: 'Write up the incident', passed: false },
+    { id: 'report', label: 'File the mission report', passed: false },
+  ];
+  const WS_MISSION_DEF = {
+    id: 'op-broken-shield',
+    title: 'Operation Broken Shield',
+    callsign: 'OPERATION BROKEN SHIELD',
+    brief: [
+      'Orion Technologies — unauthorized traffic detected between two network segments.',
+      'Investigate the topology, inspect the firewall policies, and find the unauthorized path.',
+    ],
+    xp: 80,
+    description: 'Broken Shield',
+    lab_id: 'net-acl-001',
+    lesson_id: 'net-security',
+    objectives: WS_OBJECTIVES,
+  };
+  const WS_SESSION = {
+    id: 'sess-1', status: 'ACTIVE', validation_results: [], findings: { config: {} },
+  };
+  const WS_START = {
+    attempt: { id: 'att-1', status: 'IN_PROGRESS', findings: {} },
+    resumed: false,
+    session: WS_SESSION,
+    objectives: WS_OBJECTIVES,
+  };
+  return { WS_OBJECTIVES, WS_MISSION_DEF, WS_SESSION, WS_START };
+});
+
+vi.mock('@/api/missions', () => ({
+  missionsApi: {
+    getMission: vi.fn(async () => WS_MISSION_DEF),
+    start: vi.fn(async () => WS_START),
+    getAttempt: vi.fn(async () => ({ attempt: WS_START.attempt, session: WS_SESSION, objectives: WS_OBJECTIVES })),
+    action: vi.fn(async () => ({})),
+    complete: vi.fn(async () => ({})),
+    history: vi.fn(async () => []),
+  },
+}));
+
+vi.mock('@/api/labs', () => ({
+  labsApi: {
+    // Every lab exec fails at the network: the transient failure the live
+    // terminal page hit during the 2026-11-16 deploy window.
+    exec: vi.fn(async () => { throw new TypeError('Failed to fetch'); }),
+    validate: vi.fn(async () => WS_SESSION),
+    reset: vi.fn(async () => WS_SESSION),
+    recordFindings: vi.fn(async () => ({})),
+  },
+}));
+
+vi.mock('@/api/voice', () => ({
+  useCypherVoice: () => ({
+    play: vi.fn(async () => {}),
+    stop: vi.fn(),
+    playing: false,
+    loading: false,
+    fallback: false,
+    error: '',
+    subtitle: '',
+    muted: false,
+    setMuted: () => {},
+    volume: 0.9,
+    setVolume: () => {},
+  }),
+  __clearVoiceCache: () => {},
+}));
+
+vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
+
+vi.mock('@/components/academy/tutor/TutorAssist', async (importOriginal) => ({
+  ...(await importOriginal()),
+  useTutorEnabled: () => false,
+  useTutor: () => ({
+    text: '', loading: false, error: '', ask: vi.fn(), stop: vi.fn(),
+  }),
+  TutorText: () => null,
+  Thinking: () => null,
+}));
+
+vi.mock('@/lib/academy', async (importOriginal) => ({
+  ...(await importOriginal()),
+  recordMissionCompletion: vi.fn(),
+  recordVerifiedLabCompletion: vi.fn(),
+}));
+
+vi.mock('@/hooks/useDocumentTitle', () => ({ default: () => {} }));
+vi.mock('@/components/ThemeProvider', () => ({
+  useTheme: () => ({ theme: 'light' }),
+  ThemeProvider: ({ children }) => children,
+}));
+vi.mock('@/components/UpgradePrompt', () => ({ default: () => null }));
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -218,6 +324,42 @@ describe('MissionWorkspace', () => {
     expect(src).toContain('onDraftChange={handleDraftChange}');
     expect(src).toContain('onDraftBlur={flushDraft}');
   });
+
+  it('never promotes a terminal command failure to the page-level error banner', () => {
+    // Live defect (2026-11-16): a transient "Failed to fetch" from one
+    // terminal command left a permanent banner under the topology even
+    // though the diagram rendered fine — LabTerminal's onError fed the
+    // page error, and nothing cleared it after recovery. Command errors
+    // show inline in the terminal only; the banner is for action/load
+    // failures (doAction, reset, …), which clear on the next action.
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).not.toContain('onError={setError}');
+    expect(src).toContain('{error && (');
+    expect(src).toContain("setError(friendlyErrorMessage(e))");
+  });
+
+  it('keeps the three wide-desktop columns equal height — the firewall card must not hang lower', () => {
+    // Live report (2026-11-16): at the 1810 px three-column layout the
+    // Firewall console card hung lower than the Traffic test (left) and
+    // Incident report (right) cards. The grid stretches the columns and
+    // each column is a flex column whose LAST card grows to the tallest
+    // column's height, so the three bottom edges sit exactly level.
+    const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).toContain('items-stretch');
+    expect(src.match(/className="flex flex-col gap-4/g)).toHaveLength(3);
+    for (const heading of ['Traffic test', 'Firewall console — R1, access-list 10', 'Incident report']) {
+      // The <h2> itself (the heading also appears in comments, so match
+      // the element, not the bare string).
+      const i = src.indexOf(`<h2 className="text-heading text-ink-1">${heading}</h2>`);
+      expect(i).toBeGreaterThan(0);
+      expect(src.slice(Math.max(0, i - 200), i)).toContain('flex-1');
+    }
+    // The stretched incident card stays intentional: its form fills the
+    // card and the submit button anchors at the card's bottom.
+    const formSrc = readFileSync(join(ROOT, 'src/components/missions/IncidentReportForm.jsx'), 'utf8');
+    expect(formSrc).toContain('flex h-full flex-col gap-3');
+    expect(formSrc).toContain('mt-auto');
+  });
 });
 
 describe('formatObjectives', () => {
@@ -359,5 +501,74 @@ describe('session recovery wiring', () => {
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
     expect(src).toContain('isSessionGoneError');
     expect(src).toContain('missionsApi.start(missionId)');
+  });
+});
+
+function wsTextOf(root) {
+  return root.findAll((node) => typeof node.children?.join === 'function')
+    .flatMap((node) => node.children)
+    .filter((c) => typeof c === 'string')
+    .join(' ');
+}
+
+async function wsFlush() {
+  await act(async () => {});
+  await act(async () => {});
+  await act(async () => {});
+}
+
+describe('MissionWorkspace — failed terminal command (live 2026-11-16)', () => {
+  it('shows no page-level error banner when a command fails at the network — the topology still renders', async () => {
+    // Regression for the live report: under "View your lab topology" the
+    // page showed "Failed to fetch lab" while the diagram displayed fine.
+    // A failed command shows inline in the terminal (friendly text) and
+    // never promotes to the page banner; the topology is static SVG and
+    // renders regardless.
+    let renderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        <StaticRouter location="/missions/op-broken-shield/terminal">
+          <Routes>
+            <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
+          </Routes>
+        </StaticRouter>,
+      );
+    });
+    await wsFlush();
+    const root = renderer.root;
+    const text = wsTextOf(root);
+    expect(text).toContain('Topology — inspect the devices');
+    expect(text).toContain('Mission Console');
+
+    const input = root.findByProps({ 'aria-label': 'Terminal command' });
+    await act(async () => {
+      input.props.onChange({ target: { value: 'show access-lists' } });
+    });
+    // Two <form>s live on this page (the terminal + the incident report):
+    // submit the one that owns the terminal input.
+    const termForm = root.findAllByType('form').find(
+      (f) => f.findAllByProps({ 'aria-label': 'Terminal command' }).length > 0,
+    );
+    expect(termForm).toBeTruthy();
+    await act(async () => {
+      termForm.props.onSubmit({ preventDefault: () => {} });
+    });
+    await wsFlush();
+
+    const after = wsTextOf(renderer.root);
+    // The terminal shows the failure inline, in plain language…
+    expect(after).toContain('Could not reach the server — check your connection and try again.');
+    // …and the raw fetch text reaches the learner nowhere.
+    expect(after).not.toContain('Failed to fetch');
+    // …and no page-level danger banner exists (the banner's <p> is the
+    // only text-danger node this page renders when nothing was filed).
+    const danger = renderer.root.findAll(
+      (n) => typeof n.props?.className === 'string' && n.props.className.includes('text-danger'),
+    );
+    expect(danger).toHaveLength(0);
+    // The topology is still there.
+    expect(after).toContain('Topology — inspect the devices');
+
+    await act(async () => { renderer.unmount(); });
   });
 });
