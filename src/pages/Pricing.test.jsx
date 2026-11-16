@@ -33,4 +33,12 @@ describe('Pricing', () => {
     // The old bare wording named no lab at all.
     expect(html).not.toContain('The free tier gets two;');
   });
+
+  it('surfaces the refund + grace terms with a Terms link, so the buyer sees them where they decide (audit B-29)', () => {
+    const html = renderPage();
+    expect(html).toContain('Full refund if you ask within 14 days');
+    expect(html).toContain('support@road2cissp.com');
+    expect(html).toContain('keep full access for 7 days');
+    expect(html).toContain('href="/terms"');
+  });
 });
