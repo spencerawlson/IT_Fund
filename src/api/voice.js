@@ -42,13 +42,13 @@ function voiceDisplayName(character) {
   return String(character || 'cypher').charAt(0).toUpperCase() + String(character || 'cypher').slice(1);
 }
 
-export async function speakVoice({ character, text }) {
+export async function speakVoice({ character, text, purpose = 'lesson' }) {
   const name = voiceDisplayName(character);
   const res = await fetch(`${API_BASE}/voice/speak`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include', // session cookie: voice requires a signed-in learner
-    body: JSON.stringify({ character, text }),
+    body: JSON.stringify({ character, text, purpose }),
   });
   if (!res.ok) {
     let detail = '';
@@ -466,7 +466,10 @@ export function useCypherVoice(voiceRef) {
     }
   }, []);
 
-  const play = React.useCallback(async (text, character = 'cypher') => {
+  // purpose: 'briefing' for mission briefing turns, which may spend the
+  // ElevenLabs credits the backend keeps in reserve; everything else is
+  // 'lesson' and gets text-only once the balance reaches that reserve.
+  const play = React.useCallback(async (text, character = 'cypher', purpose = 'lesson') => {
     stop();
     // This play's generation: stop() (above) bumped the counter, and any
     // later stop() invalidates this play — checked after each await and
@@ -525,7 +528,7 @@ export function useCypherVoice(voiceRef) {
       // show "Loading voice…" instead of silence.
       setLoading(true);
       try {
-        envelope = await speakVoice({ character, text });
+        envelope = await speakVoice({ character, text, purpose });
       } catch (e) {
         setLoading(false);
         setFallback(true);

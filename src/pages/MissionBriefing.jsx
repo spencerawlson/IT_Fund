@@ -177,7 +177,7 @@ export default function MissionBriefing() {
         // else Cypher's (voiceCharsRef is null until the status fetch
         // below answers, so an early turn still reads in Cypher's).
         const voice = voiceCharsRef.current?.[turn.speaker] ? turn.speaker : 'cypher';
-        voicePlayRef.current?.(turn.text, voice);
+        voicePlayRef.current?.(turn.text, voice, 'briefing');
         // Safety cap: if the voice stalls, the opening still advances.
         // The cap lives in a ref, NOT in this effect's cleanup: the
         // effect re-runs on every voice flip, and a cleanup here cleared

@@ -37,6 +37,7 @@ import hashlib
 import logging
 import os
 import re
+import threading
 import time
 from collections import defaultdict, deque
 from concurrent.futures import ThreadPoolExecutor
@@ -87,6 +88,22 @@ MAX_CHUNK_CHARS = 1000
 #: in parallel so a 4-chunk answer waits ~25 s, not ~4 x 25 s; 3 bounds
 #: the concurrent load on the provider.
 MAX_CHUNK_WORKERS = 3
+
+#: Credits kept back for mission briefings. Lesson read-aloud (the tutor's
+#: long answers, read by Cypher) is what drains the ElevenLabs balance; on
+#: 2026-11-16 it used the whole monthly quota and Sentinel's and Patch's
+#: briefing lines, never generated before, fell silent. Once the account's
+#: remaining credits would drop below this reserve, lesson requests stop
+#: synthesizing new audio (cached audio still plays; the learner gets the
+#: text) and the reserve stays for briefings. 0 turns the reserve off.
+#: With eleven_multilingual_v2 one character costs one credit.
+LESSON_RESERVE_CREDITS = int(os.getenv("VOICE_LESSON_RESERVE_CREDITS", "3000"))
+#: How long a balance read from ElevenLabs is trusted before re-reading it.
+#: Between reads, credits spent here are subtracted locally.
+CREDITS_TTL = 300  # seconds
+
+#: What a /voice/speak request is for. Briefings are protected by the reserve.
+PURPOSES = ("lesson", "briefing")
 
 #: Character -> env var holding that character's ElevenLabs voice ID.
 CHARACTER_VOICE_ENV = {
@@ -315,6 +332,54 @@ class ElevenLabsProvider:
         resp.raise_for_status()
         return resp.content
 
+    def remaining_credits(self) -> Optional[int]:
+        """Credits left this billing period, or None when the balance can't
+        be read (the key lacks the user_read permission, network error).
+        None never blocks anything: the reserve only applies when known."""
+        import httpx
+
+        try:
+            resp = httpx.get(
+                "https://api.elevenlabs.io/v1/user/subscription",
+                headers={"xi-api-key": self.api_key},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            return max(0, int(data["character_limit"]) - int(data["character_count"]))
+        except Exception:
+            log.warning("could not read the ElevenLabs credit balance", exc_info=True)
+            return None
+
+
+# Last known balance: {"value": int | None, "at": monotonic seconds}.
+_credits: dict = {"value": None, "at": None}
+_credits_lock = threading.Lock()
+
+
+def remaining_credits(provider) -> Optional[int]:
+    """The account's remaining credits, re-read at most every CREDITS_TTL
+    seconds. Providers without a balance (test fakes) return None."""
+    reader = getattr(provider, "remaining_credits", None)
+    if reader is None:
+        return None
+    now = time.monotonic()
+    with _credits_lock:
+        fresh = _credits["at"] is not None and now - _credits["at"] < CREDITS_TTL
+        if fresh:
+            return _credits["value"]
+    value = reader()
+    with _credits_lock:
+        _credits["value"], _credits["at"] = value, now
+    return value
+
+
+def _spend_credits(chars: int) -> None:
+    """Subtract a synthesis from the cached balance until the next re-read."""
+    with _credits_lock:
+        if _credits["value"] is not None:
+            _credits["value"] = max(0, _credits["value"] - chars)
+
 
 def get_provider() -> Optional[ElevenLabsProvider]:
     """Returns a provider, or None when no key is configured. Tests replace this."""
@@ -329,6 +394,9 @@ def get_provider() -> Optional[ElevenLabsProvider]:
 class SpeakReq(BaseModel):
     character: str = Field(max_length=32)
     text: str = Field(min_length=1, max_length=MAX_TEXT_CHARS)
+    #: "briefing" for mission briefing turns (protected by the credit
+    #: reserve), "lesson" for everything else (the default).
+    purpose: str = Field(default="lesson", max_length=16)
 
 
 @router.get("/voice/status")
@@ -405,6 +473,9 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
     character = body.character.lower()
     if character not in CHARACTER_VOICE_ENV:
         raise HTTPException(status_code=400, detail=f"Unknown character: {body.character}")
+    purpose = body.purpose.lower()
+    if purpose not in PURPOSES:
+        raise HTTPException(status_code=400, detail=f"Unknown purpose: {body.purpose}")
     # Paywall: voice generation spends real money, so it is a subscriber (or
     # owner) benefit, not a free signed-in benefit — same gate as the tutor.
     if not is_subscribed(user_id):
@@ -445,6 +516,17 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
         _log_call(user_id, character, len(speakable), cached=False, error=False)
         return _fallback_envelope(character, speakable, "voice_not_configured")
 
+    # Credit reserve: lesson read-aloud may not spend the credits kept back
+    # for mission briefings. Only the chunks still to synthesize cost
+    # anything; an unknown balance (None) never blocks.
+    if purpose == "lesson" and LESSON_RESERVE_CREDITS > 0:
+        cost = sum(len(c) for c, a in zip(chunks, cached_audios) if a is None)
+        left = remaining_credits(provider)
+        if left is not None and left - cost < LESSON_RESERVE_CREDITS:
+            log.info("lesson voice held back: %s credits left, reserve %s", left, LESSON_RESERVE_CREDITS)
+            _log_call(user_id, character, len(speakable), cached=False, error=False)
+            return _fallback_envelope(character, speakable, "voice_budget_reserved")
+
     try:
         audios = _synthesize_missing(provider, voice_id, character, chunks, cached_audios)
     except Exception:
@@ -454,5 +536,6 @@ def speak(body: SpeakReq, user_id: str = Depends(require_user_id)):
         _log_call(user_id, character, len(speakable), cached=False, error=True)
         return _fallback_envelope(character, speakable, "voice_unavailable")
 
+    _spend_credits(sum(len(c) for c, a in zip(chunks, cached_audios) if a is None))
     _log_call(user_id, character, len(speakable), cached=False, error=False)
     return _audio_envelope(character, speakable, audios, cached=False)

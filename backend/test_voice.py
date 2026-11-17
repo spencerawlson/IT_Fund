@@ -383,3 +383,81 @@ def test_speak_cache_key_is_on_cleaned_text(monkeypatch):
     assert r2.status_code == 200
     assert r2.json()["cached"] is True
     assert len(fake.calls) == 1
+
+
+# ---------- credit reserve for mission briefings ----------
+
+class BalanceProvider(FakeProvider):
+    """A fake that also reports the account's remaining credits."""
+
+    def __init__(self, credits, **kw):
+        super().__init__(**kw)
+        self.credits = credits
+        self.balance_reads = 0
+
+    def remaining_credits(self):
+        self.balance_reads += 1
+        return self.credits
+
+
+@pytest.fixture
+def reserve(monkeypatch):
+    monkeypatch.setattr(voice, "LESSON_RESERVE_CREDITS", 100)
+    monkeypatch.setitem(voice._credits, "value", None)
+    monkeypatch.setitem(voice._credits, "at", None)
+    monkeypatch.setenv("CYPHER_VOICE_ID", "voice-cypher-test")
+    monkeypatch.setenv("SENTINEL_VOICE_ID", "voice-sentinel-test")
+    _signed_in_user("voice-test", "v@example.com")
+
+
+def test_lesson_voice_is_held_back_below_the_reserve(monkeypatch, reserve):
+    fake = BalanceProvider(credits=120)
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    # 30 chars would leave 90 < 100: the lesson gets text, nothing is synthesized.
+    r = client.post("/api/voice/speak", json={"character": "cypher", "text": "x" * 30})
+    assert r.status_code == 200
+    assert r.json()["fallback"] is True
+    assert r.json()["reason"] == "voice_budget_reserved"
+    assert fake.calls == []
+
+
+def test_briefing_may_spend_the_reserve(monkeypatch, reserve):
+    fake = BalanceProvider(credits=120)
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    r = client.post("/api/voice/speak", json={"character": "sentinel", "text": "x" * 30, "purpose": "briefing"})
+    assert r.json()["fallback"] is False
+    assert len(fake.calls) == 1
+    assert fake.balance_reads == 0  # briefings never wait on a balance read
+
+
+def test_lesson_voice_plays_above_the_reserve_and_spend_is_tracked(monkeypatch, reserve):
+    fake = BalanceProvider(credits=200)
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    assert client.post("/api/voice/speak", json={"character": "cypher", "text": "a" * 60}).json()["fallback"] is False
+    # 200 - 60 = 140 left locally (balance not re-read inside the TTL), so
+    # another 60 would leave 80 < 100 and is held back.
+    r = client.post("/api/voice/speak", json={"character": "cypher", "text": "b" * 60})
+    assert r.json()["reason"] == "voice_budget_reserved"
+    assert fake.balance_reads == 1
+
+
+def test_cached_lesson_audio_still_plays_below_the_reserve(monkeypatch, reserve):
+    fake = BalanceProvider(credits=10_000)
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    client.post("/api/voice/speak", json={"character": "cypher", "text": "Hello there."})
+    fake.credits = 0
+    monkeypatch.setitem(voice._credits, "at", None)  # force a re-read
+    r = client.post("/api/voice/speak", json={"character": "cypher", "text": "Hello there."})
+    assert r.json()["fallback"] is False and r.json()["cached"] is True
+
+
+def test_unknown_balance_never_blocks(monkeypatch, reserve):
+    fake = BalanceProvider(credits=None)
+    monkeypatch.setattr(voice, "get_provider", lambda: fake)
+    assert client.post("/api/voice/speak", json={"character": "cypher", "text": "Hi."}).json()["fallback"] is False
+
+
+def test_unknown_purpose_is_400(monkeypatch, reserve):
+    monkeypatch.setattr(voice, "get_provider", lambda: FakeProvider())
+    r = client.post("/api/voice/speak", json={"character": "cypher", "text": "Hi.", "purpose": "ads"})
+    assert r.status_code == 400
