@@ -63,6 +63,7 @@ vi.mock('@/api/voice', () => ({
     volume: 0.9,
     setVolume: () => {},
   }),
+  fetchVoiceStatus: vi.fn(async () => ({ configured: true, characters: { cypher: true, sentinel: false, patch: false } })),
   __clearVoiceCache: () => {},
 }));
 

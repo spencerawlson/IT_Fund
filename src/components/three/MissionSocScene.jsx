@@ -438,8 +438,9 @@ export default function MissionSocScene({
       // seated — so the pose needs no re-assertion here, and the head
       // bob (setTalkLevel, applied inside update()) still shows. Only
       // his own turns bob him: during a Sentinel or Patch turn the same
-      // voice is playing (Cypher's is the only configured voice), but
-      // he is not the speaker — he sits still while they talk.
+      // voice is playing (the speaker's own when that character's voice
+      // is configured, else Cypher's), but he is not the speaker — he
+      // sits still while they talk.
       if (cypher) {
         const voice = voiceRef?.current;
         const talking = !!voice?.talking;
@@ -453,8 +454,9 @@ export default function MissionSocScene({
       // the racks / thinking at the bench, idle between — except on their
       // own briefing turn, when they do the talking (talk clip +
       // audio-reactive head bob, driven by the same voice level Cypher
-      // uses; the voice itself is Cypher's until per-character voices
-      // are configured). play() is a no-op while the clip is already
+      // uses; the voice itself is the speaker's own when that
+      // character's voice is configured, else Cypher's — see the status
+      // fetch in MissionBriefing). play() is a no-op while the clip is already
       // current. The greeting one-shot is never cut: talking starts
       // only after the greet window, like the ambient work.
       if (sentinel) {

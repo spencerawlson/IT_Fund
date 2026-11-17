@@ -240,6 +240,40 @@ describe('useCypherVoice loading', () => {
     expect(FakeSourceNode.instances[1].started).toBe(true);
   });
 
+  it('play(text, character) speaks as that character and caches per character', async () => {
+    // The mission briefing passes each turn's speaker; the same text
+    // spoken by two robots is two cache entries (and two fetches), and
+    // replaying one reuses its own entry. play(text) with no character
+    // still speaks as Cypher (the lesson panel + debrief call it so).
+    const sentinelEnvelope = { character: 'sentinel', text: 'Hello.', audio_b64: 'QUJD', mime: 'audio/mpeg', cached: false, fallback: false, reason: null };
+    const gate = deferred();
+    const fetchMock = vi.fn(() => gate.promise);
+    globalThis.fetch = fetchMock;
+    mount();
+
+    let playPromise;
+    TestRenderer.act(() => { playPromise = latest.play('Hello.', 'sentinel'); });
+    await TestRenderer.act(async () => {
+      gate.resolve(jsonResponse(sentinelEnvelope));
+      await playPromise;
+    });
+    expect(latest.playing).toBe(true);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ character: 'sentinel', text: 'Hello.' });
+
+    // Same text as Cypher is a different cache entry: a second fetch,
+    // posted as cypher — and the no-character call still defaults so.
+    const cypherEnvelope = { ...sentinelEnvelope, character: 'cypher' };
+    globalThis.fetch = vi.fn(async () => jsonResponse(cypherEnvelope));
+    await TestRenderer.act(async () => { await latest.play('Hello.'); });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body)).toEqual({ character: 'cypher', text: 'Hello.' });
+
+    // Replaying the Sentinel turn reuses its cache: no third fetch.
+    await TestRenderer.act(async () => { await latest.play('Hello.', 'sentinel'); });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(latest.playing).toBe(true);
+  });
+
   it('clears loading and reports fallback when the envelope has no audio', async () => {
     const gate = deferred();
     globalThis.fetch = vi.fn(() => gate.promise);

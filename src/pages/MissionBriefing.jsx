@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Lock, SearchX } from 'lucide-react';
 import { EmptyState } from '@/components/ui-glass';
 import { MISSION_TOPOLOGY_DEVICES } from '@/components/missions/MissionTopology';
-import { useCypherVoice } from '@/api/voice';
+import { useCypherVoice, fetchVoiceStatus } from '@/api/voice';
 import { SHOWCASE_ORDER } from '@/components/three/socLayout';
 import { splitBriefing } from '@/data/missions';
 import { missionsApi } from '@/api/missions';
@@ -87,10 +87,14 @@ export default function MissionBriefing() {
   // existing text only (see splitBriefing in src/data/missions.js):
   // Cypher opens with the introduction, Sentinel reads the servers part,
   // Patch reads the security part, Cypher closes with the console
-  // instructions. All four turns are read by Cypher's voice: it is the
-  // only character voice configured (/api/voice/status: cypher true,
-  // sentinel/patch false), so until per-character voices exist the camera
-  // and the caption — not the voice — say who is speaking.
+  // instructions. Each turn is read in its speaker's own voice when the
+  // backend has that character's voice configured — otherwise it falls
+  // back to Cypher's voice (see voiceCharsRef below and the status fetch
+  // in the load effect), so the briefing is never silent: today only
+  // Cypher is configured, so all four turns read in his voice, and the
+  // camera and the caption — not the voice — say who is speaking. Once
+  // Sentinel/Patch voice IDs are live on the server, their turns switch
+  // to their own voices automatically, with no re-deploy.
   const briefingTurns = useMemo(
     () => splitBriefing(briefLines),
     [briefLines],
@@ -125,6 +129,13 @@ export default function MissionBriefing() {
   const showcaseStartRef = useRef(null);
   const voicePlayRef = useRef(null);
   voicePlayRef.current = cypherVoice.play;
+  // Which characters have a voice configured, from GET /voice/status
+  // (null until the status answers). A briefing turn is read in its
+  // speaker's own voice when configured, else in Cypher's — the fallback
+  // is what keeps the briefing audible today, when only Cypher is
+  // configured. A ref, not state: the phase machine reads it at turn
+  // start and no re-render is needed when the status lands.
+  const voiceCharsRef = useRef(null);
   const voiceStopRef = useRef(null);
   voiceStopRef.current = cypherVoice.stop;
   // Hand-off step once the opening is done: null | 'connecting' |
@@ -174,7 +185,11 @@ export default function MissionBriefing() {
       const turn = turns[briefingTurnIdx];
       if (briefingTurnSpokenRef.current !== briefingTurnIdx) {
         briefingTurnSpokenRef.current = briefingTurnIdx;
-        voicePlayRef.current?.(turn.text);
+        // The speaker's own voice when the backend has it configured,
+        // else Cypher's (voiceCharsRef is null until the status fetch
+        // below answers, so an early turn still reads in Cypher's).
+        const voice = voiceCharsRef.current?.[turn.speaker] ? turn.speaker : 'cypher';
+        voicePlayRef.current?.(turn.text, voice);
         // Safety cap: if the voice stalls, the opening still advances.
         // The cap lives in a ref, NOT in this effect's cleanup: the
         // effect re-runs on every voice flip, and a cleanup here cleared
@@ -265,6 +280,15 @@ export default function MissionBriefing() {
   // an intro — both go straight to the terminal page.
   useEffect(() => {
     let live = true;
+    // Per-character voices (best-effort — fetchVoiceStatus never throws):
+    // which robots have a voice configured. Fires in parallel with the
+    // mission load, and the opening's 1.8 s cinematic runs before the
+    // first turn speaks, so the status is in the ref by then. Until it
+    // answers, voiceCharsRef stays null and every turn reads in Cypher's
+    // voice — the briefing is never silent.
+    fetchVoiceStatus().then((status) => {
+      if (live) voiceCharsRef.current = status?.characters || {};
+    });
     (async () => {
       try {
         const def = await missionsApi.getMission(missionId);

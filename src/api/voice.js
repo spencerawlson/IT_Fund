@@ -33,7 +33,17 @@ export async function fetchVoiceStatus() {
  * auth/paywall/rate-limit failures; a fallback envelope is NOT an error
  * — the caller shows the subtitles.
  */
+// Display name for a character, for learner-facing messages ("Sign in to
+// hear Sentinel speak."). Unknown characters fall back to a capitalized id.
+function voiceDisplayName(character) {
+  if (character === 'cypher') return 'Cypher';
+  if (character === 'sentinel') return 'Sentinel';
+  if (character === 'patch') return 'Patch';
+  return String(character || 'cypher').charAt(0).toUpperCase() + String(character || 'cypher').slice(1);
+}
+
 export async function speakVoice({ character, text }) {
+  const name = voiceDisplayName(character);
   const res = await fetch(`${API_BASE}/voice/speak`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -53,14 +63,14 @@ export async function speakVoice({ character, text }) {
     // return a fallback envelope instead of a 500 for voice failures.
     const message =
       res.status === 401
-        ? 'Sign in to hear Cypher speak.'
+        ? `Sign in to hear ${name} speak.`
         : res.status === 402
           ? 'Character voices need an active subscription.'
           : res.status === 429
             ? 'You’ve hit the voice limit for now. Try again a bit later.'
             : (res.status === 400 || res.status === 422) && typeof detail === 'string' && detail
               ? detail
-              : 'Cypher’s voice isn’t available right now.';
+              : `${name}’s voice isn’t available right now.`;
     throw new Error(message);
   }
   return res.json();
@@ -70,7 +80,7 @@ const MUTE_KEY = 'rtc-cypher-voice-muted';
 const VOLUME_KEY = 'rtc-cypher-voice-volume';
 
 // In-tab cache of {character, text} -> {envelope, audioBuffers}, so asking
-// Cypher to repeat something already heard this visit (a lesson he already
+// a character to repeat something already heard this visit (a lesson he already
 // explained, "Hear again") never re-fetches or re-downloads: no request to
 // /voice/speak at all, and no re-decoding once the AudioBuffers are cached.
 // audioBuffers is one decoded buffer per segment, aligned with the
@@ -160,9 +170,14 @@ function readStored(key, fallback) {
  * the character talks (talk clip + audio-reactive head bob); when it stops
  * he goes back to idle. Mute + volume persist in localStorage.
  *
- * play(text) -> the spoken text (or '' on error): fetches the audio and
- * plays it through a Web Audio AudioBufferSourceNode, feeding an analyser
- * that drives voiceRef.level. Playback goes through the Web Audio API
+ * play(text, character = 'cypher') -> the spoken text (or '' on error):
+ * fetches the audio and plays it through a Web Audio AudioBufferSourceNode,
+ * feeding an analyser that drives voiceRef.level. The character is which
+ * robot's voice reads it — the lesson panel and the debrief are Cypher-only
+ * (they call play(text)), the mission briefing passes each turn's speaker
+ * ('cypher' | 'sentinel' | 'patch') and the hook falls back to Cypher's
+ * voice only when that character has none configured (the briefing decides
+ * that from GET /voice/status; the hook itself just plays what it is asked). Playback goes through the Web Audio API
  * rather than an <audio> element on purpose: the speak fetch (ElevenLabs
  * synthesis) can take ~25s, long past the window browsers honor a click's
  * gesture for a cold `audio.play()` call (Safari/iOS always reject it;
@@ -451,7 +466,7 @@ export function useCypherVoice(voiceRef) {
     }
   }, []);
 
-  const play = React.useCallback(async (text) => {
+  const play = React.useCallback(async (text, character = 'cypher') => {
     stop();
     // This play's generation: stop() (above) bumped the counter, and any
     // later stop() invalidates this play — checked after each await and
@@ -493,7 +508,7 @@ export function useCypherVoice(voiceRef) {
     } catch {
       ctx = null;
     }
-    const cacheKey = `cypher|${text}`;
+    const cacheKey = `${character}|${text}`;
     const cached = voiceCache.get(cacheKey);
     let envelope;
     // Decoded audio, one AudioBuffer per segment, aligned with the
@@ -510,11 +525,11 @@ export function useCypherVoice(voiceRef) {
       // show "Loading voice…" instead of silence.
       setLoading(true);
       try {
-        envelope = await speakVoice({ character: 'cypher', text });
+        envelope = await speakVoice({ character, text });
       } catch (e) {
         setLoading(false);
         setFallback(true);
-        setError(e.message || 'Cypher’s voice isn’t available right now.');
+        setError(e.message || `${voiceDisplayName(character)}’s voice isn’t available right now.`);
         setSubtitle('');
         return '';
       }
@@ -544,7 +559,7 @@ export function useCypherVoice(voiceRef) {
       // degrade to text, same as any other playback failure below.
       setLoading(false);
       setFallback(true);
-      setError('Cypher’s voice couldn’t play here.');
+      setError(`${voiceDisplayName(character)}’s voice couldn’t play here.`);
       setSubtitle('');
       return envelope.text;
     }
@@ -648,7 +663,7 @@ export function useCypherVoice(voiceRef) {
       stopLevelLoop();
       setPlaying(false);
       setSubtitle('');
-      setError('Cypher’s voice couldn’t play here.');
+      setError(`${voiceDisplayName(character)}’s voice couldn’t play here.`);
       return envelope.text;
     }
   }, [muted, volume, voiceRef, stop, stopLevelLoop, startLevelLoop, startProgressTick, stopProgressTick, ensureContext]);
