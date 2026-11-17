@@ -1,0 +1,62 @@
+{
+  "cy-malware": {
+    "7": [0, "A program in the Startup folder that runs every time a user logs on"],
+    "11": [0, "A firewall port opened deliberately for remote administration by IT"],
+    "14": [0, "A cluster of firewalls that share one policy and fail over together"],
+    "19": [2, "Killing a security process so that it can no longer monitor the host"],
+    "24": [0, "Macros are signed by Microsoft, so users and antivirus both trust them"],
+    "25": [0, "A pop-up window that sells a fake product directly to the visitor"],
+    "28": [1, "Always harmless once the adverts have been closed by the user"]
+  },
+  "cy-web": {
+    "1": [0, "Injecting SQL through an object's identifier in the request"],
+    "7": [2, "Metasploit, using its HTTP auxiliary modules"],
+    "8": [2, "Changing the HTTP method from GET to POST to bypass filters"],
+    "9": [0, "An unpatched zero-day vulnerability in the web framework itself"],
+    "10": [2, "Parsing HTML returned by the server in the user's browser"],
+    "11": [2, "Sets the HttpOnly and Secure flags on all cookies the page uses"]
+  },
+  "cy-pentest": {
+    "1": [0, "Testing at night versus testing during normal business hours"],
+    "3": [1, "UDP port scanning of the top ports"],
+    "4": [2, "Active is always illegal, even when the client has given permission"],
+    "5": [2, "A vulnerability scanner that only reports findings without exploiting"],
+    "6": [2, "Moving from one network segment to another through a compromised host"],
+    "7": [0, "Cracking an NTLM hash offline to recover the plaintext password first"],
+    "8": [0, "Brute-forcing Kerberos passwords online against the KDC until one works"],
+    "9": [1, "Burp Suite's Intruder module"],
+    "10": [0, "The raw output from every tool used in the test"],
+    "11": [1, "Rotating source IP addresses so the target's blocks never catch up"]
+  },
+  "cy-detection": {
+    "0": [1, "A packet capture format for storing network traffic"],
+    "1": [0, "A log format that endpoint agents use for process events"],
+    "5": [0, "Drawing detection rules as live charts on a SIEM dashboard"],
+    "6": [0, "Running Get-Help in an interactive administrator session"],
+    "7": [0, "Wi-Fi access points regularly advertising their SSID to clients"],
+    "8": [0, "Caching DNS answers on the resolver to speed up repeat lookups"],
+    "9": [0, "Installing new custom malware that has never been seen before"],
+    "10": [0, "Wait for a real attack in production and see whether it triggers"],
+    "14": [1, "Scores never change after publication, so they go stale quickly"],
+    "18": [0, "Vulnerability scans patch the hosts they test; discovery scans only list them"],
+    "19": [1, "Only after each patch is applied, to confirm the fix worked"],
+    "20": [2, "Discard the report and run a narrower scan next quarter instead"],
+    "21": [0, "A real vulnerability that the scan failed to report"],
+    "22": [1, "The window is reserved for hardware maintenance, not for software patches"],
+    "23": [0, "Analyses malware found in the logs before forwarding the rest"],
+    "24": [0, "Deleting old logs so that searches over recent data run faster"],
+    "26": [1, "Blocking the domains it shows as soon as they appear on the chart"],
+    "28": [1, "Errors per scan: failed checks reported by the vulnerability scanner"],
+    "29": [0, "The SIEM is broken and needs replacing with a better product"],
+    "33": [1, "Legal and regulatory notifications, because they have strict deadlines"],
+    "34": [0, "It acts too fast for analysts to follow what it did and why"],
+    "37": [1, "Passwords typed at login and the URLs each user visited"],
+    "38": [0, "Severity names the subsystem that logged it; facility rates urgency"],
+    "39": [0, "Encryption ciphers used to protect logs in transport"],
+    "41": [1, "They block malware at lease time by refusing unknown devices"],
+    "42": [0, "None: encrypted traffic leaves nothing useful for an investigation"],
+    "43": [0, "Real-time detection of attacks in progress on each asset"],
+    "44": [1, "Syslog from the web proxy, which records each download"],
+    "45": [1, "NetFlow samples packets, while sFlow records every single flow"]
+  }
+}

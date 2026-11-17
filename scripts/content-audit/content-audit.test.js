@@ -14,8 +14,8 @@ import { longestRates } from './longest.mjs';
 //     you fix items; never raise one to make a failing change pass.
 const BASELINE = {
   'card-answer-length-giveaway': 256,
-  'card-padded-distractor': 134,
-  'card-colon-restatement': 992,
+  'card-padded-distractor': 131,
+  'card-colon-restatement': 944,
   'lesson-no-examples': 159,
   'cross-track-duplicate-reworded': 47,
   'deck-no-sources': 15,

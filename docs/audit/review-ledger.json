@@ -260,6 +260,26 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 36
+    },
+    "cy-malware": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 29
+    },
+    "cy-web": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cy-pentest": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cy-detection": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 46
     }
   }
 }

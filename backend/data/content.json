@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:10:51.558Z",
+  "generatedAt": "2026-11-17T01:13:39.501Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -9706,9 +9706,9 @@
                   "a": "Malware that encrypts data and demands payment for the key",
                   "x": "Modern strains add double extortion: pay, or we leak it.",
                   "wrong": [
-                    "A disk wiper: malware that erases files with no way back",
-                    "A ransom note: a text file demanding payment for the stolen data",
-                    "A file locker: a tool password-protecting folders for privacy"
+                    "Malware that silently copies data out and threatens to sell it later",
+                    "A disk wiper that erases files with no recovery",
+                    "A tool that password-protects folders"
                   ]
                 },
                 {
@@ -9719,9 +9719,9 @@
                   "a": "Encrypts data AND threatens to publish stolen data",
                   "x": "Backups alone do not defeat it — exfiltration already happened.",
                   "wrong": [
-                    "Two ransom notes",
-                    "Encrypting twice",
-                    "Two payments: the victim pays once to decrypt, once to delete"
+                    "Encrypting files twice with two different keys so that one decryptor is not enough",
+                    "Leaving two ransom notes in every folder",
+                    "Demanding two payments for one decryptor"
                   ]
                 },
                 {
@@ -9732,9 +9732,9 @@
                   "a": "Malware disguised as legitimate software",
                   "x": "Named for the Trojan horse: the user installs it willingly.",
                   "wrong": [
-                    "A worm: malware that copies itself across networks unaided",
-                    "A secure OS: a hardened system is the Trojan",
-                    "A screensaver: a program decorating the screen when idle"
+                    "A worm that spreads across networks without help",
+                    "A virus that attaches itself to executables",
+                    "A rootkit that hides inside the kernel"
                   ]
                 },
                 {
@@ -9745,9 +9745,9 @@
                   "a": "Remote Access Trojan: gives full remote control of the machine",
                   "x": "Hands the attacker a keyboard inside your network.",
                   "wrong": [
-                    "A rodent: a small mammal offering full remote control",
-                    "A remote desktop: a legitimate tool for helping users from afar",
-                    "A backup agent: software copying files for recovery daily"
+                    "Remote Administration Tool: a legitimate helpdesk product for supporting users",
+                    "A worm that spreads by remote exploit",
+                    "A backup agent that copies files remotely"
                   ]
                 },
                 {
@@ -9758,9 +9758,9 @@
                   "a": "Worms self-propagate; viruses need a host file and user action",
                   "x": "WannaCry wormed via EternalBlue; viruses attach to executables.",
                   "wrong": [
-                    "Viruses self-propagate: host-file viruses spread with no user action",
-                    "Viruses spread faster: host-file viruses always outrun self-propagating worms",
-                    "Worms need email: self-propagation requires email messages to spread"
+                    "Viruses self-propagate across networks; worms need a host file and a user to run them",
+                    "Worms only spread by email attachments",
+                    "Viruses always spread faster than worms"
                   ]
                 },
                 {
@@ -9771,9 +9771,9 @@
                   "a": "Runs in memory via legitimate tools, with no disk binary",
                   "x": "PowerShell plus WMI plus registry: hard for AV, visible to EDR and Sysmon.",
                   "wrong": [
-                    "Deleted malware: removed code that still runs in memory",
-                    "A memory leak: a bug slowly eating RAM until the system crashes",
-                    "Encrypted malware: scrambled code counts as fileless malware here"
+                    "Malware that deletes its own installer but leaves a binary on disk for persistence",
+                    "Malware that stores itself encrypted on disk",
+                    "A memory leak that slowly crashes a system"
                   ]
                 },
                 {
@@ -9784,9 +9784,9 @@
                   "a": "Malware that hides by subverting the operating system itself",
                   "x": "Kernel-mode rootkits defeat most detection; rebuild from known-good media.",
                   "wrong": [
-                    "A hidden file: a document tucked away where users cannot see it",
-                    "A kernel patch: an official fix applied to the operating system core",
-                    "A user account: a login hiding inside the operating system, with a password"
+                    "A hidden file in a user's profile folder that launches malware at logon",
+                    "An official kernel patch from the vendor",
+                    "A hidden administrator account"
                   ]
                 },
                 {
@@ -9797,9 +9797,9 @@
                   "a": "A rootkit infecting the boot process, before the OS loads",
                   "x": "Survives OS reinstalls; Secure Boot mitigates it.",
                   "wrong": [
-                    "A shoe kit: footwear tools that infect the boot process, worn at boot time",
-                    "A startup program: an app launching automatically when the user logs in",
-                    "A bootloader update: a signed firmware patch applied at startup"
+                    "A program in the Startup folder that runs every time a user logs on",
+                    "A signed bootloader update from the vendor",
+                    "A malicious browser extension"
                   ]
                 },
                 {
@@ -9810,9 +9810,9 @@
                   "a": "Records keystrokes to steal credentials",
                   "x": "Hardware or software; phishing-resistant MFA blunts the payoff.",
                   "wrong": [
-                    "A keyboard: the input device that types the credentials",
-                    "A password manager: a vault typing saved logins for you",
-                    "A typing tutor: typing lessons that record keystrokes for theft"
+                    "A password manager that types saved logins into forms automatically",
+                    "A keyboard driver from an untrusted vendor",
+                    "A macro that replays typed text"
                   ]
                 },
                 {
@@ -9823,9 +9823,9 @@
                   "a": "Secretly monitors activity and exfiltrates data",
                   "x": "Often bundled with \"free\" software.",
                   "wrong": [
-                    "A telescope",
-                    "A screen recorder: a tool saving video of the desktop for training",
-                    "A fitness tracker: a device counting steps and heart rate daily"
+                    "A screen recorder installed openly for staff training",
+                    "A browser extension that blocks adverts",
+                    "A fitness app that tracks location"
                   ]
                 },
                 {
@@ -9836,9 +9836,9 @@
                   "a": "Malicious code that triggers on a condition or date",
                   "x": "The disgruntled admin’s revenge: fires when their account is deleted.",
                   "wrong": [
-                    "A cron job: a scheduled task running maintenance at midnight",
-                    "A scheduled backup: timed copies are the logic bomb",
-                    "A test script: trial code as the logic bomb"
+                    "A scheduled task that runs maintenance at midnight every night",
+                    "A scheduled backup job",
+                    "A test script left in production"
                   ]
                 },
                 {
@@ -9849,9 +9849,9 @@
                   "a": "A hidden access method bypassing normal authentication",
                   "x": "Planted by attackers — or left behind by vendors.",
                   "wrong": [
-                    "A rear entrance: the back door into the system",
-                    "A firewall port: an open filter as the backdoor",
-                    "A backup door: a spare entrance kept for recovery, the backdoor by another name"
+                    "A firewall port opened deliberately for remote administration by IT",
+                    "A spare entrance kept for disaster recovery",
+                    "A vendor's support VPN that requires MFA"
                   ]
                 },
                 {
@@ -9862,9 +9862,9 @@
                   "a": "Malware whose only job is installing the real payload",
                   "x": "Small and evasive; the payload arrives later.",
                   "wrong": [
-                    "A download link: a button fetching the program from a website",
-                    "An installer wizard: a setup program guiding users through software installs",
-                    "A file manager: software organising files while installing payloads"
+                    "A legitimate installer wizard that guides users through setup",
+                    "A browser download link",
+                    "A file manager that organises downloads"
                   ]
                 },
                 {
@@ -9875,9 +9875,9 @@
                   "a": "A downloader fetches the payload remotely; a dropper carries it embedded",
                   "x": "Both are stage-one malware.",
                   "wrong": [
-                    "Droppers fetch remotely: embedded installers must download their payload first",
-                    "Droppers need internet: installers must download their payload first",
-                    "Downloaders are safe: fetching remote payloads harms nobody ever"
+                    "A dropper fetches the payload remotely; a downloader carries it embedded",
+                    "Downloaders are harmless; only droppers are malware",
+                    "Droppers always need internet access to work"
                   ]
                 },
                 {
@@ -9888,9 +9888,9 @@
                   "a": "A network of compromised machines controlled as one",
                   "x": "Rented out for DDoS, spam, and crypto mining.",
                   "wrong": [
-                    "A fishing net",
-                    "A firewall cluster: grouped filters are the whole botnet",
-                    "A backup pool: a store of spare copies kept for recovery"
+                    "A cluster of firewalls that share one policy and fail over together",
+                    "A pool of servers behind a load balancer",
+                    "A peer-to-peer file-sharing network"
                   ]
                 },
                 {
@@ -9901,9 +9901,9 @@
                   "a": "Stealing compute to mine cryptocurrency",
                   "x": "Look for unexplained CPU spikes, especially in browsers and cloud.",
                   "wrong": [
-                    "A mining pool: a shared service splitting block rewards between miners",
-                    "Legal mining: licensed crypto mining using stolen compute power",
-                    "A botnet rental: paying to borrow infected machines by the hour"
+                    "A shared mining pool that splits block rewards fairly between members",
+                    "Hijacking a cryptocurrency wallet's private keys",
+                    "Renting infected machines by the hour"
                   ]
                 },
                 {
@@ -9914,9 +9914,9 @@
                   "a": "Destroys data with no recovery option",
                   "x": "NotPetya posed as ransomware but was a wiper.",
                   "wrong": [
-                    "A backup tool",
-                    "A disk formatter: a utility preparing a drive by erasing its file table",
-                    "Disk cleaner: a utility wiping files to free space"
+                    "A disk formatter that prepares a drive for reuse",
+                    "A cleanup tool that deletes temporary files",
+                    "Ransomware that keeps a copy of the key"
                   ]
                 },
                 {
@@ -9927,9 +9927,9 @@
                   "a": "Scareware bluffs about infection; ransomware actually encrypts",
                   "x": "Both demand payment; only one has real leverage.",
                   "wrong": [
-                    "Same thing",
-                    "Scareware encrypts",
-                    "Ransomware bluffs: encryption threats with no encryption performed"
+                    "They are the same thing",
+                    "Scareware encrypts files; ransomware only bluffs",
+                    "Ransomware bluffs; scareware steals data"
                   ]
                 },
                 {
@@ -9940,9 +9940,9 @@
                   "a": "Criminals lease ransomware kits to affiliates for a cut",
                   "x": "It lowered the skill bar for ransomware attacks.",
                   "wrong": [
-                    "Legal software: licensed kits are the ransomware-as-a-service",
-                    "A backup service: rented copies are the ransomware-as-a-service",
-                    "A cloud backup: a rented service storing copies offsite nightly"
+                    "Licensed software that tests ransomware defences for a monthly fee",
+                    "A cloud backup service that protects against ransomware",
+                    "A government programme that decrypts files for free"
                   ]
                 },
                 {
@@ -9953,9 +9953,9 @@
                   "a": "Replacing a legitimate process’s memory with malicious code",
                   "x": "svchost.exe running ransomware: EDR catches the anomaly.",
                   "wrong": [
-                    "Emptying recycle bin: clearing deleted files counts as hollowing",
-                    "A hollow file: an empty document left behind after deletion",
-                    "Deleting processes: killing tasks counts as process hollowing here"
+                    "Emptying the recycle bin to destroy evidence",
+                    "Creating an empty decoy file on disk",
+                    "Killing a security process so that it can no longer monitor the host"
                   ]
                 },
                 {
@@ -9966,9 +9966,9 @@
                   "a": "Forcing a running process to load a malicious DLL",
                   "x": "Lets malware hide inside trusted processes.",
                   "wrong": [
-                    "Installing software: setup programs count as DLL injection here",
-                    "A driver update: a signed package refreshing hardware support",
-                    "Updating drivers: driver updates count as DLL injection here"
+                    "Installing a signed driver from the hardware vendor",
+                    "Updating a shared library to a new version",
+                    "Loading a DLL from the application's own folder"
                   ]
                 },
                 {
@@ -9979,9 +9979,9 @@
                   "a": "Compresses or encrypts malware to evade signature detection",
                   "x": "High-entropy packed binaries are a static-analysis red flag.",
                   "wrong": [
-                    "A backup tool",
-                    "An antivirus update: a fresh signature file downloaded nightly",
-                    "A zip program: compression software is the packer here"
+                    "A compression tool such as zip, used to shrink installers for download",
+                    "A signature update for antivirus",
+                    "A tool for backing up binaries"
                   ]
                 },
                 {
@@ -9992,9 +9992,9 @@
                   "a": "Polymorphic re-encrypts each copy; metamorphic rewrites its own code",
                   "x": "Both defeat hash-based detection.",
                   "wrong": [
-                    "Metamorphic re-encrypts: metamorphic malware only changes its encryption wrapper",
-                    "Both are worms: polymorphic and metamorphic spread all by themselves",
-                    "Neither spreads: neither malware variant propagates anywhere by itself"
+                    "Metamorphic re-encrypts each copy; polymorphic rewrites its own code",
+                    "Both are worms that spread on their own",
+                    "Neither changes; they differ only in payload"
                   ]
                 },
                 {
@@ -10005,9 +10005,9 @@
                   "a": "Hiding payloads inside images or other innocent files",
                   "x": "A meme.png that drops a RAT.",
                   "wrong": [
-                    "A zipped folder: a compressed archive holding the payload files",
-                    "A watermark: a visible mark proving who owns an image",
-                    "A hidden folder: a directory with its name starting with a dot"
+                    "A password-protected zip archive that holds the payload files",
+                    "A visible watermark on an image",
+                    "A hidden folder whose name starts with a dot"
                   ]
                 },
                 {
@@ -10018,9 +10018,9 @@
                   "a": "Malicious Office macros arrive as trusted-looking attachments",
                   "x": "Disable macros by default; train users on the enable-content trap.",
                   "wrong": [
-                    "Macros are secure",
-                    "Nobody uses Office: no one opens Office documents anymore today",
-                    "Antivirus misses all"
+                    "Macros are signed by Microsoft, so users and antivirus both trust them",
+                    "Office is no longer widely used",
+                    "Antivirus never scans Office documents"
                   ]
                 },
                 {
@@ -10031,9 +10031,9 @@
                   "a": "Malicious ads served through legitimate ad networks",
                   "x": "Even reputable sites can serve them — hence enterprise ad blockers.",
                   "wrong": [
-                    "TV ads: broadcast commercials are the malvertising channel",
-                    "A pop-up ad: a browser window selling a product outright",
-                    "Email spam: junk mail is the malvertising channel"
+                    "A pop-up window that sells a fake product directly to the visitor",
+                    "Spam email that advertises fake products",
+                    "Television adverts for fake antivirus"
                   ]
                 },
                 {
@@ -10044,9 +10044,9 @@
                   "a": "Trojanized apps and smishing links",
                   "x": "Stick to official stores and check app permissions.",
                   "wrong": [
-                    "Bluetooth",
-                    "NFC payments: tap-to-pay is the mobile malware vector",
-                    "Phone calls: voice calls are the mobile malware vector"
+                    "Bluetooth pairing requests from nearby devices",
+                    "NFC payment terminals",
+                    "Voice calls from unknown numbers"
                   ]
                 },
                 {
@@ -10057,9 +10057,9 @@
                   "a": "Infects below the OS, surviving disk wipes",
                   "x": "Measured boot and firmware updates mitigate it.",
                   "wrong": [
-                    "A BIOS update: a vendor patch fixing the motherboard firmware",
-                    "Normal malware: ordinary code counts as firmware malware here",
-                    "A driver bug: a faulty hardware driver crashing the machine"
+                    "A vendor BIOS update that fixes a motherboard bug",
+                    "Ordinary malware stored in the Windows folder",
+                    "A faulty hardware driver"
                   ]
                 },
                 {
@@ -10070,9 +10070,9 @@
                   "a": "Both: aggressive ads, and often bundled spyware",
                   "x": "Treat unexpected adware as a compromise indicator.",
                   "wrong": [
-                    "Just a nuisance",
-                    "Always harmless",
-                    "A browser bug: a flaw in the browser itself, never installed software"
+                    "Just a nuisance, never a security concern",
+                    "Always harmless once the adverts have been closed by the user",
+                    "A browser bug, never installed software"
                   ]
                 }
               ],
@@ -10120,11 +10120,11 @@
                   "trackId": "cyber",
                   "q": "OWASP Top 10 (2021) #1 risk?",
                   "a": "Broken Access Control",
-                  "x": "e.g. changing /account?id=123 to 124 (IDOR).",
+                  "x": "e.g. changing /account?id=123 to 124 (IDOR). Broken Access Control is also #1 in the OWASP Top 10:2025, which folds SSRF into it.",
                   "wrong": [
                     "Injection",
-                    "Cryptographic Failures: crypto flaws top the OWASP Top 10",
-                    "Security Misconfiguration: misconfigurations top the OWASP Top 10 list"
+                    "Cryptographic Failures",
+                    "Security Misconfiguration"
                   ]
                 },
                 {
@@ -10135,9 +10135,9 @@
                   "a": "Accessing others’ objects by changing an identifier",
                   "x": "Insecure Direct Object Reference: enforce authorisation server-side on every request.",
                   "wrong": [
-                    "An SQL payload",
-                    "A browser bug",
-                    "A DNS attack: DNS lookups count as IDOR attacks here"
+                    "Injecting SQL through an object's identifier in the request",
+                    "A browser bug in how objects are cached",
+                    "A DNS attack on object storage"
                   ]
                 },
                 {
@@ -10148,9 +10148,9 @@
                   "a": "Making the server send requests to internal or unintended targets",
                   "x": "In cloud, SSRF can reach the metadata service (169.254.169.254). Use IMDSv2.",
                   "wrong": [
-                    "A client-side script: browser code counts as SSRF here",
-                    "A cookie theft: stolen cookies count as SSRF here",
-                    "A brute-force attack: guessing passwords counts as SSRF here"
+                    "Running script in other users' browsers through a stored payload",
+                    "Stealing session cookies through XSS",
+                    "Brute-forcing a login form"
                   ]
                 },
                 {
@@ -10158,12 +10158,12 @@
                   "deckId": "cy-web",
                   "trackId": "cyber",
                   "q": "What is path traversal?",
-                  "a": "Using../ sequences to read files outside the intended folder",
+                  "a": "Using ../ sequences to read files outside the intended folder",
                   "x": "Canonicalise paths and use allow-lists.",
                   "wrong": [
-                    "Changing URLs to other sites: new addresses read outside files",
-                    "A routing loop: looping packets count as path traversal here",
-                    "A DNS rebinding: DNS rebinding reads files outside the scope"
+                    "Changing the URL to point the browser at another site",
+                    "A routing loop between two web servers",
+                    "DNS rebinding to reach internal hosts"
                   ]
                 },
                 {
@@ -10174,9 +10174,9 @@
                   "a": "A malicious script saved on the server and served to every viewer",
                   "x": "Reflected XSS bounces off a single request; DOM XSS lives in client-side JS.",
                   "wrong": [
-                    "XSS that only affects the attacker: self-harm is stored XSS",
-                    "SQL stored procedures: database routines count as stored XSS here",
-                    "Cached images: stored pictures count as stored XSS here"
+                    "XSS reflected off a single request that only affects the user who clicks it",
+                    "A SQL stored procedure that returns script",
+                    "A cached image that contains script"
                   ]
                 },
                 {
@@ -10200,9 +10200,9 @@
                   "a": "Accepting alg \"none\" or a weak/guessable signing key",
                   "x": "Always verify the signature with a fixed, expected algorithm.",
                   "wrong": [
-                    "JWTs are always encrypted",
-                    "JWTs cannot expire: tokens last forever by their design",
-                    "JWTs use SQL: tokens query databases directly for authentication"
+                    "JWTs are always encrypted, so their claims cannot be read",
+                    "JWTs cannot carry an expiry time",
+                    "JWTs query the database directly"
                   ]
                 },
                 {
@@ -10213,9 +10213,9 @@
                   "a": "Burp Suite (Community edition is free)",
                   "x": "OWASP ZAP is a fully free alternative.",
                   "wrong": [
-                    "Wireshark: the packet capture tool analysts inspect traffic with",
-                    "Nikto: the scanner that lists web server misconfigurations",
-                    "Metasploit: the framework that runs ready-made exploits"
+                    "Wireshark",
+                    "Nikto",
+                    "Metasploit, using its HTTP auxiliary modules"
                   ]
                 },
                 {
@@ -10226,9 +10226,9 @@
                   "a": "Getting the server to run OS commands via input",
                   "x": "e.g. a ping form accepting \"8.8.8.8; cat /etc/passwd\".",
                   "wrong": [
-                    "Injecting SQL: database queries run server OS commands directly",
-                    "Injecting CSS: injected stylesheets run server OS commands directly",
-                    "Changing HTTP verbs: swapping methods runs OS commands directly"
+                    "Getting the database to run injected SQL",
+                    "Injecting CSS to change how a page looks",
+                    "Changing the HTTP method from GET to POST to bypass filters"
                   ]
                 },
                 {
@@ -10239,9 +10239,9 @@
                   "a": "Insecure defaults, verbose errors, open storage, unneeded features",
                   "x": "Harden with baselines and automated config scanning.",
                   "wrong": [
-                    "A zero-day",
-                    "Weak passwords only",
-                    "A missing patch: one flaw the scanner flags"
+                    "An unpatched zero-day vulnerability in the web framework itself",
+                    "Weak user passwords only",
+                    "A single missing patch"
                   ]
                 },
                 {
@@ -10252,9 +10252,9 @@
                   "a": "Turning untrusted serialized data into objects, enabling code execution",
                   "x": "Grouped under Software and Data Integrity Failures in 2021.",
                   "wrong": [
-                    "Encrypting JSON: scrambled objects count as insecure deserialization here",
-                    "Compressing files: shrinking data counts as insecure deserialization here",
-                    "Parsing HTML: reading markup counts as insecure deserialization here"
+                    "Encrypting JSON before sending it",
+                    "Compressing request bodies",
+                    "Parsing HTML returned by the server in the user's browser"
                   ]
                 },
                 {
@@ -10265,9 +10265,9 @@
                   "a": "Restricts which sources a page may load scripts and content from",
                   "x": "A strong defence-in-depth control against XSS.",
                   "wrong": [
-                    "Encrypts pages: the CSP scrambles every page’s content fully",
-                    "Blocks SQL injection: CSP stops all database attacks cold",
-                    "Sets cookie flags: CSP marks all cookies HttpOnly itself"
+                    "Encrypts the page content in transit",
+                    "Blocks SQL injection in form fields",
+                    "Sets the HttpOnly and Secure flags on all cookies the page uses"
                   ]
                 }
               ],
@@ -10307,9 +10307,9 @@
                   "a": "Written authorisation and an agreed scope",
                   "x": "Without it, testing can be a crime.",
                   "wrong": [
-                    "A firewall bypass",
-                    "A target list: a list of systems to attack, nothing signed",
-                    "A signed NDA only: secrecy alone authorises the whole pentest"
+                    "A signed non-disclosure agreement between the tester and client",
+                    "A list of target IP addresses",
+                    "A firewall rule allowing the tester in"
                   ]
                 },
                 {
@@ -10320,9 +10320,9 @@
                   "a": "No prior knowledge vs full knowledge of the target",
                   "x": "Grey box is partial knowledge, e.g. a user account.",
                   "wrong": [
-                    "Night vs day testing: the hour is the box distinction",
-                    "Manual vs automated: hands versus scripts are the box distinction",
-                    "Internal vs external only: origin alone is the box distinction"
+                    "Testing at night versus testing during normal business hours",
+                    "Manual testing vs automated scanning",
+                    "Internal vs external testing"
                   ]
                 },
                 {
@@ -10335,7 +10335,7 @@
                   "wrong": [
                     "A UDP scan",
                     "A ping sweep",
-                    "An OS scan only: fingerprinting alone is the SYN scan"
+                    "An operating system fingerprint"
                   ]
                 },
                 {
@@ -10346,9 +10346,9 @@
                   "a": "Service and version detection",
                   "x": "-O detects the OS; -A enables OS, version, scripts, and traceroute.",
                   "wrong": [
-                    "Stealth mode",
-                    "UDP scanning: datagram probes count as version detection here",
-                    "Verbose output only: extra text counts as version detection here"
+                    "Stealth scanning",
+                    "UDP port scanning of the top ports",
+                    "Verbose output"
                   ]
                 },
                 {
@@ -10359,9 +10359,9 @@
                   "a": "Gathering info without touching the target vs interacting directly",
                   "x": "WHOIS and OSINT are passive; port scanning is active.",
                   "wrong": [
-                    "Same thing",
-                    "Passive uses exploits: quiet recon runs attack code too",
-                    "Active is always illegal: touching targets always breaks the law, even with permission"
+                    "They are the same thing",
+                    "Passive uses exploits; active uses OSINT",
+                    "Active is always illegal, even when the client has given permission"
                   ]
                 },
                 {
@@ -10372,9 +10372,9 @@
                   "a": "An exploitation framework with modules and payloads",
                   "x": "msfconsole; Meterpreter is its advanced payload.",
                   "wrong": [
-                    "A packet sniffer: capture software is the Metasploit framework here",
-                    "A password manager: a vault is the Metasploit framework",
-                    "A vulnerability scanner: a tool listing known flaws on a target"
+                    "A packet sniffer",
+                    "A password manager",
+                    "A vulnerability scanner that only reports findings without exploiting"
                   ]
                 },
                 {
@@ -10385,9 +10385,9 @@
                   "a": "Gaining higher permissions than initially obtained",
                   "x": "Vertical = user to admin; horizontal = one user to another.",
                   "wrong": [
-                    "Getting initial access",
-                    "A password reset: an admin issuing a fresh login for a user",
-                    "A root shell: a command prompt running as the system administrator"
+                    "Gaining the first foothold on a target",
+                    "An admin resetting a user's password",
+                    "Moving from one network segment to another through a compromised host"
                   ]
                 },
                 {
@@ -10398,9 +10398,9 @@
                   "a": "Authenticating with an NTLM hash instead of the password",
                   "x": "Mitigate with LAPS, Credential Guard, and tiered admin models.",
                   "wrong": [
-                    "Cracking a hash offline: reversing hashes counts as pass-the-hash",
-                    "Phishing for a hash: deceptive mail counts as pass-the-hash",
-                    "Hashing a password twice: double digests count as pass-the-hash"
+                    "Cracking an NTLM hash offline to recover the plaintext password first",
+                    "Phishing a user for their password hash",
+                    "Hashing a password twice before storing it"
                   ]
                 },
                 {
@@ -10411,9 +10411,9 @@
                   "a": "Requesting service tickets for SPN accounts and cracking them offline",
                   "x": "Use long random service account passwords or gMSAs.",
                   "wrong": [
-                    "Brute-forcing Kerberos online: guessing passwords against the KDC live",
-                    "A DoS on the KDC: flooding the key server",
-                    "Stealing a TGT from memory: memory theft counts as Kerberoasting"
+                    "Brute-forcing Kerberos passwords online against the KDC until one works",
+                    "Flooding the KDC with ticket requests",
+                    "Stealing a TGT from memory and reusing it"
                   ]
                 },
                 {
@@ -10424,9 +10424,9 @@
                   "a": "Hashcat (or John the Ripper)",
                   "x": "GPU-accelerated; strong, slow hashes resist it.",
                   "wrong": [
-                    "Wireshark: the sniffer that captures hashes off the wire",
-                    "Burp Suite: the proxy for testing web applications",
-                    "Nessus: the scanner that reports known vulnerabilities"
+                    "Wireshark",
+                    "Burp Suite's Intruder module",
+                    "Nessus"
                   ]
                 },
                 {
@@ -10437,9 +10437,9 @@
                   "a": "An executive summary in business terms",
                   "x": "Then findings with severity, evidence, and remediation steps.",
                   "wrong": [
-                    "Raw tool output",
-                    "The exploit code",
-                    "Tester biographies: tester CVs open the pentest report first"
+                    "The raw output from every tool used in the test",
+                    "The exploit code used",
+                    "The testers' biographies"
                   ]
                 },
                 {
@@ -10450,9 +10450,9 @@
                   "a": "Using a compromised host to reach otherwise inaccessible networks",
                   "x": "e.g. SSH tunnels, SOCKS proxies, or chisel.",
                   "wrong": [
-                    "Changing tools: swapping software counts as pivoting through hosts",
-                    "Rotating IPs: changing addresses counts as pivoting through hosts",
-                    "Re-scanning: scanning the network again counts as pivoting"
+                    "Switching to a different exploitation tool",
+                    "Rotating source IP addresses so the target's blocks never catch up",
+                    "Re-scanning the network after an exploit"
                   ]
                 }
               ],
@@ -10511,8 +10511,8 @@
                   "x": "Convert one Sigma rule to Splunk, Elastic, Sentinel queries.",
                   "wrong": [
                     "A malware family",
-                    "A packet format: the layout of bytes on the wire",
-                    "A vulnerability scanner: a tool probing systems for known flaws"
+                    "A packet capture format for storing network traffic",
+                    "A vulnerability scanner"
                   ]
                 },
                 {
@@ -10523,9 +10523,9 @@
                   "a": "Pattern-matching rules for identifying malware files",
                   "x": "Strings plus conditions, used by scanners and sandboxes.",
                   "wrong": [
-                    "A log format",
-                    "A hash list: known-bad file digests matched exactly, nothing more",
-                    "A threat intel feed"
+                    "A log format that endpoint agents use for process events",
+                    "A list of known-bad file hashes",
+                    "A threat intelligence feed"
                   ]
                 },
                 {
@@ -10536,9 +10536,9 @@
                   "a": "Open-source network IDS/IPS engines",
                   "x": "Signature rules matched against network traffic.",
                   "wrong": [
-                    "Log shippers: forwarders that move logs to the SIEM",
-                    "Password crackers: tools breaking password hashes into plaintext secrets",
-                    "EDR agents: endpoint software watching processes for malicious behaviour"
+                    "Log shippers that forward events to a SIEM",
+                    "Password-cracking tools",
+                    "Endpoint detection and response agents"
                   ]
                 },
                 {
@@ -10549,9 +10549,9 @@
                   "a": "Matches known-bad patterns vs flags deviations from a baseline",
                   "x": "Signatures miss novel attacks; anomalies are noisier.",
                   "wrong": [
-                    "Anomaly matches signatures: deviations are spotted from known-bad patterns",
-                    "Anomaly uses hashes: deviations spotted by comparing file digests",
-                    "Signature uses ML only: known-bad matching needs machine learning alone"
+                    "Anomaly matches known-bad patterns; signature flags deviations",
+                    "Anomaly detection compares file hashes",
+                    "Signature detection relies on machine learning only"
                   ]
                 },
                 {
@@ -10562,9 +10562,9 @@
                   "a": "To measure coverage and find gaps",
                   "x": "A heat map shows where you are blind.",
                   "wrong": [
-                    "Required by law: mapping detections is a legal mandate here",
-                    "To speed up SIEM: mapping makes the SIEM run faster",
-                    "To replace testing: mapping detections substitutes for testing them outright"
+                    "It is required by law",
+                    "It makes SIEM searches run faster",
+                    "It replaces testing the detections"
                   ]
                 },
                 {
@@ -10575,9 +10575,9 @@
                   "a": "Rules stored in git, tested, reviewed, and deployed via CI",
                   "x": "Brings software engineering discipline to SOC content.",
                   "wrong": [
-                    "A SIEM dashboard: detection rules drawn as charts on screen",
-                    "Scripting attacks: writing exploits counts as detection as code",
-                    "Obfuscating rules: hiding detection logic from everyone who reads it"
+                    "Drawing detection rules as live charts on a SIEM dashboard",
+                    "Writing exploits to test the SOC",
+                    "Hiding detection logic from attackers"
                   ]
                 },
                 {
@@ -10588,9 +10588,9 @@
                   "a": "Encoded commands (-enc) and download cradles",
                   "x": "Enable Script Block Logging (Event ID 4104).",
                   "wrong": [
-                    "Using Get-Help",
-                    "Running as a normal user: plain accounts as the PowerShell abuse sign",
-                    "Signed scripts: trusted code as the PowerShell abuse sign"
+                    "Running Get-Help in an interactive administrator session",
+                    "Running PowerShell as a normal user",
+                    "Running scripts signed by the company"
                   ]
                 },
                 {
@@ -10601,9 +10601,9 @@
                   "a": "Regular, periodic callbacks from malware to C2",
                   "x": "Detect by consistent intervals and sizes in network data.",
                   "wrong": [
-                    "Wi-Fi advertising",
-                    "A DNS cache flush",
-                    "Normal patching: routine updates as the beaconing signal here"
+                    "Wi-Fi access points regularly advertising their SSID to clients",
+                    "A DNS cache being flushed",
+                    "Normal patching traffic"
                   ]
                 },
                 {
@@ -10614,9 +10614,9 @@
                   "a": "Hiding data or C2 inside DNS queries and responses",
                   "x": "Look for long, high-entropy subdomains and high query volume.",
                   "wrong": [
-                    "Caching DNS: storing lookups to answer faster next time",
-                    "DNSSEC: signed DNS answers that prove names are genuine",
-                    "Split-horizon DNS: separate answers are the tunnelling method"
+                    "Caching DNS answers on the resolver to speed up repeat lookups",
+                    "Signing DNS answers with DNSSEC",
+                    "Split-horizon DNS for internal names"
                   ]
                 },
                 {
@@ -10627,9 +10627,9 @@
                   "a": "Abusing built-in OS tools like certutil or rundll32",
                   "x": "Hard to block; detect unusual parent/child processes and arguments.",
                   "wrong": [
-                    "Installing new malware: dropping fresh payloads onto the host",
-                    "Using cloud services: remote apps as living off the land",
-                    "Physical intrusion: breaking in through doors rather than software"
+                    "Installing new custom malware that has never been seen before",
+                    "Using cloud services for C2",
+                    "Breaking in physically"
                   ]
                 },
                 {
@@ -10640,9 +10640,9 @@
                   "a": "Safely emulate the technique and confirm it fires",
                   "x": "Test in a lab or controlled environment first.",
                   "wrong": [
-                    "Wait for a real attack",
-                    "Read the rule twice: re-reading the logic proves the detection works",
-                    "Ask the vendor: the supplier confirms the detection works"
+                    "Wait for a real attack in production and see whether it triggers",
+                    "Review the rule logic twice",
+                    "Ask the vendor to confirm it works"
                   ]
                 },
                 {
@@ -10653,9 +10653,9 @@
                   "a": "Credentialed logs in for deep findings; non-credentialed sees only network-exposed issues",
                   "x": "Credentialed finds missing patches and misconfigs but needs safe credentials and maintenance windows.",
                   "wrong": [
-                    "Credentialed is faster: logged-in scans always run more quickly",
-                    "Non-credentialed is deeper: unauthenticated scans see the most detail",
-                    "Same results: credentialed and plain scans find identical flaws always"
+                    "Credentialed scans are faster; non-credentialed are deeper",
+                    "Non-credentialed scans see more detail",
+                    "Both produce identical results"
                   ]
                 },
                 {
@@ -10666,9 +10666,9 @@
                   "a": "Severity: 9.8 is Critical, 4.2 is Medium",
                   "x": "Ranges: None 0, Low 0.1–3.9, Medium 4.0–6.9, High 7.0–8.9, Critical 9.0–10.",
                   "wrong": [
-                    "Exploitability only",
-                    "Patch availability",
-                    "The vendor name: the number names the product vendor"
+                    "Only how easy the flaw is to exploit",
+                    "Whether a patch is available",
+                    "How many systems are affected"
                   ]
                 },
                 {
@@ -10679,9 +10679,9 @@
                   "a": "Remotely exploitable, low complexity, no privileges or user interaction needed",
                   "x": "Worst-case exploitability — prioritise these first.",
                   "wrong": [
-                    "A local physical attack: hands-on access to the machine itself",
-                    "A phishing-only flaw: a bug exploitable only through email",
-                    "A denial of service: a flaw that only crashes the target system"
+                    "A local attack that needs physical access",
+                    "A flaw exploitable only through phishing",
+                    "A denial-of-service flaw only"
                   ]
                 },
                 {
@@ -10692,9 +10692,9 @@
                   "a": "It ignores your environment: asset value, exposure, active exploitation",
                   "x": "Combine CVSS with EPSS, KEV, and asset criticality.",
                   "wrong": [
-                    "CVSS is always wrong",
-                    "Scores never change",
-                    "It only covers Linux: CVSS scores flaws on Linux alone"
+                    "CVSS scores are usually wrong",
+                    "Scores never change after publication, so they go stale quickly",
+                    "CVSS covers only Linux"
                   ]
                 },
                 {
@@ -10705,9 +10705,9 @@
                   "a": "Reduce exposure another way",
                   "x": "Document it as a risk acceptance or exception with an expiry date.",
                   "wrong": [
-                    "Publish the flaw: announce it so attackers know it is known",
-                    "Unplug everything: disconnect every host until a patch lands",
-                    "Wait silently: do nothing while the flaw stays open"
+                    "Publish the flaw so everyone knows",
+                    "Disconnect every host until a patch lands",
+                    "Do nothing until the vendor patches"
                   ]
                 },
                 {
@@ -10718,9 +10718,9 @@
                   "a": "Formal, time-boxed acceptance of risk",
                   "x": "Review exceptions on schedule or they become permanent holes.",
                   "wrong": [
-                    "A patched system",
-                    "A false positive: a benign finding flagged as a vulnerability",
-                    "A waived scan: skipping the scanner for systems that keep failing"
+                    "A system that has been patched",
+                    "A finding confirmed as a false positive",
+                    "A scan skipped because it keeps failing"
                   ]
                 },
                 {
@@ -10731,9 +10731,9 @@
                   "a": "Agents report continuously even off-network; network scans need the host reachable",
                   "x": "Agents suit laptops and cloud; network scans suit static infrastructure.",
                   "wrong": [
-                    "Agents are less accurate: installed scanners miss more findings than network scans",
-                    "Network scans need agents: remote scans require installed software",
-                    "Same coverage: agent and network scans see identical hosts always"
+                    "Agents miss more than network scans, because they only see the local host's packages",
+                    "Network scans need agents installed",
+                    "Both see exactly the same hosts"
                   ]
                 },
                 {
@@ -10744,9 +10744,9 @@
                   "a": "Discovery finds live hosts and ports; vuln scan tests them for weaknesses",
                   "x": "Run discovery first so nothing hides from the vuln scan.",
                   "wrong": [
-                    "Vuln scans patch hosts: testing a flaw also fixes it",
-                    "Discovery patches systems: finding live hosts also fixes their flaws",
-                    "Vuln scans find hosts: testing flaws also discovers live systems"
+                    "Vulnerability scans patch the hosts they test; discovery scans only list them",
+                    "Discovery scans fix the flaws they find",
+                    "Vulnerability scans are what find live hosts"
                   ]
                 },
                 {
@@ -10757,9 +10757,9 @@
                   "a": "Continuously or regularly — and after any significant change",
                   "x": "Plus an authenticated scan cadence for deep coverage.",
                   "wrong": [
-                    "Once a year: a single annual scan is enough",
-                    "After each patch: scans run only once a fix is applied",
-                    "Never on production: scans must avoid live systems entirely"
+                    "Once a year before the audit",
+                    "Only after each patch is applied, to confirm the fix worked",
+                    "Never on production systems"
                   ]
                 },
                 {
@@ -10770,9 +10770,9 @@
                   "a": "Prioritise by exploitability and asset criticality",
                   "x": "KEV plus internet-facing plus crown jewels beats a giant spreadsheet.",
                   "wrong": [
-                    "Fix the oldest first: age alone decides which findings matter",
-                    "Rescan immediately: run the scan again before prioritising anything",
-                    "Delete the report: discard all 10,000 findings unread"
+                    "Fix the oldest findings first",
+                    "Rescan before doing anything else",
+                    "Discard the report and run a narrower scan next quarter instead"
                   ]
                 },
                 {
@@ -10783,9 +10783,9 @@
                   "a": "A flagged issue that is not exploitable",
                   "x": "Validate before assigning work to engineers.",
                   "wrong": [
-                    "A missed vulnerability",
-                    "A true positive: a real flaw the scanner correctly flagged",
-                    "A duplicate finding: the same flaw reported twice by the scanner"
+                    "A real vulnerability that the scan failed to report",
+                    "A real flaw correctly flagged",
+                    "The same flaw reported twice"
                   ]
                 },
                 {
@@ -10796,9 +10796,9 @@
                   "a": "To apply patches at agreed times that minimise business disruption",
                   "x": "Emergency patches can break the window for critical issues.",
                   "wrong": [
-                    "Patches are optional: fixes can be skipped with no risk",
-                    "Windows are for cleaning: maintenance time is for janitors",
-                    "To avoid testing: maintenance windows exist to skip patch validation"
+                    "Patches are optional outside the window",
+                    "The window is reserved for hardware maintenance, not for software patches",
+                    "Windows let teams skip patch testing"
                   ]
                 },
                 {
@@ -10809,9 +10809,9 @@
                   "a": "Gathers logs at the source and ships them to the SIEM",
                   "x": "Splunk Universal Forwarder, Winlogbeat, syslog-ng.",
                   "wrong": [
-                    "Analyses malware: dissects malicious code to understand its behaviour",
-                    "Blocks attackers: the forwarder stops intrusions at the source",
-                    "Encrypts disks: a write blocker scrambles the media"
+                    "Analyses malware found in the logs before forwarding the rest",
+                    "Blocks attackers at the log source",
+                    "Encrypts disks on the source host"
                   ]
                 },
                 {
@@ -10822,9 +10822,9 @@
                   "a": "Converting varied log formats into one common schema",
                   "x": "Lets one query search firewall, Windows, and proxy logs together.",
                   "wrong": [
-                    "Deleting old logs: erasing history instead of parsing it",
-                    "Compressing logs: shrinking log files to save disk space",
-                    "Encrypting logs: scrambling log files so nobody reads them"
+                    "Deleting old logs so that searches over recent data run faster",
+                    "Compressing logs to save space",
+                    "Encrypting logs for storage"
                   ]
                 },
                 {
@@ -10835,9 +10835,9 @@
                   "a": "Correlation joins events: failed logins THEN a success from a new country",
                   "x": "Single-event alerts are noisier; correlation adds context.",
                   "wrong": [
-                    "Simple alerts join events: single alerts link logins across countries",
-                    "Correlation is slower: joined rules always run behind simple alerts",
-                    "Alerts need no rules: detections work with no logic defined"
+                    "Simple alerts join events; correlation rules fire on one event",
+                    "Correlation rules always run slower",
+                    "Alerts need no rules to fire"
                   ]
                 },
                 {
@@ -10848,9 +10848,9 @@
                   "a": "At-a-glance operational awareness, refreshed continuously",
                   "x": "Reports are point-in-time and distributable; dashboards are live.",
                   "wrong": [
-                    "Storing evidence",
-                    "Blocking threats: stopping attacks is what dashboards do, not just watching them",
-                    "Patching systems: fixing flaws is what a dashboard does"
+                    "Storing evidence for court",
+                    "Blocking the domains it shows as soon as they appear on the chart",
+                    "Patching the affected systems"
                   ]
                 },
                 {
@@ -10861,9 +10861,9 @@
                   "a": "Hot: fast, recent, searchable; warm: slower, months; cold: cheap compliance archive",
                   "x": "Match retention tiers to investigation vs legal needs.",
                   "wrong": [
-                    "Server temperature: hardware heat decides hot versus cold storage",
-                    "CPU load levels: how busy processors are, hot to cold",
-                    "Network speeds: link rates deciding hot versus cold storage"
+                    "Storage tiers named after server temperature",
+                    "Tiers based on CPU load",
+                    "Tiers based on network speed"
                   ]
                 },
                 {
@@ -10874,9 +10874,9 @@
                   "a": "Events per second: the SIEM ingestion rate you are licensed for",
                   "x": "Exceeding EPS drops logs — tune noisy sources.",
                   "wrong": [
-                    "Emails per second: messages arriving at the mail server each second",
-                    "Errors per scan: the failures counted during each vulnerability scan",
-                    "Endpoints per subnet: the hosts counted within each network segment"
+                    "Emails per second at the mail gateway",
+                    "Errors per scan: failed checks reported by the vulnerability scanner",
+                    "Endpoints per subnet"
                   ]
                 },
                 {
@@ -10887,9 +10887,9 @@
                   "a": "The rule lacks filtering — high noise, low fidelity",
                   "x": "Add allow-lists, thresholds, or correlation before disabling it.",
                   "wrong": [
-                    "The SIEM is broken",
-                    "Attackers are everywhere: every alert signals a real intruder",
-                    "Logs are missing: no events exist for the rule to fire on"
+                    "The SIEM is broken and needs replacing with a better product",
+                    "Attackers are active everywhere",
+                    "Logs are missing from the source"
                   ]
                 },
                 {
@@ -10900,9 +10900,9 @@
                   "a": "Hunts and audits catch what detections missed",
                   "x": "Scheduled log review is a detective control.",
                   "wrong": [
-                    "Logs are fun: reviewing them is entertainment, not work",
-                    "Alerts are perfect: every detection fires, none is missed",
-                    "Compliance forbids it: reviewing logs without alerts breaks rules"
+                    "It is required by every compliance framework daily",
+                    "Alerts never miss anything",
+                    "Compliance forbids reviewing logs without an alert"
                   ]
                 },
                 {
@@ -10910,12 +10910,12 @@
                   "deckId": "cy-detection",
                   "trackId": "cyber",
                   "q": "Playbook vs runbook?",
-                  "a": "Playbook: automated SOAR workflow; runbook: human step-by-step procedure",
-                  "x": "Automate the playbook once the runbook is proven in practice.",
+                  "a": "Playbook: the broader response plan for an incident type, often automated in SOAR; runbook: the detailed step-by-step procedure",
+                  "x": "Definitions vary between vendors; the common SOC usage is that playbooks orchestrate the response and call runbooks for individual tasks.",
                   "wrong": [
-                    "Same thing",
-                    "Playbooks are paper: printed sheets with no automation at all",
-                    "Runbooks are code: human procedures written as executable scripts, run the runbook, skip the playbook"
+                    "They are the same document",
+                    "Playbooks are printed checklists; runbooks are executable code",
+                    "A runbook is the broader plan for an incident type, automated in SOAR; a playbook is a single manual step within it"
                   ]
                 },
                 {
@@ -10926,9 +10926,9 @@
                   "a": "Extract URLs/attachments, detonate in sandbox, search mailboxes, quarantine, block IoCs",
                   "x": "Minutes instead of hours, executed consistently every time.",
                   "wrong": [
-                    "Delete all email: wipe every mailbox to stop the phish",
-                    "Call the user: phone the recipient about the phish",
-                    "Reply to the sender: ask the phisher to confirm the link is safe"
+                    "Delete the email from every mailbox and close the ticket",
+                    "Call the recipient to ask whether they clicked",
+                    "Reply to the sender to confirm the link is safe"
                   ]
                 },
                 {
@@ -10939,9 +10939,9 @@
                   "a": "High-volume, low-judgment tasks: enrichment, ticketing, IoC blocking",
                   "x": "Keep humans on novel, ambiguous decisions.",
                   "wrong": [
-                    "Incident command",
-                    "Legal notifications: telling counsel first is the automation priority",
-                    "Firing staff: replace analysts with automation entirely"
+                    "Incident command decisions",
+                    "Legal and regulatory notifications, because they have strict deadlines",
+                    "Replacing analysts entirely"
                   ]
                 },
                 {
@@ -10952,9 +10952,9 @@
                   "a": "A false positive can cause an outage, e.g. isolating the CEO’s laptop",
                   "x": "Start human-in-the-loop, then graduate to automation.",
                   "wrong": [
-                    "It is too fast: auto-remediation fixes things before analysts wake up",
-                    "It costs more: auto-remediation is dearer than manual review",
-                    "No risk exists: auto-remediation can never cause any harm"
+                    "It acts too fast for analysts to follow what it did and why",
+                    "It costs more than manual review",
+                    "There is no risk once rules are tested"
                   ]
                 },
                 {
@@ -10965,9 +10965,9 @@
                   "a": "Orchestration connects tools into one workflow; automation executes the steps",
                   "x": "Orchestration is the conductor, automation the musicians.",
                   "wrong": [
-                    "Automation connects tools: executing steps is what joins tools into workflows",
-                    "Orchestration is manual: humans connect every tool by hand",
-                    "Automation needs no tools: playbooks run with nothing connected at all, orchestration is a myth"
+                    "Automation connects tools; orchestration executes steps",
+                    "Orchestration is done manually by analysts",
+                    "Automation needs no connected tools"
                   ]
                 },
                 {
@@ -10978,9 +10978,9 @@
                   "a": "PCAP for deep payload forensics; NetFlow for who-talked-to-whom at scale",
                   "x": "PCAP is heavy; NetFlow is metadata and cheap to keep long-term.",
                   "wrong": [
-                    "PCAP is always better: packet capture beats NetFlow every time",
-                    "NetFlow has payloads: every flow record carries packet contents, PCAP is redundant",
-                    "Neither is useful: PCAP and NetFlow both tell you nothing"
+                    "PCAP is always better, so NetFlow is unnecessary",
+                    "NetFlow includes payloads, so PCAP is redundant",
+                    "Neither helps an investigation"
                   ]
                 },
                 {
@@ -10991,9 +10991,9 @@
                   "a": "Flow metadata: source/dest IP and ports, protocol, bytes, timestamps",
                   "x": "No payload — but enough to spot beaconing and exfiltration.",
                   "wrong": [
-                    "Email contents: the message body itself, with no headers attached, headers are never recorded",
-                    "Passwords: shared secrets typed at login, and nothing more",
-                    "Screenshots: screen images are what flow records hold"
+                    "Email contents",
+                    "Passwords typed at login and the URLs each user visited",
+                    "Screenshots of endpoints"
                   ]
                 },
                 {
@@ -11004,9 +11004,9 @@
                   "a": "Facility names the subsystem; severity rates urgency 0–7",
                   "x": "Facility examples: auth, kern, mail. Severity: 0 Emergency … 7 Debug. authpriv with failed logins is a hunting staple.",
                   "wrong": [
-                    "Severity names the subsystem: severity says which part of the system logged it",
-                    "Facility is the port: the network socket syslog uses",
-                    "Severity is the IP: the address rates syslog urgency"
+                    "Severity names the subsystem that logged it; facility rates urgency",
+                    "Facility is the network port syslog uses",
+                    "Severity is the sender's IP address"
                   ]
                 },
                 {
@@ -11017,9 +11017,9 @@
                   "a": "Common structured log formats that normalise parsing",
                   "x": "Structured logs beat regex on raw text.",
                   "wrong": [
-                    "Encryption ciphers",
-                    "Firewall brands: the vendor names behind structured log formats",
-                    "Malware families: the named strains behind structured log formats"
+                    "Encryption ciphers used to protect logs in transport",
+                    "Firewall vendor brands",
+                    "Malware families"
                   ]
                 },
                 {
@@ -11030,9 +11030,9 @@
                   "a": "Tap: passive copy, no loss; SPAN: switch mirror, may drop under load",
                   "x": "Taps for critical links and forensics.",
                   "wrong": [
-                    "SPAN is passive: switch mirrors copy traffic without loss",
-                    "Taps need agents: passive taps require installed software to work",
-                    "Same reliability: taps and SPAN ports lose equally little"
+                    "SPAN is passive and lossless; a tap may drop",
+                    "Taps need agents installed on hosts",
+                    "Both are equally reliable"
                   ]
                 },
                 {
@@ -11043,9 +11043,9 @@
                   "a": "They map IP-to-hostname/MAC at a point in time",
                   "x": "Without them, \"which laptop was 10.4.2.88?\" is unanswerable.",
                   "wrong": [
-                    "They show passwords: DHCP logs reveal user credentials in leases",
-                    "They block malware: DHCP logs stop infections directly at lease",
-                    "They speed Wi-Fi: DHCP logs make the wireless faster"
+                    "They contain users' passwords",
+                    "They block malware at lease time by refusing unknown devices",
+                    "They improve Wi-Fi performance"
                   ]
                 },
                 {
@@ -11056,9 +11056,9 @@
                   "a": "TLS hides content but not endpoints, timing, sizes, and certificates",
                   "x": "JA3 fingerprints and flow sizes still betray C2.",
                   "wrong": [
-                    "None at all: encrypted payloads leave metadata worth nothing",
-                    "It decrypts traffic: metadata reveals the encrypted payload contents directly",
-                    "It replaces warrants: metadata alone justifies lawful access to content"
+                    "None: encrypted traffic leaves nothing useful for an investigation",
+                    "Metadata can decrypt the payload",
+                    "Metadata replaces the need for a warrant"
                   ]
                 },
                 {
@@ -11069,9 +11069,9 @@
                   "a": "Known weaknesses per asset to contextualise incoming alerts",
                   "x": "An alert on a host with a matching critical CVE jumps the queue.",
                   "wrong": [
-                    "Real-time attacks",
-                    "User passwords: credentials as the scan output for the SOC",
-                    "Email contents: the message body itself, with no headers attached"
+                    "Real-time detection of attacks in progress on each asset",
+                    "User passwords",
+                    "Email contents"
                   ]
                 },
                 {
@@ -11082,9 +11082,9 @@
                   "a": "Full packet capture, if retained for that window",
                   "x": "Otherwise proxy logs plus endpoint telemetry are the fallback.",
                   "wrong": [
-                    "NetFlow: flow records carrying full packet payloads inside",
-                    "Syslog: text logs carrying the exact download bytes inside",
-                    "DNS logs: name lookups recorded by the local resolver service"
+                    "NetFlow records",
+                    "Syslog from the web proxy, which records each download",
+                    "DNS query logs"
                   ]
                 },
                 {
@@ -11092,12 +11092,12 @@
                   "deckId": "cy-detection",
                   "trackId": "cyber",
                   "q": "sFlow vs NetFlow?",
-                  "a": "sFlow samples packets; NetFlow records every flow",
-                  "x": "sFlow is lighter on high-speed links; NetFlow is more complete.",
+                  "a": "sFlow samples packets; NetFlow normally records every flow",
+                  "x": "sFlow is lighter on high-speed links; unsampled NetFlow is more complete (sampled NetFlow also exists).",
                   "wrong": [
-                    "sFlow is encrypted: sampled packets travel scrambled to the collector",
-                    "NetFlow is sampled: only one flow in N is recorded",
-                    "sFlow records every flow: sampling still captures each packet that passes"
+                    "sFlow is encrypted; NetFlow is not",
+                    "NetFlow samples packets, while sFlow records each flow in full",
+                    "They are the same protocol"
                   ]
                 }
               ],
