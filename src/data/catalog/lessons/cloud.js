@@ -159,6 +159,13 @@ export default {
           'A landing zone is a pre-configured, secure multi-account baseline (accounts, logging, guardrails, networking) that every new workload starts from. AWS Control Tower and Azure Landing Zones build one for you.',
         ],
       },
+      {
+        heading: 'Support plans and when to use them',
+        body: [
+          'Cloud providers sell tiers of support. Basic support covers billing questions and documentation. Developer-level plans add technical help during business hours. Business or production plans add 24/7 support with faster response times for production-down cases. Enterprise plans add a named technical account manager and architecture reviews. Pricing is usually a percentage of the monthly bill with a minimum, so check the provider\'s current page.',
+          'Choose the tier by the impact of an outage, not by habit. A hobby project needs only basic support; a revenue-producing system usually justifies a plan with a one-hour response for production-impacting cases. Whatever the tier, use the provider\'s health dashboard and service quotas page first: many \'outages\' turn out to be a quota limit that you can raise yourself.',
+        ],
+      },
     ],
     examples: [
       {

@@ -129,6 +129,13 @@ export default {
           'Hygiene is a practice, not a project. The IAM credential report shows password and key age, MFA status, and last-used timestamps for every user — the fastest way to find stale keys and MFA-less accounts. IAM Access Analyzer goes further, identifying unused permissions and generating policies from actual CloudTrail activity so you can rightsize toward least privilege based on observed behaviour instead of guesses. And before deploying any policy change, run it through the IAM Policy Simulator: it answers "would this allow or deny that action" without touching production.',
         ],
       },
+      {
+        heading: 'Finding and removing excess permissions',
+        body: [
+          'Least privilege is usually reached by trimming, not by perfect first drafts. IAM Access Analyzer reports resources shared outside your account or organisation and can generate a policy based on the actions a role actually used in CloudTrail. The IAM console\'s last-accessed information shows services a user or role has not touched in months, which are candidates for removal.',
+          'Credential hygiene matters as much as policies. Use the credential report to find access keys older than 90 days, keys never used, and users without MFA. Replace human IAM users with IAM Identity Center and federated sign-in, replace application keys with roles, and keep the root user locked away with hardware MFA and no access keys.',
+        ],
+      },
     ],
     examples: [
       {
@@ -172,6 +179,13 @@ export default {
           'Amazon Detective compresses the investigation itself: it pre-correlates GuardDuty findings into timelines of IP, user, and role activity across accounts, so analysts pivot from one finding to the full blast radius in clicks rather than hours of manual log correlation.',
           'None of this matters if the team has never run it. A game day — a simulated incident exercising detection, runbooks, and coordination — is how you discover that the automation role lacks a permission or that nobody knows the forensic account\'s break-glass procedure at 2 AM. The exam expects preparation over improvisation, and it expects the automation itself to follow least privilege: an over-permissive remediation role is both an attack path and an outage waiting to happen. Scope Lambda and SSM response roles to exactly the actions the playbook needs.',
           'After the dust settles, AWS Artifact provides the compliance reports — SOC 2, ISO 27001 — that regulators and customers will demand as breach-notification evidence. Have access to them before you need them; "we are still gathering our audit reports" is not a sentence you want to say during an incident.',
+        ],
+      },
+      {
+        heading: 'Preparing before an incident',
+        body: [
+          'Most of incident response happens before the incident. Set up a dedicated security tooling account with cross-account roles that responders can assume, with permissions agreed in advance. Pre-create an isolation security group with no rules in each VPC, enable CloudTrail organisation-wide, GuardDuty and Security Hub in every Region, and store logs in a separate archive account.',
+          'Write and test playbooks for the likely cases: exposed access keys, a compromised EC2 instance, a public S3 bucket, and suspicious root activity. Run game days in a sandbox account so responders practise taking snapshots, isolating instances and revoking sessions. AWS\'s own incident response guide recommends exactly this preparation, because a team learning the console during an incident loses hours.',
         ],
       },
     ],
@@ -219,6 +233,13 @@ export default {
           'Cost discipline belongs in the design. Data events are high-volume and billed per event, so enable them on sensitive resources rather than everywhere. Management events already cover the control plane for free. And when retention is about audit rather than investigation, Glacier-class storage behind lifecycle policies beats any queryable store on price.',
         ],
       },
+      {
+        heading: 'Querying logs with Athena and CloudWatch Logs Insights',
+        body: [
+          'Raw logs are only useful if you can ask them questions quickly. CloudWatch Logs Insights runs queries over log groups, for example counting `AccessDenied` errors by principal over the last hour. For long-term CloudTrail and VPC Flow Log data stored in S3, Amazon Athena queries the files in place with SQL, and partitioning by date and Region keeps queries fast and cheap.',
+          'A typical investigation query finds every API call made with a suspicious access key: filter CloudTrail on `userIdentity.accessKeyId`, sort by `eventTime`, and list `eventName`, `sourceIPAddress` and `errorCode`. Saving such queries as part of a playbook means the next responder starts with answers, not syntax.',
+        ],
+      },
     ],
     examples: [
       {
@@ -262,6 +283,13 @@ export default {
           'DDoS protection comes in two tiers. Shield Standard is automatic and free for CloudFront, Route 53, ALBs, and Elastic IPs. Shield Advanced adds cost but brings 24/7 access to the DDoS Response Team, deeper Layer 7 mitigations, and cost protection against scaling charges during an attack. The exam\'s pairing is deliberate: WAF rate-based rules handle application-layer request floods per IP, while Shield Advanced handles volumetric Layers 3, 4, and 7 attacks. Use both; neither replaces the other.',
           'For centralised, stateful inspection across VPCs — Suricata-compatible rules at Layers 3 through 7 — AWS Network Firewall sits as a transit inspection point, typically in a dedicated security VPC in a hub-and-spoke Transit Gateway design. AWS Firewall Manager then deploys WAF rules, Shield Advanced protections, and security group policies centrally across the organization.',
           'Finally, the strongest network boundary in AWS is not a firewall rule but an account. Separate accounts per environment, governed by SCPs with separate CloudTrail and Config, eliminate entire classes of accidental cross-environment privilege paths. Combined with account-level S3 Block Public Access — which guarantees no bucket can become public via ACLs or policies regardless of individual settings — the multi-account structure is the foundation every other network control rests on.',
+        ],
+      },
+      {
+        heading: 'Inspecting and logging traffic',
+        body: [
+          'Filtering decides what is allowed; inspection and logging tell you what actually happened. VPC Flow Logs record accepted and rejected connections at the network-interface level (addresses, ports, bytes, action) but not packet contents. AWS Network Firewall adds stateful inspection, domain filtering and Suricata-compatible IPS rules for traffic between VPCs or to the internet.',
+          'Traffic Mirroring copies packets from an instance\'s network interface to a monitoring appliance when full packet capture is needed. Route 53 Resolver DNS Firewall blocks lookups of known malicious domains, which stops a lot of command-and-control traffic before a connection is made. Send these logs to the central archive and alert on rejects from internal sources, which often indicate scanning.',
         ],
       },
     ],
@@ -309,6 +337,13 @@ export default {
           'Two more advanced controls round out the picture. The aws:PrincipalOrgID condition key restricts a resource policy to callers inside your organization — a data-perimeter guardrail that blocks exfiltration to external accounts even when credentials leak. And KMS is the service where key policies rule: cross-account decryption requires the key policy to explicitly allow the external account, because KMS defaults to key-policy authority in a way most services do not.',
         ],
       },
+      {
+        heading: 'Attribute-based access control with tags',
+        body: [
+          'As accounts grow, writing a policy per team does not scale. Attribute-based access control (ABAC) uses tags: a principal tagged `project=atlas` may act on resources tagged `project=atlas`, using a condition such as `"StringEquals": {"aws:ResourceTag/project": "${aws:PrincipalTag/project}"}`. New resources and people get access by being tagged correctly, without policy edits.',
+          'ABAC only works if tags are trustworthy. Restrict who can change tags with `aws:TagKeys` and `aws:RequestTag` conditions, enforce required tags with tag policies and SCPs, and pass identity-provider attributes as session tags at sign-in. Otherwise a user who can retag a resource can grant themselves access to it.',
+        ],
+      },
     ],
     examples: [
       {
@@ -352,6 +387,13 @@ export default {
           'For the strictest requirements — where even AWS personnel must not be able to access key material — CloudHSM provides dedicated, single-tenant FIPS 140-2 Level 3 hardware that you manage, or KMS with an external key store. Standard KMS is multi-tenant and AWS-managed; choose CloudHSM for regulatory mandates and KMS for everything else. And when data must be provably unrecoverable, crypto-shredding — destroying the KMS key material so ciphertext can never be decrypted — is the accepted answer; deleting S3 objects alone leaves replicated copies behind.',
           'Certificates and secrets complete the picture. ACM public certificates with DNS validation renew automatically as long as the validation record persists, and their private keys can never be exported — a security feature, not a limitation. Application secrets belong in Secrets Manager with automatic rotation, retrieved via the SDK at runtime; it wins over Parameter Store SecureString when you need rotation, cross-account sharing, or RDS-integrated rotation. Environment variables and config files are never the answer.',
           'Two immutability controls deserve mention together. S3 Object Lock in compliance mode gives WORM guarantees — objects cannot be deleted or overwritten until retention expires, not even by root — for regulatory retention. Macie closes the discovery loop: beyond initial PII/PHI classification in S3, it continuously monitors for new sensitive data and routes findings to Security Hub, because data protection is a posture that drifts.',
+        ],
+      },
+      {
+        heading: 'Protecting data from deletion and ransomware',
+        body: [
+          'Encryption protects confidentiality; availability needs separate controls. S3 Versioning keeps prior versions of overwritten or deleted objects, and S3 Object Lock in compliance mode prevents anyone, including the root user, from deleting a version until its retention date. MFA Delete adds a second factor for permanent deletions.',
+          'For backups across services, AWS Backup with a vault lock makes recovery points immutable, and copying backups to a separate account means an attacker who compromises production credentials cannot also delete the backups. Also monitor KMS: scheduled key deletion has a waiting period of 7 to 30 days precisely so an alarm on `ScheduleKeyDeletion` gives you time to cancel a malicious or mistaken request.',
         ],
       },
     ],
@@ -399,6 +441,13 @@ export default {
           'For the most sensitive processing, Nitro Enclaves provide isolated, attested compute environments on EC2 — no persistent storage, no administrator access, cryptographic attestation of the code running inside — for workloads like key handling where even the host must not be trusted.',
         ],
       },
+      {
+        heading: 'Hardening container and serverless workloads',
+        body: [
+          'For containers, scan images in Amazon ECR (Inspector integrates with it), use minimal base images, run as a non-root user and set the root filesystem read-only where the app allows. Give each ECS task or EKS pod its own IAM role (task roles, or EKS Pod Identity / IRSA) instead of sharing the node\'s role, so one compromised container does not inherit every permission on the host.',
+          'For Lambda, give each function its own narrowly scoped execution role, keep secrets in Secrets Manager or Parameter Store rather than plain environment variables, set reserved concurrency to limit abuse, and enable code signing so only approved deployment packages run. Inspector also scans Lambda functions for vulnerable dependencies.',
+        ],
+      },
     ],
     examples: [
       {
@@ -442,6 +491,13 @@ export default {
           'AWS Audit Manager turns Config and CloudTrail data into auditor-ready reports mapped to frameworks like CIS, PCI, and HIPAA. AWS Artifact supplies the other half of due diligence: on-demand third-party audit reports — SOC 2, ISO 27001 — proving AWS\'s own controls without auditing the provider yourself.',
           'Governance needs a written baseline to automate against: the required SCPs, Config rules, logging destinations, encryption defaults, and network patterns, codified and enforced rather than documented and hoped for. A tagging strategy belongs in that baseline and enforced by policy, because SCPs, Config rules, cost allocation, and finding routing all key off consistent tags — untagged resources escape governance entirely.',
           'During an incident, the architecture pays for itself: cross-account CloudTrail is queried from the log archive account with Athena or CloudTrail Lake over the centralised bucket — one query surface for every account. Findings route automatically through Security Hub custom insights and EventBridge rules, directed by account, severity, and resource tags to the owning team\'s channel. And the minimum audit trail an SCS-C03 architect should design for is explicit: organization-wide CloudTrail with log validation to a locked archive, Config recording everywhere, and at least a year of retention. You cannot investigate what you did not record.',
+        ],
+      },
+      {
+        heading: 'Proving compliance continuously',
+        body: [
+          'Auditors increasingly expect evidence over a period, not a snapshot. AWS Audit Manager maps controls from frameworks such as CIS, PCI DSS or SOC 2 to automated evidence collected from Config, CloudTrail and Security Hub, and assembles assessment reports. AWS Artifact provides AWS\'s own compliance reports, such as its SOC reports and certifications, for the provider\'s half of the shared model.',
+          'Security Hub\'s security standards give a running score per account and control, which works well as a governance metric when tracked over time. Pair it with automatic remediation for low-risk, high-volume findings (for example, enabling S3 Block Public Access) and with exceptions documented in a register that has owners and expiry dates.',
         ],
       },
     ],

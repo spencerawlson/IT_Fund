@@ -673,6 +673,13 @@ export default {
           'Watering hole attacks compromise websites the targets already visit instead of attacking them directly. Typosquatting registers lookalike domains for credential harvesting. Influence campaigns coordinate disinformation through fake personas. Clone phishing copies a real email and swaps in malicious links, while pharming poisons DNS so even correctly typed URLs land on the attacker\u2019s copy. The defence against all of it is process and culture: verify out of band.',
         ],
       },
+      {
+        heading: 'Turning actor knowledge into defence',
+        body: [
+          'Knowing who might attack you is only useful if it changes what you do. Start with the actors realistically interested in your organisation and look up the techniques they are known to use; MITRE ATT&CK groups and vendor threat reports list them. Then check whether your logging would see those techniques and whether your controls would stop them. That gap list is a far better security roadmap than a generic top-ten.',
+          'Capability and motive also set expectations for incident response. A financially motivated ransomware crew wants a quick payout and will move from access to encryption in days. A state-sponsored group may stay hidden for months, so finding one implant should start a hunt for others rather than end with re-imaging one machine.',
+        ],
+      },
     ],
     examples: [
       {
@@ -715,6 +722,13 @@ export default {
         body: [
           'Attackers hide malware with packers and crypters that compress or encrypt the binary to defeat signature detection — high-entropy packed executables are themselves a red flag. Polymorphic malware re-encrypts each copy while metamorphic malware rewrites its own code, both defeating hash-based detection. Process hollowing swaps a legitimate process\u2019s memory for malicious code, and DLL injection forces trusted processes to load hostile libraries.',
           'Botnets network compromised machines for DDoS, spam, and cryptojacking — the theft of compute for mining cryptocurrency, betrayed by unexplained CPU spikes. Wipers destroy data with no recovery option (NotPetya posed as ransomware but was a wiper), and ransomware-as-a-service lets criminals lease attack kits to affiliates, lowering the skill barrier for everyone.',
+        ],
+      },
+      {
+        heading: 'Defending against malware in layers',
+        body: [
+          'No single control stops malware, so defences cover each stage. Before execution: email filtering, blocking macros from the internet, application allowlisting, and patching browsers and document readers. During execution: EDR that watches behaviour such as Office spawning PowerShell or mass file renames, and attack surface reduction rules. After execution: network egress filtering to break command and control, and least privilege so a compromised user cannot reach everything.',
+          'Recovery is part of the defence. Offline or immutable backups that are tested regularly turn ransomware from an existential event into an expensive one. Combine that with an incident plan that says who isolates hosts and who decides on rebuilds, and the organisation can respond in hours instead of improvising for days.',
         ],
       },
     ],
@@ -761,6 +775,13 @@ export default {
           'Least privilege grants only the access a task needs, limiting any compromise\u2019s blast radius. Defence in depth layers controls so no single failure is fatal. Attack surface reduction removes what attackers could target in the first place. And "security through obscurity" — hiding details — fails the moment it is discovered, so use it only as one layer among many, per Kerckhoffs\u2019s principle.',
         ],
       },
+      {
+        heading: 'Finding vulnerabilities before attackers do',
+        body: [
+          'Different techniques find different flaws. Static analysis (SAST) reads source code for patterns such as unsanitised input reaching a query. Dynamic testing (DAST) attacks the running application from outside. Software composition analysis checks third-party libraries against known CVEs, which matters because most application code today is open-source dependencies. Fuzzing feeds malformed input to find crashes that often signal memory-safety bugs.',
+          'None of these replaces design review. Threat modelling, for example with STRIDE, asks what could go wrong before code exists and catches whole classes of problems, such as a missing authorisation check on an API, that scanners struggle to see. Use the cheap automated checks on every commit and save manual review and penetration testing for the highest-risk components.',
+        ],
+      },
     ],
     examples: [
       {
@@ -801,6 +822,13 @@ export default {
         body: [
           'Type 1 hypervisors run on bare metal while Type 2 run atop a host OS. VM sprawl — untracked, unpatched virtual machines — is an asset-management failure, and VM escape (guest breaking out to the hypervisor) is rare but catastrophic. Containers share the host kernel, so a kernel bug escapes every container on the host: run them as non-root, keep images minimal, and scan them in CI.',
           'Harden with golden images (approved templates), immutable infrastructure (replace rather than patch), infrastructure-as-code scanning, and runtime-injected secrets — never baked into images. Zero trust ("never trust, always verify") replaces flat VPN-era networking with per-request, identity-aware access; microsegmentation and service meshes (mutual TLS between services) are its network expression.',
+        ],
+      },
+      {
+        heading: 'Common cloud misconfigurations',
+        body: [
+          'Most cloud breaches come from configuration, not from attacks on the provider. The recurring mistakes are storage buckets or blobs left public, overly broad IAM permissions such as wildcard actions or unused admin roles, long-lived access keys committed to code, security groups open to 0.0.0.0/0 on management ports, and logging that was never enabled, so there is no record when something goes wrong.',
+          'The fixes are mostly guardrails rather than heroics: block public access at the account level, enforce least privilege with policies reviewed by tools such as IAM Access Analyzer, use roles and short-lived credentials instead of keys, scan infrastructure-as-code before deployment, and run continuous posture checks (CSPM) that alert when a resource drifts from the baseline.',
         ],
       },
     ],
@@ -844,6 +872,13 @@ export default {
           'Stateful firewalls track connections rather than judging packets alone, and zone policies default-deny between trust zones. A WAF filters HTTP-layer attacks in front of web apps, an IDS only alerts while an IPS blocks inline (tune in IDS mode first to avoid false-positive outages), and reverse proxies terminate client connections so origin servers stay hidden.',
         ],
       },
+      {
+        heading: 'Verifying that segmentation works',
+        body: [
+          'A segmentation diagram is a claim; testing turns it into evidence. From a host in each zone, try to reach the services that the design says must be blocked, for example the database port from the user VLAN, and confirm the connection fails and the firewall logs the denial. Tools such as nmap from inside each segment, or automated breach-and-attack simulation, make this repeatable.',
+          'Re-test after changes. Rules accumulate over time: a temporary \'any-any\' added for a migration, an over-broad object group, a forgotten VPN route. A regular rule review that removes unused and shadowed rules, combined with change control that requires a business owner for each rule, keeps the segmentation the design intended.',
+        ],
+      },
     ],
     examples: [
       {
@@ -883,6 +918,13 @@ export default {
         body: [
           'Split-tunnel VPNs send only corporate traffic through the tunnel (faster) while full-tunnel sends everything (inspectable and controlled). Site-to-site VPNs link networks; remote-access VPNs link roaming users. Always-on VPN connects before user logon so policy and patching apply off-network.',
           'WPA3 replaces WPA2\u2019s crackable handshakes with SAE, which resists offline dictionary attacks; WPA2-Enterprise adds per-user 802.1X authentication via RADIUS instead of one shared PSK. Rogue access points and evil twins (fake APs cloning a real SSID) are countered with wireless intrusion prevention and wired-side NAC. Deauthentication attacks spoof disconnect frames to capture handshakes — 802.11w protected management frames mitigate them. Bluetooth and NFC bring close-range risks (pairing interception, relay attacks); keep discoverable mode off.',
+        ],
+      },
+      {
+        heading: 'Checking a TLS configuration',
+        body: [
+          'Good protocol choice is easy to undermine with weak settings, so test what a server actually offers. `openssl s_client -connect host:443 -tls1_1` should fail on a modern server, and tools such as testssl.sh or the Qualys SSL Labs test list supported protocol versions, cipher suites, certificate chain problems and missing HSTS.',
+          'A sound baseline today is TLS 1.2 and 1.3 only, forward-secret key exchange (ECDHE), AEAD ciphers such as AES-GCM or ChaCha20-Poly1305, a complete certificate chain, certificates renewed automatically before expiry, and HSTS on web services. Disable older protocols such as SSL 3.0, TLS 1.0 and 1.1 everywhere, including on internal services that are easy to forget.',
         ],
       },
     ],
@@ -1842,6 +1884,13 @@ export default {
           'Physical controls fail at the weakest door: badge readers mean nothing beside a propped side door. Every entry is the perimeter.',
         ],
       },
+      {
+        heading: 'Reading a concepts scenario',
+        body: [
+          'Concept questions in scenario form usually hide the principle behind a business story. A hospital wants doctors to see records only while treating a patient: that is least privilege with context, often attribute-based access control. A payment needs two people to approve: separation of duties. A guard checks badges and a camera records the door: a preventive control backed by a detective one.',
+          'Work out which principle the story is testing before reading the options. Then eliminate answers that are true statements but solve a different problem. When two options both fit, prefer the one that addresses the root cause, such as removing standing access, over one that only detects misuse afterwards.',
+        ],
+      },
     ],
     examples: [
       {
@@ -1890,6 +1939,13 @@ export default {
         body: [
           'Key recovery must survive departure and compromise: M-of-N escrow means no single custodian can abuse or lose the keys. Rotate on schedule and on events (departures, suspected compromise).',
           'Crypto agility — knowing where each algorithm is used and being able to swap — is the defensible answer to quantum and to the next broken cipher. Inventory first, panic never.',
+        ],
+      },
+      {
+        heading: 'Common cryptography traps in scenarios',
+        body: [
+          'Several distractors appear again and again. Hashing is not encryption: you cannot recover data from a hash, so \'hash the credit card numbers so support can read them\' is wrong. Encoding such as Base64 provides no confidentiality at all. Encrypting with your private key does not keep a message secret; it proves authorship, which is what a signature does.',
+          'Also watch for key handling. Storing the encryption key next to the encrypted data, hard-coding it in source, or using one key for every customer defeats strong algorithms. The better answer usually involves a key management service or HSM, separate keys per purpose, rotation, and access to keys logged and restricted.',
         ],
       },
     ],
@@ -1942,6 +1998,13 @@ export default {
           'Track time-to-remediate by severity with escalation. New regulations, vendor breaches, and key-person findings all flow into the same register.',
         ],
       },
+      {
+        heading: 'A worked risk decision',
+        body: [
+          'A laptop fleet of 500 devices loses about 10 laptops a year. Each lost laptop with unencrypted data could cost $40,000 in breach notification and response, so the single loss expectancy is $40,000, the annualised rate of occurrence is 10, and the annualised loss expectancy is $400,000. Full-disk encryption costs $15,000 a year in licences and support and reduces the expected breach cost of a lost laptop to near zero.',
+          'The control is clearly justified: it removes most of a $400,000 expected annual loss for $15,000. The residual risk is the hardware cost and the small chance a laptop is stolen while unlocked, which management can accept and record. Scenario questions reward exactly this chain: compute ALE, compare it with the control cost, then name the response.',
+        ],
+      },
     ],
     examples: [
       {
@@ -1992,6 +2055,13 @@ export default {
           'Passing audits is necessary but not sufficient: keep hardening beyond the checklist, because auditors sample and attackers do not.',
         ],
       },
+      {
+        heading: 'Evidence that satisfies an auditor',
+        body: [
+          'Auditors test whether a control operated, not whether a document describes it. A password policy is a design; a configuration export showing the enforced settings, plus a sample of accounts tested against it, is evidence. An access review policy is a design; signed review records for each quarter, with removed accounts traced to tickets, are evidence.',
+          'Good evidence is dated, complete for the period, produced by the system rather than typed by hand, and traceable to the control it supports. Scenario answers that offer \'show the auditor the policy\' or \'have the manager confirm verbally\' are weak; answers that produce system-generated records for the audit period are strong.',
+        ],
+      },
     ],
     examples: [
       {
@@ -2040,6 +2110,13 @@ export default {
         body: [
           'A tested exit strategy — proven data export, migration path, contractual cooperation — is proven before it is needed. Tier vendors by BIA impact and reassess on acquisitions.',
           'Shared responsibility: the provider secures the cloud, you secure what you put in it. Misconfigured storage is always your breach.',
+        ],
+      },
+      {
+        heading: 'Monitoring a vendor after onboarding',
+        body: [
+          'Risk does not end when the contract is signed. Vendors change ownership, move data to new subprocessors, suffer breaches, or let their certifications lapse. Ongoing monitoring means collecting each year\'s SOC 2 report and reading its exceptions, tracking the vendor\'s breach notifications and security ratings, and re-assessing when the scope of the service grows.',
+          'Tier vendors by risk so the effort matches the exposure. A vendor holding customer personal data or with network access deserves annual review and contract rights to audit; a vendor supplying office furniture does not. Keep the inventory current: an unknown vendor with an API key into production is a common finding after an incident.',
         ],
       },
     ],

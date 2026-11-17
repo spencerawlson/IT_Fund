@@ -500,6 +500,13 @@ export default {
           'Two hosts with the same IP give intermittent connectivity and IP-conflict warnings: check DHCP scopes and static assignments, and compare `arp -a` output.',
         ],
       },
+      {
+        heading: 'Documenting as you go',
+        body: [
+          'The last step of the method, documenting findings, actions and outcomes, is the one most often skipped and the one that pays back most. A good ticket note records the symptom in the user\'s words, what you tested and what each test showed, the change you made, and how you confirmed the fix. When the same fault returns next month, that note turns an hour of rediscovery into five minutes.',
+          'Documentation also protects you during the fix. Before changing a configuration, save the current one (copy running-config, export the firewall policy) so you can roll back. Change one thing at a time and re-test after each change; if you change three settings at once and the problem goes away, you do not know which one fixed it, or whether the other two broke something else.',
+        ],
+      },
     ],
     examples: [
       {

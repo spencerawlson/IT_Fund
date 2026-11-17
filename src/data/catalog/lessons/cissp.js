@@ -689,6 +689,14 @@ export default {
           'Policy exceptions are legitimate but only through the exception process: documented business justification, risk analysis, compensating controls, expiry date, and sign-off by the risk owner. Seniority is not a control.',
         ],
       },
+      {
+        heading: 'How to approach a D1 scenario',
+        body: [
+          'Domain 1 questions place you in a governance role and ask what to do first, best or next. The answer is rarely a technical fix. Ask whose decision it is: senior management owns risk acceptance and policy approval, the data owner owns classification, and the security professional advises and implements. An option where the security team accepts risk on the business\'s behalf is usually wrong.',
+          'Next, look for the process step the scenario skipped. If a new regulation applies, a gap assessment comes before buying tools. If a control cannot be applied, a documented exception with compensating controls and an expiry comes before simply ignoring the requirement. Due care means acting as a prudent person would; due diligence means verifying that it actually happened.',
+          'Finally, remember the order of priorities that runs through the whole exam: people\'s safety first, then legal and regulatory obligations, then business objectives, then technology preferences.',
+        ],
+      },
     ],
     examples: [
       {
@@ -723,6 +731,14 @@ export default {
         body: [
           'Production PII in a test environment is a breach waiting to happen: test systems rarely carry production-grade access controls, logging, or monitoring. The answer is always masked, anonymised, or synthetic data.',
           'A litigation hold suspends the normal retention and destruction schedule for the affected data. Destroying held data is spoliation. When in doubt, preserve and ask legal.',
+        ],
+      },
+      {
+        heading: 'How to approach a D2 scenario',
+        body: [
+          'Asset security questions turn on who decides and what the data\'s classification requires. The data owner, a business manager, classifies data and approves access; the custodian, usually IT, implements the controls; users follow the handling rules. When an option asks the custodian to decide classification, or lets a user choose how to handle restricted data, it is usually a distractor.',
+          'Follow the data through its lifecycle: creation, storage, use, sharing, archiving and destruction. Most scenarios break one link. Production personal data copied into a test environment breaks \'use\' and needs masking or synthetic data. A drive leaving the organisation breaks \'destruction\' and needs purging or physical destruction appropriate to the media. A legal hold overrides normal retention and deletion schedules until counsel releases it.',
+          'When in doubt, choose the answer that reduces the amount of sensitive data held, because data you do not keep cannot leak.',
         ],
       },
     ],
@@ -761,6 +777,14 @@ export default {
           'Key management questions on the exam almost always reduce to separation and lifecycle: generate securely, store separately, rotate on schedule and on compromise, destroy when retired.',
         ],
       },
+      {
+        heading: 'How to approach a D3 scenario',
+        body: [
+          'Security architecture questions reward principles over products. Look for which design principle the scenario violates: least privilege, defence in depth, fail-safe defaults, separation of duties, economy of mechanism, complete mediation or open design. The right answer usually restores the principle rather than adding a single new tool.',
+          'Cryptography scenarios in this domain are mostly about key management. Strong algorithms do not help if the key sits beside the data, never rotates, or is shared across all customers. Prefer answers that move keys into an HSM or key management service, separate duties between key administrators and data users, and plan for algorithm change (crypto agility), including the move to post-quantum algorithms such as ML-KEM.',
+          'For physical design questions, life safety outranks asset protection: doors on an escape route fail safe (unlock) on power loss even when that is less secure.',
+        ],
+      },
     ],
     examples: [
       {
@@ -795,6 +819,14 @@ export default {
         body: [
           'Guest, IoT, and partner networks are untrusted by definition. The first design step is always segmentation — separate VLANs and firewall zones — before tuning any monitoring or access rules.',
           'Segmentation contains lateral movement. Everything else (monitoring, NAC, passwords) is secondary to not letting the hostile network touch the trusted one.',
+        ],
+      },
+      {
+        heading: 'How to approach a D4 scenario',
+        body: [
+          'Network security scenarios ask you to protect traffic and limit where an attacker can go. Start by identifying what crosses an untrusted network; that traffic needs encryption and authentication, such as IPsec between sites or TLS for applications. Then look at trust boundaries: guests, contractors, IoT devices and operational technology belong in their own segments with default-deny rules between them and the corporate network.',
+          'Many distractors add monitoring where prevention is possible, or add a device without addressing the design. An IDS that alerts on lateral movement is useful, but segmenting the flat network removes the path. A VPN does not help if the remote laptop is already compromised, which is why zero trust checks device posture and identity for every request.',
+          'Know the protocols\' weaknesses too: Telnet, FTP and SNMPv1 send credentials in clear text, so the best answer replaces them with SSH, SFTP and SNMPv3 rather than merely monitoring them.',
         ],
       },
     ],
@@ -833,6 +865,14 @@ export default {
           'An exposed secret is a compromised secret. Revoke and rotate first, investigate second — the order matters because every minute of delay is attacker opportunity.',
         ],
       },
+      {
+        heading: 'How to approach a D5 scenario',
+        body: [
+          'Identity questions follow the account lifecycle: provisioning, review, change and removal. Many problems come from the middle of it. People change roles and keep old permissions (privilege creep), so the fix is periodic access reviews by the data owner and role-based provisioning tied to HR events. Leavers keep access because deprovisioning is manual, so the fix is automated removal on the termination record.',
+          'Prefer federation and single sign-on over shared or duplicated credentials, and phishing-resistant MFA (FIDO2/passkeys) over codes that can be relayed. Remember that authentication is only half the job: session tokens, API keys and service accounts are also credentials, so short session lifetimes, re-authentication for sensitive actions, and vaulted, rotated service credentials appear in many correct answers.',
+          'Accountability needs unique IDs. A shared administrator account cannot show who made a change, so replacing it with named accounts and privileged access management is almost always better than adding logging to the shared account.',
+        ],
+      },
     ],
     examples: [
       {
@@ -867,6 +907,14 @@ export default {
         body: [
           'Five hundred scanner findings are a starting point, not a plan. Prioritise by risk: exploitability times business impact. An internet-facing critical system outranks an isolated lab box regardless of raw severity.',
           'Vendor claims are marketing until verified. SOC 2, ISO 27001, pentest letters — read the actual report: scope, period, methodology, and qualifications. Third-party risk management runs on evidence.',
+        ],
+      },
+      {
+        heading: 'How to approach a D6 scenario',
+        body: [
+          'Assessment questions ask you to match the test to the question being asked. Vulnerability scanning finds known weaknesses broadly; penetration testing proves whether they can be exploited and chained; code review and SAST find flaws before release; a SOC 2 or ISO 27001 audit gives independent assurance about a vendor\'s controls. Choose the option that answers the scenario\'s actual question at the right depth.',
+          'Testing must be authorised. Before any penetration test, written rules of engagement must define scope, timing, methods and emergency contacts, signed by someone with authority over the systems. An option that starts testing on a verbal request, or tests a third party\'s systems without their consent, is wrong however efficient it sounds.',
+          'Results only matter when they reach decision-makers. Findings should be ranked by risk to the business, assigned owners and dates, reported in management terms, and re-tested after remediation.',
         ],
       },
     ],
@@ -905,6 +953,14 @@ export default {
           'The most important step is the last one: the lessons-learned review. Update playbooks, controls, and monitoring from what the incident taught, or it will recur on schedule.',
         ],
       },
+      {
+        heading: 'How to approach a D7 scenario',
+        body: [
+          'Operations scenarios often describe an incident in progress and ask for the next step. Use the incident response sequence: detect and analyse, then contain, then eradicate, then recover, then learn. If the attack is active, containment comes before investigation is finished; if it is contained, preserving evidence comes before rebuilding systems. Recovery before eradication invites the attacker back.',
+          'Evidence handling has firm rules: collect in order of volatility, work on verified copies (hash before and after), and keep a chain of custody for anything that may go to court. Notify according to the plan; legal counsel and management decide on external notification, not the analyst on shift.',
+          'For continuity questions, the priority is people\'s safety, then restoring the most critical business functions in the order set by the business impact analysis, not the order in which IT happens to find them.',
+        ],
+      },
     ],
     examples: [
       {
@@ -939,6 +995,14 @@ export default {
         body: [
           'A secret in version control is compromised the moment it is pushed — repositories are copied, backed up, and mirrored. Revoke and rotate immediately, move to a vault, and add pre-commit scanning so it cannot recur.',
           'Bugs are cheapest where they are born: threat modelling in design beats a pentest finding, which beats an emergency production patch. Shift-left is economics, not ideology.',
+        ],
+      },
+      {
+        heading: 'How to approach a D8 scenario',
+        body: [
+          'Software security questions reward building security in early. A flaw found in requirements or design costs far less to fix than one found in production, so answers that add threat modelling, secure coding standards and automated testing in the pipeline usually beat answers that rely on a final penetration test.',
+          'Third-party code is part of your software. Maintain a software bill of materials, scan dependencies for known vulnerabilities, pin and verify versions, and evaluate a new library\'s maintenance and licence before adopting it. For acquired software or SaaS, ask for evidence such as security test results or an attestation rather than a vendor\'s assurance.',
+          'When something goes wrong, contain first: a leaked secret is revoked and rotated before the history is cleaned, and a vulnerable release is patched or rolled back before the root cause analysis is written.',
         ],
       },
     ],
