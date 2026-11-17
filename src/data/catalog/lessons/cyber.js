@@ -569,7 +569,7 @@ export default {
         body: [
           'At the victim, a volumetric flood shows high requests per second over reused connections; slowloris shows concurrency climbing while requests never complete. A connection flood opens a fresh socket per request (connections roughly equal requests), whereas a volumetric flood reuses keep-alive connections (requests far exceed connections).',
           'The rapid-reset vector models CVE-2023-44487: streams initiated far exceed streams completed, and connections open and then abort or reset almost immediately.',
-          'The amplification lab measures each protocol\'s amplification factor without attacking anyone, because it never spoofs a source IP: the large responses return to the sender. NTP `monlist` has the highest factor of its profiles (about 556x), answering from UDP source port 123.',
+          'The amplification lab measures each protocol\'s amplification factor without attacking anyone, because it never spoofs a source IP: the large responses return to the sender. NTP `monlist` amplifies about 556x, answering from UDP source port 123; memcached over UDP 11211 is far higher (CISA lists 10,000x to 51,000x), which is why exposed memcached servers were behind record-breaking floods.',
         ],
       },
       {
@@ -595,6 +595,7 @@ export default {
       ['connflood', 'Connections ≈ requests'],
       ['Rapid reset', 'CVE-2023-44487: opened ≫ completed'],
       ['NTP monlist', '~556x, UDP source port 123'],
+      ['memcached reflection', '10,000x+, UDP 11211'],
       ['T1036 masquerading', 'Double or mismatched extension'],
       ['T1547.001 / T1053.005', 'Run key (Sysmon 12/13) / task (4698)'],
       ['T1071 beacon', 'Periodicity, not volume'],

@@ -315,6 +315,26 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 41
+    },
+    "cy-ad-cloud-attacks": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cy-threat-intel": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cy-detection-labs": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 14
+    },
+    "secplus-soc-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
     }
   }
 }

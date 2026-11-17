@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:19:56.357Z",
+  "generatedAt": "2026-11-17T01:23:14.719Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -14835,9 +14835,9 @@
                   "a": "Mapping Active Directory attack paths to privileged accounts",
                   "x": "Defenders use it too, to remove risky paths.",
                   "wrong": [
-                    "Cracking hashes: reversing digests back into plaintext passwords",
-                    "Listing domain admins: a query returning every privileged account name",
-                    "Sniffing traffic: capturing packets to read credentials off the wire"
+                    "Cracking NTLM hashes recovered from domain controllers at GPU speed",
+                    "Listing the members of Domain Admins",
+                    "Capturing Kerberos traffic on the wire"
                   ]
                 },
                 {
@@ -14848,9 +14848,9 @@
                   "a": "A forged Kerberos TGT made with the KRBTGT account hash",
                   "x": "Grants domain-wide access. Remediate by resetting KRBTGT twice.",
                   "wrong": [
-                    "A stolen VPN token: a captured credential for remote access",
-                    "A cloud API key: a credential that calls cloud services directly",
-                    "A phishing kit: a ready-made package for cloning login pages"
+                    "A forged service ticket made with a single service account's hash",
+                    "A stolen VPN session token",
+                    "A long-lived cloud API key"
                   ]
                 },
                 {
@@ -14861,9 +14861,9 @@
                   "a": "Impersonating a domain controller to pull password hashes",
                   "x": "Needs replication rights; monitor for Event ID 4662 with replication GUIDs.",
                   "wrong": [
-                    "Syncing time: keeping clocks aligned across domain machines with NTP",
-                    "A DNS transfer: copying a zone file between name servers",
-                    "A GPO update: pushing new Group Policy settings to domain machines"
+                    "Syncing clocks across domain machines so Kerberos tickets stay valid",
+                    "Transferring a DNS zone between servers",
+                    "Pushing Group Policy updates to clients"
                   ]
                 },
                 {
@@ -14874,9 +14874,9 @@
                   "a": "Shared local admin passwords across machines",
                   "x": "Windows LAPS rotates a unique password per device.",
                   "wrong": [
-                    "Domain admin MFA: a second factor on privileged domain accounts",
-                    "Kerberoasting: cracking service ticket hashes offline for credentials",
-                    "Stale service accounts: passwords on services that never rotate"
+                    "Missing MFA on domain administrator accounts used for remote logons",
+                    "Kerberoastable service accounts",
+                    "Stale service account passwords"
                   ]
                 },
                 {
@@ -14887,9 +14887,9 @@
                   "a": "Separating admin accounts for DCs, servers, and workstations",
                   "x": "Stops credential theft on a laptop from exposing domain admins.",
                   "wrong": [
-                    "One admin for everything: a single account ruling every tier",
-                    "Admins with no MFA",
-                    "Guest accounts: temporary logins with minimal privileges for visitors"
+                    "One admin account per person that works across every system for convenience",
+                    "Admin accounts without MFA for speed",
+                    "Separate guest accounts for contractors"
                   ]
                 },
                 {
@@ -14900,9 +14900,9 @@
                   "a": "Spamming push prompts until the user approves one",
                   "x": "Use number matching and phishing-resistant MFA.",
                   "wrong": [
-                    "A lost phone: a device gone missing with its sessions still live",
-                    "Too many passwords: an overload of secrets users cannot manage",
-                    "An expired token: a credential past its validity window"
+                    "A user losing a phone that still has an active session",
+                    "Users juggling too many passwords",
+                    "An authenticator token that has expired"
                   ]
                 },
                 {
@@ -14913,9 +14913,9 @@
                   "a": "A proxy that steals session cookies, bypassing standard MFA",
                   "x": "e.g. Evilginx. FIDO2/passkeys resist it.",
                   "wrong": [
-                    "A fake Wi-Fi AP: a rogue access point impersonating a trusted network",
-                    "A keylogger: malware that records every keystroke typed",
-                    "A USB drop: leaving an infected drive where someone plugs it in"
+                    "A rogue Wi-Fi access point that impersonates a trusted network",
+                    "A keylogger that records typed passwords",
+                    "An infected USB drive left in a car park"
                   ]
                 },
                 {
@@ -14926,9 +14926,9 @@
                   "a": "Leaked access keys or misconfigured public storage",
                   "x": "Scan repos for secrets; block public buckets by default.",
                   "wrong": [
-                    "Physical theft: stealing hardware to reach the data on it",
-                    "Tailgating: following an authorised person through a secured door",
-                    "Fax spoofing: forging the sender on an incoming fax"
+                    "Physical theft of a provider's servers from the data centre",
+                    "Tailgating into the provider's data centre",
+                    "Spoofing a fax to the provider's support desk"
                   ]
                 },
                 {
@@ -14939,9 +14939,9 @@
                   "a": "Tricking a user into granting a malicious app access to their data",
                   "x": "Restrict user consent and review app permissions.",
                   "wrong": [
-                    "A stolen password: a single credential taken from its owner",
-                    "A forged certificate: a fake credential vouching for a false identity",
-                    "A DNS hijack: redirecting lookups to attacker-controlled servers"
+                    "A stolen password reused against a cloud app that has no MFA configured",
+                    "A forged TLS certificate for the login page",
+                    "A DNS hijack of the identity provider"
                   ]
                 },
                 {
@@ -14952,9 +14952,9 @@
                   "a": "Whoever controls the IAM/API layer controls all resources",
                   "x": "Protect root/global admin with MFA, alerts, and break-glass procedures.",
                   "wrong": [
-                    "It stores all data",
-                    "It is always public: the control plane is exposed to the internet",
-                    "It has no logs: the control plane records nothing at all"
+                    "It stores all customer data directly",
+                    "It is always exposed to the public internet",
+                    "It produces no logs"
                   ]
                 },
                 {
@@ -14965,9 +14965,9 @@
                   "a": "Stealing session or refresh tokens to act as the user without the password",
                   "x": "Use token binding, short lifetimes, and conditional access.",
                   "wrong": [
-                    "Losing a hardware token: a physical second factor gone missing",
-                    "A weak password: a short, guessable secret protecting an account",
-                    "Printer abuse: exploiting network printers as a foothold into systems"
+                    "Losing a hardware security key that is still registered to the user's account",
+                    "Guessing a weak password",
+                    "Abusing a network printer"
                   ]
                 }
               ],
@@ -15011,9 +15011,9 @@
                   "a": "Long-term trends for leaders vs TTPs/IoCs for defenders",
                   "x": "Operational intel covers specific campaigns.",
                   "wrong": [
-                    "Paid vs free",
-                    "Internal vs external: intel source alone is the distinction",
-                    "Same thing"
+                    "Paid commercial feeds versus free open-source feeds of indicators",
+                    "Internal versus external sources",
+                    "They are the same thing"
                   ]
                 },
                 {
@@ -15024,9 +15024,9 @@
                   "a": "Direction, collection, processing, analysis, dissemination, feedback",
                   "x": "Start from requirements, not feeds.",
                   "wrong": [
-                    "Plan, attack, report: three steps make the intel lifecycle",
-                    "Detect, contain, recover: three steps make the intel lifecycle, feedback is optional",
-                    "Scan, patch, verify: three steps make the intel lifecycle"
+                    "Plan, attack, report, then repeat the cycle at the end of every quarter",
+                    "Detect, contain, recover",
+                    "Scan, patch, verify"
                   ]
                 },
                 {
@@ -15037,9 +15037,9 @@
                   "a": "A testable statement about attacker behaviour in your environment",
                   "x": "e.g. \"Attackers use scheduled tasks for persistence on servers.\"",
                   "wrong": [
-                    "A signature: a detection pattern is the hunting hypothesis, patterns need no testing",
-                    "A vulnerability: a single flaw is the hunting hypothesis",
-                    "An alert: a fired rule is the hunting hypothesis"
+                    "A detection signature written by the vendor that has not been tested yet",
+                    "A single vulnerability on a host",
+                    "An alert that has already fired"
                   ]
                 },
                 {
@@ -15050,9 +15050,9 @@
                   "a": "Listing vulnerabilities known to be exploited in the wild",
                   "x": "Patch KEV items first. US federal agencies have deadlines.",
                   "wrong": [
-                    "Listing all CVEs: every flaw joins the KEV catalog",
-                    "Scoring CVSS: severity ratings join the KEV catalog list",
-                    "Malware samples: captured code joins the KEV catalog list"
+                    "Listing every published CVE with its CVSS score and vendor advisory",
+                    "Scoring vulnerability severity",
+                    "Storing malware samples"
                   ]
                 },
                 {
@@ -15063,9 +15063,9 @@
                   "a": "The probability a vulnerability will be exploited soon",
                   "x": "Combine it with CVSS and asset context to prioritise.",
                   "wrong": [
-                    "Severity impact",
-                    "Patch availability: whether a vendor fix exists for download",
-                    "Attacker identity: EPSS names who will exploit the flaw"
+                    "The technical severity of the flaw if it were successfully exploited",
+                    "Whether a vendor patch exists",
+                    "Which threat actor will exploit it"
                   ]
                 },
                 {
@@ -15076,9 +15076,9 @@
                   "a": "Identifying who is behind an attack",
                   "x": "Hard and often less useful than knowing TTPs.",
                   "wrong": [
-                    "Scoring risk: risk ratings count as threat attribution here",
-                    "Blocking IPs: denying addresses counts as attribution here",
-                    "Writing a report: writing documentation counts as threat attribution here"
+                    "Rating the risk an attack poses to the business",
+                    "Blocking the attacker's IP addresses",
+                    "Writing the incident report"
                   ]
                 },
                 {
@@ -15089,9 +15089,9 @@
                   "a": "Labels for how widely shared intel may be passed on",
                   "x": "TLP:RED (named recipients) to TLP:CLEAR (public).",
                   "wrong": [
-                    "A firewall rule set: filter lists are the TLP labels",
-                    "A malware severity scale: ratings are the TLP sharing labels",
-                    "A network QoS setting: traffic priority is the TLP"
+                    "A severity scale for malware samples from low to critical",
+                    "A set of firewall rule templates",
+                    "A network quality-of-service setting"
                   ]
                 },
                 {
@@ -15102,9 +15102,9 @@
                   "a": "Counting occurrences of a value to find rare outliers",
                   "x": "Rare autoruns or processes across a fleet stand out.",
                   "wrong": [
-                    "Counting packets: tallying network traffic counts as stack counting",
-                    "Measuring RAM: memory size counts as stack counting here",
-                    "Tracking tickets: counting support cases counts as stack counting"
+                    "Counting packets per host to find the busiest machines on the network",
+                    "Measuring memory use per process",
+                    "Counting support tickets by category"
                   ]
                 },
                 {
@@ -15115,9 +15115,9 @@
                   "a": "A new or improved automated detection",
                   "x": "Hunts that find nothing still document coverage.",
                   "wrong": [
-                    "Nothing",
-                    "A pentest",
-                    "A new firewall: a perimeter box is the hunt output"
+                    "Nothing, if no attacker was found",
+                    "A penetration test of the area",
+                    "A new firewall rule"
                   ]
                 },
                 {
@@ -15125,12 +15125,12 @@
                   "deckId": "cy-threat-intel",
                   "trackId": "cyber",
                   "q": "What is deception technology’s key advantage?",
-                  "a": "high-fidelity alerts: legitimate users never touch decoys",
+                  "a": "High-fidelity alerts: legitimate users never touch decoys",
                   "x": "Honeytokens like fake credentials in memory catch lateral movement.",
                   "wrong": [
-                    "Blocks all attacks",
-                    "It blocks intruders: decoys stop attackers before they reach real systems",
-                    "Needs no maintenance: deception technology runs itself forever unattended"
+                    "It blocks every attack before it reaches real systems",
+                    "It blocks every attack before it reaches the real production systems",
+                    "It needs no maintenance once deployed"
                   ]
                 }
               ],
@@ -15175,9 +15175,9 @@
                   "a": "A burst of 401s with many distinct usernames from one source hitting /login",
                   "x": "The lab’s auth_failure_threshold_exceeded event marks where the alert fires; chase any 401 burst that ends in a 200.",
                   "wrong": [
-                    "A 404 spike across many paths: missing pages as stuffing proof",
-                    "One source touching many ports: port variety as stuffing proof",
-                    "A single slow connection: one patient session as stuffing proof"
+                    "A 404 spike across many different paths from one source address in a short time",
+                    "One source touching many ports in sequence",
+                    "A single slow connection held open for minutes"
                   ]
                 },
                 {
@@ -15188,9 +15188,9 @@
                   "a": "A 404 spike across many distinct paths from one source, with a few 200s revealing real content",
                   "x": "Hunt 404 rate and distinct-URL count per source; hits on /.git, /.env, /wp-admin are high signal.",
                   "wrong": [
-                    "A 401 burst on one endpoint: many failures on one login page",
-                    "Large inbound POST bodies: big uploads as the dir-busting mark",
-                    "Evenly-spaced beacons: regular check-ins as the dir-busting signature"
+                    "A 401 burst on one login endpoint with many usernames",
+                    "Large inbound POST bodies to an upload form",
+                    "Evenly spaced outbound connections"
                   ]
                 },
                 {
@@ -15201,9 +15201,9 @@
                   "a": "It is the cloud instance metadata endpoint",
                   "x": "A web tier should never fetch a user-supplied URL that resolves to link-local/loopback; enforce IMDSv2 and block link-local egress.",
                   "wrong": [
-                    "It is a DNS root server: metadata address serves the root zone",
-                    "It is the gateway IP: the metadata address routes local traffic",
-                    "It is a public CDN: the metadata address caches public content"
+                    "It is a DNS root server reachable from every instance",
+                    "It is the default gateway of the VPC",
+                    "It is a public CDN edge node"
                   ]
                 },
                 {
@@ -15214,9 +15214,9 @@
                   "a": "Decode once before matching, and watch for double-encoding that one decode leaves as %2e",
                   "x": "Path traversal (T1083) hides in encoded and mixed-slash forms; canonicalise, then confine to a base directory.",
                   "wrong": [
-                    "Block only literal ../: match just the plain traversal string",
-                    "Trust the browser to normalise it: let the client clean the path",
-                    "Match the raw bytes only: compare undecoded input against the pattern"
+                    "Block only the literal ../ string",
+                    "Trust the browser to normalise the path",
+                    "Match the raw bytes without decoding"
                   ]
                 },
                 {
@@ -15224,12 +15224,12 @@
                   "deckId": "cy-detection-labs",
                   "trackId": "cyber",
                   "q": "In the DDoS lab, how do you tell a volumetric flood from slowloris?",
-                  "a": "Volumetric = high requests/sec with connections reused",
+                  "a": "Volumetric: very high requests per second; slowloris: few requests holding many connections open",
                   "x": "The lab exposes peak_rps vs peak_concurrent vs total_requests so each attack’s giveaway metric differs.",
                   "wrong": [
-                    "Both look identical in logs",
-                    "By the source port only",
-                    "By the HTTP method only: the verb alone tells floods apart"
+                    "They look identical in web server logs",
+                    "By the source port of each connection",
+                    "By the HTTP method used"
                   ]
                 },
                 {
@@ -15240,9 +15240,9 @@
                   "a": "Streams/requests initiated far exceed completed ones",
                   "x": "The lab’s aborted_connections metric climbs while total_requests stays low; over real HTTP/2 you see HEADERS then RST_STREAM.",
                   "wrong": [
-                    "A steady bandwidth soak",
-                    "Many unique URLs: distinct addresses as the rapidreset signature",
-                    "One long-lived connection: a single session as the rapidreset mark"
+                    "A steady bandwidth soak at a constant rate from many sources at once",
+                    "Requests for many unique URLs",
+                    "One long-lived connection kept open"
                   ]
                 },
                 {
@@ -15253,9 +15253,9 @@
                   "a": "connflood opens a fresh socket per request; volumetric reuses keep-alive",
                   "x": "Compare total_connections to total_requests; connection churn exhausts the accept queue and ephemeral ports.",
                   "wrong": [
-                    "They send identical traffic: connflood and volumetric match packet for packet",
-                    "connflood uses UDP: connection floods run over UDP datagrams only",
-                    "volumetric never completes requests: flood traffic never finishes a handshake"
+                    "They send identical traffic",
+                    "connflood uses UDP datagrams only",
+                    "Volumetric traffic never completes a handshake"
                   ]
                 },
                 {
@@ -15266,22 +15266,22 @@
                   "a": "It does no source-IP spoofing",
                   "x": "Real reflection forges the victim’s IP as the query source; without spoofing you can study the factor safely.",
                   "wrong": [
-                    "Because it uses TCP: TCP replies cannot reach a forged victim",
-                    "Because responses are encrypted: encryption keeps replies from the victim",
-                    "Because it runs as admin: administrator rights keep responses local"
+                    "It uses TCP, which cannot reach a forged victim",
+                    "Its responses are encrypted",
+                    "It runs with administrator rights"
                   ]
                 },
                 {
                   "id": "cy-detection-labs-8",
                   "deckId": "cy-detection-labs",
                   "trackId": "cyber",
-                  "q": "Which amplification profile has the highest factor, and on which UDP source port?",
-                  "a": "NTP monlist answering from UDP source port 123",
-                  "x": "The lab’s ntp/ssdp/dns/memcached profiles each pair a query signature with a source port and realistic factor to hunt.",
+                  "q": "Which UDP reflection vector has the highest published amplification factor?",
+                  "a": "memcached on UDP 11211, at 10,000x or more",
+                  "x": "CISA's amplification table lists memcached at 10,000x to 51,000x, NTP monlist (UDP 123) at about 556x, SSDP (UDP 1900) about 31x and DNS (UDP 53) roughly 28x to 54x.",
                   "wrong": [
-                    "SSDP on 53",
-                    "DNS on 1900",
-                    "memcached on 123: cache replies amplified from port 123"
+                    "NTP monlist on UDP 123, at about 556x",
+                    "SSDP on UDP 1900, at about 31x",
+                    "DNS on UDP 53, at about 54x"
                   ]
                 },
                 {
@@ -15292,9 +15292,9 @@
                   "a": "A double or mismatched extension",
                   "x": "Correlate a downloaded file (MOTW / Zone.Identifier) with a later process-create where it executes.",
                   "wrong": [
-                    "A large file size: bulk alone flags the masquerading lure",
-                    "A .docx extension: a Word document suffix on the lure",
-                    "A read-only attribute: the read-only flag betrays the lure"
+                    "An unusually large file size for its type",
+                    "A .docx extension on the file",
+                    "A read-only attribute on the file"
                   ]
                 },
                 {
@@ -15305,9 +15305,9 @@
                   "a": "Sysmon Event ID 12/13 on...\\CurrentVersion\\Run, or an Autoruns diff",
                   "x": "Alert on new Run/RunOnce values that launch an interpreter or a file in a user-writable path.",
                   "wrong": [
-                    "Sysmon EID 3 only",
-                    "A 404 in web logs: missing-page errors as the Run key signal",
-                    "A TLS certificate error: certificate warnings as the Run key tell, the only signal needed"
+                    "Sysmon Event ID 3 (network connection) from the process that set the key",
+                    "A 404 in the web server logs",
+                    "A TLS certificate error"
                   ]
                 },
                 {
@@ -15318,9 +15318,9 @@
                   "a": "Security Event ID 4698, or schtasks.exe in process telemetry",
                   "x": "A new task with a logon/startup trigger running a script is classic persistence; baseline tasks and diff.",
                   "wrong": [
-                    "Event ID 4624 (logon): a successful logon record",
-                    "A DNS query log: name lookups as the scheduled-task evidence",
-                    "A firewall allow rule: permitted traffic as the scheduled-task tell"
+                    "Event ID 4624 (successful logon) for the account that created the task",
+                    "A DNS query to the task's domain",
+                    "A firewall allow rule"
                   ]
                 },
                 {
@@ -15331,9 +15331,9 @@
                   "a": "Look for periodicity, not volume",
                   "x": "Graph the evenly-spaced c2_beacon_sent timestamps; low bytes plus high regularity is the signal even with jitter.",
                   "wrong": [
-                    "A one-time large download: a single bulk fetch as the beacon",
-                    "Random ports each time: fresh ports on every beacon check-in",
-                    "A burst then silence: one spike, then nothing, as the beacon"
+                    "Look for one large download",
+                    "Look for a new random port each time",
+                    "Look for a burst followed by silence"
                   ]
                 },
                 {
@@ -15344,9 +15344,9 @@
                   "a": "It is the answer key",
                   "x": "Run the drill, capture with Sysmon/EDR/Wireshark, then compare your detections against report and detect.",
                   "wrong": [
-                    "It exfiltrates data",
-                    "It stores credentials",
-                    "It is the attack payload: the events file carries the exploit"
+                    "It sends the captured data to the instructor",
+                    "It stores the credentials used in the lab",
+                    "It is the attack payload"
                   ]
                 }
               ],
@@ -15394,7 +15394,7 @@
                   "a": "Disable the account and isolate the workstation from the network",
                   "x": "Anomalous authentication source plus reconnaissance commands is a lateral-movement pattern; containment comes before investigation because every minute of access is data loss.",
                   "wrong": [
-                    "Email the backup team to ask whether they are testing",
+                    "Email the backup team to ask whether they are running an out-of-hours test",
                     "Wait for a second alert to confirm the pattern",
                     "Restart the workstation to clear any malware"
                   ]
@@ -15408,8 +15408,8 @@
                   "x": "The fix for noisy alerts is precision, not silence: narrow the rule’s scope so it fires on genuinely suspicious conditions instead of disabling it or leaving analysts drowning.",
                   "wrong": [
                     "Delete the rule entirely to stop the noise",
-                    "Lower the severity to informational and keep bulk-closing: lower severity, keep bulk-closing it",
-                    "Route the alert to a mailbox nobody reads: route the noisy alert to unread mail"
+                    "Lower its severity to informational and keep bulk-closing it during quiet periods",
+                    "Route it to a shared mailbox for weekly review"
                   ]
                 },
                 {
@@ -15420,9 +15420,9 @@
                   "a": "Detonate the attachment in the sandbox while searching all mailboxes for the message and holding it for quarantine",
                   "x": "Triage scales by containing the blast radius first: find every copy, analyze the payload, then remove it — one analyst cannot race 60 inboxes by hand.",
                   "wrong": [
-                    "Delete the reported copy and tell the clerk to be careful: delete the copy",
-                    "Block the sender’s domain and consider the incident handled: block the domain, consider it handled",
-                    "Forward the attachment to the whole security team for opinions: forward the attachment to everyone"
+                    "Delete the reported copy and remind the clerk to be careful",
+                    "Block the sender's domain and close the incident",
+                    "Forward the attachment to the security team for opinions"
                   ]
                 },
                 {
@@ -15433,9 +15433,9 @@
                   "a": "Verify the collector/forwarder on the firewall side and check for an ingestion gap in raw logs",
                   "x": "A silent drop in ingestion is a visibility failure, not quiet normality — the SIEM cannot alert on logs it never received.",
                   "wrong": [
-                    "Assume the weekend was simply quiet: the quiet weekend explains the EPS drop",
-                    "Restart the SIEM and hope the feed recovers: restart the SIEM and hope it recovers",
-                    "Increase the EPS license immediately: a bigger EPS license fixes the drop"
+                    "Assume the weekend was simply quiet",
+                    "Restart the SIEM and see whether the feed recovers",
+                    "Increase the EPS licence"
                   ]
                 },
                 {
@@ -15443,12 +15443,12 @@
                   "deckId": "secplus-soc-scenarios",
                   "trackId": "cyber",
                   "q": "Two alerts fire for the same user within an hour: a failed VPN login from a new country, then a successful login from that country followed by a large SharePoint download. Individually each alert has a high false-positive rate. What is the most defensible action?",
-                  "a": "Treat it as a probable compromised account",
+                  "a": "Treat it as a probable compromised account and contain it",
                   "x": "Correlation is the whole point of SIEM: individually noisy signals compose into a strong indicator. Act on the pattern, not the single alert.",
                   "wrong": [
-                    "Close both alerts — the login succeeded, so it must be legitimate: success proves legitimacy",
-                    "Email the user asking if they are travelling: email the user, ask about travelling",
-                    "Disable the VPN for everyone until the user replies: disable VPN for everyone until replies"
+                    "Close both alerts, since the login succeeded",
+                    "Email the user to ask whether they are travelling",
+                    "Disable VPN access for everyone until the user replies to confirm the trip"
                   ]
                 },
                 {
@@ -15459,9 +15459,9 @@
                   "a": "Restore the cold archive for that period, document the chain of custody, and hand legal the verified logs",
                   "x": "Retention tiers exist precisely for this: cold storage is the compliance archive. “Somewhere” means the retrieval process was never tested — fix that after this request.",
                   "wrong": [
-                    "Tell legal the logs are gone after 90 days: the logs are gone after 90 days",
-                    "Pull the current warm logs and hope they cover it: warm logs cover 14 months",
-                    "Ask legal to narrow the request to the last 90 days: narrow it to 90 days"
+                    "Tell legal the logs are gone after 90 days",
+                    "Send the warm logs and hope they cover the period",
+                    "Ask legal to narrow the request to 90 days"
                   ]
                 },
                 {
@@ -15472,9 +15472,9 @@
                   "a": "Treat it as likely C2 beaconing: isolate the host and capture memory before remediation",
                   "x": "Machine-regular intervals with tiny, consistent payloads are the beaconing signature; absence from intel feeds proves nothing about a fresh or private C2.",
                   "wrong": [
-                    "Accept the user’s explanation and close the ticket: accept the user’s browsing explanation",
-                    "Block the IP, case closed: blocking the address ends the investigation",
-                    "Wait for the endpoint agent to quarantine it automatically"
+                    "Accept the user's explanation that they were browsing and close the ticket",
+                    "Block the IP and close the case",
+                    "Wait for the endpoint agent to quarantine it"
                   ]
                 },
                 {
@@ -15486,8 +15486,8 @@
                   "x": "Hunting works by anomaly, not volume: legitimate scheduled tasks repeat thousands of times, so the rare outliers are where attackers hide.",
                   "wrong": [
                     "Read every scheduled task on every endpoint manually",
-                    "Count the total number of scheduled tasks in the fleet: count all scheduled tasks",
-                    "Search for the word “malware” in task names: attackers name their tasks after Windows updates, never after malware"
+                    "Count the total number of scheduled tasks in the fleet and compare it with last month",
+                    "Search task names for the word malware"
                   ]
                 },
                 {
@@ -15499,8 +15499,8 @@
                   "x": "47 prompts then an approval is push bombing, and the anomalous database access confirms session compromise. The session must die, and SMS/push alone must not be the re-entry path.",
                   "wrong": [
                     "Ask the user whether they approved the prompt",
-                    "Block the database from the user’s department",
-                    "Change the user’s password but leave sessions active: change the password but leave sessions active"
+                    "Block the database for the user's department",
+                    "Reset the user's password but leave existing sessions active so they can keep working"
                   ]
                 },
                 {
@@ -15511,9 +15511,9 @@
                   "a": "Escalate immediately to management and legal as suspected insider data theft, preserving the DLP logs",
                   "x": "Departing employees exfiltrating data is the classic insider pattern; this is a personnel and legal matter first, a technical one second. Preserve evidence before confronting anyone.",
                   "wrong": [
-                    "Block the cloud drive and send the engineer a warning email: block the drive, warn",
-                    "Assume it is a personal backup and close the alert: assume personal backup, close the alert, Friday is the last day",
-                    "Wipe the engineer’s laptop immediately: wipe the resigned engineer’s laptop now"
+                    "Block the cloud drive and send the engineer a warning",
+                    "Assume it is a personal backup and close the alert",
+                    "Wipe the engineer's laptop immediately"
                   ]
                 },
                 {
@@ -15524,9 +15524,9 @@
                   "a": "Disable the account and revoke sessions pending verification",
                   "x": "Impossible travel is physics, not policy: no manager’s assurance overrides an account in two places at once. Verify after containment, never before.",
                   "wrong": [
-                    "Accept the manager’s explanation and whitelist the contractor: accept the manager’s travel explanation",
-                    "Ask the contractor to confirm by email: an email confirms the contractor’s travel",
-                    "Lower the alert threshold for contractors: lower alert thresholds for contractors"
+                    "Accept the manager's explanation and allow-list the contractor",
+                    "Ask the contractor to confirm by email",
+                    "Raise the alert threshold for contractors"
                   ]
                 },
                 {
@@ -15537,9 +15537,9 @@
                   "a": "URL and attachment extraction, sandbox detonation, mailbox search, and IoC blocking for reported phish",
                   "x": "Automate the highest-volume, lowest-judgment workflow first: phishing triage is repetitive, time-sensitive, and proven. Incident command stays human.",
                   "wrong": [
-                    "Automate ticket closure: auto-close every phishing report on arrival",
-                    "Automated firing of employees who click links: automate firing the employees who click",
-                    "A chatbot that tells users not to click: a chatbot warns users not to click"
+                    "Automatically close phishing reports on arrival",
+                    "Automatically disable users who click links",
+                    "A chatbot that reminds users not to click"
                   ]
                 },
                 {
@@ -15550,9 +15550,9 @@
                   "a": "Enable log forwarding from the HR system now and add a detection for anomalous bulk exports",
                   "x": "A system holding crown-jewel data with zero SIEM visibility is a blind spot, not a backlog item — coverage comes before perfect parsing.",
                   "wrong": [
-                    "Add it to next year’s SIEM onboarding plan: add the HR system to next year’s plan",
-                    "Assume the vendor’s own logging is sufficient: the vendor’s own logging is sufficient, the SIEM needs nothing",
-                    "Block the HR system from the internet: block the HR system’s internet access"
+                    "Add the HR system to next year's SIEM onboarding plan, with the other SaaS apps",
+                    "Rely on the vendor's own logging",
+                    "Block the HR system from the internet"
                   ]
                 },
                 {
@@ -15560,12 +15560,12 @@
                   "deckId": "secplus-soc-scenarios",
                   "trackId": "cyber",
                   "q": "Forensic timeline analysis shows a workstation’s clock was 47 minutes behind the domain controller during the incident window. The SIEM correlated its events with firewall logs by timestamp. What is the impact on your investigation?",
-                  "a": "Event ordering across sources is unreliable",
+                  "a": "Event ordering across sources is unreliable until the skew is corrected",
                   "x": "Correlation assumes synchronized clocks; a 47-minute skew can invert cause and effect. NTP is a security control, not just hygiene.",
                   "wrong": [
-                    "Timestamps are close enough; proceed as normal: timestamps are close enough, proceed normally",
-                    "Discard the workstation logs entirely",
-                    "Add 47 minutes to all firewall timestamps instead: add 47 minutes to the firewall timestamps"
+                    "None; the timestamps are close enough",
+                    "Discard the workstation's logs entirely",
+                    "Shift every firewall timestamp by 47 minutes and treat the correlation as correct"
                   ]
                 },
                 {
@@ -15576,9 +15576,9 @@
                   "a": "Escalate immediately — suspected ransomware always meets the escalation bar, and no one is punished for a good-faith escalation",
                   "x": "Escalation criteria must be explicit and blameless: the cost of a delayed ransomware call dwarfs the cost of a false alarm. Hesitation is a process failure.",
                   "wrong": [
-                    "Wait until Monday so senior staff can look: wait until Monday so seniors can look",
-                    "Quietly restore the files from backup without telling anyone: quietly restore the files, tell nobody",
-                    "Run a full antivirus scan first and escalate only if it finds something: scan first"
+                    "Wait until Monday for senior staff to review it",
+                    "Quietly restore the files without telling anyone",
+                    "Run an antivirus scan first and escalate only if it finds something"
                   ]
                 },
                 {
@@ -15586,12 +15586,12 @@
                   "deckId": "secplus-soc-scenarios",
                   "trackId": "cyber",
                   "q": "The CISO asks for “a report on phishing trends this quarter” and the SOC manager asks for “a dashboard of current phishing campaigns”. What is the correct distinction in what you deliver?",
-                  "a": "The CISO gets a point-in-time report with trends and recommendations",
+                  "a": "The CISO gets a point-in-time report with trends; the SOC manager gets a live dashboard",
                   "x": "Reports answer “what happened and what should we do”; dashboards answer “what is happening right now”. Mixing them up gives executives a blinking screen and analysts a stale PDF.",
                   "wrong": [
-                    "Send both of them the same dashboard link: send both the same dashboard link",
-                    "Send both of them the same quarterly PDF: send both the same quarterly PDF",
-                    "Dashboards are for executives; reports are for analysts: send the CISO a dashboard and the SOC manager a report"
+                    "Send both of them the same dashboard link",
+                    "Send both of them the same quarterly PDF",
+                    "The CISO gets a live dashboard; the SOC manager gets the quarterly trend report"
                   ]
                 },
                 {
@@ -15602,9 +15602,9 @@
                   "a": "Detonate the file in a sandbox and pull parent process, command line, and network connections from EDR",
                   "x": "Unknown hashes are decided by behavior, not reputation: what the file did on the endpoint outweighs what no database knows about it.",
                   "wrong": [
-                    "Search the filename on Google and trust the first result: trust the first Google result",
-                    "Email the file to the whole team for opinions: email the file to the whole team",
-                    "Check the file size: large files are more dangerous than small ones"
+                    "Search the filename online and trust the first result",
+                    "Email the file to the team for opinions",
+                    "Check whether the file size is unusually large"
                   ]
                 },
                 {
@@ -15612,12 +15612,12 @@
                   "deckId": "secplus-soc-scenarios",
                   "trackId": "cyber",
                   "q": "Your DNS logs show one internal host generating 40,000 queries per hour to random-looking subdomains of a single domain, each 60+ characters of high-entropy text. Web proxy logs show nothing unusual. What is the most defensible conclusion and action?",
-                  "a": "Likely DNS tunneling for data exfiltration or C2",
+                  "a": "Likely DNS tunnelling for exfiltration or C2: block the domain and investigate the host",
                   "x": "High-volume, high-entropy DNS to one domain with no corresponding web traffic is the tunneling signature; DNS-layer blocking stops it for every protocol.",
                   "wrong": [
-                    "It is probably a misconfigured application; ignore it",
-                    "Block port 80 on the host: block port 80 to stop DNS tunneling",
-                    "Wait for the EDR to detect something: wait for EDR to detect the tunneling"
+                    "A misconfigured application retrying lookups; ignore it unless users complain",
+                    "Block port 80 on the host",
+                    "Wait for the EDR to detect something"
                   ]
                 },
                 {
@@ -15628,9 +15628,9 @@
                   "a": "True-positive rate and mean time to detect/respond",
                   "x": "Alert volume measures noise, not security: a rule firing 10,000 times with 3 true positives is worse than one firing 10 times with 9. Measure outcomes.",
                   "wrong": [
-                    "Total alert volume is the right metric",
-                    "The number of dashboards created",
-                    "How fast analysts close tickets: ticket-close speed proves the EDR works"
+                    "Total alert volume",
+                    "The number of dashboards built",
+                    "How fast analysts close tickets after each new rule goes live"
                   ]
                 },
                 {
@@ -15638,12 +15638,12 @@
                   "deckId": "secplus-soc-scenarios",
                   "trackId": "cyber",
                   "q": "After a firewall firmware upgrade, the SIEM stops parsing its logs: events arrive but fields are empty, and the “top blocked ports” dashboard goes blank. No alerts fire. What is the most defensible response?",
-                  "a": "Treat it as a detection outage",
+                  "a": "Treat it as a detection outage: fix the parser and re-process the raw logs",
                   "x": "Unparsed logs are invisible logs — dashboards and rules built on fields silently go blind. Raw retention is what makes the outage recoverable.",
                   "wrong": [
-                    "Wait for the vendor to fix it in the next release: wait for the next release",
-                    "Rebuild the parser from scratch: write a new parser before checking the format",
-                    "The firewall is still blocking, so nothing is lost: blocking continues, nothing lost"
+                    "Wait for the vendor to fix it in the next release",
+                    "Rewrite the parser from scratch before checking what changed in the log format",
+                    "Nothing is lost, because the firewall is still blocking"
                   ]
                 },
                 {
@@ -15654,9 +15654,9 @@
                   "a": "The data-staging alert — observed adversary behavior on crown-jewel data outranks an unexploited CVE, even a critical one",
                   "x": "Severity classification must weigh observed malicious activity over theoretical severity: staging is a late-kill-chain step, while the CVE is a possibility behind a WAF.",
                   "wrong": [
-                    "The critical CVE — critical always outranks medium: patch the website first, staging can wait",
-                    "Both are equal; work them in arrival order: both are equal, arrival order wins",
-                    "The website — it is customer-facing: the customer-facing website outranks staging"
+                    "The critical CVE, because critical always outranks medium",
+                    "Both are equal; work them in arrival order",
+                    "The website, because it is customer-facing"
                   ]
                 },
                 {
@@ -15667,9 +15667,9 @@
                   "a": "A written handoff with timeline, IoCs, what was blocked, what was NOT yet checked, and explicit next steps",
                   "x": "Shift handoffs are where investigations die: unstated assumptions become missed follow-ups. Document the open questions, not just the closed ones.",
                   "wrong": [
-                    "Tell them “the EDR handled it” and go home: the EDR handled it, go home",
-                    "Leave a sticky note saying “check the CFO’s assistant”: leave a sticky note for triage",
-                    "Email the CFO about the incident: email the CFO about the live triage"
+                    "Tell them the EDR handled it",
+                    "Leave a note saying to check the assistant's machine",
+                    "Email the CFO about the incident"
                   ]
                 },
                 {
@@ -15677,12 +15677,12 @@
                   "deckId": "secplus-soc-scenarios",
                   "trackId": "cyber",
                   "q": "Your team subscribes to three commercial threat intel feeds. Analysts complain the feeds produce thousands of IoCs daily and nobody uses them. What is the most defensible fix?",
-                  "a": "Define detection requirements first",
+                  "a": "Define detection requirements first, then filter and expire feed IoCs against them",
                   "x": "Intel without requirements is noise: feeds must be filtered to what your stack can act on, and IoCs must expire or they become stale blocklists that break business.",
                   "wrong": [
-                    "Buy a fourth feed for better coverage: a fourth threat feed improves coverage",
-                    "Block every IoC from all feeds immediately: block every IoC from every feed immediately",
-                    "Cancel the feeds and rely on web search alerts: cancel the feeds, rely on web search"
+                    "Buy a fourth feed for better coverage",
+                    "Block every IoC from every feed immediately",
+                    "Cancel the feeds and rely on vendor blogs and web search alerts for new threats"
                   ]
                 },
                 {
@@ -15690,12 +15690,12 @@
                   "deckId": "secplus-soc-scenarios",
                   "trackId": "cyber",
                   "q": "EDR flags a workstation: a signed binary sideloaded a malicious DLL, then opened an outbound connection. The user is in the middle of a client presentation on that machine. What is the most defensible action?",
-                  "a": "Isolate the host from the network immediately",
+                  "a": "Isolate the host from the network immediately and move the presentation",
                   "x": "DLL sideloading plus C2 is an active intrusion, not a suspicious alert; network isolation preserves the host for forensics while stopping the bleeding. The presentation can move.",
                   "wrong": [
                     "Let the presentation finish, then investigate",
-                    "Kill the malicious process but leave the network up: kill the process, leave the network up",
-                    "Ask the user to run antivirus when convenient: ask the user to run antivirus later"
+                    "Kill the malicious process but leave the network up so the presentation can continue",
+                    "Ask the user to run antivirus when convenient"
                   ]
                 },
                 {
@@ -15706,9 +15706,9 @@
                   "a": "Query all hosts for WMI event consumers, filters, and bindings, and compare against a known-good baseline, investigating deviations",
                   "x": "Hunting starts from a hypothesis and a baseline: enumerate the mechanism everywhere, and the outliers — not the volume — reveal the attacker.",
                   "wrong": [
-                    "Disable WMI on all 300 hosts immediately: disable WMI on all 300 hosts now",
-                    "Search event logs for the word “ransomware”: the word ransomware in the logs proves the hunt",
-                    "Reimage every host now: wipe all 300 machines before hunting anything"
+                    "Disable WMI on all 300 hosts immediately",
+                    "Search event logs for the word ransomware",
+                    "Reimage every host before hunting"
                   ]
                 }
               ],
@@ -53487,7 +53487,7 @@
           "body": [
             "At the victim, a volumetric flood shows high requests per second over reused connections; slowloris shows concurrency climbing while requests never complete. A connection flood opens a fresh socket per request (connections roughly equal requests), whereas a volumetric flood reuses keep-alive connections (requests far exceed connections).",
             "The rapid-reset vector models CVE-2023-44487: streams initiated far exceed streams completed, and connections open and then abort or reset almost immediately.",
-            "The amplification lab measures each protocol's amplification factor without attacking anyone, because it never spoofs a source IP: the large responses return to the sender. NTP `monlist` has the highest factor of its profiles (about 556x), answering from UDP source port 123."
+            "The amplification lab measures each protocol's amplification factor without attacking anyone, because it never spoofs a source IP: the large responses return to the sender. NTP `monlist` amplifies about 556x, answering from UDP source port 123; memcached over UDP 11211 is far higher (CISA lists 10,000x to 51,000x), which is why exposed memcached servers were behind record-breaking floods."
           ]
         },
         {
@@ -53536,6 +53536,10 @@
         [
           "NTP monlist",
           "~556x, UDP source port 123"
+        ],
+        [
+          "memcached reflection",
+          "10,000x+, UDP 11211"
         ],
         [
           "T1036 masquerading",

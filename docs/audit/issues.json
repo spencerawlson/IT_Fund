@@ -1006,5 +1006,53 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0063",
+    "severity": "High",
+    "category": "incorrect",
+    "file": "src/data/academy/cyber.js, src/data/catalog/lessons/cyber.js, avatar-scripts/cyber/cy-detection-labs.md",
+    "contentId": "cy-detection-labs-8",
+    "original": "NTP monlist has the highest amplification factor (~556x) of the lab's profiles (which include memcached)",
+    "problem": "Published factors put memcached far higher (10,000x-51,000x) than NTP monlist (~556x). The lab's own profile values are not in this repository, so the card was reframed on the published figures.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "https://www.cisa.gov/news-events/alerts/2014/01/17/udp-based-amplification-attacks",
+    "sourceDate": "2026-11-17",
+    "confidence": "medium",
+    "humanReview": true,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0064",
+    "severity": "Medium",
+    "category": "incomplete",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "cy-detection-labs-4",
+    "original": "Volumetric = high requests/sec with connections reused",
+    "problem": "The question asked how to tell volumetric from slowloris; the answer described only one.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0065",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-soc-scenarios",
+    "original": "'Delete the copy and tell the clerk to be careful: delete the copy'",
+    "problem": "Options duplicated themselves after a colon (2026 length rebalance).",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]
