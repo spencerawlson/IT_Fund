@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { Lock, SearchX } from 'lucide-react';
 import { EmptyState } from '@/components/ui-glass';
-import { MISSION_TOPOLOGY_DEVICES } from '@/components/missions/MissionTopology';
 import { useCypherVoice, fetchVoiceStatus } from '@/api/voice';
-import { SHOWCASE_ORDER } from '@/components/three/socLayout';
 import { splitBriefing } from '@/data/missions';
 import { missionsApi } from '@/api/missions';
 import { friendlyErrorMessage } from '@/lib/errors';
@@ -17,21 +15,21 @@ import { useTheme } from '@/components/ThemeProvider';
 // the only route that imports the scene.
 const MissionSocScene = React.lazy(() => import('@/components/three/MissionSocScene'));
 
-const SOC_MISSION_ID = 'op-broken-shield';
+// The SOC room holds no mission equipment (Spencer, 2026-11-17): the
+// router, server and the two PCs live only in the terminal page's 2D
+// topology, where the learner works with them. A stable empty list keeps
+// the scene from re-building on every render.
+const NO_DEVICES = [];
 
 // Mission opening timings (seconds). The opening plays like a video on
 // entry (fresh attempt only): a short cinematic establishing shot, then
 // the split briefing — each robot reads their paragraph with the camera
-// on them — then a tour of the four devices. The tour dwells 4 s per
-// device (was 2.5 s): the live check found the 2.5 s tour unreadable —
-// the camera was still gliding to each device for half the dwell, and
-// the tour was over before the check looked up from the briefing. The
-// scene also settles faster during the showcase (CAMERA_DAMP_SHOWCASE).
+// on them — then the hand-off to the terminal. (The device tour that
+// followed the briefing was removed 2026-11-17 with the devices.)
 // Safety caps: a briefing turn advances on its own if the voice stalls
 // (the hook's suspended-context fallback guarantees playing ends), so
 // no phase can hang.
 const OPEN_OPEN_S = 1.8;
-const OPEN_SHOWCASE_S = 4.0;
 const OPEN_BRIEFING_CAP_S = 60;
 // The hand-off to the mission terminal is a visible transition, not a
 // jump: "Connecting to the mission portal…" (1.2 s), then "Connection
@@ -46,12 +44,17 @@ const ESTABLISHED_S = 0.8;
  * page), no 3D/2D toggle and no 2D topology (the topology is the terminal
  * page's inspection tool, and only there), no header, no cards. The
  * caption stays — it is the only text on the page — at the BOTTOM of the
- * screen. When the briefing finishes (all turns played + the device tour,
- * or the learner skips it) the screen shows the connecting transition and
+ * screen. When the briefing finishes (all turns played, or the learner
+ * skips it) the screen shows the connecting transition and
  * hands the learner to the mission terminal page (/missions/:missionId/terminal),
- * which has no 3D room at all. Terminal missions and resumed attempts never
- * see this screen — they go straight to the terminal (the old "opening
- * skipped" behaviour, now a redirect instead of a silent phase change).
+ * which has no 3D room at all. EVERY mission starts here (Spencer,
+ * 2026-11-17: "every single mission starts in the SOC room — that is where
+ * you get your instructions"): the robots read that mission's briefing.
+ * The room holds the three robots only: the mission's devices (router,
+ * server, PCs) are worked with in the terminal page's 2D topology, never
+ * shown here. A resumed
+ * attempt is mid-mission, not starting it, so it goes straight to the
+ * terminal.
  * The heavy 3D code loads ONLY here: the terminal page must never import
  * the scene. If the 3D renderer fails, there is no 2D fallback on this
  * page anymore — the learner goes straight to the terminal, where the
@@ -59,7 +62,6 @@ const ESTABLISHED_S = 0.8;
 export default function MissionBriefing() {
   useDocumentTitle('Mission Briefing · Road to CISSP');
   const { missionId } = useParams();
-  const isSocMission = missionId === SOC_MISSION_ID;
   const navigate = useNavigate();
   const { theme } = useTheme();
   const terminalUrl = `/missions/${missionId}/terminal`;
@@ -106,15 +108,11 @@ export default function MissionBriefing() {
   // --- Mission opening (plays like a video, on entry, fresh attempt only).
   // Phases: 'open' (cinematic establishing shot) -> 'briefing' (the split
   // briefing, one turn at a time: each robot reads their paragraph with
-  // the camera on them) -> 'showcase' (the four devices, one at a time,
-  // each shown + labelled in 3D) -> 'done' (connecting transition, then
-  // the terminal). The phase lives in state (it drives the caption + Skip
-  // button); the speaker/showcase refs are what the scene tick reads
-  // every frame.
+  // the camera on them) -> 'done' (connecting transition, then the
+  // terminal). The phase lives in state (it drives the caption + Skip
+  // button); the speaker ref is what the scene tick reads every frame.
   const [openingPhase, setOpeningPhase] = useState('open');
   const [briefingTurnIdx, setBriefingTurnIdx] = useState(0);
-  const [showcaseDevice, setShowcaseDevice] = useState(null);
-  const showcaseRef = useRef(null);
   // Index of the briefing turn already started (-1: none yet). The ref
   // keeps a turn from re-speaking when the effect re-runs on a playing
   // flip; the state advances the turn once the voice ends.
@@ -124,9 +122,6 @@ export default function MissionBriefing() {
   // machine below). Cleared by the dedicated effect when the turn advances
   // or the briefing ends.
   const briefingCapRef = useRef(null);
-  // Wall-clock start of the device showcase (Date.now()), so the tour
-  // runs on deadlines, not fresh timeouts (see the showcase effect).
-  const showcaseStartRef = useRef(null);
   const voicePlayRef = useRef(null);
   voicePlayRef.current = cypherVoice.play;
   // Which characters have a voice configured, from GET /voice/status
@@ -147,26 +142,19 @@ export default function MissionBriefing() {
       ? (briefingTurns[briefingTurnIdx]?.speaker || 'cypher')
       : 'wide';
   }, [openingPhase, briefingTurnIdx, briefingTurns]);
-  useEffect(() => { showcaseRef.current = showcaseDevice; }, [showcaseDevice]);
 
-  // Opening phase machine — split in two, on purpose. This effect owns
-  // 'open' + 'briefing' only, and it is the only one that watches the
-  // voice. The 'briefing' step plays the split briefing one turn at a
+  // Opening phase machine: 'open' -> 'briefing' -> 'done'. The 'briefing' step plays the split briefing one turn at a
   // time: it starts the current turn's read-aloud once (the ref keeps it
   // from re-speaking when the effect re-runs on a playing flip) and
   // advances to the next turn when the voice ends after having played;
   // the hook's suspended-context fallback guarantees playing ends even
   // when Safari blocks audio, and the 60 s cap advances it regardless
   // (per turn, so a stalled turn never hangs the sequence). A mission
-  // with no briefing lines skips straight to the showcase; the
-  // 'briefing' step waits for the mission to load rather than skipping
-  // on an empty turn list (the 'open' timer can fire before the API
-  // answers). SPLIT: the showcase effect below does not watch the voice,
-  // because a voice flip re-running the showcase timer was the
-  // 2026-11-14 defect — each flip cleared the pending 4 s timeout and
-  // started a fresh one, stretching dwells to ~10-12 s live.
+  // with no briefing lines goes straight to the hand-off; the 'briefing'
+  // step waits for the mission to load rather than skipping on an empty
+  // turn list (the 'open' timer can fire before the API answers).
   useEffect(() => {
-    if (openingPhase === 'done' || openingPhase === 'showcase') return undefined;
+    if (openingPhase === 'done') return undefined;
     if (openingPhase === 'open') {
       const t = setTimeout(() => setOpeningPhase('briefing'), OPEN_OPEN_S * 1000);
       return () => clearTimeout(t);
@@ -175,11 +163,11 @@ export default function MissionBriefing() {
       if (!missionDef) return undefined;
       const turns = briefingTurns;
       if (!turns.length) {
-        setOpeningPhase('showcase');
+        setOpeningPhase('done');
         return undefined;
       }
       if (briefingTurnIdx >= turns.length) {
-        setOpeningPhase('showcase');
+        setOpeningPhase('done');
         return undefined;
       }
       const turn = turns[briefingTurnIdx];
@@ -221,44 +209,7 @@ export default function MissionBriefing() {
       briefingCapRef.current = null;
     }
   }, [openingPhase, briefingTurnIdx]);
-  // Showcase timer — voice-free on purpose. The tour runs on a
-  // wall-clock deadline, not a fresh timeout per device:
-  // showcaseStartRef records when the showcase phase began, and device
-  // idx's slot ends at start + (idx + 1) x 4 s. The effect depends only
-  // on [openingPhase, showcaseDevice] — a voice flip mid-tour cannot
-  // re-run it, and if it does re-run (device change) it reschedules
-  // only the *remaining* time to the same deadline. Main-thread
-  // saturation can only shrink a later slot, never stretch the tour
-  // past 16 s total.
-  useEffect(() => {
-    if (openingPhase !== 'showcase') {
-      showcaseStartRef.current = null;
-      return undefined;
-    }
-    if (showcaseStartRef.current === null) showcaseStartRef.current = Date.now();
-    if (!showcaseDevice) {
-      setShowcaseDevice(SHOWCASE_ORDER[0]);
-      return undefined;
-    }
-    const idx = SHOWCASE_ORDER.indexOf(showcaseDevice);
-    if (idx < 0) {
-      setShowcaseDevice(SHOWCASE_ORDER[0]);
-      return undefined;
-    }
-    const deadline = showcaseStartRef.current + (idx + 1) * OPEN_SHOWCASE_S * 1000;
-    const remaining = Math.max(0, deadline - Date.now());
-    const t = setTimeout(() => {
-      if (idx + 1 >= SHOWCASE_ORDER.length) {
-        setShowcaseDevice(null);
-        setOpeningPhase('done');
-      } else {
-        setShowcaseDevice(SHOWCASE_ORDER[idx + 1]);
-      }
-    }, remaining);
-    return () => clearTimeout(t);
-  }, [openingPhase, showcaseDevice]);
-  // The briefing is over (all turns played + the device tour, or the
-  // learner skipped it): stop the voice so no briefing audio bleeds into
+  // The briefing is over (all turns played, or the learner skipped it): stop the voice so no briefing audio bleeds into
   // the terminal page, then show the connecting transition — "Connecting
   // to the mission portal…" (1.2 s), "Connection established" (0.8 s) —
   // and hand the learner to the mission terminal. The transition is a
@@ -294,7 +245,7 @@ export default function MissionBriefing() {
         const def = await missionsApi.getMission(missionId);
         const started = await missionsApi.start(missionId);
         if (!live) return;
-        if (!isSocMission || started.resumed) {
+        if (started.resumed) {
           navigate(terminalUrl, { replace: true });
           return;
         }
@@ -312,7 +263,7 @@ export default function MissionBriefing() {
       }
     })();
     return () => { live = false; };
-  }, [missionId, isSocMission, terminalUrl, navigate]);
+  }, [missionId, terminalUrl, navigate]);
 
   // Warm the mission GLB cache on mount: on direct entry the SOC scene
   // would otherwise load cypher.glb cold (the lesson handoff path
@@ -356,7 +307,6 @@ export default function MissionBriefing() {
   // 'done' effect above runs the connecting transition, then redirects.
   const skipOpening = () => {
     cypherVoice.stop();
-    setShowcaseDevice(null);
     setOpeningPhase('done');
   };
 
@@ -407,7 +357,6 @@ export default function MissionBriefing() {
     : 'Cypher reads the briefing…';
   const openingCaption = openingPhase === 'open' ? 'Opening the SOC…'
     : openingPhase === 'briefing' ? (cypherVoice.subtitle || briefingTurnLabel)
-    : openingPhase === 'showcase' ? (showcaseDevice ? `Equipment tour — ${showcaseDevice}` : 'Equipment tour')
     : null;
   const openingActive = openingPhase !== 'done';
 
@@ -421,7 +370,7 @@ export default function MissionBriefing() {
       <div className="h-full w-full portrait:h-auto portrait:aspect-square">
       <React.Suspense fallback={<div className="flex h-full items-center justify-center text-ink-2">Loading SOC room…</div>}>
         <MissionSocScene
-          devices={MISSION_TOPOLOGY_DEVICES}
+          devices={NO_DEVICES}
           incidentActive={incidentActive}
           contained={contained}
           onRendererFailed={handleRendererFailed}
@@ -429,7 +378,6 @@ export default function MissionBriefing() {
           reducedMotion={reducedMotion}
           cypherVoiceRef={cypherVoiceRef}
           speakerRef={speakerRef}
-          showcaseRef={showcaseRef}
         />
       </React.Suspense>
       </div>

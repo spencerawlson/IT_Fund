@@ -316,19 +316,11 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     expect(voiceControl.playCalls).toHaveLength(4);
     expect(voiceControl.playCalls[3]).toContain('Mission Console');
 
-    // Past the last turn the opening enters the showcase: one device at
-    // a time, 4 s each, in network-path order. The last turn's audio still
-    // has to finish first (2 s) plus the 0.4 s advance, like the others.
+    // Past the last turn there is no equipment tour (the devices live only
+    // in the terminal's 2D topology since 2026-11-17): once the last turn's
+    // audio finishes (2 s) plus the 0.4 s advance, the hand-off starts.
     await advance(300 + 2000 + 500);
-    expect(captionOf(root)).toBe('Equipment tour — PC1');
-    await advance(4000);
-    expect(captionOf(root)).toBe('Equipment tour — GUEST');
-    await advance(4000);
-    expect(captionOf(root)).toBe('Equipment tour — R1');
-    await advance(4000);
-    expect(captionOf(root)).toBe('Equipment tour — SRV');
-    await advance(4000);
-    // Showcase over: the briefing screen does NOT jump straight to the
+    // The briefing screen does NOT jump straight to the
     // terminal — the connecting transition shows first (1.2 s), then
     // "Connection established" (0.8 s), then the terminal page opens.
     expect(captionOf(root)).toBe('Connecting to the mission portal…');
@@ -390,7 +382,7 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     await act(async () => { renderer.unmount(); });
   });
 
-  it('a resumed attempt redirects to the terminal immediately — no briefing, no showcase', async () => {
+  it('a resumed attempt redirects to the terminal immediately — no briefing', async () => {
     // By design: the briefing plays only on a fresh attempt. A resumed
     // learner is mid-mission, not watching an intro, so the briefing
     // screen hands them straight to the terminal.
@@ -408,24 +400,35 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     await act(async () => { renderer.unmount(); });
   });
 
-  it('a non-SOC mission redirects to the terminal immediately — no room, no briefing', async () => {
-    // The flood mission has no 3D room: Launch Mission must land on the
-    // terminal page, never on a briefing screen with nothing to show.
+  it('every mission starts in the SOC room: the flood mission is briefed there, with no equipment tour', async () => {
+    // Spencer 2026-11-17: every mission starts in the SOC room, where the
+    // robots give the instructions. Operation Packet Flood has no devices
+    // in the room (its evidence is a capture), so its briefing plays and
+    // then hands off to the terminal with no equipment tour.
     defControl.def = FLOOD_DEF;
     let renderer;
     await act(async () => {
       renderer = renderBriefing('/missions/op-packet-flood');
     });
     await flush();
+    expect(lastPath).toBe('/missions/op-packet-flood');
+    expect(terminalVisible(renderer.root)).toBe(false);
+
+    // Cinematic open (1.8 s) -> the flood briefing is spoken in the room.
+    await advance(2000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+    expect(voiceControl.playCalls[0]).toContain('flood of packets');
+
+    // After the turn: no equipment tour, straight to the connecting hand-off.
+    await advance(300 + 2000 + 500);
+    expect(captionOf(renderer.root) || '').not.toMatch(/Equipment tour/);
+    await advance(5000);
     expect(lastPath).toBe('/missions/op-packet-flood/terminal');
-    expect(terminalVisible(renderer.root)).toBe(true);
-    await advance(10000);
-    expect(voiceControl.playCalls).toHaveLength(0);
 
     await act(async () => { renderer.unmount(); });
   });
 
-  it('runs the opening under reduced motion — the briefing speaks, the tour runs (no freeze)', async () => {
+  it('runs the opening under reduced motion — the briefing speaks, then hands off (no freeze)', async () => {
     // Live defect (2026-11-16): with prefers-reduced-motion the whole
     // mission froze — no briefing, no showcase, robots still — because
     // the opening was skipped outright and ModelViewer never called the
@@ -450,48 +453,30 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     expect(voiceControl.playCalls).toHaveLength(1);
     expect(voiceControl.playCalls[0]).toContain('Orion Technologies');
 
-    // The rest of the briefing, then the showcase tours the devices.
+    // The rest of the briefing, then the hand-off to the terminal.
     await advance(300 + 2000 + 500);
     await advance(300 + 2000 + 500);
     await advance(300 + 2000 + 500);
+    expect(voiceControl.playCalls).toHaveLength(4);
     await advance(300 + 2000 + 500);
-    expect(captionOf(root)).toBe('Equipment tour — PC1');
-    await advance(4000);
-    expect(captionOf(root)).toBe('Equipment tour — GUEST');
+    expect(captionOf(root)).toBe('Connecting to the mission portal…');
 
     await act(async () => { renderer.unmount(); });
   });
 
-  it('a voice flip mid-showcase does not restart the 4 s dwell', async () => {
-    // Regression for the live defect (2026-11-14): the old phase machine
-    // watched cypherVoice.loading/playing, so a flip mid-tour cleared
-    // the pending 4 s timeout and started a fresh one — two flips
-    // stretched a dwell to ~10-12 s. The showcase timer must not watch
-    // the voice: flip it 2 s into the PC1 dwell and the tour is already
-    // on GUEST 4 s after PC1 started.
+  it('the SOC room shows no mission devices — they live in the terminal 2D topology', async () => {
+    // Spencer 2026-11-17: the router, the server and the two PCs are not in
+    // the 3D room, for any mission; the learner works with them in 2D.
     let renderer;
     await act(async () => {
       renderer = renderBriefing();
     });
     await flush();
-    const root = renderer.root;
-    expect(captionOf(root)).toBe('Opening the SOC…');
-    await advance(2000);
-    await advance(300 + 2000 + 500);
-    await advance(300 + 2000 + 500);
-    await advance(300 + 2000 + 500);
-    await advance(300 + 2000 + 500);
-    expect(captionOf(root)).toBe('Equipment tour — PC1');
-    // 2 s into the dwell, flip the voice: loading -> playing -> stopped.
-    await advance(2000);
-    expect(captionOf(root)).toBe('Equipment tour — PC1');
-    await act(async () => { voiceControl.setLoading(true); });
-    await act(async () => { voiceControl.setLoading(false); voiceControl.setPlaying(true); });
-    await act(async () => { voiceControl.setPlaying(false); });
-    await flush();
-    // 4 s after PC1 started the tour is on GUEST — the flip cost nothing.
-    await advance(2000);
-    expect(captionOf(root)).toBe('Equipment tour — GUEST');
+    const scene = renderer.root.findAll((n) => n.props && Array.isArray(n.props.devices));
+    expect(scene.length).toBeGreaterThan(0);
+    scene.forEach((n) => expect(n.props.devices).toEqual([]));
+    await advance(2000 + 4 * (300 + 2000 + 500));
+    expect(captionOf(renderer.root) || '').not.toMatch(/Equipment tour/);
 
     await act(async () => { renderer.unmount(); });
   });
