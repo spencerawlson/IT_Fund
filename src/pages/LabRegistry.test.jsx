@@ -41,4 +41,12 @@ describe('Lab subject registry', () => {
       expect(RENDERERS[subject.id], subject.id).toBeDefined();
     }
   });
+
+  it('keeps the load balancer subject in Cloud & Scale with a renderer', () => {
+    const subject = SUBJECTS.find((s) => s.id === 'load-balancer');
+    expect(subject).toBeDefined();
+    expect(subject.kind).toBe('anim');
+    expect(subject.category).toBe('Cloud & Scale');
+    expect(RENDERERS['load-balancer']).toBeDefined();
+  });
 });
