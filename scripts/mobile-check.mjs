@@ -114,7 +114,14 @@ for (const [engine, [type, device]] of Object.entries(PHONES)) {
   // Tap a plain-text acronym: tooltip appears; tap elsewhere: it closes.
   await page.goto(BASE + '/app', { waitUntil: 'load' });
   await page.waitForSelector('h1', { timeout: 10000 }).catch(() => {});
-  await page.waitForTimeout(1200);
+  // Wait until an acronym is actually tappable (registered, laid out, on
+  // screen), not a fixed 1.2 s: on a slow CI WebKit the highlight ranges
+  // can land after that, which failed the check on a page the change under
+  // test never touched.
+  await page.waitForFunction(() => [...(CSS.highlights?.get('acronym') || [])].some((r) => {
+    const b = r.getBoundingClientRect();
+    return b.width && b.top > 100 && b.bottom < innerHeight - 120 && !r.startContainer.parentElement.closest('a,button');
+  }), null, { timeout: 10000 }).catch(() => {});
   const pt = await page.evaluate(() => {
     for (const r of CSS.highlights?.get('acronym') || []) {
       const b = r.getBoundingClientRect();
