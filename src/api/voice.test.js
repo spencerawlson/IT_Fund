@@ -35,7 +35,7 @@ describe('speakVoice', () => {
     expect(calls[0].url).toBe('/api/voice/speak');
     expect(calls[0].opts.method).toBe('POST');
     expect(calls[0].opts.credentials).toBe('include');
-    expect(JSON.parse(calls[0].opts.body)).toEqual({ character: 'cypher', text: 'Hello.' });
+    expect(JSON.parse(calls[0].opts.body)).toEqual({ character: 'cypher', text: 'Hello.', purpose: 'lesson' });
     expect(envelope.fallback).toBe(true);
     expect(envelope.audio_b64).toBeNull();
   });
@@ -258,7 +258,7 @@ describe('useCypherVoice loading', () => {
       await playPromise;
     });
     expect(latest.playing).toBe(true);
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ character: 'sentinel', text: 'Hello.' });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ character: 'sentinel', text: 'Hello.', purpose: 'lesson' });
 
     // Same text as Cypher is a different cache entry: a second fetch,
     // posted as cypher — and the no-character call still defaults so.
@@ -266,7 +266,7 @@ describe('useCypherVoice loading', () => {
     globalThis.fetch = vi.fn(async () => jsonResponse(cypherEnvelope));
     await TestRenderer.act(async () => { await latest.play('Hello.'); });
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-    expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body)).toEqual({ character: 'cypher', text: 'Hello.' });
+    expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body)).toEqual({ character: 'cypher', text: 'Hello.', purpose: 'lesson' });
 
     // Replaying the Sentinel turn reuses its cache: no third fetch.
     await TestRenderer.act(async () => { await latest.play('Hello.', 'sentinel'); });
