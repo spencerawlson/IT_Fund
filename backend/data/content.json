@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:06:50.915Z",
+  "generatedAt": "2026-11-17T01:10:51.558Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -7364,9 +7364,9 @@
                   "a": "Owner read/write only; nobody else can access it",
                   "x": "r=4, w=2, x=1 for owner, group, others. SSH rejects world-readable private keys.",
                   "wrong": [
-                    "Everyone can read it: chmod 600 opens the key",
-                    "Makes it executable: chmod 600 adds execute rights only",
-                    "Deletes it: chmod 600 erases the key file entirely"
+                    "Everyone can read it, but only the owner can change it",
+                    "Owner can read, write and execute it",
+                    "Owner and group can read and write it"
                   ]
                 },
                 {
@@ -7403,9 +7403,9 @@
                   "a": "Runs a command as another user, root by default",
                   "x": "Audit sudoers: overly broad sudo rules are a privilege escalation path.",
                   "wrong": [
-                    "Switches the shell: sudo changes your shell session entirely",
-                    "Shows processes: sudo lists the running programs for you",
-                    "Encrypts files: sudo scrambles files for secrecy, not privilege"
+                    "Switches to another user's login shell permanently",
+                    "Lists the processes started by other users",
+                    "Opens a file with elevated read-only access"
                   ]
                 },
                 {
@@ -7416,9 +7416,9 @@
                   "a": "Sends one command’s output into the next command’s input",
                   "x": "cat access.log | sort | uniq -c | sort -nr counts repeat lines.",
                   "wrong": [
-                    "Writes to a file: the pipe saves output to disk",
-                    "Runs in the background: the pipe detaches commands to background",
-                    "Comments a line: the pipe marks text as notes"
+                    "Writes a command's output to a file",
+                    "Runs the first command in the background",
+                    "Runs the second command only if the first one finishes successfully"
                   ]
                 },
                 {
@@ -7429,9 +7429,9 @@
                   "a": "A program that runs with its owner’s privileges",
                   "x": "SUID-root binaries are a classic privilege escalation target (see GTFOBins).",
                   "wrong": [
-                    "A system service: a program the OS starts automatically at boot",
-                    "A shell alias",
-                    "A signed binary"
+                    "A service the system starts automatically at boot",
+                    "A binary signed by the distribution's key",
+                    "A program that can only be run by root"
                   ]
                 },
                 {
@@ -7442,9 +7442,9 @@
                   "a": "ps aux (or top/htop)",
                   "x": "Look for odd parents, names, or high CPU.",
                   "wrong": [
-                    "ls /proc only: listing proc alone shows running processes",
-                    "netstat: the tool that lists all running processes",
-                    "kill: the command that lists all running processes"
+                    "netstat -an",
+                    "lsof -i",
+                    "ls /proc"
                   ]
                 },
                 {
@@ -7468,9 +7468,9 @@
                   "a": "Decodes base64 text",
                   "x": "Base64 is encoding, not encryption; attackers use it to hide payloads.",
                   "wrong": [
-                    "Encrypts a file",
-                    "Hashes a file",
-                    "Compresses a file"
+                    "Decrypts a base64-encrypted file",
+                    "Verifies a base64 checksum",
+                    "Decompresses a base64 archive"
                   ]
                 }
               ],
@@ -7532,9 +7532,9 @@
                   "a": "A knowledge base of adversary tactics and techniques",
                   "x": "Tactics are the \"why\" (goal); techniques are the \"how\".",
                   "wrong": [
-                    "A vulnerability scanner",
-                    "A compliance law: a statute that mandates specific security controls",
-                    "A threat feed: a live stream of IOCs for blocking"
+                    "A scoring system for vulnerability severity",
+                    "A compliance standard that mandates specific security controls",
+                    "A live feed of indicators for blocking"
                   ]
                 },
                 {
@@ -7547,7 +7547,7 @@
                   "wrong": [
                     "Execution",
                     "Persistence",
-                    "Exfiltration: moving stolen data out to attacker infrastructure"
+                    "Reconnaissance"
                   ]
                 },
                 {
@@ -7598,7 +7598,7 @@
                   "x": "CSF 2.0 (2024) added Govern.",
                   "wrong": [
                     "Plan, Do, Check, Act",
-                    "Identify, Protect, Detect, Respond, Recover only",
+                    "Identify, Protect, Detect, Respond, Recover, with no new function added",
                     "Prevent, Detect, Correct"
                   ]
                 },
@@ -7610,9 +7610,9 @@
                   "a": "Adversary, capability, infrastructure, victim",
                   "x": "Used in threat intelligence analysis.",
                   "wrong": [
-                    "People, process, technology: the three pillars every security program balances",
-                    "CIA and AAA: the triad plus the three As, the classic framework pair",
-                    "Red, blue, purple: the team colours, attackers defenders and both"
+                    "People, process and technology",
+                    "Threat actor, vulnerability, impact and likelihood",
+                    "Threat, vulnerability and impact"
                   ]
                 },
                 {
@@ -7623,9 +7623,9 @@
                   "a": "IoC types ranked by how much blocking them hurts the attacker",
                   "x": "Hashes and IPs are trivial to change; TTPs are the hardest.",
                   "wrong": [
-                    "A ransomware payment scale: a price list for unlocking encrypted files",
-                    "A CVSS chart: a scoring table for vulnerability severity",
-                    "A password policy: rules for length, rotation, and reuse"
+                    "A ranking of ransomware families by impact",
+                    "A chart that converts CVSS base scores into business risk levels",
+                    "A model of attacker effort by kill-chain phase"
                   ]
                 },
                 {
@@ -7636,9 +7636,9 @@
                   "a": "A format and transport for sharing threat intel",
                   "x": "Lets tools exchange IoCs automatically.",
                   "wrong": [
-                    "Two malware families: STIX and TAXII as malicious strains",
-                    "A SIEM query language: the syntax for searching security logs",
-                    "A firewall API: a protocol for pushing rules to edge devices"
+                    "A query language for searching SIEM data",
+                    "A pair of open-source threat feeds",
+                    "A protocol for pushing block rules from a SIEM out to firewalls"
                   ]
                 },
                 {
@@ -7649,9 +7649,9 @@
                   "a": "Red and blue teams working together to improve detection",
                   "x": "Attack, observe detection, tune, repeat.",
                   "wrong": [
-                    "A compliance team",
-                    "A third-party auditor: an outside firm verifying security controls",
-                    "A crisis PR team: spokespeople managing public fallout after breaches"
+                    "An internal team that audits detection rules against written policy",
+                    "An external red team hired once a year",
+                    "The communications team during a breach"
                   ]
                 },
                 {
@@ -7662,9 +7662,9 @@
                   "a": "Intelligence from publicly available sources",
                   "x": "Search engines, social media, DNS, certificate transparency logs.",
                   "wrong": [
-                    "Classified intelligence",
-                    "Stolen data: information taken without permission from its victims",
-                    "Insider tips: secret leads from people inside the target"
+                    "Intelligence gathered from classified sources",
+                    "Intelligence bought from dark-web markets",
+                    "Intelligence from insiders at the target"
                   ]
                 }
               ],
@@ -7736,9 +7736,9 @@
                   "a": "A message encrypted with a fast symmetric key, which is itself encrypted asymmetrically",
                   "x": "Hybrid approach: symmetric speed plus asymmetric key distribution.",
                   "wrong": [
-                    "A signed email: a message with proof of origin attached",
-                    "A hashed password: a one-way digest stored instead of plaintext",
-                    "A VPN tunnel: an encrypted path between two networks"
+                    "A message signed with the sender's private key and sent inside a TLS session",
+                    "A message hashed before it is sent",
+                    "A message sent through an encrypted VPN tunnel"
                   ]
                 },
                 {
@@ -7746,12 +7746,12 @@
                   "deckId": "cy-crypto",
                   "trackId": "cyber",
                   "q": "DV vs OV vs EV certificates?",
-                  "a": "Domain-validated (email check), Organization-validated (business identity), Extended-validation (rigorous vetting)",
-                  "x": "Higher validation = more trust, but all three encrypt identically.",
+                  "a": "DV proves control of the domain; OV also verifies the organisation; EV adds the strictest vetting",
+                  "x": "DV is checked by DNS, HTTP or email challenge. Higher validation means more identity assurance, but all three encrypt identically.",
                   "wrong": [
-                    "Speed tiers: faster or slower service levels, by price",
-                    "Key lengths: how many bits a key holds, and nothing else",
-                    "Hash algorithms: the functions that digest data into fixed output"
+                    "Three key lengths: 2048, 3072 and 4096 bits",
+                    "Three hash algorithms used to sign the certificate",
+                    "Three service tiers that change TLS speed"
                   ]
                 },
                 {
@@ -7762,9 +7762,9 @@
                   "a": "Many subdomains of one domain, e.g. *.example.com",
                   "x": "One compromised wildcard key affects every subdomain — scope the risk.",
                   "wrong": [
-                    "Multiple unrelated domains: separate names with no shared parent",
-                    "IP addresses: the numbers that locate hosts on a network",
-                    "Code signing: proving software came from its claimed author"
+                    "Several unrelated domain names that must share one certificate",
+                    "Securing services reached by IP address",
+                    "Signing software releases"
                   ]
                 },
                 {
@@ -7775,9 +7775,9 @@
                   "a": "Multiple different domain names on one certificate",
                   "x": "SAN lists each name explicitly; wildcards cover only one domain’s subdomains.",
                   "wrong": [
-                    "For subdomains only",
-                    "For email encryption",
-                    "For disk encryption: scrambling a drive, not a website"
+                    "When you need to cover every subdomain of a single domain name",
+                    "When you need to encrypt email",
+                    "When you need to encrypt a disk"
                   ]
                 },
                 {
@@ -7788,9 +7788,9 @@
                   "a": "No trusted third party vouches for it",
                   "x": "Fine for testing; production needs a trusted CA chain.",
                   "wrong": [
-                    "It cannot encrypt: the mechanism offers no confidentiality at all",
-                    "It expires instantly: valid for no time at all after issue",
-                    "It voids insurance: no insurer covers a self-signed certificate"
+                    "It cannot encrypt traffic",
+                    "It expires within 24 hours",
+                    "It cannot use keys longer than 1024 bits"
                   ]
                 },
                 {
@@ -7801,9 +7801,9 @@
                   "a": "A trusted third party holds a copy of encryption keys for recovery",
                   "x": "Enables data recovery but creates a high-value target.",
                   "wrong": [
-                    "Deleting old keys: destroying keys instead of managing them",
-                    "Splitting keys in two: cutting one key into halves",
-                    "Encrypting the key twice: double-wrapping the same secret"
+                    "Destroying old keys on a schedule",
+                    "Splitting a key between two custodians so neither can use it alone",
+                    "Wrapping a key with a second key"
                   ]
                 },
                 {
@@ -7811,12 +7811,12 @@
                   "deckId": "cy-crypto",
                   "trackId": "cyber",
                   "q": "HSM vs TPM in one line each?",
-                  "a": "HSM: network-attached vault for keys and crypto ops; TPM: chip on the motherboard binding keys to one device",
-                  "x": "HSMs serve many systems; TPMs anchor one machine’s boot and disk encryption.",
+                  "a": "HSM: dedicated hardware that stores keys and performs crypto for many systems; TPM: a chip binding keys to one device",
+                  "x": "HSMs (network appliances or PCIe cards) serve many systems; TPMs anchor one machine's boot integrity and disk encryption.",
                   "wrong": [
-                    "HSM is a chip: the vault sits on the motherboard of one machine",
-                    "TPM is cloud-based: a chip that lives in a data centre",
-                    "HSM is software-only: no hardware, just code that holds keys"
+                    "HSM: a chip on one motherboard; TPM: a shared network appliance",
+                    "Both are software key stores with different APIs",
+                    "HSM handles disk encryption; TPM handles TLS offload"
                   ]
                 },
                 {
@@ -7827,9 +7827,9 @@
                   "a": "Block ciphers encrypt fixed-size chunks; stream ciphers encrypt bit by bit",
                   "x": "AES is a block cipher; RC4 (deprecated) was a stream cipher.",
                   "wrong": [
-                    "Block ciphers stream data: block ciphers encrypt bit by bit",
-                    "Block is faster: chunked encryption wins on raw speed alone",
-                    "Stream needs no key: encryption that works without any secret"
+                    "Block ciphers encrypt bit by bit; stream ciphers use fixed chunks",
+                    "Block ciphers need no IV; stream ciphers always do",
+                    "Stream ciphers are always stronger than block ciphers"
                   ]
                 },
                 {
@@ -7840,9 +7840,9 @@
                   "a": "GCM adds authenticated encryption",
                   "x": "CBC alone needs a separate HMAC to detect tampering.",
                   "wrong": [
-                    "GCM is older",
-                    "CBC is faster: raw speed is its only advantage here",
-                    "CBC authenticates too: CBC also verifies data has not changed"
+                    "GCM uses a longer key than CBC",
+                    "CBC is faster and equally secure",
+                    "CBC already detects tampering through its padding"
                   ]
                 },
                 {
@@ -7853,9 +7853,9 @@
                   "a": "Hashing is one-way and has no key; encryption is reversible with a key",
                   "x": "You cannot \"decrypt\" a hash — you can only recompute and compare.",
                   "wrong": [
-                    "Hashing is slower: digesting data is the bottleneck here",
-                    "Encryption has no key: scrambling that needs no secret",
-                    "Encryption is one-way: scrambled data can never be decrypted again"
+                    "Hashing uses a public key to sign; encryption uses a private key to hide",
+                    "Both are reversible with the right key",
+                    "Encryption is one-way; hashing is reversible"
                   ]
                 },
                 {
@@ -7863,12 +7863,12 @@
                   "deckId": "cy-crypto",
                   "trackId": "cyber",
                   "q": "What are the steps of creating a digital signature?",
-                  "a": "Hash the message, then encrypt the hash with the sender’s private key",
-                  "x": "Verification reverses it: decrypt with the public key, re-hash, compare.",
+                  "a": "Hash the message, then sign the hash with the sender's private key",
+                  "x": "For RSA this is often described as encrypting the hash. Verification uses the sender's public key, re-hashes the message and compares.",
                   "wrong": [
-                    "Encrypt then hash: scramble first, digest second, in that order",
-                    "Hash twice only: two digests, with no encryption involved",
-                    "Sign with the public key: the shared half does the signing"
+                    "Encrypt the message with the recipient's public key, then hash the ciphertext",
+                    "Hash the message twice with different algorithms",
+                    "Sign the hash with the sender's public key"
                   ]
                 },
                 {
@@ -7879,9 +7879,9 @@
                   "a": "The full chain: leaf signed by intermediate, intermediate by a trusted root",
                   "x": "Any break — expired, wrong name, untrusted root — triggers a warning.",
                   "wrong": [
-                    "The website’s password: a login secret the browser checks",
-                    "The server’s IP: its network address, and nothing more",
-                    "The DNS record: the name-to-address mapping in public DNS"
+                    "That the site uses the latest TLS version",
+                    "That the server's IP address matches DNS",
+                    "That the site has no known vulnerabilities and uses the latest TLS version"
                   ]
                 },
                 {
@@ -7892,9 +7892,9 @@
                   "a": "Every certificate chaining to it becomes untrustworthy at once",
                   "x": "Root keys live offline in HSMs precisely because the blast radius is total.",
                   "wrong": [
-                    "Nothing breaks: browsers keep trusting the old certificates forever",
-                    "Only one site breaks: a single failure, contained to one host, nothing else affected",
-                    "Browsers get faster: speed improves when trust is broken"
+                    "Only certificates issued after the date of the compromise are affected",
+                    "Only the root's own website is affected",
+                    "Nothing, as long as intermediates are still valid"
                   ]
                 },
                 {
@@ -7905,9 +7905,9 @@
                   "a": "To keep the root key offline: intermediates sign day-to-day certs",
                   "x": "A compromised intermediate can be revoked without replacing the root.",
                   "wrong": [
-                    "To speed up TLS: performance is the only reason to add them",
-                    "To avoid encryption: skipping confidentiality entirely, by design",
-                    "They are optional decoration: present for show, serving no purpose"
+                    "To make TLS handshakes faster",
+                    "To allow shorter key lengths for leaf certificates than the root uses",
+                    "To avoid paying root programme fees"
                   ]
                 },
                 {
@@ -7918,9 +7918,9 @@
                   "a": "An app accepts only a specific certificate or key, ignoring the system trust store",
                   "x": "Defeats rogue-CA attacks but breaks when the pinned cert rotates.",
                   "wrong": [
-                    "Pinning a cert to a wall: literally fixing paper to a board",
-                    "Disabling TLS: turning encryption off for every connection",
-                    "A faster handshake: a quicker greeting, with no trust involved"
+                    "An app trusts any certificate the operating system's trust store accepts",
+                    "Turning off certificate validation for testing",
+                    "Caching the certificate to speed up handshakes"
                   ]
                 },
                 {
@@ -7931,9 +7931,9 @@
                   "a": "On a defined schedule and immediately on suspected compromise or staff departure",
                   "x": "Rotation limits how much data one key protects.",
                   "wrong": [
-                    "Never rotate: one key serves forever, whatever happens",
-                    "Only when expired: wait for the expiry date before acting",
-                    "Every decade: rotate once each ten years, no sooner"
+                    "Only when the key expires",
+                    "Never, as long as the key is long enough and stored in an HSM",
+                    "Once every ten years"
                   ]
                 },
                 {
@@ -7944,9 +7944,9 @@
                   "a": "ECC: a 256-bit curve rivals RSA-3072 with far less computation",
                   "x": "ECC suits mobile and constrained devices.",
                   "wrong": [
-                    "RSA is stronger per bit: classic math beats curves at equal size",
-                    "They are equal per bit: size for size, neither has an edge",
-                    "Bit length is irrelevant: key size never affects strength"
+                    "RSA: factoring-based keys are stronger bit for bit than any curve",
+                    "They are equal at the same bit length",
+                    "Bit length does not affect strength"
                   ]
                 },
                 {
@@ -7957,9 +7957,9 @@
                   "a": "Hiding data inside innocent-looking files, like text in an image",
                   "x": "Unlike encryption it hides the existence of the message, not just its content.",
                   "wrong": [
-                    "A cipher mode: the way a block cipher processes data",
-                    "A hash function: a digest that maps data to fixed output",
-                    "A file archive: a container bundling many files into one"
+                    "A block cipher mode that hides patterns in repeated plaintext blocks",
+                    "A one-way hash function",
+                    "A file compression format"
                   ]
                 },
                 {
@@ -7970,9 +7970,9 @@
                   "a": "Obfuscation only makes data hard to read; encryption makes it unreadable without the key",
                   "x": "Security by obscurity is not a control.",
                   "wrong": [
-                    "Encryption is obfuscation: scrambling with a key is just hiding the text",
-                    "Obfuscation is stronger: hiding beats real encryption outright",
-                    "Encryption needs no key: scrambling with no secret involved"
+                    "They are the same thing",
+                    "Obfuscation is stronger because attackers cannot see the algorithm",
+                    "Encryption only hides data; obfuscation removes it"
                   ]
                 },
                 {
@@ -7983,9 +7983,9 @@
                   "a": "Confidentiality: a signed message is still readable by anyone",
                   "x": "Signatures prove origin and integrity, not secrecy — encrypt as well if needed.",
                   "wrong": [
-                    "Integrity: data staying accurate and unaltered in transit",
-                    "Identity proof: a signature verifies the sender’s identity",
-                    "Denial-proof messaging: a signer cannot later deny sending the message"
+                    "Integrity: detecting whether the message changed after it was signed",
+                    "Authenticity: proving who sent it",
+                    "Non-repudiation: the sender cannot deny it"
                   ]
                 },
                 {
@@ -7996,9 +7996,9 @@
                   "a": "A secret key, so only key holders can create or verify the tag",
                   "x": "Proves both integrity and authenticity of a message.",
                   "wrong": [
-                    "Faster hashing: speed is the only gain over plain hashes",
-                    "Longer output: a bigger digest, with no other difference",
-                    "No key needed: verification works with no shared secret"
+                    "Faster hashing for large messages",
+                    "A longer digest that resists collisions better than the plain hash",
+                    "Encryption of the message contents"
                   ]
                 },
                 {
@@ -8009,9 +8009,9 @@
                   "a": "Generating multiple working keys from one master secret",
                   "x": "TLS derives separate encryption and MAC keys per direction from the handshake secret.",
                   "wrong": [
-                    "Copying keys",
-                    "Deleting keys: destroying secrets instead of rotating them",
-                    "Sharing keys publicly: posting secrets where anyone can read them"
+                    "Copying a key to a backup HSM",
+                    "Replacing a compromised key",
+                    "Publishing a public key to a directory so others can derive it"
                   ]
                 },
                 {
@@ -8022,9 +8022,9 @@
                   "a": "Each session gets fresh keys",
                   "x": "This is the mechanism behind perfect forward secrecy.",
                   "wrong": [
-                    "They are cheaper: fresh keys cost less than reusing old ones",
-                    "They never expire: fresh keys that last forever, by design",
-                    "They need no entropy: randomness plays no part in making them"
+                    "They are cheaper to generate than long-term keys",
+                    "They never expire during the session",
+                    "They need no randomness to create"
                   ]
                 },
                 {
@@ -8035,9 +8035,9 @@
                   "a": "Anyone who downloads the app can extract the key and decrypt everything",
                   "x": "Keys belong in a keystore, HSM, or derived per device — never in shipped code.",
                   "wrong": [
-                    "The key is too short: AES keys must be 4096 bits",
-                    "AES is broken: the algorithm itself has failed outright",
-                    "Apps cannot encrypt: mobile software has no crypto at all"
+                    "The key is too short: AES keys in mobile apps must be at least 4096 bits",
+                    "AES is broken and should not be used",
+                    "Mobile apps are not allowed to encrypt data"
                   ]
                 }
               ],
@@ -8082,9 +8082,9 @@
                   "a": "Availability first, then confidentiality if data is also stolen",
                   "x": "Double extortion adds a confidentiality breach to the availability loss.",
                   "wrong": [
-                    "Integrity only: only the data’s accuracy suffers, nothing else",
-                    "None: no CIA goal is affected at all",
-                    "Confidentiality only: encrypted files are unreadable, nothing else suffers"
+                    "Integrity only, because files are modified",
+                    "None, because no data leaves the network",
+                    "Confidentiality only, because the encrypted files can no longer be read"
                   ]
                 },
                 {
@@ -8160,9 +8160,9 @@
                   "a": "Prove identity, grant permissions, log actions",
                   "x": "You authenticate to the VPN, are authorized to the finance share, and accounting records the access.",
                   "wrong": [
-                    "Authorization proves identity: granting permissions is how you prove who you are",
-                    "Auth is optional: identity checks can be skipped entirely here",
-                    "Accounting comes first: log actions before proving anyone’s identity"
+                    "Grant permissions, prove identity, log actions",
+                    "Prove identity, log actions, grant permissions",
+                    "Log actions, prove identity, grant permissions"
                   ]
                 },
                 {
@@ -8173,9 +8173,9 @@
                   "a": "Audit trails, billing, and forensic reconstruction",
                   "x": "Without accounting you cannot prove who did what.",
                   "wrong": [
-                    "Faster logins: signing in more quickly is what accounting enables",
-                    "Stronger passwords: tougher secrets are what accounting provides here",
-                    "Encrypted traffic: scrambled flows that prove who did what"
+                    "Faster logins, because sessions can be cached and replayed securely",
+                    "Stronger password enforcement",
+                    "Encryption of traffic between users"
                   ]
                 },
                 {
@@ -8187,7 +8187,7 @@
                   "x": "Gaps in accounting blind incident response.",
                   "wrong": [
                     "Authentication: the badge never proved who held it",
-                    "Authorization: deciding what an authenticated user may do",
+                    "Authorization: the badge was valid but the door should not have opened",
                     "Integrity: the log entries were altered afterwards"
                   ]
                 },
@@ -8199,9 +8199,9 @@
                   "a": "No implicit trust by network location; verify every request continuously",
                   "x": "A compromised laptop inside the LAN gets no free pass.",
                   "wrong": [
-                    "Trust the LAN fully: inside the network means trusted",
-                    "No authentication needed: trust without verifying anyone at all, location is enough",
-                    "Zero trust trusts the perimeter: the moat just moves to the cloud edge"
+                    "Trust devices on the LAN; verify remote ones",
+                    "Trust is based on network location alone",
+                    "Zero trust keeps the perimeter but moves it from the data centre to the cloud edge"
                   ]
                 },
                 {
@@ -8212,9 +8212,9 @@
                   "a": "Dividing the network into tiny isolated zones with per-zone policy",
                   "x": "Limits lateral movement: breaching one segment does not open the rest.",
                   "wrong": [
-                    "VLANs for guests only",
-                    "Faster routing: moving packets sooner through the network core",
-                    "Bigger subnets: larger network segments with fewer boundaries between them"
+                    "Placing guests on a separate VLAN",
+                    "Routing traffic faster through the core by removing internal firewalls",
+                    "Merging subnets to simplify policy"
                   ]
                 },
                 {
@@ -8225,9 +8225,9 @@
                   "a": "Re-check identity, device health, and context throughout the session",
                   "x": "A stolen session token alone should not grant lasting access.",
                   "wrong": [
-                    "One login per year: authenticate once, trusted for twelve months, never re-checked",
-                    "Trust after first login: one check, then trusted forever",
-                    "No re-authentication: a single login lasts the whole session"
+                    "Authenticate once at login, then trust the session until it times out",
+                    "Re-authenticate users once a year",
+                    "Check device health only at enrolment"
                   ]
                 },
                 {
@@ -8235,12 +8235,12 @@
                   "deckId": "cy-concepts",
                   "trackId": "cyber",
                   "q": "Policy engine vs policy administrator vs enforcement point?",
-                  "a": "Engine decides, administrator configures, enforcement point applies the decision",
-                  "x": "The NIST 800-207 logical components of a zero trust architecture.",
+                  "a": "The engine decides; the administrator acts on the decision; the enforcement point allows or blocks the connection",
+                  "x": "These are the NIST SP 800-207 logical components: the policy administrator configures the policy enforcement point according to the policy engine's decision.",
                   "wrong": [
-                    "All the same box",
-                    "Only the engine matters: the deciding component alone enforces policy",
-                    "Hardware vs software: the split between physical and coded policy"
+                    "They are one component with three names",
+                    "The enforcement point decides; the engine applies the decision",
+                    "The administrator decides; the engine logs the decision"
                   ]
                 },
                 {
@@ -8251,9 +8251,9 @@
                   "a": "You build detection, segmentation, and least privilege as if attackers are already inside",
                   "x": "Backups, monitoring, and blast-radius limits become primary controls.",
                   "wrong": [
-                    "It removes monitoring: assume breach means detection is pointless",
-                    "Firewalls are removed: assume breach means no perimeter at all",
-                    "Passwords are enough: a password alone stops every breach"
+                    "Monitoring is no longer needed",
+                    "The perimeter firewall is removed",
+                    "Strong passwords and perimeter firewalls become the main controls"
                   ]
                 },
                 {
@@ -8264,9 +8264,9 @@
                   "a": "Identity becomes the perimeter",
                   "x": "Weak identity collapses the whole model.",
                   "wrong": [
-                    "Identity is optional: zero trust works without knowing users",
-                    "Networks still decide: location still grants trust in zero trust",
-                    "Passwords suffice: passwords alone count as strong identity here"
+                    "Identity is optional once devices are trusted",
+                    "The network location still grants trust",
+                    "Passwords alone count as strong identity"
                   ]
                 },
                 {
@@ -8278,8 +8278,8 @@
                   "x": "Rated by crash standards; part of perimeter physical security.",
                   "wrong": [
                     "Planters",
-                    "Speed bumps: raised asphalt that slows cars at entrances",
-                    "Flag poles: tall posts for flying flags at entrances"
+                    "Speed bumps that slow vehicles at the entrance",
+                    "Flag poles"
                   ]
                 },
                 {
@@ -8290,9 +8290,9 @@
                   "a": "Two interlocked doors: the second opens only after the first closes and you authenticate",
                   "x": "Defeats tailgating and piggybacking.",
                   "wrong": [
-                    "A revolving door: a spinning entrance letting crowds flow through",
-                    "A turnstile: a spinning gate that counts staff in and out",
-                    "A honeypot: a decoy system built to attract and observe attackers"
+                    "A revolving door that admits one person at a time after a badge swipe",
+                    "A turnstile that counts staff in and out",
+                    "A guarded reception desk"
                   ]
                 },
                 {
@@ -8303,9 +8303,9 @@
                   "a": "To block all radio signals",
                   "x": "Protects against wireless exfiltration and eavesdropping.",
                   "wrong": [
-                    "To speed up Wi-Fi",
-                    "For decoration",
-                    "To store cables: a shielded room for keeping spare leads"
+                    "To boost Wi-Fi signal strength",
+                    "To protect equipment from power surges",
+                    "To keep the room at a stable temperature"
                   ]
                 },
                 {
@@ -8316,9 +8316,9 @@
                   "a": "Opportunistic theft of the device itself",
                   "x": "It does not stop a determined thief with cutters — layer it with encryption.",
                   "wrong": [
-                    "Remote hacking: breaking in over the network, not theft",
-                    "Malware: hostile software, whatever its family or form",
-                    "Tailgating: following staff through the office door unchallenged"
+                    "Remote network attacks",
+                    "Malware infection",
+                    "Tailgating by someone following staff into the office"
                   ]
                 },
                 {
@@ -8329,9 +8329,9 @@
                   "a": "Entries, exits, server rooms, and other chokepoints",
                   "x": "Coverage of high-value areas beats blanket coverage of hallways.",
                   "wrong": [
-                    "Bathrooms",
-                    "Parking only: cameras belong in the car park alone",
-                    "Nowhere: cameras are not needed anywhere in the building"
+                    "Car parks only",
+                    "Every hallway and stairwell, evenly spaced across the building",
+                    "Break rooms and kitchens"
                   ]
                 },
                 {
@@ -8342,9 +8342,9 @@
                   "a": "Accountability for non-employees inside secure areas",
                   "x": "Know who was where, when — and never leave visitors unescorted near sensitive zones.",
                   "wrong": [
-                    "Faster visits",
-                    "Free Wi-Fi",
-                    "Catering counts: food service is what proves visitor accountability"
+                    "Faster visitor check-in",
+                    "Guest Wi-Fi access",
+                    "Building occupancy limits set by fire regulations"
                   ]
                 },
                 {
@@ -8355,9 +8355,9 @@
                   "a": "Biometric authentication factors (something you are)",
                   "x": "They authenticate identity; they do not replace authorization.",
                   "wrong": [
-                    "Passwords",
-                    "Tokens: small devices carried to prove identity at login",
-                    "PINs: short numeric codes typed to prove your identity"
+                    "Knowledge factors (something you know)",
+                    "Possession factors (something you have), stored on the device",
+                    "Location factors (somewhere you are)"
                   ]
                 },
                 {
@@ -8368,9 +8368,9 @@
                   "a": "False Acceptance Rate vs False Rejection Rate",
                   "x": "Lowering one raises the other; tune to the risk.",
                   "wrong": [
-                    "FAR counts rejections: false accepts are the users wrongly turned away",
-                    "Speed metrics: how quickly the biometric system responds to users",
-                    "Cost figures: the price charged per false biometric match"
+                    "FAR counts rejections; FRR counts acceptances",
+                    "Two measures of how fast matching runs",
+                    "Two measures of cost per enrolment"
                   ]
                 },
                 {
@@ -8381,9 +8381,9 @@
                   "a": "The point where FAR equals FRR",
                   "x": "Use it to compare biometric systems objectively.",
                   "wrong": [
-                    "A password length",
-                    "An encryption mode",
-                    "The error floor: the lowest error rate any biometric can reach"
+                    "The point where FAR is lowest",
+                    "The rate at which enrolment fails",
+                    "The average of FAR and FRR"
                   ]
                 },
                 {
@@ -8394,9 +8394,9 @@
                   "a": "Biometrics are permanent: you cannot issue a new fingerprint",
                   "x": "Use biometrics for convenience, pair with a revocable factor for high security.",
                   "wrong": [
-                    "You can revoke it: issue a fresh fingerprint like a password",
-                    "Fingerprints change yearly: prints renew themselves like passwords do",
-                    "You can reissue it: a fresh fingerprint is issued like a new password"
+                    "You can: a new fingerprint template is issued, just like a new password",
+                    "Fingerprints change every few years",
+                    "You can revoke it by re-enrolling the same finger"
                   ]
                 },
                 {
@@ -8407,9 +8407,9 @@
                   "a": "Possession: something you have",
                   "x": "Combine with a PIN (knowledge) for true multi-factor.",
                   "wrong": [
-                    "Something you know: a memorised secret as the proof offered",
-                    "Something you are: a biometric trait as the proof offered",
-                    "Somewhere you are: a location check is what the card proves"
+                    "Knowledge: something you know",
+                    "Inherence: something you are",
+                    "Location: somewhere you are"
                   ]
                 },
                 {
@@ -8420,9 +8420,9 @@
                   "a": "Layered controls so one failure does not mean breach",
                   "x": "If phishing beats training, MFA and EDR still stand in the way.",
                   "wrong": [
-                    "One strong firewall: a single perimeter box as whole defence",
-                    "More passwords",
-                    "Faster patching: applying fixes sooner counts as layered defence"
+                    "One strong perimeter firewall",
+                    "More complex password rules",
+                    "Patching faster than attackers can exploit new vulnerabilities"
                   ]
                 },
                 {
@@ -8433,9 +8433,9 @@
                   "a": "Splitting critical tasks so no single person can complete fraud alone",
                   "x": "The person who approves payments cannot also issue them.",
                   "wrong": [
-                    "Everyone does everything: every person handles every critical task",
-                    "One admin for all: a single administrator doing everything",
-                    "Sharing passwords: one secret used by the whole team"
+                    "Rotating staff through critical tasks",
+                    "One trusted administrator for all systems",
+                    "Sharing one admin account between two people so they can check each other"
                   ]
                 },
                 {
@@ -8446,9 +8446,9 @@
                   "a": "Default stance: deny everything not explicitly allowed",
                   "x": "The safe default behind allow-listing and firewall rules.",
                   "wrong": [
-                    "Allow everything: every access request is granted without any checks",
-                    "Deny everything always: refuse every request with no exceptions at all",
-                    "Ask the user: let the user decide each access request"
+                    "Allow everything not explicitly denied",
+                    "Deny every request, including those an explicit rule allows",
+                    "Prompt the user to decide each time"
                   ]
                 },
                 {
@@ -8459,9 +8459,9 @@
                   "a": "It exposes fraud and removes single points of knowledge",
                   "x": "Someone covering a role may spot what the regular hid.",
                   "wrong": [
-                    "To bore employees",
-                    "To fill vacancies: rotation exists to cover staff holidays",
-                    "To cut costs: rotation exists to save the company money"
+                    "To cover staff holidays",
+                    "To reduce training costs",
+                    "To keep employees motivated by giving them varied work"
                   ]
                 },
                 {
@@ -8472,9 +8472,9 @@
                   "a": "Fraud that needs constant cover unravels when the person is away",
                   "x": "A classic anti-fraud control in finance roles.",
                   "wrong": [
-                    "To use up leave: vacations exist so leave balances do not pile up",
-                    "For morale only: vacations exist to keep staff happy",
-                    "It is illegal to skip: the law forbids missing a vacation, vacations are mandatory by law"
+                    "To stop staff building up large leave balances the company must pay out",
+                    "To improve staff morale",
+                    "Because labour law requires it"
                   ]
                 },
                 {
@@ -8485,9 +8485,9 @@
                   "a": "Two authorized people required to complete a sensitive action",
                   "x": "Used for key ceremonies, safe combinations, and large transfers.",
                   "wrong": [
-                    "Two passwords: two secrets standing in for two people",
-                    "Two firewalls: a pair of perimeter boxes as dual control, one box per person",
-                    "Two backups: spare copies as the second-person rule"
+                    "Two passwords required for one account, typed by the same person",
+                    "Two firewalls in series",
+                    "Two backup copies of the data"
                   ]
                 },
                 {
@@ -8498,22 +8498,22 @@
                   "a": "Access to information: only those who require it for their role",
                   "x": "Classification plus need-to-know equals least privilege for data.",
                   "wrong": [
-                    "Internet speed: how fast the connection runs for users",
-                    "Working hours: the times of day when access is allowed",
-                    "Meeting invites: calendar entries that limit access to data"
+                    "Network bandwidth per user",
+                    "The hours of the day when each role is allowed to log in",
+                    "Which meetings staff can join"
                   ]
                 },
                 {
                   "id": "cy-concepts-33",
                   "deckId": "cy-concepts",
                   "trackId": "cyber",
-                  "q": "A policy says screens lock after 5 idle minutes. Which principle?",
-                  "a": "Defense in depth applied to physical/logical access",
-                  "x": "Layered with badges, clean desk, and encryption.",
+                  "q": "A policy says screens lock after 5 idle minutes. What kind of control is this?",
+                  "a": "A technical preventive control against unattended access",
+                  "x": "It stops someone using an unattended session; badges, clean-desk rules and disk encryption add further layers.",
                   "wrong": [
-                    "Zero trust only: the principle behind every screen lock",
-                    "No principle: screen locks follow no security idea at all",
-                    "Least privilege: locking screens limits what users may access"
+                    "A detective control that records idle sessions",
+                    "A physical control enforced by facilities staff",
+                    "A corrective control that restores sessions after they are locked"
                   ]
                 }
               ],
@@ -8562,9 +8562,9 @@
                   "a": "Alert triage: validate, enrich, escalate",
                   "x": "Tier 2 investigates deeper; Tier 3 hunts and handles major incidents.",
                   "wrong": [
-                    "Write malware",
-                    "Approve budgets: Tier 1 analysts sign off the spending",
-                    "Configure payroll: Tier 1 analysts set the staff salaries"
+                    "Write and tune the SIEM's correlation rules for new threats",
+                    "Reverse-engineer malware samples",
+                    "Lead threat hunts and major incidents"
                   ]
                 },
                 {
@@ -8576,8 +8576,8 @@
                   "x": "4624 = successful logon; 4672 = special privileges assigned.",
                   "wrong": [
                     "A successful logon",
-                    "A new service installed",
-                    "Log cleared"
+                    "A new service was installed",
+                    "An account was locked out"
                   ]
                 },
                 {
@@ -8589,8 +8589,8 @@
                   "x": "Logon type 10 is RemoteInteractive (RDP).",
                   "wrong": [
                     "A failed logon",
-                    "Account locked out",
-                    "User created"
+                    "An account was locked out",
+                    "A user account was created"
                   ]
                 },
                 {
@@ -8602,8 +8602,8 @@
                   "x": "A strong indicator of anti-forensics.",
                   "wrong": [
                     "A user logged off",
-                    "A service started",
-                    "A policy changed: a modified rule in the log"
+                    "A service was started",
+                    "The audit policy was changed to stop logging failures"
                   ]
                 },
                 {
@@ -8614,9 +8614,9 @@
                   "a": "A user account was created",
                   "x": "Unexpected accounts are a persistence indicator.",
                   "wrong": [
-                    "A password reset: a changed credential in the log",
-                    "A failed logon: a rejected sign-in attempt in the log",
-                    "A group deleted: a removed security group in the log"
+                    "A user's password was reset",
+                    "A member was added to a security group",
+                    "A user account was disabled"
                   ]
                 },
                 {
@@ -8640,9 +8640,9 @@
                   "a": "Authenticate email senders and set a policy for failures",
                   "x": "SPF = allowed servers; DKIM = signature; DMARC = alignment and policy.",
                   "wrong": [
-                    "Encrypt email: scrambling messages counts as sender authentication here",
-                    "Filter spam by keywords: word lists authenticate the email senders",
-                    "Back up mailboxes: mailbox copies are what SPF proves"
+                    "Encrypt email between mail servers so that messages cannot be read in transit",
+                    "Filter spam by scoring keywords",
+                    "Scan attachments for known malware"
                   ]
                 },
                 {
@@ -8653,9 +8653,9 @@
                   "a": "Analysts overwhelmed by noisy alerts, missing real ones",
                   "x": "Tune detections, suppress known-good, automate enrichment.",
                   "wrong": [
-                    "A tired server: an exhausted machine is missing alerts",
-                    "A DDoS type",
-                    "A log retention limit: storage caps cause the alert fatigue"
+                    "A SIEM silently dropping events once it passes its licence limit",
+                    "Analysts working too many overnight shifts",
+                    "Log storage filling up and losing old alerts"
                   ]
                 },
                 {
@@ -8666,9 +8666,9 @@
                   "a": "A free Microsoft tool that logs detailed process, network, and file events",
                   "x": "Event ID 1 = process creation with the full command line.",
                   "wrong": [
-                    "A log forwarder: a tool shipping raw logs to storage untouched",
-                    "A task manager: a utility showing which programs are running now",
-                    "A packet sniffer: a tool capturing raw frames off the wire"
+                    "A log forwarder that ships Windows events to a SIEM unchanged",
+                    "A built-in task manager for running processes",
+                    "A packet capture tool for Windows hosts"
                   ]
                 },
                 {
@@ -8679,9 +8679,9 @@
                   "a": "An isolated environment to safely run suspicious files",
                   "x": "Observe behaviour: files dropped, registry keys, network calls.",
                   "wrong": [
-                    "A backup share: a network folder holding backup copies",
-                    "A test database: dummy records are the sandbox",
-                    "A honeypot for users: a decoy trapping curious employees"
+                    "A network share where analysts keep copies of samples for later review",
+                    "A copy of production data for testing",
+                    "A decoy system that lures attackers"
                   ]
                 },
                 {
@@ -8692,9 +8692,9 @@
                   "a": "Whether the exact file is known to be malicious",
                   "x": "A single changed byte changes the hash, so absence proves little.",
                   "wrong": [
-                    "Who wrote the file: the hash names the author",
-                    "The file’s source code",
-                    "That the file is safe: unknown hashes prove the file safe"
+                    "Who wrote the file and when it was compiled",
+                    "Whether any variant of the malware family is present",
+                    "That the file is safe if no engine flags it"
                   ]
                 },
                 {
@@ -8705,9 +8705,9 @@
                   "a": "The alert fired and the activity was malicious",
                   "x": "Track TP/FP rates to measure detection quality.",
                   "wrong": [
-                    "The alert was wrong: malicious activity means a false alarm",
-                    "No alert fired for a real attack: silence is a true positive",
-                    "A test alert: a drill firing as a true positive"
+                    "The alert fired, but investigation showed the activity was benign",
+                    "A real attack happened and no alert fired",
+                    "A test alert generated during a drill"
                   ]
                 },
                 {
@@ -8718,9 +8718,9 @@
                   "a": "Disable unneeded services and close unused ports",
                   "x": "Reduce the attack surface before patching: if nothing is listening, nothing can be exploited.",
                   "wrong": [
-                    "Buy a new firewall: fresh hardware hardens the old server",
-                    "Change all passwords: new secrets harden the old server",
-                    "Enable logging only: watch Telnet and change nothing else"
+                    "Put a new firewall in front of the server",
+                    "Change every account password on the server",
+                    "Enable detailed logging on the server and keep the services running"
                   ]
                 },
                 {
@@ -8731,9 +8731,9 @@
                   "a": "Securing an OS by removing defaults, closing ports, and applying baselines",
                   "x": "Use CIS Benchmarks or STIGs as the starting template.",
                   "wrong": [
-                    "Installing antivirus: antivirus alone hardens the whole operating system",
-                    "Encrypting the disk: scrambled drives count as OS hardening here",
-                    "Backing up data: backup copies count as OS hardening here"
+                    "Installing antivirus on the host",
+                    "Encrypting the system disk",
+                    "Taking regular backups of the host so it can be rebuilt after an attack"
                   ]
                 },
                 {
@@ -8744,9 +8744,9 @@
                   "a": "Full-disk encryption for Windows, macOS, and Linux",
                   "x": "Protects data at rest if the device is lost or stolen.",
                   "wrong": [
-                    "They are firewalls",
-                    "They are VPN protocols: disk encryption tools tunnel network traffic",
-                    "They scan for malware: disk encryption tools find the infections"
+                    "Host firewalls for each operating system",
+                    "VPN clients built into each operating system",
+                    "Malware scanners built into Windows, macOS and Linux"
                   ]
                 },
                 {
@@ -8757,9 +8757,9 @@
                   "a": "EDR records behaviour and enables response; AV mostly matches signatures",
                   "x": "AV asks \"is this known bad?\"; EDR asks \"what did this process just do?\"",
                   "wrong": [
-                    "AV is faster: antivirus beats EDR on raw speed",
-                    "EDR needs no agent: behaviour recording needs no installed software, the cloud watches everything",
-                    "EDR matches signatures: behaviour recording is just signature matching renamed"
+                    "AV records behaviour and responds; EDR matches signatures",
+                    "EDR runs without any agent on the endpoint",
+                    "They differ only in licence cost"
                   ]
                 },
                 {
@@ -8770,9 +8770,9 @@
                   "a": "Default-deny: only approved software runs, stopping unknown malware",
                   "x": "Block-listing chases an infinite list of badness.",
                   "wrong": [
-                    "It is cheaper",
-                    "Users prefer it",
-                    "It needs no updates: allow-listing never needs maintenance at all, the list is final"
+                    "It is cheaper to buy and run than any block-listing or antivirus product",
+                    "Users find it less restrictive",
+                    "It never needs updating once deployed"
                   ]
                 },
                 {
@@ -8783,9 +8783,9 @@
                   "a": "Controls traffic on that single machine, even off the corporate network",
                   "x": "Windows Defender Firewall with Advanced Security is the common example.",
                   "wrong": [
-                    "It replaces antivirus: the host firewall makes AV obsolete",
-                    "It encrypts traffic: the host firewall scrambles packets in transit",
-                    "It manages passwords: the host firewall stores user credentials"
+                    "It replaces antivirus on the endpoint",
+                    "It encrypts all traffic leaving the machine, even on untrusted networks",
+                    "It filters traffic for the whole subnet"
                   ]
                 },
                 {
@@ -8796,22 +8796,22 @@
                   "a": "Reboot-to-restore or write-protected baseline image",
                   "x": "Prevents persistence of any change, malicious or accidental.",
                   "wrong": [
-                    "A stronger password: tougher secrets restore the kiosk image",
-                    "More RAM: extra memory restores the clean kiosk image",
-                    "A bigger hard drive: more disk space for kiosks"
+                    "Stronger local administrator passwords on the kiosk",
+                    "Full-disk encryption on the kiosk",
+                    "Application allow-listing alone"
                   ]
                 },
                 {
                   "id": "cy-soc-19",
                   "deckId": "cy-soc",
                   "trackId": "cyber",
-                  "q": "Patch Tuesday is weekly, but a critical RCE drops on Thursday. What now?",
+                  "q": "Patch Tuesday is monthly, but a critical RCE under active exploitation is published two days later. What now?",
                   "a": "Out-of-band emergency patching per the patch management policy",
-                  "x": "Criticality and active exploitation override the normal cadence.",
+                  "x": "Microsoft's Patch Tuesday is the second Tuesday of each month. Criticality and active exploitation override the normal cadence.",
                   "wrong": [
-                    "Wait for next Tuesday",
-                    "Disable the internet: cut all connectivity until next Tuesday, the RCE can wait",
-                    "Reinstall the OS: fresh installs fix the critical RCE"
+                    "Wait for next month's Patch Tuesday and patch then",
+                    "Disconnect affected servers from the internet until next month's cycle",
+                    "Reinstall the operating system on affected hosts"
                   ]
                 },
                 {
@@ -8822,9 +8822,9 @@
                   "a": "An approved, locked-down configuration every system is compared against",
                   "x": "Drift from baseline triggers remediation.",
                   "wrong": [
-                    "The factory default: shipped settings are the secure baseline, defaults are locked down",
-                    "The newest OS version: the latest release is the baseline",
-                    "An encrypted backup: scrambled copies are the secure baseline"
+                    "The vendor's factory default configuration",
+                    "The newest available operating system version with default settings",
+                    "An encrypted backup of a known-good system"
                   ]
                 },
                 {
@@ -8835,9 +8835,9 @@
                   "a": "USB-borne malware would otherwise execute on insert",
                   "x": "A classic initial-access vector; disable via GPO.",
                   "wrong": [
-                    "It slows boot times: disabling Autorun delays every boot always",
-                    "It uses too much RAM: disabling Autorun hogs all system memory",
-                    "It breaks printing: disabling Autorun kills every printer outright"
+                    "It slows down boot and logon times",
+                    "It uses too much memory on older hosts and slows down logons",
+                    "It conflicts with printer drivers"
                   ]
                 },
                 {
@@ -8848,9 +8848,9 @@
                   "a": "A single inventory of assets, owners, and configurations",
                   "x": "You cannot protect or patch what you do not know exists.",
                   "wrong": [
-                    "Storing passwords: credentials are the entire CMDB inventory",
-                    "Blocking malware: stopping threats is the CMDB job",
-                    "Encrypting backups: scrambled copies are the entire CMDB inventory"
+                    "A vault for storing and rotating service account passwords",
+                    "A tool that blocks malware on endpoints",
+                    "A system that encrypts backups"
                   ]
                 },
                 {
@@ -8861,9 +8861,9 @@
                   "a": "So controls, monitoring, and incident priority follow asset value",
                   "x": "Tagging drives data classification and handling rules.",
                   "wrong": [
-                    "To track office furniture: asset tags follow desks and chairs",
-                    "For insurance photos: tags document assets for insurance claims, nothing to do with controls",
-                    "To slow attackers: asset tags exist to delay intruders"
+                    "To track physical items such as desks and chairs for the facilities team",
+                    "To document assets for insurance claims",
+                    "To slow attackers who scan the network"
                   ]
                 },
                 {
@@ -8874,9 +8874,9 @@
                   "a": "Data classification driving handling and protection requirements",
                   "x": "Classification decides encryption, sharing, and retention rules.",
                   "wrong": [
-                    "A backup scheme",
-                    "A firewall policy: filter rules are the classification labels, labels live in the firewall",
-                    "A retention schedule: labels saying how long each file is kept"
+                    "A backup tiering scheme",
+                    "A firewall zone naming policy",
+                    "A retention schedule saying how long each type of document is kept"
                   ]
                 },
                 {
@@ -8884,12 +8884,12 @@
                   "deckId": "cy-soc",
                   "trackId": "cyber",
                   "q": "A decommissioned drive held customer PII. How must it be disposed?",
-                  "a": "Sanitised per NIST 800-88",
-                  "x": "Purge or destroy for PII; a simple delete is not enough.",
+                  "a": "Sanitised (purged or destroyed) per NIST SP 800-88",
+                  "x": "Clear, Purge or Destroy according to the media and its sensitivity; a delete or quick format is not enough for PII.",
                   "wrong": [
-                    "Throw it in the trash: bin the PII drive",
-                    "Format it once: one quick format sanitises the drive",
-                    "Donate it: give the PII drive away to charity"
+                    "Quick-formatted once, then resold",
+                    "Deleted file by file, then donated",
+                    "Stored in a locked cupboard indefinitely in case it is needed"
                   ]
                 },
                 {
@@ -8900,9 +8900,9 @@
                   "a": "Wiping overwrites data; degaussing scrambles magnetic media with magnets",
                   "x": "Degaussing ruins HDDs and tapes but does nothing to SSDs or flash.",
                   "wrong": [
-                    "They are the same: wiping and degaussing are exactly identical",
-                    "Wiping is physical: overwriting needs a hammer, never software",
-                    "Degaussing encrypts data: magnets scramble data into secret ciphertext, ready to decrypt later"
+                    "They are the same process with different names",
+                    "Wiping is physical; degaussing is software",
+                    "Degaussing encrypts data so it can be recovered later"
                   ]
                 },
                 {
@@ -8910,12 +8910,12 @@
                   "deckId": "cy-soc",
                   "trackId": "cyber",
                   "q": "Why does asset inventory matter for vulnerability management?",
-                  "a": "Scans only find network-visible hosts",
+                  "a": "You can only scan and patch the assets you know exist",
                   "x": "Unknown assets are unpatched assets.",
                   "wrong": [
-                    "It looks good in audits",
-                    "It saves disk space: asset inventory exists to free storage",
-                    "It speeds up Wi-Fi: asset inventory makes the wireless faster"
+                    "It is mainly needed to pass audits, not to find vulnerabilities",
+                    "It frees disk space on the scanner",
+                    "It makes scans run faster on Wi-Fi"
                   ]
                 },
                 {
@@ -8926,9 +8926,9 @@
                   "a": "Identity plus health: patched, AV current, compliant configuration",
                   "x": "Non-compliant devices are quarantined or remediated.",
                   "wrong": [
-                    "The user’s job title: role names decide network access",
-                    "The device colour: the paint colour decides network access, black devices only",
-                    "The time of day: the clock decides network access"
+                    "The user's job title and department, read from the HR system",
+                    "The device's purchase date and warranty",
+                    "The time of day the device connects"
                   ]
                 },
                 {
@@ -8939,9 +8939,9 @@
                   "a": "Port-based authentication: a device must authenticate before the switch port opens",
                   "x": "Uses EAP, commonly with RADIUS, on wired and WPA2/3-Enterprise wireless.",
                   "wrong": [
-                    "A Wi-Fi password: the shared key for the wireless network",
-                    "A RADIUS server: the database holding every network password",
-                    "An encryption cipher: scrambling counts as 802.1X authentication here"
+                    "A shared Wi-Fi password for the whole office",
+                    "A RADIUS server that stores every network password",
+                    "An encryption cipher for switch ports"
                   ]
                 },
                 {
@@ -8952,9 +8952,9 @@
                   "a": "An installed agent reports deep health; agentless probes with less detail",
                   "x": "Agentless suits BYOD and IoT that cannot run agents.",
                   "wrong": [
-                    "Agents are always better: installed agents beat agentless every time",
-                    "Agentless needs no network: probes work without any connection",
-                    "Agentless reports deeper: probes see more than any installed agent"
+                    "Agents are always better, because they never need updating once installed",
+                    "Agentless works without any network connection",
+                    "Agentless sees more detail than an installed agent"
                   ]
                 },
                 {
@@ -8965,9 +8965,9 @@
                   "a": "Check before access vs continuously monitor after access is granted",
                   "x": "Post-admission catches a healthy device that later becomes compromised.",
                   "wrong": [
-                    "Pre is for guests only: pre-admission checks cover visitors alone, staff skip the check",
-                    "Post needs no agent: monitoring needs no installed software ever",
-                    "Post-admission checks first: monitoring happens before any access is granted"
+                    "Pre-admission checks guests only; staff skip it",
+                    "Post-admission needs no agent or monitoring",
+                    "Post-admission checks run first, before access is granted"
                   ]
                 },
                 {
@@ -8978,9 +8978,9 @@
                   "a": "Endpoint DLP watches the device; network DLP inspects egress traffic",
                   "x": "Cloud DLP (CASB) covers SaaS. Layer them.",
                   "wrong": [
-                    "Endpoint is cheaper: device DLP costs less than network",
-                    "Network is faster: traffic inspection beats endpoint DLP always",
-                    "They conflict: endpoint and network DLP fight each other"
+                    "Endpoint DLP is cheaper, so network DLP is unnecessary once it is deployed",
+                    "Network DLP is faster, so endpoint DLP is unnecessary",
+                    "They conflict and cannot run together"
                   ]
                 },
                 {
@@ -8991,9 +8991,9 @@
                   "a": "DLP with PII patterns on email egress",
                   "x": "Tune patterns so legitimate work is not blocked.",
                   "wrong": [
-                    "Antivirus",
-                    "An email archive: stored old messages kept for legal discovery",
-                    "Disk encryption: scrambled drives catch SSN email exfiltration attempts"
+                    "Antivirus on the mail server",
+                    "The email archiving system",
+                    "Full-disk encryption on the engineer's laptop"
                   ]
                 },
                 {
@@ -9004,9 +9004,9 @@
                   "a": "Resolution of known-malicious domains: phishing, C2, malware delivery",
                   "x": "Stops the connection before it starts, for any protocol.",
                   "wrong": [
-                    "Spam emails: junk mail is what DNS filtering blocks",
-                    "Slow websites: sluggish pages are what DNS filtering blocks",
-                    "Pop-up ads only: DNS filtering stops pop-ups and nothing else, phishing sails through"
+                    "Spam and phishing emails, before they are delivered to users' inboxes",
+                    "Slow websites that waste bandwidth",
+                    "Pop-up advertisements in browsers"
                   ]
                 },
                 {
@@ -9017,9 +9017,9 @@
                   "a": "DNS covers every protocol and app",
                   "x": "Malware using its own resolver (DoH) is the bypass to watch for.",
                   "wrong": [
-                    "DNS is cheaper",
-                    "URLs cannot be filtered",
-                    "Browsers ignore DNS: web traffic skips name resolution entirely always"
+                    "DNS filtering is cheaper than URL filtering",
+                    "URLs cannot be filtered over HTTPS",
+                    "Browsers do not use DNS for web traffic"
                   ]
                 },
                 {
@@ -9030,9 +9030,9 @@
                   "a": "URL/content category set by policy",
                   "x": "Also used for bandwidth and liability control.",
                   "wrong": [
-                    "IP address: IP numbers are the web filter categories",
-                    "File hash: file digests are the web filter categories",
-                    "Packet size: byte counts are the web filter categories"
+                    "The destination IP address",
+                    "The hash of each downloaded file",
+                    "The size of each packet"
                   ]
                 },
                 {
@@ -9043,9 +9043,9 @@
                   "a": "Joiner, Mover, Leaver: provision, adjust, deprovision access with role changes",
                   "x": "Automate it from the HR system to kill orphaned accounts.",
                   "wrong": [
-                    "Just My Luck: JML means good fortune, nothing more",
-                    "Java Management Layer: JML is a Java management framework",
-                    "Join, Merge, Leave: three verbs make the JML"
+                    "Join, Manage, Lock: three stages of account security",
+                    "Java Management Layer: a framework for directory services",
+                    "Joiner, Member, Leaver: provision, group, remove"
                   ]
                 },
                 {
@@ -9056,9 +9056,9 @@
                   "a": "Immediately at termination, automated from HR",
                   "x": "Orphaned accounts are a top insider-threat vector.",
                   "wrong": [
-                    "Next Monday",
-                    "After 30 days: revoke access a month after leaving",
-                    "Never, for forensics: keep access open to preserve evidence"
+                    "On Monday morning, when IT is back",
+                    "After 30 days, once the handover and knowledge transfer are complete",
+                    "Never; keep it open for forensics"
                   ]
                 },
                 {
@@ -9069,9 +9069,9 @@
                   "a": "Hardware key > authenticator app > SMS",
                   "x": "SMS falls to SIM swapping; push alone suffers MFA fatigue.",
                   "wrong": [
-                    "SMS is strongest",
-                    "All are equal",
-                    "App is weakest: authenticator apps resist phishing the least"
+                    "SMS > authenticator app > hardware key",
+                    "All three are equally phishing-resistant",
+                    "Authenticator app > hardware key > SMS"
                   ]
                 },
                 {
@@ -9082,9 +9082,9 @@
                   "a": "One place to enforce MFA, login policy, and deprovisioning",
                   "x": "But it becomes a single point of failure — harden the IdP.",
                   "wrong": [
-                    "Faster internet",
-                    "Cheaper licences: SSO exists to cut licence costs only",
-                    "No passwords ever: SSO removes every password entirely and forever"
+                    "Faster network connections, because sessions are cached at the edge",
+                    "Lower licence costs for every app",
+                    "It removes passwords entirely"
                   ]
                 },
                 {
@@ -9095,9 +9095,9 @@
                   "a": "SAML: XML-based SSO for enterprise apps; OIDC: modern JSON/REST SSO on OAuth2",
                   "x": "Both let one identity provider vouch for you to many apps.",
                   "wrong": [
-                    "OIDC is XML-based: modern SSO still speaks XML like SAML",
-                    "SAML is for Wi-Fi: XML login secures the wireless",
-                    "OIDC encrypts disks: modern login scrambles the hard drives"
+                    "SAML: JSON/REST SSO on OAuth2; OIDC: XML-based enterprise SSO",
+                    "SAML is for Wi-Fi logins; OIDC is for VPNs",
+                    "OIDC is for disk encryption; SAML for web logins"
                   ]
                 },
                 {
@@ -9105,12 +9105,12 @@
                   "deckId": "cy-soc",
                   "trackId": "cyber",
                   "q": "What is privileged access management (PAM)?",
-                  "a": "Vaulting, rotating, and -in-time issuing of admin credentials",
+                  "a": "Vaulting, rotating and just-in-time issuing of admin credentials",
                   "x": "No standing domain-admin passwords; check out access per session.",
                   "wrong": [
-                    "Giving everyone admin",
-                    "A user password manager: a vault for personal logins",
-                    "Disabling admin accounts: switch off all privileged logins for good"
+                    "Giving every IT employee admin rights",
+                    "A password manager for personal logins",
+                    "Disabling all admin accounts permanently"
                   ]
                 },
                 {
@@ -9121,9 +9121,9 @@
                   "a": "To remove accumulated, unneeded permissions",
                   "x": "Managers attest their team’s access is still required.",
                   "wrong": [
-                    "To cut licence costs: reviews exist to cancel unused software seats",
-                    "It is required for Wi-Fi: reviews exist for wireless access",
-                    "To speed logins: access reviews exist to accelerate sign-ins"
+                    "To cancel unused software licences",
+                    "To meet a requirement for joining the corporate Wi-Fi",
+                    "To speed up sign-ins for users"
                   ]
                 },
                 {
@@ -9134,9 +9134,9 @@
                   "a": "Long-lived, rarely monitored credentials are ideal attacker persistence",
                   "x": "Rotate, vault, and scope service accounts to least privilege.",
                   "wrong": [
-                    "It will expire soon",
-                    "It is definitely strong: four years proves the password",
-                    "No risk at all: old service passwords are safe"
+                    "It will expire soon and break the service",
+                    "Its age proves the password is strong",
+                    "There is no risk if nobody logs in with it"
                   ]
                 },
                 {
@@ -9147,9 +9147,9 @@
                   "a": "Elevated rights granted for a limited window, then auto-revoked",
                   "x": "Removes standing privilege without slowing real work.",
                   "wrong": [
-                    "Permanent admin rights: rights never expire under JIT access",
-                    "Admin on weekends only: elevated rights granted on Saturdays alone",
-                    "Shared admin passwords: one shared secret is JIT access"
+                    "Permanent admin rights for on-call staff",
+                    "Admin rights granted on weekends only",
+                    "A shared admin password that is checked out by email when needed"
                   ]
                 },
                 {
@@ -9160,9 +9160,9 @@
                   "a": "Disable them now",
                   "x": "A process failure, not just a cleanup task.",
                   "wrong": [
-                    "Delete the logs: erase the audit trail first, always",
-                    "Email the ex-employees: ask the leavers to delete access",
-                    "Ignore them: leave departed staff accounts enabled forever always"
+                    "Delete the audit logs that list them",
+                    "Email the former employees to confirm",
+                    "Leave them until the next quarterly review"
                   ]
                 }
               ],
@@ -9206,9 +9206,9 @@
                   "a": "APTs are resourced, patient, targeted; opportunistic actors spray broadly",
                   "x": "APTs dwell for months pursuing specific objectives; opportunistic actors blast ransomware and phishing widely.",
                   "wrong": [
-                    "APTs are always faster: patient attackers always move the fastest",
-                    "Opportunistic actors never succeed: chance attackers fail outright, always",
-                    "Opportunistic actors are patient: chance attackers study targets for months"
+                    "APTs move fastest; opportunistic actors are slow and patient",
+                    "Opportunistic actors never succeed",
+                    "Opportunistic actors research each target for months"
                   ]
                 },
                 {
@@ -9219,9 +9219,9 @@
                   "a": "Espionage, sabotage, and geopolitical advantage",
                   "x": "They have the deepest resources and the longest dwell times.",
                   "wrong": [
-                    "Quick profit: fast money is what drives nation-states",
-                    "Internet fame: online glory is what drives nation-states",
-                    "Boredom: nation-states attack because their hackers are bored"
+                    "Quick financial profit",
+                    "Building an online reputation among other hackers",
+                    "Testing tools for later sale"
                   ]
                 },
                 {
@@ -9232,9 +9232,9 @@
                   "a": "Political or social causes — publicity over profit",
                   "x": "Defacements and DDoS are their typical loud tactics.",
                   "wrong": [
-                    "Stealing credit cards",
-                    "Corporate espionage: stealing trade secrets motivates hacktivists the most",
-                    "Ransom payments: ransom payouts are what motivate hacktivists most"
+                    "Stealing card data for resale",
+                    "Corporate espionage on behalf of a paying competitor",
+                    "Ransom payments in cryptocurrency"
                   ]
                 },
                 {
@@ -9245,9 +9245,9 @@
                   "a": "Malicious, negligent, and compromised insiders",
                   "x": "Negligent insiders who click phishing cause as much damage as malicious ones.",
                   "wrong": [
-                    "Admin, user, guest",
-                    "Red, blue, purple",
-                    "Internal, external, partner: actor origins are the insider types"
+                    "Admin, user and guest insiders",
+                    "Red, blue and purple insiders",
+                    "Internal, external and partner insiders, by where they work"
                   ]
                 },
                 {
@@ -9258,9 +9258,9 @@
                   "a": "Direct financial gain: ransomware, fraud, theft",
                   "x": "They run ransomware-as-a-service like a business.",
                   "wrong": [
-                    "Political protest: protest marches are what motivate organised cybercrime",
-                    "Research curiosity: pure learning is what motivates organised cybercrime",
-                    "National defence: protecting the state is organised cybercrime’s motive"
+                    "Political protest",
+                    "Research curiosity and finding new vulnerabilities",
+                    "National defence"
                   ]
                 },
                 {
@@ -9271,9 +9271,9 @@
                   "a": "Unsanctioned apps and systems outside security visibility",
                   "x": "A marketing SaaS holding customer data is a breach waiting to happen.",
                   "wrong": [
-                    "Slow computers",
-                    "High licence costs: fees are the shadow IT risk",
-                    "Too many admins: headcount is the shadow IT risk, fire an admin, fix shadow IT"
+                    "Slower computers for staff because of unmanaged software",
+                    "Higher licence costs",
+                    "Too many administrators"
                   ]
                 },
                 {
@@ -9284,9 +9284,9 @@
                   "a": "Tactics, Techniques, and Procedures — the attacker playbook",
                   "x": "ATT&CK catalogs TTPs so defenders detect patterns, not just indicators.",
                   "wrong": [
-                    "Tools, Targets, Payloads: three words make the TTP, tactics not included",
-                    "Threats, Tests, Patches: three words make the TTP",
-                    "Time, Type, Place: three words make the TTP"
+                    "Tools, Targets and Payloads used in a campaign",
+                    "Threats, Tests and Patches",
+                    "Time, Type and Place"
                   ]
                 },
                 {
@@ -9297,9 +9297,9 @@
                   "a": "It predicts their likely TTPs so defences match the real adversary",
                   "x": "A bank and a hospital face different actors.",
                   "wrong": [
-                    "It is required by law: profiling is a legal mandate",
-                    "It names the hacker: profiling identifies the individual behind attacks",
-                    "Attackers respect it: profiling scares attackers away for good"
+                    "It is required by law in most countries",
+                    "It names the individual hacker behind attacks",
+                    "It deters attackers once they know the organisation is watching them"
                   ]
                 },
                 {
@@ -9310,9 +9310,9 @@
                   "a": "Hacktivists want visibility; nation-states want stealthy persistence",
                   "x": "One defaces your homepage; the other lives in your network for a year.",
                   "wrong": [
-                    "No difference",
-                    "Nation-states are louder",
-                    "Hacktivists are stealthier: activists hide better than nation-states do"
+                    "There is no practical difference",
+                    "Nation-states are louder and seek publicity",
+                    "Hacktivists are stealthier and stay longer"
                   ]
                 },
                 {
@@ -9323,9 +9323,9 @@
                   "a": "An unskilled attacker using others’ ready-made tools",
                   "x": "Dangerous anyway: automated tools need no skill.",
                   "wrong": [
-                    "A child hacker",
-                    "A security intern: junior security staff are the script kiddies",
-                    "A malware author: script kiddies write their own original malware"
+                    "A child who is learning to hack",
+                    "A junior member of the security team",
+                    "An attacker who writes original exploits for new vulnerabilities"
                   ]
                 },
                 {
@@ -9336,9 +9336,9 @@
                   "a": "Stealing trade secrets for business advantage",
                   "x": "Insiders and APTs both do this work.",
                   "wrong": [
-                    "Stealing office supplies: stationery theft counts as corporate espionage here",
-                    "Legal discovery: court evidence counts as corporate espionage here",
-                    "Market research: studying competitors counts as corporate espionage here"
+                    "Stealing physical office equipment",
+                    "Collecting evidence for a lawsuit",
+                    "Researching competitors' public filings and annual reports"
                   ]
                 },
                 {
@@ -9349,9 +9349,9 @@
                   "a": "They already hold legitimate access and trust",
                   "x": "UEBA and least privilege are the countermeasures.",
                   "wrong": [
-                    "Firewalls are weak",
-                    "They are hackers: insiders are simply external attackers in disguise",
-                    "VPNs are broken: failed tunnels let insiders bypass defences"
+                    "Perimeter firewalls are too weak to stop anyone",
+                    "Insiders are external attackers in disguise",
+                    "VPNs let anyone bypass the perimeter"
                   ]
                 },
                 {
@@ -9362,9 +9362,9 @@
                   "a": "Physical access to a device left unattended",
                   "x": "Full-disk encryption plus tamper-evident seals mitigate it.",
                   "wrong": [
-                    "A phishing email",
-                    "A malicious insider",
-                    "A hotel Wi-Fi attack: lobby wireless is the evil maid"
+                    "A phishing email impersonating hotel staff about a booking",
+                    "A malicious insider in the cleaning team",
+                    "An attack on hotel Wi-Fi from the lobby"
                   ]
                 },
                 {
@@ -9375,9 +9375,9 @@
                   "a": "Compromising a vendor or update channel to reach its customers",
                   "x": "SolarWinds: one poisoned update, thousands of victims.",
                   "wrong": [
-                    "Stealing packages: parcel theft counts as supply chain attacks",
-                    "A DDoS on a supplier: flooding vendors is supply chain",
-                    "Phishing a vendor: tricking suppliers counts as supply chain attacks"
+                    "Theft of hardware shipments in transit",
+                    "A DDoS against a supplier's website",
+                    "A phishing email sent to a vendor's staff to steal their passwords"
                   ]
                 },
                 {
@@ -9388,9 +9388,9 @@
                   "a": "Bulk lures vs targeted individuals vs senior executives",
                   "x": "Whaling uses deeply researched pretexts against the C-suite.",
                   "wrong": [
-                    "Whaling is bulk: executive lures go to every employee alike",
-                    "Whaling targets whales: ocean mammals are the whaling victims",
-                    "Spear phishing is bulk: targeted lures go to everyone alike"
+                    "Whaling is bulk; spear phishing targets executives",
+                    "Spear phishing is bulk; whaling targets individuals",
+                    "All three are bulk; only the lure differs"
                   ]
                 },
                 {
@@ -9402,8 +9402,8 @@
                   "x": "The classic is \"IT support\" asking for your MFA code.",
                   "wrong": [
                     "Video phishing",
-                    "Voicemail hacking: breaking into voicemail counts as vishing here",
-                    "Virus phishing: infected lures count as voice phishing here"
+                    "Breaking into a victim's voicemail box to listen to messages",
+                    "Virus phishing"
                   ]
                 },
                 {
@@ -9414,9 +9414,9 @@
                   "a": "Phishing delivered via SMS or text messages",
                   "x": "Often fake delivery or bank alerts with malicious links.",
                   "wrong": [
-                    "Email phishing: email lures count as smishing attacks here",
-                    "Social media phishing: social timeline lures count as smishing here",
-                    "Smart-TV phishing: TV screen lures count as smishing here"
+                    "Phishing through email",
+                    "Phishing through social media",
+                    "Phishing delivered through instant messaging apps such as Slack"
                   ]
                 },
                 {
@@ -9427,9 +9427,9 @@
                   "a": "Spoofed or hijacked executive email directing fraud like wire transfers",
                   "x": "BEC rarely carries malware — it abuses trust, so train finance staff specifically.",
                   "wrong": [
-                    "A firewall feature: packet filters are the business email compromise, filters send the fraud",
-                    "Encrypted business email: scrambled mail counts as BEC fraud here",
-                    "A backup system: backup copies are the business email compromise"
+                    "A firewall feature that filters business email",
+                    "Encrypted business email",
+                    "A malware family spread through invoices"
                   ]
                 },
                 {
@@ -9440,9 +9440,9 @@
                   "a": "Inventing a scenario to extract information or access",
                   "x": "The \"new IT contractor needs your password\" call.",
                   "wrong": [
-                    "A helpdesk script: a written guide for answering support calls",
-                    "Testing software",
-                    "Filing tickets: support queue entries count as pretexting here"
+                    "A helpdesk script that support staff follow on every call",
+                    "Testing software before release",
+                    "Raising tickets for access requests"
                   ]
                 },
                 {
@@ -9453,9 +9453,9 @@
                   "a": "Luring victims with something tempting",
                   "x": "The parking-lot USB drop is the classic.",
                   "wrong": [
-                    "Fishing with bait",
-                    "A firewall rule",
-                    "A free gift: a genuine prize given away with no strings"
+                    "Flooding a mailbox with spam",
+                    "Following an authorised person through a secure door",
+                    "Calling staff while posing as IT"
                   ]
                 },
                 {
@@ -9466,9 +9466,9 @@
                   "a": "Following an authorized person through a secured door",
                   "x": "Mitigate with mantraps, turnstiles, and a challenge culture.",
                   "wrong": [
-                    "A network attack: packet floods are what tailgating means",
-                    "A locked door: a door that only opens with a badge",
-                    "A malware type: malicious code is what tailgating means"
+                    "Flooding a network with packets so that a device fails open",
+                    "Watching someone type a PIN",
+                    "Searching discarded documents"
                   ]
                 },
                 {
@@ -9479,9 +9479,9 @@
                   "a": "Compromising websites your targets frequent",
                   "x": "Instead of attacking the target, poison their water supply.",
                   "wrong": [
-                    "Flooding a network",
-                    "A poisoned well: contaminating the office water supply",
-                    "Drinking on duty: alcohol is the watering hole attack"
+                    "Flooding the target's network with traffic",
+                    "Sending the target a malicious attachment",
+                    "Registering a domain that looks like the target's"
                   ]
                 },
                 {
@@ -9492,9 +9492,9 @@
                   "a": "Registering lookalike domains such as micros0ft.com",
                   "x": "Used for phishing pages and credential harvesting.",
                   "wrong": [
-                    "Correcting typos",
-                    "A DNS feature",
-                    "A keyboard attack: keyboard tricks count as domain typosquatting here"
+                    "Correcting typos in phishing emails",
+                    "A DNS feature that fixes mistyped names",
+                    "Logging keystrokes on a victim's keyboard to capture typed URLs"
                   ]
                 },
                 {
@@ -9505,9 +9505,9 @@
                   "a": "Coordinated disinformation to shape opinion or behaviour",
                   "x": "Nation-states run them through fake personas and botnets.",
                   "wrong": [
-                    "A marketing campaign: advertising counts as an influence campaign here",
-                    "A firewall update: new filter rules are influence campaigns",
-                    "An ad blocker: blocking adverts counts as influence campaign work"
+                    "A legitimate marketing campaign",
+                    "A coordinated DDoS against news sites",
+                    "A coordinated campaign to patch vulnerable systems across a sector"
                   ]
                 },
                 {
@@ -9518,9 +9518,9 @@
                   "a": "A legitimate email copied with malicious links swapped in",
                   "x": "Harder to spot because the original message was real.",
                   "wrong": [
-                    "Phishing clones",
-                    "Copying homework: copying school assignments counts as clone phishing here",
-                    "A backup method: backup copies are the clone phishing method"
+                    "Sending the identical phishing email to many people at once",
+                    "Copying a website's login page",
+                    "Cloning a victim's SIM card"
                   ]
                 },
                 {
@@ -9531,9 +9531,9 @@
                   "a": "Redirecting users to fake sites via DNS poisoning",
                   "x": "Even a correctly typed URL lands on the attacker’s copy.",
                   "wrong": [
-                    "Farming crypto",
-                    "A firewall rule",
-                    "Growing plants: tending gardens counts as pharming attacks here"
+                    "Mining cryptocurrency on victims' machines without consent",
+                    "Phishing through fake pharmacy sites",
+                    "Harvesting email addresses from websites"
                   ]
                 },
                 {
@@ -9544,9 +9544,9 @@
                   "a": "Fake security warnings pushing bogus \"fixes\"",
                   "x": "Classic: \"Your PC is infected! Call this number.\"",
                   "wrong": [
-                    "Real antivirus: genuine antivirus products count as scareware here",
-                    "A pop-up blocker: a browser add-on hiding adverts and warnings",
-                    "A system scan: a free tool checking the PC for hidden threats"
+                    "Legitimate antivirus that shows aggressive upgrade alerts",
+                    "A pop-up blocker for browsers",
+                    "Ransomware that encrypts files"
                   ]
                 },
                 {
@@ -9557,9 +9557,9 @@
                   "a": "It exploits trust, urgency, and authority",
                   "x": "Defence is process and culture: verify out of band.",
                   "wrong": [
-                    "Firewalls are weak",
-                    "Users are stupid: foolish staff are why engineering works",
-                    "Passwords are short: brief secrets are why engineering works"
+                    "Firewalls cannot inspect phone calls",
+                    "Users are careless and untrainable",
+                    "Passwords are too short to resist guessing"
                   ]
                 },
                 {
@@ -9570,9 +9570,9 @@
                   "a": "Recovering sensitive information from discarded trash",
                   "x": "Shredding policies exist because of this.",
                   "wrong": [
-                    "Scuba diving",
-                    "A network scan",
-                    "Deleting files: erasing trash counts as dumpster diving here"
+                    "Removing hardware from a data centre's scrap pile for resale",
+                    "Scanning a network for open ports",
+                    "Recovering deleted files from a disk"
                   ]
                 },
                 {
@@ -9583,9 +9583,9 @@
                   "a": "Watching someone type credentials or PINs",
                   "x": "Privacy screens are the cheap fix.",
                   "wrong": [
-                    "A swimming stroke: pool freestyle counts as shoulder surfing here",
-                    "A screen filter: a privacy shield blocking side views of the display",
-                    "A hidden camera: a device recording the ATM from across the street"
+                    "A privacy filter on a laptop screen",
+                    "A hidden camera recording an ATM",
+                    "Reading screens remotely by capturing their electromagnetic emissions"
                   ]
                 },
                 {
@@ -9596,9 +9596,9 @@
                   "a": "Offering a benefit in exchange for access or information",
                   "x": "\"Free tech support\" for your login credentials.",
                   "wrong": [
-                    "Trading stocks: buying shares counts as quid pro quo here",
-                    "A legal contract",
-                    "A backup deal: backup copies are the quid pro quo"
+                    "Trading stolen data for cryptocurrency",
+                    "A contract that obliges a vendor to share data with a customer",
+                    "Swapping backup tapes with another company"
                   ]
                 },
                 {
@@ -9609,9 +9609,9 @@
                   "a": "Verify the change via a known-good phone number",
                   "x": "Vendor impersonation is a top BEC variant.",
                   "wrong": [
-                    "Pay it fast: rush the payment before the discount expires",
-                    "Delete it: bin the invoice and ignore the fraud",
-                    "Forward to everyone: share the suspect invoice with all staff"
+                    "Pay it quickly to keep the vendor happy",
+                    "Reply to the email to confirm the change",
+                    "Update the bank details now, then check with the vendor next month"
                   ]
                 },
                 {
@@ -9622,9 +9622,9 @@
                   "a": "AI-generated voice or video impersonating a trusted person",
                   "x": "Verify high-stakes requests through a second channel.",
                   "wrong": [
-                    "A video game",
-                    "A firewall",
-                    "A voice changer: an app making your voice sound like a robot"
+                    "A video game that teaches phishing",
+                    "A firewall feature that detects synthetic media in video calls",
+                    "A voice changer used in prank calls"
                   ]
                 },
                 {
@@ -9635,9 +9635,9 @@
                   "a": "Drawing information out through casual conversation",
                   "x": "Skilled attackers never ask directly for secrets.",
                   "wrong": [
-                    "A legal process",
-                    "A court summons: a legal demand forcing someone to hand over facts",
-                    "Deleting data: erasing files counts as elicitation in practice"
+                    "A formal legal process for obtaining records from a company",
+                    "A court order demanding information",
+                    "Deleting data to cover tracks"
                   ]
                 },
                 {
@@ -9648,9 +9648,9 @@
                   "a": "Driving around mapping Wi-Fi networks",
                   "x": "Finds rogue APs and weak encryption; defenders do it too.",
                   "wrong": [
-                    "Racing cars: motor racing counts as war-driving attacks here",
-                    "A wardialing modem: a device ringing phone numbers to find modems",
-                    "A phishing method: deceptive mail counts as war-driving here"
+                    "Dialling phone numbers to find modems",
+                    "Sending phishing emails from a car",
+                    "Jamming Wi-Fi from a moving vehicle"
                   ]
                 },
                 {
@@ -9661,9 +9661,9 @@
                   "a": "Publishing private information to shame or intimidate",
                   "x": "Protect executives’ personal data exposure.",
                   "wrong": [
-                    "Documenting systems",
-                    "A background check: a legal report on a job candidate’s history",
-                    "A data breach: a hacker stealing a database and selling it"
+                    "Documenting systems for an audit",
+                    "A legal background check on a job candidate's history",
+                    "Stealing a database and selling it"
                   ]
                 }
               ],
@@ -30410,7 +30410,7 @@
                   "a": "SCPs cap what an entire account can do; permission boundaries cap what delegated admins can grant",
                   "x": "Two layers: account ceiling, then delegation ceiling.",
                   "wrong": [
-                    "They conflict: an account can use SCPs or permission boundaries, but never both",
+                    "They conflict, so an account can use SCPs or permission boundaries but never both",
                     "Boundaries override SCPs",
                     "SCPs apply per user"
                   ]

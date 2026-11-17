@@ -230,6 +230,36 @@
       "reviewed": "2026-11-16",
       "by": "AI content audit (not a human SME)",
       "items": 22
+    },
+    "cy-linux": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cy-frameworks": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cy-crypto": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "cy-concepts": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 34
+    },
+    "cy-soc": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 47
+    },
+    "cy-threat-actors": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 36
     }
   }
 }

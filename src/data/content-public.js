@@ -3658,9 +3658,9 @@ export const tracks = [
                 "a": "Owner read/write only; nobody else can access it",
                 "x": "r=4, w=2, x=1 for owner, group, others. SSH rejects world-readable private keys.",
                 "wrong": [
-                  "Everyone can read it: chmod 600 opens the key",
-                  "Makes it executable: chmod 600 adds execute rights only",
-                  "Deletes it: chmod 600 erases the key file entirely"
+                  "Everyone can read it, but only the owner can change it",
+                  "Owner can read, write and execute it",
+                  "Owner and group can read and write it"
                 ]
               },
               {
@@ -3697,9 +3697,9 @@ export const tracks = [
                 "a": "Runs a command as another user, root by default",
                 "x": "Audit sudoers: overly broad sudo rules are a privilege escalation path.",
                 "wrong": [
-                  "Switches the shell: sudo changes your shell session entirely",
-                  "Shows processes: sudo lists the running programs for you",
-                  "Encrypts files: sudo scrambles files for secrecy, not privilege"
+                  "Switches to another user's login shell permanently",
+                  "Lists the processes started by other users",
+                  "Opens a file with elevated read-only access"
                 ]
               },
               {
@@ -3710,9 +3710,9 @@ export const tracks = [
                 "a": "Sends one command’s output into the next command’s input",
                 "x": "cat access.log | sort | uniq -c | sort -nr counts repeat lines.",
                 "wrong": [
-                  "Writes to a file: the pipe saves output to disk",
-                  "Runs in the background: the pipe detaches commands to background",
-                  "Comments a line: the pipe marks text as notes"
+                  "Writes a command's output to a file",
+                  "Runs the first command in the background",
+                  "Runs the second command only if the first one finishes successfully"
                 ]
               },
               {
@@ -3723,9 +3723,9 @@ export const tracks = [
                 "a": "A program that runs with its owner’s privileges",
                 "x": "SUID-root binaries are a classic privilege escalation target (see GTFOBins).",
                 "wrong": [
-                  "A system service: a program the OS starts automatically at boot",
-                  "A shell alias",
-                  "A signed binary"
+                  "A service the system starts automatically at boot",
+                  "A binary signed by the distribution's key",
+                  "A program that can only be run by root"
                 ]
               },
               {
@@ -3736,9 +3736,9 @@ export const tracks = [
                 "a": "ps aux (or top/htop)",
                 "x": "Look for odd parents, names, or high CPU.",
                 "wrong": [
-                  "ls /proc only: listing proc alone shows running processes",
-                  "netstat: the tool that lists all running processes",
-                  "kill: the command that lists all running processes"
+                  "netstat -an",
+                  "lsof -i",
+                  "ls /proc"
                 ]
               },
               {
@@ -3762,9 +3762,9 @@ export const tracks = [
                 "a": "Decodes base64 text",
                 "x": "Base64 is encoding, not encryption; attackers use it to hide payloads.",
                 "wrong": [
-                  "Encrypts a file",
-                  "Hashes a file",
-                  "Compresses a file"
+                  "Decrypts a base64-encrypted file",
+                  "Verifies a base64 checksum",
+                  "Decompresses a base64 archive"
                 ]
               }
             ],
