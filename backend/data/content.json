@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:43:00.368Z",
+  "generatedAt": "2026-11-17T10:43:50.389Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -40034,8 +40034,8 @@
                   "deckId": "go-basics",
                   "trackId": "go",
                   "q": "Is Go compiled or interpreted?",
-                  "a": "Compiled into one statically-linked native binary",
-                  "x": "That self-contained binary is why Go is popular for deployment and containers.",
+                  "a": "Compiled into a single native binary, statically linked by default",
+                  "x": "That self-contained binary is why Go is popular for deployment and containers (cgo can introduce dynamic linking to the C library).",
                   "wrong": [
                     "Interpreted",
                     "Compiled to portable bytecode that runs on a virtual machine",
@@ -40240,7 +40240,7 @@
                   "x": "Mixing types without a conversion is a compile error.",
                   "wrong": [
                     "Yes, automatically",
-                    "Only for widening",
+                    "Only for widening, e.g. int to int64",
                     "Only in arithmetic"
                   ]
                 },
@@ -40447,7 +40447,7 @@
                   "a": "One accepting a variable number of args, like ...int",
                   "x": "Inside, nums is a slice.",
                   "wrong": [
-                    "A function that takes no arguments at all when called",
+                    "A function that takes no arguments",
                     "A recursive function",
                     "A method"
                   ]
@@ -40584,7 +40584,7 @@
                   "a": "make(map[string]int) or a literal map[string]int{...}",
                   "x": "Reading a missing key returns the value type's zero value.",
                   "wrong": [
-                    "new map()",
+                    "new(map[string]int), which returns a ready-to-use map",
                     "[]map{}",
                     "map.create()"
                   ]
@@ -40805,7 +40805,7 @@
                   "a": "Promotes its Read method, so the struct also satisfies io.Reader",
                   "x": "Composition builds bigger behaviours from small ones.",
                   "wrong": [
-                    "Nothing",
+                    "Nothing until the struct defines its own Read method",
                     "Creates a subclass",
                     "Requires overriding Read"
                   ]
@@ -40872,7 +40872,7 @@
                   "wrong": [
                     "throw \"message\"",
                     "raise Error",
-                    "panic only"
+                    "panic(\"message\"), which callers check with if err != nil"
                   ]
                 },
                 {
@@ -40897,7 +40897,7 @@
                   "x": "The right way to compare against sentinel errors.",
                   "wrong": [
                     "If err is nil",
-                    "The error message text, compared word for word with the target",
+                    "Whether the two error messages are identical",
                     "The error type only"
                   ]
                 },
@@ -41060,7 +41060,7 @@
                   "a": "\"Do not communicate by sharing memory; share memory by communicating\"",
                   "x": "Prefer channels to coordinate over shared, locked state.",
                   "wrong": [
-                    "Lock everything",
+                    "\"Lock all shared state; prefer mutexes to channels\"",
                     "One thread per core",
                     "Avoid concurrency"
                   ]
@@ -41099,7 +41099,7 @@
                   "a": "A critical section — Lock/Unlock guard shared data from concurrent access",
                   "x": "Use defer mu.Unlock() to avoid forgetting.",
                   "wrong": [
-                    "Channel order",
+                    "The order in which values leave a channel",
                     "Goroutine count",
                     "The scheduler"
                   ]
@@ -41273,7 +41273,7 @@
                   "a": "Reports suspicious constructs the compiler allows (e.g. bad Printf verbs)",
                   "x": "A quick static check beyond compilation.",
                   "wrong": [
-                    "Formats code",
+                    "Formats code to the official Go style",
                     "Runs tests",
                     "Builds a binary"
                   ]
@@ -41286,7 +41286,7 @@
                   "a": "go test -cover (or -coverprofile for a report)",
                   "x": "Shows the percentage of statements exercised.",
                   "wrong": [
-                    "go cover",
+                    "go cover ./..., which prints a report",
                     "go test --report",
                     "It is automatic"
                   ]
@@ -41360,7 +41360,7 @@
                   "x": "The ownership system prevents use-after-free and data races.",
                   "wrong": [
                     "Fastest possible runtime only",
-                    "Dynamic typing",
+                    "Dynamic typing with runtime checks",
                     "Automatic memory via a GC"
                   ]
                 },
@@ -41398,7 +41398,7 @@
                   "a": "Compiles the project and runs the resulting binary",
                   "x": "cargo build just compiles; cargo check type-checks fast without a full build.",
                   "wrong": [
-                    "Only compiles",
+                    "Only compiles the project into target/",
                     "Publishes the crate",
                     "Formats the code"
                   ]
@@ -41476,7 +41476,7 @@
                   "a": "With a semicolon; the last expression without one is the block's value",
                   "x": "Rust is expression-oriented.",
                   "wrong": [
-                    "Newlines",
+                    "With a newline; semicolons are optional",
                     "Never",
                     "Only inside functions"
                   ]
@@ -41561,7 +41561,7 @@
                   "a": "Declaring a new variable with the same name using let, replacing the previous binding",
                   "x": "It can even change the type; different from mutation.",
                   "wrong": [
-                    "Mutating in place",
+                    "Mutating the existing variable in place",
                     "A global override",
                     "Hiding a field"
                   ]
@@ -41692,7 +41692,7 @@
                   "x": "Both branches must have the same type.",
                   "wrong": [
                     "No, only a statement",
-                    "Only inside loops",
+                    "Only when it is used inside a loop",
                     "Only with return"
                   ]
                 },
@@ -41743,7 +41743,7 @@
                   "a": "As the final expression without a semicolon, or with `return`",
                   "x": "The return type follows -> .",
                   "wrong": [
-                    "Only with return, since a final expression on its own can never produce a value",
+                    "Only with an explicit return statement",
                     "Via an out-parameter",
                     "By printing it"
                   ]
@@ -41756,7 +41756,7 @@
                   "a": "An expression evaluates to a value; a statement does not. Adding ; turns an expression into a statement",
                   "x": "This is why the last line of a block has no semicolon.",
                   "wrong": [
-                    "They are the same",
+                    "A statement evaluates to a value; an expression does not. Adding ; turns a statement into an expression",
                     "Statements return values",
                     "Expressions end in ;"
                   ]
@@ -41808,7 +41808,7 @@
                   "a": "The unit type () — effectively nothing",
                   "x": "Like void elsewhere.",
                   "wrong": [
-                    "null, the empty value a function returns when it has nothing else to give back",
+                    "null",
                     "0",
                     "An error"
                   ]
@@ -41856,7 +41856,7 @@
                   "a": "Each value has one owner; there is one owner at a time; when the owner goes out of scope the value is dropped",
                   "x": "This frees memory deterministically, no GC.",
                   "wrong": [
-                    "Values are shared freely",
+                    "Values may have many owners; memory is freed when the last owner finishes using it",
                     "Memory is manual",
                     "A GC owns everything"
                   ]
@@ -41908,7 +41908,7 @@
                   "a": "At any time: either ONE mutable reference OR any number of immutable references — not both",
                   "x": "This prevents data races at compile time.",
                   "wrong": [
-                    "Many mutable refs are fine",
+                    "Any number of mutable references, as long as no immutable ones exist",
                     "Only one ref total",
                     "No references allowed"
                   ]
@@ -42019,7 +42019,7 @@
                   "a": "In an impl block: impl Point { fn dist(&self) -> f64 { ... } }",
                   "x": "Methods take self, &self, or &mut self.",
                   "wrong": [
-                    "Inside the struct body",
+                    "Inside the struct body, after the fields",
                     "With the method keyword",
                     "As free functions only"
                   ]
@@ -42071,7 +42071,7 @@
                   "a": "Absence is modelled by Option, so you cannot accidentally use a missing value",
                   "x": "The \"billion-dollar mistake\" is designed out.",
                   "wrong": [
-                    "There is null, a built-in empty value you can assign to any variable of any type at all",
+                    "There is null, but only for pointer types",
                     "null is unsafe-only",
                     "It uses 0 instead"
                   ]
@@ -42188,7 +42188,7 @@
                   "a": "String is an owned, growable UTF-8 string; &str is a borrowed string slice",
                   "x": "Function params usually take &str.",
                   "wrong": [
-                    "They are identical",
+                    "&str is an owned, growable UTF-8 string; String is a borrowed string slice",
                     "&str is owned",
                     "String is fixed-size"
                   ]
@@ -42216,7 +42216,7 @@
                   "wrong": [
                     "Asserts not-null",
                     "Catches a panic",
-                    "Ignores the error"
+                    "Ignores the error and continues with a default value"
                   ]
                 },
                 {
@@ -42338,7 +42338,7 @@
                   "a": "A set of method signatures a type can implement — Rust's interface",
                   "x": "impl Trait for Type provides the behaviour.",
                   "wrong": [
-                    "A base class",
+                    "A base class that types inherit fields and methods from",
                     "A struct",
                     "A module"
                   ]
@@ -42378,7 +42378,7 @@
                   "x": "Static is faster; dyn allows heterogeneous collections.",
                   "wrong": [
                     "Rust has no dynamic dispatch",
-                    "They are identical",
+                    "dyn Trait objects dispatch statically; generics dispatch at runtime via a vtable",
                     "dyn is compile-time"
                   ]
                 },
@@ -42442,7 +42442,7 @@
                   "a": "High-level constructs (generics, iterators) compile to code as fast as hand-written equivalents",
                   "x": "You pay nothing at runtime for the abstraction.",
                   "wrong": [
-                    "Free memory",
+                    "Abstractions that cost nothing to write because the compiler generates them",
                     "No compile time",
                     "A runtime optimiser"
                   ]
@@ -42548,7 +42548,7 @@
                   "a": "Arc uses atomic reference counting and is thread-safe (Send + Sync); Rc is not",
                   "x": "Rc is for single-threaded sharing only.",
                   "wrong": [
-                    "They are identical",
+                    "Rc uses atomic reference counting and is thread-safe; Arc is single-threaded",
                     "Rc is faster and safe",
                     "Arc is single-threaded"
                   ]
@@ -42561,7 +42561,7 @@
                   "a": "Send: ownership can move to another thread; Sync: a reference can be shared across threads",
                   "x": "The compiler uses them to enforce thread safety.",
                   "wrong": [
-                    "Serialization traits",
+                    "Send: a value can be serialised; Sync: it can be synchronised over the network",
                     "Async markers",
                     "Networking traits"
                   ]
@@ -42613,7 +42613,7 @@
                   "a": "It eliminates whole bug classes (use-after-free, buffer overflow, data races) at compile time",
                   "x": "Memory-safety bugs are a huge share of CVEs in C/C++.",
                   "wrong": [
-                    "It is interpreted",
+                    "It runs in a sandboxed virtual machine that blocks unsafe memory access",
                     "It disables bounds checks",
                     "It has no pointers"
                   ]
