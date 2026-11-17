@@ -106,6 +106,8 @@ export const SOC_CAMERA_TARGET = CAMERA_SHOTS.wide.target;
 // so three.js never enters the main chunk) and safe under SSR: the WebGL
 // effect never runs server-side.
 
+const NO_SCENE_DEVICES = [];
+
 export const SOC_DEVICES = [
   { id: 'R1', label: 'R1', role: 'Gateway router', ip: '192.168.1.1' },
   { id: 'PC1', label: 'PC1', role: 'Workstation', ip: '192.168.1.10' },
@@ -183,7 +185,9 @@ const CAMERA_DAMP = 2.5;
 const CAMERA_DAMP_SHOWCASE = 4;
 
 export default function MissionSocScene({
-  devices = SOC_DEVICES,
+  // The SOC room shows no mission equipment (2026-11-17): the devices live
+  // in the terminal page's 2D topology. Callers may still pass some.
+  devices = NO_SCENE_DEVICES,
   incidentActive = true,
   contained = false,
   onRendererFailed,
