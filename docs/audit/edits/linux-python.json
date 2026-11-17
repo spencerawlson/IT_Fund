@@ -1,0 +1,11 @@
+{
+  "lx-secure": {
+    "0": { "x": "In /etc/ssh/sshd_config: PasswordAuthentication no and PermitRootLogin no, then reload the service (`systemctl reload ssh` on Debian/Ubuntu, `sshd` on RHEL)." }
+  },
+  "lx-systemd": {
+    "4": { "x": "Distro units live in /usr/lib/systemd/system (or /lib/systemd/system); override them with drop-ins rather than editing in place." }
+  },
+  "py-concurrency": {
+    "0": { "x": "CPython 3.13 added an experimental free-threaded build without the GIL; Python 3.14 made it officially supported, though the default build still has the GIL." }
+  }
+}

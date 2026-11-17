@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:40:08.534Z",
+  "generatedAt": "2026-11-17T10:41:09.377Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -544,7 +544,7 @@
                   "a": "A value used when the caller omits that argument",
                   "x": "def greet(name=\"world\"). Never use a mutable default like [] or {}.",
                   "wrong": [
-                    "A global variable",
+                    "A global variable that every call to the function shares",
                     "The first argument",
                     "A type hint"
                   ]
@@ -857,7 +857,7 @@
                   "a": "It swallows every error, including KeyboardInterrupt",
                   "x": "Catch the specific exceptions you expect, such as ValueError.",
                   "wrong": [
-                    "It is slower",
+                    "It is slower, because every exception type is checked in turn",
                     "It is a syntax error",
                     "It only catches one error"
                   ]
@@ -884,7 +884,7 @@
                   "x": "python -m venv .venv then activate it; pip installs go into it.",
                   "wrong": [
                     "Running Python in a VM",
-                    "Speeding up code",
+                    "Speeding up code by compiling it ahead of time",
                     "Encrypting source code"
                   ]
                 },
@@ -909,7 +909,7 @@
                   "a": "Code that runs only when the file is executed directly",
                   "x": "Importing the module will not run that block.",
                   "wrong": [
-                    "Code that runs on import, every single time, without exception",
+                    "Code that runs every time the module is imported",
                     "Private functions",
                     "Test cases only"
                   ]
@@ -1071,7 +1071,7 @@
                   "a": "A function that wraps another function to add behaviour",
                   "x": "@login_required above a def wraps it without editing its body.",
                   "wrong": [
-                    "A class attribute",
+                    "A class attribute that stores metadata about the function",
                     "A type hint",
                     "A comment style"
                   ]
@@ -1084,7 +1084,7 @@
                   "a": "__init__, __repr__, and __eq__ from annotated fields",
                   "x": "Use dataclasses for plain data-holding classes.",
                   "wrong": [
-                    "A database table",
+                    "A database table and an ORM model for the class",
                     "A REST API",
                     "Unit tests"
                   ]
@@ -1097,7 +1097,7 @@
                   "a": "The method takes neither self nor cls",
                   "x": "@classmethod receives the class (cls) instead.",
                   "wrong": [
-                    "It cannot be called at all, from anywhere, ever",
+                    "It can only be called from inside its own class",
                     "It is private",
                     "It runs at import time"
                   ]
@@ -1124,7 +1124,7 @@
                   "x": "Tools such as mypy and IDEs use them to catch bugs early.",
                   "wrong": [
                     "Runtime type enforcement",
-                    "Faster execution",
+                    "Runtime type enforcement that raises TypeError on mismatched arguments",
                     "Required syntax"
                   ]
                 },
@@ -1272,7 +1272,7 @@
                   "x": "Read it with os.environ[\"API_KEY\"]; keys in git history must be rotated.",
                   "wrong": [
                     "Hard-coded in the script",
-                    "In a comment",
+                    "In a comment at the top of the script",
                     "In the URL path"
                   ]
                 },
@@ -1284,7 +1284,7 @@
                   "a": "paramiko (or netmiko for network gear)",
                   "x": "netmiko builds on paramiko with vendor-specific handling.",
                   "wrong": [
-                    "requests",
+                    "requests (with its SSH adapter)",
                     "flask",
                     "numpy"
                   ]
@@ -1362,7 +1362,7 @@
                   "trackId": "python",
                   "q": "What is the GIL?",
                   "a": "A lock letting only one thread run Python bytecode at a time",
-                  "x": "CPython 3.13+ offers an experimental free-threaded build without it.",
+                  "x": "CPython 3.13 added an experimental free-threaded build without the GIL; Python 3.14 made it officially supported, though the default build still has the GIL.",
                   "wrong": [
                     "A garbage collector that frees memory that is no longer in use",
                     "A package manager",
@@ -1404,7 +1404,7 @@
                   "x": "The event loop runs other tasks meanwhile.",
                   "wrong": [
                     "Blocks the whole program",
-                    "Starts a new thread",
+                    "Starts a new OS thread to run the awaited call",
                     "Creates a process"
                   ]
                 },
@@ -1416,7 +1416,7 @@
                   "a": "Outcome depends on unpredictable timing of concurrent access",
                   "x": "Protect shared state with locks or avoid sharing it.",
                   "wrong": [
-                    "A slow loop",
+                    "A loop that runs slower than expected under load",
                     "A syntax error",
                     "A memory leak"
                   ]
@@ -1442,7 +1442,7 @@
                   "a": "O(1) on average",
                   "x": "Lists are O(n) for membership, so convert to a set for repeated lookups.",
                   "wrong": [
-                    "O(n), scanning every element in turn, one by one",
+                    "O(n), scanning each element in turn",
                     "O(log n)",
                     "O(n²)"
                   ]
@@ -1455,7 +1455,7 @@
                   "a": "Memoises function results for repeated arguments",
                   "x": "Good for expensive pure functions.",
                   "wrong": [
-                    "Clears memory",
+                    "Clears memory that a function no longer needs",
                     "Caches files to disk",
                     "Runs in parallel"
                   ]
@@ -1468,7 +1468,7 @@
                   "a": "A pool of worker threads with a simple submit/map API",
                   "x": "ProcessPoolExecutor offers the same API with processes.",
                   "wrong": [
-                    "A database pool",
+                    "A pool of reusable database connections",
                     "An async event loop",
                     "A scheduler for cron"
                   ]
@@ -1536,7 +1536,7 @@
                   "a": "Reusable setup code injected into tests by parameter name",
                   "x": "Fixtures can yield to run teardown after the test.",
                   "wrong": [
-                    "A test that always fails",
+                    "A test that is marked to always fail until fixed",
                     "A config file",
                     "A decorator for classes only"
                   ]
@@ -1550,7 +1550,7 @@
                   "x": "unittest.mock.patch stops tests from calling real APIs or databases.",
                   "wrong": [
                     "Speeds up production code",
-                    "Deletes code",
+                    "Deletes dead code that the tests never reach",
                     "Measures coverage"
                   ]
                 },
@@ -1575,7 +1575,7 @@
                   "a": "Pinning exact dependency versions for reproducible installs",
                   "x": "Tools like uv, poetry, and pip-tools generate them.",
                   "wrong": [
-                    "Encrypting code so that nobody can ever read the source at all",
+                    "Encrypting the source code before publishing it",
                     "Preventing edits",
                     "Git merge conflicts"
                   ]
@@ -1601,7 +1601,7 @@
                   "a": "Malicious packages named like popular ones (e.g. \"reqeusts\")",
                   "x": "A software supply-chain attack. Check names and publishers carefully.",
                   "wrong": [
-                    "A spelling linter",
+                    "A linter that flags misspelled package names in imports",
                     "A package mirror",
                     "A test framework"
                   ]
@@ -1614,7 +1614,7 @@
                   "a": "Insecure patterns such as eval, shell=True, and hard-coded secrets",
                   "x": "SAST for Python; run it in CI.",
                   "wrong": [
-                    "Runtime memory leaks",
+                    "Runtime memory leaks and slow functions found by profiling",
                     "Network outages",
                     "Formatting issues"
                   ]
@@ -1804,7 +1804,7 @@
                   "wrong": [
                     "It slows the network",
                     "It breaks Python",
-                    "It needs root"
+                    "It needs root privileges on the scanning machine"
                   ]
                 }
               ],
@@ -35489,7 +35489,7 @@
                   "a": "Recursively force-deletes dir/ with no prompt and no undo",
                   "x": "-r walks into subdirectories, -f skips confirmation. There is no trash can.",
                   "wrong": [
-                    "Moves dir/ to the trash",
+                    "Moves dir/ to the desktop trash so it can be restored",
                     "Renames dir/ to dir.bak",
                     "Compresses dir/ first"
                   ]
@@ -35692,7 +35692,7 @@
                   "a": "Only a file's owner (or root) can delete or rename it",
                   "x": "Everyone can write to /tmp, but the sticky bit (t in drwxrwxrwt) stops users deleting each other's files.",
                   "wrong": [
-                    "It makes /tmp read-only",
+                    "It makes /tmp read-only for everyone except root",
                     "It encrypts files in /tmp",
                     "It speeds up /tmp"
                   ]
@@ -35851,7 +35851,7 @@
                   "a": "`su -` needs the root password; `sudo -i` uses your password and is logged",
                   "x": "sudo also allows fine-grained rules (e.g. \"may restart nginx only\") instead of all-or-nothing root.",
                   "wrong": [
-                    "They are identical, doing exactly the same thing in every single way possible, always",
+                    "They are identical",
                     "`sudo -i` needs the root password",
                     "`su -` cannot start a root shell"
                   ]
@@ -35916,7 +35916,7 @@
                   "a": "`>` overwrites the file; `>>` appends to it",
                   "x": "Both create the file if missing. `>` on the wrong file is how data loss happens.",
                   "wrong": [
-                    "There is no difference between them at all, ever",
+                    "`>` writes stdout; `>>` writes stderr",
                     "`>>` overwrites, `>` appends",
                     "`>` only works with root"
                   ]
@@ -36007,7 +36007,7 @@
                   "a": "Prints the first colon-separated field of each line",
                   "x": "-F sets the field separator; $1, $2 are fields, $0 is the whole line.",
                   "wrong": [
-                    "Prints line numbers",
+                    "Prints line numbers in front of each line",
                     "Prints the whole line",
                     "Deletes the first field"
                   ]
@@ -36121,7 +36121,7 @@
                   "a": "`dpkg -S /usr/bin/curl` on Debian; `rpm -qf` on RHEL",
                   "x": "Useful when a binary misbehaves and you want its package version and config files.",
                   "wrong": [
-                    "`apt owns curl`, listing the package that provides any file at all",
+                    "`apt owns /usr/bin/curl`",
                     "`which -p curl`",
                     "`ls -l --owner /usr/bin/curl`"
                   ]
@@ -36134,7 +36134,7 @@
                   "a": "Configuration files",
                   "x": "Use `apt purge` (or remove then clean /etc) for full removal; configs in /home are never touched.",
                   "wrong": [
-                    "Nothing at all",
+                    "Nothing; every file is removed",
                     "The installed binaries",
                     "Kernel modules"
                   ]
@@ -36160,7 +36160,7 @@
                   "a": "Signed, verified, dependency-resolved, and updated automatically",
                   "x": "A stray .deb gets no security updates — how breaches start.",
                   "wrong": [
-                    "Repo packages are always newer",
+                    "Repository packages are always the newest upstream release",
                     "Websites download faster",
                     "Repositories cost money"
                   ]
@@ -36238,7 +36238,7 @@
                   "a": "`start` runs it now; `enable` makes it start at boot",
                   "x": "You usually want both: `systemctl enable --now nginx`.",
                   "wrong": [
-                    "There is no difference between the two commands at all",
+                    "There is no difference",
                     "`enable` runs it immediately",
                     "`start` persists across reboots"
                   ]
@@ -36275,7 +36275,7 @@
                   "trackId": "linux",
                   "q": "Where do your custom unit files go?",
                   "a": "/etc/systemd/system/",
-                  "x": "Distro units live in /lib/systemd/system — override them with drop-ins, never edit in place.",
+                  "x": "Distro units live in /usr/lib/systemd/system (or /lib/systemd/system); override them with drop-ins rather than editing in place.",
                   "wrong": [
                     "/etc/init.d/",
                     "/usr/bin/",
@@ -36290,7 +36290,7 @@
                   "a": "Reloads unit file definitions after you edit them",
                   "x": "Run it after adding or changing any .service file, before start/enable.",
                   "wrong": [
-                    "Reboots the machine",
+                    "Reboots the systemd manager without rebooting the machine",
                     "Restarts every service",
                     "Clears the journal"
                   ]
@@ -36344,7 +36344,7 @@
                   "wrong": [
                     "`reload` is slower",
                     "`restart` never applies config",
-                    "There is no difference"
+                    "`restart` rereads config without dropping connections; `reload` stops the process first"
                   ]
                 }
               ],
@@ -36613,7 +36613,7 @@
                   "a": "Exits on any error, treats unset variables as errors, catches pipeline failures",
                   "x": "The single best line for scripts that must not silently keep going after a failure.",
                   "wrong": [
-                    "Disables all error checking so that scripts never stop, no matter what happens at all",
+                    "Disables error checking so scripts keep going after failures",
                     "Makes the script run faster",
                     "Enables step-by-step debugging"
                   ]
@@ -36640,7 +36640,7 @@
                   "x": "The glob expands before the loop runs; quote \"$f\" for names with spaces.",
                   "wrong": [
                     "Deletes every log file",
-                    "Lists the log files",
+                    "Lists the log files with their sizes",
                     "Compresses a single file"
                   ]
                 },
@@ -36707,7 +36707,7 @@
                   "a": "/var/log/ (syslog, auth.log, nginx/, ...)",
                   "x": "Structured apps may log to journald instead — check both when hunting.",
                   "wrong": [
-                    "/etc/log/",
+                    "/etc/log/ (one file per service)",
                     "/var/tmp/",
                     "~/logs/"
                   ]
@@ -36798,7 +36798,7 @@
                   "a": "Current time, how long the system has run, logged-in users, load averages",
                   "x": "Three load numbers = 1, 5, 15 minute averages of runnable processes.",
                   "wrong": [
-                    "Disk uptime percentage",
+                    "Disk uptime percentage since the last fsck",
                     "Which services are up",
                     "Network latency"
                   ]
@@ -36864,7 +36864,7 @@
                   "trackId": "linux",
                   "q": "What is the single biggest SSH hardening step?",
                   "a": "Key-based auth only: disable passwords and root login",
-                  "x": "In /etc/sshd_config: PasswordAuthentication no, PermitRootLogin no. Then `systemctl reload sshd`.",
+                  "x": "In /etc/ssh/sshd_config: PasswordAuthentication no and PermitRootLogin no, then reload the service (`systemctl reload ssh` on Debian/Ubuntu, `sshd` on RHEL).",
                   "wrong": [
                     "Change the login banner",
                     "Switch back to telnet",
@@ -36906,7 +36906,7 @@
                   "x": "Classic brute-force mitigation for SSH. It inserts temporary firewall rules.",
                   "wrong": [
                     "Encrypts the disk",
-                    "Scans for viruses",
+                    "Scans uploaded files for viruses",
                     "Manages user accounts"
                   ]
                 },
@@ -36918,7 +36918,7 @@
                   "a": "Patches land promptly without relying on a human remembering",
                   "x": "Scope it to security updates on servers; full upgrades still deserve a maintenance window.",
                   "wrong": [
-                    "It backs up all your data before every single patch is applied",
+                    "It backs up your data before each patch",
                     "It monitors the logs",
                     "Automatic updates are never recommended"
                   ]
@@ -36945,7 +36945,7 @@
                   "x": "Create a dedicated low-privilege service account per daemon (nginx, postgres, ...).",
                   "wrong": [
                     "Root makes services slower",
-                    "Services cannot run as root at all",
+                    "Services cannot run as root",
                     "Root fills the logs faster"
                   ]
                 },
@@ -36983,7 +36983,7 @@
                   "a": "Patched, SSH keys-only with no root login, firewall default-deny with only needed ports, brute-force protection, tested backups",
                   "x": "Do this in order, verify each step, and re-check after every major change.",
                   "wrong": [
-                    "Open all ports for convenience",
+                    "Patched, password SSH allowed for admins, firewall allowing all outbound and the ports in use, and backups configured",
                     "Disable the firewall for speed",
                     "Keep the vendor default passwords"
                   ]

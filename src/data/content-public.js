@@ -16775,7 +16775,7 @@ export const tracks = [
                 "a": "Recursively force-deletes dir/ with no prompt and no undo",
                 "x": "-r walks into subdirectories, -f skips confirmation. There is no trash can.",
                 "wrong": [
-                  "Moves dir/ to the trash",
+                  "Moves dir/ to the desktop trash so it can be restored",
                   "Renames dir/ to dir.bak",
                   "Compresses dir/ first"
                 ]

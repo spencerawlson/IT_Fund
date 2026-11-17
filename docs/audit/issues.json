@@ -1342,5 +1342,53 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0084",
+    "severity": "Medium",
+    "category": "incorrect",
+    "file": "src/data/academy/linux.js",
+    "contentId": "lx-secure-0",
+    "original": "In /etc/sshd_config: ...",
+    "problem": "The OpenSSH server config is /etc/ssh/sshd_config; the unit is ssh on Debian/Ubuntu.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "https://man.openbsd.org/sshd_config",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0085",
+    "severity": "Low",
+    "category": "outdated",
+    "file": "src/data/academy/python.js",
+    "contentId": "py-concurrency-0",
+    "original": "CPython 3.13+ offers an experimental free-threaded build",
+    "problem": "Python 3.14 made the free-threaded build officially supported (PEP 779).",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "https://peps.python.org/pep-0779/",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0086",
+    "severity": "Low",
+    "category": "distractor-quality",
+    "file": "src/data/academy/linux.js, python.js",
+    "contentId": "40 cards",
+    "original": "Padded or one-word options beside long answers",
+    "problem": "Length and filler gave answers away.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]
