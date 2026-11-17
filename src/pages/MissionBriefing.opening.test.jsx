@@ -102,8 +102,9 @@ vi.mock('@/api/voice', async () => {
       voiceControl.setPlaying = setPlaying;
       voiceControl.setLoading = setLoading;
     }
-    const play = React.useCallback(async (text, character = 'cypher') => {
+    const play = React.useCallback(async (text, character = 'cypher', purpose = 'lesson') => {
       voiceControl.playCalls.push(text);
+      voiceControl.playPurposes = [...(voiceControl.playPurposes || []), purpose];
       voiceControl.playChars.push(character);
       setLoading(true);
       setSubtitle(text);
@@ -360,6 +361,8 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     await advance(300 + 2000 + 500);
     expect(voiceControl.playCalls).toHaveLength(4);
     expect(voiceControl.playChars).toEqual(['cypher', 'sentinel', 'patch', 'cypher']);
+    // Briefing turns may spend the credits kept back from lesson read-aloud.
+    expect(voiceControl.playPurposes.slice(-4)).toEqual(['briefing', 'briefing', 'briefing', 'briefing']);
 
     await act(async () => { renderer.unmount(); });
   });
