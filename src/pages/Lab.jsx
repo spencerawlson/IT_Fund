@@ -18,13 +18,13 @@ const Router3D = React.lazy(() => import('@/components/three/Router3D'));
 const Firewall3D = React.lazy(() => import('@/components/three/Firewall3D'));
 const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
 const Nas3D = React.lazy(() => import('@/components/three/Nas3D'));
-const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
 const RackServer3D = React.lazy(() => import('@/components/three/RackServer3D'));
 const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
 const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'));
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
+import UpsSimulator from '@/components/viz/UpsSimulator';
 import AutoScalingAnimation from '@/components/viz/AutoScalingAnimation';
 import CICDAnimation from '@/components/viz/CICDAnimation';
 import SubnetCalculator from '@/components/tools/SubnetCalculator';
@@ -70,7 +70,7 @@ export const SUBJECTS = [
   { id: 'switch', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Network Switch Blueprint', blurb: 'A managed 48-port switch — ports, SFP+ uplinks, status LEDs, internals and specs.' },
   { id: 'server-rack', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Server Rack Blueprint', blurb: 'A 42U rack cabinet — rack units, rails, cable management, cooling and power distribution.' },
   { id: 'rack-server', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Rack Server Blueprint', blurb: 'A 2U rack server — drive bays, power supplies, cooling fans, management port and internals.' },
-  { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Rack-mounted battery backup — status display, protected outlets, battery module and internals.' },
+  { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Drive a live UPS on one screen — load it up, watch the runtime shrink, hand off to the generator before the battery dies.' },
   { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'A 48-port Cat6 patch panel — numbered RJ45 ports, 110 punch-down termination, T568A/T568B wiring.' },
   // Networking
   { id: 'osi', category: 'Networking', kind: 'blueprint', icon: Layers, label: 'OSI Model Blueprint', blurb: 'All seven layers — functions, protocols, encapsulation, and the PDU at each layer.' },
@@ -130,7 +130,7 @@ const ALIASES = {
 // curation. Flow subjects are data-driven via FlowDiagram.
 export const RENDERERS = {
   motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
-  'rack-server': RackServer3D, ups: Ups3D,
+  'rack-server': RackServer3D, ups: () => <UpsSimulator />,
   router: Router3D, 'access-point': AccessPoint3D,
   cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: Nas3D, 'patch-panel': PatchPanel3D,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
