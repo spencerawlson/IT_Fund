@@ -1,8 +1,6 @@
 // Load balancer simulation engine — pure functions, no React, no DOM.
 // The Visual Lab subject "Load Balancer" (src/components/viz) drives this
-// engine for its interactive simulator, and the guided walkthrough reuses
-// the same algorithms, latency model and nginx.conf rendering so the two
-// halves of the subject always agree with each other.
+// engine for its interactive simulator.
 //
 // Model (matches the thachdv.it Reel the subject is based on):
 // - Requests are page views (short) or checkouts (long-lived, hold a
@@ -187,56 +185,3 @@ export function nginxConf(algorithmId, servers) {
   lines.push('}');
   return lines.join('\n');
 }
-
-// ---- Guided walkthrough: the four beats from the source Reel --------------
-// Each step scripts the diagram (which servers hold how many connections,
-// the headline numbers, the caption and the config on screen). The
-// walkthrough animates requests continuously inside the step; the numbers
-// below are the step's steady state, not live measurements.
-
-export const WALKTHROUGH_STEPS = [
-  {
-    id: 'one-server',
-    title: 'Step 1 · One server, too much traffic',
-    caption: 'One server. It is already dropping requests.',
-    p95: 950,
-    errors503: 15,
-    healthy: '1/1',
-    servers: [{ conns: 8, status: 'overloaded' }],
-    algorithm: 'none',
-    conf: 'upstream backend {\n    server app1:8080;\n}\n# everything lands on one box',
-  },
-  {
-    id: 'round-robin',
-    title: 'Step 2 · Round robin',
-    caption: 'A load balancer hands them out: 1 → 2 → 3. But every checkout lands on server 3.',
-    p95: 428,
-    errors503: 16,
-    healthy: '3/3',
-    servers: [{ conns: 1, status: 'ok' }, { conns: 1, status: 'ok' }, { conns: 7, status: 'overloaded' }],
-    algorithm: 'round-robin',
-    conf: 'upstream backend {\n    server app1:8080;\n    server app2:8080;\n    server app3:8080;\n}',
-  },
-  {
-    id: 'least-conn',
-    title: 'Step 3 · Least connections',
-    caption: 'least_conn: the least busy server gets it. The slow box stops drowning.',
-    p95: 118,
-    errors503: 16,
-    healthy: '3/3',
-    servers: [{ conns: 2, status: 'ok' }, { conns: 3, status: 'ok' }, { conns: 3, status: 'ok' }],
-    algorithm: 'least-connections',
-    conf: 'upstream backend {\n    least_conn;\n    server app1:8080;\n    server app2:8080;\n    server app3:8080;\n}\n# fewest open connections wins',
-  },
-  {
-    id: 'server-dies',
-    title: 'Step 4 · A server dies',
-    caption: 'Server 2 dies. 3 fails → it is skipped. Spread the load. Skip the dead.',
-    p95: 200,
-    errors503: 16,
-    healthy: '2/3',
-    servers: [{ conns: 4, status: 'ok' }, { conns: 0, status: 'down' }, { conns: 6, status: 'ok' }],
-    algorithm: 'least-connections',
-    conf: 'upstream backend {\n    least_conn;\n    server app1:8080 max_fails=3;\n    server app2:8080 max_fails=3;\n    server app3:8080 max_fails=3;\n}\n# 3 fails -> skip it for 10 s',
-  },
-];

@@ -43,7 +43,7 @@ describe('Load Balancer Visual Lab subject', () => {
     act(() => {
       root = TestRenderer.create(<LoadBalancerAnimation />);
     });
-    expect(hasText(root.root, 'Interactive simulator')).toBe(true);
+    expect(hasText(root.root, 'Drive the balancer yourself')).toBe(true);
     for (const label of ['No balancer', 'Round robin', 'Least connections', 'Weighted round robin', 'IP hash', 'Random']) {
       expect(buttonWithText(root.root, label)).toBeDefined();
     }
@@ -79,32 +79,6 @@ describe('Load Balancer Visual Lab subject', () => {
     // The dead server shows up as down in the live config.
     const conf = root.root.findByType('pre');
     expect(conf.props.children).toContain('down;');
-    act(() => root.unmount());
-  });
-
-  it('the guided walkthrough plays the Reel story in four beats', () => {
-    let root;
-    act(() => {
-      root = TestRenderer.create(<LoadBalancerAnimation />);
-    });
-    act(() => {
-      buttonWithText(root.root, 'Guided walkthrough').props.onClick();
-    });
-    expect(hasText(root.root, 'Step 1 · One server, too much traffic')).toBe(true);
-    expect(hasText(root.root, 'One server. It is already dropping requests.')).toBe(true);
-    act(() => {
-      vi.advanceTimersByTime(6100);
-    });
-    expect(hasText(root.root, 'Step 2 · Round robin')).toBe(true);
-    act(() => {
-      vi.advanceTimersByTime(6100);
-    });
-    expect(hasText(root.root, 'Step 3 · Least connections')).toBe(true);
-    act(() => {
-      vi.advanceTimersByTime(6100);
-    });
-    expect(hasText(root.root, 'Step 4 · A server dies')).toBe(true);
-    expect(hasText(root.root, 'Server 2 dies. 3 fails → it is skipped.')).toBe(true);
     act(() => root.unmount());
   });
 });
