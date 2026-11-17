@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T11:34:59.796Z",
+  "generatedAt": "2026-11-17T11:37:29.187Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -62219,6 +62219,13 @@
             "The `std::` prefix is a namespace qualifier — it says \"this name comes from the standard library.\" You will see `using namespace std;` in tutorials; it pulls every standard name into scope so you can write `cout` instead of `std::cout`. Convenient, but in real projects it invites name clashes, so prefer the explicit `std::` form.",
             "To build a single file into an executable named `app`, the command is `g++ main.cpp -o app`. Add `-std=c++20` to choose the language standard — C++ evolves, and modern features (smart pointers, `auto`, lambdas) require telling the compiler which era of the language you are writing in."
           ]
+        },
+        {
+          "heading": "Building real projects with CMake",
+          "body": [
+            "Calling the compiler by hand works for one file. Real projects use a build system, and CMake is the de facto standard for C++. A minimal `CMakeLists.txt` declares `cmake_minimum_required(VERSION 3.20)`, `project(hello CXX)`, `set(CMAKE_CXX_STANDARD 20)` and `add_executable(hello main.cpp)`. Then `cmake -S . -B build` configures the project and `cmake --build build` compiles it, using whichever compiler and generator the platform provides.",
+            "Build in two configurations. A Debug build (`-DCMAKE_BUILD_TYPE=Debug`) keeps symbols and turns off optimisation so a debugger can step through code. A Release build turns on optimisation for speed. Add warnings to every build, for example `target_compile_options(hello PRIVATE -Wall -Wextra -Wpedantic)` with GCC and Clang, and treat new warnings as bugs."
+          ]
         }
       ],
       "examples": [
@@ -62284,6 +62291,13 @@
             "Signed integer overflow is undefined behaviour in C++ — not \"wraps around,\" not \"throws an exception,\" but literally anything-goes. (Unsigned overflow does wrap, by definition.) Never write code that depends on what signed overflow does.",
             "For conversions, prefer `static_cast<double>(x)` over the old C-style `(double)x`. The named cast is explicit, greppable, and checked at compile time — a small habit that keeps conversions honest."
           ]
+        },
+        {
+          "heading": "Initialisation and conversions",
+          "body": [
+            "C++ has several ways to initialise a variable, and brace initialisation is the safest default: `int count{0};` or `double rate{0.05};`. Braces refuse narrowing conversions, so `int n{3.7};` is a compile error rather than a silent truncation to 3. An uninitialised local such as `int total;` holds an indeterminate value, and reading it is undefined behaviour, so always initialise.",
+            "Mixing signed and unsigned types causes surprising results: `-1 < 1u` is false, because `-1` converts to a huge unsigned value. Compare sizes with `std::ssize()` or cast deliberately, and turn on `-Wsign-compare`. Use `static_cast<int>(x)` when you mean a conversion so it is visible in review; avoid C-style casts such as `(int)x`, which can silently perform more dangerous conversions."
+          ]
         }
       ],
       "examples": [
@@ -62347,6 +62361,13 @@
             "A function declared `void` returns nothing — you call it for its side effects. Parameters are passed by value by default, meaning the function receives a copy; changes to it never reach the caller. To let a function modify the caller's variable, take the parameter by reference (`void f(int& x)`) or by pointer.",
             "For large objects you do not want to modify, the idiom is `const T&`: pass by const reference. It avoids an expensive copy while promising the function will not touch the object. This is the default way to pass big read-only parameters in modern C++.",
             "Two functions can share a name if their parameter lists differ — that is overloading, and the compiler picks the best match by the arguments you pass. You can also give parameters defaults (`int f(int x, int y = 0)`), so callers may omit them. And remember: a function must be declared — by its definition or a forward declaration (prototype) — before its first use, which is why headers exist."
+          ]
+        },
+        {
+          "heading": "Overloading, default arguments and returning results",
+          "body": [
+            "Functions can share a name if their parameter lists differ: `int area(int side)` and `double area(double w, double h)` are overloads, and the compiler picks one from the argument types. Default arguments supply values the caller may omit: `void log(const std::string& msg, int level = 1);`. Keep defaults in the declaration in the header, not repeated in the definition.",
+            "Return results by value: modern compilers elide the copy, and moves make it cheap even when they cannot. To return several values, return a struct or use structured bindings with `std::pair` or `std::tuple`: `auto [min, max] = std::minmax(a, b);`. For a value that may be missing, return `std::optional<T>` rather than a magic number such as -1, so the caller has to check."
           ]
         }
       ],
@@ -62414,6 +62435,13 @@
           "body": [
             "Local variables live on the stack and are freed automatically when their scope ends. Heap memory — obtained with `new` — is yours to manage: `new` returns a pointer, and you must `delete` it, or the memory is lost until the program exits. That loss has a name: a memory leak.",
             "Worse than a leak is a dangling pointer: one that points to memory already freed or out of scope. Using it is undefined behaviour and a favorite exploit primitive. And arrays allocated with `new[]` must be freed with `delete[]` — mismatching the forms is undefined behaviour. The modern answer to all of this is smart pointers (see the RAII lesson), but you must understand the raw mechanics first, because every abstraction leaks eventually."
+          ]
+        },
+        {
+          "heading": "Choosing between references, pointers and smart pointers",
+          "body": [
+            "Use a reference when the object must exist and you only need to use it: `void print(const Order& o)`. Use a raw pointer when 'nothing' is a valid value and the function does not own the object: `Node* find(int key)` returns `nullptr` when the key is missing. Never use a raw pointer to own memory in modern code; that is the job of `std::unique_ptr` or `std::shared_ptr`.",
+            "For a view of a contiguous range, `std::span<int>` (C++20) carries a pointer and a length together, so the function knows the size and cannot be handed a mismatched one. Similarly `std::string_view` views characters without copying. Views must not outlive the data they point to, which is the same dangling risk as a raw pointer."
           ]
         }
       ],
@@ -62487,6 +62515,13 @@
             "Declaring a member function `virtual` makes it overridable: calling it through a base-class pointer or reference dispatches at runtime to the derived class's override, via the virtual table. That is runtime polymorphism — one interface, many behaviors, chosen by the actual object type.",
             "Two rules follow. First, a polymorphic base class needs a virtual destructor, so that deleting a derived object through a base pointer runs the derived destructor; without it, you get undefined behaviour and likely a leak. Second, a pure virtual function (`virtual void f() = 0;`) has no base implementation and makes the class abstract — it cannot be instantiated, and derived classes must override the function. Inside any member function, `this` is a pointer to the current object."
           ]
+        },
+        {
+          "heading": "The rule of zero, three and five",
+          "body": [
+            "If a class manages a resource directly, such as raw memory or a file handle, it needs a destructor, and then almost certainly a copy constructor and copy assignment operator too (the rule of three), plus a move constructor and move assignment for efficiency (the rule of five). Getting any of these wrong causes double frees or leaks.",
+            "The better design is the rule of zero: hold resources in members that already manage themselves, such as `std::vector`, `std::string` and `std::unique_ptr`, and write none of the five. The compiler-generated versions then do the right thing. Mark single-argument constructors `explicit` to stop accidental conversions, and mark overriding functions `override` and classes not meant for inheritance `final`."
+          ]
         }
       ],
       "examples": [
@@ -62559,6 +62594,13 @@
             "An iterator is an object that points into a container and can be advanced to traverse it — a generalization of the pointer idea. `begin()` and `end()` delimit the range, and `end()` is the past-the-end sentinel: `std::find` returns `end()` when the value is absent, so always compare against it before using the result.",
             "The modern way to traverse is the range-based for loop: `for (const auto& x : container)`. The `&` avoids copying each element; `const` promises read-only. For everything else there is `<algorithm>`: `std::sort(v.begin(), v.end())` sorts ascending by default (pass a comparator for custom order), and dozens of siblings — `find`, `count`, `transform`, `any_of` — turn raw loops into named intent."
           ]
+        },
+        {
+          "heading": "Choosing a container and watching iterator invalidation",
+          "body": [
+            "Start with `std::vector`: its elements sit in contiguous memory, which makes iteration fast and cache-friendly. Use `std::unordered_map` for average constant-time lookups by key, `std::map` when you need keys in sorted order, `std::deque` for cheap insertion at both ends, and `std::array` for a fixed size known at compile time. `std::list` is rarely the best choice despite its cheap middle insertion.",
+            "Modifying a container can invalidate iterators, pointers and references into it. A `push_back` that grows a vector reallocates its storage, so any pointer to an element becomes dangling. Erasing inside a loop must use the iterator that `erase` returns: `it = v.erase(it);`. Calling `reserve()` when you know the final size avoids repeated reallocations."
+          ]
         }
       ],
       "examples": [
@@ -62627,6 +62669,13 @@
             "Move semantics transfer resources instead of copying them: `std::move` casts to an rvalue so the move constructor (not the copy constructor) is chosen. Moving a vector hands over its buffer pointer rather than duplicating every element — the difference between O(1) and O(n).",
             "The Rule of Five says: if you define any of the destructor, copy constructor, copy assignment, move constructor, or move assignment, consider all five — managing a resource usually means handling them as a set. But the better rule is the Rule of Zero: design classes so you need none of them, letting members like smart pointers and vectors manage resources for you. The safest special member function is the one you never write."
           ]
+        },
+        {
+          "heading": "Exception safety and custom deleters",
+          "body": [
+            "RAII is what makes code exception-safe. If a function acquires two resources by hand and the second acquisition throws, the first leaks unless every path cleans it up. With each resource owned by an object, stack unwinding runs the destructors automatically. Aim for the strong guarantee where it matters: an operation either succeeds completely or leaves the object unchanged, often by doing the work on a copy and swapping it in.",
+            "Smart pointers can manage resources other than memory through custom deleters: `std::unique_ptr<FILE, decltype(&fclose)> f(fopen(\"log.txt\", \"r\"), &fclose);` closes the file when `f` goes out of scope. Create shared objects with `std::make_shared` and unique ones with `std::make_unique`, and break `shared_ptr` reference cycles with `std::weak_ptr`."
+          ]
         }
       ],
       "examples": [
@@ -62694,6 +62743,13 @@
             "`constexpr` asks the compiler to evaluate something at compile time when possible, turning runtime computation into compile-time constants. Namespaces group related names to avoid collisions — `std` is just the most famous one, accessed as `ns::name`.",
             "The header/source split is C++'s compilation model made concrete: the `.h`/`.hpp` declares the interface so callers can compile against it, while the `.cpp` defines the implementation. (Templates are the exception — they usually stay header-only.) Two small modernizations punch above their weight: `nullptr` is a real null-pointer type, so overload resolution is unambiguous where `NULL`-as-zero could silently pick the wrong function; and `std::optional<T>` represents \"a value that may not be present\" — a type-safe alternative to sentinels and null pointers."
           ]
+        },
+        {
+          "heading": "Ranges and compile-time programming",
+          "body": [
+            "C++20 ranges let you compose operations without writing loops or managing iterator pairs: `for (int x : v | std::views::filter([](int n) { return n % 2 == 0; }) | std::views::transform([](int n) { return n * n; }))` visits the squares of the even numbers lazily, without creating intermediate containers. Algorithms in `std::ranges` take the whole container: `std::ranges::sort(v);`.",
+            "Work can move from run time to compile time. A `constexpr` function can be evaluated by the compiler when its arguments are constants, and `consteval` (C++20) requires it. `if constexpr` chooses a branch at compile time inside templates, discarding the other. Combined with concepts, these replace most of the template tricks older C++ code relied on."
+          ]
         }
       ],
       "examples": [
@@ -62757,6 +62813,13 @@
           "body": [
             "The compiler is your first line of defence: build with `-Wall -Wextra` to enable warnings that catch likely bugs, and consider `-Werror` in CI so warnings cannot be ignored into production. Warnings are the cheapest bugs you will ever fix.",
             "What warnings miss, sanitizers catch at runtime. AddressSanitizer (`-fsanitize=address`) detects use-after-free, buffer overflows, and leaks during testing with modest slowdown — run your test suite under it routinely. Valgrind finds the same class of memory errors without recompilation, at the cost of much slower execution. Between strict warnings, sanitizers, RAII, and bounds-checked access, modern C++ is far safer than its reputation — but every layer is opt-in, and the language will never force you to use them."
+          ]
+        },
+        {
+          "heading": "Writing safer C++ day to day",
+          "body": [
+            "Many memory-safety bugs disappear with a few habits. Prefer containers and views (`std::vector`, `std::array`, `std::span`, `std::string_view`) over raw arrays and pointer arithmetic; use `.at()` where an out-of-range index is possible; own memory only through smart pointers; and initialise every variable. The C++ Core Guidelines collect these rules, and clang-tidy checks many of them automatically.",
+            "Treat compiler and tool output as part of the build. Enable warnings and make them errors in CI, run tests under AddressSanitizer and UndefinedBehaviorSanitizer, fuzz code that parses untrusted input, and add static analysis. Hardening options such as `-D_FORTIFY_SOURCE=3`, stack protectors and the standard library's hardened mode catch some remaining errors at run time."
           ]
         }
       ],
@@ -64109,6 +64172,13 @@
             "An interface lists method signatures, and a type satisfies it implicitly — there is no `implements` keyword, no registration step. If it has the methods, it qualifies. This structural typing keeps dependencies minimal: define small interfaces (often a single method, like `io.Reader` or `io.Writer`) at the point of use, and any type in any package that happens to match can plug in. To recover a concrete type from an interface value, use a type assertion — `v, ok := i.(MyType)` — or a type switch when several cases are possible.",
             "The empty interface, `interface{}` (modern alias `any`), is satisfied by every value. It is the escape hatch for genuinely heterogeneous data, but idiomatic Go reaches for concrete types or generics first — `any` everywhere is a design smell. And note the zero values: interfaces and pointers both start as `nil`, and calling a method on a nil interface panics. Nil is honest about being nothing; it just refuses to pretend otherwise."
           ]
+        },
+        {
+          "heading": "Designing with small interfaces",
+          "body": [
+            "Go interfaces work best when they are small and defined by the code that uses them. The standard library's `io.Reader` has a single method, `Read(p []byte) (n int, err error)`, yet files, network connections, buffers and HTTP bodies all satisfy it, so one function can read from any of them. Define an interface in the consuming package with only the methods it needs; this keeps dependencies loose and makes testing with a fake easy.",
+            "Remember the method-set rule: a method with a pointer receiver belongs to `*T`, not `T`, so a value of type `T` does not satisfy an interface that needs it. Also, an interface holding a typed nil pointer is not itself nil: returning `var p *MyErr = nil` as an `error` gives a non-nil error. Return a literal `nil` when there is no error."
+          ]
         }
       ],
       "cheatSheet": [
@@ -64878,6 +64948,13 @@
             "`mkdir -p projects/2026/q1` creates the whole chain at once, `touch file` creates an empty file or updates timestamps, `cp -r` copies trees, and `mv` both moves and renames. `rm -rf` deletes recursively without asking and without a trash can — the most feared command for a reason: double-check the path before pressing enter.",
             "`find /var -name \"app.log\"` walks the filesystem looking for a name. Quote the pattern so the shell does not expand it first. When you forget a flag, `man <command>` opens the built-in manual (q quits, / searches); for quick examples, `tldr <command>` is faster to skim."
           ]
+        },
+        {
+          "heading": "Finding files and getting help",
+          "body": [
+            "Two commands answer most 'where is it?' questions. `find /var/log -name '*.log' -mtime -1` searches a directory tree by name, type, size or modification time and can act on what it finds (`-exec`, or `-delete` with care). `locate` searches a prebuilt index and is much faster, but only knows about files that existed at the last `updatedb` run. `which python3` shows which executable your shell will actually run.",
+            "When you meet an unfamiliar command, the documentation is already on the system. `man ls` opens the manual page, `ls --help` prints a short summary, and `apropos compress` searches manual page descriptions for a keyword. Tab completion saves typing and catches typos: press Tab once to complete a path, twice to list the options. `history` and Ctrl+R let you find and rerun earlier commands instead of retyping them."
+          ]
         }
       ],
       "examples": [
@@ -64954,6 +65031,13 @@
             "SUID (4) on an executable runs it with the file owner's privileges — `/usr/bin/passwd` is owned by root so anyone can change their own password safely. It shows as an `s`: `-rwsr-xr-x`. SGID (2) on a directory makes new files inherit the directory's group, perfect for shared project folders.",
             "The sticky bit (1) on a directory like /tmp means anyone can create files but only the owner (or root) can delete them — shown as `t` in `drwxrwxrwt`. World-writable SUID binaries are a classic audit finding: find them with `find / -perm -4000 2>/dev/null`."
           ]
+        },
+        {
+          "heading": "Access control lists and troubleshooting",
+          "body": [
+            "The nine permission bits allow one owner, one group and everyone else. When you need more, for example giving a second team read access without changing the group, POSIX ACLs add entries per user or group: `setfacl -m u:ana:r report.txt` grants Ana read access, and `getfacl report.txt` shows the full list. A `+` at the end of the mode in `ls -l` output tells you a file has an ACL.",
+            "When access is denied, check every directory in the path, not just the file: a user needs execute (x) permission on each parent directory to reach a file inside it. `namei -l /srv/app/config.yml` lists the owner and mode of every component in one go. Also remember that SELinux or AppArmor can deny access even when the permission bits allow it; `ls -Z` shows SELinux labels and the audit log records the denials."
+          ]
         }
       ],
       "examples": [
@@ -65021,6 +65105,13 @@
           "body": [
             "`sudo` runs one command with elevated privileges under rules in /etc/sudoers. It asks for your password (not root's) and logs the invocation — that audit trail is why enterprises prefer it over shared root passwords. Always edit sudoers with `visudo`: it validates syntax before saving, because one typo can lock every admin out.",
             "`su -` switches to root (or another user) and needs the target's password; `sudo -i` gets you a root shell with your own credentials. Prefer sudo's fine-grained rules (\"may restart nginx\") over handing out full root wherever you can."
+          ]
+        },
+        {
+          "heading": "Managing accounts safely",
+          "body": [
+            "Day-to-day account work uses a few commands. `usermod -aG docker ana` adds Ana to a supplementary group; without `-a` the `-G` option replaces all her groups, a common mistake that removes access. `passwd -l ana` locks the password, `chage -l ana` shows password ageing, and `userdel -r ana` removes the account and its home directory. `id ana` and `groups ana` show what she belongs to, and changes to groups only apply at her next login.",
+            "Edit sudo rules with `visudo`, never directly: it checks the syntax before saving, so a typo cannot lock everyone out of sudo. Prefer dropping files into `/etc/sudoers.d/` and granting specific commands rather than full root, for example `%webops ALL=(root) /usr/bin/systemctl restart nginx`. Review `/var/log/auth.log` or `journalctl _COMM=sudo` to see who used sudo and for what."
           ]
         }
       ],
@@ -65090,6 +65181,13 @@
             "`grep -i` searches case-insensitively, `-r` recurses, `-c` counts matching lines. `cut -d: -f1` takes fields by delimiter; `sort | uniq -c` counts duplicates (uniq needs sorted input); `wc -l` counts lines. `head`/`tail` preview ends; `tail -f` follows a live log.",
             "For the rest there is sed and awk. `sed -i 's/foo/bar/g' file` edits in place (s = substitute, g = global). `awk -F: '{print $1}' /etc/passwd` prints the first field of each line — $0 is the whole line, $1/$2 are fields, -F sets the delimiter."
           ]
+        },
+        {
+          "heading": "A worked pipeline: top talkers in a web log",
+          "body": [
+            "Suppose you need the ten IP addresses that made the most requests to a web server. Each line of an nginx or Apache access log starts with the client IP, so `awk '{print $1}' access.log` extracts it. `sort` groups identical addresses together, `uniq -c` counts each group, `sort -rn` orders by count, highest first, and `head -10` keeps the top ten. Joined with pipes: `awk '{print $1}' access.log | sort | uniq -c | sort -rn | head -10`.",
+            "The same pattern answers many questions by changing the first step. `grep ' 404 ' access.log | awk '{print $7}' | sort | uniq -c | sort -rn | head` lists the most requested missing pages. For anything larger or repeated, `awk` alone can count with an associative array, and `sed -n '/10:00/,/10:05/p'` extracts a time window. Build pipelines one stage at a time and check the output at each step."
+          ]
         }
       ],
       "examples": [
@@ -65158,6 +65256,13 @@
             "Interrogate the system: `dpkg -l | grep ssh` lists installed packages matching ssh; `dpkg -S /usr/bin/curl` (or `rpm -qf`) tells you which package owns a file — invaluable when a binary misbehaves. `apt autoremove` drops orphaned dependencies.",
             "Prefer the distro repository over a downloaded .deb/.rpm: repo packages are signed, dependency-resolved, and — critically — get security updates automatically. A manually installed package is a package you must remember to patch forever."
           ]
+        },
+        {
+          "heading": "Repositories, signing keys and pinning",
+          "body": [
+            "Packages come from repositories listed in `/etc/apt/sources.list.d/` on Debian and Ubuntu, or `/etc/yum.repos.d/` on RHEL and Fedora. Each repository signs its metadata, and the package manager refuses unsigned or wrongly signed packages; that check is what stops a tampered mirror from installing malware. Add third-party repositories only from vendors you trust, with their signing key stored in `/etc/apt/keyrings/` and referenced by `signed-by`, rather than trusting the key for every repository.",
+            "On servers, control when packages change. `apt-mark hold nginx` or `dnf versionlock` keeps a package at its current version until you are ready to test an upgrade. Unattended security updates (`unattended-upgrades` or `dnf-automatic`) are a good default for security patches, while larger upgrades go through a test environment first. Universal formats such as Snap and Flatpak bundle their own dependencies and update separately from the system package manager."
+          ]
         }
       ],
       "examples": [
@@ -65220,6 +65325,13 @@
           "body": [
             "journalctl is the unified log reader: `journalctl -u nginx -f` follows one service live, `--since \"1 hour ago\"` bounds the window, `-p err` filters to errors and above. `systemctl --failed` lists everything currently in a failed state — the first command in any \"the app is down\" drill.",
             "systemd timers are cron's successor: a .timer unit triggers a .service unit on a schedule, with journald logging and dependency handling built in. The old SysV runlevels are now targets — `multi-user.target` and `graphical.target` — switched with `systemctl isolate`."
+          ]
+        },
+        {
+          "heading": "Writing your own service unit",
+          "body": [
+            "To run an application as a managed service, create a unit file such as `/etc/systemd/system/myapp.service`. The `[Unit]` section holds a description and ordering (`After=network-online.target`); `[Service]` sets `ExecStart=/opt/myapp/bin/server`, `User=myapp`, and `Restart=on-failure`; `[Install]` sets `WantedBy=multi-user.target` so `systemctl enable` starts it at boot. Run `systemctl daemon-reload` after creating or editing a unit.",
+            "systemd can also sandbox the service with a few lines: `NoNewPrivileges=yes`, `ProtectSystem=strict`, `ProtectHome=yes`, `PrivateTmp=yes` and `ReadWritePaths=/var/lib/myapp`. `systemd-analyze security myapp` scores how exposed a unit is and lists the options that would tighten it. Override a packaged unit with `systemctl edit nginx`, which writes a drop-in file instead of changing the vendor's original."
           ]
         }
       ],
@@ -65284,6 +65396,13 @@
             "`ssh -i ~/.ssh/deploy.pem user@host` connects with a specific key — the basis of automation and jump hosts. `scp file.txt user@host:/tmp/` copies over the same encrypted channel (`-r` for directories; rsync for repeated syncs).",
             "Name resolution checks /etc/hosts before DNS (order in /etc/nsswitch.conf); /etc/resolv.conf says which DNS servers to query. To test a TCP port, `nc -vz host 443` — open vs refused vs timeout tells you whether the service, the firewall, or the route is at fault."
           ]
+        },
+        {
+          "heading": "Troubleshooting a connection step by step",
+          "body": [
+            "When a service cannot be reached, check each layer in turn. `ip addr` and `ip route` confirm the host has an address and a default route. `ping` to the gateway tests the local network, and `ping 1.1.1.1` tests the path out. `dig example.com` (or `resolvectl query`) tests name resolution separately from connectivity. If names fail but IP addresses work, the fault is DNS.",
+            "Then test the port itself. On the server, `ss -tlnp` shows whether the service is listening and on which address; a service bound to 127.0.0.1 cannot be reached from other machines. From the client, `nc -zv server 443` or `curl -v https://server` tests the TCP connection and shows TLS errors. If the service listens but the client cannot connect, check the host firewall (`ufw status`, `nft list ruleset`) and any network firewall between them. `tcpdump -i eth0 port 443` shows whether packets arrive at all."
+          ]
         }
       ],
       "examples": [
@@ -65346,6 +65465,13 @@
           "body": [
             "Test with `[ ... ]`: `-f` for files, `-d` for directories, `-z` for empty strings. `for f in *.log; do ...; done` iterates globs; the safe line-by-line reader is `while IFS= read -r line; do ...; done < file` — never `for line in $(cat file)`, which mangles whitespace.",
             "Functions group logic: `backup() { ...; }`. A function \"returns\" an exit status via `return N` (0-255); real data goes on stdout and is captured with `result=$(backup)`. `return \"text\"` does not do what you hope."
+          ]
+        },
+        {
+          "heading": "Inputs, quoting and checking your scripts",
+          "body": [
+            "Most broken scripts fail on quoting. Always quote variables, `\"$file\"` rather than `$file`, so names containing spaces or wildcards are passed as one argument. Use `\"$@\"` to pass all of a script's arguments on unchanged. Read input with `read -r name`, and check required arguments early: `[[ $# -eq 1 ]] || { echo \"usage: $0 <dir>\" >&2; exit 2; }`.",
+            "Clean up after yourself with a trap: `tmp=$(mktemp); trap 'rm -f \"$tmp\"' EXIT` deletes the temporary file however the script ends. Before running a script on a server, check it with ShellCheck (`shellcheck deploy.sh`), which catches unquoted variables, unused variables and common logic errors. Running with `bash -x script.sh` prints each command as it executes, which is the fastest way to see where a script goes wrong."
           ]
         }
       ],
@@ -65415,6 +65541,13 @@
             "`uptime` gives load averages (1/5/15 min); sustained load above your CPU core count means queuing. `df -h` checks filesystem space, `du -sh *` finds the hog — and if df says full but du disagrees, check inodes with `df -i`.",
             "`top` (P sorts by CPU, M by memory) or `htop` finds the hungry process; `ps aux | grep app` inspects one service; `ss -tulpn | grep :8080` confirms what actually listens. `strace -p <pid>` traces system calls when a process fails mysteriously — it shows every file it touches."
           ]
+        },
+        {
+          "heading": "Searching logs effectively",
+          "body": [
+            "journalctl filters are the quickest way to narrow down an event: `journalctl -u nginx --since '2026-05-12 09:00' --until '09:30'` shows one service in a time window, `-p warning` shows warnings and worse, `-b -1` shows the previous boot (useful after a crash), and `-o json-pretty` exposes every field. For classic text logs, `grep -i error /var/log/syslog | tail -50` and `zgrep` for rotated, compressed files cover most needs.",
+            "Logs are only useful if they are kept and protected. logrotate compresses and deletes old files on a schedule; check `/etc/logrotate.d/` so logs do not fill the disk. journald keeps logs in memory only unless `/var/log/journal` exists or `Storage=persistent` is set. For security, forward logs to a central server or SIEM, so an attacker who gains root on the host cannot quietly delete the evidence."
+          ]
         }
       ],
       "examples": [
@@ -65477,6 +65610,13 @@
           "body": [
             "Default-deny inbound, then open only what the box needs: `ufw default deny incoming` + `ufw allow 22/tcp` (Ubuntu), or firewall-cmd zones on RHEL. Enable automatic security updates (unattended-upgrades / dnf-automatic) so patches do not depend on human memory.",
             "Apply least privilege everywhere: dedicated low-privilege accounts per service (never run daemons as root), sudo rules scoped to single commands, no world-writable configs. AIDE/Tripwire file-integrity monitoring then alerts when system files change unexpectedly — baseline right after a clean install."
+          ]
+        },
+        {
+          "heading": "Watching for intrusion",
+          "body": [
+            "Hardening reduces the chance of a break-in; monitoring tells you when one happens. Check `/var/log/auth.log` (or `journalctl -u ssh`) for repeated failed logins and successful logins from unexpected addresses. Fail2ban reads those logs and temporarily blocks addresses that fail too often. The `last` and `lastb` commands list recent successful and failed logins.",
+            "For deeper visibility, auditd records security-relevant events such as changes to `/etc/passwd` or use of privileged commands, according to rules you define. File integrity monitoring tools such as AIDE record hashes of system files and report changes. Combine them with mandatory access control (SELinux on RHEL-family systems, AppArmor on Ubuntu), left in enforcing mode rather than disabled, so a compromised service is confined to what its policy allows."
           ]
         }
       ],
@@ -65679,6 +65819,13 @@
             "Rust has three loop forms and no more: `loop` runs forever (or until `break`), `while` runs on a condition, and `for` iterates over ranges and iterators (`for x in 0..5`). Because `loop` is an expression, it can return a value through `break`: `let r = loop { break 10; };`. Ranges deserve a glance: `0..5` covers 0 through 4 (end-exclusive); `0..=5` includes 5.",
             "`match` is Rust’s pattern-matching powerhouse, and it carries a guarantee most switch statements lack: exhaustiveness. Every possible value must be handled — miss a case and it is a compile error, not a runtime surprise. A `_` arm catches everything else, patterns can destructure and bind parts of the value (`Some(x)` binds `x`), and `if let` gives you a concise way to handle a single interesting pattern while ignoring the rest."
           ]
+        },
+        {
+          "heading": "Patterns beyond match",
+          "body": [
+            "When you only care about one case, `if let` is shorter than a full `match`: `if let Some(user) = find_user(id) { greet(&user); }`. `let ... else` binds a value or leaves the function early: `let Some(user) = find_user(id) else { return Err(NotFound); };`. `while let` loops as long as a pattern keeps matching, for example popping items from a stack.",
+            "Patterns can also destructure tuples and structs and add guards: `match point { (0, y) => ..., (x, 0) => ..., (x, y) if x == y => ..., _ => ... }`. Loops can carry labels so `break 'outer;` exits a nested loop. Because `match` must be exhaustive, the compiler tells you every place to update when you add an enum variant."
+          ]
         }
       ],
       "cheatSheet": [
@@ -65740,6 +65887,13 @@
           "body": [
             "Most functions do not need to own their arguments — they just need to look at them. Borrowing (`&x`) creates a reference: you can read (or, with `&mut x`, modify) the value while the owner keeps it. The borrow checker, the compiler pass enforcing all of this, guarantees the reference can never outlive the data it points to — which is precisely what makes dangling references, the use-after-free bug, impossible in safe Rust.",
             "The borrowing contract has one famous clause: at any moment you may have either any number of immutable references or exactly one mutable reference — never both. That single rule, checked at compile time, is what eliminates data races: if no two threads can hold a mutable reference to the same data simultaneously, they cannot race on it. Lifetimes (the `'a` annotations you will occasionally see) are the compiler’s way of relating how long references stay valid; most are inferred, and you annotate only when the compiler needs help connecting inputs to outputs."
+          ]
+        },
+        {
+          "heading": "Lifetimes in practice",
+          "body": [
+            "Every reference has a lifetime, the span during which it is valid, and most of the time the compiler infers it. You write lifetime annotations only when a function returns a reference and the compiler cannot tell which input it borrows from: `fn longest<'a>(a: &'a str, b: &'a str) -> &'a str` says the result lives no longer than both inputs. Annotations describe relationships; they never extend how long data lives.",
+            "When the borrow checker refuses code, the fix is usually structural rather than a battle with annotations. Return owned data (`String` instead of `&str`) when the caller should keep it, clone a small value when sharing is awkward, shorten a borrow by ending it before the mutation, or restructure so one function owns the data. For genuinely shared ownership, `Rc<T>` (single thread) or `Arc<T>` (across threads) count references at run time."
           ]
         }
       ],
@@ -65806,6 +65960,13 @@
             "A Rust enum is a type that is one of several variants, where each variant may hold data: `enum Message { Quit, Move { x: i32, y: i32 }, Write(String) }`. This single mechanism replaces a remarkable amount of machinery from other languages. `Option<T>` — either `Some(T)` or `None` — replaces null: a value that might be absent is visibly marked in its type, and the compiler will not let you use it without handling the `None` case. `Result<T, E>` — `Ok(T)` or `Err(E)` — does the same job for operations that can fail, and is Rust’s primary error type.",
             "Tony Hoare called null his “billion-dollar mistake.” Rust designs it out: absence is not a landmine hidden in every reference, it is a value you pattern-match on. The safe way to handle any enum is `match`, which is exhaustive — forget a variant and the build fails. For the common case of caring about exactly one variant, `if let Some(x) = opt` runs its block with `x` bound, skipping the ceremony of a full match."
           ]
+        },
+        {
+          "heading": "Traits: shared behaviour",
+          "body": [
+            "Traits define behaviour that several types can implement, similar to interfaces. `trait Shape { fn area(&self) -> f64; }` is implemented with `impl Shape for Circle { ... }`. Generic functions accept any implementor: `fn total<T: Shape>(shapes: &[T]) -> f64`, and the compiler generates a specialised copy for each type. When you need a mix of types in one collection, use a trait object: `Vec<Box<dyn Shape>>`, which dispatches at run time.",
+            "Many common traits can be derived instead of written: `#[derive(Debug, Clone, PartialEq)]` gives printing, copying and comparison. Implementing standard traits such as `Display`, `From` and `Default` makes your types work naturally with the rest of the language, for example letting `?` convert errors automatically through `From`."
+          ]
         }
       ],
       "cheatSheet": [
@@ -65867,6 +66028,13 @@
           "body": [
             "Fallible operations return `Result`; `.unwrap()` extracts the success value and panics on `Err` (or `None` for `Option`). It is perfect for prototypes and tests, and a code smell in production paths — `.expect(\"config file must exist\")` is the honest upgrade, panicking with your message instead of a generic one. The `?` operator is the idiomatic middle path: placed after a `Result` or `Option`, it returns early with the failure or unwraps the success, collapsing nested error plumbing into a single character.",
             "`panic!` itself is reserved for the unrecoverable: violated invariants, programmer bugs, states that should be impossible. Expected, handleable failures — a missing file, a bad response — belong in `Result`, not in a panic. The discipline is simple to state and worth internalizing: if the caller could reasonably recover, return it; if the program’s assumptions are broken, panic."
+          ]
+        },
+        {
+          "heading": "Designing error types",
+          "body": [
+            "Libraries should return errors that callers can inspect. Define an enum with one variant per failure, implement `std::error::Error` and `Display`, and implement `From` for the underlying errors so `?` converts them. The `thiserror` crate generates this boilerplate from attributes. Applications that mainly report errors can use `anyhow`, which wraps any error and lets you add context: `.context(\"reading config file\")?`.",
+            "Reserve `panic!`, `unwrap()` and `expect()` for bugs, not expected failures. A missing file or bad user input is an error to return; an index that should be impossible is a bug. In tests and prototypes `expect(\"why this cannot fail\")` is acceptable and documents the assumption; in production code paths, propagate with `?` or handle the error explicitly."
           ]
         }
       ],
@@ -66820,6 +66988,13 @@
             "Outputs are the opposite direction: values a configuration exposes after apply. An output block publishes something — a load balancer's DNS name, a database endpoint — visible via terraform output and, crucially, consumable by parent modules. Outputs are the API of your infrastructure: they define what callers are allowed to depend on, and everything else stays internal.",
             "Marking a variable or output sensitive = true redacts it from plan and apply output, which keeps secrets out of CI logs and terminal scrollback. But understand precisely what it does not do: it does not encrypt the value in state. State still holds it in plaintext. Sensitive is a display control, not a security control — the real protection is an encrypted remote backend with tight access."
           ]
+        },
+        {
+          "heading": "Handling secrets and sensitive values",
+          "body": [
+            "Marking a variable or output `sensitive = true` hides it from plan and apply output, but Terraform still writes the value to the state file in plain text. Treat state as sensitive: store it in an encrypted remote backend with tight access, and never commit `terraform.tfstate` or `.tfvars` files that contain secrets to version control.",
+            "Better still, keep secrets out of variables. Read them at apply time from a secret manager with a data source (for example `aws_secretsmanager_secret_version`), or let the service generate and manage them; many AWS resources can create and rotate a database password in Secrets Manager for you. Terraform 1.10 added ephemeral values and resources, which are used during a run but never stored in plan or state, and 1.11 added write-only arguments for the same purpose."
+          ]
         }
       ],
       "examples": [
@@ -66884,6 +67059,13 @@
             "Terraform ships a standard library of functions, and a dozen of them do most of the work. length() counts elements. lookup(map, key, default) reads with a fallback. coalesce(a, b, c) returns the first argument that is neither null nor empty — the \"use this, else that\" pattern. jsondecode() and jsonencode() cross the boundary between JSON text and Terraform values. templatefile(path, vars) renders a file template — user-data scripts, policy documents — with variables injected.",
             "Two deserve special attention for defensive coding. try() evaluates its arguments in order and returns the first one that does not error, which tames optional attributes that may not exist. can() is its boolean sibling for validation. Together they let configurations tolerate the ragged edges of real provider data without collapsing.",
             "String interpolation — embedding ${ ... } inside quotes — glues it all together: \"web-${var.env}\". One piece of etiquette: where a bare reference works, use it. name = var.prefix is cleaner than name = \"${var.prefix}\", and modern Terraform will tell you so. Interpolation is for composition, not decoration."
+          ]
+        },
+        {
+          "heading": "Dynamic blocks and testing expressions",
+          "body": [
+            "Some resources contain repeated nested blocks, such as the ingress rules of a security group. A `dynamic` block generates them from a collection: `dynamic \"ingress\" { for_each = var.ports  content { from_port = ingress.value  to_port = ingress.value  protocol = \"tcp\"  cidr_blocks = [\"10.0.0.0/8\"] } }`. Use it sparingly: a few explicit blocks are easier to read than a clever loop.",
+            "When an expression gets complicated, test it before using it in a resource. `terraform console` opens an interactive prompt where you can evaluate functions and variables against your configuration, for example `cidrsubnet(\"10.0.0.0/16\", 8, 2)` returns `10.0.2.0/24`. Functions such as `try()` and `can()` handle optional values, and `lookup(map, key, default)` reads a map with a fallback."
           ]
         }
       ],
@@ -66959,6 +67141,13 @@
             "The one rule: never edit terraform.tfstate by hand. The file is a database with invariants your editor cannot see; a stray comma or a well-meaning tweak can corrupt the mapping in ways that surface hours later as mysterious replacements. Use the state commands — they exist precisely so you never need the editor.",
             "Two corollaries follow. Never commit state to git: it holds secrets, shifting IDs, and the full topology of your infrastructure — a prime target wearing a version-control costume. And share values between configurations with terraform_remote_state, the read-only data source that lets one stack consume another's outputs without either owning the other."
           ]
+        },
+        {
+          "heading": "Moving and importing resources safely",
+          "body": [
+            "Refactoring code changes resource addresses, and Terraform would otherwise destroy the old address and create a new one. A `moved` block tells it the resource was renamed: `moved { from = aws_instance.web  to = aws_instance.app }`. The plan then shows a move, not a replacement. Moved blocks are reviewable in pull requests, which makes them safer than running `terraform state mv` by hand.",
+            "To bring existing infrastructure under Terraform, use an `import` block with the resource address and its ID, then run `terraform plan -generate-config-out=generated.tf` to produce starting configuration. Review and clean the generated code before applying. To stop managing a resource without deleting it, use a `removed` block (Terraform 1.7+) or `terraform state rm`. Take a state backup, and make sure versioning is on for the backend bucket, before any manual state change."
+          ]
         }
       ],
       "examples": [
@@ -67031,6 +67220,13 @@
             "A good module boundary is a cohesive unit with a clear contract — \"a VPC,\" not \"all of production.\" The test is whether you can describe what it does in one sentence and list its inputs on one hand. One resource per module is usually too fine; one module for everything is just the root module wearing a costume.",
             "Provider configuration belongs in the root module. Child modules should declare what they need and receive providers explicitly when they must — but the credentials, regions, and aliases live at the top, where a reviewer can see the full blast radius in one place. A child module quietly configuring its own provider is a child module that will surprise you in exactly the wrong environment.",
             "The public Terraform Registry at registry.terraform.io is where the community's modules live, with verified authorship marked. Treat registry modules like any third-party dependency: read the source, pin the version, and prefer the boring, widely-used ones. A module with ten thousand downloads and a clear README has been debugged by strangers on your behalf."
+          ]
+        },
+        {
+          "heading": "Testing and publishing modules",
+          "body": [
+            "A module used by many teams needs tests. `terraform validate` catches syntax and type errors; `terraform test` (Terraform 1.6+) runs `.tftest.hcl` files that plan or apply the module with test inputs and check assertions about the result, such as the bucket having encryption enabled. Variable `validation` blocks and `precondition` and `postcondition` checks inside resources give users clear errors at plan time.",
+            "Publish modules with a version for every change, following semantic versioning: patch for fixes, minor for backward-compatible additions, major for breaking changes. Include a README with inputs, outputs and an example, and a `versions.tf` that declares the required Terraform and provider versions. Callers then pin a range such as `~> 2.3` and upgrade deliberately."
           ]
         }
       ],

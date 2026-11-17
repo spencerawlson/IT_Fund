@@ -122,6 +122,13 @@ export default {
           '`match` is Rust\u2019s pattern-matching powerhouse, and it carries a guarantee most switch statements lack: exhaustiveness. Every possible value must be handled — miss a case and it is a compile error, not a runtime surprise. A `_` arm catches everything else, patterns can destructure and bind parts of the value (`Some(x)` binds `x`), and `if let` gives you a concise way to handle a single interesting pattern while ignoring the rest.',
         ],
       },
+      {
+        heading: 'Patterns beyond match',
+        body: [
+          'When you only care about one case, `if let` is shorter than a full `match`: `if let Some(user) = find_user(id) { greet(&user); }`. `let ... else` binds a value or leaves the function early: `let Some(user) = find_user(id) else { return Err(NotFound); };`. `while let` loops as long as a pattern keeps matching, for example popping items from a stack.',
+          'Patterns can also destructure tuples and structs and add guards: `match point { (0, y) => ..., (x, 0) => ..., (x, y) if x == y => ..., _ => ... }`. Loops can carry labels so `break \'outer;` exits a nested loop. Because `match` must be exhaustive, the compiler tells you every place to update when you add an enum variant.',
+        ],
+      },
     ],
     cheatSheet: [
       ['let n = if c { 1 } else { 2 };', 'if is an expression; branches must share a type'],
@@ -173,6 +180,13 @@ export default {
           'The borrowing contract has one famous clause: at any moment you may have either any number of immutable references or exactly one mutable reference — never both. That single rule, checked at compile time, is what eliminates data races: if no two threads can hold a mutable reference to the same data simultaneously, they cannot race on it. Lifetimes (the `\'a` annotations you will occasionally see) are the compiler\u2019s way of relating how long references stay valid; most are inferred, and you annotate only when the compiler needs help connecting inputs to outputs.',
         ],
       },
+      {
+        heading: 'Lifetimes in practice',
+        body: [
+          'Every reference has a lifetime, the span during which it is valid, and most of the time the compiler infers it. You write lifetime annotations only when a function returns a reference and the compiler cannot tell which input it borrows from: `fn longest<\'a>(a: &\'a str, b: &\'a str) -> &\'a str` says the result lives no longer than both inputs. Annotations describe relationships; they never extend how long data lives.',
+          'When the borrow checker refuses code, the fix is usually structural rather than a battle with annotations. Return owned data (`String` instead of `&str`) when the caller should keep it, clone a small value when sharing is awkward, shorten a borrow by ending it before the mutation, or restructure so one function owns the data. For genuinely shared ownership, `Rc<T>` (single thread) or `Arc<T>` (across threads) count references at run time.',
+        ],
+      },
     ],
     cheatSheet: [
       ['One owner; one owner at a time; dropped at end of scope', 'The three ownership rules'],
@@ -218,6 +232,13 @@ export default {
         body: [
           'A Rust enum is a type that is one of several variants, where each variant may hold data: `enum Message { Quit, Move { x: i32, y: i32 }, Write(String) }`. This single mechanism replaces a remarkable amount of machinery from other languages. `Option<T>` — either `Some(T)` or `None` — replaces null: a value that might be absent is visibly marked in its type, and the compiler will not let you use it without handling the `None` case. `Result<T, E>` — `Ok(T)` or `Err(E)` — does the same job for operations that can fail, and is Rust\u2019s primary error type.',
           'Tony Hoare called null his \u201Cbillion-dollar mistake.\u201D Rust designs it out: absence is not a landmine hidden in every reference, it is a value you pattern-match on. The safe way to handle any enum is `match`, which is exhaustive — forget a variant and the build fails. For the common case of caring about exactly one variant, `if let Some(x) = opt` runs its block with `x` bound, skipping the ceremony of a full match.',
+        ],
+      },
+      {
+        heading: 'Traits: shared behaviour',
+        body: [
+          'Traits define behaviour that several types can implement, similar to interfaces. `trait Shape { fn area(&self) -> f64; }` is implemented with `impl Shape for Circle { ... }`. Generic functions accept any implementor: `fn total<T: Shape>(shapes: &[T]) -> f64`, and the compiler generates a specialised copy for each type. When you need a mix of types in one collection, use a trait object: `Vec<Box<dyn Shape>>`, which dispatches at run time.',
+          'Many common traits can be derived instead of written: `#[derive(Debug, Clone, PartialEq)]` gives printing, copying and comparison. Implementing standard traits such as `Display`, `From` and `Default` makes your types work naturally with the rest of the language, for example letting `?` convert errors automatically through `From`.',
         ],
       },
     ],
@@ -266,6 +287,13 @@ export default {
         body: [
           'Fallible operations return `Result`; `.unwrap()` extracts the success value and panics on `Err` (or `None` for `Option`). It is perfect for prototypes and tests, and a code smell in production paths — `.expect("config file must exist")` is the honest upgrade, panicking with your message instead of a generic one. The `?` operator is the idiomatic middle path: placed after a `Result` or `Option`, it returns early with the failure or unwraps the success, collapsing nested error plumbing into a single character.',
           '`panic!` itself is reserved for the unrecoverable: violated invariants, programmer bugs, states that should be impossible. Expected, handleable failures — a missing file, a bad response — belong in `Result`, not in a panic. The discipline is simple to state and worth internalizing: if the caller could reasonably recover, return it; if the program\u2019s assumptions are broken, panic.',
+        ],
+      },
+      {
+        heading: 'Designing error types',
+        body: [
+          'Libraries should return errors that callers can inspect. Define an enum with one variant per failure, implement `std::error::Error` and `Display`, and implement `From` for the underlying errors so `?` converts them. The `thiserror` crate generates this boilerplate from attributes. Applications that mainly report errors can use `anyhow`, which wraps any error and lets you add context: `.context("reading config file")?`.',
+          'Reserve `panic!`, `unwrap()` and `expect()` for bugs, not expected failures. A missing file or bad user input is an error to return; an index that should be impossible is a bug. In tests and prototypes `expect("why this cannot fail")` is acceptable and documents the assumption; in production code paths, propagate with `?` or handle the error explicitly.',
         ],
       },
     ],

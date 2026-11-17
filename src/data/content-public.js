@@ -23725,6 +23725,13 @@ export const freeLessonContent = {
           "`mkdir -p projects/2026/q1` creates the whole chain at once, `touch file` creates an empty file or updates timestamps, `cp -r` copies trees, and `mv` both moves and renames. `rm -rf` deletes recursively without asking and without a trash can — the most feared command for a reason: double-check the path before pressing enter.",
           "`find /var -name \"app.log\"` walks the filesystem looking for a name. Quote the pattern so the shell does not expand it first. When you forget a flag, `man <command>` opens the built-in manual (q quits, / searches); for quick examples, `tldr <command>` is faster to skim."
         ]
+      },
+      {
+        "heading": "Finding files and getting help",
+        "body": [
+          "Two commands answer most 'where is it?' questions. `find /var/log -name '*.log' -mtime -1` searches a directory tree by name, type, size or modification time and can act on what it finds (`-exec`, or `-delete` with care). `locate` searches a prebuilt index and is much faster, but only knows about files that existed at the last `updatedb` run. `which python3` shows which executable your shell will actually run.",
+          "When you meet an unfamiliar command, the documentation is already on the system. `man ls` opens the manual page, `ls --help` prints a short summary, and `apropos compress` searches manual page descriptions for a keyword. Tab completion saves typing and catches typos: press Tab once to complete a path, twice to list the options. `history` and Ctrl+R let you find and rerun earlier commands instead of retyping them."
+        ]
       }
     ],
     "examples": [

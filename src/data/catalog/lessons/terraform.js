@@ -173,6 +173,13 @@ export default {
           'Marking a variable or output sensitive = true redacts it from plan and apply output, which keeps secrets out of CI logs and terminal scrollback. But understand precisely what it does not do: it does not encrypt the value in state. State still holds it in plaintext. Sensitive is a display control, not a security control — the real protection is an encrypted remote backend with tight access.',
         ],
       },
+      {
+        heading: 'Handling secrets and sensitive values',
+        body: [
+          'Marking a variable or output `sensitive = true` hides it from plan and apply output, but Terraform still writes the value to the state file in plain text. Treat state as sensitive: store it in an encrypted remote backend with tight access, and never commit `terraform.tfstate` or `.tfvars` files that contain secrets to version control.',
+          'Better still, keep secrets out of variables. Read them at apply time from a secret manager with a data source (for example `aws_secretsmanager_secret_version`), or let the service generate and manage them; many AWS resources can create and rotate a database password in Secrets Manager for you. Terraform 1.10 added ephemeral values and resources, which are used during a run but never stored in plan or state, and 1.11 added write-only arguments for the same purpose.',
+        ],
+      },
     ],
     examples: [
       {
@@ -213,6 +220,13 @@ export default {
           'Terraform ships a standard library of functions, and a dozen of them do most of the work. length() counts elements. lookup(map, key, default) reads with a fallback. coalesce(a, b, c) returns the first argument that is neither null nor empty — the "use this, else that" pattern. jsondecode() and jsonencode() cross the boundary between JSON text and Terraform values. templatefile(path, vars) renders a file template — user-data scripts, policy documents — with variables injected.',
           'Two deserve special attention for defensive coding. try() evaluates its arguments in order and returns the first one that does not error, which tames optional attributes that may not exist. can() is its boolean sibling for validation. Together they let configurations tolerate the ragged edges of real provider data without collapsing.',
           'String interpolation — embedding ${ ... } inside quotes — glues it all together: "web-${var.env}". One piece of etiquette: where a bare reference works, use it. name = var.prefix is cleaner than name = "${var.prefix}", and modern Terraform will tell you so. Interpolation is for composition, not decoration.',
+        ],
+      },
+      {
+        heading: 'Dynamic blocks and testing expressions',
+        body: [
+          'Some resources contain repeated nested blocks, such as the ingress rules of a security group. A `dynamic` block generates them from a collection: `dynamic "ingress" { for_each = var.ports  content { from_port = ingress.value  to_port = ingress.value  protocol = "tcp"  cidr_blocks = ["10.0.0.0/8"] } }`. Use it sparingly: a few explicit blocks are easier to read than a clever loop.',
+          'When an expression gets complicated, test it before using it in a resource. `terraform console` opens an interactive prompt where you can evaluate functions and variables against your configuration, for example `cidrsubnet("10.0.0.0/16", 8, 2)` returns `10.0.2.0/24`. Functions such as `try()` and `can()` handle optional values, and `lookup(map, key, default)` reads a map with a fallback.',
         ],
       },
     ],
@@ -260,6 +274,13 @@ export default {
           'Two corollaries follow. Never commit state to git: it holds secrets, shifting IDs, and the full topology of your infrastructure — a prime target wearing a version-control costume. And share values between configurations with terraform_remote_state, the read-only data source that lets one stack consume another\'s outputs without either owning the other.',
         ],
       },
+      {
+        heading: 'Moving and importing resources safely',
+        body: [
+          'Refactoring code changes resource addresses, and Terraform would otherwise destroy the old address and create a new one. A `moved` block tells it the resource was renamed: `moved { from = aws_instance.web  to = aws_instance.app }`. The plan then shows a move, not a replacement. Moved blocks are reviewable in pull requests, which makes them safer than running `terraform state mv` by hand.',
+          'To bring existing infrastructure under Terraform, use an `import` block with the resource address and its ID, then run `terraform plan -generate-config-out=generated.tf` to produce starting configuration. Review and clean the generated code before applying. To stop managing a resource without deleting it, use a `removed` block (Terraform 1.7+) or `terraform state rm`. Take a state backup, and make sure versioning is on for the backend bucket, before any manual state change.',
+        ],
+      },
     ],
     examples: [
       {
@@ -302,6 +323,13 @@ export default {
           'A good module boundary is a cohesive unit with a clear contract — "a VPC," not "all of production." The test is whether you can describe what it does in one sentence and list its inputs on one hand. One resource per module is usually too fine; one module for everything is just the root module wearing a costume.',
           'Provider configuration belongs in the root module. Child modules should declare what they need and receive providers explicitly when they must — but the credentials, regions, and aliases live at the top, where a reviewer can see the full blast radius in one place. A child module quietly configuring its own provider is a child module that will surprise you in exactly the wrong environment.',
           'The public Terraform Registry at registry.terraform.io is where the community\'s modules live, with verified authorship marked. Treat registry modules like any third-party dependency: read the source, pin the version, and prefer the boring, widely-used ones. A module with ten thousand downloads and a clear README has been debugged by strangers on your behalf.',
+        ],
+      },
+      {
+        heading: 'Testing and publishing modules',
+        body: [
+          'A module used by many teams needs tests. `terraform validate` catches syntax and type errors; `terraform test` (Terraform 1.6+) runs `.tftest.hcl` files that plan or apply the module with test inputs and check assertions about the result, such as the bucket having encryption enabled. Variable `validation` blocks and `precondition` and `postcondition` checks inside resources give users clear errors at plan time.',
+          'Publish modules with a version for every change, following semantic versioning: patch for fixes, minor for backward-compatible additions, major for breaking changes. Include a README with inputs, outputs and an example, and a `versions.tf` that declares the required Terraform and provider versions. Callers then pin a range such as `~> 2.3` and upgrade deliberately.',
         ],
       },
     ],

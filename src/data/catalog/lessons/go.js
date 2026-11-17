@@ -231,6 +231,13 @@ export default {
           'The empty interface, `interface{}` (modern alias `any`), is satisfied by every value. It is the escape hatch for genuinely heterogeneous data, but idiomatic Go reaches for concrete types or generics first — `any` everywhere is a design smell. And note the zero values: interfaces and pointers both start as `nil`, and calling a method on a nil interface panics. Nil is honest about being nothing; it just refuses to pretend otherwise.',
         ],
       },
+      {
+        heading: 'Designing with small interfaces',
+        body: [
+          'Go interfaces work best when they are small and defined by the code that uses them. The standard library\'s `io.Reader` has a single method, `Read(p []byte) (n int, err error)`, yet files, network connections, buffers and HTTP bodies all satisfy it, so one function can read from any of them. Define an interface in the consuming package with only the methods it needs; this keeps dependencies loose and makes testing with a fake easy.',
+          'Remember the method-set rule: a method with a pointer receiver belongs to `*T`, not `T`, so a value of type `T` does not satisfy an interface that needs it. Also, an interface holding a typed nil pointer is not itself nil: returning `var p *MyErr = nil` as an `error` gives a non-nil error. Return a literal `nil` when there is no error.',
+        ],
+      },
     ],
     cheatSheet: [
       ['struct', 'Typed collection of named fields (no classes)'],
