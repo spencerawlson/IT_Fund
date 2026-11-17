@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:15:42.871Z",
+  "generatedAt": "2026-11-17T01:17:30.982Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -12422,9 +12422,9 @@
                   "a": "Faster handshakes, weak ciphers removed, more of the handshake encrypted",
                   "x": "Disable SSL and TLS 1.0/1.1 everywhere.",
                   "wrong": [
-                    "1.2 is newer: TLS 1.2 came after 1.3",
-                    "1.3 keeps weak ciphers: TLS 1.3 still allows RC4",
-                    "1.3 is slower: extra encryption doubles handshake time"
+                    "TLS 1.3 keeps RC4 and CBC suites for compatibility but adds a faster handshake",
+                    "TLS 1.2 is the newer version",
+                    "TLS 1.3 doubles handshake time for extra security"
                   ]
                 },
                 {
@@ -12435,9 +12435,9 @@
                   "a": "Confidentiality, integrity, and server authentication",
                   "x": "Client certificates add mutual authentication.",
                   "wrong": [
-                    "Only speed: TLS makes connections faster and nothing else",
-                    "Anonymity: TLS hides who is talking to whom from everyone",
-                    "Client authentication: TLS always proves who the user is"
+                    "Anonymity: it hides which sites a user visits from everyone on the path",
+                    "Client authentication in every connection",
+                    "Only faster page loads"
                   ]
                 },
                 {
@@ -12448,9 +12448,9 @@
                   "a": "A trusted third party that vouches for public keys",
                   "x": "Your browser ships a store of trusted CAs.",
                   "wrong": [
-                    "A key generator: a server minting fresh key pairs for every user",
-                    "A government: the state alone vouches for public keys",
-                    "A domain registrar: a company selling website names to owners"
+                    "A server that generates key pairs for every user and keeps copies of them",
+                    "A domain registrar that sells website names",
+                    "A government agency that issues every certificate"
                   ]
                 },
                 {
@@ -12461,9 +12461,9 @@
                   "a": "No third-party trust — users learn to click through warnings",
                   "x": "Fine for labs; never for production.",
                   "wrong": [
-                    "It expires faster: self-signed certificates last only a few days",
-                    "It costs too much: self-signed certificates carry a yearly fee",
-                    "It cannot encrypt: a self-signed certificate offers no confidentiality at all"
+                    "It expires after a few days and cannot be renewed automatically",
+                    "It cannot encrypt traffic",
+                    "It costs more than a CA-issued certificate"
                   ]
                 },
                 {
@@ -12474,9 +12474,9 @@
                   "a": "An app accepting only specific certificates, ignoring the CA store",
                   "x": "It defeats rogue-CA man-in-the-middle for that app.",
                   "wrong": [
-                    "A certificate renewal: an app fetching a fresh certificate each launch",
-                    "A pinned post: a message fixed to the top of a forum",
-                    "A pinned tab: a browser tab kept open for a favourite site"
+                    "An app fetching a fresh certificate from the CA every time it launches",
+                    "Caching a certificate to speed up handshakes",
+                    "Trusting every certificate in the OS store"
                   ]
                 },
                 {
@@ -12487,9 +12487,9 @@
                   "a": "A header forcing browsers to use HTTPS, blocking downgrades",
                   "x": "It mitigates SSL-stripping attacks.",
                   "wrong": [
-                    "A secure cookie: a cookie sent only over encrypted connections",
-                    "A redirect rule: a server sending HTTP visitors over to HTTPS",
-                    "A hairstyle: a haircut that forces HTTPS in browsers"
+                    "A server-side redirect that sends HTTP visitors to HTTPS on each request",
+                    "A cookie flag that sends cookies only over HTTPS",
+                    "A header that blocks mixed content"
                   ]
                 },
                 {
@@ -12500,9 +12500,9 @@
                   "a": "Email encryption and signing via certificates",
                   "x": "It protects message content end to end.",
                   "wrong": [
-                    "A firewall",
-                    "A spam filter: a gateway scoring incoming mail for junk",
-                    "A smile: a grin that encrypts and signs email"
+                    "A gateway that scores incoming mail for spam and phishing",
+                    "TLS between mail servers",
+                    "A sender policy published in DNS"
                   ]
                 },
                 {
@@ -12513,9 +12513,9 @@
                   "a": "Upgrades a plaintext connection like SMTP to TLS",
                   "x": "Vulnerable to stripping if not enforced.",
                   "wrong": [
-                    "A TLS port: a dedicated port that only ever speaks encrypted SMTP",
-                    "A mail relay: a server forwarding messages toward their destination",
-                    "A star: a celestial body upgrades SMTP to TLS"
+                    "A dedicated port that only ever speaks encrypted SMTP from the first byte",
+                    "A relay that forwards mail to its destination",
+                    "An extension that signs each message"
                   ]
                 },
                 {
@@ -12526,9 +12526,9 @@
                   "a": "SSH encrypts everything; Telnet is cleartext — never use Telnet",
                   "x": "SSH also tunnels traffic and transfers files via SCP/SFTP.",
                   "wrong": [
-                    "SSH is cleartext: SSH sends keystrokes unencrypted like Telnet",
-                    "Telnet is safer: cleartext Telnet beats encrypted SSH always, encryption only slows things down",
-                    "Telnet encrypts too: both protocols scramble traffic the same way"
+                    "SSH sends keystrokes in cleartext; Telnet encrypts them",
+                    "Telnet is safer because it has no keys to steal",
+                    "Both encrypt traffic in the same way"
                   ]
                 },
                 {
@@ -12539,9 +12539,9 @@
                   "a": "SFTP: over SSH:22; FTPS: FTP over TLS",
                   "x": "Prefer SFTP; both beat plaintext FTP.",
                   "wrong": [
-                    "Same thing",
-                    "FTPS is SSH: FTPS runs over Secure Shell port 22",
-                    "SFTP is FTP: SFTP is plain FTP with a password on port 21"
+                    "They are the same protocol",
+                    "FTPS runs over SSH on port 22",
+                    "SFTP is plain FTP with a password; FTPS adds TLS"
                   ]
                 },
                 {
@@ -12552,9 +12552,9 @@
                   "a": "v3 adds authentication and encryption; v1/v2c use cleartext community strings",
                   "x": "\"public\" and \"private\" strings are not security.",
                   "wrong": [
-                    "v3 drops authentication: SNMPv3 trusts any manager that asks",
-                    "v1 is safer: cleartext SNMP beats authenticated SNMPv3 always",
-                    "v1 encrypts strings: community strings travel scrambled in v1"
+                    "v3 removes authentication to simplify management",
+                    "v1 is safer because it is simpler",
+                    "v1 encrypts its community strings"
                   ]
                 },
                 {
@@ -12565,9 +12565,9 @@
                   "a": "LDAP over TLS, typically on port 636",
                   "x": "It encrypts directory queries.",
                   "wrong": [
-                    "A directory backup: a copy of the LDAP tree stored for recovery",
-                    "An LDAP query: a search asking the directory for a user",
-                    "A dance: rhythmic movement is what LDAPS means"
+                    "A backup copy of the LDAP directory tree stored for disaster recovery",
+                    "A single LDAP search query",
+                    "LDAP with signing only, on port 389"
                   ]
                 },
                 {
@@ -12578,9 +12578,9 @@
                   "a": "Cryptographic signatures validating DNS responses",
                   "x": "It stops cache poisoning — not eavesdropping (that is DoT/DoH).",
                   "wrong": [
-                    "A firewall",
-                    "Encrypted DNS",
-                    "A DNS cache: a resolver remembering answers to speed lookups up"
+                    "Encrypting DNS queries so that nobody on the path can read them",
+                    "A firewall for DNS traffic",
+                    "A cache that speeds up lookups"
                   ]
                 },
                 {
@@ -12591,9 +12591,9 @@
                   "a": "DoT: port 853; DoH: port 443",
                   "x": "DoH blends with web traffic, complicating monitoring.",
                   "wrong": [
-                    "Same thing",
-                    "DoH is port 853: encrypted DNS always uses the dedicated port",
-                    "DoT is port 443: both encrypted DNS options share the web port"
+                    "They are the same protocol on different ports",
+                    "DoH uses port 853; DoT uses 443",
+                    "Both use port 443"
                   ]
                 },
                 {
@@ -12604,9 +12604,9 @@
                   "a": "Transport encrypts the payload only; tunnel encrypts the whole packet",
                   "x": "Tunnel mode is for site-to-site VPNs.",
                   "wrong": [
-                    "Transport wraps packets: transport mode encrypts headers and payload together",
-                    "Tunnel encrypts headers only: tunnel mode leaves the payload in cleartext",
-                    "Transport encrypts everything: transport mode wraps the whole packet too"
+                    "Transport encrypts the whole packet; tunnel encrypts the payload only",
+                    "Tunnel encrypts headers only, leaving the payload in cleartext",
+                    "Both encrypt the whole packet"
                   ]
                 },
                 {
@@ -12617,9 +12617,9 @@
                   "a": "AH authenticates; ESP encrypts and authenticates",
                   "x": "ESP is the modern choice.",
                   "wrong": [
-                    "AH encrypts payloads: the authentication header scrambles the data too",
-                    "AH encrypts too: the authentication header also scrambles the payload",
-                    "ESP authenticates only: ESP checks integrity and never encrypts anything"
+                    "AH encrypts the payload; ESP only authenticates the header",
+                    "Both encrypt and authenticate",
+                    "ESP authenticates only and never encrypts"
                   ]
                 },
                 {
@@ -12630,9 +12630,9 @@
                   "a": "Secure Real-time Transport Protocol: encrypted voice and video",
                   "x": "ZRTP adds key agreement for VoIP.",
                   "wrong": [
-                    "A firewall",
-                    "A voice codec: a format compressing speech for phone calls",
-                    "A protocol for email: SRTP carries the mail messages"
+                    "A voice codec that compresses speech so calls use less bandwidth",
+                    "A signalling protocol that sets up calls",
+                    "A protocol for sending email"
                   ]
                 },
                 {
@@ -12643,9 +12643,9 @@
                   "a": "Split sends only corporate traffic via VPN; full sends everything",
                   "x": "Split is faster; full gives inspection and control.",
                   "wrong": [
-                    "Split sends everything: split tunnel routes all traffic through the VPN",
-                    "Split means no VPN: split tunnel sends nothing through the tunnel",
-                    "Full tunnel splits traffic: full tunnel sends only corporate traffic via VPN"
+                    "Split sends all traffic through the VPN; full sends only corporate traffic",
+                    "Split tunnel sends nothing through the VPN",
+                    "They differ only in encryption strength"
                   ]
                 },
                 {
@@ -12656,9 +12656,9 @@
                   "a": "Site-to-site links networks; remote-access links individual users",
                   "x": "IPSec usually site-to-site; SSL VPN suits roaming users.",
                   "wrong": [
-                    "Site-to-site is per-user: site links are built for one roaming laptop",
-                    "Site-to-site is dial-up: branch offices connect over phone lines",
-                    "Remote-access links sites: remote-access VPN joins whole branch offices together"
+                    "Site-to-site connects one roaming laptop; remote-access joins branch offices",
+                    "Site-to-site uses dial-up lines",
+                    "Remote-access joins whole networks together"
                   ]
                 },
                 {
@@ -12669,9 +12669,9 @@
                   "a": "Connects automatically, even before user logon",
                   "x": "It ensures policy and patching apply off-network.",
                   "wrong": [
-                    "A firewall",
-                    "An on-demand VPN: a tunnel that starts only when an app asks",
-                    "Always slow: always-on VPN is sluggish by design, always"
+                    "A VPN that starts only when a specific app needs the corporate network",
+                    "A VPN that is always slower",
+                    "A VPN that never disconnects once started manually"
                   ]
                 },
                 {
@@ -12682,9 +12682,9 @@
                   "a": "WPA3 adds SAE against offline dictionary attacks plus stronger encryption",
                   "x": "WPA2-PSK falls to captured handshakes.",
                   "wrong": [
-                    "WPA3 uses WEP keys: WPA3 still relies on WEP",
-                    "WPA2 is newer: WPA2 came after WPA3 was released",
-                    "WPA3 drops passwords: WPA3 networks need no password"
+                    "WPA3 still relies on WEP keys underneath",
+                    "WPA2 is the newer standard",
+                    "WPA3 networks need no password"
                   ]
                 },
                 {
@@ -12695,9 +12695,9 @@
                   "a": "Enterprise uses 802.1X per-user auth via RADIUS; Personal uses one shared PSK",
                   "x": "Shared PSKs cannot be revoked per user.",
                   "wrong": [
-                    "Personal uses RADIUS: shared PSK networks check users against a server",
-                    "Personal is safer: shared passwords beat per-user authentication always",
-                    "Enterprise shares one key: every user logs in with one PSK"
+                    "Personal uses RADIUS; Enterprise uses one shared key",
+                    "Personal is safer because there is no server to attack",
+                    "Enterprise gives every user the same key"
                   ]
                 },
                 {
@@ -12705,12 +12705,12 @@
                   "deckId": "cy-secure-proto",
                   "trackId": "cyber",
                   "q": "What is SAE in WPA3?",
-                  "a": "Simultaneous Authentication of Equals",
-                  "x": "The Dragonfly handshake.",
+                  "a": "Simultaneous Authentication of Equals: a password-based key exchange that resists offline guessing",
+                  "x": "SAE (the Dragonfly handshake) replaces the WPA2 PSK four-way handshake, so captured traffic cannot be cracked offline.",
                   "wrong": [
-                    "A password vault: a store holding every Wi-Fi password centrally",
-                    "A shared password: one key every device on the network knows",
-                    "A password exchange: both sides swap their Wi-Fi passwords directly"
+                    "A central vault holding every Wi-Fi password",
+                    "One shared password every device uses",
+                    "A direct exchange of Wi-Fi passwords between devices"
                   ]
                 },
                 {
@@ -12721,9 +12721,9 @@
                   "a": "Unauthorized AP, or evil twin impersonating yours",
                   "x": "Wireless IPS and wired-side NAC detect them.",
                   "wrong": [
-                    "A firewall",
-                    "A misbehaving router",
-                    "A weak password: a short key on the legitimate office AP"
+                    "A legitimate access point that still uses a weak default password",
+                    "A router that keeps rebooting",
+                    "An AP on the wrong channel"
                   ]
                 },
                 {
@@ -12734,9 +12734,9 @@
                   "a": "A fake AP cloning a legitimate SSID to harvest credentials",
                   "x": "Verify certificates and distrust open \"Free WiFi\".",
                   "wrong": [
-                    "A cloned server: a duplicate host sharing the same IP address",
-                    "A twin server: a duplicate host is the evil twin",
-                    "A second SSID: the guest network broadcast beside the main one"
+                    "A guest SSID broadcast alongside the corporate one by the same AP",
+                    "A duplicate server with the same IP",
+                    "A backup access point for failover"
                   ]
                 },
                 {
@@ -12747,9 +12747,9 @@
                   "a": "RF interference denying Wi-Fi availability",
                   "x": "A physical-layer denial of service; detect with spectrum analysis.",
                   "wrong": [
-                    "A firewall",
-                    "Traffic jam: congested roads count as wireless jamming here",
-                    "A crowded channel: too many neighbours sharing one Wi-Fi channel"
+                    "Too many neighbouring networks sharing the same channel",
+                    "A router throttling heavy users",
+                    "A firewall blocking Wi-Fi traffic"
                   ]
                 },
                 {
@@ -12760,9 +12760,9 @@
                   "a": "Spoofed deauth frames kicking clients off the AP",
                   "x": "It captures handshakes for cracking; 802.11w (PMF) mitigates.",
                   "wrong": [
-                    "A password spray: many login guesses fired at the AP at once",
-                    "Logging out: signing off counts as the deauth attack",
-                    "A failed login: too many wrong passwords locking the account out"
+                    "Many password guesses fired at the access point in a short time",
+                    "A user signing out of the network",
+                    "An account locked after failed logins"
                   ]
                 },
                 {
@@ -12773,9 +12773,9 @@
                   "a": "Eavesdropping and relay attacks at close range",
                   "x": "Payment tokenization limits the damage.",
                   "wrong": [
-                    "No risks",
-                    "Card cloning at range: NFC cards are copied from metres away",
-                    "Skimming at a distance: NFC payment cards read from across the street"
+                    "None, because the range is only a few centimetres",
+                    "Cloning cards from tens of metres away",
+                    "Reading cards from across the street"
                   ]
                 },
                 {
@@ -12786,9 +12786,9 @@
                   "a": "Bluejacking, Bluesnarfing, and pairing interception",
                   "x": "Keep discoverable mode off and patch firmware.",
                   "wrong": [
-                    "No risks",
-                    "Wi-Fi passwords: Bluetooth leaks the saved network keys",
-                    "A tooth: a molar is the Bluetooth attack surface"
+                    "None once devices are paired",
+                    "Leaking the saved Wi-Fi passwords of every paired device nearby",
+                    "Only battery drain"
                   ]
                 },
                 {
@@ -12799,9 +12799,9 @@
                   "a": "EAP-TLS uses certificates both ways; PEAP tunnels credentials inside TLS",
                   "x": "EAP-TLS is the gold standard for WPA3-Enterprise.",
                   "wrong": [
-                    "EAP-TLS uses passwords: certificates both ways is just a password check",
-                    "PEAP needs certificates: PEAP only works with client certificates installed",
-                    "A backup"
+                    "EAP-TLS uses passwords; PEAP uses certificates on both sides",
+                    "PEAP needs client certificates on every device",
+                    "They are the same method"
                   ]
                 },
                 {
@@ -12809,12 +12809,12 @@
                   "deckId": "cy-secure-proto",
                   "trackId": "cyber",
                   "q": "Captive portal: what is the risk?",
-                  "a": "Open network with a login page",
+                  "a": "It is usually an open, unencrypted network, so traffic can be sniffed or spoofed",
                   "x": "Use a VPN on any captive portal.",
                   "wrong": [
-                    "It logs you out: captive portals drop sessions every few minutes",
-                    "It encrypts traffic: the login page means all browsing is protected",
-                    "It verifies identity: the portal login proves the network is trustworthy"
+                    "It logs users out every few minutes",
+                    "The login page encrypts all browsing",
+                    "Logging in proves the network is trustworthy"
                   ]
                 },
                 {
@@ -12825,9 +12825,9 @@
                   "a": "Its PIN is brute-forceable in hours",
                   "x": "It is a backdoor on most consumer routers.",
                   "wrong": [
-                    "It is slow",
-                    "A firewall",
-                    "It is unbreakable: the WPS PIN resists brute force for years"
+                    "It slows down the wireless network for every connected client",
+                    "It disables WPA encryption",
+                    "It cannot be brute-forced"
                   ]
                 },
                 {
@@ -12838,9 +12838,9 @@
                   "a": "Protected Management Frames: authenticates deauth and disassoc frames",
                   "x": "It blunts deauthentication attacks.",
                   "wrong": [
-                    "A firewall",
-                    "A backup",
-                    "A Wi-Fi password"
+                    "A Wi-Fi standard for faster roaming between APs",
+                    "A firewall for wireless clients",
+                    "A stronger Wi-Fi password scheme"
                   ]
                 },
                 {
@@ -12851,9 +12851,9 @@
                   "a": "Less congestion and shorter range shrink the eavesdropping footprint",
                   "x": "Not encryption — just physics working for you.",
                   "wrong": [
-                    "It is encrypted: 5 GHz signals are encrypted by default",
-                    "It reaches further: 5 GHz covers a larger area than 2.4 GHz",
-                    "It is cheaper: 5 GHz radios cost less than 2.4 GHz ones"
+                    "5 GHz signals are encrypted by default, unlike 2.4 GHz",
+                    "5 GHz reaches further than 2.4 GHz",
+                    "5 GHz radios are cheaper"
                   ]
                 }
               ],
@@ -12897,9 +12897,9 @@
                   "a": "Qualitative uses ratings; quantitative uses numbers",
                   "x": "Qualitative is fast and cheap; quantitative needs data but justifies budgets.",
                   "wrong": [
-                    "Quantitative uses ratings: numbers are just high, medium, and low labels",
-                    "Qualitative uses dollars: ratings like high, medium, low are dollars",
-                    "Quantitative is guesswork: the numbers are invented estimates, never measurements"
+                    "Quantitative uses ratings; qualitative uses numbers",
+                    "Qualitative uses dollar values",
+                    "Quantitative is guesswork with no data"
                   ]
                 },
                 {
@@ -12910,9 +12910,9 @@
                   "a": "Likelihood against impact",
                   "x": "A \"high likelihood × high impact\" risk lands in the red corner demanding action.",
                   "wrong": [
-                    "Cost vs time",
-                    "Threats vs assets",
-                    "Users vs admins"
+                    "Cost against time to fix",
+                    "Threats against assets",
+                    "Controls against frameworks"
                   ]
                 },
                 {
@@ -12923,9 +12923,9 @@
                   "a": "Inherent: risk before controls; residual: risk left after controls",
                   "x": "You manage residual risk down to the appetite line — zero risk is not the goal.",
                   "wrong": [
-                    "Same thing",
-                    "Residual comes first: leftover risk precedes raw risk, always, inherent comes second",
-                    "Inherent is always zero: raw risk starts at nothing always"
+                    "They are the same thing",
+                    "Residual is the risk before controls; inherent is what remains after",
+                    "Inherent risk is always zero"
                   ]
                 },
                 {
@@ -12936,9 +12936,9 @@
                   "a": "Appetite: how much risk leadership will accept; tolerance: acceptable variation around it",
                   "x": "Appetite is strategic (\"we accept moderate risk\"); tolerance sets the guardrails.",
                   "wrong": [
-                    "Appetite is the variation: appetite measures the wobble around tolerance",
-                    "Tolerance is higher: tolerance always exceeds the stated risk appetite",
-                    "Appetite is technical: appetite is an engineering metric only"
+                    "Appetite is the variation; tolerance is the overall level",
+                    "Tolerance is always higher than appetite",
+                    "Appetite is a technical metric only"
                   ]
                 },
                 {
@@ -12949,9 +12949,9 @@
                   "a": "The business owner accountable if it materialises",
                   "x": "Security advises and measures; the business decides and owns.",
                   "wrong": [
-                    "The CISO always",
-                    "The auditor",
-                    "The risk register: the spreadsheet itself owns every risk"
+                    "The CISO",
+                    "The external auditor",
+                    "Whoever found the risk, because they understand it best"
                   ]
                 },
                 {
@@ -12962,9 +12962,9 @@
                   "a": "Threat: what could hurt you; vulnerability: the weakness; risk: likelihood × impact of the two meeting",
                   "x": "No vulnerability, no risk — even with active threats.",
                   "wrong": [
-                    "Vulnerabilities are threats: a weakness is the same as an attacker",
-                    "Risk comes first: risk precedes threat and vulnerability both",
-                    "Threats are internal only: danger comes only from inside staff"
+                    "Threat: the weakness; vulnerability: the attacker; risk: the cost",
+                    "Risk comes first, then threats and vulnerabilities",
+                    "Threats are always internal"
                   ]
                 },
                 {
@@ -12975,9 +12975,9 @@
                   "a": "Before new systems go live, after major changes, and on a recurring schedule",
                   "x": "Also after incidents and when the threat landscape shifts.",
                   "wrong": [
-                    "At budget time: risk is assessed once a year with the budget",
-                    "Once ever: assess risk just a single time, forever",
-                    "Never for cloud: cloud systems need no risk assessment ever"
+                    "Once a year at budget time",
+                    "Once, when the system is first designed, and never again afterwards",
+                    "Never for cloud systems"
                   ]
                 },
                 {
@@ -12988,9 +12988,9 @@
                   "a": "ALE $25,000: a control costing less than that per year is financially justified",
                   "x": "ALE turns security spending into a business decision.",
                   "wrong": [
-                    "$100,000: the full loss counted twice over yearly",
-                    "$50,000: the single loss figure used exactly as-is",
-                    "$12,500: a quarter of the single loss expectancy here"
+                    "ALE $100,000: double the single loss, so only controls above that are justified",
+                    "$50,000: the single loss expectancy",
+                    "$12,500: a quarter of the SLE"
                   ]
                 },
                 {
@@ -13001,9 +13001,9 @@
                   "a": "Yes: $70k risk reduction beats $40k cost",
                   "x": "Compare annual control cost against annual risk reduction, not the sticker price.",
                   "wrong": [
-                    "No, too expensive: $40k is too much to spend",
-                    "Only if free: the $40k control must cost absolutely nothing",
-                    "No, the ALE is wrong: $100k ALE is a made-up number anyway"
+                    "No: $40k is more than the $30k residual ALE",
+                    "Only if the control is free",
+                    "No: ALE figures cannot be trusted"
                   ]
                 },
                 {
@@ -13014,9 +13014,9 @@
                   "a": "Formal sign-off by the risk owner with documentation",
                   "x": "Acceptance is a decision, not neglect — and it expires.",
                   "wrong": [
-                    "Ignoring the risk",
-                    "Buying insurance: an insurance policy counts as risk acceptance",
-                    "A verbal okay: spoken approval alone accepts the risk"
+                    "Ignoring the risk until it happens and then reporting it",
+                    "Buying insurance",
+                    "A verbal okay from a manager"
                   ]
                 },
                 {
@@ -13027,9 +13027,9 @@
                   "a": "Cyber insurance and outsourcing the risky function",
                   "x": "Transfer never removes all risk: you keep oversight and residual liability.",
                   "wrong": [
-                    "Patching",
-                    "Firewalls",
-                    "Training: awareness courses transfer the risk to the staff"
+                    "Patching and hardening",
+                    "Firewalls and segmentation",
+                    "Awareness training for staff and stronger password rules"
                   ]
                 },
                 {
@@ -13040,9 +13040,9 @@
                   "a": "When the activity’s risk outweighs its value and controls cannot fix it",
                   "x": "Example: decommissioning an unpatchable legacy system instead of protecting it.",
                   "wrong": [
-                    "Always: risk avoidance is right in every single case",
-                    "When it is cheap: avoidance suits only risks that cost nothing to dodge",
-                    "Only for small risks: avoidance suits only the trivial risks"
+                    "Always",
+                    "Only when avoiding it costs nothing and nobody objects to the change",
+                    "Only for small risks"
                   ]
                 },
                 {
@@ -13053,9 +13053,9 @@
                   "a": "A metric that warns risk is rising before loss occurs",
                   "x": "Example: unpatched criticals trending up predicts breach likelihood.",
                   "wrong": [
-                    "A risk appetite: a statement of how much risk leaders accept",
-                    "A password: a secret is the key risk indicator",
-                    "An audit date: a calendar entry warns risk rises"
+                    "A statement of how much risk the board is willing to accept",
+                    "A score from a vulnerability scanner",
+                    "The date of the next audit"
                   ]
                 },
                 {
@@ -13066,9 +13066,9 @@
                   "a": "Continuously, with formal review at least quarterly or after major changes",
                   "x": "A stale register is decoration.",
                   "wrong": [
-                    "Once a decade: review the risk register every ten years",
-                    "After every audit: the register is reviewed only on request",
-                    "Only at IPO: review the register only when listing"
+                    "Once a decade",
+                    "Only after an external audit has asked for an updated version",
+                    "Only before an IPO"
                   ]
                 },
                 {
@@ -13079,9 +13079,9 @@
                   "a": "Critical functions, RTO/RPO per function, and resource dependencies",
                   "x": "These outputs drive the entire continuity strategy and budget.",
                   "wrong": [
-                    "Server inventory: a list of every machine in the datacenter",
-                    "Pen test scope: test boundaries are the three BIA outputs",
-                    "Org chart: reporting lines are the three BIA outputs"
+                    "A server inventory",
+                    "The penetration test scope and the list of systems to exclude",
+                    "The organisation chart"
                   ]
                 },
                 {
@@ -13092,9 +13092,9 @@
                   "a": "The longest an outage can last before the business faces existential harm",
                   "x": "RTO must fit inside MTD, or recovery is theatre.",
                   "wrong": [
-                    "Same as RTO: MTD and RTO are exactly the same",
-                    "Backup window: the copy slot is the maximum downtime",
-                    "Lunch break length: the meal duration is the MTD"
+                    "The same as RTO",
+                    "The nightly backup window",
+                    "The time it takes the monitoring team to detect an outage after it starts"
                   ]
                 },
                 {
@@ -13105,9 +13105,9 @@
                   "a": "BCP: business leadership for whole-organisation continuity; DRP: IT for systems recovery",
                   "x": "DRP is a subset of BCP.",
                   "wrong": [
-                    "IT owns both: tech teams run BCP and DRP",
-                    "Nobody owns them: BCP and DRP have no owner",
-                    "Auditors own both: auditors run both BCP and DRP"
+                    "IT owns both",
+                    "Both are owned by IT, since recovery of systems is the whole of continuity planning",
+                    "Auditors own both"
                   ]
                 },
                 {
@@ -13118,9 +13118,9 @@
                   "a": "Named backups for every critical role, documented and trained",
                   "x": "Incidents do not wait for the one expert to return from holiday.",
                   "wrong": [
-                    "Hiring more staff: headcount counts as succession planning here",
-                    "Firing leaders: sacking bosses counts as succession planning here",
-                    "A promotion ladder: a chart showing who climbs to which job next"
+                    "Hiring more staff",
+                    "Replacing leaders after an incident with people from outside the company",
+                    "A promotion ladder for staff"
                   ]
                 },
                 {
@@ -13131,9 +13131,9 @@
                   "a": "Full: everything; incremental: changes since last backup of any kind; differential: changes since last full",
                   "x": "Incremental is fastest daily but slowest to restore; differential balances both.",
                   "wrong": [
-                    "Differential needs no full: differential deltas restore with no baseline at all",
-                    "Full is fastest daily: full backups run the quickest daily",
-                    "Incremental needs no full: deltas restore without any baseline"
+                    "Full: everything; differential: changes since the last backup of any kind; incremental: changes since the last full",
+                    "Full is fastest to run daily",
+                    "Incremental restores need no full backup"
                   ]
                 },
                 {
@@ -13144,9 +13144,9 @@
                   "a": "Tabletop: talk through; functional: fail over systems; full interruption: run the business from the alternate site",
                   "x": "Escalate realism gradually; full interruption risks real disruption.",
                   "wrong": [
-                    "Functional is discussion: failover tests only talk through the switch",
-                    "Tabletop is a real failover: talk-throughs switch systems over live",
-                    "Full is just discussion: full tests only talk through failover"
+                    "Tabletop: fail over the systems; functional: talk through the plan; full interruption: a walkthrough with senior management",
+                    "Tabletop is a live failover",
+                    "Full interruption is a discussion only"
                   ]
                 },
                 {
@@ -13157,9 +13157,9 @@
                   "a": "Match site readiness and cost to each function’s RTO",
                   "x": "Seconds-to-minutes RTO buys hot; days of RTO tolerates cold.",
                   "wrong": [
-                    "Always pick cold: the cheapest recovery site always wins",
-                    "Pick the closest: the nearest site always wins, cost aside",
-                    "Pick at random: choose recovery sites by a lottery draw"
+                    "Always the cheapest (cold) site, since recovery is rarely needed",
+                    "Always the closest site",
+                    "Whatever the insurer recommends"
                   ]
                 },
                 {
@@ -13170,9 +13170,9 @@
                   "a": "Mean time between failures vs mean time to repair",
                   "x": "Availability ≈ MTBF / (MTBF + MTTR).",
                   "wrong": [
-                    "MTBF measures repairs: between failures is the time spent fixing things",
-                    "Both measure cost: MTBF and MTTR price failures only",
-                    "Both measure uptime: MTBF and MTTR both count hours the system runs"
+                    "MTBF measures repair time; MTTR measures uptime",
+                    "Both measure the cost of failures",
+                    "Both measure total uptime"
                   ]
                 },
                 {
@@ -13183,9 +13183,9 @@
                   "a": "One component whose loss kills the service",
                   "x": "Eliminate with redundancy or accept formally.",
                   "wrong": [
-                    "Two servers: the definition is simply having two",
-                    "A redundant pair: two components sharing the load so neither matters",
-                    "A spare server: a second box taking over when the first fails"
+                    "Having two servers instead of one",
+                    "A redundant pair of servers that share the load between them",
+                    "A spare server that takes over"
                   ]
                 },
                 {
@@ -13196,9 +13196,9 @@
                   "a": "One regional disaster must not take both",
                   "x": "Consider power grids, flood plains, and network paths — not just mileage.",
                   "wrong": [
-                    "It is cheaper",
-                    "For tax reasons: tax breaks demand geographically separated recovery sites",
-                    "It speeds failover: nearby sites switch over in seconds"
+                    "It is cheaper to run two distant sites than two sites close together",
+                    "For tax reasons",
+                    "It makes failover faster"
                   ]
                 },
                 {
@@ -13209,9 +13209,9 @@
                   "a": "Untested generators fail when needed",
                   "x": "A generator that has never carried the building is a hope, not a control.",
                   "wrong": [
-                    "Testing wears them out: monthly load tests damage the generators",
-                    "Monthly is too often: generators need yearly load tests only",
-                    "Load testing is optional: generators need no load testing ever"
+                    "Load testing wears generators out faster than it proves them",
+                    "Yearly testing is enough",
+                    "Testing is optional"
                   ]
                 },
                 {
@@ -13222,9 +13222,9 @@
                   "a": "Who contacts whom, via which out-of-band channels, with pre-drafted messages",
                   "x": "Include customers, staff families, regulators, and media — with alternates for each role.",
                   "wrong": [
-                    "Only email addresses: contacts alone make the whole comms plan",
-                    "Staff home addresses: the plan lists where everyone lives",
-                    "Social media passwords: logins belong in the BC comms plan"
+                    "Only the staff email distribution list and the address of the alternate site",
+                    "Staff home addresses",
+                    "Social media passwords"
                   ]
                 },
                 {
@@ -13235,9 +13235,9 @@
                   "a": "People change numbers and roles",
                   "x": "An untested call tree fails at 2 a.m. exactly when needed.",
                   "wrong": [
-                    "Drills are fun",
-                    "Publishing is enough: printed call trees never go stale at all",
-                    "Trees never change: contacts and roles stay fixed forever, always"
+                    "Drills improve morale",
+                    "Publishing the tree on the intranet is enough for staff to follow it",
+                    "Contact details never change"
                   ]
                 },
                 {
@@ -13248,22 +13248,22 @@
                   "a": "Processing: IT systems failover; business: people have somewhere to work",
                   "x": "You need both or recovery stalls.",
                   "wrong": [
-                    "Processing sites house staff: failover sites are desks for displaced people",
-                    "Only IT matters: systems alone need alternate processing sites, people can work anywhere",
-                    "Only people matter: staff alone need alternate business sites"
+                    "Processing sites house staff; business sites run IT",
+                    "Only IT systems need an alternate site",
+                    "Only people need an alternate site"
                   ]
                 },
                 {
                   "id": "cy-risk-28",
                   "deckId": "cy-risk",
                   "trackId": "cyber",
-                  "q": "A department’s RTO is 4 hours but its only backup is weekly tape. What is wrong?",
-                  "a": "RPO mismatch: a week of data loss exceeds what the business can tolerate",
-                  "x": "Align backup frequency to RPO, recovery speed to RTO.",
+                  "q": "A department's RPO is 4 hours, but its only backup is a weekly tape. What is wrong?",
+                  "a": "Up to a week of data could be lost, far beyond the 4-hour RPO",
+                  "x": "RPO is the tolerable data loss, so it sets backup frequency; RTO is the tolerable downtime, so it sets recovery speed.",
                   "wrong": [
-                    "The tape is too slow: weekly tape cannot restore within four hours",
-                    "Tape is obsolete: weekly tape cannot meet any RTO",
-                    "RTO is too long: four hours is excessive as a recovery target"
+                    "The RTO is too long for the business",
+                    "Tape cannot be restored within 4 hours",
+                    "Nothing, as long as the weekly tape is stored off-site in a secure vault"
                   ]
                 },
                 {
@@ -13274,9 +13274,9 @@
                   "a": "Succession, emergency contacts, payroll continuity, and staff welfare during disruption",
                   "x": "People are the most critical continuity asset.",
                   "wrong": [
-                    "HR owns servers: people teams run the IT infrastructure",
-                    "HR runs the backups: people teams own recovery",
-                    "For catering: food is why HR joins continuity"
+                    "HR owns the IT infrastructure",
+                    "HR runs the backups",
+                    "HR arranges catering and transport for staff working at the alternate site"
                   ]
                 },
                 {
@@ -13287,9 +13287,9 @@
                   "a": "Determine what is hurt, what still works, and whether the site is safe to enter",
                   "x": "No recovery begins before safety is confirmed.",
                   "wrong": [
-                    "Restore servers: rebuilding systems is the damage assessment job",
-                    "Call the press: journalists assess damage first after disaster",
-                    "File insurance: claim forms assess damage first after disaster"
+                    "Restore the servers",
+                    "Brief the press",
+                    "File the insurance claim and start ordering replacement equipment immediately"
                   ]
                 },
                 {
@@ -13301,8 +13301,8 @@
                   "x": "It funds recovery — it is not a recovery plan.",
                   "wrong": [
                     "It replaces backups",
-                    "It stops attacks: insurance blocks the intrusions directly itself",
-                    "It is mandatory: the law requires cyber insurance always"
+                    "It stops attacks",
+                    "It is legally required for every business"
                   ]
                 },
                 {
@@ -13313,9 +13313,9 @@
                   "a": "Feeding live telemetry — vuln scans, threat intel, control status — into risk ratings",
                   "x": "Annual spreadsheets miss risks that emerge in March.",
                   "wrong": [
-                    "More meetings: more gatherings make the risk assessment continuous",
-                    "Longer reports: longer documents make the risk assessment continuous",
-                    "Bigger budgets: bigger spending makes the assessment continuous"
+                    "Holding more frequent risk meetings, monthly instead of once a year",
+                    "Writing longer reports",
+                    "Spending a bigger budget"
                   ]
                 },
                 {
@@ -13326,9 +13326,9 @@
                   "a": "Yours: you own the risk to your customers regardless of who was breached",
                   "x": "Contracts should define notification duties and timelines in advance.",
                   "wrong": [
-                    "Only the vendor’s: the breach is the vendor’s incident",
-                    "Nobody’s: the vendor breach belongs to no one at all",
-                    "The customers’: the customers own the vendor breach incident"
+                    "Only the vendor's, because the breach happened inside the vendor's systems",
+                    "Nobody's",
+                    "The customers'"
                   ]
                 },
                 {
@@ -13339,9 +13339,9 @@
                   "a": "Small accepted risks combining into one unacceptable exposure",
                   "x": "Ten \"low\" risks on the same crown-jewel system equal one big problem.",
                   "wrong": [
-                    "Adding insurance: an insurance policy counts as risk aggregation",
-                    "Summing ALEs only: add annual losses to aggregate the risk",
-                    "A backup strategy: backup copies count as risk aggregation here"
+                    "Buying insurance for several risks",
+                    "Adding up the ALEs of unrelated systems to produce one total figure",
+                    "Combining backups into one store"
                   ]
                 },
                 {
@@ -13352,9 +13352,9 @@
                   "a": "Accepted risks must be re-evaluated",
                   "x": "Permanent acceptances become invisible holes.",
                   "wrong": [
-                    "Paperwork for fun",
-                    "Auditors demand paper",
-                    "It satisfies auditors: expiry dates exist only to please the audit team"
+                    "To keep the paperwork tidy",
+                    "Because auditors demand it",
+                    "To limit the insurer's liability if the risk is ever realised"
                   ]
                 },
                 {
@@ -13365,9 +13365,9 @@
                   "a": "Actor: who attacks; vector: how the attack arrives",
                   "x": "Phishing email (vector) sent by a criminal group (actor).",
                   "wrong": [
-                    "Vectors are the attackers: the delivery path is the person behind it",
-                    "Vectors are people: attackers are the delivery path itself",
-                    "Actors are tools: threat actors are software utilities only"
+                    "The vector is who attacks; the actor is how it arrives",
+                    "Vectors are always people",
+                    "Actors are software tools"
                   ]
                 },
                 {
@@ -13378,9 +13378,9 @@
                   "a": "Assess applicability, gap-analyse current controls, plan remediation, update the register",
                   "x": "Compliance risk is still risk.",
                   "wrong": [
-                    "Email the regulator: ask them to delay the rule a year",
-                    "Panic: sounding the alarm is the regulation response",
-                    "Wait for fines: ignore new regulation until the fines arrive"
+                    "Ask the regulator for a one-year delay while the security team studies the rule",
+                    "Escalate to the board immediately",
+                    "Wait for the first fine"
                   ]
                 },
                 {
@@ -13391,9 +13391,9 @@
                   "a": "Patch by exploitability and asset value",
                   "x": "A medium on a crown jewel beats a critical on a lab printer.",
                   "wrong": [
-                    "Patch everything now",
-                    "Ignore CVSS: severity scores play no part in prioritisation",
-                    "Patch by age: the oldest findings get fixed first, always"
+                    "Patch everything immediately",
+                    "Ignore CVSS entirely",
+                    "Patch the oldest findings first, whatever their severity"
                   ]
                 },
                 {
@@ -13404,9 +13404,9 @@
                   "a": "It measures whether the vuln program reduces exposure",
                   "x": "A critical open for 200 days is an accepted risk wearing a disguise.",
                   "wrong": [
-                    "For bonuses",
+                    "To calculate staff bonuses for the vulnerability team",
                     "It is optional",
-                    "Auditors like charts: remediation metrics exist to please auditors"
+                    "Auditors like charts"
                   ]
                 },
                 {
@@ -13417,9 +13417,9 @@
                   "a": "For each risk: the chosen response, actions, owners, deadlines, and residual rating",
                   "x": "The bridge between assessment and action.",
                   "wrong": [
-                    "An insurance policy: a contract is the treatment plan",
-                    "A risk register: a list of risks with no actions attached",
-                    "A meeting agenda: a schedule is the treatment plan"
+                    "An insurance policy",
+                    "A risk register that lists each risk and its rating, with no actions attached",
+                    "A meeting agenda"
                   ]
                 },
                 {
@@ -13427,12 +13427,12 @@
                   "deckId": "cy-risk",
                   "trackId": "cyber",
                   "q": "Who approves a risk treatment plan?",
-                  "a": "Senior leadership or the board, since it commits budget and accepts residual risk",
-                  "x": "Security proposes; the business disposes.",
+                  "a": "The risk owners, with senior management where it commits budget or accepts significant residual risk",
+                  "x": "ISO/IEC 27001 (clause 6.1.3) requires risk owners to approve the treatment plan and accept the residual risk. Security proposes; the business decides.",
                   "wrong": [
-                    "The intern: the most junior approves the treatment plans",
-                    "The vendor: the supplier approves all the treatment plans",
-                    "The risk owner: the business owner signs off their own plan"
+                    "The security analyst who identified the risk, because they understand it best",
+                    "The vendor supplying the control",
+                    "The external auditor"
                   ]
                 },
                 {
@@ -13443,9 +13443,9 @@
                   "a": "Reporting risks in business terms leadership can act on",
                   "x": "\"$2M ALE with 30% likelihood\" beats \"CVE-2024-1234 is critical\".",
                   "wrong": [
-                    "Scaring executives",
-                    "Technical deep dives: dense jargon counts as risk communication here",
-                    "Skipping reports"
+                    "Alarming executives into spending",
+                    "Technical deep dives full of CVE numbers",
+                    "Skipping reports when nothing has changed since the last quarter"
                   ]
                 }
               ],

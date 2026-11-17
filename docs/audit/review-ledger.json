@@ -295,6 +295,16 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 25
+    },
+    "cy-secure-proto": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 34
+    },
+    "cy-risk": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 43
     }
   }
 }
