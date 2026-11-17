@@ -345,6 +345,16 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 25
+    },
+    "secplus-ir-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-threat-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
     }
   }
 }

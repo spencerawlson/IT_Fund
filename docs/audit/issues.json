@@ -1086,5 +1086,37 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0068",
+    "severity": "Medium",
+    "category": "incomplete",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-ir-scenarios (11 cards), secplus-threat-scenarios (9 cards)",
+    "original": "Truncated keyed answers, e.g. 'Image the drive and memory now', 'Remove standing vendor VPN'",
+    "problem": "Answers cut to fragments by the length rebalance; restored to complete actions.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0069",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-ir-scenarios, secplus-threat-scenarios",
+    "original": "'Ask the attacker to wait', 'Customers are lying', 'Arrest the store manager'",
+    "problem": "Joke options and colon duplicates.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]
