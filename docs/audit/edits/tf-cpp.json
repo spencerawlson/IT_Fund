@@ -1,0 +1,11 @@
+{
+  "tf-resources": {
+    "9": { "a": ">= 5.1 and < 6.0 (minor and patch updates within 5.x)", "x": "The pessimistic operator lets only the right-most stated part increase: ~> 5.1 allows 5.x from 5.1 up; ~> 5.1.0 would allow only 5.1.x.", "wrong": [">= 5.1.0 and < 5.2.0 (patch updates only)", "Exactly 5.1.0, no other version", "Any version 5.1 or higher, including 6.x"] }
+  },
+  "tf-state-backends": {
+    "2": { "x": "e.g. the S3 backend now locks with an S3 lock file (use_lockfile, Terraform 1.10+); the older DynamoDB table locking is deprecated." }
+  },
+  "cpp-types": {
+    "9": { "a": "Explicitly converts x to a double, with the conversion checked by the compiler", "x": "The compiler verifies the conversion is allowed; the value is converted when the code runs. Prefer named casts over C-style (double)x casts.", "wrong": ["Reinterprets the bits of x as a double without converting", "Converts x only if it is already a double", "Does nothing at runtime; it only changes the type name"] }
+  }
+}

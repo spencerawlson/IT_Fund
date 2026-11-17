@@ -1,0 +1,74 @@
+{
+  "awss-threat-detect": {
+    "4": { "a": "No: GuardDuty is regional and must be enabled in each region", "x": "Most security services are regional; enable them everywhere you operate. Organizations with a delegated administrator can enable GuardDuty centrally across accounts and regions." },
+    "10": { "a": "A common schema that normalises findings from every integrated product" , "x": "AWS Security Finding Format gives every finding the same fields for severity, resources and remediation, so automation and SIEMs can parse any finding uniformly." },
+    "11": { "a": "Encrypt the bucket by default and lock down access with policies and Block Public Access" }
+  },
+  "awss-logging": {
+    "0": { "a": "Management events record control-plane calls; data events record data-plane calls such as S3 object access", "x": "The first copy of management events is free; data events (S3 object access, Lambda invocations) are high volume and charged, so enable them selectively on sensitive resources." },
+    "8": { "a": "Signed digest files that prove log files were not changed after delivery" },
+    "4": { "a": "Turn matching log lines into a metric (e.g. AccessDenied count) for alarms" }
+  },
+  "awss-iam-foundations": {
+    "2": { "a": "Identity policies attach to principals; resource policies attach to resources such as buckets", "x": "Identity policies attach to users, groups and roles; resource policies attach to resources like S3 buckets and KMS keys. Cross-account access typically needs both sides to allow." },
+    "11": { "a": "Auditors and read-only tooling that need visibility but no write access" },
+    "13": { "a": "AWS maintains managed policies; you version and control customer managed ones" }
+  },
+  "awss-incident-response": {
+    "1": { "a": "Scope, contain, collect evidence, eradicate, recover, then lessons learned", "x": "Never skip containment (isolate networking) or evidence collection (snapshots): wiping first destroys evidence." },
+    "6": { "a": "Insights group related findings so one prioritised queue shows the blast radius" },
+    "7": { "a": "A simulated incident that rehearses detection, runbooks and coordination" },
+    "9": { "a": "None is fully managed; you build it from snapshots and an isolated forensic account" },
+    "10": { "a": "It provides AWS's compliance reports, which may be needed as evidence", "x": "AWS Artifact gives on-demand access to AWS's SOC 2, ISO and PCI reports; regulators and customers may ask for them during breach handling." }
+  },
+  "awss-monitor-analyze": {
+    "1": { "a": "Config rules evaluate resources; Security Hub aggregates findings, including Config's" },
+    "2": { "a": "A packaged set of Config rules and remediations deployed together, such as CIS" },
+    "7": { "a": "A log destination policy plus a KMS key policy that both allow the central account" },
+    "10": { "a": "It shows when a resource became non-compliant and which API call changed it" },
+    "11": { "a": "A Config rule plus EventBridge on compliance-change events to SNS or Lambda" },
+    "14": { "a": "Logging reads and writes separately, keeping change history at lower volume" }
+  },
+  "awss-network-security": {
+    "0": { "a": "Security groups are stateful and allow-only; NACLs are stateless and can deny", "x": "Security groups allow return traffic automatically; NACLs need explicit rules for return traffic on ephemeral ports." },
+    "3": { "a": "Filtering Layer 7 web requests (SQLi, XSS, bots) in front of web endpoints", "x": "WAF attaches to ALB, CloudFront, API Gateway and similar endpoints. It is not a network firewall; pair it with security groups and NACLs." },
+    "4": { "a": "Rate-based rules throttle per-IP floods at Layer 7; Shield Advanced covers DDoS at 3, 4 and 7" },
+    "7": { "a": "Only load balancers in public subnets; app and data tiers private across two or more AZs", "x": "No instance that users reach directly should hold data. Private tiers reach the internet outbound through NAT if they need to." },
+    "9": { "a": "Gateway endpoints are free route-table targets; interface endpoints are billed ENIs", "x": "Gateway endpoints exist only for S3 and DynamoDB; interface endpoints (PrivateLink) cover most services and charge hourly plus per GB. Design for cost: use gateways where available." },
+    "15": { "a": "Blast-radius isolation: separate guardrails, logs and privilege paths per environment" }
+  },
+  "awss-iam-advanced": {
+    "4": { "a": "User Pools sign users in; Identity Pools exchange identities for AWS credentials", "x": "User Pools are the directory (sign-up, sign-in, MFA); Identity Pools federate those or other identities into temporary AWS credentials." },
+    "7": { "a": "The caller must belong to an account in your Organization" },
+    "11": { "a": "Service-linked roles are defined and locked by the AWS service; service roles are yours", "x": "You cannot edit a service-linked role's permissions; a service role is created and managed by you for a service to assume. Prefer service-linked roles where available." }
+  },
+  "awss-data-protection": {
+    "0": { "a": "AWS owned, AWS managed (aws/service), and customer managed keys", "x": "AWS owned keys are used inside services and invisible to you; AWS managed keys (aws/s3 etc.) are created for you and controlled by AWS; customer managed keys give you control of policy, rotation and audit. Use customer managed keys for sensitive data." },
+    "3": { "a": "For scoped, temporary delegation without editing the key policy", "x": "Grants are programmatic, revocable delegations, often used by AWS services that need limited key use." },
+    "4": { "a": "Creates new key material on a schedule and keeps the old for decryption" },
+    "8": { "a": "CloudHSM is single-tenant hardware you operate; KMS is a managed shared service" },
+    "9": { "a": "ACM public certificates with DNS validation, which ACM renews automatically" },
+    "16": { "a": "Unencrypted volumes and snapshots: every new one is encrypted automatically" },
+    "22": { "a": "No one, not even root, can delete or overwrite objects until retention ends" },
+    "23": { "a": "They limit which buckets and actions can be reached through the endpoint" }
+  },
+  "awss-secure-compute": {
+    "1": { "a": "Send to Security Hub, prioritise by exploitability, patch via Patch Manager" },
+    "2": { "a": "No inbound ports or SSH keys; IAM-authorised sessions that are fully logged" },
+    "4": { "a": "A policy that denies RunInstances unless IMDSv2 is required, plus a Config rule" },
+    "6": { "a": "A private endpoint reached through VPN or bastion; never public to the internet" },
+    "8": { "a": "To fail the build on known CVEs before an image reaches production" },
+    "9": { "a": "A read-only cross-account role with an external ID, time-boxed and logged" },
+    "10": { "a": "Centrally apply WAF, Shield Advanced and security-group policies across accounts" },
+    "13": { "a": "GuardDuty's cryptocurrency finding plus CPU anomaly alarms" },
+    "5": { "a": "SSRF against IMDSv1 exposed role credentials: enforce IMDSv2 and least privilege" }
+  },
+  "awss-governance": {
+    "0": { "a": "Separate accounts per workload and environment, governed centrally by SCPs and logging" },
+    "12": { "a": "It centrally shows unused, public and cross-account access across accounts" },
+    "13": { "a": "An organization-wide Config rule for encryption, reported centrally" },
+    "15": { "a": "The required guardrails: SCPs, Config rules, logging, encryption and network rules" },
+    "16": { "a": "Endpoint policies and SCPs that block it, evidenced by Config and CloudTrail" },
+    "20": { "a": "EventBridge rules that route findings by account, severity and tags" }
+  }
+}

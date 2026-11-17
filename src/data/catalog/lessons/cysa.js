@@ -1,4 +1,4 @@
-// Reading content for the CySA+ (CS0-003) track (src/data/academy/cysa.js).
+// Reading content for the CySA+ (CS0-004) track (src/data/academy/cysa.js).
 // Keyed by deck id. Professional voice — narrative, precise, confident.
 
 export default {
@@ -39,6 +39,13 @@ export default {
           'Baselines make these metrics meaningful. A baseline is a profile of normal behavior — normal login times, normal traffic volumes, normal process trees — and deviations from it are what trigger investigation. Without a baseline, every anomaly is a coin flip; with one, the analyst can say what "wrong" looks like for this specific environment.',
           'Finally, continuous monitoring is the SOC\'s standing posture: ongoing collection and analysis of security telemetry, not a yearly audit or quarterly review. Frameworks like NIST CSF expect it, and the whole point of the tier structure, the runbooks, and the SIEM is to make continuous monitoring sustainable — accurate enough to trust, automated enough to scale, and measured enough to improve.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Triage an alert in five questions',
+        code: 'Alert: 25 failed logons for svc_backup from 10.4.2.88, then 1 success\n1. Is it real?        Source is a workstation; svc_backup only logs on from BKP01\n2. What is affected?  Domain account with backup rights (high value)\n3. Is it spreading?   Same source touched 3 servers in 10 min\n4. Severity/priority? Credential compromise on a privileged account -> P1\n5. Escalate?          Yes: Tier 2 + disable account per runbook',
+        explanation: 'A consistent triage script turns a noisy queue into decisions; asset value and spread set priority, not the alert\'s default severity.',
       },
     ],
     cheatSheet: [
@@ -95,6 +102,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Compare credentialed and non-credentialed scans',
+        code: 'Host 10.0.5.20 (Ubuntu 22.04)\nNon-credentialed:  22/tcp OpenSSH 8.9p1 (banner)  -> 3 \'possible\' CVEs\nCredentialed:      openssh-server 1:8.9p1-3ubuntu0.10 (dpkg)\n                   -> 0 CVEs; vendor backported the fixes',
+        explanation: 'Banner checks guess from version strings and miss distribution backports; the authenticated scan reads the package database and removes the false positives.',
+      },
+    ],
     cheatSheet: [
       ['Vulnerability scanning', 'Automated discovery of known weaknesses in systems.'],
       ['Credentialed vs non-credentialed', 'Credentialed scans authenticate and see patch levels and configs; non-credentialed scans see only network-exposed weaknesses. Run both.'],
@@ -146,6 +160,13 @@ export default {
           'Two vocabularies matter here. An IOC — indicator of compromise — is an artifact of compromise such as a hash, IP, or domain; it is evidence that something already happened. An IOA — indicator of attack — describes behavior in progress, like a suspicious process pattern. IOCs are specific and expire quickly as attackers rotate infrastructure; IOAs describe behavior and stay relevant longer. Detections built on IOAs are more durable than those built on IOCs.',
           'STIX and TAXII are the standards that let this intelligence move between organizations and tools: STIX is the format for expressing threat intelligence, TAXII is the protocol for exchanging it. Together they are how a feed from a vendor, a government agency, or an industry sharing group arrives in your SIEM in a machine-readable form. And UEBA — user and entity behavior analytics — extends the same idea to behavior: baselining normal user and device activity to flag anomalies, which is how you catch the insider and the compromised account that no signature would recognize.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A correlation rule (Sigma)',
+        code: 'title: Brute force then success from one source\nlogsource: { product: windows, service: security }\ndetection:\n  fail:    { EventID: 4625 }\n  success: { EventID: 4624 }\n  condition: fail | count(TargetUserName) by IpAddress > 10 and success\ntimeframe: 10m\nlevel: high',
+        explanation: 'Neither event alone is interesting; the sequence from one IP within ten minutes is. Writing rules in Sigma lets you convert the same logic to Splunk, Sentinel or Elastic.',
       },
     ],
     cheatSheet: [
@@ -201,6 +222,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Stack-count to find rare autoruns',
+        code: 'SELECT run_key_value, COUNT(DISTINCT host) AS hosts\nFROM autoruns\nGROUP BY run_key_value\nORDER BY hosts ASC\nLIMIT 10;\n\n-- result: C:\\Users\\Public\\svchost.exe   hosts = 1',
+        explanation: 'Legitimate software runs on hundreds of machines; an autorun seen on one host, in a public folder, with a system-binary name, is where to look first.',
+      },
+    ],
     cheatSheet: [
       ['Threat hunting', 'Proactive, hypothesis-driven searching for threats that evaded automated detection.'],
       ['Hunting loop', 'Hypothesize, investigate, uncover, and inform.'],
@@ -252,6 +280,13 @@ export default {
           'Program health is measured, not felt. The metrics that matter: mean time to remediate by severity, percentage of assets covered by scanning, exception aging — how long vulnerabilities remain open past their remediation SLAs — and scan coverage itself, the percentage of assets actually scanned during the period. Unscanned assets are unmeasured risk, and a program that cannot report its coverage cannot claim to manage its vulnerabilities.',
           'Tie the metrics together and they tell a story. Rising MTTR with stable coverage means the remediation pipeline is the bottleneck. Falling coverage with stable MTTR means the asset inventory is decaying. Vulnerability aging climbing means exceptions are accumulating. The analyst who can read these trends can fix the program, not just the findings.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Risk-based ranking with EPSS and KEV',
+        code: 'CVE              CVSS  EPSS   KEV  Asset           Order\n---------------  ----  -----  ---  --------------  -----\nCVE-2023-4966    9.4   0.97   Yes  NetScaler edge  1\nCVE-2024-1111    9.8   0.01   No   Isolated lab    3\nCVE-2023-2222    7.5   0.62   No   Payment API     2',
+        explanation: 'The 9.8 drops to last: almost no exploitation likelihood on an unreachable host. Likelihood (EPSS, KEV) times asset value drives the order.',
       },
     ],
     cheatSheet: [
@@ -307,6 +342,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Contain a compromised host without losing evidence',
+        code: '1. EDR: network-isolate host FIN-WS-14 (keeps EDR channel)\n2. Capture memory: winpmem.exe C:\\ir\\FIN-WS-14.raw\n3. Hash it:         certutil -hashfile C:\\ir\\FIN-WS-14.raw SHA256\n4. Log custody:     who, when, hash, storage location\n5. Then image disk, then eradicate',
+        explanation: 'Isolation stops the spread while keeping the machine powered, so volatile memory (processes, keys, injected code) survives for analysis.',
+      },
+    ],
     cheatSheet: [
       ['NIST SP 800-61 phases', 'Preparation; Detection and Analysis; Containment, Eradication, and Recovery; Post-Incident Activity.'],
       ['Preparation', 'IR team, tooling, playbooks, communication plans, and an IR retainer — built before the incident.'],
@@ -352,6 +394,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Map an incident to ATT&CK',
+        code: 'Observed                                   Tactic              Technique\n-----------------------------------------  ------------------  ----------------\nVPN login with stolen password             Initial Access      T1078 Valid Accounts\nPowerShell download cradle                 Execution           T1059.001\nRun key added                              Persistence         T1547.001\nLSASS memory read                          Credential Access   T1003.001\nArchive files to C:\\temp\\out.7z            Collection          T1074 Data Staged',
+        explanation: 'Mapping turns a narrative into gaps: if you had no alert for T1003.001, that is your next detection to build.',
+      },
+    ],
     cheatSheet: [
       ['MITRE ATT&CK', 'Knowledge base of adversary tactics, techniques, and procedures organized as a matrix.'],
       ['Tactic vs technique vs procedure', 'Tactic is the adversary\'s goal; technique is the method; procedure is the specific implementation.'],
@@ -394,6 +443,13 @@ export default {
           'Breach notification has its own formal requirements. A notification must cover what happened, the types of data affected, the steps taken, and what affected individuals should do — and the timelines are law, not courtesy. Under GDPR, supervisory authorities must be notified within 72 hours of becoming aware of a qualifying breach. Attorney-client privilege protects the investigation itself when legal counsel directs it, which is why counsel belongs in the response structure from the start rather than being called after the notifications go out.',
           'The lessons-learned report is the final reporting product of every incident: a blameless post-incident analysis with assigned action items and owners. It differs from a forensic report, which documents evidence and technical findings for potential legal use — the incident report covers timeline and business impact, the forensic report covers artifacts and analysis. Document what went well alongside what failed; it reinforces the controls that worked and keeps the review honest. And responsible disclosure communication — coordinated, factual public statements made after remediation — is how the organization talks about the incident to the outside world without creating new liability.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'An executive incident summary',
+        code: 'What happened:  Phishing led to one compromised finance mailbox (12 May).\nImpact:         No payments made; 340 customer emails exposed.\nActions:        Account disabled in 20 min; mailbox rules removed; MFA enforced.\nObligations:    Legal assessing GDPR notification (72-hour clock started 12 May 10:00).\nNext steps:     Phishing-resistant MFA for finance by 30 June (owner: IT Ops).',
+        explanation: 'Five lines in business terms, with owners and dates. Hashes, IPs and log excerpts belong in the technical report, not here.',
       },
     ],
     cheatSheet: [

@@ -1,0 +1,2116 @@
+[
+  {
+    "id": "cyber-nmap-001",
+    "slug": "nmap-service-enumeration",
+    "title": "Service Enumeration with Nmap",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/security-tools:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_recon",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 4,
+    "objectivesWithHints": 4,
+    "validators": [
+      "host_discovered",
+      "ports_discovered",
+      "services_identified",
+      "versions_identified"
+    ],
+    "targets": [
+      {
+        "hostname": "target.lab",
+        "role": "Intentionally vulnerable training target",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "cyber-portblast-001",
+    "slug": "manual-vs-portblast",
+    "title": "PortBlast: Full Assessment Workflow",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/portblast-lab:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_recon",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 10,
+    "objectivesWithHints": 5,
+    "validators": [
+      "comparison_complete",
+      "manual_enumeration_complete",
+      "portblast_crack_done",
+      "portblast_creds_found",
+      "portblast_exploit_done",
+      "portblast_result_exists",
+      "portblast_scope_understood",
+      "portblast_vulns_found",
+      "research_complete",
+      "services_identified"
+    ],
+    "targets": [
+      {
+        "hostname": "target.lab",
+        "role": "Authorized vulnerable training target",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "vuln-scanning-001",
+    "slug": "vulnerability-assessment-workflow",
+    "title": "Vulnerability Assessment Workflow",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/vuln-lab:latest",
+    "denyInternetEgress": true,
+    "shell": "vuln_cli",
+    "workbench": null,
+    "estimatedMinutes": 40,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "vuln_cvss_interpreted",
+      "vuln_kev_checked",
+      "vuln_prioritized",
+      "vuln_remediation_planned",
+      "vuln_report_done",
+      "vuln_rescan_done",
+      "vuln_scan_complete",
+      "vuln_top3_fixed"
+    ],
+    "targets": [
+      {
+        "hostname": "web01",
+        "role": "Public web server (critical)",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "db01",
+        "role": "Customer database (critical)",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "mail01",
+        "role": "Mail gateway (high)",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "ws042",
+        "role": "Finance workstation (medium)",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "iot-cam03",
+        "role": "Lobby IoT camera (low)",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "pentest-methodology-001",
+    "slug": "pentest-methodology",
+    "title": "Full Pentest Methodology: Recon to Report",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "pentest",
+    "workbench": null,
+    "estimatedMinutes": 60,
+    "objectives": 7,
+    "objectivesWithHints": 7,
+    "validators": [
+      "pentest_exploited",
+      "pentest_hosts_found",
+      "pentest_ports_enumerated",
+      "pentest_privesc",
+      "pentest_report_generated",
+      "pentest_versions_captured",
+      "pentest_vulns_researched"
+    ],
+    "targets": [
+      {
+        "hostname": "web01.example.local",
+        "role": "Web server (Apache 2.4.49)",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "file01.example.local",
+        "role": "File server (SMB null session)",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "dc01.example.local",
+        "role": "Domain controller (RDP, weak creds)",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "sec-pentest-web-001",
+    "slug": "web-app-pentest-full-chain",
+    "title": "Web App Pentest: Full Exploitation Chain",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/pentest-web:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_recon",
+    "workbench": null,
+    "estimatedMinutes": 75,
+    "objectives": 7,
+    "objectivesWithHints": 7,
+    "validators": [
+      "webpt_auth_bypass",
+      "webpt_cmdi_flag",
+      "webpt_idor_flag",
+      "webpt_recon_done",
+      "webpt_report_done",
+      "webpt_sqli_flag",
+      "webpt_xss"
+    ],
+    "targets": [
+      {
+        "hostname": "target.lab",
+        "role": "Vulnerable web app (SQLi, XSS, IDOR, command injection)",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "net-topology-001",
+    "slug": "build-the-office-lan",
+    "title": "Build the Office LAN",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": null,
+    "workbench": "topology",
+    "estimatedMinutes": 10,
+    "objectives": 3,
+    "objectivesWithHints": 3,
+    "validators": [
+      "topology_cabled",
+      "topology_clean",
+      "topology_devices_placed"
+    ],
+    "targets": [
+      {
+        "hostname": "pc1",
+        "role": "Workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "pc2",
+        "role": "Workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw1",
+        "role": "Access switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "r1",
+        "role": "Gateway router",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-topology-002",
+    "slug": "build-a-redundant-core",
+    "title": "Build a Redundant Core",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": null,
+    "workbench": "topology",
+    "estimatedMinutes": 12,
+    "objectives": 4,
+    "objectivesWithHints": 4,
+    "validators": [
+      "topology_cabled",
+      "topology_clean",
+      "topology_devices_placed",
+      "topology_redundant_path"
+    ],
+    "targets": [
+      {
+        "hostname": "pc1",
+        "role": "Workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "pc2",
+        "role": "Workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw1",
+        "role": "Access switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw2",
+        "role": "Access switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "r1",
+        "role": "Core router",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-topology-003",
+    "slug": "segment-a-dmz",
+    "title": "Segment a DMZ",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": null,
+    "workbench": "topology",
+    "estimatedMinutes": 15,
+    "objectives": 3,
+    "objectivesWithHints": 3,
+    "validators": [
+      "topology_cabled",
+      "topology_clean",
+      "topology_devices_placed"
+    ],
+    "targets": [
+      {
+        "hostname": "inet",
+        "role": "Internet / upstream cloud",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "fw1",
+        "role": "Perimeter firewall",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "r1",
+        "role": "Edge router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw1",
+        "role": "DMZ switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw2",
+        "role": "Inside switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "web1",
+        "role": "DMZ web server",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "pc1",
+        "role": "Inside workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-topology-004",
+    "slug": "make-the-core-fault-tolerant",
+    "title": "Make the Core Fault-Tolerant",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": null,
+    "workbench": "topology",
+    "estimatedMinutes": 12,
+    "objectives": 3,
+    "objectivesWithHints": 3,
+    "validators": [
+      "topology_devices_placed",
+      "topology_reaches",
+      "topology_redundant_path"
+    ],
+    "targets": [
+      {
+        "hostname": "pc1",
+        "role": "Workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw1",
+        "role": "Core switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw2",
+        "role": "Core switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "r1",
+        "role": "Core router",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-topology-005",
+    "slug": "break-the-switching-loop",
+    "title": "Break the Switching Loop",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": null,
+    "workbench": "topology",
+    "estimatedMinutes": 10,
+    "objectives": 3,
+    "objectivesWithHints": 3,
+    "validators": [
+      "topology_connected",
+      "topology_devices_placed",
+      "topology_no_loop"
+    ],
+    "targets": [
+      {
+        "hostname": "sw1",
+        "role": "Access switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw2",
+        "role": "Access switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw3",
+        "role": "Access switch",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-topology-006",
+    "slug": "separate-the-broadcast-domains",
+    "title": "Separate the Broadcast Domains",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": null,
+    "workbench": "topology",
+    "estimatedMinutes": 12,
+    "objectives": 4,
+    "objectivesWithHints": 4,
+    "validators": [
+      "topology_devices_placed",
+      "topology_l2_separated",
+      "topology_reaches"
+    ],
+    "targets": [
+      {
+        "hostname": "pc1",
+        "role": "Department A workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "pc2",
+        "role": "Department B workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw1",
+        "role": "Department A switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "sw2",
+        "role": "Department B switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "r1",
+        "role": "Gateway router",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "k8s-fundamentals-001",
+    "slug": "kubernetes-fundamentals",
+    "title": "Kubernetes Fundamentals: Deploy, Expose, Scale, Troubleshoot",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/k8s-lab:latest",
+    "denyInternetEgress": true,
+    "shell": "kubectl",
+    "workbench": null,
+    "estimatedMinutes": 50,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "k8s_cleanup_done",
+      "k8s_cluster_explored",
+      "k8s_config_wired",
+      "k8s_crashloop_diagnosed",
+      "k8s_crashloop_fixed",
+      "k8s_deployment_created",
+      "k8s_deployment_scaled",
+      "k8s_service_exposed"
+    ],
+    "targets": [
+      {
+        "hostname": "control-plane-1",
+        "role": "Kubernetes control plane",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "worker-1",
+        "role": "Kubernetes worker node",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "worker-2",
+        "role": "Kubernetes worker node",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "terraform-fundamentals-001",
+    "slug": "terraform-fundamentals",
+    "title": "Terraform Fundamentals: The IaC Workflow",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/iac:latest",
+    "denyInternetEgress": true,
+    "shell": "terraform_cli",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "tf_applied",
+      "tf_config_viewed",
+      "tf_destroyed",
+      "tf_init_validated",
+      "tf_misconfiguration_fixed",
+      "tf_plan_saved",
+      "tf_state_inspected",
+      "tf_variables_workspaces"
+    ],
+    "targets": [
+      {
+        "hostname": "infra",
+        "role": "Terraform working directory",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "terraform-k8s-docker-001",
+    "slug": "terraform-k8s-docker",
+    "title": "Terraform for Kubernetes & Docker",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/iac:latest",
+    "denyInternetEgress": true,
+    "shell": "terraform_cli",
+    "workbench": null,
+    "estimatedMinutes": 60,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "tfk8s_applied",
+      "tfk8s_deployment_written",
+      "tfk8s_destroyed",
+      "tfk8s_docker_written",
+      "tfk8s_providers_ready",
+      "tfk8s_scaled",
+      "tfk8s_service_configmap_written",
+      "tfk8s_variables_outputs_written"
+    ],
+    "targets": [
+      {
+        "hostname": "k8s-infra",
+        "role": "Terraform working directory",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "terraform-aws-001",
+    "slug": "terraform-aws",
+    "title": "Terraform for AWS: Write Real HCL",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/iac:latest",
+    "denyInternetEgress": true,
+    "shell": "terraform_cli",
+    "workbench": null,
+    "estimatedMinutes": 90,
+    "objectives": 10,
+    "objectivesWithHints": 10,
+    "validators": [
+      "tfa_backend_configured",
+      "tfa_capstone",
+      "tfa_data_source",
+      "tfa_ec2_defined",
+      "tfa_module_defined",
+      "tfa_provider_configured",
+      "tfa_rds_outputs",
+      "tfa_variables_iam",
+      "tfa_vpc_defined",
+      "tfa_workspace_used"
+    ],
+    "targets": [
+      {
+        "hostname": "aws-infra",
+        "role": "Terraform working directory for AWS",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "terraform-azure-001",
+    "slug": "terraform-azure",
+    "title": "Terraform for Azure: Write Real HCL",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/iac:latest",
+    "denyInternetEgress": true,
+    "shell": "terraform_cli",
+    "workbench": null,
+    "estimatedMinutes": 75,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "taz_backend_configured",
+      "taz_capstone",
+      "taz_network_defined",
+      "taz_outputs_defined",
+      "taz_provider_configured",
+      "taz_storage_defined",
+      "taz_variables_defined",
+      "taz_vm_nsg_defined"
+    ],
+    "targets": [
+      {
+        "hostname": "azure-infra",
+        "role": "Terraform working directory for Azure",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "terraform-gcp-001",
+    "slug": "terraform-gcp",
+    "title": "Terraform for GCP: Write Every .tf File",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/iac:latest",
+    "denyInternetEgress": true,
+    "shell": "terraform_cli",
+    "workbench": null,
+    "estimatedMinutes": 60,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "gcp_applied",
+      "gcp_backend_destroyed",
+      "gcp_compute_written",
+      "gcp_misconfig_fixed",
+      "gcp_network_written",
+      "gcp_provider_written",
+      "gcp_storage_security_written",
+      "gcp_vars_outputs_written"
+    ],
+    "targets": [
+      {
+        "hostname": "gcp-infra",
+        "role": "Terraform working directory (GCP)",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "terraform-proxmox-001",
+    "slug": "terraform-proxmox",
+    "title": "Terraform for Proxmox VE",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/iac:latest",
+    "denyInternetEgress": true,
+    "shell": "terraform_cli",
+    "workbench": null,
+    "estimatedMinutes": 60,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "px_clone_fixed",
+      "px_destroyed",
+      "px_lxc_deployed",
+      "px_outputs_read",
+      "px_provider_configured",
+      "px_stack_deployed",
+      "px_variables_configured",
+      "px_vm_deployed"
+    ],
+    "targets": [
+      {
+        "hostname": "homelab",
+        "role": "Terraform working directory (Proxmox)",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "sec-logtriage-001",
+    "slug": "brute-force-log-triage",
+    "title": "Log Triage: Brute-Force Investigation",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/log-triage:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_logs",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "account_identified",
+      "attacker_ip",
+      "breach_found",
+      "failed_found",
+      "log_viewed"
+    ],
+    "targets": [
+      {
+        "hostname": "web01",
+        "role": "SSH server under investigation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "siem-hunting-001",
+    "slug": "siem-threat-hunting",
+    "title": "SIEM Threat Hunting",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/siem-hunting:latest",
+    "denyInternetEgress": true,
+    "shell": "siem_cli",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "siem_alerts_triaged",
+      "siem_dns_tunnel",
+      "siem_exfil_host",
+      "siem_hosts_isolated",
+      "siem_malware_c2",
+      "siem_rdp_attacker",
+      "siem_rdp_timeline",
+      "siem_report_done"
+    ],
+    "targets": [
+      {
+        "hostname": "siem.corp.local",
+        "role": "Centralized log store under investigation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "ws-finance01",
+        "role": "Workstation hit by RDP brute-force",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "ws-hr02",
+        "role": "Workstation exfiltrating over DNS",
+        "intentionallyVulnerable": true
+      },
+      {
+        "hostname": "ws-sales03",
+        "role": "Workstation with malware callback",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "net-vlan-001",
+    "slug": "vlan-inter-vlan-routing",
+    "title": "VLANs and Inter-VLAN Routing",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 35,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "access_ports_configured",
+      "intervlan_connectivity",
+      "router_subinterfaces_configured",
+      "trunk_configured",
+      "vlans_created"
+    ],
+    "targets": [
+      {
+        "hostname": "SW1",
+        "role": "Access/trunk switch",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R1",
+        "role": "Router-on-a-stick",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC1",
+        "role": "Host in VLAN 10",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC2",
+        "role": "Host in VLAN 20",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-static-routing-001",
+    "slug": "static-routing",
+    "title": "Static Routing Between Two Sites",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 35,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "end_to_end_connectivity",
+      "r1_interfaces_configured",
+      "r1_static_route",
+      "r2_interfaces_configured",
+      "r2_static_route"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Site 1 router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "Site 2 router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC1",
+        "role": "Host in LAN1",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC2",
+        "role": "Host in LAN2",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-subnetting-001",
+    "slug": "subnetting-mastery",
+    "title": "Subnetting Mastery",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "subnet",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "subnet_problem_solved"
+    ],
+    "targets": [
+      {
+        "hostname": "netlab",
+        "role": "Subnetting workstation (no devices needed)",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-acl-001",
+    "slug": "access-control-lists",
+    "title": "Filtering Traffic with ACLs",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "acl_applied",
+      "acl_denies_guest",
+      "acl_permits_others",
+      "guest_blocked",
+      "trusted_allowed"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Router between the two LANs",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC1",
+        "role": "Trusted host (192.168.1.10)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "GUEST",
+        "role": "Untrusted host (192.168.1.20)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "SRV",
+        "role": "Server (192.168.2.10)",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-ospf-001",
+    "slug": "ospf-single-area",
+    "title": "OSPF Single-Area Configuration",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 35,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "ospf_adjacencies",
+      "ospf_connectivity",
+      "r1_ospf",
+      "r2_ospf",
+      "r3_ospf"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Edge router (PC-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "Transit router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R3",
+        "role": "Edge router (Server-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC-A",
+        "role": "Host on R1's LAN",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "Server-A",
+        "role": "Host on R3's LAN",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-ospf-tshoot-001",
+    "slug": "ospf-troubleshooting",
+    "title": "OSPF Troubleshooting",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 3,
+    "objectivesWithHints": 3,
+    "validators": [
+      "ospf_adjacencies",
+      "ospf_connectivity",
+      "r2_ospf"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Edge router (PC-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "Transit router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R3",
+        "role": "Edge router (Server-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC-A",
+        "role": "Host on R1's LAN",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "Server-A",
+        "role": "Host on R3's LAN",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-eigrp-001",
+    "slug": "eigrp-configuration",
+    "title": "EIGRP Configuration",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 35,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "eigrp_adjacencies",
+      "eigrp_connectivity",
+      "r1_eigrp",
+      "r2_eigrp",
+      "r3_eigrp"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Edge router (PC-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "Transit router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R3",
+        "role": "Edge router (Server-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC-A",
+        "role": "Host on R1's LAN",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "Server-A",
+        "role": "Host on R3's LAN",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-eigrp-tshoot-001",
+    "slug": "eigrp-troubleshooting",
+    "title": "EIGRP Troubleshooting",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 3,
+    "objectivesWithHints": 3,
+    "validators": [
+      "eigrp_adjacencies",
+      "eigrp_connectivity",
+      "r2_eigrp"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Edge router (PC-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "Transit router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R3",
+        "role": "Edge router (Server-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC-A",
+        "role": "Host on R1's LAN",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "Server-A",
+        "role": "Host on R3's LAN",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-rip-001",
+    "slug": "rip-configuration",
+    "title": "RIP Configuration",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "r1_rip",
+      "r2_rip",
+      "r3_rip",
+      "rip_connectivity",
+      "rip_routes_learned"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Edge router (PC-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "Transit router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R3",
+        "role": "Edge router (Server-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC-A",
+        "role": "Host on R1's LAN",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "Server-A",
+        "role": "Host on R3's LAN",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-rip-tshoot-001",
+    "slug": "rip-troubleshooting",
+    "title": "RIP Troubleshooting",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 3,
+    "objectivesWithHints": 3,
+    "validators": [
+      "r2_rip",
+      "rip_connectivity",
+      "rip_routes_learned"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "Edge router (PC-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "Transit router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R3",
+        "role": "Edge router (Server-A LAN)",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC-A",
+        "role": "Host on R1's LAN",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "Server-A",
+        "role": "Host on R3's LAN",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-bgp-001",
+    "slug": "ebgp-configuration",
+    "title": "eBGP Configuration",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "cisco_ios",
+    "workbench": null,
+    "estimatedMinutes": 35,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "bgp_advertised",
+      "bgp_connectivity",
+      "bgp_peering",
+      "r1_bgp",
+      "r2_bgp"
+    ],
+    "targets": [
+      {
+        "hostname": "R1",
+        "role": "AS 65001 edge router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "R2",
+        "role": "AS 65002 edge router",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC1",
+        "role": "Host in AS 65001's LAN",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "PC2",
+        "role": "Host in AS 65002's LAN",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "net-dns-connectivity-001",
+    "slug": "dns-and-connectivity",
+    "title": "DNS & Connectivity Troubleshooting",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": null,
+    "denyInternetEgress": true,
+    "shell": "linux_net",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "dns",
+      "gateway",
+      "local_ip",
+      "service",
+      "trace"
+    ],
+    "targets": [
+      {
+        "hostname": "workstation",
+        "role": "Client to diagnose from",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "cloud-aws-audit-001",
+    "slug": "cloud-security-audit",
+    "title": "Cloud Security Audit with the AWS CLI",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/cloudshell:latest",
+    "denyInternetEgress": true,
+    "shell": "aws_audit",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "admin_user",
+      "bucket_list",
+      "open_ssh",
+      "public_bucket",
+      "stale_key"
+    ],
+    "targets": [
+      {
+        "hostname": "globomantics-dev",
+        "role": "AWS account under audit",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "cloud-terraform-001",
+    "slug": "terraform-provision-and-secure",
+    "title": "Terraform: Provision & Secure Infrastructure",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/iac:latest",
+    "denyInternetEgress": true,
+    "shell": "terraform",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "applied",
+      "config_viewed",
+      "init_done",
+      "plan_done",
+      "security_issue"
+    ],
+    "targets": [
+      {
+        "hostname": "infra",
+        "role": "Terraform working directory",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "aws-cli-001",
+    "slug": "aws-cli-fundamentals",
+    "title": "AWS CLI Fundamentals",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/aws-cli:latest",
+    "denyInternetEgress": true,
+    "shell": "aws_cli",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "awsc_alarms_reviewed",
+      "awsc_alb_inspected",
+      "awsc_bucket_created",
+      "awsc_cleanup_done",
+      "awsc_identity_checked",
+      "awsc_instance_launched",
+      "awsc_instances_listed",
+      "awsc_vpc_built"
+    ],
+    "targets": [
+      {
+        "hostname": "aws-account",
+        "role": "AWS account 123456789012 (simulated)",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "aws-iam-001",
+    "slug": "iam-policies-least-privilege",
+    "title": "IAM Policies & Least Privilege",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/cloudshell:latest",
+    "denyInternetEgress": true,
+    "shell": "iam_cli",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "iam_boundary_set",
+      "iam_flaw_found",
+      "iam_identities_listed",
+      "iam_policies_read",
+      "iam_policy_fixed",
+      "iam_sim_allow",
+      "iam_trust_fixed",
+      "iam_verified"
+    ],
+    "targets": [
+      {
+        "hostname": "iam-workbench",
+        "role": "Simulated IAM policy workbench",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "sec-docker-siem-001",
+    "slug": "docker-siem-container-security",
+    "title": "Docker + SIEM: Container Security Monitoring",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/docker-siem:latest",
+    "denyInternetEgress": true,
+    "shell": "docker_siem",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 9,
+    "objectivesWithHints": 9,
+    "validators": [
+      "attacker_identified",
+      "bruteforce_found",
+      "compose_up",
+      "container_investigated",
+      "docker_verified",
+      "network_created",
+      "nginx_running",
+      "siem_searched",
+      "volume_created"
+    ],
+    "targets": [
+      {
+        "hostname": "docker-host",
+        "role": "Ubuntu Docker host",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "lab-nginx",
+        "role": "Nginx container",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "lab-api",
+        "role": "FastAPI container",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "lab-postgres",
+        "role": "PostgreSQL container",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "docker-fundamentals-001",
+    "slug": "docker-fundamentals",
+    "title": "Docker Fundamentals: Containers by Doing",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/docker-fundamentals:latest",
+    "denyInternetEgress": true,
+    "shell": "docker_cli",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "df_compose_up",
+      "df_container_explored",
+      "df_container_running",
+      "df_engine_verified",
+      "df_image_built",
+      "df_network_connected",
+      "df_port_mapped",
+      "df_volume_persisted"
+    ],
+    "targets": [
+      {
+        "hostname": "docker-host",
+        "role": "Ubuntu Docker host (simulated)",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "sec-c2beacon-001",
+    "slug": "c2-beacon-hunt",
+    "title": "C2 Beacon Hunt",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/log-triage:latest",
+    "denyInternetEgress": true,
+    "shell": "logfile",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "beacon_dst",
+      "beacon_host",
+      "c2_http",
+      "c2_ua",
+      "log_viewed"
+    ],
+    "targets": [
+      {
+        "hostname": "soc",
+        "role": "SOC analyst workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "sec-dns-typo-001",
+    "slug": "dns-tunneling-and-typosquatting",
+    "title": "DNS Tunneling & Typosquatting",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/log-triage:latest",
+    "denyInternetEgress": true,
+    "shell": "logfile",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "dns_client",
+      "dns_tunnel",
+      "dns_txt",
+      "dns_typo",
+      "log_viewed"
+    ],
+    "targets": [
+      {
+        "hostname": "soc",
+        "role": "SOC analyst workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "sec-ransomware-001",
+    "slug": "ransomware-over-smb",
+    "title": "Ransomware over SMB",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/log-triage:latest",
+    "denyInternetEgress": true,
+    "shell": "logfile",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "log_viewed",
+      "rw_ext",
+      "rw_host",
+      "rw_note",
+      "rw_scope"
+    ],
+    "targets": [
+      {
+        "hostname": "soc",
+        "role": "SOC analyst workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "py-basics-001",
+    "slug": "python-scripting-basics",
+    "title": "Python Scripting Basics",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/python-basics:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_python",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "py_basics_loop",
+      "py_basics_print",
+      "py_script_run",
+      "py_script_written",
+      "py_version"
+    ],
+    "targets": [
+      {
+        "hostname": "auto01",
+        "role": "Your Python workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "py-netauto-001",
+    "slug": "python-network-automation",
+    "title": "Python for Network Automation",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/python-netauto:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_python",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "py_netauto_generate",
+      "py_netauto_parse",
+      "py_netauto_saved",
+      "py_netauto_verified",
+      "py_version"
+    ],
+    "targets": [
+      {
+        "hostname": "auto01",
+        "role": "Your automation workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "SW-ACCESS-01",
+        "role": "Switch whose config you parse",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "py-automation-001",
+    "slug": "python-automation",
+    "title": "Automate with Python",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/python-automation:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_python",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "py_api_called",
+      "py_failed_count",
+      "py_ips_extracted",
+      "py_scan_done",
+      "py_version"
+    ],
+    "targets": [
+      {
+        "hostname": "auto01",
+        "role": "Your automation workstation",
+        "intentionallyVulnerable": false
+      },
+      {
+        "hostname": "127.0.0.1",
+        "role": "Localhost \u2014 the alerts API listens here",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-terminal-001",
+    "slug": "linux-terminal",
+    "title": "Linux Terminal Essentials",
+    "provider": "mock",
+    "executionModel": "simulated (mock command interpreter)",
+    "image": "road-to-cissp/linux-terminal:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 45,
+    "objectives": 8,
+    "objectivesWithHints": 8,
+    "validators": [
+      "lt_backup_created",
+      "lt_errors_extracted",
+      "lt_navigated",
+      "lt_nginx_fixed",
+      "lt_permissions_hardened",
+      "lt_runaway_killed",
+      "lt_ssh_port_found",
+      "lt_user_created"
+    ],
+    "targets": [
+      {
+        "hostname": "linux-lab",
+        "role": "Ubuntu 24.04 workstation (simulated)",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-users-001",
+    "slug": "linux-users-groups-sudo",
+    "title": "Linux Users, Groups & sudo",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 6,
+    "objectivesWithHints": 6,
+    "validators": [
+      "linux_group_created",
+      "linux_sudo_listed",
+      "linux_sudoers_entry",
+      "linux_sudoers_syntax_ok",
+      "linux_user_created",
+      "linux_user_in_group"
+    ],
+    "targets": [
+      {
+        "hostname": "sysadmin01",
+        "role": "Linux administration workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-permissions-001",
+    "slug": "linux-permissions-acls",
+    "title": "Permissions & ACLs",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "linux_perm_acl",
+      "linux_perm_group_dir",
+      "linux_perm_script",
+      "linux_perm_secret",
+      "linux_perm_sticky"
+    ],
+    "targets": [
+      {
+        "hostname": "sysadmin01",
+        "role": "Linux administration workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-ssh-001",
+    "slug": "linux-ssh-hardening",
+    "title": "SSH Hardening",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "linux_ssh_config_viewed",
+      "linux_ssh_key_login",
+      "linux_ssh_keypair",
+      "linux_sshd_hardened",
+      "linux_sshd_listening"
+    ],
+    "targets": [
+      {
+        "hostname": "sysadmin01",
+        "role": "Linux administration workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-firewall-001",
+    "slug": "linux-host-firewall",
+    "title": "Host Firewall",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 4,
+    "objectivesWithHints": 4,
+    "validators": [
+      "linux_fw_checker_pass",
+      "linux_fw_default_deny",
+      "linux_fw_rules_written",
+      "linux_fw_ssh_allowed"
+    ],
+    "targets": [
+      {
+        "hostname": "sysadmin01",
+        "role": "Linux administration workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-services-001",
+    "slug": "linux-service-troubleshooting",
+    "title": "Service Troubleshooting",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "linux_svc_cache_running",
+      "linux_svc_logs_read",
+      "linux_svc_root_causes",
+      "linux_svc_web_running",
+      "linux_svc_worker_running"
+    ],
+    "targets": [
+      {
+        "hostname": "sysadmin01",
+        "role": "Linux administration workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-cron-001",
+    "slug": "linux-cron-automation",
+    "title": "Cron & Automation",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 4,
+    "objectivesWithHints": 4,
+    "validators": [
+      "linux_cron_job_ran",
+      "linux_cron_jobs_written",
+      "linux_cron_scheduler_running",
+      "linux_cron_syntax_valid"
+    ],
+    "targets": [
+      {
+        "hostname": "sysadmin01",
+        "role": "Linux administration workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-audit-001",
+    "slug": "linux-audit-fail2ban",
+    "title": "Audit Logs & fail2ban",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 6,
+    "objectivesWithHints": 6,
+    "validators": [
+      "linux_audit_log_viewed",
+      "linux_audit_offense_count",
+      "linux_audit_top_offender",
+      "linux_fail2ban_regex",
+      "linux_jail_configured",
+      "linux_would_ban"
+    ],
+    "targets": [
+      {
+        "hostname": "sysadmin01",
+        "role": "Linux administration workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "linux-hardening-001",
+    "slug": "linux-hardening-capstone",
+    "title": "Hardening Capstone",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/linux-admin-hardening:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 7,
+    "objectivesWithHints": 7,
+    "validators": [
+      "linux_posture_all_pass",
+      "linux_posture_cron",
+      "linux_posture_firewall",
+      "linux_posture_perms",
+      "linux_posture_ssh",
+      "linux_posture_started",
+      "linux_posture_sudoers"
+    ],
+    "targets": [
+      {
+        "hostname": "bastion",
+        "role": "Misconfigured bastion host (hardening target)",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "tools-wireshark-001",
+    "slug": "wireshark-tshark-packet-analysis",
+    "title": "Wireshark / tshark Packet Analysis",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/wireshark:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 6,
+    "objectivesWithHints": 6,
+    "validators": [
+      "ws_capture_opened",
+      "ws_credentials_found",
+      "ws_dns_exfil_found",
+      "ws_protocols_identified",
+      "ws_report_written",
+      "ws_tcp_stream_followed"
+    ],
+    "targets": [
+      {
+        "hostname": "analyst-ws",
+        "role": "Analyst workstation with seeded captures",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "sec-webapp-001",
+    "slug": "web-app-testing-sqli-xss",
+    "title": "Web App Testing: SQLi & XSS",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/webapp:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 30,
+    "objectives": 6,
+    "objectivesWithHints": 6,
+    "validators": [
+      "webapp_enumerated",
+      "webapp_fix_proposed",
+      "webapp_loopback_verified",
+      "webapp_sqli_extracted",
+      "webapp_sqli_proven",
+      "webapp_xss_reflected"
+    ],
+    "targets": [
+      {
+        "hostname": "target.lab",
+        "role": "Vulnerable test application",
+        "intentionallyVulnerable": true
+      }
+    ]
+  },
+  {
+    "id": "sec-gitleaks-001",
+    "slug": "secret-scanning-with-gitleaks",
+    "title": "Secret Scanning with gitleaks",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/gitleaks:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "gitleaks_history_found",
+      "gitleaks_precommit_added",
+      "gitleaks_remediated",
+      "gitleaks_run",
+      "gitleaks_types_identified"
+    ],
+    "targets": [
+      {
+        "hostname": "dev-ws",
+        "role": "Developer workstation with a leaky repo",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "sec-trivy-001",
+    "slug": "container-image-scanning-with-trivy",
+    "title": "Container Image Scanning with Trivy",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/trivy:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "trivy_critical_identified",
+      "trivy_fixed_version_found",
+      "trivy_remediation_written",
+      "trivy_report_saved",
+      "trivy_scan_run"
+    ],
+    "targets": [
+      {
+        "hostname": "devsecops01",
+        "role": "DevSecOps workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "iac-policy-001",
+    "slug": "terraform-policy-as-code",
+    "title": "Terraform Policy as Code",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/iac-policy:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_cli",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "tfpolicy_all_green",
+      "tfpolicy_config_viewed",
+      "tfpolicy_conftest_run",
+      "tfpolicy_tfsec_run",
+      "tfpolicy_violations_fixed"
+    ],
+    "targets": [
+      {
+        "hostname": "devsecops01",
+        "role": "DevSecOps workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "py-loganalysis-001",
+    "slug": "python-log-analysis",
+    "title": "Python Log Analysis",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/python-tools:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_python",
+    "workbench": null,
+    "estimatedMinutes": 20,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "pylog_attacker_ips",
+      "pylog_failed_count",
+      "pylog_report_written",
+      "pylog_scan_src",
+      "pylog_top_user"
+    ],
+    "targets": [
+      {
+        "hostname": "auto01",
+        "role": "Your Python workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "py-sqli-001",
+    "slug": "fixing-sql-injection",
+    "title": "Fixing SQL Injection",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/python-tools:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_python",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "sqli_fix_applied",
+      "sqli_injection_blocked",
+      "sqli_injection_demo",
+      "sqli_insert_vuln",
+      "sqli_vuln_located"
+    ],
+    "targets": [
+      {
+        "hostname": "auto01",
+        "role": "Your Python workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  },
+  {
+    "id": "py-semgrep-001",
+    "slug": "static-analysis-semgrep",
+    "title": "Static Analysis with Semgrep",
+    "provider": "docker",
+    "executionModel": "real container (Docker, hardened) when enabled",
+    "image": "road-to-cissp/python-tools:latest",
+    "denyInternetEgress": true,
+    "shell": "linux_python",
+    "workbench": null,
+    "estimatedMinutes": 25,
+    "objectives": 5,
+    "objectivesWithHints": 5,
+    "validators": [
+      "semgrep_clean",
+      "semgrep_scanned",
+      "semgrep_secret_fixed",
+      "semgrep_shell_fixed",
+      "semgrep_triaged"
+    ],
+    "targets": [
+      {
+        "hostname": "auto01",
+        "role": "Your Python workstation",
+        "intentionallyVulnerable": false
+      }
+    ]
+  }
+]

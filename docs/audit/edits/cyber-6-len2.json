@@ -1,0 +1,19 @@
+{
+  "cy-governance": {
+    "11": [2, "Categorize, Select, Implement, Assess, Authorize, Monitor, then Retire the system"],
+    "33": [1, "The vendor's marketing slides, customer testimonials and the sales team's assurances"],
+    "39": [0, "PII: health data; PHI: cardholder data; PCI: any information about a person"],
+    "42": [0, "Opt-in: collect first and ask later; opt-out: ask before any data is collected"],
+    "44": [1, "The processor decides the purposes and means; the controller only follows instructions"],
+    "48": [2, "How quickly their sales team responds to enquiries and how polished their proposal is"],
+    "49": [2, "Free upgrades to new versions of the vendor's product for the life of the contract"]
+  },
+  "cy-ir-forensics": {
+    "4": [2, "Planning the dates and times of the next penetration test against the network"],
+    "15": [2, "Contact the attacker to negotiate a delay while backups are checked"],
+    "23": [0, "To compress the evidence so that it fits on a smaller forensic drive"],
+    "27": [1, "3 sites, 2 cloud providers and 1 tape library, all kept in sync"],
+    "28": [2, "Testing restores is not allowed on production systems by most auditors"],
+    "34": [2, "Wait for more alerts to arrive before declaring anything or calling anyone"]
+  }
+}

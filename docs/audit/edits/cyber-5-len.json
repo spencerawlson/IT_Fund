@@ -1,0 +1,36 @@
+{
+  "cy-secure-proto": {
+    "9": [2, "SFTP is plain FTP with a password; FTPS adds TLS"],
+    "16": [0, "A voice codec that compresses speech so calls use less bandwidth"],
+    "23": [0, "A legitimate access point that still uses a weak default password"],
+    "26": [0, "Many password guesses fired at the access point in a short time"],
+    "28": [1, "Leaking the saved Wi-Fi passwords of every paired device nearby"],
+    "31": [0, "It slows down the wireless network for every connected client"],
+    "33": [0, "5 GHz signals are encrypted by default, unlike 2.4 GHz"]
+  },
+  "cy-risk": {
+    "2": [1, "Residual is the risk before controls; inherent is what remains after"],
+    "4": [2, "Whoever found the risk, because they understand it best"],
+    "6": [1, "Once, when the system is first designed, and never again afterwards"],
+    "9": [0, "Ignoring the risk until it happens and then reporting it"],
+    "10": [2, "Awareness training for staff and stronger password rules"],
+    "11": [1, "Only when avoiding it costs nothing and nobody objects to the change"],
+    "12": [0, "A statement of how much risk the board is willing to accept"],
+    "13": [1, "Only after an external audit has asked for an updated version"],
+    "14": [1, "The penetration test scope and the list of systems to exclude"],
+    "15": [2, "The time it takes the monitoring team to detect an outage after it starts"],
+    "17": [1, "Replacing leaders after an incident with people from outside the company"],
+    "20": [0, "Always the cheapest (cold) site, since recovery is rarely needed"],
+    "22": [1, "A redundant pair of servers that share the load between them"],
+    "23": [0, "It is cheaper to run two distant sites than two sites close together"],
+    "24": [0, "Load testing wears generators out faster than it proves them"],
+    "26": [1, "Publishing the tree on the intranet is enough for staff to follow it"],
+    "28": [2, "Nothing, as long as the weekly tape is stored off-site in a secure vault"],
+    "31": [2, "It is legally required for every business"],
+    "34": [1, "Adding up the ALEs of unrelated systems to produce one total figure"],
+    "35": [2, "To limit the insurer's liability if the risk is ever realised"],
+    "38": [2, "Patch the oldest findings first, whatever their severity"],
+    "39": [0, "To calculate staff bonuses for the vulnerability team"],
+    "42": [2, "Skipping reports when nothing has changed since the last quarter"]
+  }
+}

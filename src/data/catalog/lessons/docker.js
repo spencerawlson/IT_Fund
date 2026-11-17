@@ -22,6 +22,20 @@ export default {
           'One image can spawn many containers, each independent. Run `docker run nginx` and Docker pulls the image if it is not local, creates the container, and starts it \u2014 that single command is the entire deployment story for simple cases. `docker ps` shows what is running; `docker images` shows the templates waiting on disk. The engine itself is two parts: the dockerd daemon that does the work, and the CLI that talks to it over an API.',
         ],
       },
+      {
+        heading: 'How containers are isolated',
+        body: [
+          'A container is an ordinary Linux process with restricted views of the system. Namespaces give it its own process IDs, network interfaces, mount points and hostname, so it sees only its own processes and files. Control groups (cgroups) limit how much CPU, memory and I/O it can use. Because containers share the host\'s kernel, they start in milliseconds and use little memory, but they are not as strongly isolated as virtual machines.',
+          'That shared kernel matters for security and portability. A kernel vulnerability can let a process escape its container, and Linux containers need a Linux kernel: Docker Desktop on Windows and macOS runs them inside a lightweight Linux VM. When strong isolation between tenants is required, use VMs, or sandboxed runtimes such as gVisor or Kata Containers.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Image vs container',
+        code: '$ docker pull nginx:1.27            # download an image (read-only template)\n$ docker run -d --name web -p 8080:80 nginx:1.27   # start a container from it\n$ docker ps\nCONTAINER ID  IMAGE       STATUS        PORTS                  NAMES\n3f1c2a...     nginx:1.27  Up 5 seconds  0.0.0.0:8080->80/tcp   web\n$ docker stop web && docker rm web',
+        explanation: 'One image can start many containers. Removing a container deletes its writable layer, not the image.',
+      },
     ],
     cheatSheet: [
       ['Container', 'Isolated process sharing the host kernel \u2014 lightweight, fast to start'],
@@ -54,6 +68,20 @@ export default {
           'Two more habits complete the picture. A .dockerignore file keeps .git, node_modules and other build-irrelevant bulk out of the build context, so less data crosses to the daemon and images stay lean. And remember that each RUN creates a layer \u2014 the cache is your friend during development, but a bloated layer history is your enemy in production, a theme the optimization lesson takes further.',
         ],
       },
+      {
+        heading: 'Writing a good Dockerfile',
+        body: [
+          'Pin the base image to a specific version, such as `python:3.12-slim`, rather than `latest`, so builds are reproducible. Add a `.dockerignore` file listing `.git`, `node_modules`, test data and secrets, so they are never sent to the build or copied into the image. Combine related commands into one `RUN` and clean up in the same step, for example `apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*`, because files deleted in a later layer still take up space in an earlier one.',
+          'Know the difference between `CMD` and `ENTRYPOINT`: `ENTRYPOINT` sets the executable and `CMD` supplies default arguments that `docker run` can override. Use the exec form (`["python", "app.py"]`) so the process receives signals and stops cleanly. Never pass secrets with `ARG` or `ENV`, which are visible in the image history; use BuildKit secret mounts (`RUN --mount=type=secret`) instead.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A cache-friendly Dockerfile',
+        code: 'FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt   # cached until requirements change\nCOPY . .                                            # code changes only rebuild from here\nUSER 1000\nCMD ["python", "app.py"]',
+        explanation: 'Copy the dependency file and install before copying source code, so editing code does not reinstall every package.',
+      },
     ],
     cheatSheet: [
       ['FROM', 'Sets the base image; (almost) always the first instruction'],
@@ -85,6 +113,20 @@ export default {
           'A running container is not a black box. `docker exec -it <container> sh` starts a new shell inside the existing container \u2014 exec runs alongside the main process, it does not replace it. `docker logs` (with -f to follow) shows what the main process has printed, which is where every debugging session begins. And `docker stop` followed by `docker rm` ends the lifecycle; `docker rm -f` does both at once.',
           'Here is the truth that surprises everyone once: anything written inside the container \u2014 outside a volume \u2014 dies with it. The container\u2019s writable layer is deleted on removal, by design. Containers are ephemeral; they are cattle, not pets. If the data matters, it belongs in a volume, which is exactly where the next lesson begins.',
         ],
+      },
+      {
+        heading: 'Container lifecycle and cleanup',
+        body: [
+          'A container moves through created, running, paused, stopped and removed states. `docker stop` sends SIGTERM and, after a grace period (10 seconds by default), SIGKILL, so applications should handle SIGTERM and shut down cleanly. `docker kill` sends SIGKILL immediately. A stopped container keeps its writable layer until you remove it, which is why `docker ps -a` often shows a long list of exited containers.',
+          'Clean up regularly: `docker container prune` removes stopped containers, `docker image prune` removes dangling images, and `docker system df` shows how much space images, containers, volumes and build cache use. `docker system prune -a --volumes` removes everything unused, including volumes, so read its warning before running it on a machine with data you need.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Common run options',
+        code: 'docker run -d \\\n  --name api \\\n  -p 127.0.0.1:8000:8000 \\\n  -e DATABASE_URL=postgres://db:5432/app \\\n  --restart unless-stopped \\\n  --memory 512m --cpus 1 \\\n  myorg/api:1.4.2',
+        explanation: 'Binding to 127.0.0.1 keeps the port off the public interface; limits stop one container starving the host; pin an image tag rather than latest.',
       },
     ],
     cheatSheet: [
@@ -119,6 +161,20 @@ export default {
           'Two special modes complete the picture. `--network host` shares the host\u2019s network stack outright \u2014 no port mapping needed, slightly faster, but the container gives up network isolation (and it behaves differently on non-Linux hosts). `--network none` is the opposite: no networking at all, for untrusted or fully offline workloads. Most of the time, though, you will live on a bridge network and let DNS do the work.',
         ],
       },
+      {
+        heading: 'Backing up volumes and publishing ports safely',
+        body: [
+          'Volumes live outside the container, so they need their own backups. A common method mounts the volume into a temporary container and archives it: `docker run --rm -v pgdata:/data -v "$PWD":/backup alpine tar czf /backup/pgdata.tgz -C /data .`. For databases, prefer the database\'s own dump tool (`pg_dump`, `mysqldump`) so the backup is consistent rather than a copy of files being written.',
+          'Publishing a port with `-p 8080:80` binds to every host interface by default, making the service reachable from the network. Bind to `127.0.0.1:8080:80` for services only the host should reach. Also note that Docker writes its own iptables rules for published ports, which can bypass host firewall rules such as ufw; check what is actually exposed with `ss -tlnp` and a scan from another machine.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Named volume and user-defined network',
+        code: 'docker network create appnet\ndocker volume create pgdata\ndocker run -d --name db --network appnet -v pgdata:/var/lib/postgresql/data \\\n  -e POSTGRES_PASSWORD_FILE=/run/secrets/pg postgres:16\ndocker run -d --name api --network appnet myorg/api:1.4.2\n# inside api, the database is reachable at host name \'db\'',
+        explanation: 'Containers on a user-defined network resolve each other by name (the default bridge does not), and the named volume keeps data when the db container is replaced.',
+      },
     ],
     cheatSheet: [
       ['Volume', 'Docker-managed persistent storage; survives container removal'],
@@ -150,6 +206,20 @@ export default {
           'Configuration lives with the service, not in the image: the environment: mapping (or env_file:) keeps secrets and settings out of built artifacts, where they belong. When code changes, `docker compose up --build` rebuilds the images that have a build context before starting. And when one service needs muscle, `docker compose up --scale web=3` runs three copies \u2014 Compose handles the replicas while something upstream spreads the traffic.',
           'Compose is deliberately single-host: it orchestrates containers on one machine beautifully, and that covers development, CI, demos, and small production deployments. When you outgrow one host \u2014 true clustering, self-healing across machines \u2014 that is the moment Kubernetes enters the picture, and the next track is waiting.',
         ],
+      },
+      {
+        heading: 'Environments, overrides and secrets in Compose',
+        body: [
+          'Compose reads variables from a `.env` file in the project directory and substitutes them into `compose.yaml`, for example `image: myapp:${APP_VERSION}`. Per-environment differences go in override files: `compose.override.yaml` is merged automatically for local development, and `docker compose -f compose.yaml -f compose.prod.yaml up -d` applies production settings. `docker compose config` prints the final merged configuration, which is the quickest way to check what will run.',
+          'Keep secrets out of the YAML and out of version control. Compose supports a `secrets:` section that mounts files at `/run/secrets/<name>` inside the container, which many official images read through `_FILE` variables such as `POSTGRES_PASSWORD_FILE`. Profiles (`profiles: [debug]`) let optional services such as admin tools start only when requested with `--profile debug`.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A compose file with a health check',
+        code: 'services:\n  db:\n    image: postgres:16\n    volumes: [pgdata:/var/lib/postgresql/data]\n    healthcheck:\n      test: ["CMD-SHELL", "pg_isready -U postgres"]\n      interval: 5s\n  api:\n    build: .\n    ports: ["8000:8000"]\n    depends_on:\n      db: { condition: service_healthy }\nvolumes:\n  pgdata:',
+        explanation: 'depends_on with service_healthy waits until the database actually accepts connections, not just until its container has started.',
       },
     ],
     cheatSheet: [
@@ -183,6 +253,20 @@ export default {
           'But a registry is a shelf, not a guarantee. Base images and their dependencies carry known vulnerabilities, and pulling blindly is how CVEs enter production. Scan images \u2014 with Trivy, Docker Scout, or your registry\u2019s built-in scanner \u2014 before they run, ideally as a gate in CI that fails the build. Trust the pipeline, verify the artifact.',
         ],
       },
+      {
+        heading: 'Signing, scanning and retention',
+        body: [
+          'Before deployment, scan images for known vulnerabilities with tools such as Trivy, Grype or the registry\'s built-in scanner, and fail the pipeline on critical findings that have a fix. Generate a software bill of materials (SBOM) so you can answer \'which images contain this vulnerable library?\' when the next major CVE is announced.',
+          'Signing proves an image came from your pipeline and has not been altered. Sigstore\'s cosign signs an image digest and stores the signature in the registry, and admission policies in Kubernetes can refuse unsigned images. Set retention rules in the registry to delete old untagged images, and make release tags immutable where the registry supports it, so `app:1.4.2` always means the same image.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Tag and push to a registry',
+        code: 'docker build -t myorg/api:1.4.2 .\ndocker tag myorg/api:1.4.2 ghcr.io/myorg/api:1.4.2\necho $GHCR_TOKEN | docker login ghcr.io -u myorg --password-stdin\ndocker push ghcr.io/myorg/api:1.4.2\ndocker buildx imagetools inspect ghcr.io/myorg/api:1.4.2   # shows the digest',
+        explanation: 'The registry host is part of the image name. Deploy by digest (@sha256:...) for an immutable reference; tags can be moved.',
+      },
     ],
     cheatSheet: [
       ['Registry', 'Stores/distributes images: Docker Hub, GHCR, ECR'],
@@ -215,6 +299,20 @@ export default {
           'Finally, verify. Scan every image for known CVEs with Trivy or Docker Scout and gate the pipeline on the results. Sign images with a tool like cosign so clusters can verify authenticity before deploying \u2014 in a supply-chain-attack world, \u201Cthis exact image came from our CI\u201D is a claim worth proving, not assuming.',
         ],
       },
+      {
+        heading: 'Hardening at run time',
+        body: [
+          'Image hardening is half the job; the run options decide what a compromised container can do. Drop all Linux capabilities and add back only what is needed (`--cap-drop ALL --cap-add NET_BIND_SERVICE`), prevent privilege escalation with `--security-opt no-new-privileges`, make the root filesystem read-only with a tmpfs for scratch space, and set memory, CPU and PID limits. Never use `--privileged` for application containers.',
+          'Never mount the Docker socket (`/var/run/docker.sock`) into an application container: whoever controls the socket controls the host. Rootless mode runs the Docker daemon itself as an unprivileged user, and user namespace remapping maps root inside the container to an unprivileged user on the host. Docker Bench for Security checks a host against the CIS Docker Benchmark.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Multi-stage build to a minimal image',
+        code: 'FROM golang:1.23 AS build\nWORKDIR /src\nCOPY . .\nRUN CGO_ENABLED=0 go build -o /out/app .\n\nFROM gcr.io/distroless/static-debian12:nonroot\nCOPY --from=build /out/app /app\nUSER nonroot\nENTRYPOINT ["/app"]',
+        explanation: 'The compiler and source stay in the build stage; the final image holds only the binary, runs as non-root and has no shell, so it is tiny with few CVEs to scan.',
+      },
     ],
     cheatSheet: [
       ['Multi-stage build', 'Build in a full toolchain stage; ship only the artifact in a slim stage'],
@@ -246,6 +344,20 @@ export default {
           'When something is wrong, work the same routine every time. Start with `docker logs`: what did the process say before it died? If it is still running, `docker exec -it` gets you a shell inside to inspect files, processes, and connectivity from the container\u2019s point of view. `docker stats` shows live CPU, memory, network and I/O per container \u2014 the fastest way to spot the one eating the host. And `docker inspect` dumps the full JSON truth: mounts, networks, environment, everything the container believes about itself.',
           'Prefer small, single-purpose containers and this routine stays short: one process per container means logs tell one story and failures have one suspect. And keep the host tidy \u2014 `docker system prune` reclaims the stopped containers, dangling images and unused networks that accumulate silently, though the aggressive flags (-a, --volumes) deserve respect and a second look before you run them.',
         ],
+      },
+      {
+        heading: 'Logging and monitoring containers',
+        body: [
+          'Applications in containers should log to standard output and standard error; Docker captures those streams and `docker logs` reads them. The default json-file driver keeps logs on the host with no size limit unless you set one, so configure rotation in `/etc/docker/daemon.json` (`"log-opts": {"max-size": "10m", "max-file": "3"}`) or ship logs to a central system with a driver such as fluentd, or an agent that reads the files.',
+          '`docker stats` shows live CPU, memory, network and I/O per container, and `docker events` streams lifecycle events such as restarts and out-of-memory kills. For anything beyond one host, export metrics (cAdvisor with Prometheus is a common pairing) and alert on restart loops, memory near the limit and failing health checks.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Debug a container that keeps restarting',
+        code: '$ docker ps -a --filter name=api\napi   Restarting (1) 3 seconds ago\n$ docker logs --tail 20 api\nError: connect ECONNREFUSED 127.0.0.1:5432\n$ docker inspect -f \'{{.State.ExitCode}} {{.RestartCount}}\' api\n1 14',
+        explanation: 'Logs show the app trying localhost: inside a container that is the container itself, not the database. Point it at the db service name instead.',
       },
     ],
     cheatSheet: [

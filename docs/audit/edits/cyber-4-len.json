@@ -1,0 +1,28 @@
+{
+  "cy-vulns": {
+    "26": [0, "A network tap that copies traffic between two parties for lawful monitoring"],
+    "31": [1, "A single control strong enough that it never fails under any attack"]
+  },
+  "cy-cloud-arch": {
+    "2": [0, "Nothing: the SaaS provider handles users, data and every setting"],
+    "5": [0, "Cloud is always safer by default, because the provider handles security"],
+    "6": [0, "Zero-day exploits against the provider's hypervisor and shared hardware"],
+    "15": [2, "A load balancer that spreads requests evenly across service replicas"],
+    "18": [1, "A region is one rack of servers inside a single data centre building"],
+    "22": [1, "Spelling mistakes in resource names and tags before the plan is applied"],
+    "29": [2, "It makes each function impossible to compromise in the first place"]
+  },
+  "cy-net-arch": {
+    "6": [1, "RDP is encrypted end to end, so exposing it to user VLANs is safe"],
+    "7": [0, "A sandbox for running suspicious files safely away from production"],
+    "9": [0, "A decoy server that attackers waste time on before they reach real systems"],
+    "10": [0, "A firewall policy that blocks all inbound traffic from the internet"],
+    "11": [0, "A firewall configured with one-way rules for outbound traffic only"],
+    "13": [0, "The highest-bandwidth path that traffic prefers to take through the core"],
+    "14": [0, "Scanning switch ports regularly to see which ones answer on the network"],
+    "15": [0, "A relay agent forwarding DHCP requests to a server on another subnet"],
+    "16": [2, "An audit that compares switch configurations to a baseline"],
+    "17": [2, "A guest VLAN whose hosts can reach only the internet and nothing else"],
+    "22": [1, "A forward proxy that staff browse through to reach the internet"]
+  }
+}

@@ -83,6 +83,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Structs, methods and interfaces',
+        code: 'type Shape interface{ Area() float64 }\n\ntype Rect struct{ W, H float64 }\nfunc (r Rect) Area() float64 { return r.W * r.H }\n\nfunc total(shapes []Shape) float64 {\n    sum := 0.0\n    for _, s := range shapes { sum += s.Area() }\n    return sum\n}\n// total([]Shape{Rect{2, 3}, Rect{1, 1}}) == 7',
+        explanation: 'Rect satisfies Shape implicitly by having an Area method; Go has no \'implements\' keyword.',
+      },
+    ],
     cheatSheet: [
       ['x := 5', 'Short declaration (functions only), type inferred'],
       ['var x int', 'Explicit declaration; starts at the zero value'],
@@ -222,6 +229,13 @@ export default {
         body: [
           'An interface lists method signatures, and a type satisfies it implicitly — there is no `implements` keyword, no registration step. If it has the methods, it qualifies. This structural typing keeps dependencies minimal: define small interfaces (often a single method, like `io.Reader` or `io.Writer`) at the point of use, and any type in any package that happens to match can plug in. To recover a concrete type from an interface value, use a type assertion — `v, ok := i.(MyType)` — or a type switch when several cases are possible.',
           'The empty interface, `interface{}` (modern alias `any`), is satisfied by every value. It is the escape hatch for genuinely heterogeneous data, but idiomatic Go reaches for concrete types or generics first — `any` everywhere is a design smell. And note the zero values: interfaces and pointers both start as `nil`, and calling a method on a nil interface panics. Nil is honest about being nothing; it just refuses to pretend otherwise.',
+        ],
+      },
+      {
+        heading: 'Designing with small interfaces',
+        body: [
+          'Go interfaces work best when they are small and defined by the code that uses them. The standard library\'s `io.Reader` has a single method, `Read(p []byte) (n int, err error)`, yet files, network connections, buffers and HTTP bodies all satisfy it, so one function can read from any of them. Define an interface in the consuming package with only the methods it needs; this keeps dependencies loose and makes testing with a fake easy.',
+          'Remember the method-set rule: a method with a pointer receiver belongs to `*T`, not `T`, so a value of type `T` does not satisfy an interface that needs it. Also, an interface holding a typed nil pointer is not itself nil: returning `var p *MyErr = nil` as an `error` gives a non-nil error. Return a literal `nil` when there is no error.',
         ],
       },
     ],

@@ -1,0 +1,35 @@
+{
+  "secplus-hardening-vuln": {
+    "0": [1, "Patch the 200 developer laptops first, since they are the largest exposed population, then raise the servers on Friday"],
+    "1": [0, "Allow the defunct vendor's old remote-access tool through the firewall so support stays possible, and log every session it opens"],
+    "2": [0, "Update the baseline to match the servers' current state, so the troubleshooting changes become the approved standard for next quarter"],
+    "3": [0, "Discipline whoever built the Jenkins server, and require written approval from the CISO before any new server is created"],
+    "4": [0, "Renew the exception for another year, since the database has not been breached and the owner is aware of the risk"],
+    "6": [0, "Block the app at the firewall immediately and tell finance to return to the old process until a replacement is procured and approved"],
+    "7": [0, "Leave them on the corporate network, change the passwords that can be changed, and add the thermostats to the next annual audit"],
+    "9": [0, "Send the developer and their whole team to cloud security training on storage permissions, and add a warning banner to the console"],
+    "10": [0, "Unplug all 30 immediately and remove them from the rack today, then check with application owners whether anything has stopped"],
+    "12": [0, "Patch each VM after deployment as a step in the build checklist, and audit a sample of new VMs each month"],
+    "13": [0, "Email all 800 remote workers step-by-step update instructions with a one-week deadline, and remind those who have not updated"],
+    "15": [0, "Rebuild and redeploy all 40 services tonight without the usual testing, since a critical CVE in a shared base image justifies skipping it"],
+    "16": [0, "Keep running the ERP unchanged after end-of-life until budget is approved for the upgrade, and revisit the plan next financial year"],
+    "17": [0, "Every finding, whatever its severity or exposure, must be fixed within 24 hours of detection, with escalation to the CTO after that"],
+    "19": [0, "Factory-reset the firewall and rebuild the rule base from memory and old change tickets, then take a fresh backup"],
+    "21": [0, "Change every default password by hand today, starting with the cameras, and then check which devices are still working"],
+    "23": [0, "Push the patch to the remaining 90% faster so the disruption is over sooner, and have the helpdesk reimage what breaks"],
+    "24": [0, "Report the 10,000 closed findings with a quarter-on-quarter comparison chart, showing the number of tickets closed per team"]
+  },
+  "secplus-secops-tooling": {
+    "1": [0, "Give the contractor's laptop a permanent NAC exception so they can work, and review the exception list at the end of the contract"],
+    "3": [0, "Refuse: without the vault there is no approved access path, so production stays down until the PAM maintenance is complete"],
+    "5": [0, "Wait for the identity provider to restore service before doing anything, and send a status update once email is working again"],
+    "6": [0, "Reset the MFA, because the caller ID matches the CFO's mobile number and the voice sounds right to the technician on the call"],
+    "7": [0, "Leave the access in place, since the intern still needs it for their project, and add a note to review it again next quarter"],
+    "8": [0, "Allow it, because rundll32 is a signed Windows component and printer drivers often use it to register their DLLs"],
+    "9": [0, "Put the sensors on the main LAN with their default credentials, since they cannot run agents and NAC would block them"],
+    "13": [0, "Skip recording this once, because speed matters at 2 AM and the DBA is trusted, then note the exception in the ticket"],
+    "17": [0, "Mark every document Public by default so DLP stops blocking routine work, and rely on engineers to restrict what matters"],
+    "18": [0, "Move the shared key into a shared team password manager, so it is no longer pasted in chat but everyone can still use it"],
+    "20": [0, "Require a password for the guest Wi-Fi that changes every month, and print it on a card at reception for visitors"]
+  }
+}

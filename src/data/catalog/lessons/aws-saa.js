@@ -33,6 +33,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Least-privilege IAM policy',
+        code: '{\n  "Version": "2012-10-17",\n  "Statement": [{\n    "Effect": "Allow",\n    "Action": ["s3:GetObject", "s3:PutObject"],\n    "Resource": "arn:aws:s3:::invoices-prod/uploads/*"\n  }]\n}',
+        explanation: 'Grant only the actions and the exact resource prefix the app needs. Attach it to a role the EC2 instance or Lambda assumes, never to long-lived access keys.',
+      },
+    ],
     cheatSheet: [
       ['IAM role', 'Identity with temporary STS credentials; preferred over long-lived keys.'],
       ['Instance profile', 'Attaches a role to EC2 so applications get rotating credentials automatically.'],
@@ -78,6 +85,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Security group referencing another group',
+        code: 'sg-web  inbound: 443 from 0.0.0.0/0\nsg-app  inbound: 8080 from sg-web        <- source is a group, not an IP\nsg-db   inbound: 5432 from sg-app\n\nNACL (subnet, stateless): allow 1024-65535 return traffic explicitly',
+        explanation: 'Referencing security groups keeps rules correct as instances scale in and out. Security groups are stateful; NACLs are stateless and need return-traffic rules.',
+      },
+    ],
     cheatSheet: [
       ['Security group', 'Stateful, allow-only, attached to resources; return traffic is automatic.'],
       ['NACL', 'Stateless subnet filter; numbered rules evaluated lowest-first; supports explicit Deny.'],
@@ -120,6 +134,13 @@ export default {
           'TLS certificates come from ACM: free public certificates with automatic renewal, attached to load balancers, CloudFront distributions, and API Gateway. Terminate TLS at the edge — the ALB or CloudFront — rather than passing encrypted traffic through to instances you then must manage certificates on. For discovering what sensitive data already exists, Macie applies machine learning to S3 buckets to find PII at scale.',
           'Ransomware resilience is a data-protection design, not just a backup plan. S3 versioning turns overwrites and deletes into new versions rather than destruction; MFA Delete — enabled only by the root account — requires a hardware token to permanently delete versions; and S3 Object Lock in Compliance mode makes objects immutable for the retention period, undeletable by anyone including the root user. Together they mean an attacker with stolen credentials still cannot destroy the data.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Enforce encryption in transit on S3',
+        code: '{\n  "Effect": "Deny",\n  "Principal": "*",\n  "Action": "s3:*",\n  "Resource": ["arn:aws:s3:::payroll", "arn:aws:s3:::payroll/*"],\n  "Condition": { "Bool": { "aws:SecureTransport": "false" } }\n}',
+        explanation: 'A bucket-policy Deny on aws:SecureTransport=false rejects plain-HTTP requests. Pair it with default SSE-KMS encryption for data at rest.',
       },
     ],
     cheatSheet: [
@@ -167,6 +188,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Multi-AZ Auto Scaling group',
+        code: 'aws autoscaling create-auto-scaling-group \\\n  --auto-scaling-group-name web-asg \\\n  --launch-template LaunchTemplateName=web-lt \\\n  --min-size 2 --max-size 6 --desired-capacity 2 \\\n  --vpc-zone-identifier "subnet-az1a,subnet-az1b" \\\n  --target-group-arns arn:aws:elasticloadbalancing:...:targetgroup/web/abc \\\n  --health-check-type ELB --health-check-grace-period 120',
+        explanation: 'Two subnets in different AZs plus ELB health checks mean a failed instance or a whole AZ outage is replaced automatically.',
+      },
+    ],
     cheatSheet: [
       ['Multi-AZ baseline', 'Production spans 2+ AZs; single-AZ designs fail the resilience bar.'],
       ['ALB', 'Layer-7 balancer: path/host routing for HTTP(S) web tiers.'],
@@ -210,6 +238,13 @@ export default {
           'EventBridge is the event bus for loosely coupled systems: producers emit events, rules route them to targets based on content, and a schema registry keeps everyone honest about the shape. Choose it over SNS when routing logic matters — events filtered by type, transformed en route, or sourced from SaaS applications — and keep SNS for simple fan-out. EventBridge Scheduler, the successor to scheduled CloudWatch rules, fires one-time or recurring schedules without running any infrastructure.',
           'Two integration patterns tie the toolkit together. When Lambda throttles on a burst of S3 uploads, inserting an SQS queue between the S3 event notification and the function absorbs the spike — data waits instead of being lost. And when the workload is a true stream — ordered, replayable, consumed by many analytics applications at scale — Kinesis Data Streams replaces the queue with a sharded, replayable log. Queues carry discrete messages; streams carry ordered history.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'SQS queue with a dead-letter queue',
+        code: 'aws sqs create-queue --queue-name orders-dlq\naws sqs create-queue --queue-name orders --attributes \'{\n  "VisibilityTimeout": "60",\n  "RedrivePolicy": "{\\"deadLetterTargetArn\\":\\"arn:aws:sqs:us-east-1:111122223333:orders-dlq\\",\\"maxReceiveCount\\":\\"5\\"}"\n}\'',
+        explanation: 'The queue absorbs spikes so the web tier and workers scale independently. After five failed receives a poison message moves to the DLQ instead of blocking processing.',
       },
     ],
     cheatSheet: [
@@ -257,6 +292,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Pick a DR strategy from RTO/RPO',
+        code: 'Strategy           RTO          RPO          Cost\n-----------------  -----------  -----------  ------\nBackup & restore   hours        hours        $\nPilot light        10s of min   minutes      $$\nWarm standby       minutes      seconds      $$$\nMulti-site active  near zero    near zero    $$$$\n\nRequirement: RTO 30 min, RPO 5 min  -> pilot light or warm standby',
+        explanation: 'Start from the business RTO and RPO and choose the cheapest strategy that meets both.',
+      },
+    ],
     cheatSheet: [
       ['RTO / RPO', 'How long recovery may take / how much data loss is tolerable.'],
       ['Backup and restore', 'Cheapest DR; slowest — rebuild from backups on failure.'],
@@ -300,6 +342,13 @@ export default {
           'Hybrid architectures bridge on-premises storage with Storage Gateway: file, volume, and tape gateway modes that present familiar interfaces locally while tiering to S3 behind the scenes. It is the answer for the workload that cannot move yet but must stop growing on-premises. And for the 50 TB migration over a constrained link, the exam\'s answer is offline: a Snowball appliance ships the data physically, because no clever protocol beats a truck full of disks when bandwidth is the constraint.',
           'S3 Object Lambda adds a final twist: transform data on retrieval. Instead of storing a redacted copy, a thumbnail copy, and a full copy, store one object and let Object Lambda derive the variants as they are requested — less duplication, one source of truth, transformations applied at read time.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'S3 lifecycle rule',
+        code: '{\n  "Rules": [{\n    "ID": "logs-tiering",\n    "Filter": { "Prefix": "logs/" },\n    "Status": "Enabled",\n    "Transitions": [\n      { "Days": 30,  "StorageClass": "STANDARD_IA" },\n      { "Days": 90,  "StorageClass": "GLACIER" }\n    ],\n    "Expiration": { "Days": 365 }\n  }]\n}',
+        explanation: 'Logs are read often at first and rarely later. Lifecycle rules move them to cheaper classes automatically and delete them when retention ends.',
       },
     ],
     cheatSheet: [
@@ -347,6 +396,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Multi-AZ vs read replica',
+        code: '                 Multi-AZ (instance)     Read replica\n---------------  ----------------------  --------------------------\nPurpose          high availability       read scaling\nReplication      synchronous             asynchronous\nServes reads?    no (standby)            yes\nFailover         automatic, same endpoint manual promotion\nCross-Region?    no                      yes',
+        explanation: 'Multi-AZ protects against an AZ failure; read replicas offload reads. Many production databases use both.',
+      },
+    ],
     cheatSheet: [
       ['RDS', 'Managed relational engines; AWS handles patching, backups, failover mechanics.'],
       ['Aurora', 'Cloud-native relational: faster failover, auto-growing storage, global clusters.'],
@@ -390,6 +446,13 @@ export default {
           'Every cache introduces two failure modes the exam probes. Stale data: TTLs must reflect how fresh the answer needs to be, and invalidation must be a designed path, not an afterthought. Thundering herd: when a popular key expires, a thousand simultaneous misses slam the database — mitigated with jittered TTLs, staggered expirations, request coalescing, or serving slightly stale data while refreshing in the background.',
           'Two cost details hide in caching designs. Cross-AZ data transfer is billed, so chatty services — application tiers hammering a cache cluster — should sit in the same AZ as their cache, or use zonal endpoints to keep traffic local. And DAX versus ElastiCache is a scoping question: DAX is DynamoDB\'s dedicated microsecond cache, while ElastiCache serves any workload — choose the specialist when the database is DynamoDB and the generalist otherwise.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Cache-aside with ElastiCache',
+        code: 'def get_product(pid):\n    key = f\'product:{pid}\'\n    cached = redis.get(key)\n    if cached:\n        return json.loads(cached)          # cache hit\n    row = db.query(\'SELECT * FROM products WHERE id=%s\', (pid,))\n    redis.setex(key, 300, json.dumps(row))  # cache 5 min\n    return row',
+        explanation: 'The app checks the cache first and fills it on a miss. The TTL bounds how stale data can be; writes should delete or update the key.',
       },
     ],
     cheatSheet: [
@@ -437,6 +500,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Mix purchase options',
+        code: 'Workload                       Option              Typical saving vs On-Demand\n-----------------------------  ------------------  --------------------------\nSteady 24/7 web baseline       Savings Plan (1-3y) up to ~72%\nBatch jobs that can restart    Spot                up to ~90%\nUnpredictable spikes           On-Demand           0%\nLicence-bound server           Dedicated Host      (compliance, not cost)',
+        explanation: 'Cover the predictable baseline with commitments, run interruptible work on Spot and leave peaks on On-Demand.',
+      },
+    ],
     cheatSheet: [
       ['On-Demand', 'No commitment; for unpredictable, spiky, or short-lived workloads.'],
       ['Spot', 'Spare capacity up to ~90% off; for interruption-tolerant batch.'],
@@ -480,6 +550,13 @@ export default {
           'EBS rightsizing follows the same \'measure, then tune\' loop as compute: CloudWatch reveals the actual IOPS and throughput, gp3 lets you dial provisioned IOPS and throughput independently of volume size, and unused provisioned IOPS on io volumes are money for nothing. Downsizing is safe when the metrics support it; the waste is in the volumes nobody measured.',
           'Visibility closes the loop. S3 Storage Lens gives organization-wide insight into usage, access patterns, and cost drivers across every bucket — the tool for finding the anomalies. Cost-allocation tags, activated in the Billing console, let Cost Explorer break spend down by team or project for chargeback. And before any of it is built, the AWS Pricing Calculator models the architecture\'s cost so the estimate exists before the bill does.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Compare storage classes for 10 TB',
+        code: 'Access pattern                    Class\n--------------------------------  ----------------------------\nUnknown / changing                S3 Intelligent-Tiering\nRead monthly, needs ms access     S3 Standard-IA\nRead once a year, minutes OK      S3 Glacier Flexible Retrieval\nCompliance archive, 12 h OK       S3 Glacier Deep Archive',
+        explanation: 'Cheaper classes charge per retrieval and have minimum storage durations, so match the class to how often and how fast the data is read.',
       },
     ],
     cheatSheet: [

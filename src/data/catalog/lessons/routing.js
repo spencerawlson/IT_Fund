@@ -56,6 +56,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Longest prefix match',
+        code: 'Router# show ip route\nO   10.1.0.0/16 [110/20] via 10.0.0.2\nS   10.1.5.0/24 [1/0]    via 10.0.0.9\nS*  0.0.0.0/0  [1/0]     via 203.0.113.1\n\nPacket to 10.1.5.7  -> 10.1.5.0/24 (most specific) -> 10.0.0.9\nPacket to 10.1.9.7  -> 10.1.0.0/16                 -> 10.0.0.2\nPacket to 8.8.8.8   -> default route',
+        explanation: 'The most specific matching prefix wins; administrative distance only decides between the same prefix learned from different sources.',
+      },
+    ],
     cheatSheet: [
       ['Longest-prefix match', 'Most specific route (largest mask) wins first'],
       ['Administrative distance', 'Trust ranking between sources; lower wins (Conn 0, Static 1, EIGRP 90, OSPF 110, RIP 120)'],
@@ -90,6 +97,13 @@ export default {
         heading: 'Security implications',
         body: [
           'A single wrong default route can blackhole or misdirect every unmatched packet in the network, so verify `show ip route` after any change. Statics cannot be spoofed by a rogue neighbour, which makes them attractive on small, trusted, single-path links — but on anything larger, their lack of self-healing is a liability.',
+        ],
+      },
+      {
+        heading: 'When static routing is the right choice',
+        body: [
+          'Static routes are not a beginner\'s shortcut; they are the correct design in several places. A stub network with a single exit, such as a branch office with one link to headquarters, needs only a default route: there is no alternative path for a protocol to discover. Static routes are also predictable, use no CPU or bandwidth for protocol updates, and cannot be manipulated by a rogue device sending forged routing updates.',
+          'Their weakness is that they do not react. If the next hop fails but the interface stays up, the router keeps sending traffic into a black hole. Pair important static routes with a tracking mechanism (an IP SLA probe that removes the route when the next hop stops answering) or a floating static backup, and document every static route, because nobody remembers why a route to 10.99.0.0/16 exists three years later.',
         ],
       },
     ],
@@ -145,6 +159,13 @@ export default {
         heading: 'Versions and hardening',
         body: [
           'RIPv1 is classful and broadcasts updates. RIPv2 is classless (supports VLSM/CIDR), multicasts to 224.0.0.9, and supports authentication. RIPng carries IPv6 over UDP 521. On any version, mark host-facing interfaces passive so you advertise their subnets without sending or accepting updates there, and enable RIPv2 authentication so a rogue device cannot inject routes.',
+        ],
+      },
+      {
+        heading: 'Why RIP survives, and where you will meet it',
+        body: [
+          'RIP\'s limits are severe: a 15-hop maximum, a hop-count metric that ignores bandwidth, and convergence measured in minutes. Modern enterprise networks use OSPF, EIGRP or IS-IS instead. RIP still appears in small legacy networks, in some embedded and industrial devices, and on certification exams, because it is the clearest example of how distance-vector routing works and fails.',
+          'If you inherit a RIP network, harden it before replacing it: run RIPv2 (RIPv1 has no authentication and no subnet masks), enable MD5 or keyed authentication on every interface, and make interfaces that face hosts passive so the router does not advertise to, or accept updates from, user segments. Then plan the migration to a link-state protocol.',
         ],
       },
     ],
@@ -250,6 +271,13 @@ export default {
           'In hub-and-spoke designs, a spoke configured as an EIGRP stub advertises only its connected/summary routes and tells the hub not to send it queries. This shrinks the query domain, which is the main thing that slows EIGRP convergence at scale. EIGRP also supports IPv4 and IPv6 and, although historically Cisco-proprietary, is now published as informational RFC 7868.',
         ],
       },
+      {
+        heading: 'Watching DUAL work',
+        body: [
+          'The topology table is where EIGRP\'s speed comes from. `show ip eigrp topology` lists, for each prefix, the successor and any feasible successors with their feasible distance (FD) and reported distance (RD). A route is a feasible successor only if its RD is lower than the current FD, which guarantees the path is loop-free. When the successor fails, a feasible successor is installed immediately, with no queries sent.',
+          'If no feasible successor exists, the route goes active and the router queries its neighbours. In a large network those queries can spread widely, and a router that never gets an answer leaves the route stuck-in-active, resetting the neighbour that failed to reply. Summarising routes and configuring stub routers bounds the query scope, which is why the scaling section stresses them.',
+        ],
+      },
     ],
     examples: [
       {
@@ -298,6 +326,20 @@ export default {
         body: [
           'IS-IS scales cleanly, and because routes and address families are carried in TLVs, adding IPv6 was just new TLVs — no new protocol version, unlike OSPFv2 → OSPFv3. Wide metrics removed the original small per-link metric ceiling. Running on CLNS also means the routing control plane is harder to reach and attack from the IP data plane.',
         ],
+      },
+      {
+        heading: 'Operating IS-IS day to day',
+        body: [
+          'The commands mirror OSPF\'s. `show isis neighbors` confirms adjacencies and their level (L1, L2 or L1L2); `show isis database` lists the link-state PDUs each router holds, which should be identical across routers in the same level; and `show ip route isis` shows what IS-IS actually installed. A missing adjacency is usually a mismatched level, mismatched area on an L1 link, mismatched MTU or authentication, or an interface where IS-IS is not enabled.',
+          'Because IS-IS carries its information in TLVs rather than fixed packet formats, it was extended for IPv6 without a new protocol version and is the usual base for segment routing and traffic engineering in provider networks. Enable authentication for both hellos and LSPs; without it a device on the link can form an adjacency and inject routes.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A minimal IS-IS configuration',
+        code: 'router isis CORE\n net 49.0001.1921.6800.1001.00     ! area 49.0001, system ID 1921.6800.1001\n is-type level-2-only\n metric-style wide\n!\ninterface Gi0/0\n ip router isis CORE\n isis network point-to-point',
+        explanation: 'The NET encodes the area and a unique system ID. IS-IS runs directly over Layer 2, not IP, which is one reason large ISPs favour it.',
       },
     ],
     cheatSheet: [
@@ -389,6 +431,13 @@ export default {
           'After configuring redistribution, read `show ip route` on both domains and run `traceroute` to confirm paths are correct and loop-free. Be careful with `redistribute connected` — without a route-map it can leak management or transit subnets you never meant to advertise.',
         ],
       },
+      {
+        heading: 'A worked mutual-redistribution design',
+        body: [
+          'Consider two routers, R1 and R2, each connected to an OSPF domain and an EIGRP domain and redistributing in both directions. Without controls, a route from EIGRP enters OSPF at R1, crosses OSPF to R2, and is redistributed back into EIGRP, sometimes with a better metric than the original. Traffic then loops or takes the long way.',
+          'The standard fix is tagging. When R1 and R2 redistribute EIGRP into OSPF they set tag 100; when redistributing OSPF into EIGRP they deny anything carrying tag 100, and the reverse for tag 200. Also set an explicit seed metric for every redistribution, filter with prefix lists so only intended networks cross, and verify on both routers with `show ip route` that each prefix is learned from its native protocol.',
+        ],
+      },
     ],
     examples: [
       {
@@ -440,6 +489,20 @@ export default {
           'Prevention is never perfect, so monitor. Log routing changes and feed them to a SIEM: alert on unexpected neighbours, prefix origin changes, sudden table churn, and authentication failures. BGP monitoring services and route-origin feeds catch hijacks that your own routers cannot see. This is the same detect-and-investigate discipline as the platform\'s log-triage and SIEM labs, applied to the control plane.',
         ],
       },
+      {
+        heading: 'A hardening checklist for routers',
+        body: [
+          'Protect the control plane first. Authenticate every routing adjacency (OSPF and IS-IS authentication, BGP TCP-AO or MD5 passwords), make interfaces facing users passive so they never form adjacencies, and use control-plane policing to rate-limit traffic aimed at the router itself. For BGP, also set maximum-prefix limits and the GTSM TTL check (RFC 5082) so a session cannot be spoofed from far away.',
+          'Then protect what the router accepts and announces. Filter inbound routes with prefix lists, drop bogons and your own prefixes arriving from outside, validate origins with RPKI, and filter outbound so you only announce your own space; that last rule is what prevents you from causing a route leak. Finally, manage the device over SSH from a management network only, with AAA and logging to a SIEM.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Check a route\'s RPKI validity',
+        code: 'ROA:  prefix 203.0.113.0/24, max length /24, origin AS64500\n\nAnnouncement                 Origin    Result\n---------------------------  --------  ---------\n203.0.113.0/24               AS64500   Valid\n203.0.113.0/24               AS64666   Invalid (wrong origin) -> drop\n203.0.113.128/25             AS64500   Invalid (longer than max length)\n198.51.100.0/24              AS64510   NotFound (no ROA)',
+        explanation: 'Route origin validation (RFC 6811) rejects hijacks from the wrong AS and more-specific announcements; MANRS asks networks to filter Invalid routes.',
+      },
     ],
     cheatSheet: [
       ['Rogue router', 'Unauthorised peer injecting routes — authenticate + passive interfaces'],
@@ -476,6 +539,13 @@ export default {
         heading: 'Test the path',
         body: [
           'Finally, prove the data path. `ping` tests reachability; `traceroute` exposes the per-hop path and shows exactly where it breaks — revealing routing loops, black holes and asymmetric routing that a ping alone hides. Work the layers top to bottom and change one variable at a time.',
+        ],
+      },
+      {
+        heading: 'A worked fault: the missing route',
+        body: [
+          'Users in 10.20.0.0/24 cannot reach a server in 10.50.0.0/24. On the users\' gateway, `show ip route 10.50.0.5` returns nothing, so the problem is the control plane, not the data path. `show ip ospf neighbor` shows the neighbour toward the server stuck in EXSTART. That state usually means an MTU mismatch: the two sides disagree on interface MTU, so database description packets are rejected.',
+          '`show interface` confirms one side at 1500 and the other at 9000 after a recent change. Matching the MTU brings the adjacency to FULL, and the route appears. The lesson is to follow the order: table, then adjacency, then path. Each step narrows the fault, and the adjacency state alone often names the cause.',
         ],
       },
     ],

@@ -4,8 +4,8 @@
 export default {
   'awss-threat-detect': {
     overview: [
-      'Threat detection in AWS is not one service but a layered system: something that finds the threats, something that collects the findings, something that protects the data those threats target, and something that reconstructs the story after the fact. On SCS-C02, those roles are played by GuardDuty, Security Hub, Macie, and Detective, and the exam expects you to know exactly which one answers which question.',
-      'This lesson covers the detection layer end to end: how GuardDuty finds compromise without agents, how Security Hub normalises and prioritises everything into one console, how Macie classifies the sensitive data worth stealing, and how Detective turns scattered findings into an investigation timeline. (SCS-C02 Domain 1.0: Threat Detection and Incident Response.)',
+      'Threat detection in AWS is not one service but a layered system: something that finds the threats, something that collects the findings, something that protects the data those threats target, and something that reconstructs the story after the fact. On SCS-C03, those roles are played by GuardDuty, Security Hub, Macie, and Detective, and the exam expects you to know exactly which one answers which question.',
+      'This lesson covers the detection layer end to end: how GuardDuty finds compromise without agents, how Security Hub normalises and prioritises everything into one console, how Macie classifies the sensitive data worth stealing, and how Detective turns scattered findings into an investigation timeline. (SCS-C03 Domain 1: Detection.)',
     ],
     learn: [
       {
@@ -34,6 +34,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Read a GuardDuty finding',
+        code: 'Type:      UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS\nSeverity:  High\nResource:  role/web-ec2-role, instance i-0abc123\nDetail:    credentials issued to this instance were used from 203.0.113.50\nAction:    revoke role sessions, rotate, investigate the instance (SSRF?)',
+        explanation: 'Instance-role credentials used from outside AWS usually mean they were stolen, often via SSRF to the metadata service. IMDSv2 makes that much harder.',
+      },
+    ],
     cheatSheet: [
       ['GuardDuty', 'Agentless ML threat detection over CloudTrail, VPC Flow Logs, DNS logs; regional, enable everywhere via delegated admin.'],
       ['Protection plans', 'S3, EBS malware, RDS, Lambda, EKS — enabled and billed separately from foundational detection.'],
@@ -51,7 +58,7 @@ export default {
   'awss-logging': {
     overview: [
       'You cannot secure what you cannot see, and in AWS, visibility is a design decision. CloudTrail, CloudWatch Logs, and VPC Flow Logs each record a different slice of reality — API activity, application and system logs, network metadata — and the security architect\'s job is to make sure every slice is collected, tamper-evident, centralised, and queryable when an incident demands it.',
-      'This lesson covers the logging foundations the exam builds everything on: management versus data events, organization trails, log file validation, CloudTrail Lake and Athena for analysis, CloudWatch metric filters and alarms, and the immutable log archive that makes the whole edifice trustworthy. (SCS-C02 Domain 2.0: Logging and Monitoring.)',
+      'This lesson covers the logging foundations the exam builds everything on: management versus data events, organization trails, log file validation, CloudTrail Lake and Athena for analysis, CloudWatch metric filters and alarms, and the immutable log archive that makes the whole edifice trustworthy. (SCS-C03 Domain 1: Detection.)',
     ],
     learn: [
       {
@@ -79,6 +86,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Organisation trail to a locked bucket',
+        code: 'aws cloudtrail create-trail --name org-trail \\\n  --s3-bucket-name org-cloudtrail-logs \\\n  --is-organization-trail --is-multi-region-trail \\\n  --enable-log-file-validation \\\n  --kms-key-id alias/cloudtrail\naws cloudtrail start-logging --name org-trail',
+        explanation: 'One trail covers every account and Region; log file validation detects tampering. Keep the bucket in a separate log-archive account with Object Lock.',
+      },
+    ],
     cheatSheet: [
       ['Management vs data events', 'Control-plane API calls (free, default) vs data-plane calls like S3 object access (billed per event, enable selectively).'],
       ['Organization trail', 'Logs all regions and member accounts to one central bucket; covers future regions automatically.'],
@@ -96,7 +110,7 @@ export default {
   'awss-iam-foundations': {
     overview: [
       'Identity is the primary security boundary in AWS. There is no corporate firewall that matters more than the question of who — or what — is allowed to call which API on which resource. Every breach story in the cloud eventually resolves to an identity question: a key that should not have existed, a policy broader than the job required, a role assumed from somewhere it should never have been.',
-      'This lesson builds the IAM mental model the specialty exam assumes you already own: policy evaluation order, roles versus long-lived keys, identity versus resource policies, MFA, and the hygiene practices — credential reports, policy simulation, least privilege — that keep the identity plane clean. (SCS-C02 Domain 4.0: Identity and Access Management.)',
+      'This lesson builds the IAM mental model the specialty exam assumes you already own: policy evaluation order, roles versus long-lived keys, identity versus resource policies, MFA, and the hygiene practices — credential reports, policy simulation, least privilege — that keep the identity plane clean. (SCS-C03 Domain 4: Identity and Access Management.)',
     ],
     learn: [
       {
@@ -114,6 +128,20 @@ export default {
           'MFA protects against credential theft: a stolen password alone no longer suffices. Enforce it for console access and especially for privileged role assumption — a trust policy condition on aws:MultiFactorAuthPresent makes MFA a gate before any session begins. And the root user deserves special handling: no IAM policy or SCP can limit it, so lock it with MFA, never use it for daily work, and alarm on any root API activity at all. Root usage should be rare enough that every occurrence is worth a page.',
           'Hygiene is a practice, not a project. The IAM credential report shows password and key age, MFA status, and last-used timestamps for every user — the fastest way to find stale keys and MFA-less accounts. IAM Access Analyzer goes further, identifying unused permissions and generating policies from actual CloudTrail activity so you can rightsize toward least privilege based on observed behaviour instead of guesses. And before deploying any policy change, run it through the IAM Policy Simulator: it answers "would this allow or deny that action" without touching production.',
         ],
+      },
+      {
+        heading: 'Finding and removing excess permissions',
+        body: [
+          'Least privilege is usually reached by trimming, not by perfect first drafts. IAM Access Analyzer reports resources shared outside your account or organisation and can generate a policy based on the actions a role actually used in CloudTrail. The IAM console\'s last-accessed information shows services a user or role has not touched in months, which are candidates for removal.',
+          'Credential hygiene matters as much as policies. Use the credential report to find access keys older than 90 days, keys never used, and users without MFA. Replace human IAM users with IAM Identity Center and federated sign-in, replace application keys with roles, and keep the root user locked away with hardware MFA and no access keys.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'How AWS evaluates a request',
+        code: '1. Explicit Deny anywhere (SCP, RCP, boundary, identity, resource)?  -> DENY\n2. SCPs / RCPs allow it?                       no -> DENY\n3. Resource-based policy allows it?            yes -> ALLOW (same account)\n4. Permissions boundary allows it?             no -> DENY\n5. Session policy allows it?                   no -> DENY\n6. Identity-based policy allows it?            yes -> ALLOW, else implicit DENY',
+        explanation: 'An explicit Deny always wins; everything else must be allowed at every layer that applies. This order explains most \'why is this denied?\' puzzles.',
       },
     ],
     cheatSheet: [
@@ -133,7 +161,7 @@ export default {
   'awss-incident-response': {
     overview: [
       'Incident response in AWS rewards preparation and punishes improvisation. The platform gives you extraordinary leverage — snapshots in seconds, automation that isolates hosts faster than any human, logs centralised by architecture — but only if the runbooks, roles, and forensic accounts exist before the alert fires. The exam tests whether you would reach for the right building blocks in the right order.',
-      'This lesson covers the AWS IR playbook: the correct order of operations, forensic preservation with EBS snapshots, session revocation that actually works, EventBridge-driven automated containment, and the rehearsal discipline that makes it all real. (SCS-C02 Domain 1.0: Threat Detection and Incident Response.)',
+      'This lesson covers the AWS IR playbook: the correct order of operations, forensic preservation with EBS snapshots, session revocation that actually works, EventBridge-driven automated containment, and the rehearsal discipline that makes it all real. (SCS-C03 Domain 2: Incident Response.)',
     ],
     learn: [
       {
@@ -153,6 +181,20 @@ export default {
           'After the dust settles, AWS Artifact provides the compliance reports — SOC 2, ISO 27001 — that regulators and customers will demand as breach-notification evidence. Have access to them before you need them; "we are still gathering our audit reports" is not a sentence you want to say during an incident.',
         ],
       },
+      {
+        heading: 'Preparing before an incident',
+        body: [
+          'Most of incident response happens before the incident. Set up a dedicated security tooling account with cross-account roles that responders can assume, with permissions agreed in advance. Pre-create an isolation security group with no rules in each VPC, enable CloudTrail organisation-wide, GuardDuty and Security Hub in every Region, and store logs in a separate archive account.',
+          'Write and test playbooks for the likely cases: exposed access keys, a compromised EC2 instance, a public S3 bucket, and suspicious root activity. Run game days in a sandbox account so responders practise taking snapshots, isolating instances and revoking sessions. AWS\'s own incident response guide recommends exactly this preparation, because a team learning the console during an incident loses hours.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Isolate a compromised EC2 instance',
+        code: 'aws ec2 modify-instance-attribute --instance-id i-0abc123 \\\n  --groups sg-isolation                      # no inbound/outbound rules\naws ec2 create-snapshot --volume-id vol-0def456 \\\n  --description \'IR-2026-07 evidence\'\naws autoscaling detach-instances --instance-ids i-0abc123 \\\n  --auto-scaling-group-name web-asg --should-decrement-desired-capacity',
+        explanation: 'Swap to an isolation security group, snapshot the volumes for forensics and detach from the ASG so it is not terminated. Existing tracked connections may persist, so add a NACL deny if needed.',
+      },
     ],
     cheatSheet: [
       ['IR order', 'Detect and scope, contain, collect forensics, eradicate, recover, lessons learned.'],
@@ -171,7 +213,7 @@ export default {
   'awss-monitor-analyze': {
     overview: [
       'Logging collects the evidence; monitoring turns it into judgement. This is the detective-control layer of the security program: continuously evaluating whether resources are configured the way policy demands, analysing network and API data at a scale no human can read raw, and surfacing the drift between "approved" and "actual" before an attacker exploits it.',
-      'This lesson covers the monitoring toolkit: AWS Config and its rules, conformance packs, and aggregators; large-scale log analysis with Athena and CloudTrail Lake; and the EventBridge wiring that turns a compliance change into a notification or an automatic fix. (SCS-C02 Domain 2.0: Logging and Monitoring.)',
+      'This lesson covers the monitoring toolkit: AWS Config and its rules, conformance packs, and aggregators; large-scale log analysis with Athena and CloudTrail Lake; and the EventBridge wiring that turns a compliance change into a notification or an automatic fix. (SCS-C03 Domain 1: Detection.)',
     ],
     learn: [
       {
@@ -191,6 +233,20 @@ export default {
           'Cost discipline belongs in the design. Data events are high-volume and billed per event, so enable them on sensitive resources rather than everywhere. Management events already cover the control plane for free. And when retention is about audit rather than investigation, Glacier-class storage behind lifecycle policies beats any queryable store on price.',
         ],
       },
+      {
+        heading: 'Querying logs with Athena and CloudWatch Logs Insights',
+        body: [
+          'Raw logs are only useful if you can ask them questions quickly. CloudWatch Logs Insights runs queries over log groups, for example counting `AccessDenied` errors by principal over the last hour. For long-term CloudTrail and VPC Flow Log data stored in S3, Amazon Athena queries the files in place with SQL, and partitioning by date and Region keeps queries fast and cheap.',
+          'A typical investigation query finds every API call made with a suspicious access key: filter CloudTrail on `userIdentity.accessKeyId`, sort by `eventTime`, and list `eventName`, `sourceIPAddress` and `errorCode`. Saving such queries as part of a playbook means the next responder starts with answers, not syntax.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Alarm on root account use',
+        code: 'Metric filter on CloudTrail log group:\n{ $.userIdentity.type = "Root" && $.userIdentity.invokedBy NOT EXISTS && $.eventType != "AwsServiceEvent" }\n\nMetric: RootUsageCount   Alarm: >= 1 in 5 min -> SNS security-alerts',
+        explanation: 'Root should almost never be used. This CIS AWS Foundations check turns any root activity into an immediate alert.',
+      },
     ],
     cheatSheet: [
       ['Config vs CloudTrail', 'Config tracks resource configuration and compliance over time; CloudTrail logs who did what.'],
@@ -209,7 +265,7 @@ export default {
   'awss-network-security': {
     overview: [
       'Network security in AWS is a stack of overlapping controls, and the exam tests whether you know which layer answers which threat. Security groups guard instances, NACLs guard subnets, WAF guards web applications, Shield guards against DDoS, and account boundaries guard everything. Misplace a control — expecting WAF to stop a volumetric flood, or a NACL to behave like a security group — and the architecture fails where it matters.',
-      'This lesson maps the network security stack: stateful versus stateless filtering, three-tier VPC design, private connectivity through endpoints, Layer 7 protection with WAF, DDoS with Shield, and why multi-account structure is itself a network security decision. (SCS-C02 Domain 3.0: Infrastructure Security.)',
+      'This lesson maps the network security stack: stateful versus stateless filtering, three-tier VPC design, private connectivity through endpoints, Layer 7 protection with WAF, DDoS with Shield, and why multi-account structure is itself a network security decision. (SCS-C03 Domain 3: Infrastructure Security.)',
     ],
     learn: [
       {
@@ -229,6 +285,20 @@ export default {
           'Finally, the strongest network boundary in AWS is not a firewall rule but an account. Separate accounts per environment, governed by SCPs with separate CloudTrail and Config, eliminate entire classes of accidental cross-environment privilege paths. Combined with account-level S3 Block Public Access — which guarantees no bucket can become public via ACLs or policies regardless of individual settings — the multi-account structure is the foundation every other network control rests on.',
         ],
       },
+      {
+        heading: 'Inspecting and logging traffic',
+        body: [
+          'Filtering decides what is allowed; inspection and logging tell you what actually happened. VPC Flow Logs record accepted and rejected connections at the network-interface level (addresses, ports, bytes, action) but not packet contents. AWS Network Firewall adds stateful inspection, domain filtering and Suricata-compatible IPS rules for traffic between VPCs or to the internet.',
+          'Traffic Mirroring copies packets from an instance\'s network interface to a monitoring appliance when full packet capture is needed. Route 53 Resolver DNS Firewall blocks lookups of known malicious domains, which stops a lot of command-and-control traffic before a connection is made. Send these logs to the central archive and alert on rejects from internal sources, which often indicate scanning.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Private access to S3 with a VPC endpoint',
+        code: 'Route table (private subnet):  pl-s3-prefix-list -> vpce-0123 (gateway endpoint)\n\nBucket policy condition:\n"Condition": { "StringNotEquals": { "aws:SourceVpce": "vpce-0123" } }\n-> with Effect: Deny, the bucket is reachable only through that endpoint',
+        explanation: 'Traffic stays on the AWS network with no NAT gateway, and the bucket rejects requests from anywhere else.',
+      },
     ],
     cheatSheet: [
       ['Security groups', 'Stateful, allow-only; return traffic automatic; reference peer SGs by ID.'],
@@ -247,7 +317,7 @@ export default {
   'awss-iam-advanced': {
     overview: [
       'Foundational IAM answers "who can do what." Advanced IAM answers the harder questions: how do you bound what an entire account may do, delegate administration without delegating the keys to the kingdom, trust identities from outside your organization, and eliminate long-lived credentials from machines that were never meant to hold them.',
-      'This lesson covers the specialty-level IAM toolkit: Service Control Policies, permission boundaries, cross-account roles and the confused deputy problem, Cognito, IAM Identity Center, and OIDC federation for workloads. (SCS-C02 Domain 4.0: Identity and Access Management.)',
+      'This lesson covers the specialty-level IAM toolkit: Service Control Policies, permission boundaries, cross-account roles and the confused deputy problem, Cognito, IAM Identity Center, and OIDC federation for workloads. (SCS-C03 Domain 4: Identity and Access Management.)',
     ],
     learn: [
       {
@@ -267,6 +337,20 @@ export default {
           'Two more advanced controls round out the picture. The aws:PrincipalOrgID condition key restricts a resource policy to callers inside your organization — a data-perimeter guardrail that blocks exfiltration to external accounts even when credentials leak. And KMS is the service where key policies rule: cross-account decryption requires the key policy to explicitly allow the external account, because KMS defaults to key-policy authority in a way most services do not.',
         ],
       },
+      {
+        heading: 'Attribute-based access control with tags',
+        body: [
+          'As accounts grow, writing a policy per team does not scale. Attribute-based access control (ABAC) uses tags: a principal tagged `project=atlas` may act on resources tagged `project=atlas`, using a condition such as `"StringEquals": {"aws:ResourceTag/project": "${aws:PrincipalTag/project}"}`. New resources and people get access by being tagged correctly, without policy edits.',
+          'ABAC only works if tags are trustworthy. Restrict who can change tags with `aws:TagKeys` and `aws:RequestTag` conditions, enforce required tags with tag policies and SCPs, and pass identity-provider attributes as session tags at sign-in. Otherwise a user who can retag a resource can grant themselves access to it.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Permissions boundary for delegated admins',
+        code: 'Developers may create roles only if they attach this boundary:\n"Condition": { "StringEquals": {\n  "iam:PermissionsBoundary": "arn:aws:iam::111122223333:policy/dev-boundary" } }\n\ndev-boundary allows: s3, dynamodb, lambda, logs\nEffective permissions = identity policy AND boundary',
+        explanation: 'Developers can create roles for their apps without being able to grant more than the boundary allows, so no privilege escalation.',
+      },
     ],
     cheatSheet: [
       ['SCPs', 'Organization-level maximum permissions; never grant, and do not apply to the management account.'],
@@ -285,7 +369,7 @@ export default {
   'awss-data-protection': {
     overview: [
       'Data protection is the domain where the exam is most unforgiving, because the distinctions are precise and the wrong choice fails silently. SSE-S3 versus SSE-KMS is not a trivia question — it determines whether every decryption is logged with an identity attached. A key policy is not just another policy — for KMS it is the primary gate, and misunderstanding that breaks cross-account architectures.',
-      'This lesson covers the encryption and secrets toolkit in full: KMS key types and policies, envelope encryption, the SSE family, CloudHSM, certificate management with ACM, Secrets Manager, and the data-discovery loop with Macie. (SCS-C02 Domain 5.0: Data Protection.)',
+      'This lesson covers the encryption and secrets toolkit in full: KMS key types and policies, envelope encryption, the SSE family, CloudHSM, certificate management with ACM, Secrets Manager, and the data-discovery loop with Macie. (SCS-C03 Domain 5: Data Protection.)',
     ],
     learn: [
       {
@@ -305,6 +389,20 @@ export default {
           'Two immutability controls deserve mention together. S3 Object Lock in compliance mode gives WORM guarantees — objects cannot be deleted or overwritten until retention expires, not even by root — for regulatory retention. Macie closes the discovery loop: beyond initial PII/PHI classification in S3, it continuously monitors for new sensitive data and routes findings to Security Hub, because data protection is a posture that drifts.',
         ],
       },
+      {
+        heading: 'Protecting data from deletion and ransomware',
+        body: [
+          'Encryption protects confidentiality; availability needs separate controls. S3 Versioning keeps prior versions of overwritten or deleted objects, and S3 Object Lock in compliance mode prevents anyone, including the root user, from deleting a version until its retention date. MFA Delete adds a second factor for permanent deletions.',
+          'For backups across services, AWS Backup with a vault lock makes recovery points immutable, and copying backups to a separate account means an attacker who compromises production credentials cannot also delete the backups. Also monitor KMS: scheduled key deletion has a waiting period of 7 to 30 days precisely so an alarm on `ScheduleKeyDeletion` gives you time to cancel a malicious or mistaken request.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'KMS key policy separating admins and users',
+        code: 'Statement 1  Principal: role/KeyAdmins   Actions: kms:Create*, kms:Describe*, kms:Enable*, kms:Put*, kms:ScheduleKeyDeletion ...\nStatement 2  Principal: role/AppRole     Actions: kms:Encrypt, kms:Decrypt, kms:GenerateDataKey*\n(no principal gets both)',
+        explanation: 'Key administrators can manage the key but not use it to decrypt data, and the app can use it but not change it: separation of duties.',
+      },
     ],
     cheatSheet: [
       ['Customer managed keys', 'You control policy, rotation, audit — the exam answer for regulated data.'],
@@ -323,7 +421,7 @@ export default {
   'awss-secure-compute': {
     overview: [
       'Compute is where vulnerabilities become breaches. An unpatched library, an instance reachable over SSH from the internet, a metadata service that hands out credentials too freely — each is a small misconfiguration until an attacker assembles them into a path. The specialty exam treats workload hardening as a discipline with specific AWS tools, not general advice.',
-      'This lesson covers the compute security toolkit: Inspector for vulnerability assessment, Systems Manager for patching and keyless access, IMDSv2 enforcement and the breach that made it famous, EKS and Lambda hardening, and the golden-image pipeline that makes secure the default. (SCS-C02 Domain 3.0: Infrastructure Security.)',
+      'This lesson covers the compute security toolkit: Inspector for vulnerability assessment, Systems Manager for patching and keyless access, IMDSv2 enforcement and the breach that made it famous, EKS and Lambda hardening, and the golden-image pipeline that makes secure the default. (SCS-C03 Domain 3: Infrastructure Security.)',
     ],
     learn: [
       {
@@ -343,6 +441,20 @@ export default {
           'For the most sensitive processing, Nitro Enclaves provide isolated, attested compute environments on EC2 — no persistent storage, no administrator access, cryptographic attestation of the code running inside — for workloads like key handling where even the host must not be trusted.',
         ],
       },
+      {
+        heading: 'Hardening container and serverless workloads',
+        body: [
+          'For containers, scan images in Amazon ECR (Inspector integrates with it), use minimal base images, run as a non-root user and set the root filesystem read-only where the app allows. Give each ECS task or EKS pod its own IAM role (task roles, or EKS Pod Identity / IRSA) instead of sharing the node\'s role, so one compromised container does not inherit every permission on the host.',
+          'For Lambda, give each function its own narrowly scoped execution role, keep secrets in Secrets Manager or Parameter Store rather than plain environment variables, set reserved concurrency to limit abuse, and enable code signing so only approved deployment packages run. Inspector also scans Lambda functions for vulnerable dependencies.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Require IMDSv2',
+        code: 'aws ec2 modify-instance-metadata-options --instance-id i-0abc123 \\\n  --http-tokens required --http-put-response-hop-limit 1\n\n# IMDSv2 call needs a session token first:\nTOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token \\\n  -H \'X-aws-ec2-metadata-token-ttl-seconds: 300\')\ncurl -s -H "X-aws-ec2-metadata-token: $TOKEN" \\\n  http://169.254.169.254/latest/meta-data/iam/security-credentials/',
+        explanation: 'The PUT-for-token step and hop limit of 1 defeat most SSRF attacks that tried to read instance credentials through IMDSv1.',
+      },
     ],
     cheatSheet: [
       ['Inspector', 'Vulnerability and network-reachability assessment for EC2, ECR images, Lambda code.'],
@@ -361,7 +473,7 @@ export default {
   'awss-governance': {
     overview: [
       'Security at the scale of one account is a checklist. Security at the scale of a hundred accounts is a system of government: who may create accounts, what guardrails apply automatically, where the audit trail lives, and how you prove any of it to a regulator. The specialty exam treats governance as architecture, not paperwork.',
-      'This lesson covers governing AWS at scale: the multi-account structure, the management account\'s austere role, Control Tower guardrails, delegated administration, continuous compliance with Config, and the audit evidence pipeline. (SCS-C02 Domain 6.0: Governance.)',
+      'This lesson covers governing AWS at scale: the multi-account structure, the management account\'s austere role, Control Tower guardrails, delegated administration, continuous compliance with Config, and the audit evidence pipeline. (SCS-C03 Domain 6: Security Foundations and Governance.)',
     ],
     learn: [
       {
@@ -378,8 +490,22 @@ export default {
           'Compliance at scale is continuous or it is fiction. Deploy Config conformance packs — the CIS benchmark pack, for example — across the organization through a Config aggregator, and non-compliant resources plus their history become exportable evidence. Continuous evidence beats point-in-time screenshots, and it is what auditors actually want: proof that the control held every day, not just on assessment day.',
           'AWS Audit Manager turns Config and CloudTrail data into auditor-ready reports mapped to frameworks like CIS, PCI, and HIPAA. AWS Artifact supplies the other half of due diligence: on-demand third-party audit reports — SOC 2, ISO 27001 — proving AWS\'s own controls without auditing the provider yourself.',
           'Governance needs a written baseline to automate against: the required SCPs, Config rules, logging destinations, encryption defaults, and network patterns, codified and enforced rather than documented and hoped for. A tagging strategy belongs in that baseline and enforced by policy, because SCPs, Config rules, cost allocation, and finding routing all key off consistent tags — untagged resources escape governance entirely.',
-          'During an incident, the architecture pays for itself: cross-account CloudTrail is queried from the log archive account with Athena or CloudTrail Lake over the centralised bucket — one query surface for every account. Findings route automatically through Security Hub custom insights and EventBridge rules, directed by account, severity, and resource tags to the owning team\'s channel. And the minimum audit trail an SCS-C02 architect should design for is explicit: organization-wide CloudTrail with log validation to a locked archive, Config recording everywhere, and at least a year of retention. You cannot investigate what you did not record.',
+          'During an incident, the architecture pays for itself: cross-account CloudTrail is queried from the log archive account with Athena or CloudTrail Lake over the centralised bucket — one query surface for every account. Findings route automatically through Security Hub custom insights and EventBridge rules, directed by account, severity, and resource tags to the owning team\'s channel. And the minimum audit trail an SCS-C03 architect should design for is explicit: organization-wide CloudTrail with log validation to a locked archive, Config recording everywhere, and at least a year of retention. You cannot investigate what you did not record.',
         ],
+      },
+      {
+        heading: 'Proving compliance continuously',
+        body: [
+          'Auditors increasingly expect evidence over a period, not a snapshot. AWS Audit Manager maps controls from frameworks such as CIS, PCI DSS or SOC 2 to automated evidence collected from Config, CloudTrail and Security Hub, and assembles assessment reports. AWS Artifact provides AWS\'s own compliance reports, such as its SOC reports and certifications, for the provider\'s half of the shared model.',
+          'Security Hub\'s security standards give a running score per account and control, which works well as a governance metric when tracked over time. Pair it with automatic remediation for low-risk, high-volume findings (for example, enabling S3 Block Public Access) and with exceptions documented in a register that has owners and expiry dates.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'SCP that blocks leaving the organisation and unused Regions',
+        code: '{\n  "Version": "2012-10-17",\n  "Statement": [\n    { "Effect": "Deny", "Action": "organizations:LeaveOrganization", "Resource": "*" },\n    { "Effect": "Deny", "NotAction": ["iam:*", "sts:*", "organizations:*", "support:*"],\n      "Resource": "*",\n      "Condition": { "StringNotEquals": { "aws:RequestedRegion": ["eu-west-1", "us-east-1"] } } }\n  ]\n}',
+        explanation: 'SCPs set the maximum permissions for every member account, including its root user. Global services are excluded so the Region guardrail does not break IAM.',
       },
     ],
     cheatSheet: [

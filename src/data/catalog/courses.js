@@ -156,10 +156,10 @@ export const COURSE_META = [
   {
     slug: 'cysa-plus',
     trackId: 'cysa',
-    title: 'CompTIA CySA+ (CS0-003)',
+    title: 'CompTIA CySA+ (CS0-004)',
     difficulty: 'Intermediate',
     description:
-      'Behavioural analytics for the SOC: threat intelligence, vulnerability management, detection engineering and incident response. Aligned to CySA+ CS0-003.',
+      'Behavioural analytics for the SOC: threat intelligence, vulnerability management, detection engineering and incident response. Aligned to CySA+ CS0-004 (the same four domains as CS0-003).',
     objectives: [
       'Apply threat intelligence and the MITRE ATT&CK framework to detections',
       'Run vulnerability management and interpret scan data',
@@ -180,7 +180,7 @@ export const COURSE_META = [
     title: 'AWS Security – Specialty',
     difficulty: 'Advanced',
     description:
-      'Secure AWS workloads end to end: identity, detective controls, infrastructure protection, data protection and incident response. Aligned to the SCS-C02 exam.',
+      'Secure AWS workloads end to end: identity, detective controls, infrastructure protection, data protection and incident response. Aligned to the SCS-C03 exam.',
     objectives: [
       'Architect IAM, SCPs and cross-account access at scale',
       'Deploy detective controls with CloudTrail, GuardDuty and Security Hub',

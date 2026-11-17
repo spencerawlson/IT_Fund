@@ -1,0 +1,36 @@
+{
+  "cy-ad-cloud-attacks": {
+    "8": [0, "A stolen password reused against a cloud app that has no MFA configured"],
+    "10": [0, "Losing a hardware security key that is still registered to the user's account"]
+  },
+  "cy-threat-intel": {
+    "0": [0, "Paid commercial feeds versus free open-source feeds of indicators"],
+    "1": [0, "Plan, attack, report, then repeat the cycle at the end of every quarter"],
+    "2": [0, "A detection signature written by the vendor that has not been tested yet"],
+    "4": [0, "The technical severity of the flaw if it were successfully exploited"],
+    "9": [1, "It blocks every attack before it reaches the real production systems"]
+  },
+  "cy-detection-labs": {
+    "0": [0, "A 404 spike across many different paths from one source address in a short time"],
+    "5": [0, "A steady bandwidth soak at a constant rate from many sources at once"],
+    "8": [0, "NTP monlist on UDP 123, at about 556x"],
+    "10": [0, "Sysmon Event ID 3 (network connection) from the process that set the key"],
+    "11": [0, "Event ID 4624 (successful logon) for the account that created the task"]
+  },
+  "secplus-soc-scenarios": {
+    "0": [0, "Email the backup team to ask whether they are running an out-of-hours test"],
+    "1": [1, "Lower its severity to informational and keep bulk-closing it during quiet periods"],
+    "4": [2, "Disable VPN access for everyone until the user replies to confirm the trip"],
+    "6": [0, "Accept the user's explanation that they were browsing and close the ticket"],
+    "7": [1, "Count the total number of scheduled tasks in the fleet and compare it with last month"],
+    "8": [2, "Reset the user's password but leave existing sessions active so they can keep working"],
+    "12": [0, "Add the HR system to next year's SIEM onboarding plan, with the other SaaS apps"],
+    "13": [2, "Shift every firewall timestamp by 47 minutes and treat the correlation as correct"],
+    "15": [2, "The CISO gets a live dashboard; the SOC manager gets the quarterly trend report"],
+    "17": [0, "A misconfigured application retrying lookups; ignore it unless users complain"],
+    "18": [2, "How fast analysts close tickets after each new rule goes live"],
+    "19": [1, "Rewrite the parser from scratch before checking what changed in the log format"],
+    "22": [2, "Cancel the feeds and rely on vendor blogs and web search alerts for new threats"],
+    "23": [1, "Kill the malicious process but leave the network up so the presentation can continue"]
+  }
+}

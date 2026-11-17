@@ -416,9 +416,6 @@ export const tracks = [
             "id": "py-files-errors",
             "title": "Files, Errors & Modules",
             "summary": "Reading/writing files, exceptions, imports, and virtual environments.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "automate",
               "py-tutorial",
@@ -593,9 +590,6 @@ export const tracks = [
             "id": "py-automation",
             "title": "Automation & APIs",
             "summary": "Scripting the OS, HTTP APIs, regex, and CSV/log parsing.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "automate",
               "realpython"
@@ -1076,7 +1070,7 @@ export const tracks = [
                 "a": "Each layer wrapping data with its own header on the way down",
                 "x": "The receiver de-encapsulates, stripping headers on the way up.",
                 "wrong": [
-                  "Encrypting data",
+                  "Encrypting each layer's data with its own key",
                   "Compressing data",
                   "Splitting a network"
                 ]
@@ -1948,7 +1942,11 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "netacad",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-fundamentals-0",
@@ -2003,7 +2001,23 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "netacad",
+                "title": "Cisco Networking Academy free courses",
+                "url": "https://www.netacad.com/"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2013,7 +2027,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-static-0",
@@ -2068,7 +2085,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2078,7 +2106,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc2453",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-rip-0",
@@ -2133,7 +2164,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc2453",
+                "title": "RFC 2453 — RIP Version 2",
+                "url": "https://www.rfc-editor.org/rfc/rfc2453"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -2150,7 +2192,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc2328",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-ospf-0",
@@ -2210,7 +2255,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc2328",
+                "title": "RFC 2328 — OSPF Version 2",
+                "url": "https://www.rfc-editor.org/rfc/rfc2328"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2220,7 +2276,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc7868",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-eigrp-0",
@@ -2275,7 +2334,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc7868",
+                "title": "RFC 7868 — Cisco Enhanced Interior Gateway Routing Protocol (EIGRP)",
+                "url": "https://www.rfc-editor.org/rfc/rfc7868"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2285,7 +2355,9 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1195"
+            ],
             "cards": [
               {
                 "id": "rt-isis-0",
@@ -2340,7 +2412,13 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1195",
+                "title": "RFC 1195 — Use of OSI IS-IS for Routing in TCP/IP and Dual Environments",
+                "url": "https://www.rfc-editor.org/rfc/rfc1195"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -2357,7 +2435,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc4271",
+              "rfc7454"
+            ],
             "cards": [
               {
                 "id": "rt-bgp-0",
@@ -2417,7 +2498,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc4271",
+                "title": "RFC 4271 — A Border Gateway Protocol 4 (BGP-4)",
+                "url": "https://www.rfc-editor.org/rfc/rfc4271"
+              },
+              {
+                "id": "rfc7454",
+                "title": "RFC 7454 — BGP Operations and Security",
+                "url": "https://www.rfc-editor.org/rfc/rfc7454"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2427,7 +2519,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-redistribution-0",
@@ -2482,7 +2577,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2492,7 +2598,11 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc7454",
+              "rfc6811",
+              "manrs"
+            ],
             "cards": [
               {
                 "id": "rt-routing-security-0",
@@ -2547,7 +2657,23 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc7454",
+                "title": "RFC 7454 — BGP Operations and Security",
+                "url": "https://www.rfc-editor.org/rfc/rfc7454"
+              },
+              {
+                "id": "rfc6811",
+                "title": "RFC 6811 — BGP Prefix Origin Validation (RPKI)",
+                "url": "https://www.rfc-editor.org/rfc/rfc6811"
+              },
+              {
+                "id": "manrs",
+                "title": "MANRS — Mutually Agreed Norms for Routing Security",
+                "url": "https://manrs.org/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2557,7 +2683,11 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "jitl",
+              "wireshark"
+            ],
             "cards": [
               {
                 "id": "rt-routing-troubleshooting-0",
@@ -2612,7 +2742,23 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              },
+              {
+                "id": "wireshark",
+                "title": "Wireshark User’s Guide",
+                "url": "https://www.wireshark.org/docs/wsug_html_chunked/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -3664,9 +3810,9 @@ export const tracks = [
                 "a": "Owner read/write only; nobody else can access it",
                 "x": "r=4, w=2, x=1 for owner, group, others. SSH rejects world-readable private keys.",
                 "wrong": [
-                  "Everyone can read it: chmod 600 opens the key",
-                  "Makes it executable: chmod 600 adds execute rights only",
-                  "Deletes it: chmod 600 erases the key file entirely"
+                  "Everyone can read it, but only the owner can change it",
+                  "Owner can read, write and execute it",
+                  "Owner and group can read and write it"
                 ]
               },
               {
@@ -3703,9 +3849,9 @@ export const tracks = [
                 "a": "Runs a command as another user, root by default",
                 "x": "Audit sudoers: overly broad sudo rules are a privilege escalation path.",
                 "wrong": [
-                  "Switches the shell: sudo changes your shell session entirely",
-                  "Shows processes: sudo lists the running programs for you",
-                  "Encrypts files: sudo scrambles files for secrecy, not privilege"
+                  "Switches to another user's login shell permanently",
+                  "Lists the processes started by other users",
+                  "Opens a file with elevated read-only access"
                 ]
               },
               {
@@ -3716,9 +3862,9 @@ export const tracks = [
                 "a": "Sends one command’s output into the next command’s input",
                 "x": "cat access.log | sort | uniq -c | sort -nr counts repeat lines.",
                 "wrong": [
-                  "Writes to a file: the pipe saves output to disk",
-                  "Runs in the background: the pipe detaches commands to background",
-                  "Comments a line: the pipe marks text as notes"
+                  "Writes a command's output to a file",
+                  "Runs the first command in the background",
+                  "Runs the second command only if the first one finishes successfully"
                 ]
               },
               {
@@ -3729,9 +3875,9 @@ export const tracks = [
                 "a": "A program that runs with its owner’s privileges",
                 "x": "SUID-root binaries are a classic privilege escalation target (see GTFOBins).",
                 "wrong": [
-                  "A system service: a program the OS starts automatically at boot",
-                  "A shell alias",
-                  "A signed binary"
+                  "A service the system starts automatically at boot",
+                  "A binary signed by the distribution's key",
+                  "A program that can only be run by root"
                 ]
               },
               {
@@ -3742,9 +3888,9 @@ export const tracks = [
                 "a": "ps aux (or top/htop)",
                 "x": "Look for odd parents, names, or high CPU.",
                 "wrong": [
-                  "ls /proc only: listing proc alone shows running processes",
-                  "netstat: the tool that lists all running processes",
-                  "kill: the command that lists all running processes"
+                  "netstat -an",
+                  "lsof -i",
+                  "ls /proc"
                 ]
               },
               {
@@ -3768,9 +3914,9 @@ export const tracks = [
                 "a": "Decodes base64 text",
                 "x": "Base64 is encoding, not encryption; attackers use it to hide payloads.",
                 "wrong": [
-                  "Encrypts a file",
-                  "Hashes a file",
-                  "Compresses a file"
+                  "Decrypts a base64-encrypted file",
+                  "Verifies a base64 checksum",
+                  "Decompresses a base64 archive"
                 ]
               }
             ],
@@ -5588,8 +5734,7 @@ export const tracks = [
             "title": "Cloud Models & Virtualization Security",
             "summary": "Shared responsibility, hypervisors, containers, and zero trust.",
             "cissp": [
-              3,
-              7
+              3
             ],
             "secplus": [
               3
@@ -5757,6 +5902,11 @@ export const tracks = [
                 "id": "comptia-sec",
                 "title": "CompTIA Security+ exam objectives",
                 "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-210",
+                "title": "NIST SP 800-210 — General Access Control Guidance for Cloud Systems",
+                "url": "https://csrc.nist.gov/pubs/sp/800/210/final"
               }
             ],
             "puzzles": []
@@ -5910,6 +6060,11 @@ export const tracks = [
                 "id": "comptia-sec",
                 "title": "CompTIA Security+ exam objectives",
                 "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-53",
+                "title": "NIST SP 800-53 Rev. 5 — Security and Privacy Controls",
+                "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
               }
             ],
             "puzzles": []
@@ -6108,6 +6263,11 @@ export const tracks = [
                 "id": "comptia-sec",
                 "title": "CompTIA Security+ exam objectives",
                 "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-52",
+                "title": "NIST SP 800-52 Rev. 2 — Guidelines for TLS Implementations",
+                "url": "https://csrc.nist.gov/pubs/sp/800/52/r2/final"
               }
             ],
             "puzzles": []
@@ -6351,6 +6511,11 @@ export const tracks = [
                 "id": "messer-sec",
                 "title": "Professor Messer SY0-701 Security+ course",
                 "url": "https://www.professormesser.com/security-plus/sy0-701/sy0-701-video/sy0-701-comptia-security-plus-course/"
+              },
+              {
+                "id": "nist-sp800-30",
+                "title": "NIST SP 800-30 Rev. 1 — Guide for Conducting Risk Assessments",
+                "url": "https://csrc.nist.gov/pubs/sp/800/30/r1/final"
               },
               {
                 "id": "isc2-cc",
@@ -6675,6 +6840,11 @@ export const tracks = [
                 "id": "nist-rmf",
                 "title": "NIST Risk Management Framework (SP 800-37)",
                 "url": "https://csrc.nist.gov/projects/risk-management"
+              },
+              {
+                "id": "iso27001",
+                "title": "ISO/IEC 27001 — Information security management systems",
+                "url": "https://www.iso.org/standard/27001"
               }
             ],
             "puzzles": []
@@ -7362,7 +7532,8 @@ export const tracks = [
             "title": "Security Operations: Hardening & Vulnerability Scenarios",
             "summary": "Patch prioritization, secure baselines, and asset decisions as exam-style scenarios. (Domain 4.0)",
             "cissp": [
-              7
+              7,
+              3
             ],
             "secplus": [
               4
@@ -7519,7 +7690,8 @@ export const tracks = [
             "title": "Security Operations: Tooling & Identity Scenarios",
             "summary": "EDR, NAC, DLP, IAM operations, and automation as exam-style scenarios. (Domain 4.0)",
             "cissp": [
-              7
+              7,
+              5
             ],
             "secplus": [
               4
@@ -7833,6 +8005,7 @@ export const tracks = [
             "title": "Threats & Attack Vectors: Scenarios",
             "summary": "Attribution clues, initial-access choices, and vector response as exam-style scenarios. (Domain 2.0)",
             "cissp": [
+              1,
               7
             ],
             "secplus": [
@@ -8147,7 +8320,8 @@ export const tracks = [
             "title": "Social Engineering & Application Attack Scenarios",
             "summary": "Phishing variants, credential attacks, and web exploitation as exam-style scenarios. (Domain 2.0)",
             "cissp": [
-              7
+              8,
+              1
             ],
             "secplus": [
               2
@@ -8310,6 +8484,7 @@ export const tracks = [
             "title": "Vulnerability Response & Mitigation Scenarios",
             "summary": "Scan interpretation, zero-days, and compensating controls as exam-style scenarios. (Domain 2.0)",
             "cissp": [
+              6,
               7
             ],
             "secplus": [
@@ -8467,7 +8642,7 @@ export const tracks = [
             "title": "Security Architecture: Cloud & Virtualization Scenarios",
             "summary": "Shared responsibility, IaC, containers, and cloud controls as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              3
             ],
             "secplus": [
               3
@@ -8610,6 +8785,11 @@ export const tracks = [
                 "id": "comptia-sec",
                 "title": "CompTIA Security+ exam objectives",
                 "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-210",
+                "title": "NIST SP 800-210 — General Access Control Guidance for Cloud Systems",
+                "url": "https://csrc.nist.gov/pubs/sp/800/210/final"
               }
             ],
             "puzzles": []
@@ -8619,7 +8799,7 @@ export const tracks = [
             "title": "Security Architecture: Network Design Scenarios",
             "summary": "Segmentation, zero trust, VPN choices, and secure topologies as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              4
             ],
             "secplus": [
               3
@@ -8762,6 +8942,11 @@ export const tracks = [
                 "id": "comptia-sec",
                 "title": "CompTIA Security+ exam objectives",
                 "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-53",
+                "title": "NIST SP 800-53 Rev. 5 — Security and Privacy Controls",
+                "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
               }
             ],
             "puzzles": []
@@ -8771,7 +8956,7 @@ export const tracks = [
             "title": "Security Architecture: Data Protection Scenarios",
             "summary": "Classification, encryption, keys, and DLP as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              2
             ],
             "secplus": [
               3
@@ -8914,6 +9099,11 @@ export const tracks = [
                 "id": "comptia-sec",
                 "title": "CompTIA Security+ exam objectives",
                 "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-53",
+                "title": "NIST SP 800-53 Rev. 5 — Security and Privacy Controls",
+                "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
               }
             ],
             "puzzles": []
@@ -8923,7 +9113,8 @@ export const tracks = [
             "title": "Security Architecture: Resilience & Recovery Scenarios",
             "summary": "Backups, DR, RTO/RPO, and HA as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              7,
+              1
             ],
             "secplus": [
               3
@@ -9066,6 +9257,11 @@ export const tracks = [
                 "id": "comptia-sec",
                 "title": "CompTIA Security+ exam objectives",
                 "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-34",
+                "title": "NIST SP 800-34 Rev. 1 — Contingency Planning Guide for Federal Information Systems",
+                "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
               }
             ],
             "puzzles": []
@@ -9075,10 +9271,15 @@ export const tracks = [
             "title": "Security Concepts: Scenarios",
             "summary": "Zero trust, control types, AAA, and physical controls in real decisions.",
             "cissp": [
-              7
+              1
             ],
             "secplus": [
               1
+            ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-207",
+              "nist-glossary"
             ],
             "cards": [
               {
@@ -9209,7 +9410,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-207",
+                "title": "NIST SP 800-207 — Zero Trust Architecture",
+                "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+              },
+              {
+                "id": "nist-glossary",
+                "title": "NIST CSRC Glossary",
+                "url": "https://csrc.nist.gov/glossary"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9217,10 +9434,15 @@ export const tracks = [
             "title": "Cryptography & PKI: Scenarios",
             "summary": "Algorithm choices, certificate lifecycles, and key management under pressure.",
             "cissp": [
-              7
+              3
             ],
             "secplus": [
               1
+            ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-57",
+              "nist-sp800-52"
             ],
             "cards": [
               {
@@ -9351,7 +9573,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-57",
+                "title": "NIST SP 800-57 Part 1 Rev. 5 — Recommendation for Key Management",
+                "url": "https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final"
+              },
+              {
+                "id": "nist-sp800-52",
+                "title": "NIST SP 800-52 Rev. 2 — Guidelines for TLS Implementations",
+                "url": "https://csrc.nist.gov/pubs/sp/800/52/r2/final"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9359,10 +9597,14 @@ export const tracks = [
             "title": "Risk Management: Scenarios",
             "summary": "ALE math, risk treatments, and ownership in business decisions.",
             "cissp": [
-              7
+              1
             ],
             "secplus": [
               5
+            ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-30"
             ],
             "cards": [
               {
@@ -9478,7 +9720,18 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-30",
+                "title": "NIST SP 800-30 Rev. 1 — Guide for Conducting Risk Assessments",
+                "url": "https://csrc.nist.gov/pubs/sp/800/30/r1/final"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9486,10 +9739,16 @@ export const tracks = [
             "title": "Governance, Audit & Compliance: Scenarios",
             "summary": "Policies, audits, regulations, and privacy in real situations.",
             "cissp": [
-              7
+              1,
+              6
             ],
             "secplus": [
               5
+            ],
+            "sources": [
+              "comptia-sec",
+              "iso27001",
+              "nist-csf"
             ],
             "cards": [
               {
@@ -9605,7 +9864,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "iso27001",
+                "title": "ISO/IEC 27001 — Information security management systems",
+                "url": "https://www.iso.org/standard/27001"
+              },
+              {
+                "id": "nist-csf",
+                "title": "NIST Cybersecurity Framework 2.0",
+                "url": "https://www.nist.gov/cyberframework"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9613,10 +9888,15 @@ export const tracks = [
             "title": "Third-Party & Continuity Governance: Scenarios",
             "summary": "Vendor assessment, contracts, and exit strategies that work.",
             "cissp": [
-              7
+              1
             ],
             "secplus": [
               5
+            ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-161",
+              "nist-sp800-34"
             ],
             "cards": [
               {
@@ -9732,7 +10012,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-161",
+                "title": "NIST SP 800-161 Rev. 1 — Cybersecurity Supply Chain Risk Management",
+                "url": "https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final"
+              },
+              {
+                "id": "nist-sp800-34",
+                "title": "NIST SP 800-34 Rev. 1 — Contingency Planning Guide for Federal Information Systems",
+                "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -9800,7 +10096,7 @@ export const tracks = [
                 "wrong": [
                   "The OS, patching and configuring it themselves",
                   "The hardware, racks and servers in the data centre",
-                  "Nothing at all, the provider manages everything"
+                  "Nothing; the provider manages data and access too"
                 ]
               },
               {
@@ -9825,7 +10121,7 @@ export const tracks = [
                 "x": "Community cloud is shared by organisations with common needs.",
                 "wrong": [
                   "Two public clouds from two different providers",
-                  "Only private cloud, nothing public at all",
+                  "A private cloud hosted by a third party",
                   "A cloud with no internet, completely offline"
                 ]
               },
@@ -9839,7 +10135,7 @@ export const tracks = [
                 "wrong": [
                   "The provider secures everything",
                   "The customer secures everything",
-                  "An insurance contract"
+                  "The customer secures the hardware; the provider secures the data and identities"
                 ]
               },
               {
@@ -9863,7 +10159,7 @@ export const tracks = [
                 "a": "Scaling resources up and down with demand",
                 "x": "Scalability is the ability to grow; elasticity is doing it automatically, both ways.",
                 "wrong": [
-                  "Fixed capacity, the same servers all year round",
+                  "Fixed capacity sized for the yearly peak",
                   "Manual provisioning, adding servers by hand",
                   "Data replication, copying data across regions"
                 ]
@@ -9889,7 +10185,7 @@ export const tracks = [
                 "a": "A site that caches content close to users (CDN)",
                 "x": "e.g. CloudFront, Azure Front Door, Cloud CDN.",
                 "wrong": [
-                  "A backup region",
+                  "A backup region used for disaster recovery",
                   "A private data centre",
                   "A VPN endpoint"
                 ]
@@ -10827,7 +11123,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -10937,7 +11239,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -11047,7 +11355,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -11164,7 +11478,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -11271,7 +11591,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -11381,7 +11707,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -11488,7 +11820,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -11595,7 +11933,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -11709,7 +12053,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -11816,7 +12166,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -11923,7 +12279,13 @@ export const tracks = [
             ],
             "trackId": "aws-saa",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-saa",
+                "title": "AWS Certified Solutions Architect – Associate (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -11933,7 +12295,7 @@ export const tracks = [
   {
     "id": "cysa",
     "title": "CySA+",
-    "tagline": "SOC analyst skills: detection, vulnerability management, and incident response, aligned to CS0-003.",
+    "tagline": "SOC analyst skills: detection, vulnerability management, and incident response, aligned to CS0-004.",
     "icon": "Radar",
     "color": "#8B5CF6",
     "tiers": [
@@ -12059,7 +12421,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -12070,6 +12438,7 @@ export const tracks = [
               2
             ],
             "cissp": [
+              6,
               7
             ],
             "sources": [
@@ -12179,7 +12548,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -12306,7 +12681,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -12426,7 +12807,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -12437,7 +12824,8 @@ export const tracks = [
               2
             ],
             "cissp": [
-              7
+              7,
+              6
             ],
             "sources": [
               "comptia-cysa"
@@ -12546,7 +12934,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -12673,7 +13067,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -12684,6 +13084,7 @@ export const tracks = [
               3
             ],
             "cissp": [
+              1,
               7
             ],
             "sources": [
@@ -12793,7 +13194,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -12913,7 +13320,13 @@ export const tracks = [
             ],
             "trackId": "cysa",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-cysa",
+                "title": "CompTIA CySA+ (exam page)",
+                "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -13009,7 +13422,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -13017,7 +13436,7 @@ export const tracks = [
             "title": "Security Logging Foundations",
             "summary": "CloudTrail, CloudWatch Logs, metrics, and alarms. (Domain 2.0)",
             "awss": [
-              2
+              1
             ],
             "cissp": [
               7
@@ -13099,7 +13518,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -13189,7 +13614,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -13204,7 +13635,7 @@ export const tracks = [
             "title": "Incident Response Playbooks",
             "summary": "Detective, containment, eradication, and recovery in AWS. (Domain 1.0)",
             "awss": [
-              1
+              2
             ],
             "cissp": [
               7
@@ -13276,7 +13707,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -13284,7 +13721,7 @@ export const tracks = [
             "title": "Monitoring and Log Analysis",
             "summary": "Config, Flow Logs, Athena, and centralised analysis. (Domain 2.0)",
             "awss": [
-              2
+              1
             ],
             "cissp": [
               7
@@ -13371,7 +13808,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -13471,7 +13914,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -13551,7 +14000,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -13718,7 +14173,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -13818,7 +14279,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -13948,7 +14415,13 @@ export const tracks = [
             ],
             "trackId": "aws-security",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "aws-scs",
+                "title": "AWS Certified Security – Specialty (exam page)",
+                "url": "https://aws.amazon.com/certification/certified-security-specialty/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -16223,9 +16696,6 @@ export const tracks = [
             "id": "lx-cli",
             "title": "Command Line & Filesystem",
             "summary": "Navigating, creating, moving, and finding files from the shell.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "overthewire",
               "linuxjourney",
@@ -16305,7 +16775,7 @@ export const tracks = [
                 "a": "Recursively force-deletes dir/ with no prompt and no undo",
                 "x": "-r walks into subdirectories, -f skips confirmation. There is no trash can.",
                 "wrong": [
-                  "Moves dir/ to the trash",
+                  "Moves dir/ to the desktop trash so it can be restored",
                   "Renames dir/ to dir.bak",
                   "Compresses dir/ first"
                 ]
@@ -16389,7 +16859,7 @@ export const tracks = [
             "title": "Permissions & Ownership",
             "summary": "rwx, chmod, chown, umask, and the special bits.",
             "cissp": [
-              7
+              5
             ],
             "sources": [
               "linuxjourney",
@@ -16468,8 +16938,7 @@ export const tracks = [
             "title": "Users, Groups & sudo",
             "summary": "Accounts, /etc/passwd, groups, and safe privilege escalation.",
             "cissp": [
-              5,
-              7
+              5
             ],
             "sources": [
               "linuxjourney",
@@ -16547,9 +17016,6 @@ export const tracks = [
             "id": "lx-text",
             "title": "Text Processing Pipelines",
             "summary": "grep, pipes, redirection, cut, sort, sed, and awk.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "overthewire",
               "tldr"
@@ -16712,9 +17178,6 @@ export const tracks = [
             "id": "lx-systemd",
             "title": "systemd & Services",
             "summary": "systemctl, journalctl, units, and timers.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "comptia-linux",
               "tldr"
@@ -16878,9 +17341,6 @@ export const tracks = [
             "id": "lx-bash",
             "title": "Bash Scripting",
             "summary": "Variables, conditionals, loops, functions, and safe scripting.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "tldr",
               "comptia-linux"
@@ -17037,8 +17497,7 @@ export const tracks = [
             "title": "Linux Security Basics",
             "summary": "SSH hardening, firewalls, patching, and least privilege.",
             "cissp": [
-              3,
-              7
+              3
             ],
             "sources": [
               "comptia-linux",
@@ -20439,6 +20898,9 @@ export const tracks = [
             "id": "sql-transactions-security",
             "title": "Transactions, Views & Security",
             "summary": "ACID, views, window functions, and injection defence.",
+            "cissp": [
+              8
+            ],
             "sources": [
               "mode-sql",
               "use-the-index"
@@ -23021,6 +23483,13 @@ export const freeLessonContent = {
       "caption": "Encapsulation as data moves down the stack. Each layer wraps the one above with its own header (Ethernet also adds an FCS trailer); the receiver removes them in reverse.",
       "diagram": "Layer 7-5  Data                                   [ HTTP request ]\nLayer 4    Segment                      [ TCP hdr | HTTP request ]\nLayer 3    Packet              [ IP hdr | TCP hdr | HTTP request ]\nLayer 2    Frame     [ Eth hdr | IP hdr | TCP hdr | HTTP request ] + FCS\nLayer 1    Bits      0101 1001 0111 0100 ... on the wire, fibre or radio"
     },
+    "examples": [
+      {
+        "title": "Troubleshoot layer by layer",
+        "code": "Layer 1  link light on? cable/Wi-Fi connected?\nLayer 2  ip link / arp -a        MAC addresses seen?\nLayer 3  ping 192.168.1.1        reach the gateway? ping 1.1.1.1\nLayer 4  Test-NetConnection shop.example.com -Port 443\nLayer 7  nslookup shop.example.com ; curl -I https://shop.example.com",
+        "explanation": "Work bottom-up: if you can ping 1.1.1.1 but not a name, the problem is DNS, not the cable."
+      }
+    ],
     "cheatSheet": [
       [
         "L1 Physical",
@@ -23096,6 +23565,13 @@ export const freeLessonContent = {
           "A honeypot is a decoy system that lures attackers so you can observe and detect them; honeynets, honeyfiles and honeytokens apply the same idea to networks, documents and credentials. Legitimate users should never touch them, so any interaction is a high-confidence alert.",
           "Change management is a security control because unreviewed changes cause outages and open vulnerabilities. A good change record includes approval, impact analysis, test results and a backout plan."
         ]
+      }
+    ],
+    "examples": [
+      {
+        "title": "Map controls to CIA and control type",
+        "code": "Control                         CIA goal         Type\n------------------------------  ---------------  ----------\nBitLocker on laptops            Confidentiality  Preventive\nSHA-256 file integrity check    Integrity        Detective\nNightly backup + restore test   Availability     Corrective\nCCTV at the server room door    Confidentiality  Detective\nSigned purchase approvals       Non-repudiation  Preventive",
+        "explanation": "Classify every control by the goal it protects and how it acts. Gaps show up fast: here nothing deters, so a warning banner or visible guard would add a deterrent layer."
       }
     ],
     "cheatSheet": [
@@ -23248,6 +23724,13 @@ export const freeLessonContent = {
         "body": [
           "`mkdir -p projects/2026/q1` creates the whole chain at once, `touch file` creates an empty file or updates timestamps, `cp -r` copies trees, and `mv` both moves and renames. `rm -rf` deletes recursively without asking and without a trash can — the most feared command for a reason: double-check the path before pressing enter.",
           "`find /var -name \"app.log\"` walks the filesystem looking for a name. Quote the pattern so the shell does not expand it first. When you forget a flag, `man <command>` opens the built-in manual (q quits, / searches); for quick examples, `tldr <command>` is faster to skim."
+        ]
+      },
+      {
+        "heading": "Finding files and getting help",
+        "body": [
+          "Two commands answer most 'where is it?' questions. `find /var/log -name '*.log' -mtime -1` searches a directory tree by name, type, size or modification time and can act on what it finds (`-exec`, or `-delete` with care). `locate` searches a prebuilt index and is much faster, but only knows about files that existed at the last `updatedb` run. `which python3` shows which executable your shell will actually run.",
+          "When you meet an unfamiliar command, the documentation is already on the system. `man ls` opens the manual page, `ls --help` prints a short summary, and `apropos compress` searches manual page descriptions for a keyword. Tab completion saves typing and catches typos: press Tab once to complete a path, twice to list the options. `history` and Ctrl+R let you find and rerun earlier commands instead of retyping them."
         ]
       }
     ],
@@ -23417,6 +23900,13 @@ export const freeLessonContent = {
           "A region is a geographic area; an availability zone (AZ) is one or more isolated data centres within a region, with independent power and networking. Spread workloads across AZs for high availability, and across regions for disaster recovery. Edge locations cache content close to users as part of a CDN, such as CloudFront, Azure Front Door or Cloud CDN.",
           "Vendor lock-in is dependence on one provider's proprietary services. Reduce it with open standards, containers and portable infrastructure as code, and accept it deliberately where a managed service is worth it."
         ]
+      }
+    ],
+    "examples": [
+      {
+        "title": "Who manages what",
+        "code": "Layer           On-prem  IaaS      PaaS      SaaS\n--------------  -------  --------  --------  --------\nData & access   You      You       You       You\nApplication     You      You       You       Provider\nRuntime / OS    You      You       Provider  Provider\nVirtualisation  You      Provider  Provider  Provider\nHardware        You      Provider  Provider  Provider",
+        "explanation": "Each step from IaaS to SaaS hands more layers to the provider, but your data and who can access it are always yours."
       }
     ],
     "cheatSheet": [

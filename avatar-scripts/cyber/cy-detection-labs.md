@@ -54,9 +54,9 @@ streams completed, and connections open and then abort or reset almost
 immediately.
 
 The amplification lab is safe by design: it never spoofs a source IP, so the
-large responses return to the sender, not a victim. NTP monlist has the
-highest factor of the lab's profiles — about 556x — answering from UDP
-source port 123.
+large responses return to the sender, not a victim. NTP monlist amplifies
+about 556x, answering from UDP source port 123; memcached on UDP 11211 is
+far higher, at ten thousand times or more.
 
 **[SECTION — The gift-card lure chain — 3:25]**
 The lure masquerades — T1036 — with a double or mismatched extension: the
@@ -93,8 +93,8 @@ enumeration is a 404 spike across many paths. SSRF aims at the metadata
 endpoint — never let a web tier fetch user-supplied URLs. Decode before
 matching traversal, and watch for double encoding. Volumetric floods reuse
 connections; connection floods open fresh ones; slowloris hangs them open;
-rapid reset aborts them. NTP monlist amplifies about 556x off UDP port 123 —
-measured safely, with no spoofing. The lure masquerades with mismatched
+rapid reset aborts them. NTP monlist amplifies about 556x off UDP port 123,
+memcached far more — measured safely, with no spoofing. The lure masquerades with mismatched
 extensions; persistence lands in Run keys and scheduled tasks; beacons betray
 themselves by their clockwork. And events.jsonl grades it all: drill,
 capture, compare, write the missing detection.
@@ -108,7 +108,7 @@ capture, compare, write the missing detection.
   encoding decode chain %252e to %2e to dot.
 - DDoS: three flood shapes side by side — volumetric (high RPS), slowloris
   (climbing concurrency), rapid reset (initiated vs completed streams);
-  amplification factor bars with NTP monlist at ~556x.
+  amplification factor bars: NTP monlist ~556x, memcached 10,000x+.
 - Lure chain: file with mismatched extension and its Zone.Identifier;
   Sysmon 12/13 on the Run key; Event 4698 for the scheduled task; beacon
   timeline with clockwork intervals.

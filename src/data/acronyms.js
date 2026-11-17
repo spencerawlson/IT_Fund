@@ -543,10 +543,12 @@ export const ACRONYMS = {
   EMR: ['Elastic MapReduce', 'AWS-managed big data clusters (Spark, Hadoop).'],
   DMS: ['Database Migration Service', 'Migrates databases to AWS with minimal downtime.'],
   IOPS: ['Input/Output Operations Per Second', 'A storage performance measure; key for database volumes.'],
-  'SCS-C02': ['AWS Certified Security - Specialty exam code', 'The current exam version of the AWS Security Specialty certification.'],
+  'SCS-C03': ['AWS Certified Security - Specialty exam code', 'The current exam version of the AWS Security Specialty certification (replaced SCS-C02 in December 2025).'],
+  'SCS-C02': ['AWS Certified Security - Specialty exam code', 'The previous AWS Security Specialty exam version, retired December 2025.'],
   'SAA-C03': ['AWS Certified Solutions Architect - Associate exam code', 'The current exam version of the AWS Solutions Architect Associate certification.'],
   'SY0-701': ['CompTIA Security+ exam code', 'The current Security+ exam version.'],
-  'CS0-003': ['CompTIA CySA+ exam code', 'The current CySA+ exam version.'],
+  'CS0-004': ['CompTIA CySA+ exam code', 'The current CySA+ exam version (V4, launched June 2026).'],
+  'CS0-003': ['CompTIA CySA+ exam code', 'The previous CySA+ exam version; the English exam retires 22 December 2026.'],
 
   // ---------- Azure / GCP ----------
   AKS: ['Azure Kubernetes Service', 'Microsoft\'s managed Kubernetes.'],

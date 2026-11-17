@@ -81,8 +81,8 @@ export const SECPLUS_EXAM_FAQS = [
 function certFaqs(cfg) {
   const realExam = {
     'aws-saa': 'The real SAA-C03 is 65 scenario-based questions in 130 minutes — multiple-choice and multiple-response. This simulator samples the same domains and weights, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.',
-    cysa: 'The real CS0-003 is 85 questions in 165 minutes and includes performance-based questions — hands-on tasks in a simulated environment — which this simulator does not include. This is fixed-length practice: a knowledge check with a per-domain breakdown, not a test-day prediction.',
-    'aws-security': 'The real SCS-C02 is 65 scenario-based questions in 170 minutes — multiple-choice and multiple-response. This simulator samples the same domains and weights, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.',
+    cysa: 'The real CS0-004 is up to 85 questions in 165 minutes and includes performance-based questions — hands-on tasks in a simulated environment — which this simulator does not include. This is fixed-length practice: a knowledge check with a per-domain breakdown, not a test-day prediction.',
+    'aws-security': 'The real SCS-C03 is 65 scenario-based questions in 170 minutes — multiple-choice and multiple-response. This simulator samples the same domains and weights, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.',
   }[cfg.certId] || 'This simulator samples the same domains and weights as the real exam, but it is a knowledge check with a per-domain breakdown, not a test-day prediction.';
   return [
     {
@@ -138,7 +138,7 @@ export const FAQ_GROUPS = [
       },
       {
         q: 'Which certifications does it cover?',
-        a: 'Security+ (SY0-701), Network+ (N10-009), Linux+ and CySA+ (CS0-003) — all the way to the CISSP.',
+        a: 'Security+ (SY0-701), Network+ (N10-009), Linux+ and CySA+ (CS0-004) — all the way to the CISSP.',
       },
       {
         q: 'Do I need an account to use the library?',

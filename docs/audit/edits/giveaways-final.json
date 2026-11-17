@@ -1,0 +1,28 @@
+{
+  "cl-billing-support": { "7": { "wrong": ["The monthly cloud invoice, excluding staff, power and migration costs", "A support plan that pays for access to cloud engineers", "A tax credit for moving workloads into the cloud"] } },
+  "cl-architecture": { "10": { "wrong": ["Colour-coding log streams so blue and green errors are separated", "Running two Regions active-active and splitting traffic evenly", "A disaster recovery test that fails over to a second site"] } },
+  "saa-databases": { "10": { "wrong": ["Provision read capacity for the peak and keep it there", "Add more global secondary indexes to spread the reads", "Move the table to a larger instance class"] } },
+  "ai-security": { "9": { "wrong": ["Rely on careful prompt wording to refuse injected instructions", "Keep the system prompt secret so attackers cannot read it", "Raise the temperature so the model ignores injected text"] } },
+  "ai-governance": { "8": { "wrong": ["The IT helpdesk, which fields user reports about the AI tools", "The vendor that supplies the model, under its contract", "The data science team, since it builds and tunes the models"] } },
+  "lx-users": { "8": { "wrong": ["They are identical; both prompt for the root password", "`sudo -i` needs the root password; `su -` uses your own and is logged", "`su -` cannot start a root shell; only `sudo -i` can"] } },
+  "cpp-control-functions": {
+    "4": { "wrong": ["Pass it by value so the function works on the caller's copy", "Declare the parameter const so changes are written back", "Return void so the compiler writes the result into the argument"] },
+    "7": { "wrong": ["A global variable the function reads when no argument is given", "The value a function returns when it has no return statement", "An argument the caller must always supply"] }
+  },
+  "cpp-safety": { "8": { "wrong": ["Freeing the same memory twice, which corrupts the allocator", "A memory leak, where allocated memory is never freed", "A stack overflow caused by recursion that never ends"] } },
+  "rust-types": { "2": { "wrong": ["Mutating the existing variable in place, which requires `mut`", "A global variable that overrides a local one of the same name", "Hiding a struct field from other modules with a private modifier"] } },
+  "rust-control-functions": { "9": { "wrong": ["`null`, as in most C-family languages", "`0`, the default integer", "A compile error unless the function ends with `return`"] } },
+  "sql-indexes-norm": { "3": { "wrong": ["No duplicate rows, with every table given a primary key", "Every non-key column depends on the whole composite key", "All data kept in a single table to avoid joins"] } },
+  "sql-transactions-security": {
+    "0": { "wrong": ["A single SQL statement sent to the server", "A stored procedure saved in the database and called by name", "A backup of the database taken before statements run"] },
+    "6": { "wrong": ["Escaping quote characters in the input by hand before building the query", "Hiding database error messages from users", "A network firewall in front of the database server"] }
+  },
+  "k8s-workloads": { "8": { "wrong": ["Live logs streamed from the container as it runs", "An interactive shell inside the pod's first container", "The list of nodes the pod could be scheduled on, with their capacity"] } },
+  "k8s-operations": { "9": { "wrong": ["Run once at deploy time, then exit until the next apply", "Act only when someone runs kubectl apply on the object", "Run on a cron schedule set in the controller's manifest"] } },
+  "git-basics": { "6": { "wrong": ["A single line change to one file, stored as a diff", "A branch pointer that moves forward with each change", "A push that uploads the current files to the remote"] } },
+  "git-undo": {
+    "3": { "wrong": ["Keeps all changes but unstages them, leaving the files untouched", "Only unstages files; the branch does not move", "Creates a new commit that safely undoes the last one"] },
+    "6": { "wrong": ["The commit log of the current branch, as shown by git log", "A log of every push and pull made against the remote", "A merge tool that replays conflicting commits"] }
+  },
+  "git-internals-hygiene": { "4": { "wrong": ["Delete the file in a later commit so it no longer appears in the tree", "Rely on Git, which encrypts files that look like credentials", "Push only to a private repository"] } }
+}

@@ -1,0 +1,16 @@
+{
+  "cy-risk": {
+    "7": [0, "ALE $100,000: double the single loss, so only controls above that are justified"],
+    "16": [1, "Both are owned by IT, since recovery of systems is the whole of continuity planning"],
+    "18": [0, "Full: everything; differential: changes since the last backup of any kind; incremental: changes since the last full"],
+    "19": [0, "Tabletop: fail over the systems; functional: talk through the plan; full interruption: a walkthrough with senior management"],
+    "25": [0, "Only the staff email distribution list and the address of the alternate site"],
+    "29": [2, "HR arranges catering and transport for staff working at the alternate site"],
+    "30": [2, "File the insurance claim and start ordering replacement equipment immediately"],
+    "32": [0, "Holding more frequent risk meetings, monthly instead of once a year"],
+    "33": [0, "Only the vendor's, because the breach happened inside the vendor's systems"],
+    "37": [0, "Ask the regulator for a one-year delay while the security team studies the rule"],
+    "40": [1, "A risk register that lists each risk and its rating, with no actions attached"],
+    "41": [0, "The security analyst who identified the risk, because they understand it best"]
+  }
+}

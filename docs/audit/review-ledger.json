@@ -1,0 +1,1115 @@
+{
+  "note": "Decks whose every item has been read against the audit checklist. Reviewer is the AI audit, not a certified human expert.",
+  "decks": {
+    "cissp-mindset": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d1": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d1b": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "cissp-d2": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d2b": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "cissp-d3": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d4": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d5": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d6": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d7": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d8": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
+    },
+    "cissp-cap-d1": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 4
+    },
+    "cissp-cap-d2": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d3": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d4": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d5": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d6": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d7": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d8": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "sec-concepts": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-threats": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-malware": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-crypto": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 13
+    },
+    "sec-iam": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 27
+    },
+    "sec-architecture": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-ops": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-governance": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-ai-apps": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cysa-soc-foundations": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-vuln-basics": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-siem-soar": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-threat-hunting": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-vuln-management": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-incident-response": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-attack-frameworks": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-reporting": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "awss-threat-detect": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "awss-logging": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 14
+    },
+    "awss-iam-foundations": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 14
+    },
+    "awss-incident-response": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "awss-monitor-analyze": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "awss-network-security": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 16
+    },
+    "awss-iam-advanced": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "awss-data-protection": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 28
+    },
+    "awss-secure-compute": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 16
+    },
+    "awss-governance": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
+    },
+    "cy-linux": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cy-frameworks": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cy-crypto": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "cy-concepts": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 34
+    },
+    "cy-soc": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 47
+    },
+    "cy-threat-actors": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 36
+    },
+    "cy-malware": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 29
+    },
+    "cy-web": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cy-pentest": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cy-detection": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 46
+    },
+    "cy-vulns": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 36
+    },
+    "cy-cloud-arch": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 30
+    },
+    "cy-net-arch": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "cy-secure-proto": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 34
+    },
+    "cy-risk": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 43
+    },
+    "cy-governance": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 56
+    },
+    "cy-ir-forensics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 41
+    },
+    "cy-ad-cloud-attacks": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cy-threat-intel": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cy-detection-labs": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 14
+    },
+    "secplus-soc-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-hardening-vuln": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-secops-tooling": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-ir-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-threat-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-malware-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-social-web-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-vuln-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-cloud-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-netarch-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-dataprotect-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-resilience-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-concepts-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-crypto-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-risk-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
+    },
+    "secplus-governance-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
+    },
+    "secplus-thirdparty-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
+    },
+    "rt-fundamentals": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-static": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-rip": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-ospf": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "rt-eigrp": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-isis": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-bgp": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "rt-redistribution": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-routing-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-routing-troubleshooting": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "net-osi": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-ports": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "net-devices-media": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-ip-subnet": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-switch-route": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-services-wireless": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-troubleshoot": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-ops": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "saa-iam": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-network-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-data-protection": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-ha-compute": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-decoupling": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-backup-dr": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-storage": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-databases": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-caching-cdn": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-compute-cost": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-storage-cost": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "cl-concepts": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cl-core-services": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 27
+    },
+    "cl-billing-support": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cl-networking": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cl-architecture": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cl-containers-iac": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cl-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cl-ccsp": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cl-sre": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "ai-ml-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "ai-dl-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "ai-llm-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "ai-rag": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "ai-apis-tools": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "ai-finetune-eval": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "ai-agents": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "ai-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "ai-governance": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "py-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "py-flow": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "py-collections": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "py-files-errors": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "py-oop": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "py-automation": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "py-concurrency": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "py-testing-packaging": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "py-security-tools": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-cli": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-perms": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-users": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-text": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-packages": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-systemd": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-network": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-bash": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-logs": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "lx-secure": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "tf-iac-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "tf-core-workflow": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "tf-resources": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "tf-variables": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "tf-expressions": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "tf-state-backends": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "tf-modules": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "tf-meta-lifecycle": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "tf-prod-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-types": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-control-functions": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-pointers": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-oop": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-stl": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-raii": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-modern-templates": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "cpp-safety": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-types": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-control-functions": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-collections": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-structs-interfaces": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-errors": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-concurrency": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "go-stdlib-testing": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-types": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-control-functions": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-ownership": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-structs-enums": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-errors": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-traits-generics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rust-concurrency": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-select": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-aggregates": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-joins": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-ddl-dml": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-subqueries": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-indexes-norm": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-transactions-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-images": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-run": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-data-net": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-compose": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-registry": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-optimization-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-ops": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-workloads": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-config": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-networking": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-storage": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-deployments": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-operations": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "k8s-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-staging-commits": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-remotes": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-branching": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-conflicts": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-undo": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-workflows": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "git-internals-hygiene": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "it-what-is-it": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "it-binary-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "it-hardware": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "it-storage-memory": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "it-os-boot": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "it-files-cli": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    }
+  }
+}

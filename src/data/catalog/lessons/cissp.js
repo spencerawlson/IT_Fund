@@ -35,6 +35,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Choose the CISSP answer',
+        code: 'Scenario: A fire alarm sounds while you are mid-way through\nimaging a compromised server for evidence.\n\nA. Finish the image, then leave     (protects evidence)\nB. Power the server off and leave   (protects data)\nC. Leave immediately                (protects people)   <- answer\nD. Call the CISO for a decision     (defers)',
+        explanation: 'Life safety outranks evidence, data and systems every time. When several options are technically sensible, pick the one a manager responsible for people and the business would choose.',
+      },
+    ],
     cheatSheet: [
       ['First priority', 'Human safety'],
       ['Accountability', 'Senior management; cannot be delegated'],
@@ -96,6 +103,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Quantitative risk: is the control worth it?',
+        code: 'Asset value (AV)            $500,000\nExposure factor (EF)        40%\nSLE = AV x EF               $200,000\nARO (once every 4 years)    0.25\nALE = SLE x ARO             $50,000 per year\n\nControl cost                $30,000 per year\nALE after control           $10,000 per year\nValue = 50,000 - 10,000 - 30,000 = $10,000 per year  -> justified',
+        explanation: 'A control is worth buying when the reduction in ALE exceeds its annual cost. Present it to management in exactly these terms.',
+      },
+    ],
     cheatSheet: [
       ['Quantitative vs qualitative', 'Money (ALE) vs high/medium/low'],
       ['NIST RMF steps', 'Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor'],
@@ -149,6 +163,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'From BIA to recovery targets',
+        code: 'Function         MTD     RTO     RPO     Strategy\n---------------  ------  ------  ------  -------------------------\nOrder taking     8 h     4 h     15 min  Warm site + log shipping\nPayroll          5 days  2 days  24 h    Restore from nightly backup\nIntranet wiki    14 days 7 days  1 week  Rebuild from weekly backup',
+        explanation: 'The BIA sets MTD; RTO must fit inside it and RPO sets backup frequency. The strategy (and its cost) follows from those numbers, not the other way round.',
+      },
+    ],
     cheatSheet: [
       ['BCP vs DRP', 'Business functions keep running / IT systems restored'],
       ['BCP contains', 'BIA, strategies, invocation, roles, comms, maintenance'],
@@ -197,6 +218,13 @@ export default {
         body: [
           'Scoping selects the controls from a standard baseline (such as NIST SP 800-53) that are relevant to a system; tailoring then adjusts them to the environment. Digital rights management (DRM) protects how content is used after distribution, controlling copying, printing and forwarding.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A data classification and handling table',
+        code: 'Class         Example               Storage           Transmission     Disposal\n------------  --------------------  ----------------  ---------------  -----------------\nRestricted    Card data, health     Encrypted, MFA    TLS + DLP block  Purge or destroy\nConfidential  Contracts, salaries   Encrypted         TLS              Purge\nInternal      Policies, org chart   Access-controlled Any internal     Clear\nPublic        Marketing site        Any               Any              None',
+        explanation: 'The data owner assigns the class; the custodian applies the handling rules. Classification without handling rules changes nothing.',
       },
     ],
     cheatSheet: [
@@ -262,6 +290,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Sanitising media under NIST SP 800-88',
+        code: 'Media                      Leaving org?  Method\n-------------------------  ------------  --------------------------------\nHDD, reused internally     No            Clear  (single overwrite)\nHDD, sold to recycler      Yes           Purge  (ATA Secure Erase) or destroy\nSSD, any reuse             Either        Purge  (crypto erase / sanitize cmd)\nSSD, end of life           Yes           Destroy (shred), with certificate',
+        explanation: 'The method depends on where the media is going and the data\'s classification. Degaussing does nothing to SSDs.',
+      },
+    ],
     cheatSheet: [
       ['Lifecycle', 'Create, store, use, share, archive, destroy'],
       ['Owner / steward / custodian', 'Accountable, classifies / manages handling / maintains systems'],
@@ -316,6 +351,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Bell-LaPadula vs Biba',
+        code: 'Subject clearance: SECRET\n\nBell-LaPadula (confidentiality)\n  read  TOP SECRET   -> denied   (no read up)\n  write CONFIDENTIAL -> denied   (no write down)\n\nBiba (integrity), subject integrity: MEDIUM\n  read  LOW          -> denied   (no read down)\n  write HIGH         -> denied   (no write up)',
+        explanation: 'The two models are mirror images: BLP stops secrets leaking down; Biba stops untrusted data contaminating trusted data.',
+      },
+    ],
     cheatSheet: [
       ['Bell-LaPadula', 'Confidentiality: no read up, no write down'],
       ['Biba', 'Integrity: no read down, no write up'],
@@ -365,6 +407,13 @@ export default {
           'Converged networking carries storage (FCoE, iSCSI), voice (VoIP) and other traffic over standard IP and Ethernet. It is convenient, but it widens the attack surface of those services, which once ran on separate media.',
           'A CDN absorbs DDoS attacks and shields origin servers, and is often combined with a WAF at the edge.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'IPsec tunnel mode packet',
+        code: 'Original:  [IP hdr 10.1.1.5 -> 10.2.2.9][TCP][data]\n\nESP tunnel mode:\n[New IP 203.0.113.1 -> 198.51.100.7][ESP hdr][ IP 10.1.1.5 -> 10.2.2.9 | TCP | data ][ESP trailer][ICV]\n                                             \\_____________ encrypted _____________/',
+        explanation: 'Tunnel mode wraps and encrypts the whole original packet, hiding internal addresses between gateways; transport mode encrypts only the payload.',
       },
     ],
     cheatSheet: [
@@ -417,6 +466,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Biometric error rates',
+        code: 'Threshold   FRR (Type I)   FAR (Type II)\n---------   ------------   -------------\nLow         1%             8%\nMedium      3%             3%   <- crossover error rate (CER)\nHigh        9%             0.5%',
+        explanation: 'Raising sensitivity trades false acceptances for false rejections. The CER compares systems; a lower CER means a more accurate device. For a data-centre door, tune toward low FAR.',
+      },
+    ],
     cheatSheet: [
       ['Sequence', 'Identify, authenticate, authorise, account'],
       ['Type I error', 'False rejection'],
@@ -460,6 +516,13 @@ export default {
           'KPIs (key performance indicators) report past results; KRIs (key risk indicators) give early warning of rising risk. Report both to leadership in business terms.',
           'Protect audit logs, because attackers alter or delete them to hide activity. Centralise them, restrict access, and use write-once storage or integrity checks.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Read a SOC 2 Type II report',
+        code: 'Scope:     Production SaaS platform (not the mobile app)\nPeriod:    1 Jan - 30 Jun\nCriteria:  Security, Availability\nOpinion:   Qualified\nException: CC6.2 - 4 of 25 sampled leavers kept access > 5 days\nCUECs:     Customer must manage its own user provisioning',
+        explanation: 'A \'SOC 2\' claim tells you little. The scope, period, exceptions and complementary user entity controls (CUECs) tell you what was tested and what remains your job.',
       },
     ],
     cheatSheet: [
@@ -510,6 +573,13 @@ export default {
         body: [
           'In an emergency, evacuate people first; systems and data are secondary. Doors on escape routes fail safe (unlocked) for life safety.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Chain-of-custody record',
+        code: 'Item:      Laptop SN 5CG1234XYZ, image file CASE-17-01.E01\nSHA-256:   9f2c...e41a (acquisition) = 9f2c...e41a (verification)\n2024-05-12 09:14  Collected by  J. Ortiz   from desk 4.12\n2024-05-12 09:40  Imaged by     J. Ortiz   write-blocker WB-2\n2024-05-12 10:05  Transferred   J. Ortiz -> evidence locker 3 (K. Lee)\nSealed bag no.  0047812',
+        explanation: 'Every handover is recorded with who, when and why, and the hash proves the image never changed. A gap in this record can make the evidence inadmissible.',
       },
     ],
     cheatSheet: [
@@ -619,6 +689,21 @@ export default {
           'Policy exceptions are legitimate but only through the exception process: documented business justification, risk analysis, compensating controls, expiry date, and sign-off by the risk owner. Seniority is not a control.',
         ],
       },
+      {
+        heading: 'How to approach a D1 scenario',
+        body: [
+          'Domain 1 questions place you in a governance role and ask what to do first, best or next. The answer is rarely a technical fix. Ask whose decision it is: senior management owns risk acceptance and policy approval, the data owner owns classification, and the security professional advises and implements. An option where the security team accepts risk on the business\'s behalf is usually wrong.',
+          'Next, look for the process step the scenario skipped. If a new regulation applies, a gap assessment comes before buying tools. If a control cannot be applied, a documented exception with compensating controls and an expiry comes before simply ignoring the requirement. Due care means acting as a prudent person would; due diligence means verifying that it actually happened.',
+          'Finally, remember the order of priorities that runs through the whole exam: people\'s safety first, then legal and regulatory obligations, then business objectives, then technology preferences.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A formal risk acceptance',
+        code: 'Risk:        Unpatched DB server ORDDB01 (CVE-2024-xxxx), no vendor patch\nCompensating: Isolated VLAN, IPS signature, access from app tier only\nResidual:    Medium\nOwner:       VP Operations (signed)\nExpiry:      90 days or vendor patch, whichever first\nReview:      Monthly by security risk committee',
+        explanation: 'Acceptance is a documented business decision with an owner, compensating controls and an expiry, never a silent \'we\'ll live with it\'.',
+      },
     ],
     cheatSheet: [
       ['No patch + cannot go offline', 'Compensating control + documented risk acceptance'],
@@ -647,6 +732,21 @@ export default {
           'Production PII in a test environment is a breach waiting to happen: test systems rarely carry production-grade access controls, logging, or monitoring. The answer is always masked, anonymised, or synthetic data.',
           'A litigation hold suspends the normal retention and destruction schedule for the affected data. Destroying held data is spoliation. When in doubt, preserve and ask legal.',
         ],
+      },
+      {
+        heading: 'How to approach a D2 scenario',
+        body: [
+          'Asset security questions turn on who decides and what the data\'s classification requires. The data owner, a business manager, classifies data and approves access; the custodian, usually IT, implements the controls; users follow the handling rules. When an option asks the custodian to decide classification, or lets a user choose how to handle restricted data, it is usually a distractor.',
+          'Follow the data through its lifecycle: creation, storage, use, sharing, archiving and destruction. Most scenarios break one link. Production personal data copied into a test environment breaks \'use\' and needs masking or synthetic data. A drive leaving the organisation breaks \'destruction\' and needs purging or physical destruction appropriate to the media. A legal hold overrides normal retention and deletion schedules until counsel releases it.',
+          'When in doubt, choose the answer that reduces the amount of sensitive data held, because data you do not keep cannot leak.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Safe test data',
+        code: '-- copy production structure, not production people\nINSERT INTO test.customers (id, name, email, card_last4)\nSELECT id,\n       \'Customer \' || id,\n       \'user\' || id || \'@example.test\',\n       \'0000\'\nFROM prod.customers TABLESAMPLE SYSTEM (1);',
+        explanation: 'Test environments get masked or synthetic values that keep the shape of real data. Real PII in test is a breach waiting for an auditor.',
       },
     ],
     cheatSheet: [
@@ -677,6 +777,21 @@ export default {
           'Key management questions on the exam almost always reduce to separation and lifecycle: generate securely, store separately, rotate on schedule and on compromise, destroy when retired.',
         ],
       },
+      {
+        heading: 'How to approach a D3 scenario',
+        body: [
+          'Security architecture questions reward principles over products. Look for which design principle the scenario violates: least privilege, defence in depth, fail-safe defaults, separation of duties, economy of mechanism, complete mediation or open design. The right answer usually restores the principle rather than adding a single new tool.',
+          'Cryptography scenarios in this domain are mostly about key management. Strong algorithms do not help if the key sits beside the data, never rotates, or is shared across all customers. Prefer answers that move keys into an HSM or key management service, separate duties between key administrators and data users, and plan for algorithm change (crypto agility), including the move to post-quantum algorithms such as ML-KEM.',
+          'For physical design questions, life safety outranks asset protection: doors on an escape route fail safe (unlock) on power loss even when that is less secure.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Fail closed in code',
+        code: 'def is_authorised(user, resource):\n    try:\n        return policy_service.check(user, resource)\n    except Exception:\n        log.error(\'policy service unavailable\')\n        return False   # fail closed: deny when unsure',
+        explanation: 'When a security dependency breaks, the safe default is to deny. Returning True in the except branch would turn every outage into an open door.',
+      },
     ],
     cheatSheet: [
       ['Fail-secure', 'Failures deny access (fail closed)'],
@@ -705,6 +820,21 @@ export default {
           'Guest, IoT, and partner networks are untrusted by definition. The first design step is always segmentation — separate VLANs and firewall zones — before tuning any monitoring or access rules.',
           'Segmentation contains lateral movement. Everything else (monitoring, NAC, passwords) is secondary to not letting the hostile network touch the trusted one.',
         ],
+      },
+      {
+        heading: 'How to approach a D4 scenario',
+        body: [
+          'Network security scenarios ask you to protect traffic and limit where an attacker can go. Start by identifying what crosses an untrusted network; that traffic needs encryption and authentication, such as IPsec between sites or TLS for applications. Then look at trust boundaries: guests, contractors, IoT devices and operational technology belong in their own segments with default-deny rules between them and the corporate network.',
+          'Many distractors add monitoring where prevention is possible, or add a device without addressing the design. An IDS that alerts on lateral movement is useful, but segmenting the flat network removes the path. A VPN does not help if the remote laptop is already compromised, which is why zero trust checks device posture and identity for every request.',
+          'Know the protocols\' weaknesses too: Telnet, FTP and SNMPv1 send credentials in clear text, so the best answer replaces them with SSH, SFTP and SNMPv3 rather than merely monitoring them.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Segment guest Wi-Fi',
+        code: 'VLAN 10  Corporate   10.10.0.0/16   802.1X (EAP-TLS)\nVLAN 50  Guest       172.20.0.0/22  WPA3-Personal + captive portal\n\nFirewall policy (zone guest):\n  allow  guest -> internet : 80, 443\n  deny   guest -> corporate: any   (log)\n  deny   guest -> mgmt     : any   (log)',
+        explanation: 'Guests are untrusted by definition, so the guest zone reaches the internet and nothing else; logging the denies shows anyone probing inward.',
       },
     ],
     cheatSheet: [
@@ -735,6 +865,21 @@ export default {
           'An exposed secret is a compromised secret. Revoke and rotate first, investigate second — the order matters because every minute of delay is attacker opportunity.',
         ],
       },
+      {
+        heading: 'How to approach a D5 scenario',
+        body: [
+          'Identity questions follow the account lifecycle: provisioning, review, change and removal. Many problems come from the middle of it. People change roles and keep old permissions (privilege creep), so the fix is periodic access reviews by the data owner and role-based provisioning tied to HR events. Leavers keep access because deprovisioning is manual, so the fix is automated removal on the termination record.',
+          'Prefer federation and single sign-on over shared or duplicated credentials, and phishing-resistant MFA (FIDO2/passkeys) over codes that can be relayed. Remember that authentication is only half the job: session tokens, API keys and service accounts are also credentials, so short session lifetimes, re-authentication for sensitive actions, and vaulted, rotated service credentials appear in many correct answers.',
+          'Accountability needs unique IDs. A shared administrator account cannot show who made a change, so replacing it with named accounts and privileged access management is almost always better than adding logging to the shared account.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Step-up authentication policy',
+        code: 'Session: signed in with password + push MFA at 09:00\n\nAction                       Requirement\n---------------------------  ------------------------------\nRead dashboards              existing session\nChange payee bank details    re-authenticate with FIDO2 key\nAdd an admin role            FIDO2 + approval by second admin\nIdle > 15 min                sign in again',
+        explanation: 'MFA at login proves identity once; step-up and short idle timeouts bound what a stolen session can do, scaled to the risk of each action.',
+      },
     ],
     cheatSheet: [
       ['SSO without sharing passwords', 'SAML / OIDC federation'],
@@ -763,6 +908,21 @@ export default {
           'Five hundred scanner findings are a starting point, not a plan. Prioritise by risk: exploitability times business impact. An internet-facing critical system outranks an isolated lab box regardless of raw severity.',
           'Vendor claims are marketing until verified. SOC 2, ISO 27001, pentest letters — read the actual report: scope, period, methodology, and qualifications. Third-party risk management runs on evidence.',
         ],
+      },
+      {
+        heading: 'How to approach a D6 scenario',
+        body: [
+          'Assessment questions ask you to match the test to the question being asked. Vulnerability scanning finds known weaknesses broadly; penetration testing proves whether they can be exploited and chained; code review and SAST find flaws before release; a SOC 2 or ISO 27001 audit gives independent assurance about a vendor\'s controls. Choose the option that answers the scenario\'s actual question at the right depth.',
+          'Testing must be authorised. Before any penetration test, written rules of engagement must define scope, timing, methods and emergency contacts, signed by someone with authority over the systems. An option that starts testing on a verbal request, or tests a third party\'s systems without their consent, is wrong however efficient it sounds.',
+          'Results only matter when they reach decision-makers. Findings should be ranked by risk to the business, assigned owners and dates, reported in management terms, and re-tested after remediation.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Choose the right test',
+        code: 'Question                                         Best test\n-----------------------------------------------  ----------------------------\nAre there flaws in our source before release?    SAST in CI\nIs the running app exploitable by an attacker?   Authorised penetration test\nDo our detections catch real techniques?         Breach & attack simulation\nDid last month\'s patch still work?               Regression + rescan',
+        explanation: 'Each test answers a different question. Pick it by what you need to prove, then make sure every finding gets an owner and a date.',
       },
     ],
     cheatSheet: [
@@ -793,6 +953,21 @@ export default {
           'The most important step is the last one: the lessons-learned review. Update playbooks, controls, and monitoring from what the incident taught, or it will recur on schedule.',
         ],
       },
+      {
+        heading: 'How to approach a D7 scenario',
+        body: [
+          'Operations scenarios often describe an incident in progress and ask for the next step. Use the incident response sequence: detect and analyse, then contain, then eradicate, then recover, then learn. If the attack is active, containment comes before investigation is finished; if it is contained, preserving evidence comes before rebuilding systems. Recovery before eradication invites the attacker back.',
+          'Evidence handling has firm rules: collect in order of volatility, work on verified copies (hash before and after), and keep a chain of custody for anything that may go to court. Notify according to the plan; legal counsel and management decide on external notification, not the analyst on shift.',
+          'For continuity questions, the priority is people\'s safety, then restoring the most critical business functions in the order set by the business impact analysis, not the order in which IT happens to find them.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'First hour of a ransomware incident',
+        code: '00:00  Declare incident; open bridge; assign IC and scribe\n00:05  Isolate affected subnets (EDR network containment)\n00:15  Preserve: memory from 2 hosts, firewall + EDR logs\n00:20  Notify legal and leadership via out-of-band channel\n00:30  Scope: which accounts, which data, is exfiltration seen?\n00:45  Confirm backups are intact and offline',
+        explanation: 'Contain first, preserve evidence, communicate out of band, then scope. Restoring before scoping usually brings the attacker back with the data.',
+      },
     ],
     cheatSheet: [
       ['Active attack RIGHT NOW', 'Isolate first (contain → eradicate → recover)'],
@@ -821,6 +996,21 @@ export default {
           'A secret in version control is compromised the moment it is pushed — repositories are copied, backed up, and mirrored. Revoke and rotate immediately, move to a vault, and add pre-commit scanning so it cannot recur.',
           'Bugs are cheapest where they are born: threat modelling in design beats a pentest finding, which beats an emergency production patch. Shift-left is economics, not ideology.',
         ],
+      },
+      {
+        heading: 'How to approach a D8 scenario',
+        body: [
+          'Software security questions reward building security in early. A flaw found in requirements or design costs far less to fix than one found in production, so answers that add threat modelling, secure coding standards and automated testing in the pipeline usually beat answers that rely on a final penetration test.',
+          'Third-party code is part of your software. Maintain a software bill of materials, scan dependencies for known vulnerabilities, pin and verify versions, and evaluate a new library\'s maintenance and licence before adopting it. For acquired software or SaaS, ask for evidence such as security test results or an attestation rather than a vendor\'s assurance.',
+          'When something goes wrong, contain first: a leaked secret is revoked and rotated before the history is cleaned, and a vulnerable release is patched or rolled back before the root cause analysis is written.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Respond to a committed secret',
+        code: '$ git log -p | grep -n \'AKIA\'\n  commit 3f9a... +AWS_ACCESS_KEY_ID=AKIA...\n1. Revoke the key in IAM now (assume it is compromised)\n2. Review CloudTrail for its use since the commit time\n3. Move secrets to a vault; inject at runtime\n4. Add gitleaks as a pre-commit hook and in CI',
+        explanation: 'Deleting the line does not help: the key is in history and any clone. Revoke first, investigate second, then fix the process so it cannot recur.',
       },
     ],
     cheatSheet: [

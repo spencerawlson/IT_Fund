@@ -1,0 +1,49 @@
+{
+  "it-what-is-it": {
+    "0": [0, "Only building websites and mobile apps for clients, plus the hosting and domain names they run on"],
+    "1": [0, "Hardware is the stored data and documents; software is the cables and ports that connect the parts together"],
+    "3": [1, "It manages the computer's hardware directly, deciding which program gets the CPU and memory next"],
+    "4": [0, "The order a computer boots in, from power-on through firmware and bootloader to the login screen"],
+    "7": [0, "Run programs without any software installed on the machines themselves"]
+  },
+  "it-binary-basics": {
+    "0": [0, "Eight binary digits grouped together as the smallest unit a computer can store"],
+    "8": [2, "Hex numbers take less memory than binary numbers, so programs store everything in hexadecimal"],
+    "9": [0, "A file system used on Windows drives that stores names in a table at the start of the disk"],
+    "10": [0, "A video compression format used for streaming that encodes each frame in eight-bit blocks"]
+  },
+  "it-hardware": {
+    "0": [2, "It connects the computer to the internet and manages every network connection the programs open"],
+    "3": [1, "The long-term storage area inside a hard drive that keeps frequently used files ready to open"],
+    "4": [0, "The power supply unit that converts wall power and feeds every part through one cable"],
+    "5": [0, "It stores the operating system and installed programs so the computer can boot from it"],
+    "6": [1, "Permanent storage for files, which keeps everything safe when the computer is switched off"],
+    "8": [0, "Keyboards, mice and other USB devices, plus the power cables that run from the wall socket"],
+    "10": [0, "Multitasking runs work in parallel on several cores; multiprocessing switches one core between jobs"]
+  },
+  "it-storage-memory": {
+    "0": [2, "There is no difference: both keep data after the power goes off and both forget it on restart"],
+    "3": [0, "An HDD has no moving parts and stores data in flash chips; an SSD stores it on spinning platters"],
+    "4": [1, "How fast the drive's cable transfers data to the motherboard, in revolutions per minute"],
+    "5": [0, "A folder on the desktop that groups related files together for the user"],
+    "7": [0, "It replaces the disk's firmware with a newer version so the drive reads and writes faster"],
+    "8": [1, "A backup feature that copies every written block to the cloud as soon as it changes"],
+    "10": [1, "A partition that was never formatted, so the operating system cannot read it"],
+    "11": [1, "Windows reserves about 69 GB of every drive for the operating system and its updates"]
+  },
+  "it-os-boot": {
+    "0": [2, "It connects the computer to the internet and downloads updates for every installed program"],
+    "1": [2, "There is no boundary: applications talk to the hardware directly, just like the kernel does"],
+    "2": [0, "A process is always faster than a thread, because each process gets a whole CPU core to itself"],
+    "3": [0, "Memory that only exists in the cloud and is streamed to the computer when it runs short"],
+    "4": [0, "BIOS is the newer, faster firmware interface; UEFI is the legacy one it replaced"],
+    "10": [0, "A partition that holds a backup copy of the boot sector, used to repair a damaged disk"]
+  },
+  "it-files-cli": {
+    "0": [0, "FAT32 — simple and readable everywhere, with a 4 GB file limit and no permissions"],
+    "1": [0, "NTFS, the same journaled file system that Windows uses for its system drive"],
+    "3": [0, "Booting a Linux server from a USB stick that holds the operating system and its logs"],
+    "6": [0, "It is not dangerous, because PDF files cannot run code and Windows checks every download"],
+    "8": [0, "A graphical desktop with icons and windows, designed for users who do not want to type"]
+  }
+}

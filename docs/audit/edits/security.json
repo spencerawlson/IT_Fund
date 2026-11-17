@@ -1,0 +1,53 @@
+{
+  "sec-concepts": {
+    "11": { "wrong": ["It speeds up releases by removing review steps", "It removes the need for regular patching", "It mainly tracks budget approval for IT purchases"] }
+  },
+  "sec-threats": {
+    "6": { "wrong": ["Flooding the group's main website with traffic", "Emailing the group a malicious attachment directly", "Registering a lookalike of the group's own domain"] },
+    "10": { "wrong": ["A next-generation firewall with SSL inspection", "Faster patching of every endpoint and server", "Longer password requirements for all staff"] }
+  },
+  "sec-malware": {
+    "6": { "wrong": ["A cluster of firewalls sharing one policy", "A pool of servers behind a load balancer", "A distributed vulnerability scanning platform"] },
+    "10": { "wrong": ["A VPN gateway rotating the user's exit IP", "A DNS resolver returning the wrong region", "Normal behaviour for a frequently travelling user"] }
+  },
+  "sec-crypto": {
+    "1": { "wrong": ["One shared key used by both sides", "Only hashes, no encryption keys at all", "A one-time pad shared in advance"] },
+    "4": { "wrong": ["DES", "RC4", "3DES"] },
+    "6": { "wrong": ["Encrypts the password before it is hashed", "Speeds up hashing so logins are faster", "Shortens the hash so it takes less storage"] },
+    "9": { "x": "The client asks the CA's OCSP responder about one certificate; stapling lets the server attach a fresh signed response. CRLs are the older list-based method. Since 2025 some public CAs (for example Let's Encrypt) have dropped OCSP in favour of CRLs for privacy reasons." },
+    "11": { "x": "Provided by ephemeral Diffie-Hellman (DHE/ECDHE). TLS 1.3 removed the static RSA and static Diffie-Hellman key exchanges that lacked forward secrecy." }
+  },
+  "sec-iam": {
+    "8": { "wrong": ["Role-Based Access Control (RBAC)", "Discretionary Access Control (DAC)", "Mandatory Access Control (MAC)"] },
+    "12": { "q": "When is the OAuth authorization code flow (with PKCE) used?", "a": "Whenever a user signs in through a browser: web, mobile and single-page apps", "x": "RFC 9700 (OAuth 2.0 Security Best Current Practice, 2025) recommends the authorization code flow with PKCE for all clients. The implicit and resource-owner password grants are deprecated.", "wrong": ["Only for machine-to-machine calls with no user present", "Only for input-constrained devices such as smart TVs", "Only when the app collects the user's password itself"] },
+    "15": { "x": "A per-request secret (the code verifier) proves the token request came from the same client that started the flow. RFC 9700 now recommends PKCE for confidential clients too, not only public ones." },
+    "16": { "wrong": ["SAML for mobile apps and APIs; OIDC for legacy enterprise SSO", "OIDC only for on-premises Windows domain logons", "They are identical protocols with different names"] },
+    "20": { "wrong": ["A hash of the user's password sent to the service", "An X.509 certificate presented by the client", "A second ticket-granting ticket for the same service"] },
+    "21": { "wrong": ["Web single sign-on across SaaS applications", "Signing and encrypting email messages", "Issuing certificates to network devices"] },
+    "24": { "wrong": ["Users forget passwords after too many forced resets; stop it with longer reset intervals", "Too many password complexity rules; stop it by removing special-character requirements", "Login pages slow down under load; stop it with a CDN in front of the IdP"] }
+  },
+  "sec-architecture": {
+    "1": { "wrong": ["Encrypts the data with AES so it can be decrypted later", "Hashes the data so it can never be recovered", "Compresses the data before storage"] },
+    "5": { "wrong": ["It removes the need for access control on the pipeline", "It makes servers run faster in production", "It replaces logging, since every change is in git"] },
+    "6": { "wrong": ["Wireless networks, at Layer 2", "DNS resolvers, at Layer 7", "Physical servers, at the hardware level"] }
+  },
+  "sec-ops": {
+    "1": { "x": "Format CVE-YYYY-NNNN, where the sequence number has four or more digits." },
+    "4": { "wrong": ["Blocks packets at the network edge", "Encrypts logs for long-term storage", "Replaces endpoint antivirus agents"] },
+    "6": { "q": "What are the classic NIST incident response phases (SP 800-61 Rev. 2)?", "x": "Rev. 2 was superseded by SP 800-61 Rev. 3 (April 2025), which maps incident response to the NIST CSF 2.0 functions. Security+ SY0-701 lists the same lifecycle as preparation, detection, analysis, containment, eradication, recovery and lessons learned.", "wrong": ["Plan; Do; Check; Act — the continuous-improvement cycle", "Identify; Scan; Exploit; Report — the penetration-test stages", "Detection; Notification; Restoration; Closure — the service-desk ticket stages"] },
+    "8": { "x": "RFC 3227 order: CPU registers and cache, memory (RAM), temporary file systems, disk, remote logs, then archival media." },
+    "10": { "wrong": ["Waiting for SIEM alerts and triaging them", "Running scheduled antivirus scans", "Penetration testing against production systems"] }
+  },
+  "sec-governance": {
+    "5": { "wrong": ["They are the same thing at different lengths", "Procedure is the highest level; policy gives the steps", "Standards are optional advice; policies are suggestions"] },
+    "10": { "wrong": ["Controls were designed correctly on a single day", "The company's financial statements are accurate", "The results of an external penetration test"] },
+    "11": { "wrong": ["Which firewall rules to tighten first", "Which systems a penetration test may cover", "How salaries are budgeted across departments"] }
+  },
+  "sec-ai-apps": {
+    "2": { "wrong": ["Injecting script that runs in other users' browsers", "Stealing passwords with a phishing page", "Overflowing a buffer to run injected code"] },
+    "5": { "wrong": ["Encrypting the code so it cannot be read", "Making the code run faster after install", "Obfuscating the code against reverse engineering"] },
+    "6": { "wrong": ["Two names for the same scan", "DAST reads source; SAST tests the running app", "SAST attacks production; DAST runs on a laptop"] },
+    "9": { "wrong": ["Agents respond too slowly for real-time use", "Agents use too much memory on the server", "Agents cannot write any audit logs"] },
+    "11": { "wrong": ["A backup schedule for build servers", "A billing report from the cloud provider", "A firewall policy for the build pipeline"] }
+  }
+}

@@ -58,6 +58,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Who manages what',
+        code: 'Layer           On-prem  IaaS      PaaS      SaaS\n--------------  -------  --------  --------  --------\nData & access   You      You       You       You\nApplication     You      You       You       Provider\nRuntime / OS    You      You       Provider  Provider\nVirtualisation  You      Provider  Provider  Provider\nHardware        You      Provider  Provider  Provider',
+        explanation: 'Each step from IaaS to SaaS hands more layers to the provider, but your data and who can access it are always yours.',
+      },
+    ],
     cheatSheet: [
       ['NIST 800-145', '5 characteristics: self-service, network access, pooling, elasticity, measured'],
       ['IaaS — Infrastructure as a Service', 'Customer manages the OS and up'],
@@ -102,6 +109,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Same need, three clouds',
+        code: 'Need               AWS            Azure                 Google Cloud\n-----------------  -------------  --------------------  ---------------\nVirtual machines   EC2            Virtual Machines      Compute Engine\nObject storage     S3             Blob Storage          Cloud Storage\nServerless funcs   Lambda         Functions             Cloud Run functions\nManaged SQL        RDS            Azure SQL Database    Cloud SQL\nKubernetes         EKS            AKS                   GKE',
+        explanation: 'The concepts transfer between providers; learn the category first and the product name second.',
+      },
+    ],
     cheatSheet: [
       ['VMs', 'EC2 · Azure VMs · Compute Engine'],
       ['Object storage', 'S3 · Blob Storage · Cloud Storage'],
@@ -144,6 +158,20 @@ export default {
           'The root account has unrestricted power and cannot be limited by IAM policies. Enable MFA on it, lock the credentials away, and do daily work through role-based admin accounts instead.',
           'A landing zone is a pre-configured, secure multi-account baseline (accounts, logging, guardrails, networking) that every new workload starts from. AWS Control Tower and Azure Landing Zones build one for you.',
         ],
+      },
+      {
+        heading: 'Support plans and when to use them',
+        body: [
+          'Cloud providers sell tiers of support. Basic support covers billing questions and documentation. Developer-level plans add technical help during business hours. Business or production plans add 24/7 support with faster response times for production-down cases. Enterprise plans add a named technical account manager and architecture reviews. Pricing is usually a percentage of the monthly bill with a minimum, so check the provider\'s current page.',
+          'Choose the tier by the impact of an outage, not by habit. A hobby project needs only basic support; a revenue-producing system usually justifies a plan with a one-hour response for production-impacting cases. Whatever the tier, use the provider\'s health dashboard and service quotas page first: many \'outages\' turn out to be a quota limit that you can raise yourself.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Estimate a small monthly bill',
+        code: 'Item                         Qty         Unit price (example)   Monthly\n---------------------------  ----------  ---------------------  -------\nVM (2 vCPU, 8 GB), 24/7      730 h       $0.083/h               $60.59\nBlock storage                100 GB      $0.08/GB-month         $8.00\nObject storage               500 GB      $0.023/GB-month        $11.50\nData transfer out            200 GB      $0.09/GB               $18.00\nTotal                                                           ~$98',
+        explanation: 'Prices vary by Region and change; use the provider\'s pricing calculator. Note how egress is a real line item, while inbound transfer is usually free.',
       },
     ],
     cheatSheet: [
@@ -213,6 +241,13 @@ export default {
         ' +-----------------------------------------------+',
       ),
     },
+    examples: [
+      {
+        title: 'A two-tier VPC layout',
+        code: 'VPC 10.0.0.0/16\n  public-a  10.0.1.0/24   route 0.0.0.0/0 -> internet gateway   (load balancer, NAT gateway)\n  public-b  10.0.2.0/24   route 0.0.0.0/0 -> internet gateway\n  private-a 10.0.11.0/24  route 0.0.0.0/0 -> NAT gateway        (app, database)\n  private-b 10.0.12.0/24  route 0.0.0.0/0 -> NAT gateway',
+        explanation: 'A subnet is \'public\' only because its route table points to an internet gateway. Private subnets reach out through NAT but cannot be reached from the internet.',
+      },
+    ],
     cheatSheet: [
       ['Public subnet', 'Route table → Internet Gateway'],
       ['NAT gateway', 'Outbound only from private subnets'],
@@ -267,6 +302,13 @@ export default {
         body: [
           'Immutable infrastructure replaces servers with new images rather than patching them in place, eliminating configuration drift. Blue/green deployment runs two environments and switches traffic to the new one, with instant rollback by switching back. A canary release shifts a small share of traffic to the new version first and watches the metrics before going further.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Well-Architected review questions',
+        code: 'Pillar                   Sample question\n-----------------------  -----------------------------------------------\nOperational excellence   How do you deploy changes and roll them back?\nSecurity                 How do you manage identities and permissions?\nReliability              How does the workload survive an AZ failure?\nPerformance efficiency   How do you choose instance types?\nCost optimisation        How do you track spend per team?\nSustainability           How do you reduce idle resources?',
+        explanation: 'The six pillars give a checklist for design reviews; trade-offs between them, such as cost versus reliability, are decided explicitly.',
       },
     ],
     cheatSheet: [
@@ -498,6 +540,13 @@ export default {
           'Providers rarely allow individual customer audits (the "right to audit" problem), so you rely on third-party attestations: SOC 2, ISO 27001 and FedRAMP. The CSA Cloud Controls Matrix is a cloud-specific control framework, and the CSA STAR registry publishes provider self-assessments and audits against it.',
           'FedRAMP is the US government\'s authorisation programme for cloud services, with Low, Moderate and High baselines built on NIST SP 800-53 controls.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Cloud data lifecycle with controls',
+        code: 'Phase     Control example\n--------  ----------------------------------------\nCreate    classify on creation, tagging\nStore     encryption at rest, access policies\nUse       DLP, activity monitoring\nShare     IRM, signed URLs that expire\nArchive   immutable storage, retention rules\nDestroy   crypto-shredding (delete the keys)',
+        explanation: 'In the cloud you cannot degauss the provider\'s disks, so destroying the encryption keys (crypto-shredding) is the practical way to make data unrecoverable.',
       },
     ],
     cheatSheet: [

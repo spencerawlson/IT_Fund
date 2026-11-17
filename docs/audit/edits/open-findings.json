@@ -1,0 +1,24 @@
+{
+  "docker-compose": {
+    "5": { "x": "depends_on controls start order only, not readiness: add a healthcheck and `condition: service_healthy` to wait until the db is ready. The old `links` key is legacy.", "wrong": ["expose: [db]", "requires: db", "after: db"] }
+  },
+  "awss-network-security": {
+    "8": { "q": "Why are VPC endpoints a security improvement over an internet gateway for reaching AWS services?", "x": "Gateway endpoints (S3, DynamoDB) and interface endpoints (AWS PrivateLink, most other services) keep traffic on the AWS network, need no public IPs, and each endpoint can carry its own policy.", "wrong": ["They give more throughput than Direct Connect", "They remove the need for IAM policies", "They encrypt traffic across VPC peering"] }
+  },
+  "cissp-mindset": {
+    "5": { "a": "Due care: acting as a reasonable person would; due diligence: the research and checking behind it", "x": "Memory aid: due diligence is knowing (investigating, planning, verifying); due care is doing (acting responsibly to protect assets). Failing at due care is negligence.", "wrong": ["Two names for the same legal duty", "Due care is the investigation; due diligence is the action taken", "Due diligence is the fine paid after a breach"] },
+    "7": { "x": "The usual exam rule: never spend more on a control than the asset is worth. More precisely, the annual cost of the control should be less than the reduction in ALE it delivers." }
+  },
+  "cissp-d1b": {
+    "8": { "x": "A firewall rule prevents; an IDS detects; antivirus quarantining malware, or patching an exploited flaw, corrects. (Restoring from backup is usually classed as a recovery control.)" }
+  },
+  "cissp-d8": {
+    "15": { "a": "Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective", "x": "The Scrum Guide (2020) calls these events. All four happen inside the Sprint, which is itself the container event." }
+  },
+  "docker-data-net": {
+    "5": { "x": "Fast, but with less isolation. Native on Linux; Docker Desktop on macOS and Windows offers only a limited host-networking mode.", "wrong": ["Gives the container its own isolated network namespace", "Disables all networking for the container", "Creates a new user-defined bridge subnet"] }
+  },
+  "k8s-storage": {
+    "5": { "x": "Secrets mounted as volumes are updated (eventually) when the Secret changes; environment variables and subPath mounts keep the old value until the pod restarts.", "wrong": ["Bake it into the container image at build time", "Expose it to the pod through a NodePort", "Pods cannot read Secrets directly"] }
+  }
+}

@@ -62,6 +62,13 @@ export default {
         'Layer 1    Bits      0101 1001 0111 0100 ... on the wire, fibre or radio',
       ].join('\n'),
     },
+    examples: [
+      {
+        title: 'Troubleshoot layer by layer',
+        code: 'Layer 1  link light on? cable/Wi-Fi connected?\nLayer 2  ip link / arp -a        MAC addresses seen?\nLayer 3  ping 192.168.1.1        reach the gateway? ping 1.1.1.1\nLayer 4  Test-NetConnection shop.example.com -Port 443\nLayer 7  nslookup shop.example.com ; curl -I https://shop.example.com',
+        explanation: 'Work bottom-up: if you can ping 1.1.1.1 but not a name, the problem is DNS, not the cable.',
+      },
+    ],
     cheatSheet: [
       ['L1 Physical', 'Bits, cables, signals, hubs'],
       ['L2 Data Link', 'Frames, MAC addresses, switches'],
@@ -245,6 +252,13 @@ export default {
           'A patch panel is the permanent end of every copper run. The cable from the wall or ceiling terminates on the rear 110 punch-down blocks — punched down to the T568A or T568B wiring order (the two differ only in which pair is green and which is orange; pick one standard and use it everywhere) — and the front is 48 numbered RJ45 ports. Short patch cords connect those ports to the switch. Moving a device means moving one patch cord, never re-terminating a cable, which is the whole point of structured cabling.',
           'Power in the rack comes from a PDU (power distribution unit): 8, 12 or 24 outlets in a 1U strip or a 0U vertical bar, with surge protection and optional remote monitoring. Plan the power the same way you plan the ports — a rack full of switches and servers that trips its breaker is down just as surely as one with a cut cable.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Switch MAC table vs router route table',
+        code: 'Switch# show mac address-table\nVlan  Mac Address       Type     Ports\n10    a4bb.6d12.3401    DYNAMIC  Gi0/3\n\nRouter# show ip route\nC   192.168.10.0/24 is directly connected, Gi0/0\nS*  0.0.0.0/0 [1/0] via 203.0.113.1',
+        explanation: 'A switch forwards frames by MAC address within a network; a router forwards packets by IP address between networks.',
       },
     ],
     cheatSheet: [
@@ -486,6 +500,13 @@ export default {
           'Two hosts with the same IP give intermittent connectivity and IP-conflict warnings: check DHCP scopes and static assignments, and compare `arp -a` output.',
         ],
       },
+      {
+        heading: 'Documenting as you go',
+        body: [
+          'The last step of the method, documenting findings, actions and outcomes, is the one most often skipped and the one that pays back most. A good ticket note records the symptom in the user\'s words, what you tested and what each test showed, the change you made, and how you confirmed the fix. When the same fault returns next month, that note turns an hour of rediscovery into five minutes.',
+          'Documentation also protects you during the fix. Before changing a configuration, save the current one (copy running-config, export the firewall policy) so you can roll back. Change one thing at a time and re-test after each change; if you change three settings at once and the problem goes away, you do not know which one fixed it, or whether the other two broke something else.',
+        ],
+      },
     ],
     examples: [
       {
@@ -567,6 +588,13 @@ export default {
           'Most outages follow a change. Configuration and change management control and document changes: review, schedule, test, and always have a rollback plan.',
           'Infrastructure as code defines network configuration in version-controlled files, deployed with tools such as Ansible or Terraform through pipelines, so every change is repeatable and reviewable. SD-WAN is a software-defined WAN that steers traffic across broadband, LTE and MPLS links by policy and live link quality, managed centrally.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Find where traffic stops',
+        code: '$ traceroute -n 8.8.8.8\n 1  192.168.1.1   1.1 ms\n 2  10.20.0.1     8.4 ms\n 3  * * *\n 4  * * *\n$ mtr -rwc 50 8.8.8.8      # loss per hop over 50 probes',
+        explanation: 'Timeouts at one hop that continue onward are often just ICMP rate limiting; loss that persists to the destination points to a real problem at or after that hop.',
       },
     ],
     cheatSheet: [

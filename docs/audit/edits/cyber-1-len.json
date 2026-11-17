@@ -1,0 +1,55 @@
+{
+  "cy-linux": {
+    "7": [2, "Runs the second command only if the first one finishes successfully"]
+  },
+  "cy-frameworks": {
+    "0": [1, "A compliance standard that mandates specific security controls"],
+    "5": [1, "Identify, Protect, Detect, Respond, Recover, with no new function added"],
+    "6": [1, "Threat actor, vulnerability, impact and likelihood"],
+    "7": [1, "A chart that converts CVSS base scores into business risk levels"],
+    "8": [2, "A protocol for pushing block rules from a SIEM out to firewalls"],
+    "9": [0, "An internal team that audits detection rules against written policy"]
+  },
+  "cy-crypto": {
+    "1": [0, "A message signed with the sender's private key and sent inside a TLS session"],
+    "3": [0, "Several unrelated domain names that must share one certificate"],
+    "4": [0, "When you need to cover every subdomain of a single domain name"],
+    "6": [1, "Splitting a key between two custodians so neither can use it alone"],
+    "10": [0, "Hashing uses a public key to sign; encryption uses a private key to hide"],
+    "11": [0, "Encrypt the message with the recipient's public key, then hash the ciphertext"],
+    "12": [2, "That the site has no known vulnerabilities and uses the latest TLS version"],
+    "13": [0, "Only certificates issued after the date of the compromise are affected"],
+    "14": [1, "To allow shorter key lengths for leaf certificates than the root uses"],
+    "15": [0, "An app trusts any certificate the operating system's trust store accepts"],
+    "16": [1, "Never, as long as the key is long enough and stored in an HSM"],
+    "17": [0, "RSA: factoring-based keys are stronger bit for bit than any curve"],
+    "18": [0, "A block cipher mode that hides patterns in repeated plaintext blocks"],
+    "20": [0, "Integrity: detecting whether the message changed after it was signed"],
+    "21": [1, "A longer digest that resists collisions better than the plain hash"],
+    "22": [2, "Publishing a public key to a directory so others can derive it"],
+    "24": [0, "The key is too short: AES keys in mobile apps must be at least 4096 bits"]
+  },
+  "cy-concepts": {
+    "0": [2, "Confidentiality only, because the encrypted files can no longer be read"],
+    "7": [0, "Faster logins, because sessions can be cached and replayed securely"],
+    "8": [1, "Authorization: the badge was valid but the door should not have opened"],
+    "9": [2, "Zero trust keeps the perimeter but moves it from the data centre to the cloud edge"],
+    "10": [1, "Routing traffic faster through the core by removing internal firewalls"],
+    "11": [0, "Authenticate once at login, then trust the session until it times out"],
+    "13": [2, "Strong passwords and perimeter firewalls become the main controls"],
+    "16": [0, "A revolving door that admits one person at a time after a badge swipe"],
+    "18": [2, "Tailgating by someone following staff into the office"],
+    "19": [1, "Every hallway and stairwell, evenly spaced across the building"],
+    "20": [2, "Building occupancy limits set by fire regulations"],
+    "21": [1, "Possession factors (something you have), stored on the device"],
+    "24": [0, "You can: a new fingerprint template is issued, just like a new password"],
+    "26": [2, "Patching faster than attackers can exploit new vulnerabilities"],
+    "27": [2, "Sharing one admin account between two people so they can check each other"],
+    "28": [1, "Deny every request, including those an explicit rule allows"],
+    "29": [2, "To keep employees motivated by giving them varied work"],
+    "30": [0, "To stop staff building up large leave balances the company must pay out"],
+    "31": [0, "Two passwords required for one account, typed by the same person"],
+    "32": [1, "The hours of the day when each role is allowed to log in"],
+    "33": [2, "A corrective control that restores sessions after they are locked"]
+  }
+}

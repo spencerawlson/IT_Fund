@@ -136,7 +136,7 @@ const DECK_LABS = {
   'lx-logs': [{ labId: 'linux-terminal-001', blurb: 'Mine logs with grep and journalctl.' }],
   'lx-secure': [{ labId: 'linux-terminal-001', blurb: 'Harden users, permissions, and services.' }],
 
-  // ---- CySA+ (CS0-003) ----
+  // ---- CySA+ (CS0-004) ----
   'cysa-soc-foundations': [{ labId: 'sec-logtriage-001', blurb: 'SOC analyst workflow: triage a brute-force attack.' }],
   'cysa-vuln-basics': [{ labId: 'vuln-scanning-001', blurb: 'Read CVSS vectors and scan results.' }],
   'cysa-siem-soar': [{ labId: 'siem-hunting-001', blurb: 'Query a SIEM across three attack chains.' }],
@@ -156,7 +156,7 @@ const DECK_LABS = {
   ],
   'cysa-reporting': [{ labId: 'vuln-scanning-001', blurb: 'Write the executive summary from real findings.' }],
 
-  // ---- AWS Security Specialty (SCS-C02) ----
+  // ---- AWS Security Specialty (SCS-C03) ----
   'awss-threat-detect': [
     { labId: 'siem-hunting-001', blurb: 'Detection logic against real attack chains.' },
     { labId: 'sec-c2beacon-001', blurb: 'C2 detection drill.' },

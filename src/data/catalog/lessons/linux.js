@@ -26,6 +26,13 @@ export default {
           '`find /var -name "app.log"` walks the filesystem looking for a name. Quote the pattern so the shell does not expand it first. When you forget a flag, `man <command>` opens the built-in manual (q quits, / searches); for quick examples, `tldr <command>` is faster to skim.',
         ],
       },
+      {
+        heading: 'Finding files and getting help',
+        body: [
+          'Two commands answer most \'where is it?\' questions. `find /var/log -name \'*.log\' -mtime -1` searches a directory tree by name, type, size or modification time and can act on what it finds (`-exec`, or `-delete` with care). `locate` searches a prebuilt index and is much faster, but only knows about files that existed at the last `updatedb` run. `which python3` shows which executable your shell will actually run.',
+          'When you meet an unfamiliar command, the documentation is already on the system. `man ls` opens the manual page, `ls --help` prints a short summary, and `apropos compress` searches manual page descriptions for a keyword. Tab completion saves typing and catches typos: press Tab once to complete a path, twice to list the options. `history` and Ctrl+R let you find and rerun earlier commands instead of retyping them.',
+        ],
+      },
     ],
     examples: [
       {
@@ -80,6 +87,13 @@ export default {
           'The sticky bit (1) on a directory like /tmp means anyone can create files but only the owner (or root) can delete them — shown as `t` in `drwxrwxrwt`. World-writable SUID binaries are a classic audit finding: find them with `find / -perm -4000 2>/dev/null`.',
         ],
       },
+      {
+        heading: 'Access control lists and troubleshooting',
+        body: [
+          'The nine permission bits allow one owner, one group and everyone else. When you need more, for example giving a second team read access without changing the group, POSIX ACLs add entries per user or group: `setfacl -m u:ana:r report.txt` grants Ana read access, and `getfacl report.txt` shows the full list. A `+` at the end of the mode in `ls -l` output tells you a file has an ACL.',
+          'When access is denied, check every directory in the path, not just the file: a user needs execute (x) permission on each parent directory to reach a file inside it. `namei -l /srv/app/config.yml` lists the owner and mode of every component in one go. Also remember that SELinux or AppArmor can deny access even when the permission bits allow it; `ls -Z` shows SELinux labels and the audit log records the denials.',
+        ],
+      },
     ],
     examples: [
       {
@@ -129,6 +143,13 @@ export default {
         body: [
           '`sudo` runs one command with elevated privileges under rules in /etc/sudoers. It asks for your password (not root\'s) and logs the invocation — that audit trail is why enterprises prefer it over shared root passwords. Always edit sudoers with `visudo`: it validates syntax before saving, because one typo can lock every admin out.',
           '`su -` switches to root (or another user) and needs the target\'s password; `sudo -i` gets you a root shell with your own credentials. Prefer sudo\'s fine-grained rules ("may restart nginx") over handing out full root wherever you can.',
+        ],
+      },
+      {
+        heading: 'Managing accounts safely',
+        body: [
+          'Day-to-day account work uses a few commands. `usermod -aG docker ana` adds Ana to a supplementary group; without `-a` the `-G` option replaces all her groups, a common mistake that removes access. `passwd -l ana` locks the password, `chage -l ana` shows password ageing, and `userdel -r ana` removes the account and its home directory. `id ana` and `groups ana` show what she belongs to, and changes to groups only apply at her next login.',
+          'Edit sudo rules with `visudo`, never directly: it checks the syntax before saving, so a typo cannot lock everyone out of sudo. Prefer dropping files into `/etc/sudoers.d/` and granting specific commands rather than full root, for example `%webops ALL=(root) /usr/bin/systemctl restart nginx`. Review `/var/log/auth.log` or `journalctl _COMM=sudo` to see who used sudo and for what.',
         ],
       },
     ],
@@ -182,6 +203,13 @@ export default {
           'For the rest there is sed and awk. `sed -i \'s/foo/bar/g\' file` edits in place (s = substitute, g = global). `awk -F: \'{print $1}\' /etc/passwd` prints the first field of each line — $0 is the whole line, $1/$2 are fields, -F sets the delimiter.',
         ],
       },
+      {
+        heading: 'A worked pipeline: top talkers in a web log',
+        body: [
+          'Suppose you need the ten IP addresses that made the most requests to a web server. Each line of an nginx or Apache access log starts with the client IP, so `awk \'{print $1}\' access.log` extracts it. `sort` groups identical addresses together, `uniq -c` counts each group, `sort -rn` orders by count, highest first, and `head -10` keeps the top ten. Joined with pipes: `awk \'{print $1}\' access.log | sort | uniq -c | sort -rn | head -10`.',
+          'The same pattern answers many questions by changing the first step. `grep \' 404 \' access.log | awk \'{print $7}\' | sort | uniq -c | sort -rn | head` lists the most requested missing pages. For anything larger or repeated, `awk` alone can count with an associative array, and `sed -n \'/10:00/,/10:05/p\'` extracts a time window. Build pipelines one stage at a time and check the output at each step.',
+        ],
+      },
     ],
     examples: [
       {
@@ -233,6 +261,13 @@ export default {
           'Prefer the distro repository over a downloaded .deb/.rpm: repo packages are signed, dependency-resolved, and — critically — get security updates automatically. A manually installed package is a package you must remember to patch forever.',
         ],
       },
+      {
+        heading: 'Repositories, signing keys and pinning',
+        body: [
+          'Packages come from repositories listed in `/etc/apt/sources.list.d/` on Debian and Ubuntu, or `/etc/yum.repos.d/` on RHEL and Fedora. Each repository signs its metadata, and the package manager refuses unsigned or wrongly signed packages; that check is what stops a tampered mirror from installing malware. Add third-party repositories only from vendors you trust, with their signing key stored in `/etc/apt/keyrings/` and referenced by `signed-by`, rather than trusting the key for every repository.',
+          'On servers, control when packages change. `apt-mark hold nginx` or `dnf versionlock` keeps a package at its current version until you are ready to test an upgrade. Unattended security updates (`unattended-upgrades` or `dnf-automatic`) are a good default for security patches, while larger upgrades go through a test environment first. Universal formats such as Snap and Flatpak bundle their own dependencies and update separately from the system package manager.',
+        ],
+      },
     ],
     examples: [
       {
@@ -274,6 +309,13 @@ export default {
         body: [
           'journalctl is the unified log reader: `journalctl -u nginx -f` follows one service live, `--since "1 hour ago"` bounds the window, `-p err` filters to errors and above. `systemctl --failed` lists everything currently in a failed state — the first command in any "the app is down" drill.',
           'systemd timers are cron\'s successor: a .timer unit triggers a .service unit on a schedule, with journald logging and dependency handling built in. The old SysV runlevels are now targets — `multi-user.target` and `graphical.target` — switched with `systemctl isolate`.',
+        ],
+      },
+      {
+        heading: 'Writing your own service unit',
+        body: [
+          'To run an application as a managed service, create a unit file such as `/etc/systemd/system/myapp.service`. The `[Unit]` section holds a description and ordering (`After=network-online.target`); `[Service]` sets `ExecStart=/opt/myapp/bin/server`, `User=myapp`, and `Restart=on-failure`; `[Install]` sets `WantedBy=multi-user.target` so `systemctl enable` starts it at boot. Run `systemctl daemon-reload` after creating or editing a unit.',
+          'systemd can also sandbox the service with a few lines: `NoNewPrivileges=yes`, `ProtectSystem=strict`, `ProtectHome=yes`, `PrivateTmp=yes` and `ReadWritePaths=/var/lib/myapp`. `systemd-analyze security myapp` scores how exposed a unit is and lists the options that would tighten it. Override a packaged unit with `systemctl edit nginx`, which writes a drop-in file instead of changing the vendor\'s original.',
         ],
       },
     ],
@@ -319,6 +361,13 @@ export default {
           'Name resolution checks /etc/hosts before DNS (order in /etc/nsswitch.conf); /etc/resolv.conf says which DNS servers to query. To test a TCP port, `nc -vz host 443` — open vs refused vs timeout tells you whether the service, the firewall, or the route is at fault.',
         ],
       },
+      {
+        heading: 'Troubleshooting a connection step by step',
+        body: [
+          'When a service cannot be reached, check each layer in turn. `ip addr` and `ip route` confirm the host has an address and a default route. `ping` to the gateway tests the local network, and `ping 1.1.1.1` tests the path out. `dig example.com` (or `resolvectl query`) tests name resolution separately from connectivity. If names fail but IP addresses work, the fault is DNS.',
+          'Then test the port itself. On the server, `ss -tlnp` shows whether the service is listening and on which address; a service bound to 127.0.0.1 cannot be reached from other machines. From the client, `nc -zv server 443` or `curl -v https://server` tests the TCP connection and shows TLS errors. If the service listens but the client cannot connect, check the host firewall (`ufw status`, `nft list ruleset`) and any network firewall between them. `tcpdump -i eth0 port 443` shows whether packets arrive at all.',
+        ],
+      },
     ],
     examples: [
       {
@@ -361,6 +410,13 @@ export default {
         body: [
           'Test with `[ ... ]`: `-f` for files, `-d` for directories, `-z` for empty strings. `for f in *.log; do ...; done` iterates globs; the safe line-by-line reader is `while IFS= read -r line; do ...; done < file` — never `for line in $(cat file)`, which mangles whitespace.',
           'Functions group logic: `backup() { ...; }`. A function "returns" an exit status via `return N` (0-255); real data goes on stdout and is captured with `result=$(backup)`. `return "text"` does not do what you hope.',
+        ],
+      },
+      {
+        heading: 'Inputs, quoting and checking your scripts',
+        body: [
+          'Most broken scripts fail on quoting. Always quote variables, `"$file"` rather than `$file`, so names containing spaces or wildcards are passed as one argument. Use `"$@"` to pass all of a script\'s arguments on unchanged. Read input with `read -r name`, and check required arguments early: `[[ $# -eq 1 ]] || { echo "usage: $0 <dir>" >&2; exit 2; }`.',
+          'Clean up after yourself with a trap: `tmp=$(mktemp); trap \'rm -f "$tmp"\' EXIT` deletes the temporary file however the script ends. Before running a script on a server, check it with ShellCheck (`shellcheck deploy.sh`), which catches unquoted variables, unused variables and common logic errors. Running with `bash -x script.sh` prints each command as it executes, which is the fastest way to see where a script goes wrong.',
         ],
       },
     ],
@@ -423,6 +479,13 @@ export default {
           '`top` (P sorts by CPU, M by memory) or `htop` finds the hungry process; `ps aux | grep app` inspects one service; `ss -tulpn | grep :8080` confirms what actually listens. `strace -p <pid>` traces system calls when a process fails mysteriously — it shows every file it touches.',
         ],
       },
+      {
+        heading: 'Searching logs effectively',
+        body: [
+          'journalctl filters are the quickest way to narrow down an event: `journalctl -u nginx --since \'2026-05-12 09:00\' --until \'09:30\'` shows one service in a time window, `-p warning` shows warnings and worse, `-b -1` shows the previous boot (useful after a crash), and `-o json-pretty` exposes every field. For classic text logs, `grep -i error /var/log/syslog | tail -50` and `zgrep` for rotated, compressed files cover most needs.',
+          'Logs are only useful if they are kept and protected. logrotate compresses and deletes old files on a schedule; check `/etc/logrotate.d/` so logs do not fill the disk. journald keeps logs in memory only unless `/var/log/journal` exists or `Storage=persistent` is set. For security, forward logs to a central server or SIEM, so an attacker who gains root on the host cannot quietly delete the evidence.',
+        ],
+      },
     ],
     examples: [
       {
@@ -465,6 +528,13 @@ export default {
         body: [
           'Default-deny inbound, then open only what the box needs: `ufw default deny incoming` + `ufw allow 22/tcp` (Ubuntu), or firewall-cmd zones on RHEL. Enable automatic security updates (unattended-upgrades / dnf-automatic) so patches do not depend on human memory.',
           'Apply least privilege everywhere: dedicated low-privilege accounts per service (never run daemons as root), sudo rules scoped to single commands, no world-writable configs. AIDE/Tripwire file-integrity monitoring then alerts when system files change unexpectedly — baseline right after a clean install.',
+        ],
+      },
+      {
+        heading: 'Watching for intrusion',
+        body: [
+          'Hardening reduces the chance of a break-in; monitoring tells you when one happens. Check `/var/log/auth.log` (or `journalctl -u ssh`) for repeated failed logins and successful logins from unexpected addresses. Fail2ban reads those logs and temporarily blocks addresses that fail too often. The `last` and `lastb` commands list recent successful and failed logins.',
+          'For deeper visibility, auditd records security-relevant events such as changes to `/etc/passwd` or use of privileged commands, according to rules you define. File integrity monitoring tools such as AIDE record hashes of system files and report changes. Combine them with mandatory access control (SELinux on RHEL-family systems, AppArmor on Ubuntu), left in enforcing mode rather than disabled, so a compromised service is confined to what its policy allows.',
         ],
       },
     ],

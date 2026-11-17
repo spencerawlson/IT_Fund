@@ -24,6 +24,20 @@ export default {
           'To build a single file into an executable named `app`, the command is `g++ main.cpp -o app`. Add `-std=c++20` to choose the language standard — C++ evolves, and modern features (smart pointers, `auto`, lambdas) require telling the compiler which era of the language you are writing in.',
         ],
       },
+      {
+        heading: 'Building real projects with CMake',
+        body: [
+          'Calling the compiler by hand works for one file. Real projects use a build system, and CMake is the de facto standard for C++. A minimal `CMakeLists.txt` declares `cmake_minimum_required(VERSION 3.20)`, `project(hello CXX)`, `set(CMAKE_CXX_STANDARD 20)` and `add_executable(hello main.cpp)`. Then `cmake -S . -B build` configures the project and `cmake --build build` compiles it, using whichever compiler and generator the platform provides.',
+          'Build in two configurations. A Debug build (`-DCMAKE_BUILD_TYPE=Debug`) keeps symbols and turns off optimisation so a debugger can step through code. A Release build turns on optimisation for speed. Add warnings to every build, for example `target_compile_options(hello PRIVATE -Wall -Wextra -Wpedantic)` with GCC and Clang, and treat new warnings as bugs.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Compile and run a first program',
+        code: '// hello.cpp\n#include <iostream>\n#include <string>\n\nint main() {\n    std::string name;\n    std::cout << "Name? ";\n    std::cin >> name;\n    std::cout << "Hello, " << name << "!\\n";\n    return 0;\n}\n\n$ g++ -std=c++20 -Wall -Wextra hello.cpp -o hello && ./hello',
+        explanation: 'Turn on warnings (-Wall -Wextra) from day one; the compiler catches many mistakes before they become bugs.',
+      },
     ],
     cheatSheet: [
       ['Compiled language', 'Translated to machine code before running; fast, but must build first.'],
@@ -58,6 +72,20 @@ export default {
           'For conversions, prefer `static_cast<double>(x)` over the old C-style `(double)x`. The named cast is explicit, greppable, and checked at compile time — a small habit that keeps conversions honest.',
         ],
       },
+      {
+        heading: 'Initialisation and conversions',
+        body: [
+          'C++ has several ways to initialise a variable, and brace initialisation is the safest default: `int count{0};` or `double rate{0.05};`. Braces refuse narrowing conversions, so `int n{3.7};` is a compile error rather than a silent truncation to 3. An uninitialised local such as `int total;` holds an indeterminate value, and reading it is undefined behaviour, so always initialise.',
+          'Mixing signed and unsigned types causes surprising results: `-1 < 1u` is false, because `-1` converts to a huge unsigned value. Compare sizes with `std::ssize()` or cast deliberately, and turn on `-Wsign-compare`. Use `static_cast<int>(x)` when you mean a conversion so it is visible in review; avoid C-style casts such as `(int)x`, which can silently perform more dangerous conversions.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Integer overflow and safe conversion',
+        code: '#include <cstdint>\n#include <limits>\nstd::int32_t big = std::numeric_limits<std::int32_t>::max(); // 2147483647\n// big + 1  -> undefined behaviour for signed types\nstd::uint8_t b = 255; b += 1;   // wraps to 0 (unsigned wrap is defined)\ndouble d = 3.99;\nint i = static_cast<int>(d);    // 3: truncates toward zero, explicitly',
+        explanation: 'Signed overflow is undefined behaviour; unsigned arithmetic wraps. Use fixed-width types when size matters and static_cast to make conversions visible.',
+      },
     ],
     cheatSheet: [
       ['int / double / char / bool', 'Whole numbers, decimals, single byte/character, true/false.'],
@@ -91,6 +119,20 @@ export default {
           'Two functions can share a name if their parameter lists differ — that is overloading, and the compiler picks the best match by the arguments you pass. You can also give parameters defaults (`int f(int x, int y = 0)`), so callers may omit them. And remember: a function must be declared — by its definition or a forward declaration (prototype) — before its first use, which is why headers exist.',
         ],
       },
+      {
+        heading: 'Overloading, default arguments and returning results',
+        body: [
+          'Functions can share a name if their parameter lists differ: `int area(int side)` and `double area(double w, double h)` are overloads, and the compiler picks one from the argument types. Default arguments supply values the caller may omit: `void log(const std::string& msg, int level = 1);`. Keep defaults in the declaration in the header, not repeated in the definition.',
+          'Return results by value: modern compilers elide the copy, and moves make it cheap even when they cannot. To return several values, return a struct or use structured bindings with `std::pair` or `std::tuple`: `auto [min, max] = std::minmax(a, b);`. For a value that may be missing, return `std::optional<T>` rather than a magic number such as -1, so the caller has to check.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Pass by value, reference and const reference',
+        code: 'void byValue(std::string s)        { s += "!"; }   // copies; caller unchanged\nvoid byRef(std::string& s)         { s += "!"; }   // modifies caller\'s string\nstd::size_t len(const std::string& s) { return s.size(); } // no copy, read-only\n\nstd::string msg = "hi";\nbyValue(msg);  // msg == "hi"\nbyRef(msg);    // msg == "hi!"',
+        explanation: 'Pass large objects by const reference to avoid copies, and use a non-const reference only when the function is meant to change the argument.',
+      },
     ],
     cheatSheet: [
       ['do-while', 'Runs its body at least once; the condition is checked after.'],
@@ -123,6 +165,20 @@ export default {
           'Local variables live on the stack and are freed automatically when their scope ends. Heap memory — obtained with `new` — is yours to manage: `new` returns a pointer, and you must `delete` it, or the memory is lost until the program exits. That loss has a name: a memory leak.',
           'Worse than a leak is a dangling pointer: one that points to memory already freed or out of scope. Using it is undefined behaviour and a favorite exploit primitive. And arrays allocated with `new[]` must be freed with `delete[]` — mismatching the forms is undefined behaviour. The modern answer to all of this is smart pointers (see the RAII lesson), but you must understand the raw mechanics first, because every abstraction leaks eventually.',
         ],
+      },
+      {
+        heading: 'Choosing between references, pointers and smart pointers',
+        body: [
+          'Use a reference when the object must exist and you only need to use it: `void print(const Order& o)`. Use a raw pointer when \'nothing\' is a valid value and the function does not own the object: `Node* find(int key)` returns `nullptr` when the key is missing. Never use a raw pointer to own memory in modern code; that is the job of `std::unique_ptr` or `std::shared_ptr`.',
+          'For a view of a contiguous range, `std::span<int>` (C++20) carries a pointer and a length together, so the function knows the size and cannot be handed a mismatched one. Similarly `std::string_view` views characters without copying. Views must not outlive the data they point to, which is the same dangling risk as a raw pointer.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Dangling pointer',
+        code: 'int* make() {\n    int x = 42;\n    return &x;            // BUG: x dies when make() returns\n}\n\nstd::unique_ptr<int> makeSafe() {\n    return std::make_unique<int>(42);  // heap, owned, freed automatically\n}',
+        explanation: 'Returning the address of a local variable leaves a dangling pointer; reading it is undefined behaviour. Return by value or a smart pointer instead.',
       },
     ],
     cheatSheet: [
@@ -159,6 +215,20 @@ export default {
           'Two rules follow. First, a polymorphic base class needs a virtual destructor, so that deleting a derived object through a base pointer runs the derived destructor; without it, you get undefined behaviour and likely a leak. Second, a pure virtual function (`virtual void f() = 0;`) has no base implementation and makes the class abstract — it cannot be instantiated, and derived classes must override the function. Inside any member function, `this` is a pointer to the current object.',
         ],
       },
+      {
+        heading: 'The rule of zero, three and five',
+        body: [
+          'If a class manages a resource directly, such as raw memory or a file handle, it needs a destructor, and then almost certainly a copy constructor and copy assignment operator too (the rule of three), plus a move constructor and move assignment for efficiency (the rule of five). Getting any of these wrong causes double frees or leaks.',
+          'The better design is the rule of zero: hold resources in members that already manage themselves, such as `std::vector`, `std::string` and `std::unique_ptr`, and write none of the five. The compiler-generated versions then do the right thing. Mark single-argument constructors `explicit` to stop accidental conversions, and mark overriding functions `override` and classes not meant for inheritance `final`.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Virtual functions and a virtual destructor',
+        code: 'struct Shape {\n    virtual ~Shape() = default;           // needed for delete via base pointer\n    virtual double area() const = 0;\n};\nstruct Circle : Shape {\n    double r;\n    explicit Circle(double r) : r(r) {}\n    double area() const override { return 3.14159 * r * r; }\n};\nstd::unique_ptr<Shape> s = std::make_unique<Circle>(2.0);\ns->area();   // calls Circle::area via dynamic dispatch',
+        explanation: 'override lets the compiler check the signature, and the virtual destructor ensures Circle\'s destructor runs when deleted through a Shape pointer.',
+      },
     ],
     cheatSheet: [
       ['class vs struct', 'Nearly identical; `class` defaults to private, `struct` to public.'],
@@ -194,6 +264,20 @@ export default {
           'The modern way to traverse is the range-based for loop: `for (const auto& x : container)`. The `&` avoids copying each element; `const` promises read-only. For everything else there is `<algorithm>`: `std::sort(v.begin(), v.end())` sorts ascending by default (pass a comparator for custom order), and dozens of siblings — `find`, `count`, `transform`, `any_of` — turn raw loops into named intent.',
         ],
       },
+      {
+        heading: 'Choosing a container and watching iterator invalidation',
+        body: [
+          'Start with `std::vector`: its elements sit in contiguous memory, which makes iteration fast and cache-friendly. Use `std::unordered_map` for average constant-time lookups by key, `std::map` when you need keys in sorted order, `std::deque` for cheap insertion at both ends, and `std::array` for a fixed size known at compile time. `std::list` is rarely the best choice despite its cheap middle insertion.',
+          'Modifying a container can invalidate iterators, pointers and references into it. A `push_back` that grows a vector reallocates its storage, so any pointer to an element becomes dangling. Erasing inside a loop must use the iterator that `erase` returns: `it = v.erase(it);`. Calling `reserve()` when you know the final size avoids repeated reallocations.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Algorithms instead of loops',
+        code: 'std::vector<int> v{5, 3, 8, 1, 9, 2};\nstd::ranges::sort(v);                                // 1 2 3 5 8 9\nauto it = std::ranges::find(v, 8);                   // iterator to 8\nint evens = std::ranges::count_if(v, [](int x){ return x % 2 == 0; }); // 2\nv.erase(std::remove_if(v.begin(), v.end(), [](int x){ return x > 5; }), v.end());\n// v == 1 2 3 5',
+        explanation: 'Standard algorithms are tested and state intent clearly. The erase-remove idiom (or C++20 std::erase_if) is how you delete matching elements from a vector.',
+      },
     ],
     cheatSheet: [
       ['std::vector', 'Dynamic contiguous array — the default container; cache-friendly.'],
@@ -228,6 +312,20 @@ export default {
           'The Rule of Five says: if you define any of the destructor, copy constructor, copy assignment, move constructor, or move assignment, consider all five — managing a resource usually means handling them as a set. But the better rule is the Rule of Zero: design classes so you need none of them, letting members like smart pointers and vectors manage resources for you. The safest special member function is the one you never write.',
         ],
       },
+      {
+        heading: 'Exception safety and custom deleters',
+        body: [
+          'RAII is what makes code exception-safe. If a function acquires two resources by hand and the second acquisition throws, the first leaks unless every path cleans it up. With each resource owned by an object, stack unwinding runs the destructors automatically. Aim for the strong guarantee where it matters: an operation either succeeds completely or leaves the object unchanged, often by doing the work on a copy and swapping it in.',
+          'Smart pointers can manage resources other than memory through custom deleters: `std::unique_ptr<FILE, decltype(&fclose)> f(fopen("log.txt", "r"), &fclose);` closes the file when `f` goes out of scope. Create shared objects with `std::make_shared` and unique ones with `std::make_unique`, and break `shared_ptr` reference cycles with `std::weak_ptr`.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'RAII file handle and lock',
+        code: 'void append(const std::string& line) {\n    std::lock_guard<std::mutex> lock(m);   // unlocked when lock goes out of scope\n    std::ofstream out("log.txt", std::ios::app); // closed by destructor\n    out << line << \'\\n\';\n    if (line.empty()) throw std::invalid_argument("empty"); // still unlocks and closes\n}',
+        explanation: 'Resources tied to object lifetimes are released on every exit path, including exceptions, with no cleanup code to forget.',
+      },
     ],
     cheatSheet: [
       ['RAII', 'Tie resource lifetime to object scope; the destructor releases it automatically.'],
@@ -261,6 +359,20 @@ export default {
           'The header/source split is C++\'s compilation model made concrete: the `.h`/`.hpp` declares the interface so callers can compile against it, while the `.cpp` defines the implementation. (Templates are the exception — they usually stay header-only.) Two small modernizations punch above their weight: `nullptr` is a real null-pointer type, so overload resolution is unambiguous where `NULL`-as-zero could silently pick the wrong function; and `std::optional<T>` represents "a value that may not be present" — a type-safe alternative to sentinels and null pointers.',
         ],
       },
+      {
+        heading: 'Ranges and compile-time programming',
+        body: [
+          'C++20 ranges let you compose operations without writing loops or managing iterator pairs: `for (int x : v | std::views::filter([](int n) { return n % 2 == 0; }) | std::views::transform([](int n) { return n * n; }))` visits the squares of the even numbers lazily, without creating intermediate containers. Algorithms in `std::ranges` take the whole container: `std::ranges::sort(v);`.',
+          'Work can move from run time to compile time. A `constexpr` function can be evaluated by the compiler when its arguments are constants, and `consteval` (C++20) requires it. `if constexpr` chooses a branch at compile time inside templates, discarding the other. Combined with concepts, these replace most of the template tricks older C++ code relied on.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A constrained template (C++20 concepts)',
+        code: '#include <concepts>\ntemplate <std::integral T>\nT gcd(T a, T b) {\n    while (b != 0) { T t = a % b; a = b; b = t; }\n    return a;\n}\ngcd(12, 18);      // 6\n// gcd(1.5, 2.0); // error: double does not satisfy std::integral',
+        explanation: 'Concepts state requirements up front, so misuse produces a short, readable error instead of pages of template instantiation messages.',
+      },
     ],
     cheatSheet: [
       ['Template', 'Compile-time blueprint generating code per type used; lives in headers.'],
@@ -293,6 +405,20 @@ export default {
           'The compiler is your first line of defence: build with `-Wall -Wextra` to enable warnings that catch likely bugs, and consider `-Werror` in CI so warnings cannot be ignored into production. Warnings are the cheapest bugs you will ever fix.',
           'What warnings miss, sanitizers catch at runtime. AddressSanitizer (`-fsanitize=address`) detects use-after-free, buffer overflows, and leaks during testing with modest slowdown — run your test suite under it routinely. Valgrind finds the same class of memory errors without recompilation, at the cost of much slower execution. Between strict warnings, sanitizers, RAII, and bounds-checked access, modern C++ is far safer than its reputation — but every layer is opt-in, and the language will never force you to use them.',
         ],
+      },
+      {
+        heading: 'Writing safer C++ day to day',
+        body: [
+          'Many memory-safety bugs disappear with a few habits. Prefer containers and views (`std::vector`, `std::array`, `std::span`, `std::string_view`) over raw arrays and pointer arithmetic; use `.at()` where an out-of-range index is possible; own memory only through smart pointers; and initialise every variable. The C++ Core Guidelines collect these rules, and clang-tidy checks many of them automatically.',
+          'Treat compiler and tool output as part of the build. Enable warnings and make them errors in CI, run tests under AddressSanitizer and UndefinedBehaviorSanitizer, fuzz code that parses untrusted input, and add static analysis. Hardening options such as `-D_FORTIFY_SOURCE=3`, stack protectors and the standard library\'s hardened mode catch some remaining errors at run time.',
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Catch memory bugs with sanitizers',
+        code: '$ g++ -std=c++20 -g -fsanitize=address,undefined bug.cpp -o bug && ./bug\n==1234==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000000014\nWRITE of size 4 at 0x602000000014 thread T0\n    #0 0x401234 in main bug.cpp:7',
+        explanation: 'AddressSanitizer and UBSan turn silent memory corruption into an exact file and line. Run tests with them in CI; prefer std::vector::at, std::span and smart pointers in code.',
       },
     ],
     cheatSheet: [

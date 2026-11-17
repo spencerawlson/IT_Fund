@@ -1,0 +1,13 @@
+{
+  "secplus-hardening-vuln": {
+    "14": [0, "Leave USB enabled for everyone, since the VIP still needs it, and add a line to the acceptable use policy asking staff not to copy sensitive data"]
+  },
+  "secplus-secops-tooling": {
+    "4": [0, "Disable it immediately without investigating, and wait to see which backups or services fail overnight"],
+    "10": [0, "Wipe the laptop immediately to stop further uploads, then ask the employee to explain why they used a personal drive"],
+    "11": [0, "Leave the playbook running unchanged, since payroll will recover and real malware outbreaks need the fastest possible response"],
+    "12": [0, "Hire more IT staff to process the emailed spreadsheets faster, and add a weekly reminder to check for leavers by hand"],
+    "21": [0, "Stop doing quarterly access reviews and rely on yearly audits"],
+    "24": [1, "Send another policy reminder about USB drives to all staff, and ask managers to confirm that their teams have read it and understood it"]
+  }
+}
