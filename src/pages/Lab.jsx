@@ -15,7 +15,6 @@ const Vpc3D = React.lazy(() => import('@/components/three/Vpc3D'));
 const LoadBalancer3D = React.lazy(() => import('@/components/three/LoadBalancer3D'));
 const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
 const Router3D = React.lazy(() => import('@/components/three/Router3D'));
-const Firewall3D = React.lazy(() => import('@/components/three/Firewall3D'));
 const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
 const Nas3D = React.lazy(() => import('@/components/three/Nas3D'));
 const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
@@ -31,6 +30,7 @@ import SubnetCalculator from '@/components/tools/SubnetCalculator';
 import TerminalSimulator from '@/components/tools/TerminalSimulator';
 import DnsAnimation from '@/components/viz/DnsAnimation';
 import FirewallAnimation from '@/components/viz/FirewallAnimation';
+import NgfwSimulator from '@/components/viz/NgfwSimulator';
 import EncryptionAnimation from '@/components/viz/EncryptionAnimation';
 import NumberSystemConverter from '@/components/tools/NumberSystemConverter';
 import AwsAnimation from '@/components/viz/AwsAnimation';
@@ -102,7 +102,7 @@ export const SUBJECTS = [
   { id: 'tls', category: 'Security', kind: 'anim', icon: Lock, label: 'TLS Handshake', blurb: 'Certificate validation, key exchange, and encrypted records.' },
   { id: 'encryption', category: 'Security', kind: 'anim', icon: KeyRound, label: 'Encryption', blurb: 'Watch plaintext become ciphertext, and back again.' },
   { id: 'firewall', category: 'Security', kind: 'anim', icon: Shield, label: 'Firewall Rules', blurb: 'See packets allowed or dropped as rule order is evaluated.' },
-  { id: 'firewall-3d', category: 'Security', kind: 'blueprint', icon: ShieldCheck, label: 'Next-Gen Firewall Blueprint', blurb: 'The full R2C NGFW technical blueprint — labeled WAN, LAN and SFP+ ports, rear panel, internal cutaway and specs.' },
+  { id: 'firewall-3d', category: 'Security', kind: 'blueprint', icon: ShieldCheck, label: 'Next-Gen Firewall Blueprint', blurb: 'Drive a live next-gen firewall on one screen — order the rules, watch stateful sessions open and close, let the IPS block the exploit.' },
   { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
   // Data & Systems
   { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
@@ -132,7 +132,7 @@ export const RENDERERS = {
   motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
   'rack-server': RackServer3D, ups: Ups3D,
   router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: Nas3D, 'patch-panel': PatchPanel3D,
+  cloud: Cloud3D, 'firewall-3d': () => <NgfwSimulator />, nas: Nas3D, 'patch-panel': PatchPanel3D,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
