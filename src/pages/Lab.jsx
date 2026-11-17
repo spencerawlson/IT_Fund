@@ -17,7 +17,6 @@ const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
 const Router3D = React.lazy(() => import('@/components/three/Router3D'));
 const Firewall3D = React.lazy(() => import('@/components/three/Firewall3D'));
 const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
-const Nas3D = React.lazy(() => import('@/components/three/Nas3D'));
 const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
 const RackServer3D = React.lazy(() => import('@/components/three/RackServer3D'));
 const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
@@ -25,6 +24,7 @@ const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'))
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
+import NasSimulator from '@/components/viz/NasSimulator';
 import AutoScalingAnimation from '@/components/viz/AutoScalingAnimation';
 import CICDAnimation from '@/components/viz/CICDAnimation';
 import SubnetCalculator from '@/components/tools/SubnetCalculator';
@@ -106,7 +106,7 @@ export const SUBJECTS = [
   { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
   // Data & Systems
   { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
-  { id: 'nas', category: 'Data & Systems', kind: 'blueprint', icon: HardDrive, label: 'NAS Storage Blueprint', blurb: 'An 8-bay NAS appliance — hot-swap drive bays, network ports, redundant power and RAID levels.' },
+  { id: 'nas', category: 'Data & Systems', kind: 'blueprint', icon: HardDrive, label: 'NAS Storage Blueprint', blurb: 'Drive a live 8-bay NAS on one screen — switch RAID levels, hot-swap a disk, watch a rebuild survive or lose the array.' },
   { id: 'system-architecture', category: 'Data & Systems', kind: 'flow', icon: Boxes, label: 'System Architecture', blurb: 'A resilient request path with caching, failover, and observability.' },
   { id: 'cloud-migration', category: 'Data & Systems', kind: 'flow', icon: CloudCog, label: 'Cloud Migration', blurb: 'Assess, lift-and-shift, refactor, then optimize.' },
   { id: 'capacity-planning', category: 'Data & Systems', kind: 'flow', icon: Gauge, label: 'Capacity Planning', blurb: 'From workload inputs to a validated, cost-aware plan.' },
@@ -132,7 +132,7 @@ export const RENDERERS = {
   motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
   'rack-server': RackServer3D, ups: Ups3D,
   router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: Nas3D, 'patch-panel': PatchPanel3D,
+  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: () => <NasSimulator />, 'patch-panel': PatchPanel3D,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
