@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:43:50.389Z",
+  "generatedAt": "2026-11-17T10:44:39.475Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -42741,7 +42741,7 @@
                   "a": "A column (or set) that uniquely identifies each row",
                   "x": "It must be unique and not null.",
                   "wrong": [
-                    "The first column",
+                    "The first column of the table, whatever it holds",
                     "Any indexed column",
                     "A foreign reference"
                   ]
@@ -42923,7 +42923,7 @@
                   "a": "An alias with AS: SELECT price AS cost",
                   "x": "Aliases also name computed columns.",
                   "wrong": [
-                    "RENAME",
+                    "RENAME price TO cost in the SELECT list",
                     "LABEL",
                     "CALL"
                   ]
@@ -43201,7 +43201,7 @@
                   "a": "How rows in the two tables relate, e.g. ON a.id = b.a_id",
                   "x": "Usually a foreign-key relationship.",
                   "wrong": [
-                    "Which columns to return",
+                    "Which columns from each table to return in the result",
                     "The sort order",
                     "A filter on one table"
                   ]
@@ -43240,7 +43240,7 @@
                   "a": "All rows from both tables, matched where possible, NULLs elsewhere",
                   "x": "Left + right + matches.",
                   "wrong": [
-                    "Only matches",
+                    "Only the rows that match in both tables",
                     "Only unmatched rows",
                     "The smaller table"
                   ]
@@ -43415,7 +43415,7 @@
                   "x": "e.g. ALTER TABLE users ADD COLUMN age INT.",
                   "wrong": [
                     "CHANGE TABLE",
-                    "MODIFY TABLE",
+                    "MODIFY TABLE (change the column data in place)",
                     "UPDATE TABLE"
                   ]
                 },
@@ -43518,7 +43518,7 @@
                   "a": "A subquery that references a column from the outer query, re-evaluated per outer row",
                   "x": "Powerful but can be slow.",
                   "wrong": [
-                    "A subquery with no inputs at all, running once entirely on its own before the outer query",
+                    "A subquery that runs once before the outer query",
                     "A join",
                     "A CTE"
                   ]
@@ -43531,7 +43531,7 @@
                   "a": "A named, readable temporary result you can reference in the main query",
                   "x": "Great for breaking up complex queries; supports recursion.",
                   "wrong": [
-                    "A permanent table",
+                    "A permanent table created and stored for later queries",
                     "An index",
                     "A trigger"
                   ]
@@ -43570,7 +43570,7 @@
                   "a": "Rows in the first query that are NOT in the second",
                   "x": "Set difference.",
                   "wrong": [
-                    "The intersection",
+                    "Rows that appear in both queries",
                     "All rows",
                     "Duplicates only"
                   ]
@@ -43655,7 +43655,7 @@
                   "a": "Faster reads, but slower writes and more storage",
                   "x": "Every INSERT/UPDATE must maintain the index.",
                   "wrong": [
-                    "No downside",
+                    "No downside; indexes only make queries faster",
                     "Slower reads",
                     "Less storage"
                   ]
@@ -43681,7 +43681,7 @@
                   "a": "Atomic column values — no repeating groups or arrays in a cell",
                   "x": "One value per column per row.",
                   "wrong": [
-                    "No duplicate rows anywhere in the table, ever, under any query at all",
+                    "No duplicate rows in the table",
                     "A foreign key",
                     "Everything in one table"
                   ]
@@ -43694,7 +43694,7 @@
                   "a": "Transitive dependencies — non-key columns depending on other non-key columns",
                   "x": "Each non-key attribute depends on the key, the whole key, and nothing but the key.",
                   "wrong": [
-                    "All joins",
+                    "All joins, by putting every column into one wide table",
                     "Primary keys",
                     "Indexes"
                   ]
@@ -43746,7 +43746,7 @@
                   "a": "The query planner's execution plan — scans, joins, index usage and cost",
                   "x": "The first tool for diagnosing slow queries.",
                   "wrong": [
-                    "The table schema",
+                    "The table schema, with every column and its data type",
                     "The data",
                     "User permissions"
                   ]
@@ -43801,7 +43801,7 @@
                   "a": "A group of statements that succeed or fail as a single unit",
                   "x": "BEGIN ... COMMIT; or ROLLBACK to undo.",
                   "wrong": [
-                    "A single query, running entirely alone with nothing else grouped around it",
+                    "A single query on its own",
                     "A stored procedure",
                     "A backup"
                   ]
@@ -43814,7 +43814,7 @@
                   "a": "Atomicity, Consistency, Isolation, Durability",
                   "x": "The guarantees a reliable transaction provides.",
                   "wrong": [
-                    "A caching strategy",
+                    "Availability, Confidentiality, Integrity, Durability",
                     "Access Control IDs",
                     "A query plan"
                   ]
@@ -43866,7 +43866,7 @@
                   "a": "Injecting malicious SQL through unsanitised input to run unintended queries",
                   "x": "A top web vulnerability (OWASP).",
                   "wrong": [
-                    "A slow query",
+                    "A slow query that locks the table for other users",
                     "A failed join",
                     "A deadlock"
                   ]
@@ -43879,7 +43879,7 @@
                   "a": "Parameterised queries / prepared statements (never string-concatenate input)",
                   "x": "The driver sends data separately from the SQL.",
                   "wrong": [
-                    "Escaping manually, adding backslashes before every single quote by hand each time",
+                    "Escaping quotes by hand in the input",
                     "Hiding error messages",
                     "A firewall"
                   ]
@@ -43905,7 +43905,7 @@
                   "a": "Concurrent transactions from interfering (dirty/non-repeatable/phantom reads)",
                   "x": "Higher isolation = fewer anomalies, less concurrency.",
                   "wrong": [
-                    "Slow queries",
+                    "Slow queries caused by too many open connections",
                     "Index bloat",
                     "NULL values"
                   ]
@@ -44013,7 +44013,7 @@
                   "x": "A container is a running instance of an image.",
                   "wrong": [
                     "A running container",
-                    "A VM snapshot",
+                    "A VM snapshot of a running server",
                     "A network"
                   ]
                 },
@@ -44208,7 +44208,7 @@
                   "x": "You still need -p to publish at run time.",
                   "wrong": [
                     "It opens a firewall",
-                    "It publishes the port",
+                    "It publishes the port on the host so clients can connect",
                     "It maps a volume"
                   ]
                 },
@@ -44314,7 +44314,7 @@
                   "x": "Without it, the container runs in the foreground.",
                   "wrong": [
                     "Deletes it after",
-                    "Enables debug",
+                    "Enables debug logging for the container",
                     "Mounts a volume"
                   ]
                 },
@@ -44511,8 +44511,8 @@
                   "deckId": "docker-data-net",
                   "trackId": "docker",
                   "q": "What is the default Docker network type?",
-                  "a": "bridge — containers get a private subnet and can talk by name",
-                  "x": "host shares the host network; none disables networking.",
+                  "a": "bridge — containers get a private subnet on the default docker0 bridge",
+                  "x": "On the default bridge, containers reach each other only by IP; name-based DNS needs a user-defined bridge network. host shares the host network; none disables networking.",
                   "wrong": [
                     "host, where containers share the host machine network stack with no separate subnet",
                     "none",
@@ -44967,7 +44967,7 @@
                   "a": "To limit damage if the app is compromised (least privilege)",
                   "x": "Add a USER instruction; avoid running as root.",
                   "wrong": [
-                    "For speed",
+                    "For speed, since root processes are scheduled first",
                     "Root is required",
                     "To reduce image size"
                   ]
@@ -45006,7 +45006,7 @@
                   "a": "Reports known CVEs in the base image and dependencies",
                   "x": "Gate builds on it in CI.",
                   "wrong": [
-                    "Makes images smaller",
+                    "Makes images smaller by removing unused packages",
                     "Signs images",
                     "Runs the app"
                   ]
@@ -45156,7 +45156,7 @@
                   "a": "Detailed JSON config/state (mounts, networks, env, etc.)",
                   "x": "The go-to for \"why is this configured like that?\".",
                   "wrong": [
-                    "Live logs",
+                    "Live logs streamed from the container's stdout",
                     "A shell",
                     "The image history"
                   ]

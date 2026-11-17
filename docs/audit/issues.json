@@ -1454,5 +1454,37 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0091",
+    "severity": "Medium",
+    "category": "incorrect",
+    "file": "src/data/academy/docker.js",
+    "contentId": "docker-data-net-3",
+    "original": "bridge — containers get a private subnet and can talk by name",
+    "problem": "Name resolution only works on user-defined bridges, not the default bridge.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "https://docs.docker.com/engine/network/drivers/bridge/",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0092",
+    "severity": "Low",
+    "category": "distractor-quality",
+    "file": "src/data/academy/sql.js, docker.js",
+    "contentId": "23 cards",
+    "original": "Padded and short options",
+    "problem": "Length and filler gave answers away.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]

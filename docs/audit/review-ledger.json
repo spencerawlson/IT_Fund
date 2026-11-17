@@ -920,6 +920,86 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 10
+    },
+    "sql-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-select": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-aggregates": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-joins": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-ddl-dml": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-subqueries": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-indexes-norm": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "sql-transactions-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-basics": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-images": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-run": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-data-net": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-compose": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-registry": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-optimization-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "docker-ops": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
     }
   }
 }
