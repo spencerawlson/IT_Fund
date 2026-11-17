@@ -126,7 +126,7 @@ export default {
       ['Argument vs attribute', 'Arguments are inputs you set; attributes are values exported after creation.'],
       ['terraform block', 'Configures Terraform itself: versions, providers, backend.'],
       ['required_providers', 'Pin provider versions (e.g. "~> 5.0") so releases cannot surprise you.'],
-      ['~> 5.1', 'Pessimistic constraint: >= 5.1.0, < 5.2.0 — patch updates only.'],
+      ['~> 5.1', 'Pessimistic constraint: >= 5.1, < 6.0 (use ~> 5.1.0 for patch-only).'],
     ],
   },
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:42:17.978Z",
+  "generatedAt": "2026-11-17T10:43:00.368Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -65492,7 +65492,7 @@
         ],
         [
           "~> 5.1",
-          "Pessimistic constraint: >= 5.1.0, < 5.2.0 — patch updates only."
+          "Pessimistic constraint: >= 5.1, < 6.0 (use ~> 5.1.0 for patch-only)."
         ]
       ]
     },
