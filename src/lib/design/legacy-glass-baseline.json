@@ -34,7 +34,6 @@
   "src/components/viz/GcpAnimation.jsx": 8,
   "src/components/viz/GitFlowAnimation.jsx": 11,
   "src/components/viz/KubernetesAnimation.jsx": 13,
-  "src/components/viz/LoadBalancerAnimation.jsx": 5,
   "src/components/viz/RoutingAnimation.jsx": 8,
   "src/components/viz/RoutingScenario.jsx": 6,
   "src/components/viz/SecurityIncidentAnimation.jsx": 9,

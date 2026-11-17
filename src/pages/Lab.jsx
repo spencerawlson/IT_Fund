@@ -93,7 +93,7 @@ export const SUBJECTS = [
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
   { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
-  { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'See traffic fan out with health checks and fast failover.' },
+  { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'Drive a live balancer — six strategies, traffic, slow and dying servers — then watch the four-beat story: overload, round robin, least connections, failover.' },
   { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
   { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
   { id: 'cicd', category: 'Cloud & Scale', kind: 'anim', icon: GitBranch, label: 'CI/CD Pipeline', blurb: 'Follow code from commit through build, test, and deploy.' },
