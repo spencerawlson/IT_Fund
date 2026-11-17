@@ -1118,5 +1118,37 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0070",
+    "severity": "High",
+    "category": "incorrect",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-social-web-scenarios-9",
+    "original": "Breach-dump username/password pairs, 3 attempts per user -> 'This is password spraying'",
+    "problem": "The stem describes credential stuffing; spraying is a few common passwords across many accounts. Key changed and the distinction explained.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0071",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-malware-scenarios, secplus-social-web-scenarios",
+    "original": "'The endpoint is haunted', 'The user is sleepwalking', 'Throw the machine in the river'",
+    "problem": "Joke options and colon duplicates; truncated answers restored.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]
