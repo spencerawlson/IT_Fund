@@ -5,6 +5,7 @@ import { Button } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
+import SeatsPill from '@/components/SeatsPill';
 import LandingBackground from '@/components/landing/LandingBackground';
 import { fetchSeats } from '@/api/seats';
 import { openConsentSettings } from '@/lib/consent';
@@ -104,10 +105,12 @@ const HOME_JSON_LD = {
 export default function Landing() {
   const { isAuthenticated, isLoadingAuth } = useAuth();
   // Live seats counter (public /public/seats): total accounts vs the 10,000
-  // seat cap. null = not loaded (or the fetch failed) — the counter renders
-  // nothing rather than a wrong number. When the cap is reached, sign-ups
-  // are closed: the signup CTAs are disabled and the hero says so plainly.
-  // Returning users can still sign in, and labs still work without an account.
+  // seat cap. null = not loaded (or the fetch failed) — the hero pill
+  // renders nothing rather than a wrong number. When the cap is reached,
+  // sign-ups are closed: the signup CTAs are disabled and the hero says so
+  // plainly. Returning users can still sign in, and labs still work without
+  // an account. The fetched value is passed to the hero pill so the page
+  // makes only one seats request.
   const [seats, setSeats] = useState(null);
   useEffect(() => {
     let live = true;
@@ -136,19 +139,9 @@ export default function Landing() {
         {/* Phones get one primary "Sign in" (both buttons open /signin); wider screens show both. */}
         <div className="flex items-center gap-1 whitespace-nowrap sm:gap-2">
           <ThemeToggle />
-          {/* The ghost "Sign in" is desktop-only normally (phones get the
-              secondary button's "Sign in" span); at the cap it is the only
-              header action on every screen, so it shows everywhere. */}
           <Button variant="ghost" size="sm" to="/signin" className={seatsFull ? 'inline-flex' : 'hidden sm:inline-flex'}>Sign in</Button>
-          {/* R-11: one primary CTA per homepage — the hero's "Start learning
-              free". This header action is secondary so it doesn't compete.
-              When seats are full there is no signup to offer, so it is
-              hidden instead of becoming a second "Sign in". */}
           {!seatsFull && (
-            <Button size="sm" variant="secondary" to="/signin">
-              <span className="sm:hidden">Sign in</span>
-              <span className="hidden sm:inline">Create free account</span>
-            </Button>
+            <Button variant="secondary" size="sm" to="/signin?signup=1">Create free account</Button>
           )}
         </div>
       </header>
@@ -163,7 +156,12 @@ export default function Landing() {
             Flashcards mapped to real cert objectives, hands-on labs in real
             terminals, and timed practice exams. Free to start.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          {/* Live seats pill — directly above the CTAs, the counter's one
+              home on the page. Renders nothing until the fetch resolves. */}
+          <div className="mt-8 flex justify-center">
+            <SeatsPill seats={seats} />
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" to="/signin" icon={ArrowRight} disabled={seatsFull}>
               Start learning free
             </Button>
@@ -171,14 +169,8 @@ export default function Landing() {
               Try a lab
             </Button>
           </div>
-          {/* Seats counter: live "N of 10,000 seats taken" under the CTAs.
-              Nothing renders until the fetch resolves, and nothing renders if
-              it fails — never a hardcoded or stale number. */}
-          {seats && (
-            <p className="mt-5 text-center text-small text-ink-2" data-testid="seats-counter">
-              {fmt(seats.totalAccounts)} of {fmt(seats.cap)} seats taken
-            </p>
-          )}
+          {/* At the cap the pill above reads "10,000 of 10,000" and this
+              note explains sign-ups are closed. */}
           {seatsFull && (
             <p className="mt-2 text-center text-small font-semibold text-ink-1" role="status">
               All {fmt(seats.cap)} seats are taken — sign-ups are closed.

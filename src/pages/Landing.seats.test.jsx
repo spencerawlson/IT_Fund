@@ -19,8 +19,8 @@ vi.mock('@/lib/AuthContext', () => ({
 }));
 
 // Mounted tests drive the real landing with the seats fetch stubbed by URL:
-// /public/seats answers with the configured payload, everything else answers
-// not-ok. The default stub rejects, so the fetch-failure test needs no setup.
+// /public/seats answers with the configured payload (the API's
+// snake_case shape: total_accounts / cap), everything else answers not-ok. The default stub rejects, so the fetch-failure test needs no setup.
 function mockSeatsFetch(payload) {
   vi.stubGlobal('fetch', vi.fn(async (url) => {
     if (String(url).includes('/public/seats')) {
@@ -59,66 +59,54 @@ function textOf(node) {
   return '';
 }
 
-function treeText(renderer) {
-  // Joined visible text: the counter renders as separate string children
-  // ("5,002" / " of " / "10,000" / " seats taken"), so a contiguous match
-  // needs the text joined, not the raw JSON dump.
-  return textOf(renderer.toJSON());
+// The hero pill, if rendered (null until the fetch resolves or on failure).
+function pill(renderer) {
+  const found = renderer.root.findAllByProps({ 'data-testid': 'seats-counter-pill' });
+  return found.length ? found[0] : null;
 }
 
-function primaryCta(renderer) {
-  const anchors = renderer.root.findAllByType('a');
-  return anchors.find((a) => textOf(a.children).includes('Start learning free'));
+function ctaByText(renderer, label) {
+  return renderer.root.findAllByType('a').find((a) => textOf(a).includes(label));
 }
 
-describe('Landing seats counter (mounted, mocked fetch)', () => {
-  beforeEach(() => { vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('no network'); })); });
-  afterEach(() => { vi.unstubAllGlobals(); });
+describe('Landing seats pill (hero, directly above the CTAs)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('no network'); }));
+  });
+  afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
-  it('shows the live "N of 10,000 seats taken" counter under the hero CTAs', async () => {
+  it('renders the pill in the hero directly above the CTAs, once, with en-CA separators', async () => {
     mockSeatsFetch({ total_accounts: 5002, cap: 10000 });
-    const renderer = renderLandingMounted();
-    try {
-      await flushEffects(renderer);
-      const text = treeText(renderer);
-      expect(text).toContain('5,002 of 10,000 seats taken');
-      expect(text).not.toContain('seats are taken');
-      // Seats remain: the signup CTA stays enabled.
-      expect(primaryCta(renderer).props['aria-disabled']).toBeFalsy();
-    } finally {
-      TestRenderer.act(() => { renderer.unmount(); });
-    }
+    const renderer = await flushEffects(renderLandingMounted());
+    const p = pill(renderer);
+    expect(p).not.toBeNull();
+    expect(textOf(p)).toContain('5,002 of 10,000 seats taken');
+    // One counter on the page: it appears before the CTA buttons in DOM
+    // order, and the header carries no counter.
+    const whole = textOf(renderer.root);
+    expect(whole.indexOf('5,002')).toBeLessThan(whole.indexOf('Start learning free'));
+    expect(textOf(renderer.root.findByType('header'))).not.toContain('seats taken');
+    // The old hero line under the CTAs is gone.
+    expect(renderer.root.findAllByProps({ 'data-testid': 'seats-counter' })).toHaveLength(0);
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('at the cap shows "10,000 of 10,000" and disables the signup CTAs with a plain note', async () => {
+  it('at the cap the pill reads full and the hero keeps its seats-full message with disabled CTAs', async () => {
     mockSeatsFetch({ total_accounts: 10000, cap: 10000 });
-    const renderer = renderLandingMounted();
-    try {
-      await flushEffects(renderer);
-      const text = treeText(renderer);
-      expect(text).toContain('10,000 of 10,000 seats taken');
-      expect(text).toContain('All 10,000 seats are taken');
-      expect(primaryCta(renderer).props['aria-disabled']).toBe(true);
-      // No waitlist is invented, and sign-in / labs stay available.
-      expect(text).not.toContain('waitlist');
-      expect(text).toContain('Try a lab');
-      expect(text).toContain('Sign in');
-    } finally {
-      TestRenderer.act(() => { renderer.unmount(); });
-    }
+    const renderer = await flushEffects(renderLandingMounted());
+    const p = pill(renderer);
+    expect(p).not.toBeNull();
+    expect(textOf(p)).toContain('10,000 of 10,000 seats taken');
+    expect(textOf(renderer.root)).toContain('All 10,000 seats are taken \u2014 sign-ups are closed.');
+    expect(ctaByText(renderer, 'Start learning free').props['aria-disabled']).toBe(true);
+    expect(ctaByText(renderer, 'Try a lab').props['aria-disabled']).toBeFalsy();
   });
 
-  it('renders no counter when the seats fetch fails — never a wrong number', async () => {
-    const renderer = renderLandingMounted();
-    try {
-      await flushEffects(renderer);
-      const text = treeText(renderer);
-      expect(text).not.toContain('seats taken');
-      expect(text).not.toContain('seats are taken');
-      // The page is otherwise intact.
-      expect(text).toContain('Learn IT by doing it');
-    } finally {
-      TestRenderer.act(() => { renderer.unmount(); });
-    }
+  it('renders nothing for the counter when the seats fetch fails', async () => {
+    const renderer = await flushEffects(renderLandingMounted());
+    expect(pill(renderer)).toBeNull();
+    expect(textOf(renderer.root)).not.toContain('seats taken');
+    expect(renderer.root.findAllByProps({ 'data-testid': 'seats-counter' })).toHaveLength(0);
+    expect(ctaByText(renderer, 'Start learning free').props['aria-disabled']).toBeFalsy();
   });
 });
