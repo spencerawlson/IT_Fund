@@ -1182,5 +1182,21 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0074",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-netarch-scenarios, secplus-dataprotect-scenarios",
+    "original": "'Outages build character', 'Branches should suffer equally', colon duplicates",
+    "problem": "Joke options and colon duplicates; truncated answers restored.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]

@@ -375,6 +375,16 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 25
+    },
+    "secplus-netarch-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
+    },
+    "secplus-dataprotect-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
     }
   }
 }

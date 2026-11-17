@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:31:33.751Z",
+  "generatedAt": "2026-11-17T01:33:22.625Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -18615,12 +18615,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "After a breach, the forensics team reports the attacker crossed from a phishing laptop to the domain controllers in 40 minutes on a flat /16. What is the most defensible architectural fix?",
-                  "a": "Segment into tiered networks with firewall-enforced flows",
+                  "a": "Segment into tiered networks with firewall-enforced flows between user, server and DC tiers",
                   "x": "Lateral movement speed is a network-design metric: flat networks are a single failure domain. Segmentation turns a 40-minute domain takeover into a contained host.",
                   "wrong": [
-                    "Flat networks are faster to manage",
-                    "Add more EDR and keep it flat",
-                    "Segmentation is too slow: tiered networks take too long to build"
+                    "Keep the flat network but deploy EDR to every host, so that lateral movement is detected and blocked by the agents",
+                    "Shorten password expiry for all domain accounts",
+                    "Add a second domain controller for resilience"
                   ]
                 },
                 {
@@ -18631,9 +18631,9 @@
                   "a": "Per-application access via ZTNA or a jump host with scoped credentials and session recording, time-boxed to the engagement",
                   "x": "A week of full-network VPN for one database is standing over-privilege: grant the application, not the network, and expire it automatically.",
                   "wrong": [
-                    "Full VPN is simpler for vendors: the full-tunnel VPN simplifies vendor access",
-                    "Give them a domain admin account: one login covers the whole week",
-                    "Open the firewall to their office IP: open the firewall to the vendor’s office"
+                    "Keep the full-tunnel VPN but disable the vendor's account at the end of the week by hand",
+                    "Give the vendor a domain admin account for the week",
+                    "Open the firewall to the vendor's office IP"
                   ]
                 },
                 {
@@ -18641,12 +18641,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "Thirty branches run expensive MPLS; the proposal is SD-WAN with internet underlay. What is the most defensible evaluation?",
-                  "a": "Compare encrypted overlay with centralized policy against the MPLS cost",
+                  "a": "Compare an encrypted overlay with centralised policy and monitoring against the MPLS cost and risk",
                   "x": "The transport decision is threat-model plus cost: unencrypted SD-WAN is just the internet, while MPLS bought you a private path you are giving up.",
                   "wrong": [
-                    "MPLS is always more secure: MPLS always beats SD-WAN on security",
-                    "SD-WAN is always cheaper and safe: SD-WAN always beats MPLS on price, security comes free",
-                    "Branches do not need security: the thirty branches need no security"
+                    "Keep MPLS, because a private carrier circuit is always more secure than any encrypted overlay on the internet",
+                    "Move to SD-WAN without encryption, since it is cheaper",
+                    "Leave branch security to local staff"
                   ]
                 },
                 {
@@ -18654,12 +18654,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "Remote staff still use a legacy VPN concentrator, and helpdesk sees weekly credential-phishing reports. What is the most defensible direction?",
-                  "a": "Migrate to ZTNA with device posture checks",
+                  "a": "Migrate to ZTNA with device posture checks and phishing-resistant MFA",
                   "x": "VPN credentials are a single phishable secret guarding the whole network: ZTNA shrinks the blast radius to the one application.",
                   "wrong": [
-                    "Longer VPN passwords: longer passwords stop credential phishing entirely",
-                    "Phishing training will fix it: phishing training fixes legacy VPN phishing",
-                    "VPNs are zero trust already: the legacy VPN is zero trust already"
+                    "Require longer VPN passwords that change every 60 days, with a lockout after three failed attempts",
+                    "Run more phishing training for remote staff",
+                    "Treat the VPN as zero trust already"
                   ]
                 },
                 {
@@ -18670,9 +18670,9 @@
                   "a": "Isolate OT behind a DMZ or data diode with only required flows, and monitor the boundary",
                   "x": "IT/OT convergence without a boundary puts production lines one phishing email from the helpdesk: the diode or firewall makes the crossing deliberate.",
                   "wrong": [
-                    "OT needs no security: factory systems face no real attackers",
-                    "Convenience beats segmentation: factory-floor convenience beats OT segmentation",
-                    "Air gaps are outdated: modern OT has outgrown physical isolation"
+                    "Keep it routable but add an antivirus product to every engineering workstation on the OT network",
+                    "Leave it; OT systems are not targeted",
+                    "Keep the convenience and monitor later"
                   ]
                 },
                 {
@@ -18683,9 +18683,9 @@
                   "a": "Separate SSID on its own VLAN with client isolation and a captive portal",
                   "x": "A guest device on the POS VLAN is a PCI failure and a pivot away from card data: segmentation is the control, not hoping guests behave.",
                   "wrong": [
-                    "Guests are trustworthy: trustworthy guests share the POS VLAN",
-                    "VLANs are too complex for Wi-Fi: guest Wi-Fi VLANs are too complex",
-                    "The POS is encrypted anyway: encrypted POS terminals survive guest Wi-Fi"
+                    "Keep the shared VLAN but require a guest password that changes every week at reception",
+                    "Rely on the POS encryption",
+                    "Leave it; guests are trusted visitors"
                   ]
                 },
                 {
@@ -18696,9 +18696,9 @@
                   "a": "Move to enterprise 802.1X with per-user or per-device credentials",
                   "x": "Shared keys fail twice: you cannot tell who connected, and one departure forces a building-wide rotation. Per-user credentials fix both.",
                   "wrong": [
-                    "Change the sticky note monthly: monthly sticky notes secure the Wi-Fi",
-                    "PSK is fine for offices: the shared PSK suits the office",
-                    "WPA3-Personal would fix it"
+                    "Switch to WPA3-Personal with a new shared password that is changed every quarter",
+                    "Change the sticky-note password monthly",
+                    "Keep the PSK, which is fine for offices"
                   ]
                 },
                 {
@@ -18709,9 +18709,9 @@
                   "a": "Remove it, scan for rogue devices with WIDS, and enforce port security plus 802.1X so unauthorized devices cannot join",
                   "x": "Rogue APs bridge your secured network to an uncontrolled one: detection finds them, 802.1X and port security keep them off.",
                   "wrong": [
-                    "Better Wi-Fi is a win: the personal travel router improves Wi-Fi",
-                    "Rogue APs are harmless: rogue travel-router APs are harmless",
-                    "Just ask them nicely once: asking the employee nicely removes rogue routers"
+                    "Ask the employee to remove it, and send a reminder to all staff that personal routers are not allowed",
+                    "Leave it, since better Wi-Fi helps productivity",
+                    "Ignore it; rogue access points are harmless"
                   ]
                 },
                 {
@@ -18719,12 +18719,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "The new IPS is inline and immediately starts blocking legitimate payroll traffic. What is the most defensible deployment?",
-                  "a": "Run in detect-only mode first, tune out false positives",
+                  "a": "Run in detect-only mode first, tune out false positives, then enable blocking in stages",
                   "x": "Inline blocking with untuned signatures is a self-inflicted outage: the defensible rollout is IDS-mode tuning, then staged prevention.",
                   "wrong": [
-                    "Blocking first proves it works",
-                    "Payroll can wait: blocked payroll traffic can wait",
-                    "Disable it permanently: disabling the IPS permanently fixes the payroll"
+                    "Keep blocking, because an IPS that blocks immediately proves that it is working, and add payroll exceptions as complaints arrive",
+                    "Disable the IPS permanently",
+                    "Let payroll wait until tuning is done"
                   ]
                 },
                 {
@@ -18735,9 +18735,9 @@
                   "a": "Remove it: the web tier talks to an app tier, and only the app tier reaches the database on required ports",
                   "x": "A compromised web server with a direct DB path is game over: tiering means each layer only reaches the next, never skips.",
                   "wrong": [
-                    "Direct DB access is faster: direct DMZ-to-database access is faster",
-                    "The DMZ is trusted: the trusted DMZ reaches the database",
-                    "Firewalls slow applications: firewalls slow the DMZ database access"
+                    "Keep the rule but restrict it to the web server's IP address and log every connection to the database",
+                    "Leave it, since direct access is faster",
+                    "Trust the DMZ, since it is firewalled"
                   ]
                 },
                 {
@@ -18748,9 +18748,9 @@
                   "a": "Enforce MFA, per-admin accounts, session recording, and source allow-listing",
                   "x": "A bastion concentrates all admin access: without MFA and individual accountability, one phished password owns every server.",
                   "wrong": [
-                    "Shared passwords are efficient: shared passwords on the bastion are efficient",
-                    "The bastion is internal",
-                    "MFA is for remote users: the internal jump server needs no MFA"
+                    "Rotate the shared admin password every month and limit the jump server to office hours only",
+                    "Leave it, since the bastion is internal",
+                    "Require MFA only for remote users"
                   ]
                 },
                 {
@@ -18761,9 +18761,9 @@
                   "a": "Either manage it — firewall rules, RA guard, monitoring — or disable it where unused",
                   "x": "Attackers love the protocol you forgot: IPv6 tunnels and rogue RAs bypass IPv4-only controls. Managed or off, never ignored.",
                   "wrong": [
-                    "IPv6 is the future, leave it: the future IPv6 needs no firewall rules",
-                    "Nobody attacks over IPv6: nobody attacks over the unmanaged IPv6",
-                    "Disable IPv6 everywhere forever: disabling IPv6 everywhere forever fixes exposure"
+                    "Leave IPv6 enabled and unmonitored, since attackers rarely use it inside corporate networks",
+                    "Leave it; IPv6 is the future",
+                    "Disable IPv6 everywhere, including where it is needed"
                   ]
                 },
                 {
@@ -18771,12 +18771,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "The SOC sees DNS queries to random-looking domains every 30 seconds from a finance workstation. What is the most defensible response?",
-                  "a": "Isolate the host, block outbound DNS except via the resolvers, and inspect",
+                  "a": "Isolate the host, force DNS through the internal resolvers, and inspect the queries",
                   "x": "DNS is the covert channel that firewalls wave through: periodic random domains are the tell. Force DNS through your resolvers and watch.",
                   "wrong": [
-                    "DNS is always benign: the random DNS queries are benign",
-                    "Block the workstation’s internet forever: block the finance workstation’s internet forever",
-                    "It is probably just Windows Update: random DNS queries are Windows Update"
+                    "Treat it as Windows telemetry or update checks, which often query many generated domain names",
+                    "Block the workstation's internet access permanently",
+                    "Treat DNS as always benign"
                   ]
                 },
                 {
@@ -18787,9 +18787,9 @@
                   "a": "Full packet capture or at minimum NetFlow plus an NDR sensor at the edge",
                   "x": "Firewall logs are the bouncer’s diary: for forensics you need the actual traffic. Capture at the chokepoint before you need it.",
                   "wrong": [
-                    "Firewall logs are sufficient: firewall logs show what happened",
-                    "Capture is too expensive: packet capture at the edge costs too much",
-                    "The cloud has no edges: the cloud has no edge to capture"
+                    "Keep relying on the firewall logs, which already record every allowed and denied connection at the edge",
+                    "Skip capture as too expensive",
+                    "Assume cloud traffic has no edge to capture"
                   ]
                 },
                 {
@@ -18797,12 +18797,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "VoIP phones share the data VLAN with workstations. What is the most defensible change?",
-                  "a": "Dedicated voice VLAN with 802.1X",
+                  "a": "A dedicated voice VLAN with 802.1X authentication for the phones",
                   "x": "Mixed voice and data means eavesdropping and toll fraud ride the same wire: a voice VLAN with authentication separates them.",
                   "wrong": [
-                    "Voice is low risk: VoIP voice traffic is low risk",
-                    "Voice VLANs are overkill: phones do not need their own segment",
-                    "Encryption makes VLANs unnecessary: encryption replaces voice VLAN segmentation"
+                    "Keep voice on the data VLAN but turn on SRTP encryption for every call, which makes separation unnecessary",
+                    "Treat voice as low risk",
+                    "Treat voice VLANs as overkill"
                   ]
                 },
                 {
@@ -18810,12 +18810,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "The entire datacenter hangs off one core switch with no redundancy. What is the most defensible fix?",
-                  "a": "Build a redundant core/distribution design",
+                  "a": "Build a redundant core and distribution design with no single points of failure",
                   "x": "Redundancy belongs where failure hurts most: one core switch means one failed power supply away from a total outage.",
                   "wrong": [
-                    "Switches rarely fail",
-                    "Core redundancy is for hyperscalers: only giants need a second core switch",
-                    "Buy a spare and keep it in the box: the boxed spare fixes redundancy"
+                    "Buy a spare core switch and keep it boxed in the data centre, ready to swap in after a failure",
+                    "Accept the risk; switches rarely fail",
+                    "Leave redundancy to hyperscalers"
                   ]
                 },
                 {
@@ -18826,9 +18826,9 @@
                   "a": "Local internet breakout with SASE policy enforcement",
                   "x": "Hairpinning SaaS traffic through HQ made sense in 2010: split-tunnel with cloud-delivered security keeps policy without the trombone.",
                   "wrong": [
-                    "Backhaul is more secure: backhauling through headquarters is more secure",
-                    "Branches should suffer equally: every branch should crawl equally",
-                    "The internet at branches is unsafe: branch internet breakouts are unsafe"
+                    "Keep backhauling through headquarters, since central inspection is more secure, and upgrade the HQ link",
+                    "Accept slower calls at every branch",
+                    "Block internet at branches entirely"
                   ]
                 },
                 {
@@ -18839,9 +18839,9 @@
                   "a": "Port security with MAC limits, sticky learning, and violation shutdown",
                   "x": "CAM exhaustion is physics: limit addresses per port and shut violators down. The switch stops being a switch only if you let it.",
                   "wrong": [
-                    "Hubs are fine internally: internal hubs survive MAC flooding",
-                    "MAC flooding is theoretical: MAC flooding is theoretical, never real, no switch has ever crashed",
-                    "Buy a bigger switch: a bigger switch survives the MAC flooding"
+                    "Replace the switch with a larger model that has a bigger CAM table, so flooding takes longer to work",
+                    "Ignore it; MAC flooding is theoretical",
+                    "Leave it; hubs are fine internally"
                   ]
                 },
                 {
@@ -18852,9 +18852,9 @@
                   "a": "Dedicated IoT VLAN with internet-only access and no path to the LAN",
                   "x": "IoT devices are unpatchable by design: the VLAN contains them, and no-LAN rules keep a Mirai moment from becoming your moment.",
                   "wrong": [
-                    "IoT is low risk: cameras, badge readers are low risk",
-                    "VLANs per device type is excessive: IoT VLANs per device type are excessive",
-                    "Cameras need LAN access: cameras, badge readers need LAN access"
+                    "Keep them on the user LAN, but change all default passwords and update firmware where available",
+                    "Treat IoT devices as low risk",
+                    "Give them full LAN access, since they need it"
                   ]
                 },
                 {
@@ -18865,9 +18865,9 @@
                   "a": "Move them to an out-of-band management network, reachable only via the bastion",
                   "x": "An iDRAC on the user LAN is a backdoor with a web UI: one compromised laptop away from bare-metal control. Isolate the management plane.",
                   "wrong": [
-                    "iDRAC passwords are strong enough: strong passwords secure the user-LAN management interfaces",
-                    "Out-of-band is legacy thinking: out-of-band management is legacy thinking",
-                    "Nobody knows those IPs: nobody knows the iDRAC IPs"
+                    "Keep them on the user LAN but set long, unique passwords on every management interface",
+                    "Treat out-of-band management as legacy",
+                    "Rely on nobody knowing the IPs"
                   ]
                 },
                 {
@@ -18878,9 +18878,9 @@
                   "a": "Audit by hit counts, remove the unused, document the rest with owners and expiry",
                   "x": "Firewall rules accrete like sediment: unused rules are unreviewed allow-lists. Measure, prune, and give every rule an owner and a reason.",
                   "wrong": [
-                    "More rules mean more security: 4,000 firewall rules mean more security",
-                    "Never touch a working firewall: never touch the working 4,000-rule firewall",
-                    "The rules document themselves: 4,000 rules need no owners or notes"
+                    "Leave the rule base alone, since the firewall works and removing rules might break an application",
+                    "Treat more rules as more security",
+                    "Assume the rules document themselves"
                   ]
                 },
                 {
@@ -18891,9 +18891,9 @@
                   "a": "Microsegmentation or host-based firewalls on the servers",
                   "x": "East-west is where ransomware lives: encrypt and policy the lateral paths, not just the front door.",
                   "wrong": [
-                    "Inside the firewall is trusted",
-                    "Microsegmentation is too complex: datacenter segmentation cannot be built",
-                    "Servers never attack servers: datacenter servers never attack each other"
+                    "Rely on the perimeter firewall, since traffic between servers inside the data centre is trusted",
+                    "Treat microsegmentation as too complex",
+                    "Assume servers never attack servers"
                   ]
                 },
                 {
@@ -18901,12 +18901,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "A second ISP is proposed “for redundancy” but both circuits enter through the same conduit. What is the most defensible design?",
-                  "a": "Diverse physical paths and ideally diverse providers",
+                  "a": "Diverse physical paths into the building, ideally with diverse providers",
                   "x": "Redundancy that shares a failure mode is theater: path diversity is the actual control.",
                   "wrong": [
-                    "Two bills equals redundancy: two ISP bills equal diverse paths",
-                    "Shared conduits never get cut: one trench carrying both circuits is safe",
-                    "One ISP with a good SLA: a good SLA replaces the diverse paths"
+                    "Add the second ISP as proposed, because two separate contracts with two SLAs give the redundancy needed",
+                    "Rely on one ISP with a strong SLA",
+                    "Assume the shared conduit will not be cut"
                   ]
                 },
                 {
@@ -18914,12 +18914,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "The honeypot sits in the production VLAN and keeps alerting on the backup server’s scans. What is the most defensible placement?",
-                  "a": "Isolated decoy segment with no production traffic",
+                  "a": "An isolated decoy segment with no production traffic",
                   "x": "Decoys only work when every touch is suspicious: production noise ruins the signal, and entrapping legitimate users creates liability.",
                   "wrong": [
-                    "Honeypots belong everywhere",
-                    "Noise is fine, more alerts are better: production honeypot alerts are fine",
-                    "The backup server is the attacker: the backup server attacks the production honeypot"
+                    "Keep it in production and add the backup server to an allow list so its scans stop alerting",
+                    "Place honeypots in every VLAN",
+                    "Treat the backup server as the attacker"
                   ]
                 },
                 {
@@ -18927,12 +18927,12 @@
                   "deckId": "secplus-netarch-scenarios",
                   "trackId": "cyber",
                   "q": "NAC is deployed in monitor mode and has been “almost ready” for two years. What is the most defensible push?",
-                  "a": "Define the enforcement policy, pilot on one VLAN",
+                  "a": "Define the enforcement policy, pilot enforcement on one VLAN, then expand",
                   "x": "NAC only works when it can say no: the blockers are always exceptions and politics, so pilot small and enforce deliberately.",
                   "wrong": [
-                    "Monitor mode is sufficient: monitor-mode NAC suffices as control",
-                    "NAC is too disruptive to enforce: enforcing NAC disrupts the whole network",
-                    "Two more years of tuning: two more years tunes the NAC"
+                    "Keep NAC in monitor mode, since visibility alone meets the requirement and enforcement is too disruptive",
+                    "Spend another year tuning before enforcing",
+                    "Abandon NAC"
                   ]
                 }
               ],
@@ -18972,11 +18972,11 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "The company has no data classification — every file gets the same handling. What is the most defensible first step?",
-                  "a": "Define classes with handling rules",
+                  "a": "Define classes with handling rules, then label data and apply controls per class",
                   "x": "Protection without classification is guesswork: you cannot encrypt “everything” sensibly. Classes tell each system what it is protecting and how hard.",
                   "wrong": [
-                    "Encrypt everything with the same key: a single key handles every single file",
-                    "Classification is bureaucracy",
+                    "Encrypt every file with the same company-wide key, so every document gets the same strong protection",
+                    "Treat classification as bureaucracy",
                     "Treat all data as public"
                   ]
                 },
@@ -18988,9 +18988,9 @@
                   "a": "Mask or tokenize PII in the pipeline before it leaves",
                   "x": "Logs are data too: once PII flows to a vendor, your breach surface includes their breach surface. Scrub at the boundary.",
                   "wrong": [
-                    "Trust the vendor’s policy: their privacy page promises the logs are safe",
-                    "Logs are not real data: the PII in logs is not real data",
-                    "Ask users for consent in the logs: user consent covers the PII in logs"
+                    "Rely on the vendor's privacy policy and data processing agreement, which already cover personal data",
+                    "Treat logs as not real data",
+                    "Add a consent notice to the logs"
                   ]
                 },
                 {
@@ -19001,9 +19001,9 @@
                   "a": "Disable TLS 1.0/1.1 and weak ciphers, in stages with compatibility monitoring",
                   "x": "Protocol negotiation lets the attacker pick the weakest option: the server must remove the weak options, not hope clients choose well.",
                   "wrong": [
-                    "Old clients matter more than security",
-                    "TLS 1.0 is fine internally: TLS 1.0 is fine for the old clients",
-                    "Warn the old clients: a banner telling them to upgrade is enough"
+                    "Keep TLS 1.0 for old clients and show them a banner recommending that they upgrade their browser",
+                    "Keep it, since TLS 1.0 is fine internally",
+                    "Prioritise old clients over security"
                   ]
                 },
                 {
@@ -19014,9 +19014,9 @@
                   "a": "Move keys to a KMS or HSM with access controls and audit",
                   "x": "A key beside the data is decoration: whoever reads the disk reads the key. Separate the key, control access to it, log every use.",
                   "wrong": [
-                    "TDE alone is sufficient",
-                    "Config files are protected by obscurity: the hidden config files protect the keys",
-                    "Keys do not need protection: the config-file keys need no protection"
+                    "Keep the keys in the config file but restrict the file's permissions to the database service account",
+                    "Rely on TDE alone",
+                    "Leave it; nobody knows the file is there"
                   ]
                 },
                 {
@@ -19027,9 +19027,9 @@
                   "a": "Full-disk encryption on all endpoints plus MDM with remote wipe",
                   "x": "Stolen hardware is a when, not an if: encryption makes the theft a hardware loss, not a breach. MDM adds the wipe for the window.",
                   "wrong": [
-                    "Laptops are never stolen: laptops holding HR data never get stolen",
-                    "HR data is low sensitivity: the full HR database is low sensitivity",
-                    "Find the laptop first: find the stolen laptop holding the HR database"
+                    "Report the theft to the police and focus on recovering the laptop before deciding on any other changes",
+                    "Treat HR data as low sensitivity",
+                    "Assume laptops are rarely stolen"
                   ]
                 },
                 {
@@ -19040,9 +19040,9 @@
                   "a": "Tune policies by data classification and user context with allowlisted workflows",
                   "x": "A DLP that blocks real work teaches circumvention: precision policies plus approved paths keep both security and productivity.",
                   "wrong": [
-                    "Block more to be safe: stricter DLP stops the R&D move to personal drives, blocking harder always works",
-                    "Disable DLP for R&D: disabling DLP frees the R&D file shares",
-                    "Personal drives are fine: personal drives replace the blocked R&D shares"
+                    "Block more aggressively and discipline anyone caught using personal drives to get around DLP",
+                    "Disable DLP for R&D",
+                    "Allow personal drives as the workaround"
                   ]
                 },
                 {
@@ -19050,12 +19050,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "The new system must store card numbers for recurring billing. What is the most defensible design?",
-                  "a": "Tokenize with the payment processor",
+                  "a": "Tokenise with the payment processor so card numbers never reach your systems",
                   "x": "The best way to protect card data is not to have it: tokenization removes PANs from your scope entirely. Encryption still leaves you holding the keys.",
                   "wrong": [
-                    "Encrypt the PANs in the database: encrypted PANs stay stored in the database",
-                    "Plaintext is fine behind the firewall: plaintext PANs stay safe behind it",
-                    "Hash the card numbers"
+                    "Encrypt the card numbers in the database with AES-256 and store the key in a separate key vault",
+                    "Hash the card numbers",
+                    "Store them in plaintext behind the firewall"
                   ]
                 },
                 {
@@ -19066,9 +19066,9 @@
                   "a": "Scheduled rotation with versioned keys and automated re-encryption",
                   "x": "Keys age like passwords: rotation limits the blast radius of a compromise nobody noticed. Automate it so it actually happens.",
                   "wrong": [
-                    "Keys do not expire: the five-year-old keys stay valid forever",
-                    "Rotation breaks things: rotating the old keys breaks the encryption",
-                    "The old admin was trustworthy: the departed admin was trustworthy, keep the keys"
+                    "Leave the keys as they are, since rotating them risks making old data unreadable",
+                    "Treat keys as never expiring",
+                    "Trust the departed admin"
                   ]
                 },
                 {
@@ -19079,9 +19079,9 @@
                   "a": "Encrypt backups before they leave the building, with keys managed separately",
                   "x": "Offsite media is in the wild: unencrypted tapes make the courier a breach vector. Encrypt first, then transport.",
                   "wrong": [
-                    "Couriers are trustworthy: the courier van protects the unencrypted backup tapes",
-                    "Tapes are obsolete anyway: backup tapes are obsolete, skip the encryption",
-                    "Encryption slows restores: encrypted offsite tapes slow restores too much"
+                    "Keep the tapes unencrypted but use a bonded courier with tracked, locked cases for every shipment",
+                    "Skip encryption because tapes are obsolete",
+                    "Skip encryption because it slows restores"
                   ]
                 },
                 {
@@ -19092,9 +19092,9 @@
                   "a": "DLP and email encryption gateway to catch it, plus an approved remote-access path",
                   "x": "People exfiltrate through the easiest hole: block the bad path AND provide the good one, or the workaround just moves.",
                   "wrong": [
-                    "Recall the email: ask the employee to delete the sent message",
-                    "SSNs in email are normal: the SSN spreadsheet travels by personal email",
-                    "Monitoring email is spying: DLP monitoring of SSN emails is spying"
+                    "Ask the employee to delete the email from the personal account and remind them of the policy",
+                    "Treat SSNs in email as normal",
+                    "Treat DLP monitoring as spying"
                   ]
                 },
                 {
@@ -19105,9 +19105,9 @@
                   "a": "Approved sync with DLP, device posture checks, and admin-controlled sharing",
                   "x": "Shadow sync puts company data under personal accounts: bring it under policy with technical controls, not just a memo.",
                   "wrong": [
-                    "Cloud sync is the user’s business",
-                    "A policy memo is enough: a memo controls the personal cloud sync",
-                    "Block all sync and watch productivity die: blocking all sync kills the productivity"
+                    "Publish a policy memo banning personal cloud sync and ask managers to remind their teams",
+                    "Leave sync to each user",
+                    "Block all sync tools"
                   ]
                 },
                 {
@@ -19118,9 +19118,9 @@
                   "a": "Sanitize per NIST 800-88 — clear, purge, or destroy based on media and classification — with certificates of destruction",
                   "x": "Resale without sanitization is a breach with extra steps: the buyer gets your data free. Sanitization level follows the data’s classification.",
                   "wrong": [
-                    "Recyclers are trustworthy: the recycler wipes the decommissioned drives properly",
-                    "Formatting is wiping: a quick format alone sanitizes decommissioned drives",
-                    "Drives are worthless anyway: the decommissioned drives hold nothing valuable"
+                    "Quick-format the drives before sale, which removes the file tables so the data can no longer be found",
+                    "Trust the recycler to wipe them",
+                    "Treat old drives as worthless"
                   ]
                 },
                 {
@@ -19128,12 +19128,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "The public website’s certificate expires at 3 AM on a holiday, and renewal is a manual ticket. What is the most defensible fix?",
-                  "a": "Automate issuance and renewal with ACME",
+                  "a": "Automate issuance and renewal with ACME, plus expiry alerting",
                   "x": "Manual certificate processes expire at the worst possible hour: automation plus expiry alerting makes renewal boring.",
                   "wrong": [
-                    "Set a calendar reminder: a calendar reminder fixes the 3 AM expiry",
-                    "Buy longer-lived certificates: longer certificates survive the 3 AM holiday expiry",
-                    "Outages build character: the 3 AM holiday certificate expiries build character"
+                    "Buy the longest-validity certificate available and set a calendar reminder a month before it expires",
+                    "Rely on a calendar reminder",
+                    "Accept occasional outages"
                   ]
                 },
                 {
@@ -19144,9 +19144,9 @@
                   "a": "Issue from an internal CA trusted by managed devices, or automate with ACME",
                   "x": "Click-through training is anti-training: every bypassed warning teaches users that warnings do not matter. Proper certs restore the signal.",
                   "wrong": [
-                    "Self-signed is fine internally: the internal self-signed certificates are fine",
-                    "Warnings keep users alert: click-through warnings train staff to notice",
-                    "Add the warning to training: teach staff the warning is expected here"
+                    "Keep the self-signed certificate and explain in security training that this warning is expected",
+                    "Leave it; self-signed is fine internally",
+                    "Treat warnings as useful practice"
                   ]
                 },
                 {
@@ -19157,9 +19157,9 @@
                   "a": "Rotate the credential immediately, scope the replacement to least privilege, audit usage, and move secrets to runtime injection with CI scanning",
                   "x": "Shipped secrets are public secrets: rotation closes the window, the audit tells you if it was used, and CI scanning keeps it from recurring.",
                   "wrong": [
-                    "The app is shipped — too late: the shipped app cannot rotate its secret",
-                    "Users will not decompile it: nobody decompiles the shipped mobile app",
-                    "Hide it deeper: bury the password in native code instead"
+                    "Move the password into native code in the next release so it is much harder to extract",
+                    "Accept that it is too late",
+                    "Assume users will not decompile the app"
                   ]
                 },
                 {
@@ -19170,9 +19170,9 @@
                   "a": "Anonymize or aggregate so records cannot be linked to individuals",
                   "x": "Masking keeps format but not privacy: true anonymization removes linkability. The technique follows the use case — analytics rarely needs real names.",
                   "wrong": [
-                    "Share raw data, analysts are trusted: trusted analysts receive the raw PII",
-                    "Hashing names is anonymization: the hashed names cannot identify any customer",
-                    "Privacy blocks analytics: privacy objections forbid sharing the raw PII"
+                    "Hash the customer names and email addresses, which makes the records anonymous for analysis",
+                    "Share the raw data with trusted analysts",
+                    "Refuse analytics on privacy grounds"
                   ]
                 },
                 {
@@ -19180,12 +19180,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "The company keeps every email and file for ten years “just in case”. What is the most defensible policy?",
-                  "a": "A retention schedule with legal-hold process",
+                  "a": "A retention schedule per data type, with a legal-hold process",
                   "x": "Hoarding is liability: every retained byte is discoverable, breachable, and storable at cost. Retention is a schedule, not a sentiment.",
                   "wrong": [
-                    "Storage is cheap, keep everything",
-                    "Delete everything yearly",
-                    "Legal holds are optional: the ten-year retention needs no legal holds"
+                    "Keep everything, since storage is cheap and old records may help in future disputes",
+                    "Delete everything every year",
+                    "Treat legal holds as optional"
                   ]
                 },
                 {
@@ -19193,12 +19193,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "A third-party analytics SDK in the mobile app is caught sending contact lists to its servers. What is the most defensible response?",
-                  "a": "Remove or replace the SDK, audit what it sent, disclose per policy",
+                  "a": "Remove or replace the SDK, audit what it sent, and disclose as required",
                   "x": "Your app’s permissions become the SDK’s permissions: vet SDKs like vendors, minimize their data, and monitor their traffic.",
                   "wrong": [
-                    "SDKs are the vendor’s problem: the SDK vendor owns the contact-list leak",
-                    "Contact lists are not sensitive: the contact lists are harmless shareable data",
-                    "Users agreed to everything: users consented to all SDK contact sharing"
+                    "Ask the SDK vendor to stop collecting contacts in its next version, and keep it in the app meanwhile",
+                    "Treat contact lists as not sensitive",
+                    "Rely on users having agreed"
                   ]
                 },
                 {
@@ -19209,9 +19209,9 @@
                   "a": "Block by default, allow only approved encrypted drives for defined roles",
                   "x": "Uncontrolled USB is a two-way hole: data walks out, malware walks in. Allowlist the need, encrypt the media, log the use.",
                   "wrong": [
-                    "USBs are convenient: convenient USB drives need no workstation policy",
-                    "Antivirus catches USB malware: the antivirus alone stops USB malware and exfiltration",
-                    "Nobody uses USB anymore: USB drives are obsolete on all workstations"
+                    "Rely on antivirus to scan USB drives when they are inserted",
+                    "Allow USB for convenience",
+                    "Assume nobody uses USB"
                   ]
                 },
                 {
@@ -19219,12 +19219,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "Sensitive documents are found on the shared printer daily. What is the most defensible fix?",
-                  "a": "Secure print with badge release",
+                  "a": "Secure print with badge release at the printer",
                   "x": "Paper is data: the fix is making the printer hold the job until the human arrives, not hoping people hurry.",
                   "wrong": [
-                    "Printers are not a security issue: the shared printer leaks no documents",
-                    "Email the offenders",
-                    "Remove all printers: removing all printers ends the leaked documents"
+                    "Email the people who leave documents behind, and post a reminder above the printer",
+                    "Treat printers as no security issue",
+                    "Remove all printers"
                   ]
                 },
                 {
@@ -19235,9 +19235,9 @@
                   "a": "Least-privilege views for support plus DLP on collaboration tools",
                   "x": "Support access should be scoped to the problem: full-table views for a password reset is overexposure by design.",
                   "wrong": [
-                    "Vendors need full access to help: the support techs need full database access",
-                    "Screen sharing is temporary: the vendor screen-share exposes nothing lasting",
-                    "Trust the NDA: the vendor’s NDA protects the customer database"
+                    "Rely on the vendor's NDA, which covers anything its staff see during support sessions",
+                    "Give vendors full access to help",
+                    "Treat screen shares as temporary"
                   ]
                 },
                 {
@@ -19245,12 +19245,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "The only copy of the master encryption key is with an admin who just resigned. What is the most defensible recovery design?",
-                  "a": "M-of-N key recovery with split knowledge",
+                  "a": "M-of-N key recovery with split knowledge across several custodians",
                   "x": "Single key holders are single points of failure and single points of coercion: split custody means the keys survive people.",
                   "wrong": [
-                    "Trust the admin to hand it over: the resigned admin returns the key",
-                    "One key holder is simpler: a single holder keeps the master key",
-                    "Keys do not need recovery: the sole master key needs no recovery plan"
+                    "Ask the departing admin to hand the key to their manager, who becomes the new sole holder",
+                    "Keep one key holder for simplicity",
+                    "Treat the key as needing no recovery plan"
                   ]
                 },
                 {
@@ -19258,12 +19258,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "The messaging app offers “encrypted” chats, but the provider holds the keys. What is the most defensible read?",
-                  "a": "That is transport-plus-storage encryption, not end-to-end",
+                  "a": "That is transport and storage encryption, not end-to-end: the provider can read the chats",
                   "x": "Who holds the keys decides who can read: provider-held keys mean provider access. E2EE is the only design where the provider cannot.",
                   "wrong": [
-                    "Encrypted is encrypted",
-                    "Providers never look: the provider never reads the encrypted chats",
-                    "E2EE is marketing: the provider-held keys still count as end-to-end"
+                    "It is end-to-end encryption, since the messages are encrypted in transit and at rest",
+                    "Assume the provider never looks",
+                    "Treat E2EE as marketing"
                   ]
                 },
                 {
@@ -19274,9 +19274,9 @@
                   "a": "Forensic watermarking — per-recipient invisible marks that identify the source of a leak",
                   "x": "Watermarks do not prevent leaks; they attribute them. The deterrent is knowing the copy is traceable to you.",
                   "wrong": [
-                    "Watermarks prevent leaks: the forensic watermark stops board decks leaking",
-                    "The leaker confessed: the confession identifies the board deck leaker",
-                    "PDFs cannot be watermarked: the leaked board deck cannot be watermarked"
+                    "Digital rights management, which stopped the deck from being forwarded and logged the attempt",
+                    "The leaker confessed",
+                    "The deck's metadata contained the author's name"
                   ]
                 },
                 {
@@ -19284,12 +19284,12 @@
                   "deckId": "secplus-dataprotect-scenarios",
                   "trackId": "cyber",
                   "q": "Passwords are hashed with MD5 “because it is fast”. What is the most defensible fix?",
-                  "a": "Migrate to Argon2, bcrypt, or scrypt with unique salts",
+                  "a": "Migrate to Argon2, bcrypt or scrypt with unique salts, rehashing at next login",
                   "x": "Password hashing must be slow by design: MD5 falls to GPUs in hours. Salts stop rainbow tables; work factors stop brute force.",
                   "wrong": [
-                    "MD5 is a hash, so it is fine",
-                    "Speed is a feature: fast MD5 hashing is the password feature",
-                    "Salts are optional"
+                    "Add a single company-wide salt to the MD5 hashes, which stops rainbow tables",
+                    "Keep MD5, since it is a hash",
+                    "Treat speed as a feature"
                   ]
                 }
               ],
