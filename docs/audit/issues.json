@@ -1214,5 +1214,37 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0076",
+    "severity": "Medium",
+    "category": "ambiguous",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-risk-scenarios-8",
+    "original": "3 ransomware scares in 2 years across the industry peer group -> ARO 1.5",
+    "problem": "Peer-group event counts are not your organisation's annual frequency; reworded to the organisation's own history and explained how peer data is scaled.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0077",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-crypto-scenarios, secplus-risk-scenarios",
+    "original": "'Compress it; compression is encryption', 'No caveat; hashes are magic', colon duplicates",
+    "problem": "Joke options and colon duplicates; truncated answers restored.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]
