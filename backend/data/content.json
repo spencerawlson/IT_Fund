@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:37:05.229Z",
+  "generatedAt": "2026-11-17T10:38:27.643Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -23376,7 +23376,7 @@
                   "wrong": [
                     "Identity policies are for S3 only",
                     "Resource policies attach to users",
-                    "There is no difference"
+                    "Identity policies attach to resources like buckets; resource policies attach to users, groups and roles"
                   ]
                 },
                 {
@@ -23428,7 +23428,7 @@
                   "wrong": [
                     "Create an IAM user with S3FullAccess",
                     "Share the root credentials temporarily",
-                    "Make the bucket public for 2 hours so the developer can read it without any credentials at all"
+                    "Make the bucket public for 2 hours, then switch it back"
                   ]
                 },
                 {
@@ -23476,7 +23476,7 @@
                   "trackId": "aws-saa",
                   "q": "Why must the AWS root user have MFA enabled and its keys locked away?",
                   "a": "Root cannot be restricted by IAM policies and has full power",
-                  "x": "Enable MFA, never use root day-to-day, use break-glass admin roles.",
+                  "x": "IAM policies cannot restrict root (SCPs can, but only in member accounts). Enable MFA, never use root day-to-day, and use break-glass admin roles.",
                   "wrong": [
                     "Root is slower without MFA",
                     "MFA is required for billing",
@@ -23518,7 +23518,7 @@
                   "x": "SCPs never grant permissions; they filter what identity policies can allow.",
                   "wrong": [
                     "Grant admin to all users",
-                    "Replace IAM policies",
+                    "Replace IAM policies in every member account",
                     "Encrypt CloudTrail logs"
                   ]
                 },
@@ -23649,7 +23649,7 @@
                   "wrong": [
                     "Open the DB port to 0.0.0.0/0",
                     "Put the database in a public subnet",
-                    "Use a NACL to allow all traffic"
+                    "A NACL on the database subnet allowing the app subnet's CIDR on all ports"
                   ]
                 },
                 {
@@ -23747,9 +23747,9 @@
                   "id": "saa-network-security-10",
                   "deckId": "saa-network-security",
                   "trackId": "aws-saa",
-                  "q": "You need stateful-allow plus explicit-deny filtering at the subnet boundary. Which control?",
+                  "q": "You need explicit deny rules at the subnet boundary. Which control?",
                   "a": "Network ACL",
-                  "x": "NACLs are the subnet-level stateless filter; security groups cannot deny.",
+                  "x": "NACLs are the subnet-level, stateless filter with numbered allow and deny rules; security groups are stateful and allow-only, so they cannot deny.",
                   "wrong": [
                     "Security group",
                     "WAF",
@@ -23894,7 +23894,7 @@
                   "a": "When you must supply and manage your own encryption keys per request",
                   "x": "You provide the key with each request; S3 never stores it.",
                   "wrong": [
-                    "For the cheapest option",
+                    "When you want S3 to generate and rotate the keys for you",
                     "For automatic rotation",
                     "SSE-C is deprecated"
                   ]
@@ -23916,9 +23916,9 @@
                   "id": "saa-data-protection-3",
                   "deckId": "saa-data-protection",
                   "trackId": "aws-saa",
-                  "q": "A company needs automatic yearly rotation of encryption keys. Which KMS feature?",
+                  "q": "A company needs automatic, scheduled rotation of its encryption keys. Which KMS feature?",
                   "a": "Automatic rotation for customer-managed symmetric keys",
-                  "x": "Enable it on the CMK; rotation is transparent to applications.",
+                  "x": "Enable it on the customer managed key; the period is configurable (90–2,560 days, default one year) and rotation is transparent to applications.",
                   "wrong": [
                     "Manual key replacement, creating a new key each year and re-encrypting everything by hand",
                     "SSE-S3 only",
@@ -23947,7 +23947,7 @@
                   "x": "Use Parameter Store for non-secret config, Secrets Manager for credentials.",
                   "wrong": [
                     "Parameter Store rotates secrets",
-                    "They are identical",
+                    "Parameter Store adds automatic rotation and cross-account sharing; Secrets Manager is cheaper for plain config",
                     "Secrets Manager is free"
                   ]
                 },
@@ -23999,7 +23999,7 @@
                   "x": "Governance mode allows privileged deletes; Compliance mode blocks even root.",
                   "wrong": [
                     "Faster uploads",
-                    "Cheaper storage",
+                    "Cheaper storage for objects that must be kept a long time",
                     "Public sharing"
                   ]
                 },
@@ -24087,7 +24087,7 @@
                   "trackId": "aws-saa",
                   "q": "What does enabling default S3 bucket encryption do?",
                   "a": "Automatically encrypts all new objects with SSE-S3 or SSE-KMS",
-                  "x": "No application changes needed; applies to uploads without encryption headers.",
+                  "x": "Since January 2023, S3 applies SSE-S3 to all new objects by default; setting the bucket default lets you choose SSE-KMS instead. It applies to new uploads, not existing objects.",
                   "wrong": [
                     "Encrypts existing objects retroactively, re-encrypting everything already in the bucket at once",
                     "Disables versioning",
@@ -24098,12 +24098,12 @@
                   "id": "saa-data-protection-17",
                   "deckId": "saa-data-protection",
                   "trackId": "aws-saa",
-                  "q": "An application needs FIPS 140-2 validated cryptography. Which KMS consideration?",
+                  "q": "An application needs FIPS-validated cryptography. Which KMS consideration?",
                   "a": "Use KMS with FIPS endpoints in a compliant region",
-                  "x": "KMS offers FIPS 140-2 validated endpoints; check the region’s compliance scope.",
+                  "x": "KMS HSMs are FIPS 140-3 Level 3 validated, and KMS offers FIPS endpoints; check the region's compliance scope.",
                   "wrong": [
                     "SSE-S3 only",
-                    "No special action",
+                    "No special action, since every endpoint is validated",
                     "Disable CloudTrail"
                   ]
                 }
@@ -24188,7 +24188,7 @@
                   "x": "Maintains steady load per instance by adding or removing capacity.",
                   "wrong": [
                     "Scheduled scaling only",
-                    "Manual scaling",
+                    "Manual scaling by the on-call team",
                     "Step scaling on CPU only"
                   ]
                 },
@@ -24200,7 +24200,7 @@
                   "a": "Terminates it and launches a replacement from the launch template",
                   "x": "Health checks combine EC2 status with optional ELB health checks.",
                   "wrong": [
-                    "It repairs the OS",
+                    "It repairs the OS in place and reboots it",
                     "It reboots forever",
                     "It notifies but takes no action"
                   ]
@@ -24213,7 +24213,7 @@
                   "a": "Active-passive DNS failover to a standby endpoint",
                   "x": "Health checks determine when to flip to the secondary.",
                   "wrong": [
-                    "Equal load balancing, splitting traffic evenly across every endpoint at all times",
+                    "Equal load balancing across every healthy endpoint",
                     "Geographic restriction",
                     "Lowest latency always"
                   ]
@@ -24252,7 +24252,7 @@
                   "a": "Sessions are lost when requests hit different instances or replacements",
                   "x": "Fix: store sessions in ElastiCache/DynamoDB, or enable ALB stickiness.",
                   "wrong": [
-                    "Nothing breaks",
+                    "Nothing breaks, because the ALB copies sessions between instances",
                     "The ALB fails",
                     "Sessions replicate automatically"
                   ]
@@ -24317,7 +24317,7 @@
                   "a": "ALB target group stickiness (duration-based cookies)",
                   "x": "Prefer stateless design; use stickiness only when required.",
                   "wrong": [
-                    "Route 53",
+                    "Route 53 weighted records with a short TTL",
                     "CloudFront only",
                     "Security groups"
                   ]
@@ -24369,7 +24369,7 @@
                   "a": "Automatic recovery if an AZ has issues, at no extra cost",
                   "x": "Balanced AZs are the default best practice.",
                   "wrong": [
-                    "It is more expensive",
+                    "It is more expensive, because each AZ is billed separately",
                     "Dev never needs HA",
                     "AZs are slower"
                   ]
@@ -24445,7 +24445,7 @@
                   "x": "SNS topics push to SQS queues, Lambda, email, SMS, and HTTP endpoints.",
                   "wrong": [
                     "Strict ordering needed",
-                    "Pull-based workers",
+                    "Pull-based workers that poll for jobs at their own pace",
                     "Exactly-once required"
                   ]
                 },
@@ -24497,7 +24497,7 @@
                   "x": "Design workers so reprocessing the same message is harmless.",
                   "wrong": [
                     "SQS never duplicates",
-                    "Idempotency is automatic",
+                    "Rejecting duplicate messages at the queue; FIFO and standard queues both deliver exactly once",
                     "Only FIFO needs it"
                   ]
                 },
@@ -24548,7 +24548,7 @@
                   "a": "Step Functions with catch/retry and compensating states",
                   "x": "Orchestrates distributed transactions with rollback logic.",
                   "wrong": [
-                    "SQS FIFO",
+                    "SQS FIFO with a dead-letter queue for failures",
                     "RDS",
                     "CloudFront"
                   ]
@@ -24561,7 +24561,7 @@
                   "a": "Cron-like scheduled invocations of 200+ AWS targets",
                   "x": "Replaces scheduled CloudWatch Events rules with more flexibility.",
                   "wrong": [
-                    "EC2 scheduling only, starting and stopping instances on a timetable and nothing else",
+                    "Starting and stopping EC2 instances on a timetable only",
                     "DNS updates",
                     "A queue"
                   ]
@@ -24613,7 +24613,7 @@
                   "a": "Ordered, replayable, high-throughput streaming with multiple consumers",
                   "x": "Kinesis retains records 24h–365d and supports real-time analytics.",
                   "wrong": [
-                    "Simple task queues",
+                    "Simple task queues where each message goes to one worker",
                     "Low throughput",
                     "Exactly-once semantics"
                   ]
@@ -24691,7 +24691,7 @@
                   "a": "Minimal core (e.g. replicated DB) always running; scale out on failover",
                   "x": "Faster than backup/restore, cheaper than warm standby.",
                   "wrong": [
-                    "Full duplicate environment",
+                    "A full duplicate environment running at production capacity in a second region",
                     "No replication",
                     "Tape backups"
                   ]
@@ -24743,7 +24743,7 @@
                   "a": "Central policy-based backup across EC2, RDS, EFS, DynamoDB, and S3",
                   "x": "One schedule, retention, and compliance reporting for many services.",
                   "wrong": [
-                    "Only EC2",
+                    "Backing up EC2 instances only, through AMIs",
                     "Only S3",
                     "A monitoring tool"
                   ]
@@ -24795,7 +24795,7 @@
                   "a": "WORM: prevents backup deletion before retention expires",
                   "x": "Even compromised admin credentials cannot delete locked recovery points.",
                   "wrong": [
-                    "It encrypts backups",
+                    "It encrypts backups with a key only the root user holds",
                     "It speeds restores",
                     "It is only for S3"
                   ]
@@ -24847,7 +24847,7 @@
                   "a": "The actual application endpoint, not just the server",
                   "x": "Fail over only when the app is truly unhealthy; use thresholds to avoid flapping.",
                   "wrong": [
-                    "CPU only",
+                    "The server's CPU and memory metrics",
                     "Billing",
                     "Nothing"
                   ]
@@ -24886,7 +24886,7 @@
                   "a": "The destination region needs access to a valid KMS key",
                   "x": "Use multi-Region keys or re-encrypt with destination-region keys.",
                   "wrong": [
-                    "Encryption breaks replication, so encrypted objects cannot be copied to another region at all",
+                    "Encryption blocks replication, so encrypted objects cannot be replicated across regions",
                     "KMS is global",
                     "No action needed"
                   ]
@@ -24937,7 +24937,7 @@
                   "wrong": [
                     "Instance store is replicated",
                     "EBS is ephemeral",
-                    "No difference"
+                    "Both persist, but instance store is faster and survives stops"
                   ]
                 },
                 {
@@ -25000,7 +25000,7 @@
                   "a": "Faster uploads over long distances via CloudFront edge locations",
                   "x": "Helps distributed uploaders; combine with multipart upload.",
                   "wrong": [
-                    "Faster downloads only",
+                    "Faster downloads through a regional cache in each AZ",
                     "Cheaper storage",
                     "Encryption"
                   ]
@@ -25067,7 +25067,7 @@
                   "wrong": [
                     "Cloud-only apps",
                     "Never",
-                    "Only for databases"
+                    "Only for migrating on-prem databases into RDS"
                   ]
                 },
                 {
@@ -25102,7 +25102,7 @@
                   "trackId": "aws-saa",
                   "q": "S3 Select vs Athena: when is S3 Select better?",
                   "a": "Retrieving a subset of rows/columns from a single object",
-                  "x": "Server-side filtering reduces transfer; Athena queries many objects with SQL.",
+                  "x": "S3 Select filters one object server-side; Athena queries many objects with SQL. Note that AWS closed S3 Select to new customers in July 2024 and recommends Athena or S3 Object Lambda instead.",
                   "wrong": [
                     "Joins across buckets, combining rows from many objects in different buckets into one result",
                     "Full data lake",
@@ -25118,7 +25118,7 @@
                   "x": "Applies to all S3 operations.",
                   "wrong": [
                     "Eventual consistency only",
-                    "No overwrites",
+                    "Objects can no longer be overwritten once written",
                     "Only for new buckets"
                   ]
                 },
@@ -25218,7 +25218,7 @@
                   "a": "Replicas scale reads (async, promotable); standby is for HA failover (sync)",
                   "x": "Different purposes: performance vs availability.",
                   "wrong": [
-                    "They are identical",
+                    "Replicas are for HA failover (sync); the standby scales reads (async, promotable)",
                     "Standby scales reads",
                     "Replicas fail over automatically"
                   ]
@@ -25270,7 +25270,7 @@
                   "a": "Auto-scaling relational capacity for variable workloads",
                   "x": "Scales in fine increments; pay per ACU-second.",
                   "wrong": [
-                    "Fixed capacity",
+                    "Fixed-capacity instances for steady workloads",
                     "NoSQL",
                     "Data warehousing"
                   ]
@@ -25309,7 +25309,7 @@
                   "a": "DAX caching plus on-demand or auto-scaling capacity",
                   "x": "Cache absorbs peaks; avoid over-provisioned RCUs.",
                   "wrong": [
-                    "Provisioned max always, paying for peak capacity around the clock to cover every spike",
+                    "Provision for the peak around the clock",
                     "Bigger tables",
                     "More GSIs"
                   ]
@@ -25387,7 +25387,7 @@
                   "a": "Time-series data (IoT, metrics) with automatic tiering",
                   "x": "Purpose-built; cheaper than relational for timestamped data.",
                   "wrong": [
-                    "Graphs",
+                    "Graph relationships between connected devices",
                     "Documents",
                     "Relational"
                   ]
@@ -25482,7 +25482,7 @@
                   "a": "CloudFront Functions: lightweight edge logic; Lambda@Edge: full compute at edge",
                   "x": "Functions for header rewrites; Lambda@Edge for auth and heavier transforms.",
                   "wrong": [
-                    "They are identical",
+                    "Lambda@Edge: lightweight header logic; CloudFront Functions: full compute in the region",
                     "Lambda@Edge is cheaper",
                     "Functions run in regions"
                   ]
@@ -25614,7 +25614,7 @@
                   "wrong": [
                     "Always ElastiCache",
                     "Never DAX",
-                    "For RDS"
+                    "For caching RDS query results in memory"
                   ]
                 },
                 {
@@ -25664,7 +25664,7 @@
                   "a": "Staggered TTLs, request coalescing, or probabilistic early refresh",
                   "x": "Prevents all clients hitting the database simultaneously.",
                   "wrong": [
-                    "Bigger cache",
+                    "A bigger cache node so more keys fit in memory at once",
                     "No TTL",
                     "More DB replicas"
                   ]
@@ -25739,7 +25739,7 @@
                   "a": "Rightsizing: optimal instance types from utilization history",
                   "x": "Also covers EBS, Lambda, and ECS; integrates with Cost Explorer.",
                   "wrong": [
-                    "Cheapest region",
+                    "The cheapest region for each workload",
                     "Spot prices",
                     "Reserved terms"
                   ]
@@ -25765,7 +25765,7 @@
                   "a": "Spiky or infrequent traffic; pay per invocation vs idle servers",
                   "x": "Sustained high traffic often favors EC2 or ECS.",
                   "wrong": [
-                    "Always",
+                    "Always, because Lambda has no idle cost",
                     "Never",
                     "Only for batch"
                   ]
@@ -25817,7 +25817,7 @@
                   "a": "Flexibility: apply across families, sizes, regions, and compute services",
                   "x": "Slightly lower maximum discount than standard RIs in exchange.",
                   "wrong": [
-                    "Deeper discounts",
+                    "Deeper discounts than any Reserved Instance, with no commitment",
                     "No commitment",
                     "They are identical"
                   ]
@@ -25853,8 +25853,8 @@
                   "deckId": "saa-compute-cost",
                   "trackId": "aws-saa",
                   "q": "What is the AWS Free Tier’s main cost trap?",
-                  "a": "Exceeding limits or forgetting resources after 12 months",
-                  "x": "Set billing alerts and budgets from day one.",
+                  "a": "Exceeding free limits or credits, or leaving resources running after the free period ends",
+                  "x": "Since July 2025, new accounts get credits on a free plan of up to six months; older accounts keep the 12-month Free Tier. Set budgets and billing alerts from day one.",
                   "wrong": [
                     "It is unlimited, covering every service at any scale for as long as the account exists",
                     "No traps",
@@ -25870,7 +25870,7 @@
                   "x": "Hosts suit BYOL compliance; instances suit isolation needs.",
                   "wrong": [
                     "Hosts are cheaper",
-                    "They are identical",
+                    "Instances: per-socket licensing control, highest cost; Hosts: shared hardware",
                     "Instances share hardware"
                   ]
                 },
@@ -25910,7 +25910,7 @@
                   "wrong": [
                     "Spot only",
                     "On-Demand",
-                    "No commitment needed, since the best discount applies automatically with no plan at all"
+                    "No commitment, since the best discount applies automatically"
                   ]
                 },
                 {
@@ -25921,7 +25921,7 @@
                   "a": "On-Demand with Auto Scaling, then Savings Plans once baselines emerge",
                   "x": "Commit only to the steady-state baseline you can measure.",
                   "wrong": [
-                    "3yr Reserved upfront",
+                    "3-year Reserved Instances paid all upfront for the expected peak",
                     "Dedicated Hosts",
                     "Spot only"
                   ]
@@ -25996,7 +25996,7 @@
                   "a": "Small objects incur per-object metadata overhead",
                   "x": "Aggregate tiny files before archiving.",
                   "wrong": [
-                    "No overhead",
+                    "No overhead, since objects are billed by size",
                     "1 MB minimum",
                     "Only for Deep Archive"
                   ]
@@ -26100,7 +26100,7 @@
                   "a": "Cross-region replication doubles storage plus transfer fees",
                   "x": "Replicate selectively with filters, not whole buckets.",
                   "wrong": [
-                    "Never",
+                    "Never, since replication traffic between regions is free",
                     "Replication is free",
                     "Only metadata"
                   ]
@@ -26152,7 +26152,7 @@
                   "a": "Partition, compress (Parquet), and limit scanned data",
                   "x": "Athena bills per TB scanned; format matters enormously.",
                   "wrong": [
-                    "More queries",
+                    "Run more, smaller queries over uncompressed CSV",
                     "CSV format",
                     "No partitions"
                   ]

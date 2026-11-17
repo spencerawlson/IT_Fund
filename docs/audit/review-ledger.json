@@ -510,6 +510,61 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 12
+    },
+    "saa-iam": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-network-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-data-protection": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-ha-compute": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-decoupling": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-backup-dr": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-storage": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-databases": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-caching-cdn": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-compute-cost": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
+    },
+    "saa-storage-cost": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 18
     }
   }
 }

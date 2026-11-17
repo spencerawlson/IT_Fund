@@ -1,0 +1,19 @@
+{
+  "saa-iam": {
+    "9": { "x": "IAM policies cannot restrict root (SCPs can, but only in member accounts). Enable MFA, never use root day-to-day, and use break-glass admin roles." }
+  },
+  "saa-network-security": {
+    "10": { "q": "You need explicit deny rules at the subnet boundary. Which control?", "x": "NACLs are the subnet-level, stateless filter with numbered allow and deny rules; security groups are stateful and allow-only, so they cannot deny." }
+  },
+  "saa-data-protection": {
+    "3": { "q": "A company needs automatic, scheduled rotation of its encryption keys. Which KMS feature?", "x": "Enable it on the customer managed key; the period is configurable (90–2,560 days, default one year) and rotation is transparent to applications." },
+    "16": { "x": "Since January 2023, S3 applies SSE-S3 to all new objects by default; setting the bucket default lets you choose SSE-KMS instead. It applies to new uploads, not existing objects." },
+    "17": { "q": "An application needs FIPS-validated cryptography. Which KMS consideration?", "x": "KMS HSMs are FIPS 140-3 Level 3 validated, and KMS offers FIPS endpoints; check the region's compliance scope." }
+  },
+  "saa-storage": {
+    "14": { "x": "S3 Select filters one object server-side; Athena queries many objects with SQL. Note that AWS closed S3 Select to new customers in July 2024 and recommends Athena or S3 Object Lambda instead." }
+  },
+  "saa-compute-cost": {
+    "12": { "a": "Exceeding free limits or credits, or leaving resources running after the free period ends", "x": "Since July 2025, new accounts get credits on a free plan of up to six months; older accounts keep the 12-month Free Tier. Set budgets and billing alerts from day one." }
+  }
+}
