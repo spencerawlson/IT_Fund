@@ -405,6 +405,16 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 22
+    },
+    "secplus-governance-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
+    },
+    "secplus-thirdparty-scenarios": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
     }
   }
 }

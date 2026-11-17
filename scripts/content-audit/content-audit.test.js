@@ -15,7 +15,7 @@ import { longestRates } from './longest.mjs';
 const BASELINE = {
   'card-answer-length-giveaway': 244,
   'card-padded-distractor': 75,
-  'card-colon-restatement': 61,
+  'card-colon-restatement': 0,
   'lesson-no-examples': 159,
   'cross-track-duplicate-reworded': 47,
   'deck-no-sources': 15,

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:36:52.330Z",
+  "generatedAt": "2026-11-17T01:42:57.530Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -20674,9 +20674,9 @@
                   "a": "Policy states the requirement, the standard names AES-256, the procedure gives the key-generation steps",
                   "x": "Policy (what and why, executive-approved), standard (the specific rule), procedure (the how-to steps) — each has a different author and audience.",
                   "wrong": [
-                    "One giant policy covering everything: one policy covers encryption, algorithms, keygen",
-                    "Procedures do not need writing: the key-generation steps need no procedure",
-                    "Standards are optional: mandatory standards are just helpful guidance"
+                    "One comprehensive policy that holds the requirement, the approved algorithms and the key-generation steps together",
+                    "Skip the procedure; engineers know the steps",
+                    "Make the standard optional guidance"
                   ]
                 },
                 {
@@ -20684,12 +20684,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "Enterprise customers demand independent assurance before signing. What is the most defensible audit to commission?",
-                  "a": "An external audit — independent attestation for relying parties",
+                  "a": "An external audit, which gives independent attestation to relying parties",
                   "x": "External audits serve outsiders: independence is the point. Internal audit serves management readiness.",
                   "wrong": [
-                    "Internal audit; it is cheaper",
-                    "Self-attestation is enough: self-attestation gives independent assurance to customers",
-                    "Audits are all the same: every audit gives the same independent assurance"
+                    "An internal audit, since it is cheaper and the internal audit team already knows the systems well",
+                    "A self-attestation questionnaire",
+                    "Any audit; they all give the same assurance"
                   ]
                 },
                 {
@@ -20700,9 +20700,9 @@
                   "a": "Define scope precisely: systems in scope, the period, and the criteria",
                   "x": "A good audit scope names what, when, and against what standard. 'Review security' lets the auditor — or the auditee — dodge the hard parts.",
                   "wrong": [
-                    "Broad scope catches more: the vague scope catches more issues",
-                    "Scope limits are suspicious: the precise audit scope looks suspicious",
-                    "Let the auditor decide everything: the auditor defines the entire audit scope"
+                    "Keep the broad scope, since a vague brief lets the auditor follow any issue they find",
+                    "Treat scope limits as suspicious",
+                    "Let the auditor decide everything"
                   ]
                 },
                 {
@@ -20710,12 +20710,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "The auditor's finding says access reviews are undocumented. The team disagrees. What is the most defensible response?",
-                  "a": "A remediation plan with an owner and a date",
+                  "a": "Respond formally: rebut with evidence, or accept and give a remediation plan with an owner and a date",
                   "x": "Audit findings get management responses: accept and remediate with a timeline, or rebut with evidence. Endless argument is the worst option.",
                   "wrong": [
-                    "Ignore it; auditors leave: the auditors leave and findings vanish",
-                    "Argue until they withdraw it: argue until the auditor withdraws the finding",
-                    "Findings are suggestions: the audit findings are suggestions, not requirements"
+                    "Argue the point with the auditor until they agree to withdraw the finding from the report",
+                    "Ignore it; the auditors will leave",
+                    "Treat findings as suggestions"
                   ]
                 },
                 {
@@ -20723,12 +20723,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "The auditor asks for evidence that patches were applied. What is the most defensible evidence?",
-                  "a": "System-generated reports with integrity — not screenshots alone",
+                  "a": "System-generated reports from the patch tool, with integrity — not screenshots alone",
                   "x": "Good evidence is sufficient, reliable, and tamper-evident: tool output beats screenshots, which anyone can fabricate.",
                   "wrong": [
-                    "A screenshot of the update screen: the screenshot proves the patches applied",
-                    "An email saying ’we patched’: the email proves the patches were applied",
-                    "The admin's word"
+                    "Screenshots of the update screen on a sample of servers, signed off by the server manager",
+                    "An email confirming the patches were applied",
+                    "The administrator's word"
                   ]
                 },
                 {
@@ -20736,12 +20736,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "The SaaS company signs its first EU customers. What is the most defensible compliance move?",
-                  "a": "Treat GDPR as applicable",
+                  "a": "Treat GDPR as applicable: map the data, set a lawful basis, and put DPAs and rights processes in place",
                   "x": "GDPR follows the data subject: serving EU residents triggers it regardless of where the company sits.",
                   "wrong": [
-                    "GDPR is only for EU companies: GDPR binds only the EU companies",
-                    "Ignore it until fined: wait for the GDPR fine to arrive",
-                    "Block EU signups instead of complying: blocking EU signups avoids GDPR entirely"
+                    "GDPR applies only to companies established in the EU, so it does not affect a non-EU SaaS company",
+                    "Ignore it until fined",
+                    "Block EU sign-ups instead"
                   ]
                 },
                 {
@@ -20752,9 +20752,9 @@
                   "a": "HIPAA compliance with a signed BAA covering every vendor touching PHI",
                   "x": "PHI in scope means HIPAA: administrative, technical, and physical safeguards, plus business associate agreements down the chain.",
                   "wrong": [
-                    "HIPAA is the clinic’s problem: the US clinic owns HIPAA compliance",
-                    "Verbal promises suffice: verbal promises satisfy HIPAA and BAA requirements",
-                    "Encrypt it and HIPAA is satisfied: encryption alone satisfies HIPAA requirements"
+                    "Encrypt the patient records at rest and in transit, which satisfies HIPAA without further agreements",
+                    "Leave HIPAA to the clinic",
+                    "Rely on verbal promises"
                   ]
                 },
                 {
@@ -20762,12 +20762,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "The startup starts taking credit cards directly. What is the most defensible scoping decision?",
-                  "a": "Reduce PCI DSS scope first",
+                  "a": "Reduce PCI DSS scope first, for example with a hosted payment page and tokenisation",
                   "x": "Scope reduction is the highest-ROI PCI move: if cardholder data never enters your environment, most requirements fall away.",
                   "wrong": [
-                    "Store cards ’securely’ in the database: storing cards securely beats tokenization",
-                    "PCI applies only to big companies: PCI binds only the big companies",
-                    "Scope is whatever the auditor says: the auditor sets all PCI scope"
+                    "Store the card numbers encrypted in the main database, which keeps the PCI scope small",
+                    "PCI applies only to large companies",
+                    "Let the auditor set the scope"
                   ]
                 },
                 {
@@ -20778,9 +20778,9 @@
                   "a": "CCPA/CPRA compliance: opt-out of sale/sharing, deletion and access request workflows",
                   "x": "California grants consumers rights over their data: honor opt-outs and deletion requests with real processes, not a buried email address.",
                   "wrong": [
+                    "Add a cookie consent banner, which covers the requirements of California privacy law",
                     "California law does not apply online",
-                    "Add a cookie banner and stop: a cookie banner covers California privacy law, the banner is the whole program",
-                    "Privacy policies are enough: a privacy policy covers the California users"
+                    "A privacy policy is enough"
                   ]
                 },
                 {
@@ -20791,9 +20791,9 @@
                   "a": "SOC 2 Type II over 6-12 months against the relevant trust criteria",
                   "x": "Type II tests operating effectiveness over time; Type I is a point-in-time design review. Enterprise procurement wants the former.",
                   "wrong": [
-                    "A self-assessment labeled SOC 2",
-                    "Type I is faster and equivalent",
-                    "SOC 2 is only for cloud companies: SOC 2 binds only the cloud companies"
+                    "A SOC 2 Type I report, which is faster and gives the customer the same assurance",
+                    "A self-assessment labelled SOC 2",
+                    "SOC 2 only applies to cloud companies"
                   ]
                 },
                 {
@@ -20804,9 +20804,9 @@
                   "a": "Continuous auditing: automate evidence collection so controls are provable any day",
                   "x": "Audit readiness is a daily state, not a seasonal panic: automated evidence makes assurance continuous and cheaper.",
                   "wrong": [
-                    "Scrambles build character: the two-week evidence scrambles build character, scramble harder next year",
-                    "Audits are annual by nature: the annual two-week scramble is the program",
-                    "Evidence is only for auditors: control evidence exists only for auditors"
+                    "Start the evidence scramble a month earlier each year, so there is more time before the audit",
+                    "Accept the annual scramble as normal",
+                    "Evidence only matters for auditors"
                   ]
                 },
                 {
@@ -20817,9 +20817,9 @@
                   "a": "Stop collecting them: data minimization",
                   "x": "Every data element held is breach liability: minimization deletes the 'just in case' fields that become the headline.",
                   "wrong": [
+                    "Keep collecting them but encrypt the SSN column so a breach would not expose them",
                     "Collect everything; storage is cheap",
-                    "SSNs are useful someday: the collected SSNs may prove useful someday",
-                    "Minimization hurts analytics: collecting every SSN helps the analytics"
+                    "Keep them because analytics may need them"
                   ]
                 },
                 {
@@ -20827,12 +20827,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "Marketing wants to reuse support-chat transcripts for ad targeting. What is the most defensible answer?",
-                  "a": "No without fresh consent",
+                  "a": "No, not without a new lawful basis such as fresh consent",
                   "x": "Purpose limitation binds data to the purpose it was collected for. New purpose needs a new legal basis.",
                   "wrong": [
-                    "Support chats are company property: company property means free ad reuse",
-                    "Anonymize slightly and proceed: slight anonymization permits the ad targeting",
-                    "Nobody will notice: the repurposed chat transcripts go unnoticed"
+                    "Yes, after removing customer names, since the transcripts then no longer count as personal data",
+                    "Yes, because support chats are company property",
+                    "Yes, because nobody will notice"
                   ]
                 },
                 {
@@ -20840,12 +20840,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "The contract must define who is controller and who is processor. What is the most defensible assignment?",
-                  "a": "The customer is controller; you are processor",
+                  "a": "The customer is controller; you are processor, acting on their instructions",
                   "x": "Controller decides the 'why', processor handles the 'how': the DPA must reflect reality, because obligations follow the role.",
                   "wrong": [
-                    "You are always the controller",
+                    "You are the controller, since you store the data and run the systems that process it",
                     "Roles do not matter in contracts",
-                    "Split it 50/50: split controller and processor roles evenly"
+                    "Split the roles 50/50"
                   ]
                 },
                 {
@@ -20856,9 +20856,9 @@
                   "a": "At awareness: when the organization has a reasonable degree of certainty",
                   "x": "The clock starts when you know, not when you finish investigating: pre-named owners and templates make 72 hours achievable.",
                   "wrong": [
-                    "When the investigation concludes: the 72-hour clock starts after the investigation",
-                    "72 hours is a guideline: the 72-hour GDPR clock is merely a guideline",
-                    "Only if customers complain: the 72-hour clock starts on complaints"
+                    "When the investigation concludes and the scope of affected records is confirmed",
+                    "The 72 hours is a guideline",
+                    "Only when customers complain"
                   ]
                 },
                 {
@@ -20869,9 +20869,9 @@
                   "a": "Make the change, document it fully, and hold the post-implementation review",
                   "x": "Change management bends in emergencies but does not break: the review happens after, with the same rigor.",
                   "wrong": [
-                    "No process during incidents: emergency changes need no documented process",
-                    "Emergency changes need no review: skip the review when the firewall is under attack",
-                    "Change boards must pre-approve everything: pre-approval covers every emergency change"
+                    "Make the change immediately and skip documentation, since emergencies are exempt from change control",
+                    "Skip the review afterwards",
+                    "Wait for CAB pre-approval"
                   ]
                 },
                 {
@@ -20882,9 +20882,9 @@
                   "a": "An acceptable-use policy defining approved storage, plus technical enforcement",
                   "x": "AUP sets the rules of the road: what is allowed, what is monitored, and the consequences. Enforcement makes it real.",
                   "wrong": [
-                    "Ban personal devices entirely",
-                    "Cloud drives are convenient; allow them: convenient cloud drives justify personal storage",
-                    "Policies are HR paperwork: acceptable-use policies are mere HR paperwork"
+                    "Ban all personal devices from the office and the network, with disciplinary action for breaches",
+                    "Allow personal drives for convenience",
+                    "Treat policies as HR paperwork"
                   ]
                 },
                 {
@@ -20895,9 +20895,9 @@
                   "a": "Executive leadership approves; the CISO drafts",
                   "x": "Policy needs teeth: approval at the top gives it organizational weight that a security-team memo lacks.",
                   "wrong": [
-                    "The CISO approves their own policy: the CISO’s self-approval is proper governance",
-                    "No approval needed: the information security policy needs no approval",
-                    "The auditors approve it: the auditors approve the information security policy"
+                    "The CISO approves it, since they own security and wrote the policy",
+                    "No approval is needed",
+                    "The external auditors approve it"
                   ]
                 },
                 {
@@ -20905,12 +20905,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "The company passes every audit but gets breached through an unpatched test server. What is the most defensible lesson?",
-                  "a": "Compliance is a floor, not a ceiling",
+                  "a": "Compliance is a floor, not a ceiling: secure every asset, not just the audited sample",
                   "x": "Audits verify a sample against a standard at a point in time. Security is continuous; the checklist is the minimum.",
                   "wrong": [
+                    "The auditor should have found the test server, so the audit firm should be replaced",
                     "Audits are worthless",
-                    "The auditor missed it; blame them: blame the auditor for the unpatched server",
-                    "Passing means secure: passing the audit means the test server is secure"
+                    "Passing an audit means the company is secure"
                   ]
                 },
                 {
@@ -20918,12 +20918,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "The board has never rehearsed a breach. What is the most defensible exercise?",
-                  "a": "A tabletop with executives",
+                  "a": "A tabletop with executives on a realistic breach scenario",
                   "x": "Boards make breach decisions (pay? disclose? shut down?): rehearsing them in a tabletop is cheaper than improvising at midnight.",
                   "wrong": [
-                    "Boards do not need exercises: the board needs no ransomware rehearsal",
-                    "Send them the IR plan to read: reading the IR plan rehearses the board",
-                    "Tabletops are for engineers: the ransomware tabletop belongs to engineers"
+                    "Send the board the IR plan to read before the next meeting, with a summary of their decisions",
+                    "Boards do not need exercises",
+                    "Tabletops are for engineers only"
                   ]
                 },
                 {
@@ -20934,9 +20934,9 @@
                   "a": "Standards are mandatory rules; guidelines are recommended best practices — one is enforced, the other advised",
                   "x": "The hierarchy matters for enforcement: violate a standard and face consequences; deviate from a guideline with justification.",
                   "wrong": [
-                    "They are the same thing: the standards and guidelines are identical",
-                    "Guidelines are stricter: the guidelines are stricter than mandatory standards",
-                    "Nobody follows either: nobody follows the standards or the guidelines"
+                    "They are the same: both are recommendations that teams can follow if they choose",
+                    "Guidelines are stricter than standards",
+                    "Nobody follows either"
                   ]
                 },
                 {
@@ -20944,12 +20944,12 @@
                   "deckId": "secplus-governance-scenarios",
                   "trackId": "cyber",
                   "q": "Regulators ask for proof of 'continuous compliance'. What is the most defensible evidence?",
-                  "a": "Automated control monitoring with dashboards and trend data",
+                  "a": "Automated control monitoring with dashboards and trend data over time",
                   "x": "Continuous compliance is demonstrated by continuous evidence: monitoring that shows controls working every day.",
                   "wrong": [
-                    "The last audit report",
-                    "A policy document: a written policy document proves continuous compliance",
-                    "A promise to comply: a promise to comply proves continuous compliance"
+                    "The most recent external audit report, together with the remediation plan for its findings",
+                    "A policy document",
+                    "A written commitment to comply"
                   ]
                 }
               ],
@@ -20977,9 +20977,9 @@
                   "a": "A completed security assessment — SOC 2 Type II or equivalent evidence — before signing",
                   "x": "Trust but verify before the contract: assess the vendor's security posture while you still have leverage, not after the data flows.",
                   "wrong": [
-                    "Sign first, assess later: onboard the vendor, audit next quarter",
-                    "The sales demo was impressive: a good demo proves secure operations",
-                    "All vendors are equally risky: all vendors carry the same equal risk"
+                    "Sign the contract now and complete the security assessment in the first quarter of the relationship",
+                    "Rely on the impressive sales demo",
+                    "Treat all vendors as equally risky"
                   ]
                 },
                 {
@@ -20987,12 +20987,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "The vendor proudly shows a clean SOC 2 opinion letter. What is the most defensible review?",
-                  "a": "Read the full report",
+                  "a": "Read the full report: scope, period, exceptions and complementary user controls",
                   "x": "The opinion letter is the headline; the exceptions and scope are the story. A clean opinion on someone else's systems helps you not at all.",
                   "wrong": [
-                    "The letter is enough: the opinion letter replaces the full report",
-                    "SOC 2 covers everything automatically: one clean letter covers every service",
-                    "Opinions cannot have exceptions: a clean letter means full coverage"
+                    "Accept the opinion letter, since a clean opinion means the auditor found no issues anywhere",
+                    "SOC 2 covers every service automatically",
+                    "Opinions never have exceptions"
                   ]
                 },
                 {
@@ -21003,9 +21003,9 @@
                   "a": "MSA for master terms, SOW for the specific work, SLA for performance metrics and remedies",
                   "x": "MSA governs the relationship, the SOW describes each engagement, and the SLA makes performance measurable and enforceable.",
                   "wrong": [
-                    "One handshake covers all: one handshake covers MSA, SOW, and SLA",
-                    "SLAs are the whole contract: uptime credits cover every other term",
-                    "Paperwork slows deals: skip the contract terms and sign today"
+                    "One master contract that includes every project's work and the uptime terms in a single document",
+                    "A handshake agreement",
+                    "Skip the paperwork to sign faster"
                   ]
                 },
                 {
@@ -21013,12 +21013,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "The SaaS contract is silent on who owns the data. What is the most defensible clause to demand?",
-                  "a": "You own your data",
+                  "a": "You own your data, with return and deletion terms at exit",
                   "x": "Data ownership in writing prevents the hostage scenario: without it, your data is leverage at renewal time.",
                   "wrong": [
-                    "The vendor owns what you upload: your data becomes theirs on upload",
-                    "Ownership does not matter",
-                    "Verbal assurances suffice"
+                    "Joint ownership of uploaded data, so both parties can use it for product improvement",
+                    "The vendor owns what you upload",
+                    "Rely on verbal assurances"
                   ]
                 },
                 {
@@ -21026,11 +21026,11 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "A critical vendor refuses any audit rights. What is the most defensible position?",
-                  "a": "Reserve the right to audit in the contract",
+                  "a": "Reserve the right to audit in the contract, or accept independent attestation in its place",
                   "x": "Right-to-audit is your verification lever: a critical vendor with no audit rights is a black box holding your risk.",
                   "wrong": [
-                    "Accept it; audits offend vendors",
-                    "Audit rights are never used: negotiating them wastes everyone’s time",
+                    "Accept the refusal, since asking for audit rights damages the relationship with critical vendors",
+                    "Audit rights are never used",
                     "Trust their marketing"
                   ]
                 },
@@ -21042,9 +21042,9 @@
                   "a": "A defined breach-notification window plus your right to invoke your own IR",
                   "x": "Notification timing is negotiated before the incident: the contract should set the clock and preserve your response rights.",
                   "wrong": [
-                    "Vendors notify when ready: they tell you when they feel like it",
-                    "Three weeks is standard: breach notice can wait three weeks",
-                    "Breach notice is courtesy only: breach notice is mere courtesy"
+                    "Accept that vendors notify when their own investigation is complete, which takes a few weeks",
+                    "Treat three weeks as standard",
+                    "Treat notice as a courtesy"
                   ]
                 },
                 {
@@ -21052,12 +21052,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "Your vendor uses subcontractors you have never heard of. What is the most defensible requirement?",
-                  "a": "Disclosure and approval rights over fourth parties",
+                  "a": "Disclosure and approval rights over fourth parties (subprocessors)",
                   "x": "Fourth-party risk is your risk: the contract should name subprocessors and require notice before changes.",
                   "wrong": [
-                    "Subcontractors are the vendor's business",
-                    "Fourth parties do not exist: vendor subcontractors do not exist",
-                    "Trust cascades automatically: your vendor’s subcontractors inherit trust"
+                    "Leave it to the vendor, since its subcontractors are covered by its own contracts and policies",
+                    "Fourth parties do not exist",
+                    "Trust passes down automatically"
                   ]
                 },
                 {
@@ -21068,9 +21068,9 @@
                   "a": "Tier vendors by the RTO/RPO impact of their failure",
                   "x": "The BIA tells you what the business cannot lose: vendor criticality follows business impact, not spend.",
                   "wrong": [
-                    "Tier by contract value: biggest spenders get the deepest reviews",
-                    "All vendors get the same review: every supplier deserves equal depth",
-                    "BIA is for internal systems only: the BIA covers internal systems only"
+                    "Tier vendors by contract value, since the largest spend carries the most risk",
+                    "Give every vendor the same review",
+                    "Use the BIA for internal systems only"
                   ]
                 },
                 {
@@ -21078,12 +21078,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "The company depends on one SaaS for billing with no exit plan. What is the most defensible preparation?",
-                  "a": "A tested exit strategy",
+                  "a": "A tested exit strategy: regular data exports and a documented migration plan",
                   "x": "Exit is a capability, not a hope: prove you can leave before you must, while the relationship is good.",
                   "wrong": [
-                    "Exits never happen",
-                    "Export is the vendor’s problem: the supplier handles your data exit",
-                    "Stay forever"
+                    "Rely on the vendor's export feature, which can be used if the relationship ever ends",
+                    "Assume exits never happen",
+                    "Plan to stay forever"
                   ]
                 },
                 {
@@ -21091,12 +21091,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "One engineer at the vendor knows your entire integration. What is the most defensible mitigation?",
-                  "a": "Key-person provisions or dual-sourcing",
+                  "a": "Key-person provisions in the contract, documentation, or dual-sourcing",
                   "x": "Succession risk applies to vendors too: contractual continuity commitments or a second source for critical functions.",
                   "wrong": [
-                    "One expert is efficient",
-                    "People do not leave vendors: one engineer knows the whole integration",
-                    "Document nothing; trust them: document nothing, trust the vendor engineer"
+                    "Keep relying on the one engineer, who knows the integration best and has been there for years",
+                    "Treat one expert as efficient",
+                    "Document nothing and trust them"
                   ]
                 },
                 {
@@ -21104,12 +21104,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "The vendor wants your architecture diagrams before the security review. What is the most defensible sequence?",
-                  "a": "Mutual NDA first",
+                  "a": "A mutual NDA first, then disclosure scaled to the review",
                   "x": "Due diligence is bidirectional: NDA before disclosure, and the review scaled to the data they will touch.",
                   "wrong": [
-                    "Send everything; they seem nice: diagrams first, questions later",
-                    "Skip the NDA to move fast: diagrams out the door today",
-                    "Reviews are one-sided: hand over the diagrams before any review"
+                    "Send the full diagrams now so the vendor can scope the review accurately",
+                    "Skip the NDA to move faster",
+                    "Treat the review as one-sided"
                   ]
                 },
                 {
@@ -21120,9 +21120,9 @@
                   "a": "Concentration risk: diversify or negotiate stronger protections",
                   "x": "Vendor consolidation creates correlated failure: assess what one vendor's outage, breach, or price hike costs you twice.",
                   "wrong": [
-                    "Consolidation is always good",
+                    "Treat it as good consolidation, since one vendor relationship is simpler to manage and negotiate",
                     "One throat to choke is a strategy",
-                    "Risk does not concentrate: two functions, one vendor, no problem"
+                    "Risk does not concentrate"
                   ]
                 },
                 {
@@ -21130,12 +21130,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "The SLA promises 99.9% uptime with service credits. What is the most defensible understanding?",
-                  "a": "Credits compensate; they do not restore",
+                  "a": "Credits compensate; they do not restore service: plan for continuity yourself",
                   "x": "SLA credits are rebates, not recovery: real protection is the right to exit when performance chronically fails.",
                   "wrong": [
-                    "Credits equal continuity",
-                    "99.9% needs no backup plan: 99.9% uptime needs no backup plan",
-                    "SLAs guarantee uptime: 99.9% promised means 99.9% delivered"
+                    "The credits cover the business loss, so no separate continuity plan is needed for this service",
+                    "99.9% needs no backup plan",
+                    "SLAs guarantee the uptime"
                   ]
                 },
                 {
@@ -21146,9 +21146,9 @@
                   "a": "Generate the SBOM, assess the component's risk, and monitor it for vulnerabilities like any vendor",
                   "x": "Open source is third-party code: inventory it, track its vulns, and have a replacement plan.",
                   "wrong": [
-                    "Open source has no risk: unmaintained libraries need no review",
-                    "SBOMs are for regulated industries: only hospitals and banks need them",
-                    "Delete the library immediately: delete the library with no SBOM entry"
+                    "Remove the library immediately from the product, whatever breaks, until it can be reviewed",
+                    "Open source has no third-party risk",
+                    "SBOMs are only for regulated industries"
                   ]
                 },
                 {
@@ -21159,9 +21159,9 @@
                   "a": "Shared responsibility: the provider secures the cloud, you secure what you put in it",
                   "x": "The shared responsibility model draws the line: misconfigured storage and weak IAM are always your breach, never the provider's.",
                   "wrong": [
-                    "The provider handles everything: security is entirely their job",
-                    "Shared means 50/50 always: the provider secures half of everything",
-                    "Cloud needs no security team: the cloud provider handles all security"
+                    "The provider secures everything, including the customer's IAM and storage configuration",
+                    "Responsibility is always split 50/50",
+                    "Cloud needs no security team"
                   ]
                 },
                 {
@@ -21172,9 +21172,9 @@
                   "a": "Re-assess: new ownership can change security posture, roadmaps, and conflicts of interest",
                   "x": "Acquisitions reset assumptions: reassess the vendor as if new, because in important ways it is.",
                   "wrong": [
-                    "Do nothing: ownership changes never affect a vendor’s posture",
-                    "Acquisitions improve security: acquisitions improve the vendor’s security posture",
-                    "Terminate immediately: acquisition means cancel the contract today"
+                    "Terminate the contract immediately, since the competitor now controls the vendor",
+                    "Do nothing; ownership changes do not matter",
+                    "Assume acquisitions improve security"
                   ]
                 },
                 {
@@ -21182,12 +21182,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "Support staff offshore will access customer data. What is the most defensible control?",
-                  "a": "Data residency and access clauses",
+                  "a": "Data residency and access clauses, with vetting and logging of offshore access",
                   "x": "Cross-border support is a data-transfer decision: contract the where, the who, and the logging before granting access.",
                   "wrong": [
-                    "Support needs no restrictions: offshore staff access everything freely",
-                    "Offshore is always unsafe: offshore support staff are always unsafe",
-                    "Trust the vendor’s hiring: offshore support staff need no vetting"
+                    "Trust the vendor's hiring and background checks, which already cover its offshore staff",
+                    "Give support staff unrestricted access",
+                    "Ban offshore support entirely"
                   ]
                 },
                 {
@@ -21195,12 +21195,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "The three-year vendor contract is up for renewal. What is the most defensible use of the moment?",
-                  "a": "Raise the bar: MFA, logging, breach-notification terms",
+                  "a": "Raise the bar: add MFA, logging and breach-notification terms",
                   "x": "Renewal is when you have power: bake in the security terms you wish you had, priced into the deal.",
                   "wrong": [
-                    "Renew as-is to avoid friction",
+                    "Renew on the same terms to avoid friction, and raise security concerns at the next review",
                     "Security terms never change",
-                    "Switch vendors every renewal: new vendor every three years, always"
+                    "Switch vendors at every renewal"
                   ]
                 },
                 {
@@ -21208,12 +21208,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "Every vendor gets the same 200-question security questionnaire. What is the most defensible tailoring?",
-                  "a": "Scale the review to data access and criticality",
+                  "a": "Scale the review to the vendor's data access and criticality",
                   "x": "Risk-based due diligence: a catering vendor and a payroll processor do not merit the same interrogation.",
                   "wrong": [
-                    "One questionnaire for all",
-                    "Questionnaires are theater: paperwork that changes nothing, skip it",
-                    "Skip reviews for small vendors: low spend means low risk"
+                    "Send every vendor the full questionnaire, so that no vendor is ever reviewed less thoroughly than another",
+                    "Skip reviews for small vendors",
+                    "Drop questionnaires as theatre"
                   ]
                 },
                 {
@@ -21221,12 +21221,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "The BIA names the order-entry system as tier 1 with a 4-hour RTO, but its vendor contract has no recovery commitment. What is the most defensible fix?",
-                  "a": "Align the contract to the BIA",
+                  "a": "Align the contract to the BIA: add recovery commitments that meet the 4-hour RTO",
                   "x": "Business impact analysis must flow into vendor obligations: tier-1 systems need contractual recovery to match.",
                   "wrong": [
-                    "The BIA is aspirational: tier 1 is a label, not a commitment",
-                    "Vendors recover when they can: recovery happens on their schedule",
-                    "Tier 1 is just a label: labels carry no recovery commitment"
+                    "Rely on the vendor's standard recovery practices, which are described on its trust page",
+                    "Treat the BIA as aspirational",
+                    "Treat tier 1 as just a label"
                   ]
                 },
                 {
@@ -21237,9 +21237,9 @@
                   "a": "A joint tabletop: walk a vendor-breach scenario together before it is real",
                   "x": "Shared incidents need shared rehearsal: the tabletop reveals who calls whom, who decides, and where the contract helps or hinders.",
                   "wrong": [
-                    "Their plan covers you: the vendor’s IR plan protects your team",
-                    "Testing is their job: the vendor’s plan covers your team too",
-                    "Joint exercises leak secrets: joint tabletops leak the vendor’s secrets"
+                    "Rely on the vendor's own IR plan, which covers incidents affecting its customers",
+                    "Treat testing as the vendor's job",
+                    "Avoid joint exercises to protect secrets"
                   ]
                 },
                 {
@@ -21247,12 +21247,12 @@
                   "deckId": "secplus-thirdparty-scenarios",
                   "trackId": "cyber",
                   "q": "A startup vendor offers 70% off for a three-year prepay. What is the most defensible evaluation?",
-                  "a": "Weigh the discount against lock-in, viability, and exit cost",
+                  "a": "Weigh the discount against lock-in, the vendor's viability and the cost of exit",
                   "x": "Prepay trades cash for commitment: assess the vendor's viability and your exit options before the discount seduces you.",
                   "wrong": [
+                    "Take the discount, since three years of prepaid service removes the budget risk entirely",
                     "Discounts are always worth it",
-                    "Startups never fail: three years prepaid is perfectly safe",
-                    "Prepay removes all risk: three years prepaid means three years safe"
+                    "Assume startups do not fail"
                   ]
                 }
               ],

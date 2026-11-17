@@ -1246,5 +1246,21 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0078",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-governance-scenarios, secplus-thirdparty-scenarios",
+    "original": "'Scrambles build character', 'Startups never fail', colon duplicates",
+    "problem": "Joke options and colon duplicates; truncated answers restored.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]
