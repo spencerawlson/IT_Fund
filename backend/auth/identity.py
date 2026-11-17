@@ -85,7 +85,9 @@ def upsert_identity(db, info: OAuthIdentity) -> User:
         # count runs in this transaction, so two signups racing at the
         # boundary can overshoot by a small number — the cap is a gate on
         # new signups, not a hard invariant under concurrency.
-        total = db.execute(select(func.count()).select_from(User)).scalar() or 0
+        total = db.execute(
+            select(func.count()).select_from(User).where(User.deleted_at.is_(None))
+        ).scalar() or 0
         if total >= SEAT_CAP:
             raise SeatsFullError(f"All {SEAT_CAP} seats are taken — sign-ups are closed.")
         user = User(display_name=info.name or "", avatar_url=info.avatar_url)

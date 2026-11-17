@@ -343,7 +343,10 @@ def _mrr() -> dict | None:
 def admin_overview() -> dict:
     """Dashboard counts for the admin landing tab."""
     with db.SessionLocal() as s:
-        total_users = s.query(func.count()).select_from(User).scalar() or 0
+        # Deleted accounts (deleted_at set) do not count — same filter as
+        # /public/seats and the seat-cap check in auth.identity, so the
+        # board, the landing counter, and the cap can never disagree.
+        total_users = s.query(func.count()).select_from(User).filter(User.deleted_at.is_(None)).scalar() or 0
         subs = {row.status: row.n for row in s.query(Subscription.status, func.count().label("n")).group_by(Subscription.status).all()}
         paying = subs.get("active", 0) + subs.get("trialing", 0)
         since = _now() - timedelta(days=30)
@@ -611,6 +614,119 @@ def admin_add_account(body: dict) -> dict:
         result = {"user": item, "manual_grant": _grant_dict(grant)}
     log.info("admin added customer %s (%s) with a manual grant", user.id, email)
     return result
+
+
+@router.patch("/accounts/{user_id}", dependencies=[Depends(require_admin)])
+def admin_update_account(user_id: str, body: dict) -> dict:
+    """Change an account's name and/or email. This is how a reserved seat
+    becomes a real person: a dummy (1@road2cissp.local) takes the person's
+    name and email. The manual grant follows the account id, so paid access
+    survives the change — no grant is created, revoked, or re-dated. The new
+    email must be unique across non-deleted accounts (409 otherwise); the
+    first provider-verified sign-in with the new email merges into this
+    account, exactly as for an added customer."""
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid request body.")
+    has_name = "display_name" in body
+    has_email = "email" in body
+    if not has_name and not has_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Nothing to update."
+        )
+    display_name = None
+    if has_name:
+        raw_name = body.get("display_name")
+        if not isinstance(raw_name, str):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Display name must be a string."
+            )
+        display_name = raw_name.strip()
+        if not display_name or len(display_name) > 120:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Display name is required (max 120 characters).",
+            )
+    email = None
+    if has_email:
+        raw_email = body.get("email")
+        if not isinstance(raw_email, str):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Email must be a string."
+            )
+        email = raw_email.strip().lower()
+        if not _valid_email(email):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="A valid email address is required."
+            )
+    with db.SessionLocal() as s:
+        user = _require_account(s, user_id)
+        if email is not None:
+            collision = (
+                s.query(User)
+                .filter(
+                    func.lower(User.email) == email,
+                    User.deleted_at.is_(None),
+                    User.id != user.id,
+                )
+                .first()
+            )
+            if collision is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="An account with this email already exists.",
+                )
+        if display_name is not None:
+            user.display_name = display_name
+        if email is not None:
+            user.email = email
+        s.commit()
+        maps = _account_maps(s, [user.id])
+        item = _account_item(
+            user,
+            maps["subs"].get(user.id),
+            maps["progress"].get(user.id),
+            maps["last_seen"].get(user.id),
+            maps["labs"].get(user.id, 0),
+            maps["grants"].get(user.id),
+        )
+    log.info("admin updated account %s", user_id)
+    return {"user": item}
+
+
+#: Stripe statuses that block an admin delete: the subscription is still
+#: live in Stripe (active, trialing, or past_due inside its grace), so the
+#: admin must cancel it in Stripe first. A canceled or incomplete row does
+#: not block — there is nothing left to bill.
+DELETE_BLOCKED_STATUSES = {"active", "trialing", "past_due"}
+
+
+@router.delete("/accounts/{user_id}", dependencies=[Depends(require_admin)])
+def admin_delete_account(user_id: str) -> dict:
+    """Delete an account (soft delete — the codebase's existing pattern).
+    Sets deleted_at, so the account leaves the board list, the total_users
+    count, the public seats counter, and the seat-cap count, and its email
+    can be re-created later — the row itself stays, so manual grants,
+    progress, and subscription records are never orphaned. An active manual
+    grant is revoked at the same time (revoked_at stamped, reason recorded),
+    so a deleted account keeps no paid access. Refused (409) while the
+    account holds a live Stripe subscription — cancel it in Stripe first,
+    then delete from the board."""
+    with db.SessionLocal() as s:
+        user = _require_account(s, user_id)
+        sub = s.get(Subscription, user_id)
+        if sub is not None and sub.status in DELETE_BLOCKED_STATUSES:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This account has an active Stripe subscription. Cancel it in Stripe first, then delete the account.",
+            )
+        grant = s.get(ManualGrant, user_id)
+        if grant is not None and grant.revoked_at is None:
+            grant.revoked_at = _now()
+            grant.revoked_note = "Account deleted."
+        user.deleted_at = _now()
+        s.commit()
+    log.info("admin deleted account %s", user_id)
+    return {"ok": True, "deleted_user_id": user_id}
 
 
 @router.post("/accounts/{user_id}/manual-grant", dependencies=[Depends(require_admin)], status_code=status.HTTP_201_CREATED)

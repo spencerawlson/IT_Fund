@@ -26,6 +26,15 @@ export function fmtUsd(n, digits = 2) {
   return `$${Number(n).toFixed(digits)}`;
 }
 
+// Reserved seats: the dummy accounts waiting to become real people. Their
+// emails all end in @road2cissp.local — the badge makes them visible at a
+// glance on the board (and in the report).
+export const RESERVED_EMAIL_SUFFIX = '@road2cissp.local';
+
+export function isReservedSeat(email) {
+  return typeof email === 'string' && email.toLowerCase().endsWith(RESERVED_EMAIL_SUFFIX);
+}
+
 function Shell({ action, children }) {
   return (
     <div className="mx-auto min-h-screen w-full max-w-5xl px-4 py-8 sm:px-6">
@@ -125,12 +134,95 @@ export function OverviewView({ data }) {
   );
 }
 
-export function AccountsTable({ items, total, page, pageSize, onPage, onGrant, onRevoke, busyId }) {
+export function EditAccountForm({ account, onSubmit, onCancel, busy, error }) {
+  const [displayName, setDisplayName] = useState(account.display_name || '');
+  const [email, setEmail] = useState(account.email || '');
+  return (
+    <form
+      className="min-w-[220px] space-y-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit({ display_name: displayName.trim(), email: email.trim() });
+      }}
+    >
+      <div>
+        <label className="block text-small font-semibold text-ink-1" htmlFor={`edit-name-${account.id}`}>
+          Name
+        </label>
+        <input
+          id={`edit-name-${account.id}`}
+          type="text"
+          required
+          maxLength={120}
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          className="mt-1 h-9 w-full rounded-control border border-black/10 bg-white px-2 text-small text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
+        />
+      </div>
+      <div>
+        <label className="block text-small font-semibold text-ink-1" htmlFor={`edit-email-${account.id}`}>
+          Email
+        </label>
+        <input
+          id={`edit-email-${account.id}`}
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mt-1 h-9 w-full rounded-control border border-black/10 bg-white px-2 text-small text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
+        />
+      </div>
+      {error && (
+        <p role="alert" className="text-small font-semibold text-red-700">
+          {error}
+        </p>
+      )}
+      <span className="flex gap-2">
+        <Button type="submit" variant="secondary" size="sm" loading={busy}>
+          Save changes
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
+      </span>
+    </form>
+  );
+}
+
+export function DeleteAccountConfirm({ account, onConfirm, onCancel, busy, error }) {
+  const label = account.display_name ? `${account.display_name} (${account.email})` : account.email;
+  return (
+    <div className="min-w-[220px] space-y-2">
+      <p className="font-semibold text-ink-1">Delete {label}?</p>
+      <p className="text-ink-2">This removes the account from the board and revokes its manual grant. This cannot be undone.</p>
+      {error && (
+        <p role="alert" className="text-small font-semibold text-red-700">
+          {error}
+        </p>
+      )}
+      <span className="flex gap-2">
+        <Button variant="secondary" size="sm" loading={busy} className="text-red-700" onClick={onConfirm}>
+          Delete account
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
+      </span>
+    </div>
+  );
+}
+
+export function AccountsTable({ items, total, page, pageSize, onPage, onGrant, onRevoke, onEdit, onDelete, busyId }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   const [grantingId, setGrantingId] = useState(null);
   const [grantNote, setGrantNote] = useState('');
   const [confirmRevokeId, setConfirmRevokeId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editError, setEditError] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
   const showActions = typeof onGrant === 'function';
+  const showManage = typeof onEdit === 'function' || typeof onDelete === 'function';
   return (
     <Card level={1}>
       <CardHeader title="Accounts" description={`${total} account${total === 1 ? '' : 's'} total.`} />
@@ -144,7 +236,8 @@ export function AccountsTable({ items, total, page, pageSize, onPage, onGrant, o
               <th className="py-2 pr-3">Lessons passed</th>
               <th className="py-2 pr-3">Labs done</th>
               <th className="py-2 pr-3">Subscription</th>
-              {showActions && <th className="py-2">Manual access</th>}
+              {showActions && <th className="py-2 pr-3">Manual access</th>}
+              {showManage && <th className="py-2">Manage</th>}
             </tr>
           </thead>
           <tbody>
@@ -154,7 +247,14 @@ export function AccountsTable({ items, total, page, pageSize, onPage, onGrant, o
               return (
                 <tr key={a.id} className="border-b border-black/[0.06] text-ink-1">
                   <td className="py-2 pr-3">
-                    <span className="block font-semibold">{a.display_name || a.email || UNKNOWN}</span>
+                    <span className="block font-semibold">
+                      {a.display_name || a.email || UNKNOWN}
+                      {isReservedSeat(a.email) && (
+                        <span className="ml-2 inline-flex items-center rounded-full border border-violet-700/20 bg-violet-100 px-2 py-0.5 align-middle text-caption font-semibold text-violet-800">
+                          Reserved
+                        </span>
+                      )}
+                    </span>
                     {a.email && a.display_name && <span className="block text-ink-2">{a.email}</span>}
                   </td>
                   <td className="py-2 pr-3">{fmtDate(a.created_at)}</td>
@@ -246,12 +346,87 @@ export function AccountsTable({ items, total, page, pageSize, onPage, onGrant, o
                       )}
                     </td>
                   )}
+                  {showManage && (
+                    <td className="py-2">
+                      {editingId === a.id ? (
+                        <EditAccountForm
+                          account={a}
+                          busy={busyId === a.id}
+                          error={editError}
+                          onCancel={() => {
+                            setEditingId(null);
+                            setEditError('');
+                          }}
+                          onSubmit={async (values) => {
+                            setEditError('');
+                            try {
+                              await onEdit(a.id, values);
+                              setEditingId(null);
+                            } catch (e) {
+                              setEditError(e.detail || e.message || 'Could not save changes.');
+                            }
+                          }}
+                        />
+                      ) : confirmDeleteId === a.id ? (
+                        <DeleteAccountConfirm
+                          account={a}
+                          busy={busyId === a.id}
+                          error={deleteError}
+                          onCancel={() => {
+                            setConfirmDeleteId(null);
+                            setDeleteError('');
+                          }}
+                          onConfirm={async () => {
+                            setDeleteError('');
+                            try {
+                              await onDelete(a.id);
+                              setConfirmDeleteId(null);
+                            } catch (e) {
+                              setDeleteError(e.detail || e.message || 'Could not delete this account.');
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {typeof onEdit === 'function' && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              disabled={busyId === a.id}
+                              onClick={() => {
+                                setEditingId(a.id);
+                                setEditError('');
+                                setConfirmDeleteId(null);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          )}
+                          {typeof onDelete === 'function' && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              disabled={busyId === a.id}
+                              className="text-red-700"
+                              onClick={() => {
+                                setConfirmDeleteId(a.id);
+                                setDeleteError('');
+                                setEditingId(null);
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  )}
                 </tr>
               );
             })}
             {items.length === 0 && (
               <tr>
-                <td colSpan={showActions ? 7 : 6} className="py-4 text-ink-2">
+                <td colSpan={6 + (showActions ? 1 : 0) + (showManage ? 1 : 0)} className="py-4 text-ink-2">
                   No accounts match.
                 </td>
               </tr>
@@ -667,6 +842,31 @@ export default function Admin() {
     }
   };
 
+  // Edit/delete intentionally do not catch: the row's inline form/confirm
+  // shows the server's message (e.g. the 409 when the email is taken or the
+  // account still has a live Stripe subscription) and stays open.
+  const handleEdit = async (userId, values) => {
+    setRowBusy(userId);
+    try {
+      await adminApi.updateAccount(userId, values);
+      load('accounts');
+      load('overview');
+    } finally {
+      setRowBusy(null);
+    }
+  };
+
+  const handleDelete = async (userId) => {
+    setRowBusy(userId);
+    try {
+      await adminApi.deleteAccount(userId);
+      load('accounts');
+      load('overview');
+    } finally {
+      setRowBusy(null);
+    }
+  };
+
   const handleDownloadCsv = () => {
     // Same-origin anchor download: the admin session cookie rides along,
     // and Content-Disposition makes it a file download, not a navigation.
@@ -758,6 +958,8 @@ export default function Admin() {
               onPage={setAccountsPage}
               onGrant={handleGrant}
               onRevoke={handleRevoke}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
               busyId={rowBusy}
             />
           </div>
