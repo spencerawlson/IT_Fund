@@ -280,6 +280,21 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 46
+    },
+    "cy-vulns": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 36
+    },
+    "cy-cloud-arch": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 30
+    },
+    "cy-net-arch": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 25
     }
   }
 }

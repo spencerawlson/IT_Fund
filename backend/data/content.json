@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:13:39.501Z",
+  "generatedAt": "2026-11-17T01:15:42.871Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -11141,9 +11141,9 @@
                   "a": "A flaw exploited before the vendor knows about or patches it",
                   "x": "No patch exists yet — mitigate with isolation and monitoring.",
                   "wrong": [
-                    "A patched bug: a fixed flaw is the zero-day",
-                    "An unpatched flaw: a known bug awaiting its scheduled fix",
-                    "A public exploit: a flaw with working attack code already published"
+                    "A flaw the vendor has patched but that many organisations have not yet installed",
+                    "A known flaw awaiting its scheduled patch",
+                    "A flaw with public exploit code available"
                   ]
                 },
                 {
@@ -11154,9 +11154,9 @@
                   "a": "Reporting a flaw privately and giving the vendor time to fix",
                   "x": "Versus full disclosure: publishing immediately.",
                   "wrong": [
-                    "Selling exploits: auctioning flaws counts as responsible disclosure here",
-                    "Ignoring bugs: staying silent counts as responsible disclosure here",
-                    "A public dump: posting the flaw online the day it is found"
+                    "Selling the exploit to a broker who promises to pass it to the vendor",
+                    "Staying silent about the flaw",
+                    "Publishing the flaw the day it is found"
                   ]
                 },
                 {
@@ -11167,9 +11167,9 @@
                   "a": "Writing past a buffer’s bounds to corrupt memory or hijack execution",
                   "x": "Mitigated by safe languages, ASLR, DEP/NX, and stack canaries.",
                   "wrong": [
-                    "A full hard drive: no disk space is the overflow",
-                    "Too many users: crowded logins overflow the buffer into memory",
-                    "A stack overflow: a program calling itself until it bursts"
+                    "A disk filling up until the program can no longer write its temporary files",
+                    "Too many concurrent connections to a server",
+                    "A recursive function exhausting the call stack"
                   ]
                 },
                 {
@@ -11180,9 +11180,9 @@
                   "a": "Randomizes memory layout so exploits cannot find their targets",
                   "x": "Address Space Layout Randomization; bypassed via info leaks.",
                   "wrong": [
-                    "A stack canary: a secret word on the stack that catches overwrites",
-                    "A memory wipe: clearing RAM at shutdown so nothing leaks",
-                    "A memory limit: a cap on how much RAM one process may use"
+                    "A secret value placed on the stack that detects overwrites before a function returns",
+                    "Clearing memory at shutdown so nothing leaks",
+                    "A cap on how much memory one process may use"
                   ]
                 },
                 {
@@ -11193,9 +11193,9 @@
                   "a": "Exploiting the gap between a security check and its use",
                   "x": "Time-of-check to time-of-use: the check passes, then the file is swapped.",
                   "wrong": [
-                    "A car race: speeding cars are the TOCTOU race condition",
-                    "A slow CPU: sluggish silicon is the TOCTOU condition",
-                    "A network race: competing packets are the TOCTOU condition"
+                    "Two network packets arriving out of order and corrupting a session",
+                    "A CPU too slow to finish a task in time",
+                    "Two users editing the same document at once"
                   ]
                 },
                 {
@@ -11206,9 +11206,9 @@
                   "a": "Inserting SQL into input to manipulate the database",
                   "x": "Fix it with parameterized queries — never concatenate SQL strings.",
                   "wrong": [
-                    "A slow query: a badly written statement that drags the database down",
-                    "A database backup: a copy of the tables stored for recovery",
-                    "A fast query: quick SQL counts as the injection"
+                    "A badly written statement that slows the database down for every user",
+                    "A database backup copied off-site",
+                    "A stored procedure that runs on a schedule"
                   ]
                 },
                 {
@@ -11219,9 +11219,9 @@
                   "a": "SQLi where the attacker infers data from true/false responses",
                   "x": "Slower than classic SQLi but just as dangerous.",
                   "wrong": [
-                    "A hidden query: a statement the database runs without logging it",
-                    "Encrypted SQL: scrambled queries count as blind SQL injection",
-                    "A timed query: a statement that only runs after midnight"
+                    "A query the database runs without writing it to the audit log",
+                    "SQL injection carried inside encrypted parameters",
+                    "A query scheduled to run after midnight"
                   ]
                 },
                 {
@@ -11232,9 +11232,9 @@
                   "a": "Injecting scripts that execute in victims’ browsers",
                   "x": "Steals sessions; fix with output encoding and Content Security Policy.",
                   "wrong": [
-                    "A firewall",
-                    "A browser plugin: an add-on extending what the browser can do",
-                    "A browser extension: an add-on changing how pages look"
+                    "A browser plugin that injects adverts into every page the user visits",
+                    "A server-side flaw that runs OS commands",
+                    "A flaw that forges requests from a victim"
                   ]
                 },
                 {
@@ -11245,9 +11245,9 @@
                   "a": "Stored: on server; reflected: one request; DOM: client-side JS",
                   "x": "Stored is the worst: every visitor gets hit.",
                   "wrong": [
-                    "Stored is one request: server-stored XSS vanishes after a single load",
-                    "DOM is server-side: client code runs on the server",
-                    "Reflected is stored: one-request XSS persists on the server, stored for later requests"
+                    "Stored lasts one request; reflected persists on the server",
+                    "DOM XSS runs on the server, not the client",
+                    "They are three names for the same attack"
                   ]
                 },
                 {
@@ -11258,9 +11258,9 @@
                   "a": "Tricking a logged-in browser into performing unwanted actions",
                   "x": "Anti-CSRF tokens and SameSite cookies mitigate it.",
                   "wrong": [
-                    "A session cookie: a token the browser sends with every request",
-                    "A forged cookie: a fake session token planted in the browser",
-                    "A login form: a page asking for a username and password"
+                    "Stealing a session cookie through injected script and reusing it elsewhere",
+                    "Planting a forged session token in the browser",
+                    "Phishing the user's password through a fake login form"
                   ]
                 },
                 {
@@ -11271,9 +11271,9 @@
                   "a": "XML parsers resolving external entities to read files or trigger SSRF",
                   "x": "Disable external entity resolution; prefer JSON.",
                   "wrong": [
-                    "An XML schema: a document defining which tags are allowed",
-                    "An XML comment: a note inside the file parsers ignore",
-                    "An XML sitemap: a file listing every page for search"
+                    "An XML schema that defines which tags a document may contain",
+                    "Hiding malicious code in XML comments",
+                    "An XML sitemap that lists every page"
                   ]
                 },
                 {
@@ -11284,9 +11284,9 @@
                   "a": "Capturing valid data — like an auth token — and re-sending it",
                   "x": "Mitigate with nonces and timestamps.",
                   "wrong": [
-                    "Playing music: playing songs counts as a replay attack",
-                    "A backup restore: restoring copies counts as the replay",
-                    "A password reset: a fresh token sent when the old one expires"
+                    "Restoring an old backup over current data so changes are lost",
+                    "Re-sending a password reset email",
+                    "Re-running a failed transaction"
                   ]
                 },
                 {
@@ -11297,9 +11297,9 @@
                   "a": "Forcing a victim to use an attacker-known session ID",
                   "x": "Regenerate session IDs at login.",
                   "wrong": [
-                    "A firewall rule",
-                    "A session timeout: a login expiring after thirty idle minutes",
-                    "Fixing a bug: patching code counts as session fixation here"
+                    "A session timeout that logs users out after thirty idle minutes",
+                    "Patching a bug in session handling",
+                    "A firewall rule pinned to one session"
                   ]
                 },
                 {
@@ -11310,9 +11310,9 @@
                   "a": "Forcing weaker crypto, e.g. stripping TLS down to HTTP",
                   "x": "HSTS and protocol version enforcement mitigate it.",
                   "wrong": [
-                    "A weak password: a short secret guessed by brute force",
-                    "A version rollback: restoring the previous release after a bad update",
-                    "A firewall"
+                    "Rolling back to the previous application release after a failed update",
+                    "Guessing a weak password by brute force",
+                    "Disabling a user's admin rights"
                   ]
                 },
                 {
@@ -11321,11 +11321,11 @@
                   "trackId": "cyber",
                   "q": "What is a side-channel attack?",
                   "a": "Extracting secrets from timing, power, or cache behaviour",
-                  "x": "Spectre and Meltdown: constant-time code mitigates.",
+                  "x": "Spectre and Meltdown abused CPU speculative execution (mitigated with microcode, kernel page-table isolation and compiler barriers); constant-time code defends cryptography against timing attacks.",
                   "wrong": [
-                    "A timing delay: a slow response caused by network congestion",
-                    "A covert channel: a hidden path for smuggling data out",
-                    "A TV channel: a broadcast station, not a covert path"
+                    "A slow response caused by network congestion between two sites",
+                    "A hidden channel used to smuggle data out",
+                    "Injecting code through an unused port"
                   ]
                 },
                 {
@@ -11336,9 +11336,9 @@
                   "a": "Arithmetic that wraps around, corrupting sizes and allocations",
                   "x": "A classic memory-corruption primitive.",
                   "wrong": [
-                    "A big number",
-                    "A large file: a document too big for the disk to hold",
-                    "A rounding error: a calculation losing a fraction of a cent"
+                    "A rounding error that loses a fraction of a cent in each transaction",
+                    "A file too large for the disk to hold",
+                    "A number too large to display on screen"
                   ]
                 },
                 {
@@ -11349,9 +11349,9 @@
                   "a": "Using memory after it was freed, letting attackers control it",
                   "x": "A common browser-exploit primitive.",
                   "wrong": [
-                    "A freed block: a chunk of memory returned to the pool",
-                    "A freed list: a queue of empty blocks waiting to be reused",
-                    "A memory leak: a program that never returns memory it no longer needs"
+                    "A program that never returns memory it no longer needs, slowly using all RAM",
+                    "A freed block returned to the memory pool",
+                    "A free list of blocks waiting to be reused"
                   ]
                 },
                 {
@@ -11362,9 +11362,9 @@
                   "a": "Manipulating directory queries through unsanitized input",
                   "x": "Same fix family as SQLi: parameterized and escaped queries.",
                   "wrong": [
-                    "A directory sync: a job copying users from HR into the directory nightly",
-                    "A directory export: a file dumping every user for a migration",
-                    "A fast search: quick lookups count as LDAP injection here"
+                    "A nightly job that copies users from HR into the directory without validation",
+                    "Exporting every directory user to a file",
+                    "A fast search against the global catalogue"
                   ]
                 },
                 {
@@ -11375,9 +11375,9 @@
                   "a": "Injecting template syntax that executes on the server",
                   "x": "It can escalate to remote code execution; sandbox templates.",
                   "wrong": [
-                    "A page template: an HTML layout the server fills with content",
-                    "A mail merge: a document filled with names from a spreadsheet",
-                    "An email template: mail layouts count as server-side injection here"
+                    "An HTML layout the server fills with content",
+                    "A mail merge filled from a spreadsheet",
+                    "Injecting script into an email template that runs in the recipient's client"
                   ]
                 },
                 {
@@ -11388,9 +11388,9 @@
                   "a": "Desyncing front-end and back-end servers to poison requests",
                   "x": "CL.TE and TE.CL desyncs; fix with strict parsing.",
                   "wrong": [
-                    "Smuggling goods",
-                    "A cache poison: a stored response served to the wrong visitor",
-                    "A slow proxy: sluggish relays count as request smuggling here"
+                    "Poisoning a shared cache so visitors receive a stored malicious response",
+                    "Tunnelling HTTP inside DNS queries",
+                    "A slow proxy that delays requests"
                   ]
                 },
                 {
@@ -11401,9 +11401,9 @@
                   "a": "JavaScript: polluting Object.prototype to alter application behaviour",
                   "x": "Freeze prototypes and validate merge keys.",
                   "wrong": [
-                    "A firewall",
-                    "Polluted water: dirty water pollutes the Object prototype",
-                    "A polluted cache: stale entries served to the wrong user"
+                    "Filling a shared cache with stale entries that are served to the wrong user",
+                    "Injecting SQL through a JavaScript object",
+                    "A memory leak in a JavaScript engine"
                   ]
                 },
                 {
@@ -11414,9 +11414,9 @@
                   "a": "An app redirecting to an attacker URL via a parameter",
                   "x": "Phishing fuel: allow-list redirect targets.",
                   "wrong": [
-                    "A short link: a service that turns long URLs into tiny ones",
-                    "An open door: an unlocked entrance is the redirect",
-                    "A login redirect: sending users back to the page they came from"
+                    "A URL shortener that turns long links into tiny ones",
+                    "Sending users back to the page they came from after login",
+                    "A redirect from HTTP to HTTPS"
                   ]
                 },
                 {
@@ -11427,9 +11427,9 @@
                   "a": "A transparent overlay tricking clicks onto hidden actions",
                   "x": "X-Frame-Options and frame-ancestors mitigate it.",
                   "wrong": [
-                    "A transparent window: a see-through app floating over the desktop",
-                    "A pop-up window: a new browser window opening over the page",
-                    "A hidden button: a control the page keeps invisible until hovered"
+                    "A pop-up window that opens over the page when the user clicks anywhere",
+                    "A button the page keeps invisible until hovered",
+                    "Malware that records mouse clicks"
                   ]
                 },
                 {
@@ -11440,9 +11440,9 @@
                   "a": "Claiming a dangling DNS record that points at a dead service",
                   "x": "Audit DNS records against actual resources.",
                   "wrong": [
-                    "A DNS hijack: an attacker rewriting live records to point elsewhere",
-                    "A parked domain: a name bought and left showing adverts",
-                    "Buying domains: registering names counts as subdomain takeover here"
+                    "An attacker rewriting live DNS records to point at their own server",
+                    "A domain bought and parked with adverts",
+                    "Registering lookalike domain names"
                   ]
                 },
                 {
@@ -11453,9 +11453,9 @@
                   "a": "Corrupting resolver caches to redirect traffic",
                   "x": "DNSSEC and randomized source ports mitigate it.",
                   "wrong": [
-                    "A stale record: an old DNS entry kept past its TTL",
-                    "A hosts file edit: a local file mapping names to addresses",
-                    "Poisoned food: tainted meals poison the DNS resolver caches"
+                    "An old DNS record kept past its TTL by a misconfigured resolver",
+                    "A local hosts-file entry",
+                    "Registering a domain similar to the victim's"
                   ]
                 },
                 {
@@ -11466,9 +11466,9 @@
                   "a": "Poisoning ARP tables to intercept LAN traffic",
                   "x": "Dynamic ARP Inspection mitigates it.",
                   "wrong": [
-                    "A firewall",
-                    "A static ARP entry: a fixed mapping typed into the switch",
-                    "A parrot: a talking bird poisons the ARP tables"
+                    "A static ARP entry configured by hand on a switch to pin a gateway's address",
+                    "Spoofing a MAC address to bypass port security",
+                    "Flooding a switch's MAC table"
                   ]
                 },
                 {
@@ -11479,9 +11479,9 @@
                   "a": "Secretly relaying or altering traffic between two parties",
                   "x": "Mutual authentication and certificate pinning mitigate it.",
                   "wrong": [
-                    "A network tap: a device copying traffic for lawful monitoring",
-                    "A proxy server: a middleman forwarding requests on your behalf",
-                    "A boxing move: a punch is the man-in-the-middle"
+                    "A network tap that copies traffic between two parties for lawful monitoring",
+                    "A forward proxy that staff browse through",
+                    "Replaying captured packets later"
                   ]
                 },
                 {
@@ -11492,9 +11492,9 @@
                   "a": "Allow known-good; deny known-bad — allow-listing wins",
                   "x": "Deny-lists always miss the next bypass.",
                   "wrong": [
-                    "Deny-list wins: blocking known-bad always beats allow-listing here",
-                    "Same thing",
-                    "Neither works"
+                    "Deny-listing wins because it blocks every known attack string",
+                    "They are the same approach",
+                    "Neither is useful; only encoding works"
                   ]
                 },
                 {
@@ -11505,9 +11505,9 @@
                   "a": "Escaping data for its context so it cannot execute",
                   "x": "The XSS fix: encode for HTML, JS, or URL as appropriate.",
                   "wrong": [
-                    "A character set: the alphabet a page uses to display text",
-                    "A content filter: a list of banned words blocked from pages",
-                    "Encrypting output: scrambling data counts as output encoding here"
+                    "Choosing the character set a page uses to display text correctly",
+                    "A filter that blocks banned words",
+                    "Encrypting output before sending it"
                   ]
                 },
                 {
@@ -11518,9 +11518,9 @@
                   "a": "Separating SQL code from data so input can never become code",
                   "x": "The definitive SQL injection fix.",
                   "wrong": [
-                    "Fast queries: quick SQL separates code from the data",
-                    "A query cache: stored results served without touching the database",
-                    "A stored procedure: a saved query the database runs on demand"
+                    "Caching query results so the database is never touched by user input",
+                    "Escaping quotes in user input",
+                    "A stored procedure built from concatenated strings"
                   ]
                 },
                 {
@@ -11531,9 +11531,9 @@
                   "a": "Grant only the access needed",
                   "x": "It limits the blast radius of any compromise.",
                   "wrong": [
-                    "Maximum access: granting everyone everything is least privilege here",
-                    "No access: granting users nothing counts as least privilege here",
-                    "An admin account: a login with full rights over every system"
+                    "Granting everyone access so nobody is blocked",
+                    "Granting nobody any access",
+                    "A shared admin account"
                   ]
                 },
                 {
@@ -11544,9 +11544,9 @@
                   "a": "Layered controls so one failure is never fatal",
                   "x": "Firewall plus patching plus EDR plus backups — not one magic box.",
                   "wrong": [
-                    "One big firewall",
-                    "A single control: one strong layer is enough if it never fails",
-                    "A locked door: one strong control is all any system needs"
+                    "One large perimeter firewall",
+                    "A single control strong enough that it never fails under any attack",
+                    "A locked door on the server room"
                   ]
                 },
                 {
@@ -11557,9 +11557,9 @@
                   "a": "Removing unnecessary services, ports, and code",
                   "x": "You cannot exploit what is not there.",
                   "wrong": [
-                    "Adding firewalls: more filters shrink the whole attack surface",
-                    "Adding monitoring: more sensors shrink the surface attackers can reach",
-                    "More software: extra code shrinks the whole attack surface"
+                    "Adding more firewalls in front of each service so attackers cannot reach them",
+                    "Adding more monitoring sensors",
+                    "Adding more security software to hosts"
                   ]
                 },
                 {
@@ -11570,9 +11570,9 @@
                   "a": "Hiding details fails once discovered",
                   "x": "Kerckhoffs’s principle: the system must be secure even when fully known.",
                   "wrong": [
-                    "It is enough",
-                    "It slows attackers down: hidden details buy enough time to stay safe",
-                    "It stops insiders: staff cannot attack what they cannot see"
+                    "It is enough if the details are well hidden",
+                    "It stops attackers permanently",
+                    "It stops insiders who cannot see the details"
                   ]
                 },
                 {
@@ -11583,9 +11583,9 @@
                   "a": "Routine schedule for normal fixes; out-of-band for critical active exploits",
                   "x": "Criticality and exploitation override the calendar.",
                   "wrong": [
-                    "Never patch: skip every fix on every single schedule",
-                    "Patch yearly: fix flaws once a year, nothing sooner",
-                    "Patch on breach only: wait for an incident, then patch everything at once"
+                    "Patch everything immediately as each fix is released, without testing",
+                    "Patch once a year",
+                    "Patch only after a breach"
                   ]
                 },
                 {
@@ -11596,9 +11596,9 @@
                   "a": "WAF/IPS rule shielding a flaw until patched",
                   "x": "Buys time for unpatchable legacy systems.",
                   "wrong": [
-                    "A fake patch",
-                    "A backup",
-                    "A hotfix: a vendor patch applied to production without a restart"
+                    "A vendor hotfix applied to production without a restart",
+                    "A fake patch used to trap attackers",
+                    "Restoring from a pre-flaw backup"
                   ]
                 }
               ],
@@ -11641,9 +11641,9 @@
                   "a": "IaaS: manage OS up; PaaS: code+data; SaaS: data+access",
                   "x": "The higher the stack, the less you control.",
                   "wrong": [
-                    "PaaS means servers: platform services are rented bare machines",
-                    "SaaS means servers: software you host on your own machines",
-                    "IaaS is email: rented infrastructure that only delivers messages"
+                    "IaaS: provider manages the OS; PaaS: you manage the OS; SaaS: you manage the code",
+                    "SaaS: you host the software on your own servers",
+                    "IaaS: email and collaboration tools only"
                   ]
                 },
                 {
@@ -11651,12 +11651,12 @@
                   "deckId": "cy-cloud-arch",
                   "trackId": "cyber",
                   "q": "Shared responsibility in IaaS: who secures what?",
-                  "a": "Provider secures hardware and hypervisor",
+                  "a": "The provider secures hardware and the hypervisor; you secure the OS, apps, data and access",
                   "x": "Misconfiguring your half causes most cloud breaches.",
                   "wrong": [
-                    "Provider secures all",
-                    "You secure nothing: the customer has no security duties at all",
-                    "Shared means optional: shared responsibility is safe to ignore entirely"
+                    "The provider secures everything, including your OS and data",
+                    "The provider secures the OS; you secure only data",
+                    "Responsibility is optional and can be left to the provider"
                   ]
                 },
                 {
@@ -11667,9 +11667,9 @@
                   "a": "Users, access, data classification, and sharing settings",
                   "x": "The provider secures nearly everything else.",
                   "wrong": [
-                    "Nothing",
-                    "The hardware",
-                    "The hypervisor: the virtualization layer beneath your SaaS applications"
+                    "Nothing: the SaaS provider handles users, data and every setting",
+                    "The physical hardware",
+                    "The hypervisor"
                   ]
                 },
                 {
@@ -11680,9 +11680,9 @@
                   "a": "Public: shared multi-tenant; private: dedicated; hybrid: both; community: shared by peers",
                   "x": "Hybrid is the common enterprise reality.",
                   "wrong": [
-                    "Community is public: peer-shared clouds are open to everyone alike",
-                    "Public is private: shared tenancy that still isolates every customer",
-                    "Hybrid is insecure: mixing clouds always weakens security"
+                    "Community cloud is open to everyone; public cloud is shared by peers",
+                    "Private cloud is multi-tenant; public is dedicated",
+                    "Hybrid always weakens security"
                   ]
                 },
                 {
@@ -11693,9 +11693,9 @@
                   "a": "Moving workloads to cloud unchanged",
                   "x": "Fast — but it carries on-prem weaknesses along.",
                   "wrong": [
-                    "A rebuild: rewriting every workload for cloud-native services first",
-                    "A cloud exit: moving workloads back from the cloud on-prem",
-                    "Deleting servers: wiping machines instead of migrating workloads to cloud"
+                    "Rewriting every workload to use cloud-native managed services before moving it",
+                    "Moving workloads back from the cloud",
+                    "Retiring servers instead of migrating them"
                   ]
                 },
                 {
@@ -11706,9 +11706,9 @@
                   "a": "Cloud brings scale and managed controls, but shared fate and config risk",
                   "x": "You trade physical control for agility.",
                   "wrong": [
-                    "Cloud is always safer: every workload is more secure there by default, on-prem can never match it",
-                    "On-prem is always safer: local hardware beats cloud every time",
-                    "No trade-off: cloud and on-prem differ in no way"
+                    "Cloud is always safer by default, because the provider handles security",
+                    "On-premises is always safer",
+                    "There is no security trade-off"
                   ]
                 },
                 {
@@ -11719,9 +11719,9 @@
                   "a": "Misconfiguration: public buckets, open security groups, exposed keys",
                   "x": "Automate guardrails so the safe path is the default.",
                   "wrong": [
-                    "Zero-days",
-                    "Insiders only: every breach caused solely by trusted staff members, never misconfiguration",
-                    "Alien hackers: attackers from outer space breaching cloud accounts"
+                    "Zero-day exploits against the provider's hypervisor and shared hardware",
+                    "Malicious insiders at the cloud provider",
+                    "DDoS attacks against the provider"
                   ]
                 },
                 {
@@ -11732,9 +11732,9 @@
                   "a": "Cloud Security Posture Management: continuous misconfiguration scanning",
                   "x": "It flags the public bucket before attackers find it.",
                   "wrong": [
-                    "A cloud firewall: a filter in front of cloud workloads blocking bad traffic",
-                    "A billing alert: a warning when cloud spend passes a limit",
-                    "A compliance report: a quarterly PDF proving the cloud is secure"
+                    "A firewall in front of cloud workloads that blocks malicious traffic inline",
+                    "A billing alert for unexpected spend",
+                    "A quarterly compliance report"
                   ]
                 },
                 {
@@ -11745,9 +11745,9 @@
                   "a": "Type 1: bare metal; Type 2: on a host OS",
                   "x": "ESXi and Hyper-V vs VirtualBox and VMware Workstation.",
                   "wrong": [
-                    "Type 1 runs on Windows: bare-metal hypervisors need a host OS underneath",
-                    "Type 2 is faster: hosted hypervisors always outperform bare-metal ones",
-                    "Type 2 runs containers: hosted hypervisors only run containers, never VMs"
+                    "Type 1 runs on a host OS; Type 2 runs on bare metal",
+                    "Type 2 always outperforms Type 1",
+                    "Type 2 hypervisors only run containers"
                   ]
                 },
                 {
@@ -11758,9 +11758,9 @@
                   "a": "Untracked VMs accumulating without owners or patches",
                   "x": "Unknown VMs are unpatched VMs.",
                   "wrong": [
-                    "A firewall",
-                    "Fast VMs: virtual machines optimised purely for raw speed",
-                    "A VM snapshot: a frozen copy of a machine taken before patching"
+                    "VMs that grow until they consume all of the host's disk and memory",
+                    "VMs tuned for maximum performance",
+                    "Taking too many snapshots of one VM"
                   ]
                 },
                 {
@@ -11771,9 +11771,9 @@
                   "a": "Breaking from a guest out to the hypervisor or host",
                   "x": "Rare but catastrophic: one flaw compromises every tenant.",
                   "wrong": [
-                    "A firewall",
-                    "Shutting down VMs",
-                    "A VM reboot: restarting a guest to clear a hung service"
+                    "A VM migrating live to another host during maintenance",
+                    "Shutting down a VM unexpectedly",
+                    "Rebooting a guest to clear a hung service"
                   ]
                 },
                 {
@@ -11784,9 +11784,9 @@
                   "a": "VMs isolate via hypervisor; containers share the host kernel",
                   "x": "A kernel bug escapes every container on the host.",
                   "wrong": [
-                    "Containers use hypervisors: containers isolate through a hypervisor layer",
-                    "Containers are VMs: the same isolation as a virtual machine, kernel sharing included",
-                    "VMs share kernels: guests run on one shared kernel"
+                    "Containers isolate through a hypervisor; VMs share the host kernel",
+                    "They have identical isolation",
+                    "VMs share one kernel across guests"
                   ]
                 },
                 {
@@ -11797,9 +11797,9 @@
                   "a": "They ship known CVEs in unused packages",
                   "x": "Use minimal or distroless images and scan in CI.",
                   "wrong": [
-                    "They break builds: bloated images fail to compile at deploy time",
-                    "Size is irrelevant: bloated images carry no extra risk",
-                    "They cost more storage: extra layers only raise the registry bill"
+                    "They fail to build at deploy time",
+                    "Image size has no security impact",
+                    "They only increase registry storage costs"
                   ]
                 },
                 {
@@ -11810,9 +11810,9 @@
                   "a": "A breakout as root owns the host",
                   "x": "Pair with read-only filesystems.",
                   "wrong": [
-                    "Root is safer",
-                    "No reason",
-                    "Root runs faster: privileged containers start and execute more quickly"
+                    "Root containers are isolated by default, so it does not matter",
+                    "There is no security reason",
+                    "Non-root containers start faster"
                   ]
                 },
                 {
@@ -11823,9 +11823,9 @@
                   "a": "Least-privilege access to cluster resources",
                   "x": "No cluster-admin for CI bots.",
                   "wrong": [
-                    "A firewall",
-                    "A pod limit: a cap on how many containers one node runs",
-                    "Faster deploys: shipping code to production more quickly than before"
+                    "Limiting how many pods each node can run so one tenant cannot starve others",
+                    "Encrypting traffic between pods",
+                    "Speeding up deployments"
                   ]
                 },
                 {
@@ -11836,9 +11836,9 @@
                   "a": "mTLS and policy between microservices, e.g. Istio or Linkerd",
                   "x": "It encrypts east-west traffic by default.",
                   "wrong": [
-                    "A message queue: a buffer holding jobs between services",
-                    "An API gateway: a single door all outside traffic enters through",
-                    "A load balancer: a box spreading requests across service replicas"
+                    "A message queue that buffers jobs between services",
+                    "An API gateway for traffic entering the cluster",
+                    "A load balancer that spreads requests evenly across service replicas"
                   ]
                 },
                 {
@@ -11849,9 +11849,9 @@
                   "a": "Huge dependency attack surface; ephemeral does not mean invisible",
                   "x": "Scan functions like any code; scope IAM roles per function.",
                   "wrong": [
-                    "Serverless is secure: functions need no security review at all, ephemeral means invisible",
-                    "No code to scan: serverless functions have nothing to review",
-                    "Cold starts leak data: idle functions hand their memory to the next caller"
+                    "Functions are ephemeral, so they need no security review",
+                    "There is no code to scan in serverless",
+                    "Idle functions leak memory to the next caller"
                   ]
                 },
                 {
@@ -11862,9 +11862,9 @@
                   "a": "SSRF to 169.254.169.254 can leak IAM credentials",
                   "x": "Enforce IMDSv2, which requires a token.",
                   "wrong": [
-                    "It is safe: the metadata service poses no danger at all",
-                    "It stores passwords: the metadata service keeps every instance password in cleartext",
-                    "It is public: anyone on the internet can query the metadata service"
+                    "It is reachable from the internet without authentication",
+                    "It stores every instance's password in plain text",
+                    "It is safe, because only the instance can reach it"
                   ]
                 },
                 {
@@ -11875,9 +11875,9 @@
                   "a": "An AZ is an isolated datacenter; a region groups AZs",
                   "x": "Spread workloads across AZs for resilience.",
                   "wrong": [
-                    "Same thing",
-                    "A region is a rack: one cabinet inside a single datacenter building",
-                    "An AZ is a subnet: one address range inside a single region"
+                    "They are the same thing",
+                    "A region is one rack of servers inside a single data centre building",
+                    "An AZ is one subnet in a region"
                   ]
                 },
                 {
@@ -11888,9 +11888,9 @@
                   "a": "Legal requirement that data stay in certain geographies",
                   "x": "Pick regions to satisfy GDPR and contracts.",
                   "wrong": [
-                    "A data centre address: the street where the servers physically sit",
-                    "A backup region: a second geography holding copies for failover",
-                    "Living indoors: staying inside a building as a rule"
+                    "The street address of the data centre holding the servers",
+                    "A second region holding backup copies",
+                    "Where the cloud provider is headquartered"
                   ]
                 },
                 {
@@ -11901,9 +11901,9 @@
                   "a": "A hardened, pre-approved VM or container template",
                   "x": "Build once, scan it, deploy it everywhere.",
                   "wrong": [
-                    "A firewall",
-                    "A live snapshot: a running VM frozen mid-task for later resume",
-                    "A photo: a still picture captured with a camera"
+                    "A running VM frozen mid-task so it can resume later",
+                    "The provider's default marketplace image",
+                    "A backup of production data"
                   ]
                 },
                 {
@@ -11914,9 +11914,9 @@
                   "a": "Never patch running systems — replace them with new images",
                   "x": "It kills configuration drift and attacker persistence.",
                   "wrong": [
-                    "A read-only disk: a drive mounted so nothing can ever be written",
-                    "Never updating: leaving running systems unpatched forever by design",
-                    "A frozen server: a machine whose disks are locked read-only forever"
+                    "Mounting every disk read-only so nothing can be written",
+                    "Never updating running systems",
+                    "Locking servers so nobody can log in"
                   ]
                 },
                 {
@@ -11927,9 +11927,9 @@
                   "a": "Misconfigurations in Terraform or CloudFormation before deploy",
                   "x": "Checkov and tfsec run in CI.",
                   "wrong": [
-                    "Unused variables: IaC scans flag variables nobody references",
-                    "Typos only: spelling mistakes are all IaC scans catch",
-                    "Open ports only: IaC scans check listening ports and nothing else"
+                    "Unused variables in the templates",
+                    "Spelling mistakes in resource names and tags before the plan is applied",
+                    "Open ports on running servers only"
                   ]
                 },
                 {
@@ -11940,9 +11940,9 @@
                   "a": "Never bake them in — inject at runtime from a vault",
                   "x": "Use a secrets manager, not environment files in git.",
                   "wrong": [
-                    "It is fine: secrets in images and repos cause no harm",
-                    "Encrypt the repo: an encrypted repository keeps baked-in secrets safe",
-                    "Rotate them yearly: baked-in secrets are fine if changed annually"
+                    "Baking them in is fine if the repository is private",
+                    "Encrypt the repository and keep secrets in it",
+                    "Rotate baked-in secrets once a year"
                   ]
                 },
                 {
@@ -11950,12 +11950,12 @@
                   "deckId": "cy-cloud-arch",
                   "trackId": "cyber",
                   "q": "What is a CASB?",
-                  "a": "Cloud Access Security Broker",
+                  "a": "A Cloud Access Security Broker between users and cloud services",
                   "x": "Discovers shadow IT and enforces DLP.",
                   "wrong": [
-                    "A firewall",
-                    "A cloud drive: a hosted folder syncing files across devices",
-                    "A bank: a financial institution holding money and accounts"
+                    "A cloud firewall that protects IaaS workloads",
+                    "A cloud storage service for synced files",
+                    "A certificate authority for cloud apps"
                   ]
                 },
                 {
@@ -11964,11 +11964,11 @@
                   "trackId": "cyber",
                   "q": "What is SASE?",
                   "a": "Secure Access Service Edge",
-                  "x": "ZTNA plus secure web gateway plus CASB, converged.",
+                  "x": "SASE converges networking (SD-WAN) with the security service edge (ZTNA, secure web gateway, CASB, firewall-as-a-service), delivered from the cloud.",
                   "wrong": [
-                    "A VPN gateway: a single tunnel endpoint for remote staff",
-                    "An SD-WAN link: a cheaper line connecting branch offices together",
-                    "A secure gateway: a single box filtering all branch traffic"
+                    "A VPN gateway for remote staff",
+                    "An SD-WAN link between branches",
+                    "A single hardware box at each branch"
                   ]
                 },
                 {
@@ -11979,9 +11979,9 @@
                   "a": "Never trust, always verify",
                   "x": "Assume breach; verify explicitly.",
                   "wrong": [
-                    "Trust everyone",
-                    "A firewall",
-                    "A perimeter wall: a strong boundary keeping attackers outside"
+                    "Trust everything inside the network",
+                    "A next-generation firewall",
+                    "A stronger perimeter"
                   ]
                 },
                 {
@@ -11992,9 +11992,9 @@
                   "a": "VPN trusts the network; zero trust verifies every single request",
                   "x": "ZTNA replaces flat VPN access.",
                   "wrong": [
-                    "VPN verifies every request: the tunnel re-checks identity per request",
-                    "VPN is zero trust: the tunnel itself verifies every request, no re-checks needed",
-                    "Zero trust needs no VPN: verification replaces the tunnel entirely, always"
+                    "A VPN verifies every request; zero trust trusts the network",
+                    "A VPN is already zero trust",
+                    "Zero trust needs a VPN for every request"
                   ]
                 },
                 {
@@ -12005,9 +12005,9 @@
                   "a": "Per-workload network policies limiting lateral movement",
                   "x": "Compromised web tier cannot reach the database tier.",
                   "wrong": [
-                    "A small subnet: a tiny address range holding only a few hosts",
-                    "Small computers: tiny physical machines running miniature cloud workloads",
-                    "A nano VM: a tiny virtual machine running one process only"
+                    "Splitting the VPC into a few large subnets for web, app and database",
+                    "Running workloads on very small instances",
+                    "Running one process per VM"
                   ]
                 },
                 {
@@ -12018,9 +12018,9 @@
                   "a": "A compromised function then holds minimal permissions",
                   "x": "Blast radius control for ephemeral code.",
                   "wrong": [
-                    "It is faster",
-                    "It cuts cloud bills: smaller roles mean cheaper function runs",
-                    "It stops breaches: scoped roles mean functions cannot be compromised at all"
+                    "It makes functions run faster",
+                    "It lowers the cloud bill",
+                    "It makes each function impossible to compromise in the first place"
                   ]
                 }
               ],
@@ -12064,9 +12064,9 @@
                   "a": "A buffer network between the untrusted internet and the internal LAN",
                   "x": "Firewalled on both sides.",
                   "wrong": [
-                    "A VPN tunnel: an encrypted path for staff laptops",
-                    "A guest network: a Wi-Fi SSID visitors use for internet",
-                    "A military base: an army camp as the DMZ"
+                    "An encrypted tunnel that lets remote staff reach the LAN",
+                    "A guest Wi-Fi network for visitors",
+                    "The internal network behind the firewall"
                   ]
                 },
                 {
@@ -12077,9 +12077,9 @@
                   "a": "Web servers, mail relays, VPN concentrators in; databases never",
                   "x": "If the DMZ host falls, the database stays inside.",
                   "wrong": [
-                    "Everything: every system belongs in the DMZ always",
-                    "Nothing belongs there: the DMZ stays empty, services stay inside",
-                    "Databases first: the database tier faces the internet directly, nothing else"
+                    "Everything internet-facing, including the database servers",
+                    "Nothing; services stay inside",
+                    "Only the database tier"
                   ]
                 },
                 {
@@ -12090,9 +12090,9 @@
                   "a": "VLAN: Layer 2 broadcast separation; subnet: Layer 3 addressing",
                   "x": "Often paired 1:1; double-tagging enables VLAN hopping.",
                   "wrong": [
-                    "VLANs route traffic: Layer 2 separation also forwards between networks",
-                    "A VLAN is a subnet: Layer 2 separation is just Layer 3 addressing",
-                    "Subnets are VLANs: Layer 3 addressing is the same as Layer 2 separation"
+                    "VLANs route traffic between networks; subnets do not",
+                    "A VLAN and a subnet are the same thing",
+                    "Subnets separate broadcasts at Layer 2"
                   ]
                 },
                 {
@@ -12103,9 +12103,9 @@
                   "a": "Limiting lateral movement and blast radius",
                   "x": "A compromised HR laptop should never reach OT.",
                   "wrong": [
-                    "Saving addresses: segmentation stretches the IP space further",
-                    "Hiding servers: segmentation keeps hosts invisible to every scanner",
-                    "More cables: extra wiring counts as network segmentation here"
+                    "Saving IP addresses so the address space lasts longer",
+                    "Hiding servers from every scanner",
+                    "Improving bandwidth between buildings"
                   ]
                 },
                 {
@@ -12116,9 +12116,9 @@
                   "a": "Per-workload policies, down to individual hosts",
                   "x": "Zero-trust networking: every flow needs an explicit rule.",
                   "wrong": [
-                    "Small networks",
-                    "A firewall",
-                    "A host firewall: a filter running on each machine alone"
+                    "Splitting the network into a few large VLANs",
+                    "One firewall at the network edge",
+                    "A host firewall on each machine with no central policy"
                   ]
                 },
                 {
@@ -12129,9 +12129,9 @@
                   "a": "A single hardened entry point into admin networks",
                   "x": "MFA it, log everything, allow-list sources.",
                   "wrong": [
-                    "A load balancer: a box spreading traffic across many servers",
-                    "A VPN concentrator: a gateway terminating remote staff tunnels",
-                    "A trampoline: a bouncing mat as the jump server"
+                    "A load balancer that spreads traffic across servers",
+                    "A VPN concentrator for remote staff",
+                    "A file server for admin tools"
                   ]
                 },
                 {
@@ -12142,9 +12142,9 @@
                   "a": "It exposes the management plane to every compromised laptop",
                   "x": "Route all admin access through the bastion.",
                   "wrong": [
-                    "It is the norm: admins always RDP straight from their laptops",
-                    "It is encrypted: RDP encrypts everything, so exposure is safe",
-                    "It is standard practice: every admin RDPs straight from their laptop"
+                    "It is the normal way admins work",
+                    "RDP is encrypted end to end, so exposing it to user VLANs is safe",
+                    "It is too slow over user VLANs"
                   ]
                 },
                 {
@@ -12155,9 +12155,9 @@
                   "a": "A decoy system that alerts the moment it is touched",
                   "x": "No legitimate user ever touches it — so alerts are high-fidelity.",
                   "wrong": [
-                    "A sandbox: an isolated box for running suspicious files safely",
-                    "A canary token: a fake file that phones home when opened",
-                    "Real honey: bee honey is the decoy system"
+                    "A sandbox for running suspicious files safely away from production",
+                    "A fake file that phones home when opened",
+                    "A production server with extra logging"
                   ]
                 },
                 {
@@ -12168,9 +12168,9 @@
                   "a": "A network of honeypots simulating an enterprise",
                   "x": "Wastes attacker time and reveals their TTPs.",
                   "wrong": [
-                    "A test network: a lab LAN for trying configuration changes safely",
-                    "A sensor network: detectors placed around the perimeter watching traffic",
-                    "A darknet: unused address space watched for stray scans"
+                    "A lab network for testing configuration changes",
+                    "A network of IDS sensors around the perimeter",
+                    "Unused address space watched for scans"
                   ]
                 },
                 {
@@ -12181,9 +12181,9 @@
                   "a": "A fake credential or file that triggers an alert when used",
                   "x": "A bogus AWS key in code is an instant tripwire.",
                   "wrong": [
-                    "A decoy server: a fake machine attackers waste time breaking into",
-                    "Real money: cash is the honeytoken credential",
-                    "A real password: a genuine admin credential left in a file"
+                    "A decoy server that attackers waste time on before they reach real systems",
+                    "A real credential stored in a vault",
+                    "A one-time password token"
                   ]
                 },
                 {
@@ -12194,9 +12194,9 @@
                   "a": "Physical isolation with no network path at all",
                   "x": "Strong — but USBs and insiders bridge gaps (Stuxnet).",
                   "wrong": [
-                    "A firewall",
-                    "A Faraday cage: a shielded room blocking all radio signals",
-                    "An empty room: vacant space as the air gap"
+                    "A firewall policy that blocks all inbound traffic from the internet",
+                    "A Faraday cage that blocks radio signals",
+                    "A separate VLAN with no internet route"
                   ]
                 },
                 {
@@ -12207,9 +12207,9 @@
                   "a": "Hardware allowing data flow in one direction only",
                   "x": "OT sends telemetry out; nothing comes back in.",
                   "wrong": [
-                    "A firewall",
-                    "A battery: stored charge is the data diode",
-                    "A one-way mirror: glass that lets light through a single side"
+                    "A firewall configured with one-way rules for outbound traffic only",
+                    "A unidirectional VPN tunnel",
+                    "A network tap"
                   ]
                 },
                 {
@@ -12220,9 +12220,9 @@
                   "a": "East-west: internal lateral; north-south: in and out of the network",
                   "x": "Firewalls watched north-south; zero trust watches both.",
                   "wrong": [
-                    "North-south is lateral: traffic leaving the network moves sideways inside it",
-                    "East is inbound: traffic from the east enters, west traffic leaves",
-                    "Compass directions: north and east are traffic types"
+                    "North-south is internal; east-west enters and leaves the network",
+                    "East is inbound; west is outbound",
+                    "Both describe internet traffic"
                   ]
                 },
                 {
@@ -12233,9 +12233,9 @@
                   "a": "A single controlled passage all traffic must cross",
                   "x": "Place inspection — IDS, proxy — there.",
                   "wrong": [
-                    "A fast link: the highest-bandwidth path traffic prefers to take",
-                    "A traffic jam: congested roads as the choke point",
-                    "A core switch: the biggest box in the datacenter wiring closet"
+                    "The highest-bandwidth path that traffic prefers to take through the core",
+                    "A congested link that slows traffic",
+                    "The largest core switch"
                   ]
                 },
                 {
@@ -12246,9 +12246,9 @@
                   "a": "Limiting MAC addresses per port against rogue devices",
                   "x": "Sticky MACs plus violation shutdown.",
                   "wrong": [
-                    "A firewall",
-                    "A port scan: a probe listing which switch ports answer",
-                    "A locked door: a physical door as port security"
+                    "Scanning switch ports regularly to see which ones answer on the network",
+                    "A locked cabinet around the switch",
+                    "Disabling unused VLANs"
                   ]
                 },
                 {
@@ -12259,9 +12259,9 @@
                   "a": "A switch feature trusting only legitimate DHCP servers",
                   "x": "It blocks rogue DHCP attacks.",
                   "wrong": [
-                    "A DHCP relay: a helper forwarding requests to a distant server",
-                    "Eavesdropping: listening in on traffic counts as DHCP snooping",
-                    "A DHCP lease: a temporary address handed to a new device"
+                    "A relay agent forwarding DHCP requests to a server on another subnet",
+                    "Eavesdropping on DHCP traffic",
+                    "Extending DHCP lease times"
                   ]
                 },
                 {
@@ -12272,9 +12272,9 @@
                   "a": "Validates ARP against the DHCP snooping table",
                   "x": "It stops ARP spoofing and LAN man-in-the-middle.",
                   "wrong": [
-                    "A firewall",
-                    "A backup",
-                    "An audit: a compliance review is ARP inspection"
+                    "A firewall rule for ARP packets",
+                    "A backup of the ARP table",
+                    "An audit that compares switch configurations to a baseline"
                   ]
                 },
                 {
@@ -12285,9 +12285,9 @@
                   "a": "Isolates hosts from each other within the same VLAN",
                   "x": "For DMZ hosts that should never talk to each other.",
                   "wrong": [
-                    "A hidden SSID: a wireless network that does not broadcast its name",
-                    "A secret network: hidden cables as the private VLAN",
-                    "A guest VLAN: a segment where visitors only reach the internet"
+                    "A Wi-Fi network that hides its SSID",
+                    "A VLAN with no internet route",
+                    "A guest VLAN whose hosts can reach the internet but no internal systems"
                   ]
                 },
                 {
@@ -12298,9 +12298,9 @@
                   "a": "A separate network for admin interfaces like iDRAC and switch management",
                   "x": "It keeps management traffic off the production LAN.",
                   "wrong": [
-                    "A backup link: a second ISP line used on failure",
-                    "A serial console: a cable for typing into a switch",
-                    "A phone line: voice calls are out-of-band management"
+                    "A backup internet line used on failure",
+                    "A serial console cable",
+                    "A VLAN for VoIP phones"
                   ]
                 },
                 {
@@ -12311,9 +12311,9 @@
                   "a": "Stateful tracks connections; stateless filters each packet alone",
                   "x": "Stateful is the modern default.",
                   "wrong": [
-                    "Same thing",
-                    "Stateful filters packets alone: stateful firewalls judge each packet singly",
-                    "Stateless tracks sessions: packet filters remember every connection they see"
+                    "They are the same",
+                    "Stateful filters each packet alone",
+                    "Stateless tracks every session"
                   ]
                 },
                 {
@@ -12324,9 +12324,9 @@
                   "a": "Web Application Firewall: filters HTTP attacks like SQLi and XSS",
                   "x": "Deploy in front of web apps and tune it so it does not break them.",
                   "wrong": [
-                    "A web server: a program serving pages to browsers",
-                    "A load balancer: a box spreading web traffic",
-                    "A waffle: a breakfast grid is the WAF"
+                    "A web server that serves pages to browsers",
+                    "A load balancer for web traffic",
+                    "A network firewall that filters ports"
                   ]
                 },
                 {
@@ -12337,9 +12337,9 @@
                   "a": "IDS only alerts; IPS blocks inline",
                   "x": "IPS risks false-positive outages — tune in IDS mode first.",
                   "wrong": [
-                    "IPS only watches: inline sensors alert and never block anything",
-                    "IPS only alerts: inline sensors watch traffic and never block anything",
-                    "IDS blocks attacks: detection sensors drop malicious packets inline"
+                    "IPS only alerts; IDS blocks inline",
+                    "Both block traffic inline",
+                    "IDS blocks attacks; IPS logs them"
                   ]
                 },
                 {
@@ -12350,9 +12350,9 @@
                   "a": "Terminates client connections and hides origin servers",
                   "x": "WAF and TLS termination live here.",
                   "wrong": [
-                    "A NAT device: a box rewriting private addresses into public ones",
-                    "A forward proxy: a gateway staff browse the web through",
-                    "A mirror"
+                    "A NAT device rewriting private addresses",
+                    "A forward proxy that staff browse through to reach the internet",
+                    "A mirror of the website"
                   ]
                 },
                 {
@@ -12363,9 +12363,9 @@
                   "a": "Another name for the DMZ architecture",
                   "x": "CompTIA loves this term.",
                   "wrong": [
-                    "A filtered VLAN: a segment where only approved MAC addresses connect",
-                    "A window screen: mesh that keeps insects out of a house",
-                    "A screened host: a single bastion machine, no separate network"
+                    "A VLAN where only approved MAC addresses can connect",
+                    "A subnet with no internet route",
+                    "A single bastion host"
                   ]
                 },
                 {
@@ -12376,9 +12376,9 @@
                   "a": "They must face the internet but a compromise must not reach inside",
                   "x": "Harden them; they are high-value targets.",
                   "wrong": [
-                    "They need no patching: public services in the DMZ are safe unpatched",
-                    "They belong inside: public services are safest on the internal LAN",
-                    "They are unhackable: DNS and NTP have no flaws worth worrying about"
+                    "They need no patching once in the DMZ",
+                    "They belong on the internal LAN",
+                    "They cannot be attacked"
                   ]
                 }
               ],
