@@ -436,25 +436,24 @@ describe('robot visibility from the SOC cameras', () => {
 });
 
 describe('speaker focus shots', () => {
-  it('centres the speaker and shows another robot working in the background', () => {
-    // The speaker is the one the camera is centred on (head within 60px
-    // of the frame centre) and at least 120px tall. Since the eye-level
-    // rebuild the focus cameras stand in the desk room, so Cypher (in
-    // that room, behind the camera) is not in the north-room shots by
-    // design — the WIDE shot holds all three. Each focus shot still
-    // shows the other north-room robot through the glass, its head in
-    // frame and clear of the speaker's.
-    const cases = [
-      [CAMERA_SHOTS.sentinel, SENTINEL_SPAWN, PATCH_SPAWN],
-      [CAMERA_SHOTS.patch, PATCH_SPAWN, SENTINEL_SPAWN],
-    ];
-    for (const [shot, speaker, other] of cases) {
+  it('centres the speaker in his own room; Sentinel’s shot also shows Patch working', () => {
+    // Since 2026-11-17 the focus cameras stand INSIDE the speaker's room,
+    // close and at eye level, so the speaker's face fills the frame: his
+    // head is centred (within 60px) and he is large. Sentinel's camera,
+    // in the server room, still sees Patch working through the glass.
+    // Patch's camera looks north-east into his own corner (bench and
+    // printers behind him), so Sentinel is not in it, by design.
+    for (const [shot, speaker] of [[CAMERA_SHOTS.sentinel, SENTINEL_SPAWN], [CAMERA_SHOTS.patch, PATCH_SPAWN]]) {
       const cam = cameraFor(shot);
-      const { feet, head } = robotRect(cam, speaker);
+      const { head } = robotRect(cam, speaker);
       expect(head.behind).toBe(false);
-      expect(feet.behind).toBe(false);
       expect(Math.abs(head.x - FRAME_W / 2)).toBeLessThanOrEqual(60);
-      expect(feet.y - head.y).toBeGreaterThanOrEqual(120);
+      expect(head.y).toBeGreaterThanOrEqual(0);
+      expect(head.y).toBeLessThanOrEqual(FRAME_H / 2);
+    }
+    for (const [shot, speaker, other] of [[CAMERA_SHOTS.sentinel, SENTINEL_SPAWN, PATCH_SPAWN]]) {
+      const cam = cameraFor(shot);
+      const { head } = robotRect(cam, speaker);
       const o = robotRect(cam, other);
       expect(o.head.behind).toBe(false);
       expect(o.head.x).toBeGreaterThanOrEqual(0);

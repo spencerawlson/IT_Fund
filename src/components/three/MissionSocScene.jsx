@@ -25,6 +25,9 @@ import {
   shotForSpeaker,
   deviceShot,
   ambientClipFor,
+  talkingClipFor,
+  ROBOT_SPEAK_FACING,
+  ROBOT_TURN_DAMP,
   CAMERA_SHOTS,
 } from '@/components/three/socLayout';
 
@@ -468,8 +471,12 @@ export default function MissionSocScene({
       // only after the greet window, like the ambient work.
       if (sentinel) {
         const sentinelSpeaking = !!voiceRef?.current?.talking && speaker === 'sentinel' && t > sentinelGreetUntil;
+        // Turn toward his in-room camera while he speaks, back to the racks after.
+        const sentinelYaw = sentinelSpeaking ? ROBOT_SPEAK_FACING.sentinel : SENTINEL_SPAWN.rotationY;
+        sentinel.group.rotation.y = THREE.MathUtils.damp(sentinel.group.rotation.y, sentinelYaw, ROBOT_TURN_DAMP, dt);
         if (sentinelSpeaking) {
-          if (!sentinel.isTalking()) sentinel.setTalking(true);
+          // Talking AND working: the talk loop with a reach to the racks.
+          sentinel.play(talkingClipFor('sentinel', t));
           sentinel.setTalkLevel(voiceRef.current.level || 0);
         } else {
           if (sentinel.isTalking()) sentinel.setTalking(false);
@@ -480,8 +487,11 @@ export default function MissionSocScene({
       }
       if (patch) {
         const patchSpeaking = !!voiceRef?.current?.talking && speaker === 'patch' && t > patchGreetUntil;
+        const patchYaw = patchSpeaking ? ROBOT_SPEAK_FACING.patch : PATCH_SPAWN.rotationY;
+        patch.group.rotation.y = THREE.MathUtils.damp(patch.group.rotation.y, patchYaw, ROBOT_TURN_DAMP, dt);
         if (patchSpeaking) {
-          if (!patch.isTalking()) patch.setTalking(true);
+          // Talking AND working: the talk loop with a reach to the bench.
+          patch.play(talkingClipFor('patch', t));
           patch.setTalkLevel(voiceRef.current.level || 0);
         } else {
           if (patch.isTalking()) patch.setTalking(false);

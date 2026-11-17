@@ -102,6 +102,14 @@ export const FACING = { south: 0, west: -Math.PI / 2, east: Math.PI / 2, north: 
 // Working pose: Cypher faces his desk (south), Sentinel faces the racks
 // (west), Patch faces the bench (east). Speaking pose: all face south.
 export const ROBOT_WORK_FACING = { cypher: FACING.south, sentinel: FACING.west, patch: FACING.east };
+// Speaking pose (Spencer, 2026-11-17: "when a robot is talking I need to see
+// its face"): on his own briefing turn Sentinel / Patch turns most of the way
+// toward his in-room camera, so the face reads: Sentinel with the racks at his
+// side, Patch with his bench and printers behind him. He turns back to work
+// when the turn ends.
+export const ROBOT_SPEAK_FACING = { sentinel: -Math.PI / 3, patch: -Math.PI / 6 };
+// How fast a robot turns between its work and speaking poses (damping, 1/s).
+export const ROBOT_TURN_DAMP = 3;
 
 // Robot body boxes (facing-aware): the half-width is the shoulder/tread
 // span across the facing axis, the half-depth the torso front-to-back
@@ -189,10 +197,17 @@ export function spotToScene(p, scale = ROOM_SCALE) {
 // 2026-11-17: the plan grew 1.5x, so every shot's floor position and
 // target moved 1.5x outward (heights unchanged): same angles, same
 // framing logic, in the bigger room.
+// 2026-11-17 (Spencer: "the camera needs to be in the room where the robot
+// is"): Sentinel's and Patch's shots stand INSIDE their rooms, at eye level
+// (1.5 m), aimed at his face. Sentinel's camera is in the server room ~1.65 m
+// south-west of him (Blender (-1.7, 0.4)); Patch's in the workshop's south-west
+// corner ((0.75, 0.32), ~1.6 m away, looking north-east) so his bench and
+// printers are behind him. Both stand just north of the glass (y 0.27). Each speaker
+// turns toward his camera (ROBOT_SPEAK_FACING) while he talks.
 export const CAMERA_SHOTS = {
   wide: { pos: [2.25, 9, 36], target: [0, 5.5, -6] },
-  sentinel: { pos: [6, 8.5, 12], target: [-2.25, 5.5, -7.5] },
-  patch: { pos: [16.5, 8.5, 13.5], target: [9, 5, -7.5] },
+  sentinel: { pos: [-8.5, 7.5, -2], target: [-2.25, 6.9, -7.5] },
+  patch: { pos: [3.75, 7.5, -1.6], target: [9, 6.25, -7.5] },
 };
 
 // Cypher's shot is fixed at his chair: he sits, he never patrols in
@@ -316,6 +331,15 @@ export function patrolX(t, patrol = ROBOT_SPOTS_M.cypher.patrol) {
 // every 14 s, idle between). The caller plays the returned clip every
 // frame — play() is idempotent while the clip is already current, and the
 // one-shot returns to idle through the mixer's finished handler.
+// While a robot speaks he keeps working (Spencer: "he's always touching
+// stuff -- he should be touching stuff while talking"): the talk loop, with a
+// reach toward his racks / bench (the point clip) every few seconds.
+export function talkingClipFor(robot, elapsedS) {
+  if (robot === 'sentinel') return elapsedS % 7 < 1.6 ? 'point' : 'talk';
+  if (robot === 'patch') return elapsedS % 8 < 1.8 ? 'point' : 'talk';
+  return 'talk';
+}
+
 export function ambientClipFor(robot, elapsedS) {
   if (robot === 'sentinel') {
     return elapsedS % 12 < 1.5 ? 'point' : 'idle';
