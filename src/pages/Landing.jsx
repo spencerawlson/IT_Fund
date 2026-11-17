@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { BookOpen, FlaskConical, Bot, Target, TerminalSquare, Award, ArrowRight, Check } from 'lucide-react';
+import { BookOpen, FlaskConical, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
@@ -11,43 +11,19 @@ import { COUNTS } from '@/data/counts';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
 // Signed-in visitors go straight to the app.
-const FEATURES = [
+const WHO_IT_IS_FOR = [
   {
-    icon: BookOpen,
-    title: `${COUNTS.totalCardsPlus} flashcards, mapped to objectives`,
-    text: 'Every card tied to a real cert objective — IT fundamentals through CISSP domains. Learn, quiz, and boss-fight your way up.',
+    title: 'Starting out',
+    text: 'New to IT? Start with the fundamentals and work toward your first cert.',
   },
   {
-    icon: FlaskConical,
-    title: 'Hands-on labs, for real',
-    text: 'Real terminals, real tools: Cisco IOS, Linux triage, Python automation, cloud sandboxes — some running in live containers, not simulations.',
+    title: 'Working in IT',
+    text: 'Level up with hands-on labs in real terminals — the skills certs assume you have.',
   },
   {
-    icon: Bot,
-    title: 'An AI tutor, coming soon for members',
-    text: 'Stuck on a concept? Hints, explanations, and worked examples grounded in the question you are studying.',
+    title: 'Switching careers',
+    text: 'A clear path into tech: guided lessons, real practice, and timed exam sims.',
   },
-  {
-    icon: Target,
-    title: 'CISSP practice exams',
-    text: 'Timed exam engine with the real domains, spaced review, and per-domain score reports before test day.',
-  },
-  {
-    icon: TerminalSquare,
-    title: 'Linux & Python tracks',
-    text: `${COUNTS.tracks.linux.decks} Linux decks and a full Python automation path — the hands-on skills certs assume you have.`,
-  },
-  {
-    icon: Award,
-    title: 'Progress that sticks',
-    text: 'Streaks, XP, badges, and Leitner-spaced review. Sign in and it syncs across your devices.',
-  },
-];
-
-const STEPS = [
-  { n: '1', title: 'Learn', text: 'Guided lessons and flashcards take you from zero to the cert objectives.' },
-  { n: '2', title: 'Do', text: 'Prove it in hands-on labs — real commands, real output, real mistakes.' },
-  { n: '3', title: 'Pass', text: 'Timed practice exams tell you exactly when you\u2019re ready for the real thing.' },
 ];
 
 // The certification road, in the order learners actually take it. Depth badges
@@ -146,8 +122,6 @@ export default function Landing() {
         {/* Phones get one primary "Sign in" (both buttons open /signin); wider screens show both. */}
         <div className="flex items-center gap-1 whitespace-nowrap sm:gap-2">
           <ThemeToggle />
-          <Button variant="ghost" size="sm" to="/labs">Labs</Button>
-          <Button variant="ghost" size="sm" to="/pricing" className="hidden sm:inline-flex">Pricing</Button>
           <Button variant="ghost" size="sm" to="/signin" className="hidden sm:inline-flex">Sign in</Button>
           {/* R-11: one primary CTA per homepage — the hero's "Start learning
               free". This header action is secondary so it doesn't compete. */}
@@ -161,16 +135,12 @@ export default function Landing() {
       {/* Hero */}
       <main className="mx-auto max-w-6xl px-4 sm:px-6">
         <section className="py-14 text-center sm:py-20">
-          <div className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">
-            IT fundamentals → cloud expert
-          </div>
-          <h1 className="mx-auto mt-4 max-w-3xl text-[clamp(2.25rem,2rem+3vw,3.75rem)] font-bold leading-[1.1] tracking-tight text-ink-1">
+          <h1 className="mx-auto max-w-3xl text-[clamp(2.25rem,2rem+3vw,3.75rem)] font-bold leading-[1.1] tracking-tight text-ink-1">
             Learn IT by doing it — all the way to CISSP.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-body text-ink-2">
-            Flashcards mapped to real cert objectives, hands-on labs with actual
-            terminals and tools, and timed practice exams.
-            Free to start, no credit card.
+            Flashcards mapped to real cert objectives, hands-on labs in real
+            terminals, and timed practice exams. Free to start.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" to="/signin" icon={ArrowRight}>
@@ -180,35 +150,21 @@ export default function Landing() {
               Try a lab
             </Button>
           </div>
-          <p className="mt-4 text-caption text-ink-3">
-            Sign up with Google or GitHub — no password needed.
-          </p>
         </section>
 
-        {/* Stats */}
-        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Highlights">
-          {[
-            [COUNTS.totalCardsPlus, 'flashcards'],
-            [COUNTS.labsPlus, 'hands-on labs'],
-            ['8', 'CISSP domains'],
-            ['5', 'timed exam simulators'],
-          ].map(([n, label]) => (
-            <div key={label} className="glass-2 rounded-card px-4 py-5 text-center">
-              <p className="text-heading font-bold text-ink-1">{n}</p>
-              <p className="mt-1 text-caption text-ink-2">{label}</p>
-            </div>
-          ))}
-        </section>
+        {/* Proof: one quiet line, not a grid */}
+        <p className="pb-4 text-center text-small text-ink-3">
+          {COUNTS.totalCardsPlus} flashcards · {COUNTS.labsPlus} hands-on labs · 8 CISSP domains · 5 timed exam simulators
+        </p>
 
-        {/* Features */}
-        <section className="py-16 sm:py-20" aria-label="Features">
-          <h2 className="text-center text-title font-bold text-ink-1">Everything you need, in one place</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="glass-2 rounded-card p-5">
-                <f.icon size={22} className="text-ink-2" aria-hidden="true" />
-                <h3 className="mt-3 text-body font-semibold text-ink-1">{f.title}</h3>
-                <p className="mt-1.5 text-small text-ink-2">{f.text}</p>
+        {/* Who it's for */}
+        <section className="py-16 sm:py-20" aria-label="Who it's for">
+          <h2 className="text-center text-title font-bold text-ink-1">Who it&apos;s for</h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            {WHO_IT_IS_FOR.map((a) => (
+              <div key={a.title} className="glass-2 rounded-card p-5">
+                <h3 className="text-body font-semibold text-ink-1">{a.title}</h3>
+                <p className="mt-1.5 text-small text-ink-2">{a.text}</p>
               </div>
             ))}
           </div>
@@ -254,22 +210,6 @@ export default function Landing() {
           <p className="mt-6 text-center text-small text-ink-3">
             Plus skills tracks: Python, Docker, Kubernetes, Terraform, SQL, and more.
           </p>
-        </section>
-
-        {/* How it works */}
-        <section className="pb-16 sm:pb-20" aria-label="How it works">
-          <h2 className="text-center text-title font-bold text-ink-1">How it works</h2>
-          <div className="mx-auto mt-8 grid max-w-4xl gap-4 sm:grid-cols-3">
-            {STEPS.map((s) => (
-              <div key={s.n} className="rounded-card border border-black/10 p-5 text-center">
-                <p className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.04] text-heading font-bold text-ink-1">
-                  {s.n}
-                </p>
-                <h3 className="mt-3 text-body font-semibold text-ink-1">{s.title}</h3>
-                <p className="mt-1.5 text-small text-ink-2">{s.text}</p>
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* Final CTA */}
