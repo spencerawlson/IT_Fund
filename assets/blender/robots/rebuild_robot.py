@@ -30,6 +30,9 @@ argv = sys.argv[sys.argv.index("--") + 1:]
 OLD, NEW, OUT = argv[0], argv[1], argv[2]
 TARGET_TRIS = int(argv[3]) if len(argv) > 3 else 40000
 TEX_PX = int(argv[4]) if len(argv) > 4 else 1024
+# "copy": copy the old body's weights; "auto": Blender bone-heat weights
+# on the new (sealed) body, which bend cleanly at elbows and knees.
+WEIGHTS = argv[5] if len(argv) > 5 else "auto"
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 
@@ -60,7 +63,9 @@ def tris(obj):
 # --- 1. the rigged robot
 old_objs = import_glb(OLD)
 arm = next(o for o in old_objs if o.type == "ARMATURE")
-old_body = next(o for o in old_objs if o.type == "MESH")
+# The body is the biggest mesh: the glTF importer also adds small bone
+# display shapes ("Icosphere") that are meshes too.
+old_body = max((o for o in old_objs if o.type == "MESH"), key=lambda o: len(o.data.polygons))
 arm.data.pose_position = "REST"  # weights are copied in the bind pose
 bpy.context.view_layer.update()
 print("OLD", arm.name, old_body.name, "tris", tris(old_body), "actions", [a.name for a in bpy.data.actions], flush=True)
@@ -68,6 +73,17 @@ print("OLD", arm.name, old_body.name, "tris", tris(old_body), "actions", [a.name
 # --- 2. the new mesh
 new_objs = import_glb(NEW)
 new_meshes = [o for o in new_objs if o.type == "MESH"]
+biggest = max(len(o.data.polygons) for o in new_meshes)
+for o in [o for o in new_meshes if len(o.data.polygons) < biggest * 0.05]:
+    new_meshes.remove(o)
+    new_objs.remove(o)
+    bpy.data.objects.remove(o, do_unlink=True)
+# Unparent first (keeping each mesh's world placement), then drop the
+# imported non-mesh objects (a Meshy auto-rig's armature, empties).
+for o in new_meshes:
+    mw = o.matrix_world.copy()
+    o.parent = None
+    o.matrix_world = mw
 for o in new_objs:
     if o.type != "MESH":
         bpy.data.objects.remove(o, do_unlink=True)
@@ -78,7 +94,15 @@ if len(new_meshes) > 1:
     bpy.context.view_layer.objects.active = new_meshes[0]
     bpy.ops.object.join()
 body = new_meshes[0]
-body.parent = None
+# A Meshy auto-rigged export carries its own skeleton (Mixamo bones) and
+# clips: drop its skinning and actions so only our rig drives the body.
+for m in list(body.modifiers):
+    body.modifiers.remove(m)
+body.vertex_groups.clear()
+for a in [a for a in bpy.data.actions if a.name not in {"greeting", "idle", "point", "talk", "thinking", "walk"}]:
+    bpy.data.actions.remove(a)
+for o in [o for o in bpy.data.objects if o.type == "ARMATURE" and o is not arm]:
+    bpy.data.objects.remove(o, do_unlink=True)
 select_only(body)
 bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 print("NEW", body.name, "tris", tris(body), flush=True)
@@ -112,22 +136,83 @@ nlo, nhi = world_bbox(body)
 print("FIT scale %.4f old %s..%s new %s..%s" % (s, tuple(round(v, 3) for v in olo), tuple(round(v, 3) for v in ohi),
                                                 tuple(round(v, 3) for v in nlo), tuple(round(v, 3) for v in nhi)), flush=True)
 
-# --- 4. copy skin weights
-for vg in old_body.vertex_groups:
-    body.vertex_groups.new(name=vg.name)
-dt = body.modifiers.new("Weights", "DATA_TRANSFER")
-dt.object = old_body
-dt.use_vert_data = True
-dt.data_types_verts = {"VGROUP_WEIGHTS"}
-dt.vert_mapping = "POLYINTERP_NEAREST"
-dt.layers_vgroup_select_src = "ALL"
-dt.layers_vgroup_select_dst = "NAME"
-select_only(body)
-bpy.ops.object.modifier_apply(modifier=dt.name)
+# --- 4. skin weights
+CHAINS = {
+    "armL": ("shoulder.L", "upper_arm.L", "elbow.L", "wrist.L", "hand.L"),
+    "armR": ("shoulder.R", "upper_arm.R", "elbow.R", "wrist.R", "hand.R"),
+    "legL": ("thigh.L", "knee.L", "ankle.L", "foot.L"),
+    "legR": ("thigh.R", "knee.R", "ankle.R", "foot.R"),
+}
+CHAIN_OF = {b: c for c, bones in CHAINS.items() for b in bones}
+# Next to the body, only the first joint of each limb may share a vertex.
+CORE_OK = {"shoulder.L", "upper_arm.L", "shoulder.R", "upper_arm.R", "thigh.L", "thigh.R"}
+
+
+def copy_old_weights():
+    for vg in old_body.vertex_groups:
+        body.vertex_groups.new(name=vg.name)
+    dt = body.modifiers.new("Weights", "DATA_TRANSFER")
+    dt.object = old_body
+    dt.use_vert_data = True
+    dt.data_types_verts = {"VGROUP_WEIGHTS"}
+    dt.vert_mapping = "POLYINTERP_NEAREST"
+    dt.layers_vgroup_select_src = "ALL"
+    dt.layers_vgroup_select_dst = "NAME"
+    select_only(body)
+    bpy.ops.object.modifier_apply(modifier=dt.name)
+
+
+copy_old_weights()
+if WEIGHTS != "copy":
+    # The copied weights know which LIMB each vertex belongs to (the old
+    # body's limbs were separate pieces), but bend badly at the elbows.
+    # Bone heat bends cleanly but spreads across surfaces that touch in the
+    # rest pose -- Meshy's remesh joins the hanging hands to the thighs, so a
+    # raised arm dragged a knee plate. So: limb from the copy, smooth
+    # weights from bone heat, restricted to that limb.
+    gname = {g.index: g.name for g in body.vertex_groups}
+    limb = []
+    for v in body.data.vertices:
+        tot = {}
+        for ge in v.groups:
+            c = CHAIN_OF.get(gname[ge.group], "core")
+            tot[c] = tot.get(c, 0.0) + ge.weight
+        limb.append(max(tot, key=tot.get) if tot else "core")
+    body.vertex_groups.clear()
+    bpy.ops.object.select_all(action="DESELECT")
+    body.select_set(True)
+    arm.select_set(True)
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+    for m in list(body.modifiers):
+        body.modifiers.remove(m)  # re-added below, pointing at the same rig
+    body.parent = None
+    select_only(body)
+    gname = {g.index: g.name for g in body.vertex_groups}
+    groups = {g.name: g for g in body.vertex_groups}
+    fixed = 0
+    for v in body.data.vertices:
+        own = limb[v.index]
+        drop = []
+        for ge in v.groups:
+            n = gname[ge.group]
+            c = CHAIN_OF.get(n)
+            if c is None or c == own or (own == "core" and n in CORE_OK):
+                continue
+            drop.append(n)
+        for n in drop:
+            groups[n].remove([v.index])
+        if drop:
+            fixed += 1
+        if not any(ge.weight > 0 for ge in v.groups):
+            # Nothing left: the limb's root bone (or the chest for the core).
+            root = CHAINS[own][0] if own != "core" else "chest"
+            groups[root].add([v.index], 1.0, "REPLACE")
+    print("LIMB CLEANUP vertices fixed", fixed, flush=True)
 bpy.ops.object.vertex_group_limit_total(group_select_mode="ALL", limit=4)
 bpy.ops.object.vertex_group_normalize_all(group_select_mode="ALL", lock_active=False)
 unweighted = sum(1 for v in body.data.vertices if not v.groups)
-print("WEIGHTS groups", len(body.vertex_groups), "unweighted verts", unweighted, flush=True)
+print("WEIGHTS", WEIGHTS, "groups", len(body.vertex_groups), "unweighted verts", unweighted, flush=True)
 
 # --- 5. bind, clean up, textures, export
 body.parent = arm
@@ -135,6 +220,8 @@ am = body.modifiers.new("Armature", "ARMATURE")
 am.object = arm
 body.name = old_body.name
 bpy.data.objects.remove(old_body, do_unlink=True)
+for o in [o for o in bpy.data.objects if o.type == "MESH" and o is not body and len(o.data.polygons) < 500]:
+    bpy.data.objects.remove(o, do_unlink=True)  # bone display shapes
 arm.data.pose_position = "POSE"
 
 for img in bpy.data.images:
