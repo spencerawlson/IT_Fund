@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Lock, SearchX } from 'lucide-react';
 import { EmptyState } from '@/components/ui-glass';
 import { useCypherVoice, fetchVoiceStatus } from '@/api/voice';
@@ -63,6 +63,11 @@ export default function MissionBriefing() {
   useDocumentTitle('Mission Briefing · Road to CISSP');
   const { missionId } = useParams();
   const navigate = useNavigate();
+  // Sent here by the terminal page because the learner opened a mission's
+  // terminal directly on a brand-new attempt: brief them anyway (every
+  // mission starts in the SOC room), even though the attempt now exists.
+  const location = useLocation();
+  const fromTerminal = !!location.state?.fromTerminal;
   const { theme } = useTheme();
   const terminalUrl = `/missions/${missionId}/terminal`;
   const [missionDef, setMissionDef] = useState(null);
@@ -220,7 +225,7 @@ export default function MissionBriefing() {
     voiceStopRef.current?.();
     setConnectStep('connecting');
     const t1 = setTimeout(() => setConnectStep('established'), CONNECT_S * 1000);
-    const t2 = setTimeout(() => navigate(terminalUrl, { replace: true }), (CONNECT_S + ESTABLISHED_S) * 1000);
+    const t2 = setTimeout(() => navigate(terminalUrl, { replace: true, state: { briefed: true } }), (CONNECT_S + ESTABLISHED_S) * 1000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [openingPhase, terminalUrl, navigate]);
   // Leaving mid-briefing (back): stop the voice too.
@@ -245,8 +250,8 @@ export default function MissionBriefing() {
         const def = await missionsApi.getMission(missionId);
         const started = await missionsApi.start(missionId);
         if (!live) return;
-        if (started.resumed) {
-          navigate(terminalUrl, { replace: true });
+        if (started.resumed && !fromTerminal) {
+          navigate(terminalUrl, { replace: true, state: { briefed: true } });
           return;
         }
         setMissionDef(def);
@@ -263,7 +268,7 @@ export default function MissionBriefing() {
       }
     })();
     return () => { live = false; };
-  }, [missionId, terminalUrl, navigate]);
+  }, [missionId, terminalUrl, navigate, fromTerminal]);
 
   // Warm the mission GLB cache on mount: on direct entry the SOC scene
   // would otherwise load cypher.glb cold (the lesson handoff path
@@ -300,7 +305,7 @@ export default function MissionBriefing() {
   // page. Go straight there; the mission is fully playable from it.
   const handleRendererFailed = useCallback(() => {
     voiceStopRef.current?.();
-    navigate(terminalUrl, { replace: true });
+    navigate(terminalUrl, { replace: true, state: { briefed: true } });
   }, [terminalUrl, navigate]);
 
   // Skip the opening: stop the voice and hand the mission over — the

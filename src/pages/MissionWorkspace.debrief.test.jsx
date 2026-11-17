@@ -210,7 +210,7 @@ vi.mock('@/components/UpgradePrompt', () => ({ default: () => null }));
 
 function renderWorkspace() {
   return TestRenderer.create(
-    <StaticRouter location="/missions/op-broken-shield/terminal">
+    <StaticRouter location={{ pathname: '/missions/op-broken-shield/terminal', state: { briefed: true } }}>
       <Routes>
         <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
       </Routes>

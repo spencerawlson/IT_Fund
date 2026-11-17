@@ -131,7 +131,7 @@ function renderWorkspace() {
   return renderToString(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <StaticRouter location="/missions/op-broken-shield/terminal">
+        <StaticRouter location={{ pathname: '/missions/op-broken-shield/terminal', state: { briefed: true } }}>
           <Routes>
             <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
           </Routes>
@@ -527,7 +527,7 @@ describe('MissionWorkspace — failed terminal command (live 2026-11-16)', () =>
     let renderer;
     await act(async () => {
       renderer = TestRenderer.create(
-        <StaticRouter location="/missions/op-broken-shield/terminal">
+        <StaticRouter location={{ pathname: '/missions/op-broken-shield/terminal', state: { briefed: true } }}>
           <Routes>
             <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
           </Routes>
