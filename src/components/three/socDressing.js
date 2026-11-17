@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {
   ROOM_SCALE,
   H_PARTITION_Y_M,
+  SOC_H_PARTITION_Y_M,
 } from '@/components/three/socLayout';
 
 // The concept look (Spencer's render, 2026-11-14) on top of PR #63's
@@ -45,9 +46,11 @@ export const SOC_DRESSING = {
   // partition in front of their rooms, facing the cameras (south). No rods.
   // x/y/zM are the plate centre in Blender metres; wM/hM its size.
   signs: [
-    { key: 'cypher', title: 'Cypher', sub: 'AI Learning Agent', x: -0.37, y: -0.6, zM: 0.45, wM: 0.46, hM: 0.15 },
-    { key: 'sentinel', title: 'Sentinel', sub: 'Infrastructure & Security', x: -0.68, y: H_PARTITION_Y_M - 0.03, zM: 2.28, wM: 0.9, hM: 0.28 },
-    { key: 'patch', title: 'Patch', sub: 'Lab & Printing (3D / Fabrication)', x: 2.0, y: H_PARTITION_Y_M - 0.03, zM: 2.28, wM: 0.78, hM: 0.25 },
+    // Positions follow the enlarged SOC (2026-11-17): Cypher's plate moved
+    // with his desk, the others along the H glass with the plan (1.5x).
+    { key: 'cypher', title: 'Cypher', sub: 'AI Learning Agent', x: -0.97, y: -0.51, zM: 0.45, wM: 0.46, hM: 0.15 },
+    { key: 'sentinel', title: 'Sentinel', sub: 'Infrastructure & Security', x: -1.02, y: SOC_H_PARTITION_Y_M - 0.03, zM: 2.45, wM: 0.9, hM: 0.28 },
+    { key: 'patch', title: 'Patch', sub: 'Lab & Printing (3D / Fabrication)', x: 3.0, y: SOC_H_PARTITION_Y_M - 0.03, zM: 2.45, wM: 0.78, hM: 0.25 },
   ],
   signPlateM: { w: 0.9, h: 0.28 },
   signCentreZM: 2.0,

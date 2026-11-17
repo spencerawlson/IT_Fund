@@ -4,6 +4,7 @@ import {
   ROOMS_M,
   ROBOT_SPOTS_M,
   CYPHER_CHAIR_M,
+  SOC_CHAIR_M,
   CYPHER_SEAT_M,
   DEVICE_POSITIONS_M,
   socPositions,
@@ -49,25 +50,22 @@ describe('rooms', () => {
     expect(inRoom(ROOMS_M.sentinel, ROBOT_SPOTS_M.patch.work.x, ROBOT_SPOTS_M.patch.work.y)).toBe(false);
   });
 
-  it('keeps Cypher\'s work spot in front of his desk, clear of the chair', () => {
-    const { work } = ROBOT_SPOTS_M.cypher;
-    // 0.7 m north of the south desk's north edge (y = -1.7): close
-    // enough to read as "at his desk", far enough that the WIDE camera
-    // sees him over the desk monitors (at y = -1.5 a monitor
-    // blocked the view — ray-cast proved). Clear of the chair at (-1.0, -1.2).
-    expect(work.y).toBeGreaterThan(-1.7);
-    expect(Math.hypot(work.x - -1.0, work.y - -1.2)).toBeGreaterThanOrEqual(0.5);
-    expect(work.y).toBeLessThan(ROBOT_SPOTS_M.cypher.patrol.y);
+  it('keeps Cypher\'s work spot on the open floor, clear of the chair', () => {
+    // Enlarged SOC (2026-11-17): south of his chair, toward the cameras,
+    // at the start of the patrol, and well clear of the chair.
+    const { work, patrol } = ROBOT_SPOTS_M.cypher;
+    expect(work.y).toBeLessThan(SOC_CHAIR_M.y);
+    expect(Math.hypot(work.x - SOC_CHAIR_M.x, work.y - SOC_CHAIR_M.y)).toBeGreaterThanOrEqual(0.9);
+    expect(work).toEqual({ x: patrol.xMin, y: patrol.y });
   });
 
   it('keeps Cypher\'s patrol inside the desk room, clear of the chair and desks', () => {
     const { patrol } = ROBOT_SPOTS_M.cypher;
-    // Patrol runs north of the south desk (y > -1.7) and 0.85 m north of
-    // the chair at (-1.0, -1.2), starting east of it at x = -0.5.
-    expect(patrol.y).toBeGreaterThan(-1.7);
-    expect(patrol.y - (-1.2)).toBeCloseTo(0.85, 5);
-    expect(patrol.xMin).toBeGreaterThan(-0.9);
-    expect(patrol.xMax).toBeLessThan(2.0);
+    // Patrol runs south of the chair (toward the cameras), starting
+    // 1.05 m east of it, and never reaches the east wall.
+    expect(patrol.y).toBeLessThan(SOC_CHAIR_M.y - 0.5);
+    expect(patrol.xMin - SOC_CHAIR_M.x).toBeGreaterThanOrEqual(1.0);
+    expect(patrol.xMax).toBeLessThan(ROOMS_M.cypher.xMax - 1.0);
     expect(inRoomCheck(patrol.xMin, patrol.y)).toBe(true);
     expect(inRoomCheck(patrol.xMax, patrol.y)).toBe(true);
     function inRoomCheck(x, y) {
@@ -86,7 +84,7 @@ describe('rooms', () => {
     expect(chair.x).toBeLessThanOrEqual(room.xMax);
     expect(chair.y).toBeGreaterThanOrEqual(room.yMin);
     expect(chair.y).toBeLessThanOrEqual(room.yMax);
-    expect(chair.y).toBeGreaterThan(-1.7); // north of the south desk
+    expect(chair.y).toBeGreaterThan(-1.7); // the data center's chair, north of its south desk
     expect(chair.seatHeightM).toBeGreaterThan(0.4);
     expect(chair.seatHeightM).toBeLessThan(0.8);
   });
@@ -119,8 +117,8 @@ describe('socPositions', () => {
     const pos = socPositions();
     expect(Object.keys(pos).sort()).toEqual(['GUEST', 'PC1', 'R1', 'SRV']);
     // threeX = bx * 5, threeZ = -by * 5.
-    expect(pos.R1).toEqual({ x: 0, z: -11 });
-    expect(pos.PC1).toEqual({ x: 10, z: 7.5 });
+    expect(pos.R1).toEqual({ x: 0, z: -16.5 });
+    expect(pos.PC1).toEqual({ x: 15, z: 11.25 });
     expect(spotToScene({ x: 1, y: -1 })).toEqual({ x: ROOM_SCALE, z: ROOM_SCALE });
   });
 
@@ -147,7 +145,9 @@ describe('camera shots', () => {
     // the chair shifted 0.15 m west so he sits clear of the
     // near monitor at x -0.75 — still on the seat (0.63 m at x -1.2),
     // still in his room, at his desk.
-    expect(CYPHER_SEAT_M).toEqual({ x: CYPHER_CHAIR_M.x - 0.15, y: CYPHER_CHAIR_M.y });
+    // The SOC chair moved with the enlarged plan's desk group (2026-11-17).
+    expect(SOC_CHAIR_M).toEqual({ x: CYPHER_CHAIR_M.x - 0.6, y: CYPHER_CHAIR_M.y + 0.09, seatHeightM: 0.60 });
+    expect(CYPHER_SEAT_M).toEqual({ x: SOC_CHAIR_M.x - 0.15, y: SOC_CHAIR_M.y });
     const r = ROOMS_M.cypher;
     expect(CYPHER_SEAT_M.x).toBeGreaterThanOrEqual(r.xMin);
     expect(CYPHER_SEAT_M.x).toBeLessThanOrEqual(r.xMax);
@@ -315,10 +315,11 @@ describe('patrolX', () => {
   it('ping-pongs along the patrol at walking pace', () => {
     const { xMin, xMax } = ROBOT_SPOTS_M.cypher.patrol;
     expect(patrolX(0)).toBeCloseTo(xMin, 5);
-    // Span 1.7 m at 0.25 m/s: reaches the east end at 6.8 s, back west at 13.6 s.
-    expect(patrolX(6.8)).toBeCloseTo(xMax, 5);
-    expect(patrolX(13.6)).toBeCloseTo(xMin, 5);
-    expect(patrolX(3.4)).toBeCloseTo((xMin + xMax) / 2, 5);
+    // At 0.25 m/s: reaches the east end after span/0.25 s, back west after twice that.
+    const leg = (xMax - xMin) / 0.25;
+    expect(patrolX(leg)).toBeCloseTo(xMax, 5);
+    expect(patrolX(2 * leg)).toBeCloseTo(xMin, 5);
+    expect(patrolX(leg / 2)).toBeCloseTo((xMin + xMax) / 2, 5);
     // Always inside the patrol.
     for (let t = 0; t < 30; t += 0.37) {
       const x = patrolX(t);
