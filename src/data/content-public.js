@@ -1942,7 +1942,11 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "netacad",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-fundamentals-0",
@@ -1997,7 +2001,23 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "netacad",
+                "title": "Cisco Networking Academy free courses",
+                "url": "https://www.netacad.com/"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2007,7 +2027,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-static-0",
@@ -2062,7 +2085,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2072,7 +2106,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc2453",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-rip-0",
@@ -2127,7 +2164,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "beginner",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc2453",
+                "title": "RFC 2453 — RIP Version 2",
+                "url": "https://www.rfc-editor.org/rfc/rfc2453"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -2144,7 +2192,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc2328",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-ospf-0",
@@ -2204,7 +2255,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc2328",
+                "title": "RFC 2328 — OSPF Version 2",
+                "url": "https://www.rfc-editor.org/rfc/rfc2328"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2214,7 +2276,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc7868",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-eigrp-0",
@@ -2269,7 +2334,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc7868",
+                "title": "RFC 7868 — Cisco Enhanced Interior Gateway Routing Protocol (EIGRP)",
+                "url": "https://www.rfc-editor.org/rfc/rfc7868"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2279,7 +2355,9 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1195"
+            ],
             "cards": [
               {
                 "id": "rt-isis-0",
@@ -2334,7 +2412,13 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "intermediate",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1195",
+                "title": "RFC 1195 — Use of OSI IS-IS for Routing in TCP/IP and Dual Environments",
+                "url": "https://www.rfc-editor.org/rfc/rfc1195"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -2351,7 +2435,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc4271",
+              "rfc7454"
+            ],
             "cards": [
               {
                 "id": "rt-bgp-0",
@@ -2411,7 +2498,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc4271",
+                "title": "RFC 4271 — A Border Gateway Protocol 4 (BGP-4)",
+                "url": "https://www.rfc-editor.org/rfc/rfc4271"
+              },
+              {
+                "id": "rfc7454",
+                "title": "RFC 7454 — BGP Operations and Security",
+                "url": "https://www.rfc-editor.org/rfc/rfc7454"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2421,7 +2519,10 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "jitl"
+            ],
             "cards": [
               {
                 "id": "rt-redistribution-0",
@@ -2476,7 +2577,18 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2486,7 +2598,11 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc7454",
+              "rfc6811",
+              "manrs"
+            ],
             "cards": [
               {
                 "id": "rt-routing-security-0",
@@ -2541,7 +2657,23 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc7454",
+                "title": "RFC 7454 — BGP Operations and Security",
+                "url": "https://www.rfc-editor.org/rfc/rfc7454"
+              },
+              {
+                "id": "rfc6811",
+                "title": "RFC 6811 — BGP Prefix Origin Validation (RPKI)",
+                "url": "https://www.rfc-editor.org/rfc/rfc6811"
+              },
+              {
+                "id": "manrs",
+                "title": "MANRS — Mutually Agreed Norms for Routing Security",
+                "url": "https://manrs.org/"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -2551,7 +2683,11 @@ export const tracks = [
             "cissp": [
               4
             ],
-            "sources": [],
+            "sources": [
+              "rfc1812",
+              "jitl",
+              "wireshark"
+            ],
             "cards": [
               {
                 "id": "rt-routing-troubleshooting-0",
@@ -2606,7 +2742,23 @@ export const tracks = [
             ],
             "trackId": "routing",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "rfc1812",
+                "title": "RFC 1812 — Requirements for IP Version 4 Routers",
+                "url": "https://www.rfc-editor.org/rfc/rfc1812"
+              },
+              {
+                "id": "jitl",
+                "title": "Jeremy's IT Lab free CCNA course",
+                "url": "https://www.youtube.com/@JeremysITLab"
+              },
+              {
+                "id": "wireshark",
+                "title": "Wireshark User’s Guide",
+                "url": "https://www.wireshark.org/docs/wsug_html_chunked/"
+              }
+            ],
             "puzzles": []
           }
         ]
@@ -9124,6 +9276,11 @@ export const tracks = [
             "secplus": [
               1
             ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-207",
+              "nist-glossary"
+            ],
             "cards": [
               {
                 "id": "secplus-concepts-scenarios-0",
@@ -9253,7 +9410,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-207",
+                "title": "NIST SP 800-207 — Zero Trust Architecture",
+                "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+              },
+              {
+                "id": "nist-glossary",
+                "title": "NIST CSRC Glossary",
+                "url": "https://csrc.nist.gov/glossary"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9265,6 +9438,11 @@ export const tracks = [
             ],
             "secplus": [
               1
+            ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-57",
+              "nist-sp800-52"
             ],
             "cards": [
               {
@@ -9395,7 +9573,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-57",
+                "title": "NIST SP 800-57 Part 1 Rev. 5 — Recommendation for Key Management",
+                "url": "https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final"
+              },
+              {
+                "id": "nist-sp800-52",
+                "title": "NIST SP 800-52 Rev. 2 — Guidelines for TLS Implementations",
+                "url": "https://csrc.nist.gov/pubs/sp/800/52/r2/final"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9407,6 +9601,10 @@ export const tracks = [
             ],
             "secplus": [
               5
+            ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-30"
             ],
             "cards": [
               {
@@ -9522,7 +9720,18 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-30",
+                "title": "NIST SP 800-30 Rev. 1 — Guide for Conducting Risk Assessments",
+                "url": "https://csrc.nist.gov/pubs/sp/800/30/r1/final"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9535,6 +9744,11 @@ export const tracks = [
             ],
             "secplus": [
               5
+            ],
+            "sources": [
+              "comptia-sec",
+              "iso27001",
+              "nist-csf"
             ],
             "cards": [
               {
@@ -9650,7 +9864,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "iso27001",
+                "title": "ISO/IEC 27001 — Information security management systems",
+                "url": "https://www.iso.org/standard/27001"
+              },
+              {
+                "id": "nist-csf",
+                "title": "NIST Cybersecurity Framework 2.0",
+                "url": "https://www.nist.gov/cyberframework"
+              }
+            ],
             "puzzles": []
           },
           {
@@ -9662,6 +9892,11 @@ export const tracks = [
             ],
             "secplus": [
               5
+            ],
+            "sources": [
+              "comptia-sec",
+              "nist-sp800-161",
+              "nist-sp800-34"
             ],
             "cards": [
               {
@@ -9777,7 +10012,23 @@ export const tracks = [
             ],
             "trackId": "cyber",
             "tierId": "advanced",
-            "resources": [],
+            "resources": [
+              {
+                "id": "comptia-sec",
+                "title": "CompTIA Security+ exam objectives",
+                "url": "https://www.comptia.org/certifications/security"
+              },
+              {
+                "id": "nist-sp800-161",
+                "title": "NIST SP 800-161 Rev. 1 — Cybersecurity Supply Chain Risk Management",
+                "url": "https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final"
+              },
+              {
+                "id": "nist-sp800-34",
+                "title": "NIST SP 800-34 Rev. 1 — Contingency Planning Guide for Federal Information Systems",
+                "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+              }
+            ],
             "puzzles": []
           }
         ]

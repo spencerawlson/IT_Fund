@@ -1200,6 +1200,7 @@ export default {
         summary: 'Zero trust, control types, AAA, and physical controls in real decisions.',
         cissp: [1],
         secplus: [1],
+        sources: ['comptia-sec', 'nist-sp800-207', 'nist-glossary'],
         cards: [
           ['Your company still trusts anything inside the office network: no MFA on internal apps, flat VLANs, file shares open to everyone. The CEO asks where a zero-trust migration should start. What is the most defensible first move?', 'Strong identity everywhere first — MFA on every account and app, before touching the network', 'Identity is the new perimeter: without strong authentication, network segmentation just rearranges who the attacker impersonates. MFA kills the credential-reuse path that flat networks invite.', ['Rebuild the network into many VLANs first, since segmentation is the foundation of zero trust', 'Buy a NAC appliance and call it zero trust', 'Put a bigger firewall at the internet edge']],
           ['The branch office runs a ten-year-old time-clock system that cannot do MFA and cannot be patched. Finance will not fund a replacement this year. What is the most defensible approach?', 'Compensating controls: isolate it on its own segment, allow access only via jump host, and monitor it heavily', 'When the ideal control is impossible, compensating controls reduce the risk to an acceptable level: isolation plus monitoring contains what patching and MFA would have prevented.', ['Leave it on the main network, since it works and has never been attacked in ten years', 'Disconnect it and use paper timesheets', 'Open it to the internet for the vendor']],
@@ -1234,6 +1235,7 @@ export default {
         summary: 'Algorithm choices, certificate lifecycles, and key management under pressure.',
         cissp: [3],
         secplus: [1],
+        sources: ['comptia-sec', 'nist-sp800-57', 'nist-sp800-52'],
         cards: [
           ['Two services need to exchange large files securely over the internet. What is the most defensible design?', 'TLS 1.2+ with strong ciphersuites', 'Use proven protocols: TLS gives confidentiality, integrity, and authentication in one maintained standard. Custom crypto is where breaches are born.', ['A custom encryption protocol built by the team, so attackers cannot know how it works', 'Base64-encode the files before sending them', 'Plain FTP on a non-standard port']],
           ['The app stores passwords with unsalted SHA-256 \'because it is fast\'. What is the most defensible correction?', 'Switch to bcrypt, Argon2, or scrypt', 'Fast hashes are built for attackers: rainbow tables and GPUs chew through SHA-256. Password hashing must be deliberately slow and unique per password.', ['Keep SHA-256 but add one company-wide salt to every password before hashing it', 'Encrypt the passwords with AES instead', 'Move the hashes to a separate database table']],
@@ -1268,6 +1270,7 @@ export default {
         summary: 'ALE math, risk treatments, and ownership in business decisions.',
         cissp: [1],
         secplus: [5],
+        sources: ['comptia-sec', 'nist-sp800-30'],
         cards: [
           ['A flood scenario has an SLE of $200,000 and an ARO of 0.3. A $40,000 control would cut the ALE to $10,000. What is the most defensible decision?', 'Buy it: the ALE is $60,000 and the control saves $50,000 a year for $40,000', 'ALE = SLE × ARO = $60,000. A control is justified when its cost is below the ALE reduction ($50,000) — the math decides, not the sticker price.', ['Do not buy it: $40,000 is more than the $10,000 ALE that would remain after the control', 'Buy every control without doing the maths', 'Ignore ALE as theoretical']],
           ['The board wants risk \'in dollars\' but the team only has a red-yellow-green matrix. What is the most defensible approach?', 'Quantitative analysis for the board decision while keeping qualitative triage for speed', 'Quantitative speaks the board\'s language — dollars and probabilities; qualitative is faster for prioritization. Use each where it fits.', ['Convert each colour to a fixed dollar figure, so red is $1M, yellow $100k and green $10k', 'The matrix is enough for the board', 'Skip quantitative analysis as too hard']],
@@ -1299,6 +1302,7 @@ export default {
         summary: 'Policies, audits, regulations, and privacy in real situations.',
         cissp: [1, 6],
         secplus: [5],
+        sources: ['comptia-sec', 'iso27001', 'nist-csf'],
         cards: [
           ['The CISO must document the encryption requirement, the approved algorithms, and the key-generation steps. What is the most defensible document split?', 'Policy states the requirement, the standard names AES-256, the procedure gives the key-generation steps', 'Policy (what and why, executive-approved), standard (the specific rule), procedure (the how-to steps) — each has a different author and audience.', ['One comprehensive policy that holds the requirement, the approved algorithms and the key-generation steps together', 'Skip the procedure; engineers know the steps', 'Make the standard optional guidance']],
           ['Enterprise customers demand independent assurance before signing. What is the most defensible audit to commission?', 'An external audit, which gives independent attestation to relying parties', 'External audits serve outsiders: independence is the point. Internal audit serves management readiness.', ['An internal audit, since it is cheaper and the internal audit team already knows the systems well', 'A self-attestation questionnaire', 'Any audit; they all give the same assurance']],
@@ -1330,6 +1334,7 @@ export default {
         summary: 'Vendor assessment, contracts, and exit strategies that work.',
         cissp: [1],
         secplus: [5],
+        sources: ['comptia-sec', 'nist-sp800-161', 'nist-sp800-34'],
         cards: [
           ['A new vendor will process customer data. What is the most defensible onboarding gate?', 'A completed security assessment — SOC 2 Type II or equivalent evidence — before signing', 'Trust but verify before the contract: assess the vendor\'s security posture while you still have leverage, not after the data flows.', ['Sign the contract now and complete the security assessment in the first quarter of the relationship', 'Rely on the impressive sales demo', 'Treat all vendors as equally risky']],
           ['The vendor proudly shows a clean SOC 2 opinion letter. What is the most defensible review?', 'Read the full report: scope, period, exceptions and complementary user controls', 'The opinion letter is the headline; the exceptions and scope are the story. A clean opinion on someone else\'s systems helps you not at all.', ['Accept the opinion letter, since a clean opinion means the auditor found no issues anywhere', 'SOC 2 covers every service automatically', 'Opinions never have exceptions']],

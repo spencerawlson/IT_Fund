@@ -16,7 +16,7 @@ export default {
         title: 'Routing Fundamentals',
         summary: 'Forwarding decisions, the routing table, administrative distance and metrics.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc1812', 'netacad', 'jitl'],
         cards: [
           ['What does a router use to choose where to forward a packet?', 'Its routing table (the forwarding/FIB)', 'The router matches the destination IP against its table and forwards out the best path.', ['Its ARP cache', 'The MAC address table mapping hosts to switch ports', 'The DNS cache']],
           ['When several routes match a destination, which one is used?', 'The route with the longest prefix match', 'The most specific prefix (largest mask) wins, regardless of protocol or metric.', ['The route with the lowest metric', 'The oldest route', 'The route with the highest metric']],
@@ -35,7 +35,7 @@ export default {
         title: 'Static & Default Routing',
         summary: 'Static routes, default routes, floating static and recursive routes.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc1812', 'jitl'],
         cards: [
           ['What is a static route?', 'A route configured manually by an administrator', 'It does not adapt to topology changes unless you change it, but it is predictable and cheap.', ['A route learned from a neighboring router through a dynamic routing protocol', 'A route to a directly connected network', 'A route chosen by DUAL']],
           ['What destination does a default route match?', '0.0.0.0/0 — any destination not matched by a more specific route', 'The "gateway of last resort" sends unknown traffic toward the internet or a core.', ['Only 127.0.0.0/8', 'Only private addresses in the RFC 1918 ranges that never leave the local network', 'Only the local subnet']],
@@ -54,7 +54,7 @@ export default {
         title: 'RIP: Distance-Vector Routing',
         summary: 'Hop count, the 15-hop limit, timers and loop-prevention mechanisms.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc2453', 'jitl'],
         cards: [
           ['What metric does RIP use?', 'Hop count', 'Each router counts as one hop; the lowest hop count wins, ignoring bandwidth.', ['Bandwidth and delay', 'OSPF cost', 'Latency']],
           ['What is RIP\'s maximum usable hop count?', '15 (16 means unreachable)', 'The low limit prevents count-to-infinity but also limits network size.', ['255', '100', '16 is reachable']],
@@ -75,7 +75,7 @@ export default {
         title: 'OSPF: Link-State Routing',
         summary: 'Neighbors and adjacencies, LSAs and the LSDB, SPF, areas, and DR/BDR.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc2328', 'jitl'],
         cards: [
           ['What kind of routing protocol is OSPF?', 'Link-state', 'Every router builds an identical map (the LSDB) and runs SPF to compute its own shortest-path tree.', ['Distance-vector', 'Path-vector', 'Static']],
           ['What algorithm does OSPF run to pick best paths?', 'Dijkstra\'s shortest path first (SPF)', 'SPF runs against the link-state database to find the lowest-cost path to each prefix.', ['Bellman-Ford, the distance-vector algorithm RIP and EIGRP rely on', 'DUAL', 'Spanning tree']],
@@ -95,7 +95,7 @@ export default {
         title: 'EIGRP & DUAL',
         summary: 'Successors and feasible successors, the composite metric, and fast reconvergence.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc7868', 'jitl'],
         cards: [
           ['What algorithm gives EIGRP loop-free, fast reconvergence?', 'DUAL (Diffusing Update Algorithm)', 'DUAL precomputes backup paths so failover can be near-instant.', ['Dijkstra', 'Bellman-Ford', 'Spanning tree']],
           ['What is a successor in EIGRP?', 'The primary (best) route to a destination, installed in the table', 'It has the lowest feasible distance to the prefix.', ['A backup route kept ready in case the primary path to the destination fails', 'A neighbor router', 'An external route']],
@@ -114,7 +114,7 @@ export default {
         title: 'IS-IS',
         summary: 'Levels, NET addressing, LSPs and why service providers use it.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc1195'],
         cards: [
           ['What type of protocol is IS-IS?', 'Link-state (like OSPF)', 'It floods link-state PDUs (LSPs) and runs SPF, but operates directly over Layer 2 (CLNS), not IP.', ['Distance-vector', 'Path-vector', 'Static']],
           ['What is a Level 1 IS-IS router?', 'An intra-area router (routes within its own area)', 'Level 2 routers form the backbone between areas; L1/L2 routers do both (like an OSPF ABR).', ['A backbone-only router that carries traffic between areas but never inside one', 'An external router', 'A stub host']],
@@ -135,7 +135,7 @@ export default {
         title: 'BGP: Path-Vector Routing',
         summary: 'Autonomous systems, eBGP vs iBGP, attributes and path selection.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc4271', 'rfc7454'],
         cards: [
           ['What is BGP\'s job?', 'Routing between autonomous systems (the internet\'s inter-domain protocol)', 'BGP exchanges reachability (NLRI) and path attributes between ASes, not interior best-cost paths.', ['Routing inside one area', 'Switching frames', 'Assigning IP addresses']],
           ['What is an Autonomous System (AS)?', 'A network under one administrative/routing policy, identified by an ASN', 'eBGP runs between ASNs; iBGP runs within one ASN.', ['A single router running BGP entirely on its own, with no neighboring peers at all', 'A VLAN', 'A subnet']],
@@ -155,7 +155,7 @@ export default {
         title: 'Route Redistribution',
         summary: 'Moving routes between protocols: seed metrics, tagging, filtering and loop risks.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc1812', 'jitl'],
         cards: [
           ['What is route redistribution?', 'Injecting routes learned by one routing protocol into another', 'E.g. advertising OSPF routes into EIGRP so both domains reach each other.', ['Summarizing routes into larger aggregates to shrink the routing table', 'Encrypting routes', 'Load-balancing routes']],
           ['Why must you set a seed (default) metric when redistributing?', 'Metrics are not comparable between protocols', 'OSPF cost means nothing to EIGRP, so you supply a starting metric for the injected routes.', ['To encrypt the routes so neighbors cannot read the redistributed prefixes', 'To shorten the AS path', 'To elect a DR']],
@@ -174,7 +174,7 @@ export default {
         title: 'Routing Security',
         summary: 'Rogue routers, route/prefix hijacking, authentication, filtering and RPKI.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc7454', 'rfc6811', 'manrs'],
         cards: [
           ['What is a rogue router threat?', 'An unauthorized device forming routing adjacencies and injecting routes', 'It can blackhole, reroute or capture traffic. Authenticate neighbors and use passive interfaces.', ['A router with high CPU because it is processing too many routing updates at once', 'A misconfigured VLAN', 'A duplicate IP only']],
           ['What is BGP prefix hijacking?', 'An AS announcing IP prefixes it does not own', 'Traffic to those prefixes is drawn to the attacker; the 2008 YouTube/Pakistan incident is the classic example.', ['Flooding OSPF LSAs', 'A RIP timer expiring', 'An MTU mismatch']],
@@ -193,7 +193,7 @@ export default {
         title: 'Routing Troubleshooting',
         summary: 'A methodical approach and the show/ping/traceroute commands that back it.',
         cissp: [4],
-        sources: [],
+        sources: ['rfc1812', 'jitl', 'wireshark'],
         cards: [
           ['First question when a destination is unreachable?', 'Is there a matching route in the routing table?', 'show ip route <dest> tells you whether and how the router would forward the packet.', ['Is the cable new, or has it been damaged since the link last worked?', 'Is DNS working?', 'Is the firewall logging?']],
           ['Which command shows the live routing table?', 'show ip route', 'show ipv6 route for IPv6. Read the code (C/S/O/D/B) to see how each route was learned.', ['show running-config', 'show interfaces', 'show cdp neighbors']],

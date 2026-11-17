@@ -18,7 +18,7 @@ const BASELINE = {
   'card-colon-restatement': 0,
   'lesson-no-examples': 159,
   'cross-track-duplicate-reworded': 47,
-  'deck-no-sources': 15,
+  'deck-no-sources': 0,
   'near-duplicate-question': 7,
   'duplicate-question': 1,
 };
