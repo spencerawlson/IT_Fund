@@ -148,6 +148,7 @@ export default {
         id: 'sql-transactions-security',
         title: 'Transactions, Views & Security',
         summary: 'ACID, views, window functions, and injection defence.',
+        cissp: [8],
         sources: ['mode-sql', 'use-the-index'],
         cards: [
           ['What is a transaction?', 'A group of statements that succeed or fail as a single unit', 'BEGIN ... COMMIT; or ROLLBACK to undo.', ['A single query, running entirely alone with nothing else grouped around it', 'A stored procedure', 'A backup']],

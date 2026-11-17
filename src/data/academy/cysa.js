@@ -1,12 +1,12 @@
 // Card format: [question, answer, explanation?, wrongOptions?] (see python.js).
-// Mapped to CompTIA CySA+ CS0-003: 1.0 Security Operations (33%), 2.0 Vulnerability
-// Management (30%), 3.0 Incident Response and Management (20%), 4.0 Reporting and
-// Communication (17%).
+// Mapped to CompTIA CySA+ CS0-004 (V4): 1.0 Security Operations (34%), 2.0 Vulnerability
+// Management (26%), 3.0 Incident Response and Management (24%), 4.0 Reporting and
+// Communication (16%). CS0-003 had the same four domains at 33/30/20/17.
 
 export default {
   id: 'cysa',
   title: 'CySA+',
-  tagline: 'SOC analyst skills: detection, vulnerability management, and incident response, aligned to CS0-003.',
+  tagline: 'SOC analyst skills: detection, vulnerability management, and incident response, aligned to CS0-004.',
   icon: 'Radar',
   color: '#8B5CF6',
   tiers: {
@@ -46,7 +46,7 @@ export default {
         title: 'Vulnerability Scanning Basics',
         summary: 'Scan types, CVSS fundamentals, and remediation concepts. (Domain 2.0)',
         cysa: [2],
-        cissp: [7],
+        cissp: [6, 7],
         sources: ['comptia-cysa'],
         cards: [
           ['What is vulnerability scanning?', 'Automated discovery of known weaknesses in systems', 'It finds flaws; penetration testing exploits them to prove impact.', ['Exploiting systems for access, breaking in through known weaknesses to prove they work', 'Encrypting vulnerable data', 'Blocking malicious IPs']],
@@ -138,7 +138,7 @@ export default {
         title: 'Vulnerability Prioritization & Response',
         summary: 'EPSS, KEV, risk-based prioritization, and remediation workflows. (Domain 2.0)',
         cysa: [2],
-        cissp: [7],
+        cissp: [7, 6],
         sources: ['comptia-cysa'],
         cards: [
           ['What is EPSS?', 'The Exploit Prediction Scoring System: the estimated probability a vulnerability will be exploited in the next 30 days', 'Prioritize high-EPSS flaws over high-CVSS flaws with no exploit activity.', ['An encryption standard', 'A firewall vendor', 'A backup protocol']],
@@ -200,7 +200,7 @@ export default {
         title: 'Attack Frameworks & Threat-Informed Defense',
         summary: 'MITRE ATT&CK, the cyber kill chain, and the diamond model. (Domain 3.0)',
         cysa: [3],
-        cissp: [7],
+        cissp: [1, 7],
         sources: ['comptia-cysa'],
         cards: [
           ['What is MITRE ATT&CK?', 'A knowledge base of adversary tactics, techniques, and procedures', 'Analysts map detections and incidents to its technique IDs.', ['A firewall product', 'An antivirus engine', 'A compliance law']],

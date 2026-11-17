@@ -1,4 +1,4 @@
-// Reading content for the CySA+ (CS0-003) track (src/data/academy/cysa.js).
+// Reading content for the CySA+ (CS0-004) track (src/data/academy/cysa.js).
 // Keyed by deck id. Professional voice — narrative, precise, confident.
 
 export default {

@@ -1,7 +1,7 @@
 // Card format: [question, answer, explanation?, wrongOptions?] (see python.js).
-// AWS Certified Security - Specialty (SCS-C02): 1.0 Threat Detection & IR (14%),
-// 2.0 Logging & Monitoring (18%), 3.0 Infrastructure Security (20%),
-// 4.0 IAM (16%), 5.0 Data Protection (18%), 6.0 Governance (14%).
+// AWS Certified Security - Specialty (SCS-C03): 1 Detection (16%), 2 Incident
+// Response (14%), 3 Infrastructure Security (18%), 4 IAM (20%),
+// 5 Data Protection (18%), 6 Security Foundations and Governance (14%).
 
 export default {
   id: 'aws-security',
@@ -37,7 +37,7 @@ export default {
         id: 'awss-logging',
         title: 'Security Logging Foundations',
         summary: 'CloudTrail, CloudWatch Logs, metrics, and alarms. (Domain 2.0)',
-        awss: [2],
+        awss: [1],
         cissp: [7],
         sources: ['aws-scs'],
         cards: [
@@ -87,7 +87,7 @@ export default {
         id: 'awss-incident-response',
         title: 'Incident Response Playbooks',
         summary: 'Detective, containment, eradication, and recovery in AWS. (Domain 1.0)',
-        awss: [1],
+        awss: [2],
         cissp: [7],
         sources: ['aws-scs'],
         cards: [
@@ -109,7 +109,7 @@ export default {
         id: 'awss-monitor-analyze',
         title: 'Monitoring and Log Analysis',
         summary: 'Config, Flow Logs, Athena, and centralised analysis. (Domain 2.0)',
-        awss: [2],
+        awss: [1],
         cissp: [7],
         sources: ['aws-scs'],
         cards: [
@@ -273,7 +273,7 @@ export default {
           ['Why separate the management account from all workloads?', 'A compromised workload can never reach billing, Organizations, or SCP controls', 'The most privileged account does the least.', ['It saves money', 'It is required for SSO, since single sign-on only works with a separate management account', 'Workloads run faster elsewhere']],
           ['What is drift detection in CloudFormation and why does it matter for governance?', 'It identifies resources changed outside IaC so compliance state matches the approved template', 'ClickOps undermines every guardrail; detect it.', ['It encrypts templates', 'It deletes stacks', 'It is only for billing']],
           ['How should security findings be routed to the right team automatically?', 'Security Hub custom insights plus EventBridge rules routing by account, severity, and resource tags', 'Findings die in inboxes; route them to owners.', ['Email everything to one DL, sending every finding to a single shared inbox for triage, with no routing by team or severity', 'Check the console daily', 'Ignore low severity']],
-          ['What is the minimum audit trail an SCS-C02 architect should design for?', 'Org-wide CloudTrail with validation to a locked log archive, Config recording everywhere', 'You cannot investigate what you did not record.', ['CloudTrail in one region', 'No Config needed', '30 days is enough, keeping a month of logs to satisfy any auditor’s request, however far back they ask']],
+          ['What is the minimum audit trail an SCS-C03 architect should design for?', 'Org-wide CloudTrail with validation to a locked log archive, Config recording everywhere', 'You cannot investigate what you did not record.', ['CloudTrail in one region', 'No Config needed', '30 days is enough, keeping a month of logs to satisfy any auditor’s request, however far back they ask']],
         ],
       },
     ],

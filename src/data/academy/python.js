@@ -74,7 +74,6 @@ export default {
         id: 'py-files-errors',
         title: 'Files, Errors & Modules',
         summary: 'Reading/writing files, exceptions, imports, and virtual environments.',
-        cissp: [7],
         sources: ['automate', 'py-tutorial', 'realpython'],
         cards: [
           ['Why open files with `with open(path) as f:`?', 'The file is closed automatically, even on error', 'with uses a context manager that guarantees cleanup.', ['It reads faster', 'It locks the file for other users', 'It is required for text files']],
@@ -113,7 +112,6 @@ export default {
         id: 'py-automation',
         title: 'Automation & APIs',
         summary: 'Scripting the OS, HTTP APIs, regex, and CSV/log parsing.',
-        cissp: [7],
         sources: ['automate', 'realpython'],
         cards: [
           ['Which third-party library is the de facto standard for HTTP requests?', 'requests', 'requests.get(url, timeout=5).json(). Always set a timeout.', ['urllib3 only', 'httpd', 'socketserver']],

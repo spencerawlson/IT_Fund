@@ -4,8 +4,8 @@
 export default {
   'awss-threat-detect': {
     overview: [
-      'Threat detection in AWS is not one service but a layered system: something that finds the threats, something that collects the findings, something that protects the data those threats target, and something that reconstructs the story after the fact. On SCS-C02, those roles are played by GuardDuty, Security Hub, Macie, and Detective, and the exam expects you to know exactly which one answers which question.',
-      'This lesson covers the detection layer end to end: how GuardDuty finds compromise without agents, how Security Hub normalises and prioritises everything into one console, how Macie classifies the sensitive data worth stealing, and how Detective turns scattered findings into an investigation timeline. (SCS-C02 Domain 1.0: Threat Detection and Incident Response.)',
+      'Threat detection in AWS is not one service but a layered system: something that finds the threats, something that collects the findings, something that protects the data those threats target, and something that reconstructs the story after the fact. On SCS-C03, those roles are played by GuardDuty, Security Hub, Macie, and Detective, and the exam expects you to know exactly which one answers which question.',
+      'This lesson covers the detection layer end to end: how GuardDuty finds compromise without agents, how Security Hub normalises and prioritises everything into one console, how Macie classifies the sensitive data worth stealing, and how Detective turns scattered findings into an investigation timeline. (SCS-C03 Domain 1: Detection.)',
     ],
     learn: [
       {
@@ -51,7 +51,7 @@ export default {
   'awss-logging': {
     overview: [
       'You cannot secure what you cannot see, and in AWS, visibility is a design decision. CloudTrail, CloudWatch Logs, and VPC Flow Logs each record a different slice of reality — API activity, application and system logs, network metadata — and the security architect\'s job is to make sure every slice is collected, tamper-evident, centralised, and queryable when an incident demands it.',
-      'This lesson covers the logging foundations the exam builds everything on: management versus data events, organization trails, log file validation, CloudTrail Lake and Athena for analysis, CloudWatch metric filters and alarms, and the immutable log archive that makes the whole edifice trustworthy. (SCS-C02 Domain 2.0: Logging and Monitoring.)',
+      'This lesson covers the logging foundations the exam builds everything on: management versus data events, organization trails, log file validation, CloudTrail Lake and Athena for analysis, CloudWatch metric filters and alarms, and the immutable log archive that makes the whole edifice trustworthy. (SCS-C03 Domain 1: Detection.)',
     ],
     learn: [
       {
@@ -96,7 +96,7 @@ export default {
   'awss-iam-foundations': {
     overview: [
       'Identity is the primary security boundary in AWS. There is no corporate firewall that matters more than the question of who — or what — is allowed to call which API on which resource. Every breach story in the cloud eventually resolves to an identity question: a key that should not have existed, a policy broader than the job required, a role assumed from somewhere it should never have been.',
-      'This lesson builds the IAM mental model the specialty exam assumes you already own: policy evaluation order, roles versus long-lived keys, identity versus resource policies, MFA, and the hygiene practices — credential reports, policy simulation, least privilege — that keep the identity plane clean. (SCS-C02 Domain 4.0: Identity and Access Management.)',
+      'This lesson builds the IAM mental model the specialty exam assumes you already own: policy evaluation order, roles versus long-lived keys, identity versus resource policies, MFA, and the hygiene practices — credential reports, policy simulation, least privilege — that keep the identity plane clean. (SCS-C03 Domain 4: Identity and Access Management.)',
     ],
     learn: [
       {
@@ -133,7 +133,7 @@ export default {
   'awss-incident-response': {
     overview: [
       'Incident response in AWS rewards preparation and punishes improvisation. The platform gives you extraordinary leverage — snapshots in seconds, automation that isolates hosts faster than any human, logs centralised by architecture — but only if the runbooks, roles, and forensic accounts exist before the alert fires. The exam tests whether you would reach for the right building blocks in the right order.',
-      'This lesson covers the AWS IR playbook: the correct order of operations, forensic preservation with EBS snapshots, session revocation that actually works, EventBridge-driven automated containment, and the rehearsal discipline that makes it all real. (SCS-C02 Domain 1.0: Threat Detection and Incident Response.)',
+      'This lesson covers the AWS IR playbook: the correct order of operations, forensic preservation with EBS snapshots, session revocation that actually works, EventBridge-driven automated containment, and the rehearsal discipline that makes it all real. (SCS-C03 Domain 2: Incident Response.)',
     ],
     learn: [
       {
@@ -171,7 +171,7 @@ export default {
   'awss-monitor-analyze': {
     overview: [
       'Logging collects the evidence; monitoring turns it into judgement. This is the detective-control layer of the security program: continuously evaluating whether resources are configured the way policy demands, analysing network and API data at a scale no human can read raw, and surfacing the drift between "approved" and "actual" before an attacker exploits it.',
-      'This lesson covers the monitoring toolkit: AWS Config and its rules, conformance packs, and aggregators; large-scale log analysis with Athena and CloudTrail Lake; and the EventBridge wiring that turns a compliance change into a notification or an automatic fix. (SCS-C02 Domain 2.0: Logging and Monitoring.)',
+      'This lesson covers the monitoring toolkit: AWS Config and its rules, conformance packs, and aggregators; large-scale log analysis with Athena and CloudTrail Lake; and the EventBridge wiring that turns a compliance change into a notification or an automatic fix. (SCS-C03 Domain 1: Detection.)',
     ],
     learn: [
       {
@@ -209,7 +209,7 @@ export default {
   'awss-network-security': {
     overview: [
       'Network security in AWS is a stack of overlapping controls, and the exam tests whether you know which layer answers which threat. Security groups guard instances, NACLs guard subnets, WAF guards web applications, Shield guards against DDoS, and account boundaries guard everything. Misplace a control — expecting WAF to stop a volumetric flood, or a NACL to behave like a security group — and the architecture fails where it matters.',
-      'This lesson maps the network security stack: stateful versus stateless filtering, three-tier VPC design, private connectivity through endpoints, Layer 7 protection with WAF, DDoS with Shield, and why multi-account structure is itself a network security decision. (SCS-C02 Domain 3.0: Infrastructure Security.)',
+      'This lesson maps the network security stack: stateful versus stateless filtering, three-tier VPC design, private connectivity through endpoints, Layer 7 protection with WAF, DDoS with Shield, and why multi-account structure is itself a network security decision. (SCS-C03 Domain 3: Infrastructure Security.)',
     ],
     learn: [
       {
@@ -247,7 +247,7 @@ export default {
   'awss-iam-advanced': {
     overview: [
       'Foundational IAM answers "who can do what." Advanced IAM answers the harder questions: how do you bound what an entire account may do, delegate administration without delegating the keys to the kingdom, trust identities from outside your organization, and eliminate long-lived credentials from machines that were never meant to hold them.',
-      'This lesson covers the specialty-level IAM toolkit: Service Control Policies, permission boundaries, cross-account roles and the confused deputy problem, Cognito, IAM Identity Center, and OIDC federation for workloads. (SCS-C02 Domain 4.0: Identity and Access Management.)',
+      'This lesson covers the specialty-level IAM toolkit: Service Control Policies, permission boundaries, cross-account roles and the confused deputy problem, Cognito, IAM Identity Center, and OIDC federation for workloads. (SCS-C03 Domain 4: Identity and Access Management.)',
     ],
     learn: [
       {
@@ -285,7 +285,7 @@ export default {
   'awss-data-protection': {
     overview: [
       'Data protection is the domain where the exam is most unforgiving, because the distinctions are precise and the wrong choice fails silently. SSE-S3 versus SSE-KMS is not a trivia question — it determines whether every decryption is logged with an identity attached. A key policy is not just another policy — for KMS it is the primary gate, and misunderstanding that breaks cross-account architectures.',
-      'This lesson covers the encryption and secrets toolkit in full: KMS key types and policies, envelope encryption, the SSE family, CloudHSM, certificate management with ACM, Secrets Manager, and the data-discovery loop with Macie. (SCS-C02 Domain 5.0: Data Protection.)',
+      'This lesson covers the encryption and secrets toolkit in full: KMS key types and policies, envelope encryption, the SSE family, CloudHSM, certificate management with ACM, Secrets Manager, and the data-discovery loop with Macie. (SCS-C03 Domain 5: Data Protection.)',
     ],
     learn: [
       {
@@ -323,7 +323,7 @@ export default {
   'awss-secure-compute': {
     overview: [
       'Compute is where vulnerabilities become breaches. An unpatched library, an instance reachable over SSH from the internet, a metadata service that hands out credentials too freely — each is a small misconfiguration until an attacker assembles them into a path. The specialty exam treats workload hardening as a discipline with specific AWS tools, not general advice.',
-      'This lesson covers the compute security toolkit: Inspector for vulnerability assessment, Systems Manager for patching and keyless access, IMDSv2 enforcement and the breach that made it famous, EKS and Lambda hardening, and the golden-image pipeline that makes secure the default. (SCS-C02 Domain 3.0: Infrastructure Security.)',
+      'This lesson covers the compute security toolkit: Inspector for vulnerability assessment, Systems Manager for patching and keyless access, IMDSv2 enforcement and the breach that made it famous, EKS and Lambda hardening, and the golden-image pipeline that makes secure the default. (SCS-C03 Domain 3: Infrastructure Security.)',
     ],
     learn: [
       {
@@ -361,7 +361,7 @@ export default {
   'awss-governance': {
     overview: [
       'Security at the scale of one account is a checklist. Security at the scale of a hundred accounts is a system of government: who may create accounts, what guardrails apply automatically, where the audit trail lives, and how you prove any of it to a regulator. The specialty exam treats governance as architecture, not paperwork.',
-      'This lesson covers governing AWS at scale: the multi-account structure, the management account\'s austere role, Control Tower guardrails, delegated administration, continuous compliance with Config, and the audit evidence pipeline. (SCS-C02 Domain 6.0: Governance.)',
+      'This lesson covers governing AWS at scale: the multi-account structure, the management account\'s austere role, Control Tower guardrails, delegated administration, continuous compliance with Config, and the audit evidence pipeline. (SCS-C03 Domain 6: Security Foundations and Governance.)',
     ],
     learn: [
       {
@@ -378,7 +378,7 @@ export default {
           'Compliance at scale is continuous or it is fiction. Deploy Config conformance packs — the CIS benchmark pack, for example — across the organization through a Config aggregator, and non-compliant resources plus their history become exportable evidence. Continuous evidence beats point-in-time screenshots, and it is what auditors actually want: proof that the control held every day, not just on assessment day.',
           'AWS Audit Manager turns Config and CloudTrail data into auditor-ready reports mapped to frameworks like CIS, PCI, and HIPAA. AWS Artifact supplies the other half of due diligence: on-demand third-party audit reports — SOC 2, ISO 27001 — proving AWS\'s own controls without auditing the provider yourself.',
           'Governance needs a written baseline to automate against: the required SCPs, Config rules, logging destinations, encryption defaults, and network patterns, codified and enforced rather than documented and hoped for. A tagging strategy belongs in that baseline and enforced by policy, because SCPs, Config rules, cost allocation, and finding routing all key off consistent tags — untagged resources escape governance entirely.',
-          'During an incident, the architecture pays for itself: cross-account CloudTrail is queried from the log archive account with Athena or CloudTrail Lake over the centralised bucket — one query surface for every account. Findings route automatically through Security Hub custom insights and EventBridge rules, directed by account, severity, and resource tags to the owning team\'s channel. And the minimum audit trail an SCS-C02 architect should design for is explicit: organization-wide CloudTrail with log validation to a locked archive, Config recording everywhere, and at least a year of retention. You cannot investigate what you did not record.',
+          'During an incident, the architecture pays for itself: cross-account CloudTrail is queried from the log archive account with Athena or CloudTrail Lake over the centralised bucket — one query surface for every account. Findings route automatically through Security Hub custom insights and EventBridge rules, directed by account, severity, and resource tags to the owning team\'s channel. And the minimum audit trail an SCS-C03 architect should design for is explicit: organization-wide CloudTrail with log validation to a locked archive, Config recording everywhere, and at least a year of retention. You cannot investigate what you did not record.',
         ],
       },
     ],

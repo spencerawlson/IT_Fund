@@ -18,11 +18,47 @@ export const EXAM_OUTLINES = {
   },
   secplus: {
     exam: 'Security+ SY0-701',
-    outline: 'SY0-701 exam objectives',
+    outline: 'SY0-701 exam objectives (V8 / SY0-801 launches 17 November 2026 with reweighted domains)',
     validUntil: '2027-06-11',
-    source: 'https://www.comptia.org/certifications/security',
+    source: 'https://www.comptia.org/en-us/certifications/security/',
+  },
+  saa: {
+    exam: 'AWS Solutions Architect – Associate SAA-C03',
+    outline: 'SAA-C03 exam guide (no retirement announced as of 2026-11-16)',
+    validUntil: null,
+    reviewBy: '2027-05-16',
+    source: 'https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html',
+  },
+  cysa: {
+    exam: 'CompTIA CySA+ CS0-004',
+    outline: 'CySA+ V4 exam objectives (launched 23 June 2026)',
+    validUntil: null,
+    reviewBy: '2027-05-16',
+    source: 'https://www.comptia.org/en-us/certifications/cybersecurity-analyst/v4/',
+  },
+  awss: {
+    exam: 'AWS Security – Specialty SCS-C03',
+    outline: 'SCS-C03 exam guide (replaced SCS-C02, December 2025)',
+    validUntil: null,
+    reviewBy: '2027-05-16',
+    source: 'https://docs.aws.amazon.com/aws-certification/latest/security-specialty-03/security-specialty-03.html',
   },
 };
+
+// ISC2 CISSP outline effective 15 April 2027: same eight domains, Domain 1
+// renamed, reweighted. Read from the official outline PDF linked on
+// https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline
+// on 2026-11-16. Make this CISSP_DOMAINS on 2027-04-15.
+export const CISSP_DOMAINS_2027 = [
+  { id: 1, title: 'Security Governance and Risk Management', weight: 13.6 },
+  { id: 2, title: 'Asset Security', weight: 12 },
+  { id: 3, title: 'Security Architecture and Engineering', weight: 12.8 },
+  { id: 4, title: 'Communication and Network Security', weight: 12.8 },
+  { id: 5, title: 'Identity and Access Management (IAM)', weight: 13.6 },
+  { id: 6, title: 'Security Assessment and Testing', weight: 11.2 },
+  { id: 7, title: 'Security Operations', weight: 12.8 },
+  { id: 8, title: 'Software Development Security', weight: 11.2 },
+];
 
 // ISC2 CISSP exam outline, effective 15 April 2024 (see EXAM_OUTLINES).
 export const CISSP_DOMAINS = [
@@ -54,22 +90,25 @@ export const SAA_DOMAINS = [
   { id: 4, title: 'Design Cost-Optimized Architectures', weight: 20, color: '#F59E0B' },
 ];
 
-// CompTIA CySA+ CS0-003 exam objectives.
+// CompTIA CySA+ V4 (CS0-004, launched 23 June 2026) exam objectives summary.
+// CS0-003 used the same four domains at 33/30/20/17 and retires (English) on
+// 22 December 2026: https://www.comptia.org/en-us/certifications/cybersecurity-analyst/v4/
 export const CYSA_DOMAINS = [
-  { id: 1, title: 'Security Operations', weight: 33, color: '#8B5CF6' },
-  { id: 2, title: 'Vulnerability Management', weight: 30, color: '#F59E0B' },
-  { id: 3, title: 'Incident Response and Management', weight: 20, color: '#EF4444' },
-  { id: 4, title: 'Reporting and Communication', weight: 17, color: '#3B82F6' },
+  { id: 1, title: 'Security Operations', weight: 34, color: '#8B5CF6' },
+  { id: 2, title: 'Vulnerability Management', weight: 26, color: '#F59E0B' },
+  { id: 3, title: 'Incident Response and Management', weight: 24, color: '#EF4444' },
+  { id: 4, title: 'Reporting and Communication', weight: 16, color: '#3B82F6' },
 ];
 
-// AWS Certified Security – Specialty (SCS-C02) exam guide.
+// AWS Certified Security – Specialty (SCS-C03) exam guide (replaced SCS-C02 in
+// December 2025): https://docs.aws.amazon.com/aws-certification/latest/security-specialty-03/security-specialty-03.html
 export const AWS_SECURITY_DOMAINS = [
-  { id: 1, title: 'Threat Detection and Incident Response', weight: 14, color: '#EF4444' },
-  { id: 2, title: 'Security Logging and Monitoring', weight: 18, color: '#F59E0B' },
-  { id: 3, title: 'Infrastructure Security', weight: 20, color: '#3B82F6' },
-  { id: 4, title: 'Identity and Access Management', weight: 16, color: '#14B8A6' },
+  { id: 1, title: 'Detection', weight: 16, color: '#EF4444' },
+  { id: 2, title: 'Incident Response', weight: 14, color: '#F59E0B' },
+  { id: 3, title: 'Infrastructure Security', weight: 18, color: '#3B82F6' },
+  { id: 4, title: 'Identity and Access Management', weight: 20, color: '#14B8A6' },
   { id: 5, title: 'Data Protection', weight: 18, color: '#A855F7' },
-  { id: 6, title: 'Management and Security Governance', weight: 14, color: '#6366F1' },
+  { id: 6, title: 'Security Foundations and Governance', weight: 14, color: '#6366F1' },
 ];
 
 // The "best of" community path to CISSP: fundamentals -> CompTIA core -> hands-on

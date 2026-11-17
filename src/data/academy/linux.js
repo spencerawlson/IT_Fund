@@ -14,7 +14,6 @@ export default {
         id: 'lx-cli',
         title: 'Command Line & Filesystem',
         summary: 'Navigating, creating, moving, and finding files from the shell.',
-        cissp: [7],
         sources: ['overthewire', 'linuxjourney', 'tldr'],
         cards: [
           ['What does `pwd` print?', 'The current working directory as an absolute path', 'pwd = "print working directory". It answers "where am I?", e.g. /home/ana.', ['The parent directory of wherever you happen to be', 'The PATH variable', 'The logged-in username']],
@@ -33,7 +32,7 @@ export default {
         id: 'lx-perms',
         title: 'Permissions & Ownership',
         summary: 'rwx, chmod, chown, umask, and the special bits.',
-        cissp: [7],
+        cissp: [5],
         sources: ['linuxjourney', 'comptia-linux'],
         cards: [
           ['In `-rwxr-xr--`, what do the three rwx groups mean?', 'Owner, group, others', 'Positions 2-4 are the owner, 5-7 the group, 8-10 everyone else.', ['User, admin, root', 'Read, write, execute — files only', 'Owner, root, system']],
@@ -52,7 +51,7 @@ export default {
         id: 'lx-users',
         title: 'Users, Groups & sudo',
         summary: 'Accounts, /etc/passwd, groups, and safe privilege escalation.',
-        cissp: [5, 7],
+        cissp: [5],
         sources: ['linuxjourney', 'comptia-linux'],
         cards: [
           ['Which file holds one line of account info per user?', '/etc/passwd', 'Username, UID, GID, home directory, shell. Passwords have not lived here for decades.', ['/etc/shadow', '/etc/users', '/var/lib/users']],
@@ -71,7 +70,6 @@ export default {
         id: 'lx-text',
         title: 'Text Processing Pipelines',
         summary: 'grep, pipes, redirection, cut, sort, sed, and awk.',
-        cissp: [7],
         sources: ['overthewire', 'tldr'],
         cards: [
           ['What does the pipe `|` do?', 'Feeds one command\'s stdout into the next command\'s stdin', '`dmesg | grep -i usb` searches kernel messages for "usb".', ['Runs commands in parallel, all of them at the same time together', 'Redirects output to a file', 'Chains commands to run on failure']],
@@ -111,7 +109,6 @@ export default {
         id: 'lx-systemd',
         title: 'systemd & Services',
         summary: 'systemctl, journalctl, units, and timers.',
-        cissp: [7],
         sources: ['comptia-linux', 'tldr'],
         cards: [
           ['Which command shows whether nginx is running and enabled?', '`systemctl status nginx`', 'Shows active state, enabled state, recent log lines, and the main PID.', ['`service nginx`', '`ps nginx`', '`systemctl nginx`']],
@@ -151,7 +148,6 @@ export default {
         id: 'lx-bash',
         title: 'Bash Scripting',
         summary: 'Variables, conditionals, loops, functions, and safe scripting.',
-        cissp: [7],
         sources: ['tldr', 'comptia-linux'],
         cards: [
           ['What should the first line of a bash script be?', '`#!/usr/bin/env bash`', 'The shebang tells the kernel which interpreter to run. env finds bash via PATH, so it is portable.', ['`#bash`', '`use bash;`', '`#!/bin/bash` is the only correct form']],
@@ -189,7 +185,7 @@ export default {
         id: 'lx-secure',
         title: 'Linux Security Basics',
         summary: 'SSH hardening, firewalls, patching, and least privilege.',
-        cissp: [3, 7],
+        cissp: [3],
         sources: ['comptia-linux', 'cissp-outline'],
         cards: [
           ['What is the single biggest SSH hardening step?', 'Key-based auth only: disable passwords and root login', 'In /etc/sshd_config: PasswordAuthentication no, PermitRootLogin no. Then `systemctl reload sshd`.', ['Change the login banner', 'Switch back to telnet', 'Expose port 22 to the whole internet']],

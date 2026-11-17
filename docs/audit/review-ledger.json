@@ -1,0 +1,100 @@
+{
+  "note": "Decks whose every item has been read against the audit checklist. Reviewer is the AI audit, not a certified human expert.",
+  "decks": {
+    "cissp-mindset": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d1": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d1b": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "cissp-d2": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d2b": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "cissp-d3": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d4": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d5": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d6": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "cissp-d7": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "cissp-d8": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
+    },
+    "cissp-cap-d1": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 4
+    },
+    "cissp-cap-d2": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d3": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d4": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d5": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d6": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d7": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    },
+    "cissp-cap-d8": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 3
+    }
+  }
+}

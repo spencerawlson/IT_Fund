@@ -423,7 +423,7 @@ export default {
         id: 'cy-cloud-arch',
         title: 'Cloud Models & Virtualization Security',
         summary: 'Shared responsibility, hypervisors, containers, and zero trust.',
-        cissp: [3, 7],
+        cissp: [3],
         secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-210'],
         cards: [
@@ -813,7 +813,7 @@ export default {
         id: 'secplus-hardening-vuln',
         title: 'Security Operations: Hardening & Vulnerability Scenarios',
         summary: 'Patch prioritization, secure baselines, and asset decisions as exam-style scenarios. (Domain 4.0)',
-        cissp: [7],
+        cissp: [7, 3],
         secplus: [4],
         sources: ['tryhackme', 'nist-ir'],
         cards: [
@@ -848,7 +848,7 @@ export default {
         id: 'secplus-secops-tooling',
         title: 'Security Operations: Tooling & Identity Scenarios',
         summary: 'EDR, NAC, DLP, IAM operations, and automation as exam-style scenarios. (Domain 4.0)',
-        cissp: [7],
+        cissp: [7, 5],
         secplus: [4],
         sources: ['tryhackme', 'mitre-attack'],
         cards: [
@@ -918,7 +918,7 @@ export default {
         id: 'secplus-threat-scenarios',
         title: 'Threats & Attack Vectors: Scenarios',
         summary: 'Attribution clues, initial-access choices, and vector response as exam-style scenarios. (Domain 2.0)',
-        cissp: [7],
+        cissp: [1, 7],
         secplus: [2],
         sources: ['mitre-attack', 'comptia-sec'],
         cards: [
@@ -988,7 +988,7 @@ export default {
         id: 'secplus-social-web-scenarios',
         title: 'Social Engineering & Application Attack Scenarios',
         summary: 'Phishing variants, credential attacks, and web exploitation as exam-style scenarios. (Domain 2.0)',
-        cissp: [7],
+        cissp: [8, 1],
         secplus: [2],
         sources: ['portswigger', 'owasp-top10', 'comptia-sec'],
         cards: [
@@ -1023,7 +1023,7 @@ export default {
         id: 'secplus-vuln-scenarios',
         title: 'Vulnerability Response & Mitigation Scenarios',
         summary: 'Scan interpretation, zero-days, and compensating controls as exam-style scenarios. (Domain 2.0)',
-        cissp: [7],
+        cissp: [6, 7],
         secplus: [2],
         sources: ['cisa-kev', 'comptia-sec'],
         cards: [
@@ -1058,7 +1058,7 @@ export default {
         id: 'secplus-cloud-scenarios',
         title: 'Security Architecture: Cloud & Virtualization Scenarios',
         summary: 'Shared responsibility, IaC, containers, and cloud controls as exam-style scenarios. (Domain 3.0)',
-        cissp: [7],
+        cissp: [3],
         secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-210'],
         cards: [
@@ -1093,7 +1093,7 @@ export default {
         id: 'secplus-netarch-scenarios',
         title: 'Security Architecture: Network Design Scenarios',
         summary: 'Segmentation, zero trust, VPN choices, and secure topologies as exam-style scenarios. (Domain 3.0)',
-        cissp: [7],
+        cissp: [4],
         secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-53'],
         cards: [
@@ -1128,7 +1128,7 @@ export default {
         id: 'secplus-dataprotect-scenarios',
         title: 'Security Architecture: Data Protection Scenarios',
         summary: 'Classification, encryption, keys, and DLP as exam-style scenarios. (Domain 3.0)',
-        cissp: [7],
+        cissp: [2],
         secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-53'],
         cards: [
@@ -1163,7 +1163,7 @@ export default {
         id: 'secplus-resilience-scenarios',
         title: 'Security Architecture: Resilience & Recovery Scenarios',
         summary: 'Backups, DR, RTO/RPO, and HA as exam-style scenarios. (Domain 3.0)',
-        cissp: [7],
+        cissp: [7, 1],
         secplus: [3],
         sources: ['comptia-sec', 'nist-sp800-34'],
         cards: [
@@ -1198,7 +1198,7 @@ export default {
         id: 'secplus-concepts-scenarios',
         title: 'Security Concepts: Scenarios',
         summary: 'Zero trust, control types, AAA, and physical controls in real decisions.',
-        cissp: [7],
+        cissp: [1],
         secplus: [1],
         cards: [
           ['Your company still trusts anything inside the office network: no MFA on internal apps, flat VLANs, file shares open to everyone. The CEO asks where a zero-trust migration should start. What is the most defensible first move?', 'Strong identity everywhere first — MFA on every account and app, before touching the network', 'Identity is the new perimeter: without strong authentication, network segmentation just rearranges who the attacker impersonates. MFA kills the credential-reuse path that flat networks invite.', ['Rip out all VLANs and rebuild the network first: rebuild the network before identity', 'Buy a NAC appliance and call it zero trust: hardware is zero trust', 'Put a bigger firewall at the internet edge: a bigger edge box fixes trust']],
@@ -1232,7 +1232,7 @@ export default {
         id: 'secplus-crypto-scenarios',
         title: 'Cryptography & PKI: Scenarios',
         summary: 'Algorithm choices, certificate lifecycles, and key management under pressure.',
-        cissp: [7],
+        cissp: [3],
         secplus: [1],
         cards: [
           ['Two services need to exchange large files securely over the internet. What is the most defensible design?', 'TLS 1.2+ with strong ciphersuites', 'Use proven protocols: TLS gives confidentiality, integrity, and authentication in one maintained standard. Custom crypto is where breaches are born.', ['Write a custom encryption protocol: a custom protocol secures large file transfers', 'Base64-encode the files; it looks encrypted: encoded large files travel securely', 'Send them over plain FTP on a nonstandard port: odd ports secure file transfers']],
@@ -1266,7 +1266,7 @@ export default {
         id: 'secplus-risk-scenarios',
         title: 'Risk Management: Scenarios',
         summary: 'ALE math, risk treatments, and ownership in business decisions.',
-        cissp: [7],
+        cissp: [1],
         secplus: [5],
         cards: [
           ['A flood scenario has an SLE of $200,000 and an ARO of 0.3. A $40,000 control would cut the ALE to $10,000. What is the most defensible decision?', 'Buy it: the ALE is $60,000 and the control saves $50,000 a year for $40,000', 'ALE = SLE × ARO = $60,000. A control is justified when its cost is below the ALE reduction ($50,000) — the math decides, not the sticker price.', ['$40,000 is too expensive: the $40,000 flood control is too expensive', 'Skip the math; buy every control: buy controls without comparing costs', 'ALE is theoretical; ignore it: theoretical ALE numbers can be ignored']],
@@ -1297,7 +1297,7 @@ export default {
         id: 'secplus-governance-scenarios',
         title: 'Governance, Audit & Compliance: Scenarios',
         summary: 'Policies, audits, regulations, and privacy in real situations.',
-        cissp: [7],
+        cissp: [1, 6],
         secplus: [5],
         cards: [
           ['The CISO must document the encryption requirement, the approved algorithms, and the key-generation steps. What is the most defensible document split?', 'Policy states the requirement, the standard names AES-256, the procedure gives the key-generation steps', 'Policy (what and why, executive-approved), standard (the specific rule), procedure (the how-to steps) — each has a different author and audience.', ['One giant policy covering everything: one policy covers encryption, algorithms, keygen', 'Procedures do not need writing: the key-generation steps need no procedure', 'Standards are optional: mandatory standards are just helpful guidance']],
@@ -1328,7 +1328,7 @@ export default {
         id: 'secplus-thirdparty-scenarios',
         title: 'Third-Party & Continuity Governance: Scenarios',
         summary: 'Vendor assessment, contracts, and exit strategies that work.',
-        cissp: [7],
+        cissp: [1],
         secplus: [5],
         cards: [
           ['A new vendor will process customer data. What is the most defensible onboarding gate?', 'A completed security assessment — SOC 2 Type II or equivalent evidence — before signing', 'Trust but verify before the contract: assess the vendor\'s security posture while you still have leverage, not after the data flows.', ['Sign first, assess later: onboard the vendor, audit next quarter', 'The sales demo was impressive: a good demo proves secure operations', 'All vendors are equally risky: all vendors carry the same equal risk']],

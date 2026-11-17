@@ -416,9 +416,6 @@ export const tracks = [
             "id": "py-files-errors",
             "title": "Files, Errors & Modules",
             "summary": "Reading/writing files, exceptions, imports, and virtual environments.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "automate",
               "py-tutorial",
@@ -593,9 +590,6 @@ export const tracks = [
             "id": "py-automation",
             "title": "Automation & APIs",
             "summary": "Scripting the OS, HTTP APIs, regex, and CSV/log parsing.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "automate",
               "realpython"
@@ -5588,8 +5582,7 @@ export const tracks = [
             "title": "Cloud Models & Virtualization Security",
             "summary": "Shared responsibility, hypervisors, containers, and zero trust.",
             "cissp": [
-              3,
-              7
+              3
             ],
             "secplus": [
               3
@@ -7387,7 +7380,8 @@ export const tracks = [
             "title": "Security Operations: Hardening & Vulnerability Scenarios",
             "summary": "Patch prioritization, secure baselines, and asset decisions as exam-style scenarios. (Domain 4.0)",
             "cissp": [
-              7
+              7,
+              3
             ],
             "secplus": [
               4
@@ -7544,7 +7538,8 @@ export const tracks = [
             "title": "Security Operations: Tooling & Identity Scenarios",
             "summary": "EDR, NAC, DLP, IAM operations, and automation as exam-style scenarios. (Domain 4.0)",
             "cissp": [
-              7
+              7,
+              5
             ],
             "secplus": [
               4
@@ -7858,6 +7853,7 @@ export const tracks = [
             "title": "Threats & Attack Vectors: Scenarios",
             "summary": "Attribution clues, initial-access choices, and vector response as exam-style scenarios. (Domain 2.0)",
             "cissp": [
+              1,
               7
             ],
             "secplus": [
@@ -8172,7 +8168,8 @@ export const tracks = [
             "title": "Social Engineering & Application Attack Scenarios",
             "summary": "Phishing variants, credential attacks, and web exploitation as exam-style scenarios. (Domain 2.0)",
             "cissp": [
-              7
+              8,
+              1
             ],
             "secplus": [
               2
@@ -8335,6 +8332,7 @@ export const tracks = [
             "title": "Vulnerability Response & Mitigation Scenarios",
             "summary": "Scan interpretation, zero-days, and compensating controls as exam-style scenarios. (Domain 2.0)",
             "cissp": [
+              6,
               7
             ],
             "secplus": [
@@ -8492,7 +8490,7 @@ export const tracks = [
             "title": "Security Architecture: Cloud & Virtualization Scenarios",
             "summary": "Shared responsibility, IaC, containers, and cloud controls as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              3
             ],
             "secplus": [
               3
@@ -8649,7 +8647,7 @@ export const tracks = [
             "title": "Security Architecture: Network Design Scenarios",
             "summary": "Segmentation, zero trust, VPN choices, and secure topologies as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              4
             ],
             "secplus": [
               3
@@ -8806,7 +8804,7 @@ export const tracks = [
             "title": "Security Architecture: Data Protection Scenarios",
             "summary": "Classification, encryption, keys, and DLP as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              2
             ],
             "secplus": [
               3
@@ -8963,7 +8961,8 @@ export const tracks = [
             "title": "Security Architecture: Resilience & Recovery Scenarios",
             "summary": "Backups, DR, RTO/RPO, and HA as exam-style scenarios. (Domain 3.0)",
             "cissp": [
-              7
+              7,
+              1
             ],
             "secplus": [
               3
@@ -9120,7 +9119,7 @@ export const tracks = [
             "title": "Security Concepts: Scenarios",
             "summary": "Zero trust, control types, AAA, and physical controls in real decisions.",
             "cissp": [
-              7
+              1
             ],
             "secplus": [
               1
@@ -9262,7 +9261,7 @@ export const tracks = [
             "title": "Cryptography & PKI: Scenarios",
             "summary": "Algorithm choices, certificate lifecycles, and key management under pressure.",
             "cissp": [
-              7
+              3
             ],
             "secplus": [
               1
@@ -9404,7 +9403,7 @@ export const tracks = [
             "title": "Risk Management: Scenarios",
             "summary": "ALE math, risk treatments, and ownership in business decisions.",
             "cissp": [
-              7
+              1
             ],
             "secplus": [
               5
@@ -9531,7 +9530,8 @@ export const tracks = [
             "title": "Governance, Audit & Compliance: Scenarios",
             "summary": "Policies, audits, regulations, and privacy in real situations.",
             "cissp": [
-              7
+              1,
+              6
             ],
             "secplus": [
               5
@@ -9658,7 +9658,7 @@ export const tracks = [
             "title": "Third-Party & Continuity Governance: Scenarios",
             "summary": "Vendor assessment, contracts, and exit strategies that work.",
             "cissp": [
-              7
+              1
             ],
             "secplus": [
               5
@@ -12044,7 +12044,7 @@ export const tracks = [
   {
     "id": "cysa",
     "title": "CySA+",
-    "tagline": "SOC analyst skills: detection, vulnerability management, and incident response, aligned to CS0-003.",
+    "tagline": "SOC analyst skills: detection, vulnerability management, and incident response, aligned to CS0-004.",
     "icon": "Radar",
     "color": "#8B5CF6",
     "tiers": [
@@ -12187,6 +12187,7 @@ export const tracks = [
               2
             ],
             "cissp": [
+              6,
               7
             ],
             "sources": [
@@ -12572,7 +12573,8 @@ export const tracks = [
               2
             ],
             "cissp": [
-              7
+              7,
+              6
             ],
             "sources": [
               "comptia-cysa"
@@ -12831,6 +12833,7 @@ export const tracks = [
               3
             ],
             "cissp": [
+              1,
               7
             ],
             "sources": [
@@ -13182,7 +13185,7 @@ export const tracks = [
             "title": "Security Logging Foundations",
             "summary": "CloudTrail, CloudWatch Logs, metrics, and alarms. (Domain 2.0)",
             "awss": [
-              2
+              1
             ],
             "cissp": [
               7
@@ -13381,7 +13384,7 @@ export const tracks = [
             "title": "Incident Response Playbooks",
             "summary": "Detective, containment, eradication, and recovery in AWS. (Domain 1.0)",
             "awss": [
-              1
+              2
             ],
             "cissp": [
               7
@@ -13467,7 +13470,7 @@ export const tracks = [
             "title": "Monitoring and Log Analysis",
             "summary": "Config, Flow Logs, Athena, and centralised analysis. (Domain 2.0)",
             "awss": [
-              2
+              1
             ],
             "cissp": [
               7
@@ -16442,9 +16445,6 @@ export const tracks = [
             "id": "lx-cli",
             "title": "Command Line & Filesystem",
             "summary": "Navigating, creating, moving, and finding files from the shell.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "overthewire",
               "linuxjourney",
@@ -16608,7 +16608,7 @@ export const tracks = [
             "title": "Permissions & Ownership",
             "summary": "rwx, chmod, chown, umask, and the special bits.",
             "cissp": [
-              7
+              5
             ],
             "sources": [
               "linuxjourney",
@@ -16687,8 +16687,7 @@ export const tracks = [
             "title": "Users, Groups & sudo",
             "summary": "Accounts, /etc/passwd, groups, and safe privilege escalation.",
             "cissp": [
-              5,
-              7
+              5
             ],
             "sources": [
               "linuxjourney",
@@ -16766,9 +16765,6 @@ export const tracks = [
             "id": "lx-text",
             "title": "Text Processing Pipelines",
             "summary": "grep, pipes, redirection, cut, sort, sed, and awk.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "overthewire",
               "tldr"
@@ -16931,9 +16927,6 @@ export const tracks = [
             "id": "lx-systemd",
             "title": "systemd & Services",
             "summary": "systemctl, journalctl, units, and timers.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "comptia-linux",
               "tldr"
@@ -17097,9 +17090,6 @@ export const tracks = [
             "id": "lx-bash",
             "title": "Bash Scripting",
             "summary": "Variables, conditionals, loops, functions, and safe scripting.",
-            "cissp": [
-              7
-            ],
             "sources": [
               "tldr",
               "comptia-linux"
@@ -17256,8 +17246,7 @@ export const tracks = [
             "title": "Linux Security Basics",
             "summary": "SSH hardening, firewalls, patching, and least privilege.",
             "cissp": [
-              3,
-              7
+              3
             ],
             "sources": [
               "comptia-linux",
@@ -20658,6 +20647,9 @@ export const tracks = [
             "id": "sql-transactions-security",
             "title": "Transactions, Views & Security",
             "summary": "ACID, views, window functions, and injection defence.",
+            "cissp": [
+              8
+            ],
             "sources": [
               "mode-sql",
               "use-the-index"
