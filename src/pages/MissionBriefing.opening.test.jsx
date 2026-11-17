@@ -72,10 +72,12 @@ const START_RESPONSE = {
 // one stash per test is enough) — reset in beforeEach, because the
 // hoisted object persists across tests in the file.
 const voiceControl = vi.hoisted(() => ({
-  playCalls: [], stall: false, setPlaying: null, setLoading: null,
+  playCalls: [], playChars: [], stall: false, setPlaying: null, setLoading: null,
 }));
 const startControl = vi.hoisted(() => ({ resumed: false }));
 const defControl = vi.hoisted(() => ({ def: null }));
+
+const voiceStatusControl = vi.hoisted(() => ({ characters: { cypher: true, sentinel: false, patch: false } }));
 
 vi.mock('@/api/missions', () => ({
   missionsApi: {
@@ -100,8 +102,9 @@ vi.mock('@/api/voice', async () => {
       voiceControl.setPlaying = setPlaying;
       voiceControl.setLoading = setLoading;
     }
-    const play = React.useCallback(async (text) => {
+    const play = React.useCallback(async (text, character = 'cypher') => {
       voiceControl.playCalls.push(text);
+      voiceControl.playChars.push(character);
       setLoading(true);
       setSubtitle(text);
       setTimeout(() => {
@@ -126,7 +129,7 @@ vi.mock('@/api/voice', async () => {
       muted: false, setMuted: () => {}, volume: 0.9, setVolume: () => {},
     };
   }
-  return { useCypherVoice, __clearVoiceCache: () => {} };
+  return { useCypherVoice, __clearVoiceCache: () => {}, fetchVoiceStatus: () => Promise.resolve({ configured: true, characters: voiceStatusControl.characters }) };
 });
 
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
@@ -258,9 +261,11 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     voiceControl.playCalls.length = 0;
+    voiceControl.playChars.length = 0;
     voiceControl.stall = false;
     voiceControl.setPlaying = null;
     voiceControl.setLoading = null;
+    voiceStatusControl.characters = { cypher: true, sentinel: false, patch: false };
     startControl.resumed = false;
     defControl.def = MISSION_DEF;
     lastPath = null;
@@ -333,6 +338,51 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     expect(lastPath).toBe('/missions/op-broken-shield/terminal');
     expect(terminalVisible(root)).toBe(true);
     expect(voiceControl.playCalls).toHaveLength(4);
+
+    await act(async () => { renderer.unmount(); });
+  });
+
+  it('plays each briefing turn in its speaker’s voice when configured, else in Cypher’s', async () => {
+    // All three voices configured (the live backend state since
+    // 22:36 EST): Cypher opens, Sentinel reads the topology turn,
+    // Patch the security turn, Cypher closes with the console
+    // instructions. The character is the second play() argument.
+    voiceStatusControl.characters = { cypher: true, sentinel: true, patch: true };
+    let renderer;
+    await act(async () => {
+      renderer = renderBriefing();
+    });
+    await flush();
+    await advance(2000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    expect(voiceControl.playCalls).toHaveLength(4);
+    expect(voiceControl.playChars).toEqual(['cypher', 'sentinel', 'patch', 'cypher']);
+
+    await act(async () => { renderer.unmount(); });
+  });
+
+  it('falls back to Cypher’s voice for a turn whose character has no voice configured', async () => {
+    // Only Cypher configured (the live state before 22:36 EST): every
+    // turn — including Sentinel’s and Patch’s — reads in Cypher’s voice,
+    // so the briefing is never silent; the camera and caption still say
+    // who is speaking. This is the guard that protects the briefing if
+    // a voice ID is ever unconfigured again.
+    voiceStatusControl.characters = { cypher: true, sentinel: false, patch: false };
+    let renderer;
+    await act(async () => {
+      renderer = renderBriefing();
+    });
+    await flush();
+    await advance(2000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    await advance(300 + 2000 + 500);
+    expect(voiceControl.playCalls).toHaveLength(4);
+    expect(voiceControl.playChars).toEqual(['cypher', 'cypher', 'cypher', 'cypher']);
 
     await act(async () => { renderer.unmount(); });
   });
