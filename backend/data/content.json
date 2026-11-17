@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T11:40:12.193Z",
+  "generatedAt": "2026-11-17T11:41:18.069Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -22216,9 +22216,9 @@
                   "a": "Total cost of ownership, hidden costs included",
                   "x": "Compare on-prem power, staff, and hardware refresh against cloud.",
                   "wrong": [
-                    "The monthly cloud bill on its own",
-                    "A support plan, paying for help from cloud engineers",
-                    "Tax credits, money back from the government"
+                    "The monthly cloud invoice, excluding staff, power and migration costs",
+                    "A support plan that pays for access to cloud engineers",
+                    "A tax credit for moving workloads into the cloud"
                   ]
                 },
                 {
@@ -22605,9 +22605,9 @@
                   "a": "Running two environments and switching traffic to the new one",
                   "x": "Canary shifts a small share of traffic first.",
                   "wrong": [
-                    "Colour-coded logs",
-                    "Running two regions active-active at all times",
-                    "A DR test"
+                    "Colour-coding log streams so blue and green errors are separated",
+                    "Running two Regions active-active and splitting traffic evenly",
+                    "A disaster recovery test that fails over to a second site"
                   ]
                 }
               ],
@@ -25309,9 +25309,9 @@
                   "a": "DAX caching plus on-demand or auto-scaling capacity",
                   "x": "Cache absorbs peaks; avoid over-provisioned RCUs.",
                   "wrong": [
-                    "Provision for the peak around the clock",
-                    "Bigger tables",
-                    "More GSIs"
+                    "Provision read capacity for the peak and keep it there",
+                    "Add more global secondary indexes to spread the reads",
+                    "Move the table to a larger instance class"
                   ]
                 },
                 {
@@ -32322,9 +32322,9 @@
                   "a": "Assume success; limit a compromised model’s reach",
                   "x": "Least privilege, human approval, output validation, isolation.",
                   "wrong": [
-                    "Better prompt wording on its own",
-                    "A secret system prompt, hidden from every user",
-                    "Higher temperature, letting the model sample freely past the guardrails"
+                    "Rely on careful prompt wording to refuse injected instructions",
+                    "Keep the system prompt secret so attackers cannot read it",
+                    "Raise the temperature so the model ignores injected text"
                   ]
                 },
                 {
@@ -32482,9 +32482,9 @@
                   "a": "Business leadership with a cross-functional governance group",
                   "x": "Security, legal, privacy, data science, and business owners together.",
                   "wrong": [
-                    "The IT helpdesk",
-                    "Only the vendor",
-                    "Only data scientists"
+                    "The IT helpdesk, which fields user reports about the AI tools",
+                    "The vendor that supplies the model, under its contract",
+                    "The data science team, since it builds and tunes the models"
                   ]
                 },
                 {
@@ -35851,9 +35851,9 @@
                   "a": "`su -` needs the root password; `sudo -i` uses your password and is logged",
                   "x": "sudo also allows fine-grained rules (e.g. \"may restart nginx only\") instead of all-or-nothing root.",
                   "wrong": [
-                    "They are identical",
-                    "`sudo -i` needs the root password",
-                    "`su -` cannot start a root shell"
+                    "They are identical; both prompt for the root password",
+                    "`sudo -i` needs the root password; `su -` uses your own and is logged",
+                    "`su -` cannot start a root shell; only `sudo -i` can"
                   ]
                 },
                 {
@@ -38932,9 +38932,9 @@
                   "a": "Take the parameter by reference: void f(int& x)",
                   "x": "Or by pointer: void f(int* x).",
                   "wrong": [
-                    "Return void",
-                    "Pass by value",
-                    "Make it const"
+                    "Pass it by value so the function works on the caller's copy",
+                    "Declare the parameter const so changes are written back",
+                    "Return void so the compiler writes the result into the argument"
                   ]
                 },
                 {
@@ -38971,9 +38971,9 @@
                   "a": "A parameter value used when the caller omits it",
                   "x": "e.g. int f(int x, int y = 0).",
                   "wrong": [
-                    "A global variable",
-                    "The return value",
-                    "A required argument"
+                    "A global variable the function reads when no argument is given",
+                    "The value a function returns when it has no return statement",
+                    "An argument the caller must always supply"
                   ]
                 },
                 {
@@ -39969,9 +39969,9 @@
                   "a": "Accessing memory through a pointer after it was freed — undefined behaviour and exploitable",
                   "x": "Null the pointer or use smart pointers to avoid it.",
                   "wrong": [
-                    "Freeing the same memory twice in a row",
-                    "A memory leak",
-                    "A stack overflow"
+                    "Freeing the same memory twice, which corrupts the allocator",
+                    "A memory leak, where allocated memory is never freed",
+                    "A stack overflow caused by recursion that never ends"
                   ]
                 },
                 {
@@ -41561,9 +41561,9 @@
                   "a": "Declaring a new variable with the same name using let, replacing the previous binding",
                   "x": "It can even change the type; different from mutation.",
                   "wrong": [
-                    "Mutating the existing variable in place",
-                    "A global override",
-                    "Hiding a field"
+                    "Mutating the existing variable in place, which requires `mut`",
+                    "A global variable that overrides a local one of the same name",
+                    "Hiding a struct field from other modules with a private modifier"
                   ]
                 },
                 {
@@ -41808,9 +41808,9 @@
                   "a": "The unit type () — effectively nothing",
                   "x": "Like void elsewhere.",
                   "wrong": [
-                    "null",
-                    "0",
-                    "An error"
+                    "`null`, as in most C-family languages",
+                    "`0`, the default integer",
+                    "A compile error unless the function ends with `return`"
                   ]
                 }
               ],
@@ -43681,9 +43681,9 @@
                   "a": "Atomic column values — no repeating groups or arrays in a cell",
                   "x": "One value per column per row.",
                   "wrong": [
-                    "No duplicate rows in the table",
-                    "A foreign key",
-                    "Everything in one table"
+                    "No duplicate rows, with every table given a primary key",
+                    "Every non-key column depends on the whole composite key",
+                    "All data kept in a single table to avoid joins"
                   ]
                 },
                 {
@@ -43801,9 +43801,9 @@
                   "a": "A group of statements that succeed or fail as a single unit",
                   "x": "BEGIN ... COMMIT; or ROLLBACK to undo.",
                   "wrong": [
-                    "A single query on its own",
-                    "A stored procedure",
-                    "A backup"
+                    "A single SQL statement sent to the server",
+                    "A stored procedure saved in the database and called by name",
+                    "A backup of the database taken before statements run"
                   ]
                 },
                 {
@@ -43879,9 +43879,9 @@
                   "a": "Parameterised queries / prepared statements (never string-concatenate input)",
                   "x": "The driver sends data separately from the SQL.",
                   "wrong": [
-                    "Escaping quotes by hand in the input",
-                    "Hiding error messages",
-                    "A firewall"
+                    "Escaping quote characters in the input by hand before building the query",
+                    "Hiding database error messages from users",
+                    "A network firewall in front of the database server"
                   ]
                 },
                 {
@@ -45531,9 +45531,9 @@
                   "a": "Detailed state and recent events — great for debugging why a pod is unhealthy",
                   "x": "Shows scheduling, image pulls, probe failures.",
                   "wrong": [
-                    "Live logs streamed from the container",
-                    "A shell",
-                    "The node list"
+                    "Live logs streamed from the container as it runs",
+                    "An interactive shell inside the pod's first container",
+                    "The list of nodes the pod could be scheduled on, with their capacity"
                   ]
                 },
                 {
@@ -46340,9 +46340,9 @@
                   "a": "Observe actual state → compare to desired spec → act to reconcile — forever",
                   "x": "This is how K8s self-heals.",
                   "wrong": [
-                    "Run once at deploy time and exit",
-                    "Only on kubectl apply",
-                    "A cron schedule"
+                    "Run once at deploy time, then exit until the next apply",
+                    "Act only when someone runs kubectl apply on the object",
+                    "Run on a cron schedule set in the controller's manifest"
                   ]
                 }
               ],
@@ -46626,9 +46626,9 @@
                   "a": "A snapshot of the staged files at a point in time, with a message and parent",
                   "x": "Git stores snapshots, not just diffs.",
                   "wrong": [
-                    "A single line change to one file",
-                    "A branch",
-                    "A remote push"
+                    "A single line change to one file, stored as a diff",
+                    "A branch pointer that moves forward with each change",
+                    "A push that uploads the current files to the remote"
                   ]
                 },
                 {
@@ -47400,9 +47400,9 @@
                   "a": "Resets the branch and WIPES working/staged changes — unrecoverable if uncommitted",
                   "x": "Use with care; prefer stash first.",
                   "wrong": [
-                    "Keeps all changes but unstages them",
-                    "Only unstages",
-                    "Reverts safely"
+                    "Keeps all changes but unstages them, leaving the files untouched",
+                    "Only unstages files; the branch does not move",
+                    "Creates a new commit that safely undoes the last one"
                   ]
                 },
                 {
@@ -47439,9 +47439,9 @@
                   "a": "A log of where HEAD has been — it can recover \"lost\" commits after a bad reset",
                   "x": "git reflog shows the history of moves.",
                   "wrong": [
-                    "The commit log of the current branch",
-                    "The remote log",
-                    "A merge tool"
+                    "The commit log of the current branch, as shown by git log",
+                    "A log of every push and pull made against the remote",
+                    "A merge tool that replays conflicting commits"
                   ]
                 },
                 {
@@ -47731,9 +47731,9 @@
                   "a": ".gitignore + a pre-commit secret scanner (e.g. gitleaks); rotate anything that leaks",
                   "x": "History makes a committed secret hard to erase.",
                   "wrong": [
-                    "Delete the file in a later commit",
-                    "Git encrypts them",
-                    "Push to a private repo"
+                    "Delete the file in a later commit so it no longer appears in the tree",
+                    "Rely on Git, which encrypts files that look like credentials",
+                    "Push only to a private repository"
                   ]
                 },
                 {

@@ -40,7 +40,7 @@ export default {
         cards: [
           ['Are variables mutable by default in Rust?', 'No — `let x = 5;` is immutable; add `mut` to allow changes', 'Immutability by default prevents a class of bugs.', ['Yes, always mutable, so any binding can be reassigned at any point in the program', 'Only numbers are immutable', 'Only with const']],
           ['How do you make a variable mutable?', 'let mut x = 5;', 'Then x can be reassigned.', ['var x = 5, the keyword other languages use to declare a changeable variable', 'mutable x = 5', 'let x! = 5']],
-          ['What is "shadowing"?', 'Declaring a new variable with the same name using let, replacing the previous binding', 'It can even change the type; different from mutation.', ['Mutating the existing variable in place', 'A global override', 'Hiding a field']],
+          ['What is "shadowing"?', 'Declaring a new variable with the same name using let, replacing the previous binding', 'It can even change the type; different from mutation.', ['Mutating the existing variable in place, which requires `mut`', 'A global variable that overrides a local one of the same name', 'Hiding a struct field from other modules with a private modifier']],
           ['What is the difference between a `let` binding and a `const`?', 'const is always immutable, requires a type annotation, and is a compile-time constant', 'let is a normal binding; consts use SCREAMING_CASE.', ['They are identical, so a const can be reassigned and a let binding needs no type annotation', 'const can be mutable', 'let must be typed']],
           ['What are Rust\'s signed/unsigned integer types like?', 'i8..i128 and u8..u128, plus isize/usize', 'The default integer type is i32.', ['Only int, a single integer type that grows or shrinks to fit any value', 'Only i64', 'Dynamically sized']],
           ['What type is a `char` in Rust?', 'A 4-byte Unicode scalar value', 'Not a single byte — that is u8.', ['One byte, exactly like a C char holding a single ASCII character', 'A C string', 'A small int']],
@@ -65,7 +65,7 @@ export default {
           ['What is `if let` used for?', 'Concise matching of a single pattern, ignoring the rest', 'e.g. if let Some(x) = opt { ... }.', ['A ternary, the short if-else expression that picks one of two values in a single line', 'A loop', 'Declaring a closure']],
           ['What does the range `0..5` include?', '0, 1, 2, 3, 4 (end-exclusive)', 'Use 0..=5 for an inclusive range.', ['0 through 5, including the end value as the final element of the range', '1 through 5', 'Just 0 and 5']],
           ['Can `match` bind parts of the matched value?', 'Yes — patterns can destructure and bind, e.g. Some(x) binds x', 'Powerful, exhaustive destructuring.', ['No', 'Only literals, so a pattern can never pull a value out of the thing being matched', 'Only with if let']],
-          ['What does a function with no `-> Type` return?', 'The unit type () — effectively nothing', 'Like void elsewhere.', ['null', '0', 'An error']],
+          ['What does a function with no `-> Type` return?', 'The unit type () — effectively nothing', 'Like void elsewhere.', ['`null`, as in most C-family languages', '`0`, the default integer', 'A compile error unless the function ends with `return`']],
         ],
       },
     ],

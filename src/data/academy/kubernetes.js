@@ -46,7 +46,7 @@ export default {
           ['What does `kubectl apply -f deploy.yaml` do?', 'Creates or updates the resources to match the manifest (declarative)', 'Re-applying converges to the declared state.', ['Deletes every resource named in the file and wipes the whole namespace clean', 'Only prints the YAML', 'Runs a container locally']],
           ['How do you scale a Deployment to 5 replicas?', 'kubectl scale deploy/name --replicas=5 (or edit the manifest)', 'The ReplicaSet adds/removes pods to match.', ['kubectl run x5', 'docker scale deploy/name=5 on each node', 'Edit etcd directly']],
           ['What does `kubectl get pods` show?', 'The pods in the current namespace with status and restarts', 'Add -o wide for node/IP; -A for all namespaces.', ['Only the nodes in the cluster, with their hardware details listed', 'The YAML spec', 'Cluster events only']],
-          ['What does `kubectl describe pod <name>` help with?', 'Detailed state and recent events — great for debugging why a pod is unhealthy', 'Shows scheduling, image pulls, probe failures.', ['Live logs streamed from the container', 'A shell', 'The node list']],
+          ['What does `kubectl describe pod <name>` help with?', 'Detailed state and recent events — great for debugging why a pod is unhealthy', 'Shows scheduling, image pulls, probe failures.', ['Live logs streamed from the container as it runs', 'An interactive shell inside the pod\'s first container', 'The list of nodes the pod could be scheduled on, with their capacity']],
           ['If a pod\'s node dies, what does a Deployment do?', 'Reschedules replacement pods onto healthy nodes (self-healing)', 'The controller restores the desired replica count.', ['Nothing; the pod stays gone until someone recreates it', 'Alerts you to act', 'Restarts the node']],
         ],
       },
@@ -141,7 +141,7 @@ export default {
           ['What does `kubectl get events` help diagnose?', 'Recent cluster events: failed scheduling, image pull errors, evictions', 'A quick cluster-health signal.', ['Historical logs from every container, going all the way back to cluster creation', 'Billing', 'The manifest']],
           ['What is CrashLoopBackOff?', 'A pod that keeps crashing and restarting, with increasing back-off delay', 'Check logs/describe to find why it exits.', ['A healthy state where the pod is running perfectly and serving traffic normally', 'A network policy', 'A scaling event']],
           ['Why label and organise resources well?', 'Selection, grouping, policy and cost attribution all key off labels', 'Consistent labels make a cluster operable.', ['For encryption, so that labelled data stays secret inside the cluster', 'Labels are decorative', 'To speed pods']],
-          ['What is a controller\'s core loop?', 'Observe actual state → compare to desired spec → act to reconcile — forever', 'This is how K8s self-heals.', ['Run once at deploy time and exit', 'Only on kubectl apply', 'A cron schedule']],
+          ['What is a controller\'s core loop?', 'Observe actual state → compare to desired spec → act to reconcile — forever', 'This is how K8s self-heals.', ['Run once at deploy time, then exit until the next apply', 'Act only when someone runs kubectl apply on the object', 'Run on a cron schedule set in the controller\'s manifest']],
         ],
       },
       {
