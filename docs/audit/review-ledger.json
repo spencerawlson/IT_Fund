@@ -180,6 +180,56 @@
       "reviewed": "2026-11-16",
       "by": "AI content audit (not a human SME)",
       "items": 20
+    },
+    "awss-threat-detect": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "awss-logging": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 14
+    },
+    "awss-iam-foundations": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 14
+    },
+    "awss-incident-response": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "awss-monitor-analyze": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "awss-network-security": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 16
+    },
+    "awss-iam-advanced": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "awss-data-protection": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 28
+    },
+    "awss-secure-compute": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 16
+    },
+    "awss-governance": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 22
     }
   }
 }

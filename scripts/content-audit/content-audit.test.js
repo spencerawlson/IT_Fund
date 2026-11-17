@@ -13,8 +13,9 @@ import { longestRates } from './longest.mjs';
 //     2026-11-16 baseline, so new content cannot add to it. Lower a cap when
 //     you fix items; never raise one to make a failing change pass.
 const BASELINE = {
-  'card-answer-length-giveaway': 295,
-  'card-padded-distractor': 167,
+  'card-answer-length-giveaway': 256,
+  'card-padded-distractor': 152,
+  'card-colon-restatement': 1099,
   'lesson-no-examples': 159,
   'cross-track-duplicate-reworded': 47,
   'deck-no-sources': 15,

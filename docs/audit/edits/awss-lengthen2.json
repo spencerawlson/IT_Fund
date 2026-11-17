@@ -1,0 +1,50 @@
+{
+  "awss-data-protection": {
+    "24": [2, "They let you decrypt the same data in other cloud providers using the same key material"],
+    "6": [1, "They turn off KMS encryption for small objects so that requests stay within the KMS quota"],
+    "12": [2, "When cost matters most, because Secrets Manager is free for any number of stored secrets"],
+    "14": [2, "S3 Access Points with an encryption setting on each access point"],
+    "27": [0, "It replaces encryption for backups, since backup vaults are already isolated from other accounts"],
+    "5": [2, "SSE-C, because you supply the key and S3 logs every use of it with your identity"],
+    "15": [2, "Remove all the IAM and bucket policies so that nobody can ever read the objects again"],
+    "20": [1, "Issuing private certificates for internal services and logging them to public CT logs"],
+    "0": [1, "Regional, multi-Region and global keys, chosen by where the data lives"]
+  },
+  "awss-network-security": {
+    "11": [0, "Per-instance stateful filtering that replaces the security groups on every single instance"],
+    "1": [1, "All deny rules are evaluated first, then all allow rules, whatever their rule numbers"],
+    "15": [1, "IAM cannot separate environments at all, so separate accounts are the only possible boundary"],
+    "14": [2, "Add an allow-all rule above the managed group until the vendor fixes the rule update"]
+  },
+  "awss-secure-compute": {
+    "5": [0, "S3 buckets were public by default, so every bucket had to be locked down by hand afterwards"],
+    "0": [0, "Active intrusions and attacker behaviour, found by analysing VPC flow logs and DNS queries"],
+    "4": [2, "Nothing is needed, because IMDSv1 has already been disabled on every EC2 instance type"],
+    "3": [2, "It is a manual tool: each instance must be patched by hand from the EC2 console"]
+  },
+  "awss-governance": {
+    "18": [1, "It is required before IAM Identity Center can be enabled anywhere in the organization"],
+    "2": [0, "It grants admin rights in every member account to the central security team"],
+    "3": [0, "Running the production workloads that must be kept separate from development accounts"]
+  },
+  "awss-iam-advanced": {
+    "2": [2, "Create an IAM user with permanent keys for the partner and share them over a secure channel only"],
+    "6": [0, "Store long-lived access keys as encrypted repository secrets and rotate them every 90 days or so"],
+    "3": [0, "A gap in CloudTrail logging when a role is assumed from another account, hiding who acted and why"]
+  },
+  "awss-incident-response": {
+    "11": [0, "AWS does not allow automation roles to take any containment actions during an incident"],
+    "2": [2, "Copy the files you need to an S3 bucket in the same account, then delete the original volume"]
+  },
+  "awss-monitor-analyze": {
+    "14": [0, "It encrypts the read-only events with a different KMS key from the write events"],
+    "8": [0, "Long-term archival of log groups at a lower storage cost"],
+    "9": [0, "S3 Versioning on the log bucket, on its own, without retention"]
+  },
+  "awss-iam-foundations": {
+    "8": [1, "Its API calls are not recorded by CloudTrail, so its actions leave no audit trail anywhere"]
+  },
+  "awss-threat-detect": {
+    "4": [2, "No, and GuardDuty cannot be enabled across regions or accounts centrally"]
+  }
+}

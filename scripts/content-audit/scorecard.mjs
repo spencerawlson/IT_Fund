@@ -44,9 +44,9 @@ export async function scorecard() {
   const openAccuracy = reviewed.filter((i) => i.status === 'open' && /incorrect|ambiguous|multiple|outdated|oversimplified|source-dependent|imprecise/.test(i.category || '')).length;
   parts.accuracy = { value: N ? (reviewedCards / N) * (reviewedCards ? Math.max(0, 1 - openAccuracy / reviewedCards) : 0) : 0, detail: `${reviewedCards}/${N} items read; ${openAccuracy} open accuracy findings` };
 
-  const giveaway = check('card-answer-length-giveaway');
-  const padded = check('card-padded-distractor');
-  parts.distractors = { value: Math.max(0, 1 - (giveaway + padded) / N), detail: `${giveaway} length giveaways, ${padded} padded distractors in ${N} items` };
+  const DISTRACTOR_CHECKS = ['card-answer-length-giveaway', 'card-padded-distractor', 'card-colon-restatement'];
+  const flagged = new Set(issues.filter((i) => DISTRACTOR_CHECKS.includes(i.check)).map((i) => i.contentId));
+  parts.distractors = { value: Math.max(0, 1 - flagged.size / N), detail: `${flagged.size}/${N} items with a giveaway (${check('card-answer-length-giveaway')} length, ${check('card-padded-distractor')} padded, ${check('card-colon-restatement')} colon-restatement options)` };
 
   const sourced = rows.filter((r) => (r.deck.sources || []).some((s) => catalog.resources[s])).length;
   parts.sourcing = { value: sourced / rows.length, detail: `${sourced}/${rows.length} decks cite a registered source` };

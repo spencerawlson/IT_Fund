@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T00:57:31.861Z",
+  "generatedAt": "2026-11-17T01:06:50.915Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -5338,8 +5338,8 @@
                   "a": "The sender cannot deny having sent it",
                   "x": "Digital signatures provide non-repudiation.",
                   "wrong": [
-                    "Data cannot be read by anyone at all",
-                    "Service stays available around the clock",
+                    "Data cannot be read by unauthorised people",
+                    "The service stays available during an attack",
                     "Users can reset passwords whenever they forget them"
                   ]
                 },
@@ -5587,7 +5587,7 @@
                   "wrong": [
                     "Fixing typos in documents before they are published",
                     "DNS poisoning, corrupting the resolver cache entries",
-                    "Brute-forcing URLs, guessing addresses one by one"
+                    "Brute-forcing URLs to find hidden pages"
                   ]
                 },
                 {
@@ -5600,7 +5600,7 @@
                   "wrong": [
                     "Spam filtering, blocking junk mail before delivery",
                     "Email encryption, scrambling invoices in transit",
-                    "A mail server outage, with no email getting through at all"
+                    "A mail server outage that blocks all email"
                   ]
                 },
                 {
@@ -5883,7 +5883,7 @@
                   "x": "Fast; AES is the standard. Key distribution is the hard part.",
                   "wrong": [
                     "A public and private key pair, two keys together",
-                    "No key at all, nothing secret is needed",
+                    "No key; the algorithm itself is secret",
                     "A hash and a salt, for storing passwords safely"
                   ]
                 },
@@ -5896,7 +5896,7 @@
                   "x": "RSA and elliptic curve (ECC). Slower, used for key exchange and signatures.",
                   "wrong": [
                     "One shared key used by both sides",
-                    "Only hashes, no encryption keys at all",
+                    "A hash function and a salt",
                     "A one-time pad shared in advance"
                   ]
                 },
@@ -6025,7 +6025,7 @@
                   "a": "Ephemeral keys per session, useless for past sessions",
                   "x": "Provided by ephemeral Diffie-Hellman (DHE/ECDHE). TLS 1.3 removed the static RSA and static Diffie-Hellman key exchanges that lacked forward secrecy.",
                   "wrong": [
-                    "Keys that never expire, valid forever with no rotation at all",
+                    "Long-lived keys that are never rotated",
                     "Encrypting keys twice, double-wrapping them for extra safety",
                     "Storing keys offline, locked away in a safe place forever"
                   ]
@@ -6156,7 +6156,7 @@
                   "a": "Delegated authorization",
                   "x": "OpenID Connect adds authentication (an ID token) on top of OAuth.",
                   "wrong": [
-                    "Authentication only, proving identity and nothing else",
+                    "Authentication: proving who the user is",
                     "Encryption",
                     "Password hashing"
                   ]
@@ -6391,7 +6391,7 @@
                   "x": "RADIUS combines authentication and authorization; TACACS+ keeps them distinct.",
                   "wrong": [
                     "A Wi-Fi standard, how wireless clients connect",
-                    "Identical to RADIUS, no differences at all",
+                    "Identical to RADIUS but over UDP",
                     "A VPN protocol, tunnelling traffic to the office"
                   ]
                 },
@@ -6529,7 +6529,7 @@
                   "wrong": [
                     "Blocks all email, nothing gets in or out",
                     "Encrypts disks, scrambling everything stored locally",
-                    "Scans for malware only, nothing else at all"
+                    "Scans outbound files for malware"
                   ]
                 },
                 {
@@ -6607,7 +6607,7 @@
                   "wrong": [
                     "Maximum speed, the fastest possible performance",
                     "Always encrypted, every byte scrambled at rest",
-                    "Daily backups only, copied every single night"
+                    "Daily backups taken every night"
                   ]
                 },
                 {
@@ -26464,7 +26464,7 @@
                   "a": "Checking systems against secure baselines such as CIS Benchmarks",
                   "x": "Finds drift from approved configurations.",
                   "wrong": [
-                    "Scanning each host for open ports and listening services, and nothing else",
+                    "Scanning each host for open ports and listening services only",
                     "Testing the strength of user passwords",
                     "Checking software licences for compliance"
                   ]
@@ -27004,7 +27004,7 @@
                   "a": "Credential entry on a lookalike domain, followed by impossible travel or new mailbox rules",
                   "x": "Check for auto-forwarding rules created by the attacker.",
                   "wrong": [
-                    "The user deleting the email after reading it",
+                    "The user reporting the email to the security team after opening the attachment preview",
                     "The message landing in the junk folder",
                     "A bounce message for one recipient"
                   ]
@@ -27135,7 +27135,7 @@
                   "a": "The Exploit Prediction Scoring System: the estimated probability a vulnerability will be exploited in the next 30 days",
                   "x": "Prioritize high-EPSS flaws over high-CVSS flaws with no exploit activity.",
                   "wrong": [
-                    "A severity score from 0.0 to 10.0 for each CVE",
+                    "A severity score from 0.0 to 10.0 that NIST assigns to each CVE based on its impact and attack vector",
                     "CISA's catalogue of actively exploited flaws",
                     "A standard for sharing exploit code between vendors"
                   ]
@@ -27148,7 +27148,7 @@
                   "a": "It measures severity, not likelihood of exploitation or asset context",
                   "x": "Combine CVSS with EPSS, KEV status, and asset criticality.",
                   "wrong": [
-                    "CVSS scores are assigned by vendors and are too often wrong to be useful at all",
+                    "CVSS scores are assigned by vendors and are too often wrong to be trusted",
                     "CVSS covers only operating-system flaws",
                     "CVSS cannot be calculated without a vendor"
                   ]
@@ -27344,7 +27344,7 @@
                   "x": "Exposure plus exploitability drives the order, not alphabetical lists.",
                   "wrong": [
                     "All 200 hosts simultaneously in one change window",
-                    "Internal hosts first, because they hold the data",
+                    "Internal hosts first, because they hold the sensitive data, then the internet-facing ones",
                     "Hosts ordered alphabetically by hostname"
                   ]
                 },
@@ -27911,7 +27911,7 @@
                   "x": "Behavioral detections age far better than hash or IP blocklists.",
                   "wrong": [
                     "IOCs never change, so they are less reliable",
-                    "TTPs are easier for attackers to change",
+                    "IOCs describe behaviour, which changes slowly; TTPs are artifacts attackers rotate quickly",
                     "There is no difference in practice"
                   ]
                 },
@@ -27924,7 +27924,7 @@
                   "x": "The linear kill chain fits this poorly: valid credentials skip weaponization and installation. ATT&CK describes it more precisely as Initial Access (T1078 Valid Accounts), Lateral Movement and Collection (T1074 Data Staged).",
                   "wrong": [
                     "Reconnaissance only",
-                    "Weaponization and installation only",
+                    "Weaponization and installation only, because the attacker brought tools and set up persistence",
                     "None, because valid credentials are not an attack"
                   ]
                 },
@@ -28303,9 +28303,9 @@
                   "a": "CloudTrail management events, VPC Flow Logs, and DNS query logs",
                   "x": "GuardDuty is agentless; it consumes logs AWS already collects.",
                   "wrong": [
-                    "EC2 system logs, application logs, and CloudWatch metrics, all collected by an agent on each instance",
-                    "Only VPC Flow Logs",
-                    "Inspector scan results and Config snapshots"
+                    "OS and application logs collected by the CloudWatch agent on each instance",
+                    "Only VPC Flow Logs from subnets where they are enabled",
+                    "Inspector scan results and AWS Config snapshots"
                   ]
                 },
                 {
@@ -28314,11 +28314,11 @@
                   "trackId": "aws-security",
                   "q": "A GuardDuty finding reports an EC2 instance communicating with a known malicious domain. What is the recommended first containment step?",
                   "a": "Isolate the instance by replacing its security group with one that denies all traffic, then snapshot for forensics",
-                  "x": "Containment before eradication preserves evidence and stops lateral movement.",
+                  "x": "Containment before eradication preserves evidence and stops lateral movement. Note that existing tracked connections can survive a security-group change, so a deny-all NACL on an isolation subnet is often added.",
                   "wrong": [
-                    "Delete the instance immediately",
-                    "Reboot the instance and rotate all IAM keys, clearing the compromise from memory and credentials at once before the attacker can reuse them",
-                    "Disable GuardDuty to stop alert noise"
+                    "Terminate the instance immediately so the threat is gone",
+                    "Reboot the instance to clear anything in memory, rotate the IAM keys it uses, then return it to service",
+                    "Suppress the finding type so the alert stops repeating"
                   ]
                 },
                 {
@@ -28329,9 +28329,9 @@
                   "a": "Aggregate security findings from GuardDuty, Inspector, Macie, and partners into the ASFF standard format",
                   "x": "One console for posture; it does not itself detect threats.",
                   "wrong": [
-                    "Block malicious IP addresses automatically, dropping traffic from known bad sources before it reaches any workload",
-                    "Encrypt findings at rest",
-                    "Replace CloudTrail logging"
+                    "Detect threats itself by running its own analysis over CloudTrail, VPC Flow Logs and DNS logs in every account",
+                    "Detect threats itself by analysing CloudTrail and flow logs",
+                    "Replace CloudTrail as the central record of API activity"
                   ]
                 },
                 {
@@ -28352,12 +28352,12 @@
                   "deckId": "awss-threat-detect",
                   "trackId": "aws-security",
                   "q": "GuardDuty is enabled in one region. Does it protect resources in other regions?",
-                  "a": "No, GuardDuty is regional and must be enabled per region (use Organizations delegated admin to enable centrally)",
-                  "x": "Most security services are regional; enable them everywhere you operate.",
+                  "a": "No: GuardDuty is regional and must be enabled in each region",
+                  "x": "Most security services are regional; enable them everywhere you operate. Organizations with a delegated administrator can enable GuardDuty centrally across accounts and regions.",
                   "wrong": [
-                    "Yes, it is global like IAM",
-                    "Yes, but only for EC2",
-                    "No, GuardDuty cannot be multi-region at all"
+                    "Yes, it is a global service like IAM",
+                    "Yes, but only for EC2 instances in other regions",
+                    "No, and GuardDuty cannot be enabled across regions or accounts centrally"
                   ]
                 },
                 {
@@ -28368,9 +28368,9 @@
                   "a": "Potentially compromised credentials being used from an unusual location or in an unusual pattern",
                   "x": "Treat IAM findings as credential compromise until proven otherwise.",
                   "wrong": [
-                    "A misconfigured security group, letting traffic through a port that should have stayed closed to the instance",
-                    "Normal admin activity",
-                    "An expired access key"
+                    "A security group that leaves a management port open to the internet, so scanners keep probing the instance",
+                    "Normal administrator activity during a change window",
+                    "An access key that has passed its rotation date"
                   ]
                 },
                 {
@@ -28381,9 +28381,9 @@
                   "a": "It builds visual entity graphs linking GuardDuty findings to users, roles, and IP addresses over time",
                   "x": "Detective answers \"what else did this actor touch\" without manual log correlation.",
                   "wrong": [
-                    "It quarantines infected instances, cutting them off from the network while responders investigate what the attacker touched",
-                    "It rotates compromised credentials",
-                    "It blocks attacker IP addresses"
+                    "It quarantines the affected instances automatically and keeps them isolated while responders investigate",
+                    "It rotates credentials that were used in the finding",
+                    "It blocks the attacker's IP addresses at the VPC edge"
                   ]
                 },
                 {
@@ -28394,9 +28394,9 @@
                   "a": "A finding is a single detection event; an insight is a grouped collection of related findings",
                   "x": "Insights help prioritise, e.g. all findings tied to one instance.",
                   "wrong": [
-                    "They are identical terms",
-                    "Findings are manual, insights are automatic",
-                    "Insights are raw logs, findings are summaries, so analysts read the raw logs first and the summaries later"
+                    "They are two names for the same object",
+                    "A finding is a manual note an analyst adds; an insight is the automatic detection raised by GuardDuty",
+                    "An insight is a raw log record; a finding summarises it"
                   ]
                 },
                 {
@@ -28404,12 +28404,12 @@
                   "deckId": "awss-threat-detect",
                   "trackId": "aws-security",
                   "q": "Which GuardDuty protection plan covers S3 data events (object-level API calls)?",
-                  "a": "The S3 protection plan, which must be enabled separately from the foundational threat detection",
-                  "x": "S3 data events cost extra because of their volume; enable selectively.",
+                  "a": "S3 Protection, an optional protection plan on top of foundational detection",
+                  "x": "S3 Protection analyses CloudTrail S3 data events. It is turned on by default when GuardDuty is first enabled, but it is a separate plan that can be disabled, so check it in every account.",
                   "wrong": [
-                    "It is included by default in every account",
-                    "The EC2 protection plan",
-                    "The RDS protection plan only"
+                    "Foundational threat detection, which always analyses every S3 data event at no extra charge",
+                    "EC2 Runtime Monitoring",
+                    "RDS Protection"
                   ]
                 },
                 {
@@ -28421,8 +28421,8 @@
                   "x": "Delegated admin gives one pane of glass without cross-account role juggling.",
                   "wrong": [
                     "Enable GuardDuty in the management account only",
-                    "Create one IAM role per account and check manually, opening each account’s console in turn to review its findings",
-                    "Use CloudTrail alone"
+                    "Create a cross-account role in each account and have analysts review each account's console in turn",
+                    "Rely on CloudTrail alone with a weekly Athena query"
                   ]
                 },
                 {
@@ -28430,12 +28430,12 @@
                   "deckId": "awss-threat-detect",
                   "trackId": "aws-security",
                   "q": "What does it mean that Security Hub findings use the ASFF format?",
-                  "a": "AWS Security Finding Format normalises severity, resources, and remediation across all integrated products",
-                  "x": "Standard fields let automation and SIEMs parse any finding uniformly.",
+                  "a": "A common schema that normalises findings from every integrated product",
+                  "x": "AWS Security Finding Format gives every finding the same fields for severity, resources and remediation, so automation and SIEMs can parse any finding uniformly.",
                   "wrong": [
-                    "Findings are encrypted with ASFF keys, so only holders of the ASFF key can read any finding or change how it is scored",
-                    "Only AWS-native findings are supported",
-                    "ASFF replaces IAM policies"
+                    "Findings are encrypted with an ASFF key, so only tools holding that key can read or re-score them",
+                    "Only AWS-native findings can be imported into Security Hub",
+                    "ASFF is a policy language that replaces IAM conditions"
                   ]
                 },
                 {
@@ -28443,12 +28443,12 @@
                   "deckId": "awss-threat-detect",
                   "trackId": "aws-security",
                   "q": "Macie reports a bucket containing unencrypted national ID numbers. What two actions should follow?",
-                  "a": "Enable default encryption on the bucket and restrict access with bucket policies plus Block Public Access",
+                  "a": "Encrypt the bucket by default and lock down access with policies and Block Public Access",
                   "x": "Remediate the exposure, then protect the data class going forward.",
                   "wrong": [
-                    "Delete the bucket immediately, destroying the IDs and every other object stored alongside them before anyone can copy them out",
-                    "Move the data to Glacier",
-                    "Disable Macie to reduce cost"
+                    "Delete the bucket immediately so nobody can copy the data",
+                    "Move the objects to S3 Glacier Deep Archive, where they cannot be read without a restore request first",
+                    "Suppress the finding and review it at the next audit"
                   ]
                 }
               ],
@@ -28482,12 +28482,12 @@
                   "deckId": "awss-logging",
                   "trackId": "aws-security",
                   "q": "What is the difference between CloudTrail management events and data events?",
-                  "a": "Management events log control-plane API calls (free, on by default); data events log data-plane calls like S3 object access and Lambda invocations (extra cost)",
-                  "x": "Enable data events selectively on sensitive buckets.",
+                  "a": "Management events record control-plane calls; data events record data-plane calls such as S3 object access",
+                  "x": "The first copy of management events is free; data events (S3 object access, Lambda invocations) are high volume and charged, so enable them selectively on sensitive resources.",
                   "wrong": [
-                    "They are the same thing",
-                    "Data events are free, management events cost extra",
-                    "Management events only exist in GovCloud"
+                    "They are the same events stored in two places",
+                    "Data events are free; management events are charged per event",
+                    "Management events exist only in AWS GovCloud regions"
                   ]
                 },
                 {
@@ -28498,9 +28498,9 @@
                   "a": "A dedicated, locked-down log-archive account with MFA Delete and restricted write access",
                   "x": "Separation of duties: attackers who own a workload account cannot erase their trail.",
                   "wrong": [
-                    "In the same account as the workloads, so the logs sit beside the resources they record in that same account",
-                    "On the EC2 instances themselves",
-                    "In CloudWatch Logs only"
+                    "In the same account as the workloads, so each team can see the trail for the resources it manages",
+                    "On the EC2 instances that generated the activity",
+                    "In a CloudWatch Logs group in each workload account only"
                   ]
                 },
                 {
@@ -28511,9 +28511,9 @@
                   "a": "Unusual API activity such as spikes in call volume or anomalous patterns that may indicate misuse",
                   "x": "Insights surfaces statistical anomalies, not signature matches.",
                   "wrong": [
-                    "Malware on EC2 instances",
-                    "Open S3 buckets",
-                    "Unpatched operating systems"
+                    "Malware running on EC2 instances",
+                    "S3 buckets that are publicly readable",
+                    "Operating systems missing security patches, by comparing instance inventories with the CVE database"
                   ]
                 },
                 {
@@ -28522,11 +28522,11 @@
                   "trackId": "aws-security",
                   "q": "How do you query CloudTrail logs across months of history with SQL?",
                   "a": "Enable CloudTrail Lake and run SQL against the event data store",
-                  "x": "Lake gives up to 7 years retention with SQL; Athena queries raw S3 files.",
+                  "x": "CloudTrail Lake stores events in an event data store you query with SQL, with retention of up to 10 years depending on the pricing option. Athena is the alternative for raw trail files in S3.",
                   "wrong": [
-                    "Use CloudWatch Metrics",
-                    "Use GuardDuty findings",
-                    "Export to DynamoDB first, loading months of logs into tables that support SQL queries"
+                    "Use CloudWatch Metrics math over the trail",
+                    "Search GuardDuty findings for the period",
+                    "Load the trail files into DynamoDB tables first, then query them with PartiQL"
                   ]
                 },
                 {
@@ -28534,12 +28534,12 @@
                   "deckId": "awss-logging",
                   "trackId": "aws-security",
                   "q": "What is the purpose of a CloudWatch Logs metric filter?",
-                  "a": "Extract numeric metrics from log patterns (e.g. count of \"AccessDenied\") to trigger alarms",
+                  "a": "Turn matching log lines into a metric (e.g. AccessDenied count) for alarms",
                   "x": "Turns log text into actionable signals.",
                   "wrong": [
-                    "Encrypt log groups",
-                    "Archive logs to Glacier",
-                    "Replicate logs cross-region"
+                    "Encrypt a log group with a KMS key",
+                    "Archive old log events to S3 Glacier",
+                    "Replicate a log group to another region so a copy survives if the first region fails"
                   ]
                 },
                 {
@@ -28550,9 +28550,9 @@
                   "a": "A metric filter on the CloudTrail log group plus a CloudWatch alarm on the resulting metric",
                   "x": "Filter creates the metric; the alarm evaluates it.",
                   "wrong": [
-                    "A GuardDuty finding and an SNS topic, firing the alarm whenever GuardDuty reports too many failed logins",
-                    "A Config rule and a Lambda function",
-                    "An IAM policy and CloudTrail Insights"
+                    "A GuardDuty finding for repeated failed console logins plus an SNS topic for the notification",
+                    "An AWS Config rule plus a Lambda function",
+                    "An IAM policy condition plus CloudTrail Insights"
                   ]
                 },
                 {
@@ -28564,8 +28564,8 @@
                   "x": "Set retention deliberately; indefinite storage wastes money and complicates scoping.",
                   "wrong": [
                     "Logs are deleted after 24 hours",
-                    "Logs are deleted after 30 days, so anything older than a month is gone unless it was exported",
-                    "Retention cannot be changed"
+                    "Logs are kept for 30 days by default and are then deleted unless they were exported to S3 first",
+                    "Retention is fixed and cannot be changed"
                   ]
                 },
                 {
@@ -28576,9 +28576,9 @@
                   "a": "Create an organization trail that logs all regions and delivers to one central bucket",
                   "x": "An org trail in the management account covers every member account and region.",
                   "wrong": [
-                    "Enable CloudTrail in us-east-1 only",
-                    "Create one trail per service",
-                    "CloudTrail is global by default with no setup"
+                    "Enable a single-region trail in us-east-1, since global service events there capture every region",
+                    "Create one trail per AWS service in each account",
+                    "Nothing; CloudTrail logs every region to S3 by default"
                   ]
                 },
                 {
@@ -28586,12 +28586,12 @@
                   "deckId": "awss-logging",
                   "trackId": "aws-security",
                   "q": "What does enabling CloudTrail log file validation provide?",
-                  "a": "Digest files with hashes that prove log files were not modified or deleted after delivery",
+                  "a": "Signed digest files that prove log files were not changed after delivery",
                   "x": "Validation detects tampering; it does not prevent deletion of the bucket itself.",
                   "wrong": [
-                    "Encryption of log files, scrambling their contents so nobody without the key can read them after delivery",
-                    "Real-time alerting",
-                    "Automatic remediation"
+                    "Encryption of each log file with a KMS key",
+                    "An alert sent in real time whenever a log file is deleted from the bucket or overwritten",
+                    "Automatic restoration of modified log files"
                   ]
                 },
                 {
@@ -28602,9 +28602,9 @@
                   "a": "CloudWatch alarms with EC2 actions (stop, terminate, reboot, recover)",
                   "x": "Alarms can invoke EC2 actions, Auto Scaling policies, or SNS notifications.",
                   "wrong": [
-                    "CloudWatch Logs Insights, querying log data to find the impaired instance and restart it",
-                    "CloudWatch Dashboards",
-                    "CloudWatch Synthetics"
+                    "CloudWatch Logs Insights, running a scheduled query that restarts any impaired instance",
+                    "CloudWatch dashboards with an action button",
+                    "CloudWatch Synthetics canaries"
                   ]
                 },
                 {
@@ -28615,9 +28615,9 @@
                   "a": "EventBridge is the evolved service: same event bus concept plus SaaS integrations",
                   "x": "Use EventBridge for new event-driven automation.",
                   "wrong": [
-                    "They are unrelated services, built by different teams for entirely different kinds of events",
-                    "CloudWatch Events is newer",
-                    "EventBridge only handles metrics"
+                    "They are unrelated services: one handles alarms, the other handles scheduled jobs",
+                    "CloudWatch Events is the newer service",
+                    "EventBridge handles only metric data"
                   ]
                 },
                 {
@@ -28628,9 +28628,9 @@
                   "a": "A CloudTrail metric filter for root API calls with a CloudWatch alarm to SNS",
                   "x": "Root usage should be rare; any occurrence deserves an immediate page.",
                   "wrong": [
-                    "GuardDuty alone",
-                    "A daily Athena query, scanning the previous day’s logs each morning for any root activity",
-                    "IAM Access Analyzer"
+                    "GuardDuty alone, with its default findings",
+                    "A daily Athena query over the previous day's logs, with the results emailed each morning",
+                    "IAM Access Analyzer findings for the root user"
                   ]
                 },
                 {
@@ -28641,9 +28641,9 @@
                   "a": "S3 is far cheaper for high-volume, long-retention storage and works directly with Athena",
                   "x": "CloudWatch Logs suits real-time alerting; S3 suits cheap archival analytics.",
                   "wrong": [
-                    "S3 provides real-time alarms",
-                    "CloudWatch cannot store flow logs",
-                    "S3 encrypts automatically, CloudWatch does not"
+                    "S3 can raise alarms in real time on flow-log content, while CloudWatch Logs can only archive it",
+                    "CloudWatch Logs cannot receive VPC Flow Logs",
+                    "S3 encrypts flow logs; CloudWatch Logs cannot"
                   ]
                 },
                 {
@@ -28654,9 +28654,9 @@
                   "a": "Packet payloads; they record metadata only (IPs, ports, protocol, bytes, action)",
                   "x": "Flow logs show who talked to whom, not what was said.",
                   "wrong": [
-                    "Source and destination IPs, recording both endpoints of every packet that crosses the subnet",
-                    "Bytes transferred",
-                    "ACCEPT/REJECT action"
+                    "Source and destination IP addresses",
+                    "The number of bytes and packets transferred",
+                    "Whether each flow was accepted or rejected, because that is decided after logging"
                   ]
                 }
               ],
@@ -28695,7 +28695,7 @@
                   "wrong": [
                     "An explicit Allow",
                     "The most recently attached policy",
-                    "The identity-based policy over the resource policy"
+                    "An identity-based policy over a resource policy"
                   ]
                 },
                 {
@@ -28706,9 +28706,9 @@
                   "a": "Roles provide temporary credentials that rotate automatically via the instance metadata service",
                   "x": "Long-lived keys get leaked; roles eliminate the secret to steal.",
                   "wrong": [
-                    "Roles are cheaper",
-                    "Access keys do not work on EC2, since instances can only authenticate with roles, which is why keys are issued for humans only",
-                    "Roles bypass all policies"
+                    "Roles cost less than IAM users",
+                    "Access keys stop working when an instance restarts, so applications lose access after every reboot",
+                    "Roles are exempt from permission policies"
                   ]
                 },
                 {
@@ -28716,12 +28716,12 @@
                   "deckId": "awss-iam-foundations",
                   "trackId": "aws-security",
                   "q": "What is the difference between an identity-based policy and a resource-based policy?",
-                  "a": "Identity policies attach to users/groups/roles; resource policies attach to resources like S3 buckets and KMS keys",
-                  "x": "Cross-account access typically needs both sides to allow.",
+                  "a": "Identity policies attach to principals; resource policies attach to resources such as buckets",
+                  "x": "Identity policies attach to users, groups and roles; resource policies attach to resources like S3 buckets and KMS keys. Cross-account access typically needs both sides to allow.",
                   "wrong": [
-                    "They are identical",
-                    "Resource policies only exist for EC2, so S3 buckets and KMS keys cannot carry their own policies, leaving S3 and KMS to be secured some other way",
-                    "Identity policies cannot grant S3 access"
+                    "They are the same policy stored in two places",
+                    "Resource policies attach only to EC2 instances; S3 buckets and KMS keys are controlled by identity policies",
+                    "Identity policies cannot grant any S3 access"
                   ]
                 },
                 {
@@ -28732,7 +28732,7 @@
                   "a": "Assume a role with the needed permissions; credentials expire automatically",
                   "x": "Temporary elevation beats permanent permission grants.",
                   "wrong": [
-                    "Create an IAM user with permanent keys",
+                    "Create an IAM user with permanent keys, and delete the user when the debugging is done",
                     "Attach AdministratorAccess for the day",
                     "Share the root credentials temporarily"
                   ]
@@ -28745,9 +28745,9 @@
                   "a": "Credential theft: a stolen password alone is no longer enough to authenticate",
                   "x": "Require MFA especially for console access and privileged roles.",
                   "wrong": [
-                    "Phishing of the MFA device itself",
-                    "Insider threats with legitimate access, since an employee with valid credentials needs no password at all",
-                    "Misconfigured S3 buckets"
+                    "Real-time phishing kits that relay the user's password and MFA code to the attacker",
+                    "Insiders misusing access they legitimately hold",
+                    "S3 buckets left open by a policy mistake"
                   ]
                 },
                 {
@@ -28758,9 +28758,9 @@
                   "a": "A container that passes an IAM role to an EC2 instance",
                   "x": "The instance assumes the role and gets temporary credentials.",
                   "wrong": [
-                    "A user login profile, storing the console password and access keys for one IAM user",
-                    "An EC2 backup",
-                    "A CloudTrail configuration"
+                    "The console password and the access keys belonging to one IAM user",
+                    "A saved backup of an EC2 instance's settings",
+                    "A CloudTrail configuration for one instance"
                   ]
                 },
                 {
@@ -28772,8 +28772,8 @@
                   "x": "Resource scopes where, Condition constrains when, Effect allows or denies.",
                   "wrong": [
                     "Principal",
-                    "Version",
-                    "Sid"
+                    "Resource",
+                    "Effect"
                   ]
                 },
                 {
@@ -28784,9 +28784,9 @@
                   "a": "Test whether a policy grants or denies specific actions before deploying it",
                   "x": "Validate least-privilege changes without breaking production.",
                   "wrong": [
-                    "Simulate DDoS attacks, flooding the account with fake traffic to test how policies hold up",
-                    "Generate access keys",
-                    "Audit CloudTrail logs"
+                    "Simulate attack traffic against the account to see which policies hold up under load",
+                    "Generate access keys with the right permissions",
+                    "Replay CloudTrail events to audit past access"
                   ]
                 },
                 {
@@ -28794,12 +28794,12 @@
                   "deckId": "awss-iam-foundations",
                   "trackId": "aws-security",
                   "q": "Why is the root user dangerous even with a strong password?",
-                  "a": "It has unrestricted permissions that no IAM policy or SCP can limit",
-                  "x": "Lock it with MFA, never use it daily, monitor it with alarms.",
+                  "a": "It has full access that IAM policies cannot restrict; only SCPs (in member accounts) can",
+                  "x": "Lock it with MFA, never use it day to day, and alarm on any use. SCPs do apply to the root user of member accounts, but not to the management account; with centralized root access management you can remove root credentials from member accounts altogether.",
                   "wrong": [
-                    "It cannot use MFA",
-                    "It bypasses CloudTrail logging",
-                    "It is billed at a higher rate"
+                    "It cannot be protected with MFA",
+                    "Its API calls are not recorded by CloudTrail, so its actions leave no audit trail anywhere",
+                    "Its usage is billed at a higher rate"
                   ]
                 },
                 {
@@ -28810,9 +28810,9 @@
                   "a": "Password/key age, MFA status, and last-used timestamps for all IAM users",
                   "x": "Use it to find stale keys and users without MFA.",
                   "wrong": [
-                    "CloudTrail event history, listing every API call each user made in the last 90 days",
-                    "Billing by user",
-                    "Security Hub findings"
+                    "Every API call each IAM user made in the last 90 days, taken from the CloudTrail event history",
+                    "Monthly cost broken down by IAM user",
+                    "Open Security Hub findings per user"
                   ]
                 },
                 {
@@ -28823,9 +28823,9 @@
                   "a": "Denied (implicitly): the resource ARN covers objects, not the bucket",
                   "x": "S3 ARNs distinguish bucket-level from object-level permissions.",
                   "wrong": [
-                    "Allowed, the wildcard covers it, since * matches the bucket name as well as its objects",
-                    "Allowed with MFA",
-                    "Allowed for the owner only"
+                    "Allowed, because the trailing wildcard also matches the bucket ARN itself",
+                    "Allowed, but only when MFA is present",
+                    "Allowed for the bucket owner only"
                   ]
                 },
                 {
@@ -28833,12 +28833,12 @@
                   "deckId": "awss-iam-foundations",
                   "trackId": "aws-security",
                   "q": "What is the AWS managed policy \"ReadOnlyAccess\" appropriate for?",
-                  "a": "Auditors and read-only tooling that need visibility across services without modification rights",
+                  "a": "Auditors and read-only tooling that need visibility but no write access",
                   "x": "It is broad; scope it down for production workloads.",
                   "wrong": [
-                    "Production application servers, which need read access to every service they touch in the account",
-                    "CI/CD deployment roles",
-                    "Database administrators"
+                    "Production application servers, since they read from many services and should never write",
+                    "CI/CD roles that deploy infrastructure",
+                    "Database administrators who manage RDS"
                   ]
                 },
                 {
@@ -28849,9 +28849,9 @@
                   "a": "It identifies unused permissions and generates policies based on actual CloudTrail activity",
                   "x": "Rightsize policies from observed behaviour, not guesses.",
                   "wrong": [
-                    "It blocks all unused permissions automatically",
-                    "It rotates access keys",
-                    "It enforces MFA"
+                    "It removes unused permissions from roles automatically once they have gone unused for 90 days",
+                    "It rotates access keys that are not used",
+                    "It enforces MFA for unused identities"
                   ]
                 },
                 {
@@ -28859,12 +28859,12 @@
                   "deckId": "awss-iam-foundations",
                   "trackId": "aws-security",
                   "q": "What is the difference between AWS managed and customer managed IAM policies?",
-                  "a": "AWS managed policies are maintained by AWS; customer managed policies are versioned and controlled by you",
+                  "a": "AWS maintains managed policies; you version and control customer managed ones",
                   "x": "Prefer customer managed for anything you must audit or freeze.",
                   "wrong": [
-                    "There is no difference",
-                    "Customer managed policies cannot be attached to roles, only to users and groups directly, never to a role",
-                    "AWS managed policies are always more secure"
+                    "There is no practical difference",
+                    "Customer managed policies can attach only to users and groups; AWS managed policies attach to roles",
+                    "AWS managed policies are always least-privilege"
                   ]
                 }
               ],
@@ -28908,9 +28908,9 @@
                   "a": "It pre-correlates GuardDuty findings into timelines of IP, user, and role activity across accounts",
                   "x": "Analysts pivot from one finding to the full blast radius in clicks.",
                   "wrong": [
-                    "It automatically isolates hosts, cutting off the network the moment a finding appears for triage, before any analyst has to look at it",
-                    "It patches vulnerabilities",
-                    "It generates compliance reports"
+                    "It isolates the affected instances automatically the moment a GuardDuty finding appears",
+                    "It patches the vulnerabilities behind each finding",
+                    "It generates compliance reports for auditors"
                   ]
                 },
                 {
@@ -28918,12 +28918,12 @@
                   "deckId": "awss-incident-response",
                   "trackId": "aws-security",
                   "q": "What is the correct order of operations for a compromised EC2 instance?",
-                  "a": "Detect and scope, contain (isolate networking), collect forensic snapshots, eradicate, recover, lessons learned",
-                  "x": "Never skip containment; wiping first destroys evidence.",
+                  "a": "Scope, contain, collect evidence, eradicate, recover, then lessons learned",
+                  "x": "Never skip containment (isolate networking) or evidence collection (snapshots): wiping first destroys evidence.",
                   "wrong": [
-                    "Eradicate, detect, recover, contain",
-                    "Recover first to restore service, rebuilding the instance before anyone knows what happened or what was taken or which systems were touched",
-                    "Delete logs, rebuild, notify"
+                    "Eradicate, detect, recover, then contain",
+                    "Recover first by rebuilding the instance, then investigate",
+                    "Delete the logs, rebuild the instance, then notify"
                   ]
                 },
                 {
@@ -28934,9 +28934,9 @@
                   "a": "Create EBS snapshots, share/copy them to a dedicated forensic account, and restrict access",
                   "x": "Snapshots are point-in-time and immutable; isolation keeps the chain of custody.",
                   "wrong": [
-                    "Download the volume over SSH",
-                    "Take screenshots of the console",
-                    "Copy files to an S3 public bucket"
+                    "Download the volume over SSH to a laptop",
+                    "Take screenshots of the console and the volume",
+                    "Copy the files you need to an S3 bucket in the same account, then delete the original volume"
                   ]
                 },
                 {
@@ -28947,9 +28947,9 @@
                   "a": "Attach an inline policy with an explicit deny keyed on aws:TokenIssueTime",
                   "x": "Killing keys alone does not invalidate already-issued temporary session tokens.",
                   "wrong": [
-                    "Change the user password",
-                    "Enable MFA on the user",
-                    "Wait for the session to expire, letting the stolen credentials work until their normal lifetime ends"
+                    "Change the user's console password",
+                    "Require MFA on the user from now on",
+                    "Deactivate the user's access keys, which also ends every temporary session already issued"
                   ]
                 },
                 {
@@ -28960,9 +28960,9 @@
                   "a": "EventBridge rules matching GuardDuty findings can trigger Lambda or SSM Automation runbooks",
                   "x": "Detection to response in seconds without human clicks.",
                   "wrong": [
-                    "CloudTrail Insights",
-                    "Macie",
-                    "IAM Access Analyzer, which watches findings and triggers a runbook the moment one appears, so nobody has to watch the console"
+                    "CloudTrail Insights, which runs a remediation runbook whenever it sees the finding's API pattern",
+                    "Amazon Macie",
+                    "IAM Access Analyzer"
                   ]
                 },
                 {
@@ -28970,12 +28970,12 @@
                   "deckId": "awss-incident-response",
                   "trackId": "aws-security",
                   "q": "What should an incident response runbook for ransomware on EBS include?",
-                  "a": "Isolate instances, snapshot volumes before any change, check for encrypted volumes",
+                  "a": "Isolate instances, snapshot volumes before any change, and check snapshots and AMIs for tampering",
                   "x": "Attackers share malicious AMIs/snapshots; verify provenance.",
                   "wrong": [
-                    "Pay the ransom quickly",
-                    "Delete all snapshots to save cost, clearing the forensic evidence before anyone can examine it",
-                    "Disable CloudTrail to reduce noise"
+                    "Pay the ransom quickly to limit downtime",
+                    "Delete the older snapshots so the attacker cannot use them, then restore from the newest one available",
+                    "Disable CloudTrail to reduce noise during recovery"
                   ]
                 },
                 {
@@ -28983,12 +28983,12 @@
                   "deckId": "awss-incident-response",
                   "trackId": "aws-security",
                   "q": "How does Security Hub help prioritise during a multi-account incident?",
-                  "a": "Insights group related findings (e.g. all findings on one instance) and CIS controls show blast radius",
+                  "a": "Insights group related findings so one prioritised queue shows the blast radius",
                   "x": "One prioritised queue instead of dozens of account consoles.",
                   "wrong": [
-                    "It automatically fixes findings",
-                    "It replaces the IR team",
-                    "It deletes low-severity findings"
+                    "It fixes findings automatically",
+                    "It replaces the incident response team",
+                    "It suppresses low-severity findings automatically so responders can see only the critical ones"
                   ]
                 },
                 {
@@ -28996,12 +28996,12 @@
                   "deckId": "awss-incident-response",
                   "trackId": "aws-security",
                   "q": "What is a \"game day\" in the context of AWS incident response?",
-                  "a": "A simulated incident exercise that tests detection, runbooks, and team coordination before a real event",
+                  "a": "A simulated incident that rehearses detection, runbooks and coordination",
                   "x": "Practice the playbook; the exam expects preparation over improvisation.",
                   "wrong": [
-                    "A production deployment",
-                    "A penetration test by AWS, probing the production systems for weaknesses on a schedule agreed with the team",
-                    "A billing review"
+                    "A planned production deployment day",
+                    "A penetration test that AWS runs against your production accounts on an agreed day",
+                    "A monthly billing and cost review"
                   ]
                 },
                 {
@@ -29012,9 +29012,9 @@
                   "a": "Any credentials, keys, or tokens the function could access",
                   "x": "Assume the execution role and environment variables were exposed.",
                   "wrong": [
-                    "Only the function name",
-                    "The VPC configuration",
-                    "The CloudWatch log group, rotating the logs so the attacker’s traces start fresh"
+                    "Only the function's name and alias",
+                    "The function's VPC subnets and security groups, since the attacker may know them",
+                    "The function's CloudWatch log group"
                   ]
                 },
                 {
@@ -29022,12 +29022,12 @@
                   "deckId": "awss-incident-response",
                   "trackId": "aws-security",
                   "q": "Which AWS service provides a managed digital forensics workflow for EC2?",
-                  "a": "There is none fully managed; the pattern is EBS snapshots plus Inspector/Detective analysis in an isolated forensic account",
-                  "x": "Know the building blocks rather than expecting one button.",
+                  "a": "None is fully managed; you build it from snapshots and an isolated forensic account",
+                  "x": "Know the building blocks rather than expecting one button. AWS Security Incident Response (2024) helps with triage and case management, but evidence collection is still built from snapshots and an isolated forensic account.",
                   "wrong": [
-                    "Amazon Forensics, the managed service that runs the whole digital forensics workflow for EC2 from snapshot to timeline without any manual steps",
-                    "AWS Shield",
-                    "AWS Artifact"
+                    "Amazon Detective, which images the volumes and builds the forensic timeline for you",
+                    "AWS Shield Advanced, through the response team",
+                    "AWS Artifact, which stores forensic evidence"
                   ]
                 },
                 {
@@ -29035,12 +29035,12 @@
                   "deckId": "awss-incident-response",
                   "trackId": "aws-security",
                   "q": "What is the role of AWS Artifact during incident response?",
-                  "a": "It provides on-demand access to AWS compliance reports (SOC 2, ISO) that may be needed for breach notification evidence",
-                  "x": "Regulators and customers will ask for them; have them ready.",
+                  "a": "It provides AWS's compliance reports, which may be needed as evidence",
+                  "x": "AWS Artifact gives on-demand access to AWS's SOC 2, ISO and PCI reports; regulators and customers may ask for them during breach handling.",
                   "wrong": [
                     "It isolates compromised hosts",
-                    "It analyses malware samples",
-                    "It stores forensic images"
+                    "It analyses malware samples in a sandbox",
+                    "It stores forensic disk images"
                   ]
                 },
                 {
@@ -29051,9 +29051,9 @@
                   "a": "Over-permissive response automation can itself become an attack path or cause outages",
                   "x": "Scope Lambda/SSM remediation roles to exactly the actions the playbook needs.",
                   "wrong": [
-                    "Automation is never allowed in IR, since every response step must be done by hand, with an analyst clicking through every step",
-                    "It makes runbooks slower",
-                    "AWS forbids automation roles"
+                    "AWS does not allow automation roles to take any containment actions during an incident",
+                    "Least privilege makes runbooks run faster",
+                    "Automation in IR must always run as the root user"
                   ]
                 }
               ],
@@ -29090,9 +29090,9 @@
                   "a": "Configuration history and compliance state of resources over time",
                   "x": "CloudTrail logs who did what; Config tracks what the resource became.",
                   "wrong": [
-                    "API call payloads, recording the full request and response of every call ever made",
-                    "Real-time metrics",
-                    "DNS queries"
+                    "The full request and response payload of every API call made in the account",
+                    "Real-time performance metrics",
+                    "DNS queries made by resources"
                   ]
                 },
                 {
@@ -29100,12 +29100,12 @@
                   "deckId": "awss-monitor-analyze",
                   "trackId": "aws-security",
                   "q": "How do AWS Config rules differ from Security Hub standards?",
-                  "a": "Config rules evaluate resource compliance continuously; Security Hub aggregates findings including Config evaluations",
+                  "a": "Config rules evaluate resources; Security Hub aggregates findings, including Config's",
                   "x": "Config is the sensor; Security Hub is one dashboard that consumes it.",
                   "wrong": [
-                    "They are the same service",
-                    "Config rules only work in one region, so each region needs its own separate set of rules, duplicated by hand in every region",
-                    "Security Hub replaces Config"
+                    "They are the same service with two names",
+                    "Config rules only check resources in one region; Security Hub runs the same checks across all regions",
+                    "Security Hub replaces Config entirely"
                   ]
                 },
                 {
@@ -29113,12 +29113,12 @@
                   "deckId": "awss-monitor-analyze",
                   "trackId": "aws-security",
                   "q": "What is a Config conformance pack?",
-                  "a": "A bundled set of Config rules and remediation actions deployed as one package (e.g. CIS benchmark)",
+                  "a": "A packaged set of Config rules and remediations deployed together, such as CIS",
                   "x": "Deploy baseline compliance across accounts quickly.",
                   "wrong": [
-                    "A backup of Config history",
-                    "A CloudTrail Lake query",
-                    "An IAM policy bundle"
+                    "A saved snapshot of Config history for one account, exported for auditors as evidence",
+                    "A saved CloudTrail Lake query",
+                    "A bundle of IAM policies for auditors"
                   ]
                 },
                 {
@@ -29129,9 +29129,9 @@
                   "a": "Store flow logs in S3 and query with Athena using SQL on time-bounded partitions",
                   "x": "Partition by date; full scans of unpartitioned data are slow and costly.",
                   "wrong": [
-                    "Open each log in CloudWatch",
-                    "Use GuardDuty findings only",
-                    "Download logs to a laptop, pulling 30 days of flow logs down to search them locally"
+                    "Open each log stream in the CloudWatch console and search for the IP address day by day",
+                    "Search GuardDuty findings for the IP address",
+                    "Download 30 days of logs and grep them locally"
                   ]
                 },
                 {
@@ -29142,9 +29142,9 @@
                   "a": "An organization trail to S3 with lifecycle policies transitioning to Glacier/Deep Archive",
                   "x": "Compliance retention does not need hot queryable storage.",
                   "wrong": [
-                    "CloudWatch Logs indefinite retention",
-                    "CloudTrail Lake with 7-year retention, keeping every event queryable for the full audit period",
-                    "EBS snapshots of log servers"
+                    "CloudWatch Logs with the default retention",
+                    "CloudTrail Lake with the longest retention option, so every event stays queryable for 7 years",
+                    "EBS snapshots of the log servers"
                   ]
                 },
                 {
@@ -29152,12 +29152,12 @@
                   "deckId": "awss-monitor-analyze",
                   "trackId": "aws-security",
                   "q": "When would you choose CloudTrail Lake over Athena for log analysis?",
-                  "a": "When you need immutable, queryable event storage with SQL and up to 7-year retention",
-                  "x": "Lake is purpose-built; Athena is flexible but you manage the S3 lifecycle.",
+                  "a": "When you want managed, immutable event storage you can query with SQL, with multi-year retention",
+                  "x": "Lake is purpose-built (retention up to 10 years depending on the pricing option); Athena is flexible but you manage the S3 data and lifecycle.",
                   "wrong": [
-                    "Lake is always cheaper, costing less than Athena for every query at any volume or retention",
-                    "Athena cannot query CloudTrail",
-                    "Lake replaces GuardDuty"
+                    "Lake is cheaper than Athena at any volume",
+                    "Athena cannot read CloudTrail log files",
+                    "When you want CloudTrail to detect threats itself, so GuardDuty is no longer needed in the account"
                   ]
                 },
                 {
@@ -29168,9 +29168,9 @@
                   "a": "An attacker operating in a region where logging was never enabled",
                   "x": "Future regions are included automatically.",
                   "wrong": [
-                    "Nothing, regions are logged by default",
-                    "It doubles the cost with no benefit",
-                    "It only affects GovCloud"
+                    "Nothing; every region is logged by default",
+                    "It doubles the cost of the trail without adding coverage, since every region is logged anyway",
+                    "It affects only AWS GovCloud regions"
                   ]
                 },
                 {
@@ -29178,12 +29178,12 @@
                   "deckId": "awss-monitor-analyze",
                   "trackId": "aws-security",
                   "q": "How can KMS-encrypted CloudWatch Logs be shared with a central security account?",
-                  "a": "Resource-based log destination policies plus KMS key policies granting the central account decrypt rights",
+                  "a": "A log destination policy plus a KMS key policy that both allow the central account",
                   "x": "Both the log destination and the key must authorise the consumer.",
                   "wrong": [
-                    "Copy the logs manually",
-                    "Disable encryption first",
-                    "Share the IAM user credentials, giving the central account the same keys the source account uses every day for its own logins"
+                    "Copy the logs manually to the central account",
+                    "Remove the KMS encryption before sharing",
+                    "Give the central account the source account's IAM credentials so it can read and decrypt the logs"
                   ]
                 },
                 {
@@ -29194,9 +29194,9 @@
                   "a": "Ad-hoc queries over log groups to find indicators",
                   "x": "Faster than exporting when logs are already centralised.",
                   "wrong": [
-                    "Long-term archival, keeping log groups for years so old incidents can be re-investigated",
-                    "Metric dashboards",
-                    "Replacing Athena"
+                    "Long-term archival of log groups at a lower storage cost",
+                    "Building metric dashboards",
+                    "Replacing Athena for S3 data"
                   ]
                 },
                 {
@@ -29207,7 +29207,7 @@
                   "a": "S3 Object Lock in compliance mode on the log bucket",
                   "x": "WORM storage: not even the root user can delete until retention expires.",
                   "wrong": [
-                    "S3 versioning alone, keeping every old copy so an altered log can always be restored",
+                    "S3 Versioning on the log bucket, with no retention period set",
                     "S3 Transfer Acceleration",
                     "S3 Intelligent-Tiering"
                   ]
@@ -29217,12 +29217,12 @@
                   "deckId": "awss-monitor-analyze",
                   "trackId": "aws-security",
                   "q": "What is the security value of AWS Config timeline view?",
-                  "a": "It shows exactly when a resource drifted from compliant to non-compliant and which API call caused it",
+                  "a": "It shows when a resource became non-compliant and which API call changed it",
                   "x": "Attribution plus state history in one view.",
                   "wrong": [
-                    "It predicts future drift",
+                    "It predicts when a resource will drift so that changes can be blocked in advance",
                     "It replaces penetration testing",
-                    "It encrypts resources"
+                    "It encrypts non-compliant resources"
                   ]
                 },
                 {
@@ -29230,12 +29230,12 @@
                   "deckId": "awss-monitor-analyze",
                   "trackId": "aws-security",
                   "q": "How do you detect S3 bucket policy changes in near real time?",
-                  "a": "Config rule detecting non-compliant bucket policies plus EventBridge on Config compliance-change events to SNS/Lambda",
+                  "a": "A Config rule plus EventBridge on compliance-change events to SNS or Lambda",
                   "x": "Detect the drift, then notify or auto-remediate.",
                   "wrong": [
-                    "Poll the console hourly, checking every bucket policy by hand once an hour around the clock, day and night without missing a change",
-                    "Enable Macie only",
-                    "Check CloudTrail manually daily"
+                    "Have someone poll every bucket policy from the console each hour and compare it to the baseline",
+                    "Enable Macie and wait for its daily findings",
+                    "Check CloudTrail manually once a day"
                   ]
                 },
                 {
@@ -29246,9 +29246,9 @@
                   "a": "Collect Config data from multiple accounts and regions into one view for central compliance",
                   "x": "Essential for multi-account governance.",
                   "wrong": [
-                    "Aggregating CloudTrail costs, rolling up the billing for trails across every account and region",
-                    "Merging IAM policies",
-                    "Combining VPCs"
+                    "Aggregating CloudTrail and Config costs across accounts into one billing view for central teams",
+                    "Merging IAM policies from several accounts",
+                    "Combining VPCs into one network"
                   ]
                 },
                 {
@@ -29259,9 +29259,9 @@
                   "a": "Data events (S3 object, Lambda) are high-volume and billed per event",
                   "x": "Management events already cover control-plane activity for free.",
                   "wrong": [
-                    "Data events are free, since only management events appear on the bill at all",
-                    "They cannot be filtered",
-                    "They disable management events"
+                    "Data events are free but slow down CloudTrail",
+                    "Data events cannot be filtered by resource",
+                    "Enabling data events turns off management events, so control-plane history is lost"
                   ]
                 },
                 {
@@ -29269,12 +29269,12 @@
                   "deckId": "awss-monitor-analyze",
                   "trackId": "aws-security",
                   "q": "What does \"management events\" read vs write separation allow in CloudTrail?",
-                  "a": "Log read-only API calls separately from mutating calls to cut volume while keeping change history",
+                  "a": "Logging reads and writes separately, keeping change history at lower volume",
                   "x": "Many orgs log writes always and reads only for sensitive services.",
                   "wrong": [
-                    "It encrypts reads differently",
-                    "It is only for S3",
-                    "It requires CloudTrail Lake"
+                    "It encrypts the read-only events with a different KMS key from the write events",
+                    "It applies only to S3 API calls",
+                    "It requires CloudTrail Lake to be enabled"
                   ]
                 }
               ],
@@ -29308,12 +29308,12 @@
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
                   "q": "A security group and a NACL both filter traffic. What is the key behavioural difference?",
-                  "a": "Security groups are stateful (return traffic auto-allowed) and allow-only; NACLs are stateless and support deny rules",
-                  "x": "Ephemeral ports matter for NACLs; security groups handle them automatically.",
+                  "a": "Security groups are stateful and allow-only; NACLs are stateless and can deny",
+                  "x": "Security groups allow return traffic automatically; NACLs need explicit rules for return traffic on ephemeral ports.",
                   "wrong": [
-                    "NACLs are stateful, security groups are not, so NACLs remember return traffic and groups re-check it on every packet, in both directions at once",
-                    "There is no difference",
-                    "Security groups support deny rules"
+                    "NACLs are stateful and allow-only; security groups are stateless with deny rules",
+                    "There is no behavioural difference, only scope",
+                    "Security groups support explicit deny rules; NACLs do not"
                   ]
                 },
                 {
@@ -29324,9 +29324,9 @@
                   "a": "Ascending rule number; the first match wins, so put specific denies on low numbers",
                   "x": "Rule 100 beats rule 200 regardless of allow or deny.",
                   "wrong": [
-                    "Descending order",
-                    "Deny rules always win, so any deny overrides every allow above it in the list",
-                    "Random order"
+                    "Descending rule number",
+                    "All deny rules are evaluated first, then all allow rules, whatever their rule numbers",
+                    "The most specific CIDR first"
                   ]
                 },
                 {
@@ -29334,12 +29334,12 @@
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
                   "q": "An application needs HTTPS from the internet but SSH only from a bastion subnet. How many security groups and what rules?",
-                  "a": "Two: a web SG allowing 443 from 0.0.0.0/0 and an app SG allowing 22 only from the web SG",
-                  "x": "Referencing SG IDs keeps rules correct when instances scale.",
+                  "a": "A web SG allowing 443 from 0.0.0.0/0 and 22 only from the bastion's security group",
+                  "x": "Referencing the bastion's security group ID (not an IP range) keeps the rule correct as instances change.",
                   "wrong": [
-                    "One SG with all ports open",
-                    "Two NACLs only",
-                    "One SG allowing 22 and 443 from anywhere, so SSH and HTTPS both answer to the whole internet on both ports"
+                    "One SG allowing 22 and 443 from 0.0.0.0/0",
+                    "Two NACLs and no security groups",
+                    "A web SG allowing 443 from 0.0.0.0/0 and 22 from the VPC CIDR, so the bastion is covered"
                   ]
                 },
                 {
@@ -29347,12 +29347,12 @@
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
                   "q": "What is the primary use case for AWS WAF?",
-                  "a": "Filtering Layer 7 web traffic (SQLi, XSS, bot control) in front of ALB, CloudFront, or API Gateway",
-                  "x": "WAF is not a network firewall; pair it with security groups and NACLs.",
+                  "a": "Filtering Layer 7 web requests (SQLi, XSS, bots) in front of web endpoints",
+                  "x": "WAF attaches to ALB, CloudFront, API Gateway and similar endpoints. It is not a network firewall; pair it with security groups and NACLs.",
                   "wrong": [
-                    "Blocking DDoS at Layer 3",
-                    "Encrypting traffic",
-                    "Scanning EC2 for vulnerabilities"
+                    "Blocking volumetric DDoS at Layer 3",
+                    "Encrypting traffic between services",
+                    "Scanning EC2 instances and containers for known vulnerabilities before they are exposed to users"
                   ]
                 },
                 {
@@ -29360,12 +29360,12 @@
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
                   "q": "What is the difference between a WAF rate-based rule and AWS Shield Advanced?",
-                  "a": "Rate-based rules block request floods at Layer 7 per IP; Shield Advanced protects Layers 3/4/7 against DDoS",
+                  "a": "Rate-based rules throttle per-IP floods at Layer 7; Shield Advanced covers DDoS at 3, 4 and 7",
                   "x": "Use both: WAF for application abuse, Shield for volumetric attacks.",
                   "wrong": [
-                    "They are the same",
-                    "Shield replaces WAF",
-                    "Rate-based rules only work on EC2, counting requests per instance instead of per IP at the edge in front of the load balancer"
+                    "They are the same feature with two names",
+                    "Shield Advanced replaces the need for WAF",
+                    "Rate-based rules count requests per EC2 instance; Shield Advanced counts requests per IP at the edge"
                   ]
                 },
                 {
@@ -29376,9 +29376,9 @@
                   "a": "Managed groups for common threats (OWASP Top 10, known bad inputs); custom rules for business logic",
                   "x": "Start managed, add custom for your app specifics.",
                   "wrong": [
-                    "Never use managed groups",
-                    "Custom rules cannot block",
-                    "Managed groups replace penetration testing, finding every weakness a tester would find automatically, so no human testing is ever needed again"
+                    "Custom rules only; managed groups are too broad",
+                    "Managed groups only; custom rules cannot block",
+                    "Managed groups for everything, since they replace the need for penetration testing of the application"
                   ]
                 },
                 {
@@ -29389,9 +29389,9 @@
                   "a": "Automatic DDoS protection for CloudFront, Route 53, ALB, and Elastic IPs",
                   "x": "Always on; Advanced adds cost, DRT, and cost protection.",
                   "wrong": [
-                    "WAF rules",
-                    "24/7 DRT access, with the response team on call to help mitigate any attack",
-                    "Bot Control"
+                    "WAF managed rule groups",
+                    "24/7 access to the Shield Response Team and cost protection for scaling during an attack",
+                    "Bot Control for web applications"
                   ]
                 },
                 {
@@ -29399,12 +29399,12 @@
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
                   "q": "A multi-tier VPC needs web, app, and data subnets. What is the most secure layout?",
-                  "a": "Public subnets for load balancers only; app and data in private subnets across at least two AZs with NAT for outbound",
-                  "x": "No instance that users reach directly should hold data.",
+                  "a": "Only load balancers in public subnets; app and data tiers private across two or more AZs",
+                  "x": "No instance that users reach directly should hold data. Private tiers reach the internet outbound through NAT if they need to.",
                   "wrong": [
-                    "All subnets public for simplicity",
-                    "One subnet for everything",
-                    "Data tier in public subnets with strong SGs"
+                    "All tiers in public subnets protected by strict security groups, across at least two AZs",
+                    "One subnet for every tier in a single AZ",
+                    "Data tier in public subnets with strict security groups"
                   ]
                 },
                 {
@@ -29415,7 +29415,7 @@
                   "a": "Traffic to S3, DynamoDB, and other services stays on the AWS private network",
                   "x": "Gateway endpoints (S3, DynamoDB) and interface endpoints (AWS PrivateLink, most other services) keep traffic on the AWS network, need no public IPs, and each endpoint can carry its own policy.",
                   "wrong": [
-                    "They give more throughput than Direct Connect",
+                    "They give more throughput than Direct Connect by using AWS's internal backbone",
                     "They remove the need for IAM policies",
                     "They encrypt traffic across VPC peering"
                   ]
@@ -29425,12 +29425,12 @@
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
                   "q": "What is the difference between a gateway endpoint and an interface endpoint?",
-                  "a": "Gateway endpoints (S3, DynamoDB) are free route-table targets; interface endpoints are ENIs with hourly plus data charges",
-                  "x": "Design for cost: gateways where available.",
+                  "a": "Gateway endpoints are free route-table targets; interface endpoints are billed ENIs",
+                  "x": "Gateway endpoints exist only for S3 and DynamoDB; interface endpoints (PrivateLink) cover most services and charge hourly plus per GB. Design for cost: use gateways where available.",
                   "wrong": [
-                    "Gateway endpoints cost more",
-                    "Interface endpoints are free",
-                    "There is no difference, both being free route-table targets for every AWS service with no hourly or data charges at all, for any service in any region"
+                    "Gateway endpoints cost more than interface endpoints",
+                    "Interface endpoints are free route-table targets",
+                    "There is no difference in cost or mechanism"
                   ]
                 },
                 {
@@ -29441,9 +29441,9 @@
                   "a": "Private subnet with no NAT/IGW route plus VPC interface endpoints for SSM",
                   "x": "Session Manager works without any internet path.",
                   "wrong": [
-                    "Remove the security group",
-                    "Disable the ENI",
-                    "It is impossible without internet, since SSM needs a public route to reach the instance"
+                    "Remove the instance's security group",
+                    "Disable the instance's network interface",
+                    "It cannot be done: Session Manager needs a NAT gateway or internet route to reach the SSM service"
                   ]
                 },
                 {
@@ -29454,9 +29454,9 @@
                   "a": "Stateful, centrally-managed Layer 3-7 inspection with Suricata rules across VPCs",
                   "x": "Use it as a transit inspection point; SGs remain per-instance.",
                   "wrong": [
-                    "It replaces IAM",
-                    "It is free",
-                    "It only filters DNS"
+                    "Per-instance stateful filtering that replaces the security groups attached to each instance",
+                    "It is free in every account",
+                    "It filters only DNS queries"
                   ]
                 },
                 {
@@ -29468,8 +29468,8 @@
                   "x": "Centralised control without per-VPC appliances.",
                   "wrong": [
                     "In each spoke VPC",
-                    "In the management account only, inspecting traffic centrally before it reaches any spoke VPC",
-                    "On the internet gateway"
+                    "In the management account, so traffic is inspected before it reaches any spoke",
+                    "On each internet gateway"
                   ]
                 },
                 {
@@ -29480,9 +29480,9 @@
                   "a": "No bucket in the account can become public via ACLs or policies",
                   "x": "It is the single most effective S3 guardrail.",
                   "wrong": [
-                    "Buckets are encrypted",
-                    "Versioning is enabled",
-                    "Access logging is on, recording every request so public access can be spotted afterwards"
+                    "Every bucket is encrypted at rest",
+                    "Versioning is enabled on every bucket",
+                    "Server access logging is turned on for every bucket, so public access can be seen"
                   ]
                 },
                 {
@@ -29493,9 +29493,9 @@
                   "a": "Switch the rule to Count mode to log matches without blocking, then tune exclusions",
                   "x": "Count mode gives visibility without outage.",
                   "wrong": [
-                    "Delete the web ACL, removing every rule at once so the legitimate traffic flows again",
-                    "Disable WAF entirely",
-                    "Allow all IPs"
+                    "Delete the web ACL so traffic flows again",
+                    "Disable WAF on the load balancer",
+                    "Add an allow-all rule above the managed group until the vendor fixes the rule update"
                   ]
                 },
                 {
@@ -29503,11 +29503,11 @@
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
                   "q": "What is the security benefit of separate AWS accounts per environment over one account with IAM separation?",
-                  "a": "Blast-radius isolation: SCPs, separate CloudTrail, and no accidental cross-environment privilege paths",
+                  "a": "Blast-radius isolation: separate guardrails, logs and privilege paths per environment",
                   "x": "Multi-account is the AWS-recommended security boundary.",
                   "wrong": [
-                    "It is cheaper",
-                    "IAM cannot separate environments",
+                    "It is cheaper than one account",
+                    "IAM cannot express environment boundaries, so separate accounts are the only possible boundary",
                     "It removes the need for VPCs"
                   ]
                 }
@@ -29545,9 +29545,9 @@
                   "a": "They never grant permissions; they only set the maximum allowed",
                   "x": "An SCP allow without an identity policy allow still denies.",
                   "wrong": [
-                    "They grant admin access",
-                    "They apply to the management account, limiting even the organization owner’s permissions",
-                    "They replace IAM policies"
+                    "They grant administrator access to every principal in a member account",
+                    "They restrict even the management account",
+                    "They replace IAM policies in member accounts"
                   ]
                 },
                 {
@@ -29558,9 +29558,9 @@
                   "a": "To delegate limited admin to developers: they can create roles but never exceed the boundary",
                   "x": "Boundaries enable safe delegation; SCPs govern whole accounts.",
                   "wrong": [
-                    "To grant cross-account access",
-                    "To replace MFA",
-                    "Boundaries are only for S3, capping what a bucket policy can grant and nothing else in the account"
+                    "To grant access to another account",
+                    "To replace MFA for privileged users",
+                    "To cap what a bucket policy can grant to principals in other accounts"
                   ]
                 },
                 {
@@ -29571,9 +29571,9 @@
                   "a": "A cross-account IAM role with an external ID and a trust policy limited to the partner account",
                   "x": "External ID prevents confused-deputy attacks.",
                   "wrong": [
-                    "Share your IAM user credentials",
-                    "Make the bucket public temporarily",
-                    "Create an IAM user for the partner with permanent keys, sharing the credentials by email for them to keep"
+                    "Share an existing IAM user's credentials",
+                    "Make the bucket public for the duration of the work",
+                    "Create an IAM user with permanent keys for the partner and share them over a secure channel only"
                   ]
                 },
                 {
@@ -29584,8 +29584,8 @@
                   "a": "A malicious party tricks your role into acting on their behalf by omitting the external ID check",
                   "x": "Always require a unique external ID for third-party trust policies.",
                   "wrong": [
-                    "A debugging issue in CloudTrail",
-                    "An MFA failure mode",
+                    "A gap in CloudTrail logging when a role is assumed from another account, hiding who acted and why",
+                    "An MFA failure when roles are chained",
                     "A KMS key rotation bug"
                   ]
                 },
@@ -29594,12 +29594,12 @@
                   "deckId": "awss-iam-advanced",
                   "trackId": "aws-security",
                   "q": "Cognito User Pools vs Identity Pools: which does what?",
-                  "a": "User Pools authenticate users (sign-up/sign-in, MFA); Identity Pools federate identities to get temporary AWS credentials",
-                  "x": "User Pools are the directory; Identity Pools are the AWS access broker.",
+                  "a": "User Pools sign users in; Identity Pools exchange identities for AWS credentials",
+                  "x": "User Pools are the directory (sign-up, sign-in, MFA); Identity Pools federate those or other identities into temporary AWS credentials.",
                   "wrong": [
-                    "They are identical",
-                    "Identity Pools store passwords",
-                    "User Pools grant S3 access directly, handing authenticated users temporary credentials for any bucket in the account, with no bucket policy needed at all"
+                    "They are identical services",
+                    "Identity Pools store user passwords",
+                    "User Pools issue AWS credentials directly to users"
                   ]
                 },
                 {
@@ -29610,9 +29610,9 @@
                   "a": "Centralised workforce SSO across AWS accounts and business apps with permission sets",
                   "x": "One identity, many accounts, no long-lived keys.",
                   "wrong": [
-                    "Customer-facing login",
-                    "EC2 key pairs, letting the workforce SSH into instances across every account from one login",
-                    "S3 website hosting"
+                    "Customer-facing sign-up and sign-in for web and mobile applications",
+                    "Managing EC2 key pairs for SSH access",
+                    "Hosting static websites from S3"
                   ]
                 },
                 {
@@ -29623,9 +29623,9 @@
                   "a": "OIDC federation from the identity provider (e.g. GitHub Actions) to assume a short-lived role",
                   "x": "No static secrets to rotate or leak.",
                   "wrong": [
-                    "Embed access keys in the repo",
-                    "Use the root account",
-                    "Share one IAM user across pipelines, reusing the same access key in every repository that deploys to AWS"
+                    "Store long-lived access keys as encrypted repository secrets and rotate them every 90 days or so",
+                    "Use the root account's access keys",
+                    "Share one IAM user's keys across every pipeline"
                   ]
                 },
                 {
@@ -29633,12 +29633,12 @@
                   "deckId": "awss-iam-advanced",
                   "trackId": "aws-security",
                   "q": "What does the IAM condition key aws:PrincipalOrgID enforce?",
-                  "a": "That the call comes from an account inside your Organization, blocking exfiltration to external accounts",
+                  "a": "The caller must belong to an account in your Organization",
                   "x": "Use it in S3 bucket and KMS key policies for data-perimeter guardrails.",
                   "wrong": [
-                    "MFA is required",
-                    "The call uses TLS 1.2",
-                    "The principal is the root user"
+                    "MFA must be present for the call",
+                    "The call must use TLS 1.2 or later",
+                    "That the caller is the root user of an account inside your Organization"
                   ]
                 },
                 {
@@ -29647,11 +29647,11 @@
                   "trackId": "aws-security",
                   "q": "A key policy and an IAM policy both matter for KMS. Why?",
                   "a": "KMS evaluates both: the key policy is the primary gate",
-                  "x": "Unlike S3, KMS defaults to key-policy-only control.",
+                  "x": "The key policy is the primary gate: IAM policies only take effect if the key policy allows the account to delegate (as the default key policy does).",
                   "wrong": [
-                    "IAM policies are ignored for KMS, so only the key policy decides who can use a key",
-                    "Key policies are optional",
-                    "Only SCPs apply to KMS"
+                    "IAM policies are ignored for KMS keys",
+                    "Key policies are optional for customer managed keys, so the IAM policy alone decides",
+                    "Only SCPs control access to KMS keys"
                   ]
                 },
                 {
@@ -29662,8 +29662,8 @@
                   "a": "Flag permissions granted but never used so policies can be tightened toward least privilege",
                   "x": "Feed findings into a regular access-review cycle.",
                   "wrong": [
-                    "Automatically delete policies, removing any permission that goes unused for a week without asking anyone first",
-                    "Block all IAM changes",
+                    "Delete policies automatically once they have gone unused for a set number of days",
+                    "Block all IAM changes until reviewed",
                     "Generate compliance certificates"
                   ]
                 },
@@ -29675,9 +29675,9 @@
                   "a": "Add an MFA condition (aws:MultiFactorAuthPresent) to the role trust policy",
                   "x": "The trust policy is the gate; conditions there apply before any session starts.",
                   "wrong": [
-                    "Enable MFA on the EC2 instance, prompting for a second factor at every SSH login",
-                    "It cannot be enforced",
-                    "Use SCPs only"
+                    "Enable MFA on the EC2 instance for SSH logins",
+                    "It cannot be enforced for role assumption",
+                    "Use an SCP only, because role trust policies cannot evaluate MFA conditions"
                   ]
                 },
                 {
@@ -29685,11 +29685,11 @@
                   "deckId": "awss-iam-advanced",
                   "trackId": "aws-security",
                   "q": "What is the difference between a service-linked role and a service role?",
-                  "a": "Service-linked roles are predefined by AWS services and cannot have their permissions edited; service roles are customer-created",
-                  "x": "Prefer service-linked where available for least privilege by default.",
+                  "a": "Service-linked roles are defined and locked by the AWS service; service roles are yours",
+                  "x": "You cannot edit a service-linked role's permissions; a service role is created and managed by you for a service to assume. Prefer service-linked roles where available.",
                   "wrong": [
                     "There is no difference",
-                    "Service roles are more secure",
+                    "Service roles are always more secure",
                     "Service-linked roles need manual key rotation"
                   ]
                 }
@@ -29731,12 +29731,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "What are the three KMS key types and when is each appropriate?",
-                  "a": "AWS managed (default, AWS controls rotation), customer managed (you control policy and rotation)",
-                  "x": "Use customer managed keys for sensitive data needing audit control.",
+                  "a": "AWS owned, AWS managed (aws/service), and customer managed keys",
+                  "x": "AWS owned keys are used inside services and invisible to you; AWS managed keys (aws/s3 etc.) are created for you and controlled by AWS; customer managed keys give you control of policy, rotation and audit. Use customer managed keys for sensitive data.",
                   "wrong": [
-                    "Only one type exists",
-                    "Types differ by region only, with each region offering a different set of key types, chosen per region at creation time",
-                    "Key types affect durability"
+                    "Symmetric, asymmetric and HMAC, chosen by data type",
+                    "Regional, multi-Region and global keys, chosen by where the data lives",
+                    "Software, hardware and external, chosen by key store"
                   ]
                 },
                 {
@@ -29747,9 +29747,9 @@
                   "a": "Only if the key policy explicitly allows the external account",
                   "x": "KMS defaults to key-policy authority unlike most services.",
                   "wrong": [
-                    "Yes, IAM allow is enough, since an IAM allow in the other account overrides the key policy",
-                    "No, KMS never allows cross-account",
-                    "Only with CloudHSM"
+                    "Yes: the IAM allow in the other account is enough, because IAM overrides key policies",
+                    "No, KMS keys can never be used across accounts",
+                    "Only if the key is stored in CloudHSM"
                   ]
                 },
                 {
@@ -29760,9 +29760,9 @@
                   "a": "Data is encrypted with a data key; the data key is encrypted by the KMS key",
                   "x": "GenerateDataKey returns both plaintext (use then discard) and encrypted (store) versions.",
                   "wrong": [
-                    "Encrypting the envelope icon",
-                    "Double-encrypting with two KMS keys, wrapping the data once with each key in turn for twice the protection",
-                    "A type of TLS"
+                    "Data is encrypted twice, first with one KMS key and then with a second KMS key",
+                    "Wrapping data in a TLS tunnel to KMS",
+                    "Sending all data to KMS to be encrypted directly"
                   ]
                 },
                 {
@@ -29770,12 +29770,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "When should you use a KMS grant instead of editing the key policy?",
-                  "a": "For temporary, programmatic delegation (e.g. an AWS service needs limited key use) without changing the durable policy",
-                  "x": "Grants are scoped, expirable delegations.",
+                  "a": "For scoped, temporary delegation without editing the key policy",
+                  "x": "Grants are programmatic, revocable delegations, often used by AWS services that need limited key use.",
                   "wrong": [
-                    "Grants are permanent",
-                    "Grants replace key policies",
-                    "Never use grants"
+                    "Whenever a permission must be permanent, since grants replace the key policy outright",
+                    "Grants are needed for any IAM user to use a key",
+                    "Never; key policy edits are always preferred"
                   ]
                 },
                 {
@@ -29783,12 +29783,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "What does automatic key rotation do for customer managed KMS keys?",
-                  "a": "Generates new backing key material yearly while retaining old material so existing ciphertext still decrypts",
-                  "x": "Rotation without re-encryption: AWS keeps prior key versions.",
+                  "a": "Creates new key material on a schedule and keeps the old for decryption",
+                  "x": "The rotation period is configurable from 90 to 2,560 days (default 365), and on-demand rotation is also available. No data is re-encrypted.",
                   "wrong": [
-                    "Re-encrypts all data immediately, decrypting and re-encrypting every object the moment rotation happens, with no downtime at all",
-                    "Deletes the old key",
-                    "Rotation is manual only"
+                    "Re-encrypts all existing data with the new key material, then deletes the old material",
+                    "Deletes the old key material after rotation",
+                    "It is manual only for customer managed keys"
                   ]
                 },
                 {
@@ -29801,7 +29801,7 @@
                   "wrong": [
                     "SSE-S3",
                     "SSE-C",
-                    "None of them, since none of the three modes records decryptions anywhere at all"
+                    "SSE-C, because you supply the key and S3 logs every use of it with your identity"
                   ]
                 },
                 {
@@ -29812,9 +29812,9 @@
                   "a": "A bucket-level KMS data key reused for objects, cutting KMS API calls by up to 99%",
                   "x": "Enable bucket keys whenever using SSE-KMS at scale.",
                   "wrong": [
-                    "They replace bucket policies",
-                    "They disable encryption",
-                    "They are only for Glacier, cutting API calls for archived objects that are rarely retrieved"
+                    "They replace bucket policies for encryption",
+                    "They turn off KMS encryption for small objects so that requests stay within the KMS quota",
+                    "They apply only to the Glacier storage classes"
                   ]
                 },
                 {
@@ -29827,7 +29827,7 @@
                   "wrong": [
                     "SSE-S3",
                     "AWS managed KMS keys",
-                    "Client-side encryption with AWS keys"
+                    "Client-side encryption with keys generated by AWS KMS and cached on the client"
                   ]
                 },
                 {
@@ -29835,12 +29835,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "What is the practical difference between CloudHSM and KMS?",
-                  "a": "CloudHSM is dedicated single-tenant hardware you manage; KMS is multi-tenant AWS-managed with simpler APIs",
+                  "a": "CloudHSM is single-tenant hardware you operate; KMS is a managed shared service",
                   "x": "Choose CloudHSM for regulatory mandates; KMS for everything else.",
                   "wrong": [
-                    "CloudHSM is cheaper",
-                    "KMS cannot do asymmetric keys, handling only symmetric encryption for data at rest in S3 and EBS, which is all symmetric encryption ever covers",
-                    "They are identical"
+                    "CloudHSM is cheaper than KMS",
+                    "KMS cannot use asymmetric keys",
+                    "They are identical apart from the console"
                   ]
                 },
                 {
@@ -29848,12 +29848,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "How do you ensure TLS certificates for an ALB are always valid without manual renewal?",
-                  "a": "Use ACM public certificates with DNS validation; ACM renews automatically when the validation record persists",
+                  "a": "ACM public certificates with DNS validation, which ACM renews automatically",
                   "x": "Email-validated certs cannot auto-renew reliably.",
                   "wrong": [
-                    "Use self-signed certs",
-                    "Renew manually yearly",
-                    "ACM certificates cannot be used on ALBs, since load balancers need certificates issued elsewhere and uploaded by hand"
+                    "Use self-signed certificates with a ten-year validity so they never need renewing",
+                    "Renew manually each year from a commercial CA",
+                    "Upload imported certificates, which ACM renews"
                   ]
                 },
                 {
@@ -29864,9 +29864,9 @@
                   "a": "No; ACM-managed keys never leave the service",
                   "x": "This is a security feature, not a limitation, for most use cases.",
                   "wrong": [
-                    "Yes, anytime",
-                    "Only in us-east-1",
-                    "Yes, with root access, letting the root user download the private key from the console"
+                    "Yes, at any time from the console",
+                    "Only for certificates issued in us-east-1 for CloudFront",
+                    "Yes, by the account's root user"
                   ]
                 },
                 {
@@ -29877,9 +29877,9 @@
                   "a": "Secrets Manager with automatic rotation and retrieval via the SDK at runtime",
                   "x": "Never in environment variables, code, or Parameter Store plaintext.",
                   "wrong": [
-                    "In the application config file",
-                    "In an S3 bucket",
-                    "In Systems Manager Parameter Store as String"
+                    "In the application's config file on the instance, readable only by the app user",
+                    "In a private S3 bucket",
+                    "In Parameter Store as a plain String"
                   ]
                 },
                 {
@@ -29890,9 +29890,9 @@
                   "a": "When you need automatic rotation, cross-account sharing, or RDS-integrated rotation",
                   "x": "Parameter Store is cheaper for static config; Secrets Manager for true secrets.",
                   "wrong": [
-                    "They are identical",
-                    "Parameter Store always wins, rotating secrets and sharing them across accounts just like Secrets Manager",
-                    "Secrets Manager is free"
+                    "They are identical services",
+                    "Parameter Store always wins for rotating secrets",
+                    "When cost matters most, because Secrets Manager is free for any number of stored secrets"
                   ]
                 },
                 {
@@ -29903,9 +29903,9 @@
                   "a": "Continuous monitoring of S3 for new sensitive data plus automated findings to Security Hub",
                   "x": "Discovery is day one; Macie watches for drift.",
                   "wrong": [
-                    "Macie encrypts the data",
-                    "Macie deletes sensitive files",
-                    "Macie replaces DLP tools entirely, covering every data-loss rule an enterprise DLP suite would enforce"
+                    "Macie encrypts the sensitive data it finds",
+                    "It deletes files that contain sensitive data as soon as it finds them",
+                    "Macie replaces enterprise DLP tools"
                   ]
                 },
                 {
@@ -29914,11 +29914,11 @@
                   "trackId": "aws-security",
                   "q": "What S3 feature lets you require encryption on every object upload?",
                   "a": "Default bucket encryption (SSE-S3 or SSE-KMS)",
-                  "x": "Belt and suspenders: default plus explicit deny.",
+                  "x": "Since January 2023, S3 applies SSE-S3 to every new object by default; set the bucket default to SSE-KMS where you need key control, and add a policy deny for uploads without the required encryption header.",
                   "wrong": [
-                    "Versioning",
-                    "MFA Delete, requiring a second factor on every upload that lacks the encryption header",
-                    "Access points"
+                    "S3 Versioning",
+                    "MFA Delete",
+                    "S3 Access Points with an encryption setting on each access point"
                   ]
                 },
                 {
@@ -29930,8 +29930,8 @@
                   "x": "Deleting S3 objects alone leaves replicated copies; killing keys is definitive.",
                   "wrong": [
                     "Empty the bucket",
-                    "Disable versioning",
-                    "Remove IAM policies"
+                    "Disable versioning on the bucket",
+                    "Remove all the IAM and bucket policies so that nobody can ever read the objects again"
                   ]
                 },
                 {
@@ -29939,12 +29939,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "What does EBS default encryption at the account level protect against?",
-                  "a": "Snapshot sharing mistakes and stolen volumes: every new EBS volume and snapshot is encrypted automatically",
+                  "a": "Unencrypted volumes and snapshots: every new one is encrypted automatically",
                   "x": "Enable it in every region; it does not encrypt pre-existing volumes.",
                   "wrong": [
-                    "It encrypts S3 too, applying the same account-level encryption to every bucket automatically without any setup",
-                    "It replaces KMS",
-                    "It is enabled by default"
+                    "It also turns on default encryption for every S3 bucket and RDS database in the account",
+                    "It replaces the need for KMS keys",
+                    "It is enabled by default in every account"
                   ]
                 },
                 {
@@ -29955,9 +29955,9 @@
                   "a": "Share the snapshot and grant the target account use of the KMS key",
                   "x": "Both the snapshot share and key permission are required.",
                   "wrong": [
-                    "Snapshots cannot be shared encrypted",
-                    "Copy it as unencrypted first",
-                    "Only the management account can share, since member accounts cannot share their own snapshots"
+                    "Encrypted snapshots cannot be shared",
+                    "Copy it unencrypted first, then share",
+                    "Only the management account can share encrypted snapshots across accounts"
                   ]
                 },
                 {
@@ -29965,12 +29965,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "What is the risk of using AWS managed KMS keys for highly sensitive data?",
-                  "a": "You cannot view or edit the key policy, set rotation",
+                  "a": "You cannot edit their key policy or change rotation, and you cannot use them across accounts",
                   "x": "The exam expects customer managed keys for regulated data.",
                   "wrong": [
-                    "They are less encrypted",
-                    "They expire yearly, forcing a new key to be created every twelve months",
-                    "They cost more"
+                    "They use weaker encryption than customer managed keys, so they fail most compliance standards",
+                    "They expire every year and must be recreated",
+                    "They cost more than customer managed keys"
                   ]
                 },
                 {
@@ -29981,9 +29981,9 @@
                   "a": "Bucket policy denying requests where aws:SecureTransport is false",
                   "x": "The canonical condition key for TLS enforcement.",
                   "wrong": [
-                    "Enable versioning",
-                    "Use SSE-KMS",
-                    "Block Public Access"
+                    "Enable versioning on the bucket so that every request is recorded with its protocol",
+                    "Use SSE-KMS for all objects",
+                    "Turn on Block Public Access"
                   ]
                 },
                 {
@@ -29994,9 +29994,9 @@
                   "a": "Detecting misissued or unauthorized certificates for your domains via public CT logs",
                   "x": "Catches rogue issuance early.",
                   "wrong": [
-                    "Renewing certificates, replacing each one automatically before its expiry date arrives each year",
-                    "Issuing private certs",
-                    "Encrypting S3"
+                    "Renewing certificates before they expire",
+                    "Issuing private certificates for internal services and logging them to public CT logs",
+                    "Encrypting objects in S3"
                   ]
                 },
                 {
@@ -30007,9 +30007,9 @@
                   "a": "Execution role with kms:Decrypt scoped to the specific key ARN",
                   "x": "Scope both the IAM policy and consider key policy constraints.",
                   "wrong": [
-                    "AdministratorAccess on the role",
-                    "kms:* on *",
-                    "Store the key in an env var, letting the function read the plaintext key at runtime"
+                    "AdministratorAccess on the execution role",
+                    "kms:* on all resources",
+                    "Store the key material in an encrypted environment variable on the function"
                   ]
                 },
                 {
@@ -30017,11 +30017,11 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "What does S3 Object Lock in compliance mode guarantee?",
-                  "a": "WORM immutability: objects cannot be deleted or overwritten until retention expires, not even by root",
+                  "a": "No one, not even root, can delete or overwrite objects until retention ends",
                   "x": "Required for SEC 17a-4 style retention.",
                   "wrong": [
-                    "Encryption at rest, scrambling objects so they cannot be read even if retention expires and the bucket is opened",
-                    "Faster uploads",
+                    "Encryption at rest with a dedicated key that not even the root user can disable",
+                    "Faster uploads for large objects",
                     "Cross-region replication"
                   ]
                 },
@@ -30030,12 +30030,12 @@
                   "deckId": "awss-data-protection",
                   "trackId": "aws-security",
                   "q": "How do VPC endpoint policies improve data protection for S3 access?",
-                  "a": "They restrict which buckets and actions are reachable through the endpoint, containing exfiltration paths",
+                  "a": "They limit which buckets and actions can be reached through the endpoint",
                   "x": "Even with broad IAM, the endpoint policy can deny sensitive buckets.",
                   "wrong": [
-                    "They encrypt the traffic",
+                    "They encrypt all traffic through the endpoint and replace the need for bucket policies",
                     "They replace bucket policies",
-                    "They are only for DynamoDB"
+                    "They work only for DynamoDB"
                   ]
                 },
                 {
@@ -30046,9 +30046,9 @@
                   "a": "Encrypt once and decrypt in other regions without re-encryption, for DR and global apps",
                   "x": "Key material replicates; each region still logs independently.",
                   "wrong": [
-                    "They are cheaper",
-                    "They replace CloudHSM",
-                    "They work cross-cloud, decrypting data in other clouds with the same key material everywhere it runs"
+                    "They are cheaper than single-Region keys",
+                    "They replace CloudHSM for compliance",
+                    "They let you decrypt the same data in other cloud providers using the same key material"
                   ]
                 },
                 {
@@ -30059,9 +30059,9 @@
                   "a": "Data is encrypted before it reaches AWS, so AWS never sees plaintext",
                   "x": "Trade-off: you own key management and lose some service features.",
                   "wrong": [
-                    "It is always better",
-                    "SSE-KMS is insecure",
-                    "Client-side is required by law, since regulators forbid any cloud provider from seeing plaintext"
+                    "It is always faster than SSE-KMS",
+                    "SSE-KMS is considered insecure",
+                    "It is legally required for all regulated data stored in any public cloud"
                   ]
                 },
                 {
@@ -30072,9 +30072,9 @@
                   "a": "The KMS key policy must allow CloudTrail to encrypt (kms:GenerateDataKey)",
                   "x": "A misconfigured key policy silently breaks log delivery.",
                   "wrong": [
-                    "Any key in any region works, encrypting trail logs no matter where the key lives",
-                    "CloudTrail cannot use KMS",
-                    "The key must be AWS managed"
+                    "Any key in any region works",
+                    "CloudTrail cannot use KMS keys",
+                    "The key must be an AWS managed key in the same region as the trail's home region"
                   ]
                 },
                 {
@@ -30085,9 +30085,9 @@
                   "a": "Centralised, policy-driven backups with vault lock (WORM) across services and accounts",
                   "x": "Vault Lock gives ransomware-resistant recovery points.",
                   "wrong": [
-                    "It replaces encryption",
-                    "It is only for EC2",
-                    "Backups are unencrypted"
+                    "It replaces encryption for backups, since backup vaults are already isolated from other accounts",
+                    "It works only for EC2 instances",
+                    "Backups it creates are unencrypted"
                   ]
                 }
               ],
@@ -30124,9 +30124,9 @@
                   "a": "Software vulnerabilities and network reachability in EC2, ECR images, and Lambda code",
                   "x": "Inspector finds patchable CVEs; GuardDuty finds active malicious behaviour.",
                   "wrong": [
-                    "Active intrusions, watching live traffic for attackers already inside the network and moving laterally",
-                    "DNS exfiltration",
-                    "IAM anomalies"
+                    "Active intrusions and attacker behaviour, found by analysing VPC flow logs and DNS queries",
+                    "DNS-based data exfiltration",
+                    "Anomalous IAM API activity"
                   ]
                 },
                 {
@@ -30134,12 +30134,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "How should Inspector findings be operationalised at scale?",
-                  "a": "Aggregate to Security Hub, prioritise by exploitability, and auto-remediate patching via Systems Manager Patch Manager",
+                  "a": "Send to Security Hub, prioritise by exploitability, patch via Patch Manager",
                   "x": "Findings without a remediation pipeline are just noise.",
                   "wrong": [
-                    "Email each finding manually, sending every Inspector result to the team inbox one by one for triage each morning, before the team starts its shift",
-                    "Ignore informational findings forever",
-                    "Disable Inspector after one scan"
+                    "Email each finding to the owning team",
+                    "Ignore informational findings",
+                    "Disable Inspector after the first full scan"
                   ]
                 },
                 {
@@ -30147,12 +30147,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "Why is SSM Session Manager more secure than SSH with key pairs?",
-                  "a": "No inbound ports, no long-lived keys, IAM-authenticated sessions with full CloudTrail/CloudWatch logging",
+                  "a": "No inbound ports or SSH keys; IAM-authorised sessions that are fully logged",
                   "x": "Removes the entire SSH key management problem.",
                   "wrong": [
-                    "It is faster",
-                    "It works without IAM, opening sessions for anyone who can reach the instance over the open session port without logging in",
-                    "It encrypts less"
+                    "It is faster than SSH because traffic skips the instance's network stack",
+                    "It does not need IAM permissions",
+                    "It uses lighter encryption than SSH"
                   ]
                 },
                 {
@@ -30163,9 +30163,9 @@
                   "a": "Scheduled, automated patching with baselines and compliance reporting across fleets",
                   "x": "Prove patch state to auditors centrally.",
                   "wrong": [
-                    "It replaces Inspector",
-                    "It patches S3",
-                    "It is manual only"
+                    "It replaces Inspector scanning",
+                    "It patches S3 objects",
+                    "It is a manual tool: each instance must be patched by hand from the EC2 console"
                   ]
                 },
                 {
@@ -30173,12 +30173,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "How do you prevent EC2 instances from being launched without IMDSv2?",
-                  "a": "An SCP or IAM policy denying RunInstances unless MetadataHttpTokens is required, plus Config rule monitoring",
-                  "x": "Guardrail plus detective control.",
+                  "a": "A policy that denies RunInstances unless IMDSv2 is required, plus a Config rule",
+                  "x": "Guardrail plus detective control. You can also set account-level instance metadata defaults so new launches require IMDSv2.",
                   "wrong": [
-                    "It cannot be enforced, since instances can launch with any metadata setting they choose at launch time, since no policy can constrain a launch",
-                    "Only via manual review",
-                    "IMDSv2 is default-off forever"
+                    "It cannot be enforced at launch time",
+                    "Only by reviewing each launch manually",
+                    "Nothing is needed, because IMDSv1 has already been disabled on every EC2 instance type"
                   ]
                 },
                 {
@@ -30186,12 +30186,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "What was the security lesson of the 2019 Capital One breach for AWS architects?",
-                  "a": "SSRF against IMDSv1 let an attacker steal role credentials; enforce IMDSv2 and least-privilege roles",
+                  "a": "SSRF against IMDSv1 exposed role credentials: enforce IMDSv2 and least privilege",
                   "x": "The exam loves this case: metadata service plus overbroad role.",
                   "wrong": [
-                    "S3 is insecure out of the box, leaving every new bucket open to the internet until locked down by hand after creation",
-                    "KMS is unbreakable",
-                    "WAF stops all attacks"
+                    "S3 buckets were public by default, so every bucket had to be locked down by hand afterwards",
+                    "KMS encryption can be bypassed",
+                    "A WAF stops every web attack"
                   ]
                 },
                 {
@@ -30199,12 +30199,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "How should EKS cluster endpoint access be secured?",
-                  "a": "Private endpoint with authorized networks or bastion/VPN access; never a public endpoint open to 0.0.0.0/0",
+                  "a": "A private endpoint reached through VPN or bastion; never public to the internet",
                   "x": "Public EKS endpoints are a top misconfiguration.",
                   "wrong": [
-                    "Always use public endpoints",
-                    "Disable RBAC",
-                    "Share the cluster admin key, giving every developer the same admin credentials for the cluster to use as needed"
+                    "Use a public endpoint open to 0.0.0.0/0",
+                    "Disable Kubernetes RBAC",
+                    "Use a public endpoint and share one cluster-admin credential with all developers"
                   ]
                 },
                 {
@@ -30216,8 +30216,8 @@
                   "x": "Each service account gets exactly the AWS access it needs.",
                   "wrong": [
                     "It replaces Kubernetes RBAC",
-                    "It encrypts pod traffic",
-                    "It is only for Fargate"
+                    "It encrypts pod-to-pod traffic so that pods cannot read each other's credentials",
+                    "It works only on AWS Fargate"
                   ]
                 },
                 {
@@ -30225,11 +30225,11 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "Why run Inspector on ECR images in the CI/CD pipeline?",
-                  "a": "Catch OS and language-package CVEs before deployment, blocking vulnerable images from reaching production",
+                  "a": "To fail the build on known CVEs before an image reaches production",
                   "x": "Shift-left: fail the build, not the audit.",
                   "wrong": [
-                    "It speeds up builds",
-                    "It replaces unit tests, catching logic bugs in the code before deployment without running any tests, which is why teams drop their test suites",
+                    "It speeds up container builds by caching layers that have already been scanned",
+                    "It replaces unit tests",
                     "ECR cannot store scan results"
                   ]
                 },
@@ -30238,12 +30238,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "What is the secure way to give a third-party scanner access to your VPC?",
-                  "a": "A cross-account role with external ID scoped to read-only, time-boxed, and monitored via CloudTrail",
+                  "a": "A read-only cross-account role with an external ID, time-boxed and logged",
                   "x": "No shared credentials, full audit trail, easy revocation.",
                   "wrong": [
-                    "Open the security groups to their IP, letting the scanner reach every instance in the VPC, including databases and internal services",
-                    "Share an IAM user",
-                    "Peer their VPC permanently"
+                    "Open the security groups to the vendor's IP range for the duration of the scan",
+                    "Share an IAM user's keys with the vendor",
+                    "Peer the vendor's VPC permanently"
                   ]
                 },
                 {
@@ -30251,11 +30251,11 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "How does AWS Firewall Manager help multi-account infrastructure security?",
-                  "a": "Centrally deploy WAF rules, Shield Advanced, and security groups/NACL policies across Organizations",
+                  "a": "Centrally apply WAF, Shield Advanced and security-group policies across accounts",
                   "x": "One policy, every account compliant.",
                   "wrong": [
                     "It replaces GuardDuty",
-                    "It is single-account only, managing rules for one account with no central control across the organization",
+                    "It manages one account at a time, so each account needs its own Firewall Manager setup",
                     "It manages IAM users"
                   ]
                 },
@@ -30267,7 +30267,7 @@
                   "a": "Produce hardened, tested, versioned AMIs automatically so every instance launches compliant",
                   "x": "Golden images eliminate snowflake servers.",
                   "wrong": [
-                    "It builds Docker images only",
+                    "It builds container images only and pushes them to ECR",
                     "It replaces Patch Manager",
                     "It is a billing tool"
                   ]
@@ -30277,12 +30277,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "A Lambda function processes PII. What are the top three hardening steps?",
-                  "a": "Least-privilege execution role, VPC deployment with no internet unless needed",
+                  "a": "Least-privilege execution role, no internet path unless needed, and secrets from Secrets Manager",
                   "x": "Scope identity, network, and secrets together.",
                   "wrong": [
                     "Give it AdministratorAccess",
-                    "Put it in a public subnet",
-                    "Store secrets in plain env vars, letting anyone who reads the configuration see every secret"
+                    "Deploy it in a public subnet",
+                    "Deploy it in a public subnet with a WAF in front, and store secrets in environment variables"
                   ]
                 },
                 {
@@ -30290,12 +30290,12 @@
                   "deckId": "awss-secure-compute",
                   "trackId": "aws-security",
                   "q": "How do you detect a crypto-miner on EC2 quickly?",
-                  "a": "GuardDuty CryptoCurrency finding plus CloudWatch CPU anomaly alarms and Inspector for the initial-access CVE",
+                  "a": "GuardDuty's cryptocurrency finding plus CPU anomaly alarms",
                   "x": "Detection layers: behaviour, metrics, vulnerabilities.",
                   "wrong": [
-                    "Check the billing dashboard monthly, spotting the miner when the month’s bill jumps unexpectedly at the end of the month",
-                    "Wait for user complaints",
-                    "Disable CloudTrail"
+                    "Check the billing dashboard at month end for unexpected EC2 spend",
+                    "Wait for user complaints about speed",
+                    "Disable CloudTrail to reduce noise"
                   ]
                 },
                 {
@@ -30306,9 +30306,9 @@
                   "a": "Isolated, attested compute environments for processing highly sensitive data like crypto keys",
                   "x": "No persistent storage, no admin access, cryptographic attestation.",
                   "wrong": [
-                    "Faster networking, speeding up traffic between enclaves and the rest of the instance, with no isolation between workloads",
-                    "Cheaper instances",
-                    "Automatic patching"
+                    "Faster networking between instances, by bypassing the hypervisor's network stack",
+                    "Cheaper instance pricing",
+                    "Automatic operating system patching"
                   ]
                 },
                 {
@@ -30319,9 +30319,9 @@
                   "a": "Every instance launched by the fleet inherits the secure baseline automatically",
                   "x": "Secure defaults at the template level beat per-instance fixes.",
                   "wrong": [
-                    "It improves performance",
-                    "It is required for Spot",
-                    "Templates cannot enforce this"
+                    "It improves instance performance",
+                    "It is required for Spot Instances",
+                    "Launch templates cannot set metadata or encryption options, so each instance must be fixed"
                   ]
                 }
               ],
@@ -30355,11 +30355,11 @@
                   "deckId": "awss-governance",
                   "trackId": "aws-security",
                   "q": "What is the recommended AWS account structure for security?",
-                  "a": "A management account plus separate accounts per workload/environment, governed by SCPs and centralised logging",
+                  "a": "Separate accounts per workload and environment, governed centrally by SCPs and logging",
                   "x": "Account boundaries are the strongest isolation AWS offers.",
                   "wrong": [
-                    "One account for everything, keeping every workload and environment under one bill and one boundary, so nothing ever needs to cross accounts",
-                    "One account per developer only",
+                    "One account for every workload and environment, separated by IAM roles and resource tags",
+                    "One account per developer",
                     "Accounts cannot be centrally governed"
                   ]
                 },
@@ -30369,11 +30369,11 @@
                   "trackId": "aws-security",
                   "q": "What is the difference between preventive and detective guardrails in Control Tower?",
                   "a": "Preventive (SCPs) block non-compliant actions; detective (Config rules) flag them after the fact",
-                  "x": "Prevent what you can; detect the rest.",
+                  "x": "Prevent what you can; detect the rest. Control Tower also has proactive controls (CloudFormation hooks) that check resources before they are provisioned.",
                   "wrong": [
                     "They are identical",
-                    "Detective guardrails block actions, stopping non-compliant changes before they can happen anywhere in the organization",
-                    "Guardrails only apply to S3"
+                    "Detective guardrails block non-compliant actions",
+                    "Guardrails apply only to S3"
                   ]
                 },
                 {
@@ -30384,9 +30384,9 @@
                   "a": "Security tooling (GuardDuty, Security Hub, Macie) is managed centrally",
                   "x": "The management account stays locked down; security admins work in the delegated account.",
                   "wrong": [
-                    "It grants admin to everyone, giving every operator full control over every account",
+                    "It grants admin rights in every member account to the central security team",
                     "It replaces SCPs",
-                    "It is only for billing"
+                    "It is used only for billing"
                   ]
                 },
                 {
@@ -30397,9 +30397,9 @@
                   "a": "Immutable, centralised storage for CloudTrail and Config logs from all accounts",
                   "x": "Tamper-evident audit trail separated from workload accounts.",
                   "wrong": [
-                    "Run production workloads",
-                    "Store backups only",
-                    "Host the company website"
+                    "Running the production workloads that must be kept separate from development accounts",
+                    "Storing backups only",
+                    "Hosting the company website"
                   ]
                 },
                 {
@@ -30410,9 +30410,9 @@
                   "a": "SCPs cap what an entire account can do; permission boundaries cap what delegated admins can grant",
                   "x": "Two layers: account ceiling, then delegation ceiling.",
                   "wrong": [
-                    "They conflict and cannot combine, so an account must use one or the other but never both in the same organization",
+                    "They conflict: an account can use SCPs or permission boundaries, but never both",
                     "Boundaries override SCPs",
-                    "SCPs are per-user"
+                    "SCPs apply per user"
                   ]
                 },
                 {
@@ -30424,7 +30424,7 @@
                   "x": "Every new account is born compliant.",
                   "wrong": [
                     "A billing calculator",
-                    "A manual ticket queue, waiting for an engineer to provision each account by hand, one account at a time",
+                    "A manual ticket queue where engineers provision each new account by hand",
                     "An EC2 fleet manager"
                   ]
                 },
@@ -30437,8 +30437,8 @@
                   "x": "Continuous evidence beats point-in-time screenshots.",
                   "wrong": [
                     "Conformance packs encrypt data",
-                    "They replace penetration tests, finding every vulnerability a human tester would find on their own, with no human tester involved",
-                    "Auditors cannot access Config"
+                    "They replace penetration tests",
+                    "Auditors cannot access Config data, so screenshots must be taken for each control"
                   ]
                 },
                 {
@@ -30451,7 +30451,7 @@
                   "wrong": [
                     "Tags improve performance",
                     "Tags are cosmetic only",
-                    "Tagging is automatic"
+                    "Tagging happens automatically, so no tag policy needs to be enforced"
                   ]
                 },
                 {
@@ -30462,9 +30462,9 @@
                   "a": "From the log archive account using Athena or CloudTrail Lake",
                   "x": "One query surface for every account.",
                   "wrong": [
-                    "Log into each account separately, opening every console in turn to search its own logs",
-                    "Download logs locally",
-                    "Ask AWS Support to query"
+                    "Log into each account in turn and search its own CloudTrail event history",
+                    "Download all logs locally",
+                    "Ask AWS Support to run the query"
                   ]
                 },
                 {
@@ -30475,8 +30475,8 @@
                   "a": "Continuous evidence collection mapped to frameworks (CIS, PCI, HIPAA) for audit readiness",
                   "x": "Turns Config and CloudTrail data into auditor-friendly reports.",
                   "wrong": [
-                    "It performs penetration tests, probing production systems for weaknesses on a schedule agreed with the auditors",
-                    "It issues certificates",
+                    "It performs penetration tests and maps the results to compliance frameworks",
+                    "It issues TLS certificates",
                     "It replaces CloudTrail"
                   ]
                 },
@@ -30488,9 +30488,9 @@
                   "a": "Even a compromised admin cannot permanently delete versioned log objects without the MFA device",
                   "x": "Protects the audit trail from insider or attacker deletion.",
                   "wrong": [
-                    "It encrypts the logs, scrambling their contents so nobody without the key can read them without the MFA device",
-                    "It is required for versioning",
-                    "It speeds up retrieval"
+                    "It encrypts every log object with a key that only the MFA device holder can use",
+                    "It is required to enable versioning",
+                    "It speeds up log retrieval"
                   ]
                 },
                 {
@@ -30501,9 +30501,9 @@
                   "a": "New accounts start with minimal allowed services; teams request expansion through change control",
                   "x": "Least privilege applied at the organization level.",
                   "wrong": [
-                    "New accounts get full admin",
-                    "SCPs cannot deny",
-                    "It blocks all AWS APIs"
+                    "New accounts get full admin so teams can move fast, and are locked down later",
+                    "SCPs cannot deny actions",
+                    "It blocks every AWS API"
                   ]
                 },
                 {
@@ -30511,12 +30511,12 @@
                   "deckId": "awss-governance",
                   "trackId": "aws-security",
                   "q": "How does IAM Access Analyzer help govern at organization scale?",
-                  "a": "Centrally surface unused permissions, public resource exposure, and cross-account access across accounts",
+                  "a": "It centrally shows unused, public and cross-account access across accounts",
                   "x": "One dashboard for entitlement risk.",
                   "wrong": [
-                    "It creates SCPs automatically",
+                    "It writes and attaches SCPs automatically based on what it finds",
                     "It replaces CloudTrail",
-                    "It only works in one account, surfacing findings for a single account with no central view across the organization"
+                    "It works in one account only"
                   ]
                 },
                 {
@@ -30524,12 +30524,12 @@
                   "deckId": "awss-governance",
                   "trackId": "aws-security",
                   "q": "What is a detective control for ensuring encryption standards across 100 accounts?",
-                  "a": "A Config aggregator rule checking default encryption plus Security Hub CIS controls reporting centrally",
+                  "a": "An organization-wide Config rule for encryption, reported centrally",
                   "x": "Detect drift everywhere from one place.",
                   "wrong": [
-                    "Manual console checks, opening each account’s console in turn to verify encryption settings by hand, account by account, every single day",
+                    "Manual console checks in each account, recorded in a shared spreadsheet",
                     "One SCP per bucket",
-                    "Email reminders"
+                    "Email reminders to account owners"
                   ]
                 },
                 {
@@ -30541,8 +30541,8 @@
                   "x": "Access removal before account deletion preserves audit continuity.",
                   "wrong": [
                     "Delete the IAM user immediately",
-                    "Do nothing for 30 days, leaving the departed employee’s access active for a full month",
-                    "Only change their password"
+                    "Wait 30 days in case they return, then remove their access",
+                    "Change their password only"
                   ]
                 },
                 {
@@ -30550,12 +30550,12 @@
                   "deckId": "awss-governance",
                   "trackId": "aws-security",
                   "q": "What should a cloud security baseline document define?",
-                  "a": "Required guardrails: SCPs, Config rules, logging destinations, encryption defaults, and network patterns",
+                  "a": "The required guardrails: SCPs, Config rules, logging, encryption and network rules",
                   "x": "Codify the non-negotiables; automate their enforcement.",
                   "wrong": [
                     "A list of employee names",
-                    "Marketing copy",
-                    "Only the budget"
+                    "Marketing copy and customer-facing descriptions of the security program",
+                    "Only the security budget"
                   ]
                 },
                 {
@@ -30563,12 +30563,12 @@
                   "deckId": "awss-governance",
                   "trackId": "aws-security",
                   "q": "How do you prove to regulators that no production data left the region?",
-                  "a": "VPC endpoint policies plus SCPs denying cross-region actions, evidenced by Config history and CloudTrail",
+                  "a": "Endpoint policies and SCPs that block it, evidenced by Config and CloudTrail",
                   "x": "Prevent, then prove with logs.",
                   "wrong": [
-                    "Trust the developers",
-                    "Check billing",
-                    "It cannot be proven, since no log can show that data never left a region, no matter what the logs or Config history show"
+                    "Signed attestations from developers that no data was copied out of the region",
+                    "Check the billing report",
+                    "It cannot be proven"
                   ]
                 },
                 {
@@ -30580,8 +30580,8 @@
                   "x": "Due diligence without auditing AWS yourself.",
                   "wrong": [
                     "It configures SCPs",
-                    "It scans for vulnerabilities, checking every resource against known CVEs on a schedule agreed with the team",
-                    "It manages keys"
+                    "It scans your resources for vulnerabilities and reports them to auditors",
+                    "It manages KMS keys"
                   ]
                 },
                 {
@@ -30592,9 +30592,9 @@
                   "a": "A compromised workload can never reach billing, Organizations, or SCP controls",
                   "x": "The most privileged account does the least.",
                   "wrong": [
-                    "It saves money",
-                    "It is required for SSO, since single sign-on only works with a separate management account",
-                    "Workloads run faster elsewhere"
+                    "It saves money on the bill",
+                    "It is required before IAM Identity Center can be enabled anywhere in the organization",
+                    "Workloads run faster in other accounts"
                   ]
                 },
                 {
@@ -30606,7 +30606,7 @@
                   "x": "ClickOps undermines every guardrail; detect it.",
                   "wrong": [
                     "It encrypts templates",
-                    "It deletes stacks",
+                    "It deletes stacks that have drifted and redeploys them from the template",
                     "It is only for billing"
                   ]
                 },
@@ -30615,12 +30615,12 @@
                   "deckId": "awss-governance",
                   "trackId": "aws-security",
                   "q": "How should security findings be routed to the right team automatically?",
-                  "a": "Security Hub custom insights plus EventBridge rules routing by account, severity, and resource tags",
+                  "a": "EventBridge rules that route findings by account, severity and tags",
                   "x": "Findings die in inboxes; route them to owners.",
                   "wrong": [
-                    "Email everything to one DL, sending every finding to a single shared inbox for triage, with no routing by team or severity",
-                    "Check the console daily",
-                    "Ignore low severity"
+                    "Email every finding to one distribution list, where each team picks its own",
+                    "Check the Security Hub console daily",
+                    "Ignore low-severity findings"
                   ]
                 },
                 {
@@ -30632,8 +30632,8 @@
                   "x": "You cannot investigate what you did not record.",
                   "wrong": [
                     "CloudTrail in one region",
-                    "No Config needed",
-                    "30 days is enough, keeping a month of logs to satisfy any auditor’s request, however far back they ask"
+                    "CloudTrail without AWS Config",
+                    "30 days of CloudTrail in each workload account, plus Config in production only"
                   ]
                 }
               ],
@@ -32356,7 +32356,7 @@
                   "x": "When canons conflict, apply them in that order.",
                   "wrong": [
                     "Serve the employer first; protect data; obey the law; teach others",
-                    "Act legally; be fast; be cheap; be secure at all times",
+                    "Act legally; serve the employer; protect data; report breaches",
                     "Protect data; protect systems; protect users; protect yourself first — in that exact order"
                   ]
                 },
@@ -32407,8 +32407,8 @@
                   "a": "Multiple layered controls",
                   "x": "Administrative, technical, and physical layers.",
                   "wrong": [
-                    "One strong firewall standing on its own",
-                    "Encryption only, with no other controls at all",
+                    "One strong perimeter firewall",
+                    "Encrypting data everywhere as the main control",
                     "Hiding systems so attackers cannot find them"
                   ]
                 },
@@ -32422,7 +32422,7 @@
                   "wrong": [
                     "250 items in 6 hours, the old linear exam format",
                     "90 items in 90 minutes, like a short screening test",
-                    "Hands-on labs only, no multiple-choice questions at all"
+                    "Hands-on labs only, with no multiple-choice questions"
                   ]
                 },
                 {
@@ -32434,8 +32434,8 @@
                   "x": "A degree or approved cert can waive 1 year. Otherwise pass as an Associate of ISC2.",
                   "wrong": [
                     "1 year in any IT role, no domain required",
-                    "No experience at all, just pass the exam",
-                    "10 years in all domains, every single one"
+                    "No experience, if you pass the exam",
+                    "10 years across all eight domains"
                   ]
                 }
               ],
@@ -32533,7 +32533,7 @@
                   "a": "Keep critical business functions running during a disruption",
                   "x": "DRP is the IT-focused subset that restores systems.",
                   "wrong": [
-                    "Restore IT systems only, nothing else matters",
+                    "Restore IT systems after an outage",
                     "Prevent all incidents from ever happening",
                     "Punish attackers after an incident occurs"
                   ]
@@ -32573,7 +32573,7 @@
                   "x": "Copyright lasts life of author + 70 years; trademarks can renew indefinitely.",
                   "wrong": [
                     "70 years, like copyright after death",
-                    "Forever, with no expiry date at all",
+                    "As long as the patent fees are paid, indefinitely",
                     "10 years from the filing date"
                   ]
                 },
@@ -32598,7 +32598,7 @@
                   "a": "Assessing and monitoring vendors, including their suppliers, on an ongoing basis",
                   "x": "Includes SBOMs, contract requirements, and right-to-audit clauses.",
                   "wrong": [
-                    "Firewalling vendors off completely, no access at all",
+                    "Blocking all vendor network access permanently",
                     "Paying suppliers late to keep the cash longer",
                     "Buying the cheapest option without checking the vendor"
                   ]
@@ -32867,7 +32867,7 @@
                   "wrong": [
                     "All are optional, none of them binding on anyone",
                     "Guidelines are mandatory, exactly the same as a written policy, and just as binding",
-                    "Procedures are high-level, with no detail at all"
+                    "Procedures are high-level statements of intent"
                   ]
                 },
                 {
@@ -33018,7 +33018,7 @@
                   "x": "Over-retention increases breach impact and e-discovery costs.",
                   "wrong": [
                     "Keeping everything forever, just in case",
-                    "Deleting everything daily, no exceptions at all",
+                    "Deleting all data older than one year",
                     "Encrypting backups so nobody can read them"
                   ]
                 },
@@ -33056,9 +33056,9 @@
                   "a": "Replacing identifiers with pseudonyms, so data can’t be linked without extra info",
                   "x": "Still personal data under GDPR; anonymised data is not.",
                   "wrong": [
-                    "Full anonymisation, impossible to reverse ever again",
+                    "Full anonymisation that can never be reversed",
                     "Encryption with a public key that anyone can use",
-                    "Deleting records so nothing remains at all"
+                    "Deleting the records once they are no longer needed"
                   ]
                 },
                 {
@@ -33145,7 +33145,7 @@
                   "wrong": [
                     "All data is handled the same, whatever its classification says",
                     "Only public data is encrypted, nothing sensitive ever is",
-                    "Classification needs no handling rules at all, ever"
+                    "Classification labels are enough without handling rules"
                   ]
                 },
                 {
@@ -33184,7 +33184,7 @@
                   "wrong": [
                     "Backups are exempt from every retention rule",
                     "Only live data counts, never copies or archives",
-                    "Holds apply to email only, nothing else at all"
+                    "Holds apply to email and chat only"
                   ]
                 },
                 {
@@ -33354,7 +33354,7 @@
                   "x": "Military classification model.",
                   "wrong": [
                     "Integrity, keeping data accurate and completely unaltered",
-                    "Availability, keeping every system up and reachable at all times",
+                    "Availability, keeping systems up and reachable",
                     "Non-repudiation, proving beyond doubt who did what"
                   ]
                 },
@@ -33657,7 +33657,7 @@
                   "wrong": [
                     "Bandwidth, how much data the links carry",
                     "Latency, how long packets take to arrive",
-                    "Cost only, nothing about security at all"
+                    "Licence costs for network equipment"
                   ]
                 },
                 {
@@ -33683,7 +33683,7 @@
                   "wrong": [
                     "They use too much power for the building",
                     "They are too fast for the network switches to handle",
-                    "They need IPv6 addresses to work at all"
+                    "They need IPv6 addresses to communicate"
                   ]
                 }
               ],
@@ -33738,7 +33738,7 @@
                   "wrong": [
                     "False acceptance, letting an impostor straight in",
                     "Crossover error, where the two rates meet",
-                    "Enrolment failure, unable to register a user at all"
+                    "Failure to enrol, unable to register a user"
                   ]
                 },
                 {
@@ -33777,7 +33777,7 @@
                   "wrong": [
                     "It uses plaintext passwords sent in clear over the network",
                     "It has no tickets, just usernames and passwords",
-                    "It cannot use AES encryption at all, ever"
+                    "It cannot use AES encryption"
                   ]
                 },
                 {
@@ -33827,7 +33827,7 @@
                   "a": "Favour length, screen breached lists, no forced rotation",
                   "x": "Change passwords only on evidence of compromise.",
                   "wrong": [
-                    "Rotate every 30 days without any exception at all",
+                    "Force rotation every 30 days",
                     "Require special characters always, in all passwords",
                     "Maximum 8 characters, no longer passwords are ever allowed"
                   ]
@@ -33854,7 +33854,7 @@
                   "x": "e.g. require MFA from unknown devices, block impossible travel.",
                   "wrong": [
                     "Same rules for all users, whatever the context or risk",
-                    "Password only, nothing else is ever checked",
+                    "A password check with a fixed lockout policy",
                     "Blocking all remote access, for every user"
                   ]
                 }
@@ -34076,7 +34076,7 @@
                   "wrong": [
                     "Recovery, restoring systems after the incident",
                     "Lessons learned, reviewing what went wrong",
-                    "Remediation, fixing the root cause for good"
+                    "Remediation, fixing the root cause"
                   ]
                 },
                 {
@@ -34113,7 +34113,7 @@
                   "a": "Administrative, criminal, civil, regulatory",
                   "x": "Criminal requires \"beyond reasonable doubt\"; civil \"preponderance of evidence\".",
                   "wrong": [
-                    "Internal and external investigations only, nothing else",
+                    "Internal and external investigations only",
                     "Red and blue",
                     "Technical and legal only"
                   ]
@@ -34167,7 +34167,7 @@
                   "wrong": [
                     "Entrapment and enticement are the same offence",
                     "Entrapment is legal, the police may do it freely",
-                    "Enticement is illegal, nobody may lure anyone at all"
+                    "Enticement is illegal; entrapment is legal"
                   ]
                 },
                 {
@@ -34179,7 +34179,7 @@
                   "x": "Emergency patches still follow an expedited change process.",
                   "wrong": [
                     "Deploy, then test, fixing problems afterwards",
-                    "Deploy everywhere immediately, no testing at all",
+                    "Deploy everywhere immediately, then test",
                     "Never patch production, leave it as it is"
                   ]
                 },
@@ -34192,7 +34192,7 @@
                   "x": "e.g. failed logons followed by success from a new country.",
                   "wrong": [
                     "Blocks traffic at the firewall edge immediately",
-                    "Encrypts logs so nobody can read them at all",
+                    "Encrypts logs so that only auditors can read them",
                     "Deletes duplicates to save disk space"
                   ]
                 },
@@ -34217,7 +34217,7 @@
                   "a": "Detecting data leaving the organisation, e.g. exfiltration",
                   "x": "DLP, proxy logs, and NetFlow support it.",
                   "wrong": [
-                    "Blocking inbound scans at the firewall edge, day and night",
+                    "Blocking inbound scans at the firewall edge",
                     "Monitoring power usage across the data centre",
                     "Tracking visitors signing in at the front desk"
                   ]
@@ -34364,7 +34364,7 @@
                   "a": "Third party holds source code for vendor failure",
                   "x": "Protects buyers of critical commercial software.",
                   "wrong": [
-                    "Encrypting source code so nobody can read it at all",
+                    "Encrypting source code at rest in the repository",
                     "Code signing, proving who built the binary file",
                     "Open-sourcing code for anyone to use it freely"
                   ]
@@ -34405,7 +34405,7 @@
                   "wrong": [
                     "A test database with copies of production data",
                     "A code repo holding every version ever written",
-                    "A debugger, stepping through code line by line"
+                    "A debugger that steps through code"
                   ]
                 },
                 {
@@ -34431,7 +34431,7 @@
                   "wrong": [
                     "Iterative sprints, short cycles with regular demos",
                     "Parallel everything, all phases at the same time",
-                    "No planning at all, just start building things"
+                    "Building first and planning as you go"
                   ]
                 },
                 {
@@ -34442,7 +34442,7 @@
                   "a": "Iterative, incremental delivery with close customer collaboration",
                   "x": "Working software in short cycles; requirements evolve with feedback.",
                   "wrong": [
-                    "No documentation ever — nothing written down at all, anywhere, by anyone",
+                    "Development with no documentation of any kind",
                     "One big release at the very end",
                     "Waterfall with meetings, the same phases renamed"
                   ]
@@ -34509,7 +34509,7 @@
                   "wrong": [
                     "SAST and DAST are the same test",
                     "SAST tests networks for open ports and services",
-                    "DAST reads source code line by line carefully"
+                    "DAST reads source code; SAST tests the running app"
                   ]
                 },
                 {
@@ -34548,7 +34548,7 @@
                   "wrong": [
                     "The CISO, the executive in charge of security overall",
                     "A pentester, attacking systems to find their flaws",
-                    "A firewall admin, writing rules all day long"
+                    "A firewall administrator who reviews rule changes"
                   ]
                 }
               ],
@@ -34603,8 +34603,8 @@
                   "x": "When you cannot remediate, you compensate: reduce likelihood or impact another way, record it, and get formal risk acceptance. Doing nothing is not an option.",
                   "wrong": [
                     "Disconnect the database immediately regardless of business impact",
-                    "Accept the risk silently and do nothing at all",
-                    "Wait for the vendor patch with no interim measures at all"
+                    "Accept the risk informally without documenting it",
+                    "Wait for the vendor patch before taking any action"
                   ]
                 },
                 {
@@ -34764,9 +34764,9 @@
                   "a": "Deploy both: firewall for access, IPS for threats",
                   "x": "They are different control functions, not substitutes. Layering means one control's miss is another's catch.",
                   "wrong": [
-                    "A firewall alone is sufficient, nothing else needed",
-                    "An IPS fully replaces the firewall on its own",
-                    "Neither — endpoint antivirus is enough on its own"
+                    "A next-generation firewall alone is sufficient",
+                    "An IPS inline can replace the firewall",
+                    "Neither: EDR on every server is enough"
                   ]
                 },
                 {
@@ -34779,7 +34779,7 @@
                   "wrong": [
                     "Nothing — it is convenient and cheap, so leave it",
                     "Keys belong in application source code instead, hard-coded in plain text",
-                    "Encryption adds no value in the cloud at all"
+                    "Nothing, as long as the account has MFA enabled"
                   ]
                 }
               ],
@@ -34900,7 +34900,7 @@
                   "a": "Short timeouts and step-up re-authentication for privileged actions",
                   "x": "MFA proves identity at login; session controls bound the blast radius after a theft. The more powerful the session, the shorter its leash.",
                   "wrong": [
-                    "Longer, more complex passwords at every login, rotated every month without fail",
+                    "Longer, more complex passwords for administrators, rotated every month",
                     "MFA prompts on every click they ever make",
                     "Removing MFA to reduce friction for users"
                   ]
@@ -34914,8 +34914,8 @@
                   "x": "A published secret is a compromised secret. Containment (rotation) cannot wait for the investigation to finish.",
                   "wrong": [
                     "Delete the repository and hope nobody saw it",
-                    "Monitor the key for misuse before acting at all",
-                    "Schedule rotation for next quarter, there is no rush at all"
+                    "Monitor the key for misuse before revoking it",
+                    "Schedule rotation for the next maintenance window"
                   ]
                 }
               ],
@@ -35104,7 +35104,7 @@
                   "a": "Revoke keys, move secrets to a vault, add scanning",
                   "x": "The committed secret is compromised the moment it is pushed. Revoke first, then fix the process so it cannot recur.",
                   "wrong": [
-                    "Delete the offending code comment and say nothing at all",
+                    "Delete the keys from the latest commit and carry on",
                     "Restrict repo access and keep using the keys anyway",
                     "Email the team asking them not to use the keys"
                   ]

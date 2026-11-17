@@ -1,0 +1,10 @@
+{
+  "cysa-threat-hunting-12": { "The user deleting the email after reading it": "The user reporting the email to the security team after opening the attachment preview" },
+  "cysa-vuln-management-0": { "A severity score from 0.0 to 10.0 for each CVE": "A severity score from 0.0 to 10.0 that NIST assigns to each CVE based on its impact and attack vector" },
+  "cysa-vuln-management-16": { "Internal hosts first, because they hold the data": "Internal hosts first, because they hold the sensitive data, then the internet-facing ones" },
+  "cysa-attack-frameworks-15": { "TTPs are easier for attackers to change": "IOCs describe behaviour, which changes slowly; TTPs are artifacts attackers rotate quickly" },
+  "cysa-attack-frameworks-16": { "Weaponization and installation only": "Weaponization and installation only, because the attacker brought tools and set up persistence" },
+  "awss-secure-compute-2": { "It is faster than SSH": "It is faster than SSH because traffic skips the instance's network stack" },
+  "awss-secure-compute-12": { "Store secrets in plain environment variables": "Deploy it in a public subnet with a WAF in front, and store secrets in environment variables" },
+  "awss-governance-10": { "It encrypts the log objects": "It encrypts every log object with a key that only the MFA device holder can use" }
+}

@@ -51,6 +51,8 @@ export const norm = (s) => String(s || '').toLowerCase().replace(/`/g, '').repla
 // punctuation (`7 // 2` vs `7 % 2`, `ALE = SLE × ARO` vs `+ ARO` differ);
 // ignores only case, backticks, spacing and a trailing full stop.
 export const exactKey = (s) => String(s || '').toLowerCase().replace(/`/g, '').replace(/\s+/g, ' ').trim().replace(/\.$/, '');
+// Filler intensifiers used to lengthen wrong options artificially.
+const PADDING = /\b(at all|every single|whatsoever|ever again|all day long|day and night|around the clock|no exceptions|nothing else|on its own|once and for all|without fail|all year round|word for word|line by line|one by one|each and every|for good|from start to finish|in one stroke|no matter what)\b/i;
 const tokens = (s) => new Set(norm(s).split(' ').filter((w) => w.length > 2));
 function jaccard(a, b) {
   if (!a.size || !b.size) return 0;
@@ -192,12 +194,23 @@ export function structuralIssues(content, catalog) {
         }
         seen.set(n, true);
       }
-      // Padded distractor: a wrong option with an explanatory tail bolted on
-      // (", sitting right on…", ", joining the pieces together") reads
-      // unnaturally and can mark it as wrong to a test-wise learner.
+      // Padded distractor: filler intensifiers bolted on to lengthen a wrong
+      // option ("…, no exceptions at all", "…, around the clock") read as
+      // artificial and mark it as wrong. A distractor that gives a (wrong)
+      // reason — "…, because IAM overrides key policies" — is a legitimate
+      // misconception and is NOT flagged.
       for (const w of c.wrong || []) {
-        if (/,\s+(which|that|so|sitting|joining|making|giving|leaving|meaning|because|since|used|as it|to make|to keep|for the|with the)\b[^,]{8,}$/i.test(w) && !/,/.test(c.a)) {
-          add('Low', 'card-padded-distractor', c.id, 'Distractor carries an explanatory tail the correct answer does not — reads as artificially lengthened.', w, file);
+        if (PADDING.test(w) && !PADDING.test(c.a)) {
+          add('Low', 'card-padded-distractor', c.id, 'Distractor is lengthened with filler intensifiers the correct answer lacks.', w, file);
+        }
+        // "Label: restatement" tails added by the 2026 length rebalance.
+        const m = /^([^:]{6,}): ([a-z].*)$/.exec(w);
+        if (m && !/: [a-z]/.test(c.a)) {
+          const head = tokens(`${m[1]} ${c.q}`);
+          const tail = tokens(m[2]);
+          let shared = 0;
+          for (const x of tail) if (head.has(x)) shared += 1;
+          if (tail.size && shared / tail.size >= 0.3) add('Low', 'card-colon-restatement', c.id, 'Distractor carries a colon tail that restates itself — reads as artificially lengthened.', w, file);
         }
       }
       if (/\.\s*$/.test(String(c.a)) && /[\/]|\w+\.\w{2,4}\.$/.test(String(c.a)) && !/\s/.test(String(c.a).trim().replace(/^[^\s]+\s?/, ''))) {
