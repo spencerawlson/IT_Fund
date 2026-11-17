@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:29:37.997Z",
+  "generatedAt": "2026-11-17T01:31:33.751Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -17901,12 +17901,12 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "An unauthenticated scan reports 4,000 “critical” findings, mostly version banners on a hardened Linux fleet that is fully patched. What is the most defensible interpretation?",
-                  "a": "Likely false positives from banner-based detection",
+                  "a": "Likely false positives from banner-based detection: confirm with a credentialed scan",
                   "x": "Unauthenticated scans guess from banners; credentialed scans verify from the package manager. Treating banner matches as findings burns the quarter on ghosts.",
                   "wrong": [
+                    "All 4,000 are real vulnerabilities, because an unauthenticated scan sees exactly what an attacker would see",
                     "Patch everything immediately",
-                    "All 4,000 are real: every banner finding is a real flaw",
-                    "Delete the scanner"
+                    "Replace the scanner with another product"
                   ]
                 },
                 {
@@ -17914,12 +17914,12 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "A zero-day is announced for your exact firewall model, with active exploitation in the wild and no patch yet. What is the most defensible immediate posture?",
-                  "a": "Apply compensating controls now",
+                  "a": "Apply compensating controls now: restrict management access, apply vendor mitigations, monitor for exploitation",
                   "x": "Zero-days invert the order: when no patch exists, exposure reduction and detection become the patch. Waiting unprotected for the vendor is not a strategy.",
                   "wrong": [
-                    "Wait calmly for the patch: no patch yet, wait calmly",
-                    "Disconnect the firewall: unplug it until the patch drops",
-                    "Zero-days are hype: active exploitation is just marketing"
+                    "Wait for the vendor's patch and monitor the firewall logs, since no other action is possible until it ships",
+                    "Disconnect the firewall until the patch is released",
+                    "Treat it as hype until a patch appears"
                   ]
                 },
                 {
@@ -17930,9 +17930,9 @@
                   "a": "Patch the VPN: CVSS measures severity, risk measures your exposure — exploitability plus reachability outranks the number",
                   "x": "The number describes the flaw; your network describes the danger. An exposed 7.5 with a public exploit beats an unreachable 9.8 every time.",
                   "wrong": [
-                    "Highest CVSS always wins: 9.8 beats 7.5 every time",
-                    "Patch the lab — 9.8 is scarier: patch the isolated lab first",
-                    "Patch neither — too risky: one window, patch nothing"
+                    "Patch the lab machine, because a CVSS 9.8 is always the higher priority whatever the network it sits on",
+                    "Patch neither in this window",
+                    "Split the window between both systems"
                   ]
                 },
                 {
@@ -17940,12 +17940,12 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "The scan flags “missing critical patch” on servers your team patched last month. Spot checks show the patches are installed. What is the most defensible conclusion?",
-                  "a": "False positive from stale scan data or version detection",
+                  "a": "False positive from stale scan data or version detection: verify, then fix the scan",
                   "x": "Scans lie in predictable ways: outdated plugins and banner checks flag patched systems. Verify the finding before re-doing the work.",
                   "wrong": [
-                    "Re-patch everything: patch the patched servers again",
-                    "The patches failed silently: installed patches silently failed",
-                    "Fire the patching team: patches installed, findings remain, fire them"
+                    "The patches failed silently on reboot, so every flagged server should be patched again this week",
+                    "Re-patch everything to be safe",
+                    "The scanner is right and the spot checks are wrong"
                   ]
                 },
                 {
@@ -17953,11 +17953,11 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "A network scan discovers 60 devices nobody recognizes: cameras, a 3D printer, and several “test” VMs. What is the most defensible conclusion?",
-                  "a": "Shadow IT and unknown assets",
+                  "a": "Shadow IT and unknown assets: contain them, identify owners, and reconcile with the inventory",
                   "x": "You can’t protect what you don’t know: discovery must be continuous and reconciled. Unknown devices get contained first, identified second.",
                   "wrong": [
-                    "If nobody knows them, they’re harmless: unknown devices are harmless",
-                    "Scan harder: scan the unknown devices harder",
+                    "Devices nobody recognises are probably harmless test kit, so they can be left until the next inventory",
+                    "Scan the unknown devices more aggressively",
                     "Ignore anything without an owner"
                   ]
                 },
@@ -17969,9 +17969,9 @@
                   "a": "Change all defaults via centralized management, scan for remaining instances, and add default-credential checks to provisioning",
                   "x": "A single default-credential finding is never single: the fix is fleet-wide remediation plus a provisioning control so it can’t recur.",
                   "wrong": [
-                    "Change the one they tested: change only the tested printer",
-                    "Printers don’t matter: default credentials on printers are harmless",
-                    "Pen tests are the problem: the test found the defaults, blame it"
+                    "Change the credentials on the devices the pen testers used, and ask them to retest those devices only",
+                    "Ignore it; printers and cameras are low risk",
+                    "Stop allowing pen testers to test IoT devices"
                   ]
                 },
                 {
@@ -17982,9 +17982,9 @@
                   "a": "Documented compensating control: isolate the terminal on its own segment, monitor all its traffic, restrict to the payment processor",
                   "x": "When the standard can’t be met yet, compensating controls plus a deadline are the defensible path. “We’ll fix it someday” is not a control.",
                   "wrong": [
-                    "Disable the terminal today: shut the payment terminal down now",
-                    "TLS 1.0 is fine, actually: PCI forbids it, use it anyway",
-                    "Hide it from the auditor: keep TLS 1.0 off the audit report"
+                    "Accept TLS 1.0 on the terminal for nine months, since the payment processor still supports it",
+                    "Disable the terminal today and take payments manually",
+                    "Leave it off the scope given to the auditor"
                   ]
                 },
                 {
@@ -17995,9 +17995,9 @@
                   "a": "Use cryptographically random, single-use, expiring tokens generated server-side",
                   "x": "Token predictability is a design flaw, not a bug: randomness plus single-use plus expiry, generated where the attacker can’t observe the algorithm.",
                   "wrong": [
-                    "Make tokens longer but keep the pattern: longer tokens, same pattern",
-                    "Rate-limit resets and call it fixed: rate limits fix predictable tokens, tokens stay predictable",
-                    "Researchers are the problem: blame the reporter, keep the tokens"
+                    "Keep the token pattern but make each token longer, so that the sequence takes longer to work out",
+                    "Add rate limiting to the reset endpoint and close the report",
+                    "Ask the researcher to stop testing the reset flow"
                   ]
                 },
                 {
@@ -18005,12 +18005,12 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "Your login API responds 2ms faster for valid usernames than invalid ones, and attackers are timing it. What is the most defensible fix?",
-                  "a": "Constant-time comparison and uniform response handling",
+                  "a": "Constant-time comparison and uniform response handling for valid and invalid usernames",
                   "x": "Timing differences are information: the fix is making both code paths cost the same, plus the usual generic errors and throttling.",
                   "wrong": [
-                    "2ms is unmeasurable",
-                    "Side channels are theoretical: 2ms timing leaks are only theory",
-                    "Add random delays only: jitter alone hides the 2ms gap"
+                    "Add a random delay of up to 50ms to every response so the 2ms difference is lost in the noise",
+                    "Ignore it; 2ms cannot be measured over the internet",
+                    "Treat it as a theoretical side channel"
                   ]
                 },
                 {
@@ -18021,9 +18021,9 @@
                   "a": "Upgrade the dependency chain immediately and add SCA to CI so vulnerable libraries can’t merge",
                   "x": "Your app inherits its dependencies’ vulnerabilities: the fix is upgrade now plus automated composition scanning in the pipeline.",
                   "wrong": [
-                    "It’s transitive — not our problem: three layers deep, not ours",
-                    "Wait for the next release cycle: the critical CVE can wait",
-                    "Delete the logging: remove the vulnerable logging library entirely"
+                    "Treat it as the library maintainer's problem, since it is three dependencies deep and not your code",
+                    "Wait for the next release cycle",
+                    "Remove all logging from the app"
                   ]
                 },
                 {
@@ -18034,9 +18034,9 @@
                   "a": "Switch to a minimal base image, rebuild regularly, and scan in CI",
                   "x": "Fat base images import hundreds of irrelevant vulnerabilities: minimal bases plus automated rebuilds shrink the scan to what matters.",
                   "wrong": [
-                    "300 vulns are normal — ship it: three hundred findings, ship anyway",
-                    "Patch each one by hand: hand-patch all 300 base image vulns",
-                    "Containers are isolated, so it’s fine: isolation makes 300 vulns harmless"
+                    "Ship it: 300 base-image findings are normal, and container isolation means they cannot be exploited",
+                    "Patch each of the 300 findings by hand",
+                    "Exempt containers from scanning"
                   ]
                 },
                 {
@@ -18047,9 +18047,9 @@
                   "a": "Isolate it on a dedicated clinical segment with only required traffic allowed, monitor the segment, and document the exception with a review date",
                   "x": "Unpatchable medical systems get the standard treatment: micro-segmentation, allowlisted traffic, monitoring, and a dated risk exception — not hope.",
                   "wrong": [
-                    "Upgrade it anyway and break the MRI: patch Windows 7, break the MRI",
-                    "Air-gap it and sneakernet everything: carry patches by hand forever",
-                    "Windows 7 is fine behind a firewall: the firewall protects the unpatchable box"
+                    "Upgrade it to Windows 11 anyway and ask the MRI vendor to support the new OS afterwards",
+                    "Air-gap it and move files by USB forever",
+                    "Rely on the perimeter firewall"
                   ]
                 },
                 {
@@ -18057,12 +18057,12 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "This month’s scan shows half the usual findings. Investigation finds the scan service account’s password expired mid-scan. What is the most defensible conclusion?",
-                  "a": "The results are invalid",
+                  "a": "The results are invalid: fix the service account and rescan, and alert on scan authentication failures",
                   "x": "A scan that silently degrades to unauthenticated is worse than no scan: it reports confidence it doesn’t have. Credential health is part of scan integrity.",
                   "wrong": [
-                    "Fewer findings — celebrate",
-                    "The network got safer: half the findings, twice as safe",
-                    "Scans don’t need credentials"
+                    "The network is safer this month, because half the usual findings have been fixed by the teams",
+                    "Celebrate the lower count",
+                    "Credentials do not matter for scans"
                   ]
                 },
                 {
@@ -18073,9 +18073,9 @@
                   "a": "Formal risk acceptance with a 30-day expiry and compensating monitoring",
                   "x": "Risk acceptance is a decision with paperwork and an expiry, not a shrug. Decommissioning on schedule is the remediation; the acceptance covers the gap.",
                   "wrong": [
-                    "Spend the $80k anyway: pay it, take the outage, fix it",
-                    "Ignore it quietly: thirty days to decommission, say nothing",
-                    "Decommissioning excuses everything: thirty days left, ignore it, the $80k stays saved"
+                    "Spend the $80k and take the weekend outage, because a critical finding must always be fixed",
+                    "Ignore it quietly until decommissioning",
+                    "Treat decommissioning as an automatic exemption"
                   ]
                 },
                 {
@@ -18086,9 +18086,9 @@
                   "a": "Acknowledge promptly, validate, fix within the window, credit the researcher, and publish coordinated disclosure",
                   "x": "Coordinated disclosure is a contract: good-faith researchers get validation, a fix timeline, and credit. Ghosting them converts allies into full-disclosure.",
                   "wrong": [
-                    "Ignore it — probably a scam: a detailed report with a deadline, scam",
-                    "Sue the researcher: sue them for the 90-day deadline",
-                    "Fix it silently and deny everything: fix quietly, deny the report"
+                    "Ignore it until the researcher follows up, since many detailed reports turn out to be scams",
+                    "Send the researcher a legal warning",
+                    "Fix it quietly and deny the report"
                   ]
                 },
                 {
@@ -18099,9 +18099,9 @@
                   "a": "Deduplicate to the first reporter, pay per policy, fix once, and add the pattern to your security testing",
                   "x": "Duplicate reports mean the flaw class is widespread or your testing missed it: pay fairly, fix the instance, then hunt the pattern.",
                   "wrong": [
-                    "Pay all five full bounties: five reports, five full payouts",
-                    "Close as duplicate without review: close all five, pay nobody",
-                    "End the bounty program: five duplicate reports, kill the program"
+                    "Pay all five researchers the full bounty, since each found the flaw independently and deserves the reward",
+                    "Close all five as duplicates without review",
+                    "End the bounty program"
                   ]
                 },
                 {
@@ -18112,9 +18112,9 @@
                   "a": "Make it private immediately, determine exactly what was accessed from the logs, and trigger the breach-notification process with legal",
                   "x": "A public bucket is a finding; anonymous downloads make it a breach. Remediation is instant, but the logs decide whether notification duties trigger.",
                   "wrong": [
-                    "Make it private and say nothing: private bucket, no breach process",
-                    "The logs are probably wrong: anonymous GETs for three weeks, wrong logs",
-                    "Public buckets are a feature: public exports are the design"
+                    "Make it private and close the finding, since nothing proves the downloads were malicious",
+                    "Assume the access logs are wrong",
+                    "Leave it public, since exports are meant to be shared"
                   ]
                 },
                 {
@@ -18125,9 +18125,9 @@
                   "a": "Rotate the credentials immediately, scope the new ones to least privilege, audit usage, and move secrets to a vault with CI scanning to prevent recurrence",
                   "x": "Shipped secrets are public secrets: rotation is step one, but the window demands a usage audit, and prevention means secrets never compile into the app.",
                   "wrong": [
-                    "The app is already shipped — too late: shipped to 50,000, too late",
-                    "Wait for the next release: bundle the rotation with the next app update",
-                    "Users won’t decompile it: nobody decompiles a shipped app"
+                    "Rotate the credentials with the next app release, so users get the fix and the new credentials together",
+                    "Accept that it is too late once the app has shipped",
+                    "Assume nobody will decompile the app"
                   ]
                 },
                 {
@@ -18138,9 +18138,9 @@
                   "a": "Disable weak protocols and ciphers, test client compatibility in stages, and monitor for breakage",
                   "x": "Protocol negotiation lets attackers pick the weakest option: the fix is removing the weak options server-side, with staged rollout to catch legacy clients.",
                   "wrong": [
-                    "Weak ciphers are fine internally: 3DES is fine on the inside",
-                    "Clients will adapt silently: old clients handle TLS 1.0 removal quietly",
-                    "Upgrade to TLS 1.1: TLS 1.1 is the modern secure standard"
+                    "Move the server to TLS 1.1 with strong ciphers, which removes the 3DES and TLS 1.0 exposure",
+                    "Leave it; weak ciphers are fine internally",
+                    "Assume clients will adapt silently"
                   ]
                 },
                 {
@@ -18151,9 +18151,9 @@
                   "a": "Delete the dangling DNS record immediately and audit all DNS for dead cloud references",
                   "x": "Subdomain takeover needs only a dangling record: the fix is DNS hygiene — remove dead references and continuously audit against live resources.",
                   "wrong": [
-                    "DNS is set-and-forget: records never need auditing",
-                    "The researcher is the attacker: the DNS claim proves hostile intent",
-                    "Nobody types subdomains: dangling records attract no visitors"
+                    "Ask the researcher to hand back the bucket name, and leave the DNS record in place for when it is needed",
+                    "Treat the researcher as the attacker",
+                    "Leave it; nobody types subdomains"
                   ]
                 },
                 {
@@ -18164,9 +18164,9 @@
                   "a": "Fix the proxy config, audit access logs for what was read, thank and credit the researcher",
                   "x": "Treat reporter findings like incident intel: remediate, scope via logs, and keep the relationship — hostile responses to helpers end the help.",
                   "wrong": [
-                    "Block the researcher’s IP: block the reporter, keep the proxy",
-                    "The wiki had nothing sensitive: internal wiki, nothing worth stealing",
-                    "Proxies can’t be misconfigured: the proxy config is always right"
+                    "Block the researcher's IP address, fix the proxy, and send a legal notice about unauthorised access",
+                    "Assume the wiki holds nothing sensitive",
+                    "Assume the proxy cannot be misconfigured"
                   ]
                 },
                 {
@@ -18177,9 +18177,9 @@
                   "a": "Emergency change now: KEV plus active exploitation plus internet exposure is the textbook emergency",
                   "x": "KEV-listed and exploited in the wild collapses the change-management debate: this is what emergency windows exist for.",
                   "wrong": [
-                    "Next month’s window is fine: KEV can wait for next month",
-                    "Change control forbids it: no emergency change without a window",
-                    "The VPN is “probably” fine: probably fine needs no emergency change"
+                    "Schedule it for next month's maintenance window, since change control requires a planned window for the VPN",
+                    "Assume the VPN is probably fine",
+                    "Block emergency changes under change policy"
                   ]
                 },
                 {
@@ -18187,12 +18187,12 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "A vulnerability is found in the backup software itself, with admin access to every backup job. What is the most defensible response?",
-                  "a": "Patch the backup platform first",
+                  "a": "Patch the backup platform first, then prove the backups are intact by restoring",
                   "x": "Backup infrastructure is the crown jewel: a flaw there threatens recovery itself. Patch it, then prove the backups are still trustworthy by restoring.",
                   "wrong": [
-                    "Backups are separate — low priority: backup software flaws can wait",
-                    "The backup vendor will handle it: the vendor patches their own flaws",
-                    "Air-gap harder: air-gap the backup software completely"
+                    "Treat it as low priority, because backups are separate from production and are not internet-facing",
+                    "Leave it to the backup vendor",
+                    "Air-gap the backup software"
                   ]
                 },
                 {
@@ -18203,9 +18203,9 @@
                   "a": "Scan in maintenance windows with throttled intensity, plus agent-based scanning for fragile hosts",
                   "x": "Disruptive scanning gets skipped, and skipped assets stay vulnerable: the fix is gentler methods and better windows, not exemptions.",
                   "wrong": [
-                    "Stop scanning it: stop crashing the order system",
-                    "Scan harder — it needs it: crash the order system harder",
-                    "Legacy systems are exempt: the order system skips scanning"
+                    "Exempt the legacy order system from scanning and record it as an accepted risk",
+                    "Scan it more aggressively",
+                    "Stop scanning it entirely"
                   ]
                 },
                 {
@@ -18213,12 +18213,12 @@
                   "deckId": "secplus-vuln-scenarios",
                   "trackId": "cyber",
                   "q": "Mean time to remediate criticals has climbed from 9 to 41 days over two quarters, while closed-ticket counts look great. What is the most defensible read?",
-                  "a": "The program is optimizing easy wins",
+                  "a": "The program is optimising easy wins: track ageing and exposure-weighted metrics",
                   "x": "When MTTR climbs while closures look good, the team is closing easy findings. Leadership needs aging and exposure-weighted metrics, not counts.",
                   "wrong": [
-                    "Celebrate the ticket counts",
-                    "Metrics don’t matter: MTTR climbing means nothing, ignore it",
-                    "Fire the slow team: 41 days means the team is slow"
+                    "The program is improving, because the closed-ticket count is the best measure of remediation work",
+                    "Metrics do not matter",
+                    "The remediation team is too slow and needs replacing"
                   ]
                 }
               ],
@@ -18261,9 +18261,9 @@
                   "a": "Restrict the bucket to private immediately, scope exactly what was accessed from the logs, and trigger the breach-notification process with legal if customer data was involved",
                   "x": "A public bucket is a finding; anonymous downloads make it a breach. Remediation is instant, but the logs decide whether notification duties trigger.",
                   "wrong": [
-                    "Make it private and say nothing — three days is nothing: silence hides the exposure",
-                    "Public buckets are a normal sharing pattern: open buckets share builds safely always",
-                    "Blame the junior admin and move on: the public bucket stays open meanwhile"
+                    "Make it private and close the ticket, since three days is a short window and the build was not sensitive",
+                    "Treat public buckets as a normal way to share builds",
+                    "Discipline the junior admin and move on"
                   ]
                 },
                 {
@@ -18271,12 +18271,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "A developer runs company workloads in a personal AWS account “because procurement is slow”. The account has no CloudTrail and no SSO. What is the most defensible move?",
-                  "a": "Migrate the workloads into the organization account with SSO and SCPs",
+                  "a": "Migrate the workloads into the organization with SSO, SCPs and logging, and fix the procurement bottleneck",
                   "x": "Shadow cloud has no logging, no guardrails, no offboarding — work that lives outside the organization boundary is invisible to security.",
                   "wrong": [
-                    "Approve it as a pilot and leave it running",
-                    "It is his account, so it is his problem",
-                    "Block his credit card and hope for the best: billing blocks stop the shadow workloads"
+                    "Approve it as a pilot and leave it running in the personal account until procurement catches up",
+                    "Treat it as the developer's personal problem",
+                    "Block his corporate card"
                   ]
                 },
                 {
@@ -18284,12 +18284,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "A CSPM scan flags 300 security groups open to 0.0.0.0/0 across 12 accounts. The app teams say “some of those are needed”. What is the most defensible approach?",
-                  "a": "Triage before touching anything",
+                  "a": "Triage before touching anything: classify by exposure, narrow the needed rules, and remove the rest",
                   "x": "Blindly deleting 300 rules is an outage; ignoring them is exposure. The defensible path is classify, narrow, and control.",
                   "wrong": [
-                    "Delete all 300 rules at once and see what breaks: breakage reveals the required rules",
-                    "0.0.0.0/0 is fine if nothing bad happened yet: 300 open groups are safe so far",
-                    "Open a ticket for each rule and wait: the 300 tickets will fix themselves"
+                    "Delete all 300 rules at once and let the app teams raise tickets for whatever breaks afterwards",
+                    "Leave them until something bad happens",
+                    "Open a ticket per rule and wait"
                   ]
                 },
                 {
@@ -18300,9 +18300,9 @@
                   "a": "Reconcile the hotfix into code and re-apply so the state matches",
                   "x": "Drift is debt with a timer: the longer hotfixes live outside code, the more the next deploy surprises you. Codify it or lose the audit trail.",
                   "wrong": [
-                    "Ignore drift — the hotfix works",
-                    "Delete the resources and redeploy from code: wiping the drift fixes the state file",
-                    "Disable Terraform so plans stop complaining: silence all the drift warnings for good"
+                    "Ignore the drift, since the hotfix works and the next planned deploy will overwrite it anyway",
+                    "Delete the resources and redeploy from code",
+                    "Disable Terraform plans"
                   ]
                 },
                 {
@@ -18313,9 +18313,9 @@
                   "a": "Scope the role to exactly the APIs the function calls, per function, with no wildcards",
                   "x": "Ephemeral code with standing admin privilege is the worst of both worlds: tiny blast radius only if the role is tiny. Scope it to the function’s actual calls.",
                   "wrong": [
-                    "Serverless is ephemeral, so admin is fine: short-lived code needs no limits",
-                    "Functions are too small to be attacked: tiny payment functions escape every single attacker",
-                    "Add more permissions to be safe: a wider role covers every payment call"
+                    "Keep admin, because serverless functions are short-lived and an attacker cannot keep a foothold in them",
+                    "Leave it; functions are too small to be attacked",
+                    "Add more permissions to be safe"
                   ]
                 },
                 {
@@ -18326,9 +18326,9 @@
                   "a": "Require signed images and enforce an admission policy so only signed images run in production",
                   "x": "Unsigned images in prod mean anyone with push access owns the cluster. Signing plus admission control makes the registry a gate, not a shelf.",
                   "wrong": [
-                    "Latest tag is a deployment strategy: the floating latest tag always deploys reliably here",
-                    "Signatures slow developers down: image signing blocks the fast production deploys",
-                    "The registry is internal, so it is trusted: internal images skip signatures"
+                    "Pin production to specific version tags instead of latest, and trust any image pushed to the internal registry",
+                    "Leave it; signing slows developers down",
+                    "Treat internal images as trusted"
                   ]
                 },
                 {
@@ -18336,12 +18336,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "A pen test shows the web app is vulnerable to SSRF, and the cloud metadata service still runs in IMDSv1 mode. What is the most defensible fix?",
-                  "a": "Enforce IMDSv2, which requires a token",
+                  "a": "Enforce IMDSv2, which requires a session token, and fix the SSRF",
                   "x": "SSRF to 169.254.169.254 is the classic cloud credential theft: IMDSv2 breaks the one-request theft by requiring a PUT for the token first.",
                   "wrong": [
-                    "IMDSv1 is fine behind the firewall: the old metadata endpoint stays safe inside",
-                    "SSRF is a low-severity issue: metadata theft is merely a minor flaw",
-                    "Block 169.254.169.254 in the app code only: code checks stop the metadata theft"
+                    "Block 169.254.169.254 in the application code only, and keep IMDSv1 for compatibility with older tools",
+                    "Keep IMDSv1 behind the firewall",
+                    "Treat SSRF as low severity"
                   ]
                 },
                 {
@@ -18352,9 +18352,9 @@
                   "a": "Replace it with a namespace-scoped role granting only the verbs the pipeline needs",
                   "x": "Automation with cluster-admin is standing privilege that never sleeps: a compromised pipeline token becomes a cluster takeover. Scope the role to the job.",
                   "wrong": [
-                    "CI needs admin to work properly: the pipeline cannot deploy without cluster-admin rights",
-                    "Service accounts cannot be attacked: cluster-admin service accounts are untouchable by attackers",
-                    "Rotate the token monthly and keep admin: fresh tokens make cluster-admin safe"
+                    "Keep cluster-admin but rotate the service account token every month and alert on unusual use",
+                    "Keep it; CI needs admin to work",
+                    "Treat service accounts as untouchable"
                   ]
                 },
                 {
@@ -18365,9 +18365,9 @@
                   "a": "Aggregate into one inventory with consistent tagging via a CSPM or CMDB",
                   "x": "Multi-cloud without a single asset view is three blind spots. Tagging standards plus aggregation turn sprawl into an inventory.",
                   "wrong": [
-                    "Each cloud team manages its own list",
-                    "Spreadsheets updated quarterly",
-                    "Visibility is a nice-to-have: a full asset inventory is merely a nice optional extra"
+                    "Let each cloud team keep its own asset list, and merge the three lists into a spreadsheet each quarter",
+                    "Rely on the cloud bills to show assets",
+                    "Treat visibility as a nice-to-have"
                   ]
                 },
                 {
@@ -18378,9 +18378,9 @@
                   "a": "Migrate the data to an EU region and document the residency control",
                   "x": "Data residency is decided by contracts and regulators, not latency. When the contract says EU, the region choice is compliance, not convenience.",
                   "wrong": [
-                    "The cloud is global, so residency is outdated",
-                    "Encryption makes location irrelevant: encrypted EU data may sit in the US region legally",
-                    "Ask the customers not to worry: reassurance alone fixes the EU residency breach"
+                    "Keep the data in the US region but encrypt it, since encryption makes its physical location irrelevant",
+                    "Explain that the cloud is global",
+                    "Ask customers not to worry"
                   ]
                 },
                 {
@@ -18391,9 +18391,9 @@
                   "a": "Separate accounts under the organization with SCP guardrails",
                   "x": "One account means one failure domain: a dev mistake can delete prod, and you cannot tell whose spend is whose. Accounts are the cloud’s cheapest isolation.",
                   "wrong": [
-                    "One account is simpler and therefore safer: a single account’s simplicity counts as security",
-                    "Use tags instead of accounts: tags alone separate dev, staging, and production environments",
-                    "Billing simplicity beats security: a single account is worth the security risk"
+                    "Keep one account but separate environments with tags and IAM conditions on every resource",
+                    "Keep one account for simplicity",
+                    "Accept the risk for simpler billing"
                   ]
                 },
                 {
@@ -18404,9 +18404,9 @@
                   "a": "Re-enable it everywhere immediately — audit logging is not an optional line item",
                   "x": "The regions without trails are the regions attackers will find. Logging is the cheapest control in the building; cutting it is not savings.",
                   "wrong": [
-                    "Attackers only target the main region",
-                    "Storage costs are a real security trade-off",
-                    "Enable it only after an incident: CloudTrail starts only once a real breach happens"
+                    "Leave it, since attackers mainly target the primary region where all production workloads run",
+                    "Treat storage costs as a fair trade-off",
+                    "Enable it only after an incident"
                   ]
                 },
                 {
@@ -18417,9 +18417,9 @@
                   "a": "Rotate every exposed key now, move secrets to a vault injected at runtime, and add secret scanning to CI",
                   "x": "A committed secret is a public secret: rotation closes the window, but only vault-at-runtime plus scanning keeps it closed.",
                   "wrong": [
-                    "The repo is private, so the keys are safe: the private repo hides the secrets",
-                    "Rotate them at the next release: the next release fixes every single leaked key",
-                    "Obfuscate the keys harder: hidden keys stay safe inside the mobile repo"
+                    "Leave the keys in place, since the repository is private and the image is in a private registry",
+                    "Rotate them at the next release",
+                    "Obfuscate the keys in the code"
                   ]
                 },
                 {
@@ -18427,12 +18427,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "The golden image pipeline broke two years ago, so every new VM starts from a 2023 base and gets patched at boot. What is the most defensible fix?",
-                  "a": "Rebuild the pipeline: minimal hardened base, monthly rebuilds, scan before deploy",
+                  "a": "Rebuild the pipeline: a minimal hardened base, monthly rebuilds, and scanning before deploy",
                   "x": "Images rot: every manual patch at boot is an untested, unaudited snowflake. Build once, scan it, deploy it everywhere.",
                   "wrong": [
-                    "Patch-at-boot is basically the same thing",
-                    "Golden images are waterfall thinking: hardened base images are outdated, rigid thinking",
-                    "2023 was a fine year for software: old images are fine as they are"
+                    "Keep patching at boot, since the end state is the same as a fresh image and it avoids pipeline work",
+                    "Drop golden images as outdated",
+                    "Keep the 2023 base"
                   ]
                 },
                 {
@@ -18443,9 +18443,9 @@
                   "a": "Your users, access controls, data classification, sharing settings, and your own incident response",
                   "x": "Shared responsibility does not end at the vendor’s breach notification: your half of the model is still yours. Review your side, rotate keys, audit sharing.",
                   "wrong": [
-                    "Nothing — the vendor handles everything: the SaaS vendor owns all your customer data",
-                    "Immediately migrate to a new vendor: switching vendors fixes the whole breach fallout",
-                    "Breach the contract and sue: suing the vendor is the entire breach response"
+                    "Nothing, because the vendor's breach is the vendor's responsibility under the shared responsibility model",
+                    "Migrate to a new vendor immediately",
+                    "Sue the vendor"
                   ]
                 },
                 {
@@ -18453,12 +18453,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "The lift-and-shift migration kept the on-prem flat firewall rules “for compatibility”. What is the most defensible redesign?",
-                  "a": "Rebuild with tiered security groups",
+                  "a": "Rebuild with tiered security groups and subnets for web, app and data",
                   "x": "Lift-and-shift carries the old weaknesses along: compatibility with a bad design is not a reason to keep it. Segment in the cloud’s own primitives.",
                   "wrong": [
-                    "Flat networks are faster: a single flat tier always beats segmented tiers outright",
-                    "Compatibility beats security: the flat firewall rules stay for compatibility’s sake alone",
-                    "The cloud provider handles segmentation: the cloud vendor segments the entire flat network"
+                    "Keep the flat rules for compatibility and add a cloud firewall in front of the whole environment",
+                    "Rely on the provider to segment it",
+                    "Keep the flat network for speed"
                   ]
                 },
                 {
@@ -18469,9 +18469,9 @@
                   "a": "Isolate the instance, preserve it for forensics, rotate any credentials it could reach",
                   "x": "Mining is a symptom of compromise, not a billing problem: the instance is evidence, and the attacker’s keys are still valid until rotated.",
                   "wrong": [
-                    "Just terminate it and move on: deleting the miner ends the whole incident",
-                    "Miners are a cost problem, not security: the bill matters, not the breach itself, just pay the bill",
-                    "Pay the bill and increase the budget: funding covers the miner’s cost entirely"
+                    "Terminate the instance immediately to stop the cost, and raise a ticket to check the other instances",
+                    "Treat it as a cost problem only",
+                    "Increase the budget and pay the bill"
                   ]
                 },
                 {
@@ -18479,12 +18479,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "An internal API has no authentication “because it is only reachable internally”. What is the most defensible fix?",
-                  "a": "Add authentication and authorization anyway",
+                  "a": "Add authentication and authorisation anyway; internal reachability is not a control",
                   "x": "The perimeter is porous: once an attacker is inside, unauthenticated “internal” APIs are free moves. Authenticate every API.",
                   "wrong": [
-                    "Internal APIs do not need auth",
-                    "It is behind the firewall, so it is safe: the firewall protects internal APIs",
-                    "Add auth only if it gets attacked: internal APIs earn protection after a breach"
+                    "Leave it, since only internal systems can reach it and the perimeter firewall blocks outside access",
+                    "Add authentication only after an attack",
+                    "Treat internal APIs as trusted"
                   ]
                 },
                 {
@@ -18495,9 +18495,9 @@
                   "a": "Scope the trust policy to the specific account and role, and require an external ID for third-party access",
                   "x": "A wildcard principal is an open door with a welcome mat: trust policies must name exactly who may assume the role, and external IDs stop confused-deputy attacks.",
                   "wrong": [
-                    "Flexibility is worth the risk: the wildcard trust principal is worth the risk",
-                    "The * only applies to our accounts: the wildcard stays inside our accounts",
-                    "Trust policies are advisory: cross-account trust policies are guidance, never enforcement"
+                    "Keep the wildcard but add a condition requiring MFA, so only authenticated callers can assume the role",
+                    "Assume the wildcard only covers your accounts",
+                    "Treat trust policies as advisory"
                   ]
                 },
                 {
@@ -18508,9 +18508,9 @@
                   "a": "At minimum multi-AZ for resilience, with a tested cross-region plan only if the RTO/RPO justify the cost",
                   "x": "Region choice is a business decision expressed in RTO/RPO: multi-AZ survives datacenter loss, cross-region survives regional loss, and both need testing.",
                   "wrong": [
-                    "One region is fine — clouds do not go down: providers never fail at all",
-                    "DR plans are for banks: only banks ever need disaster recovery plans at all",
-                    "Multi-region doubles the bill for nothing: the extra regions buy nothing useful here"
+                    "Keep one region, since major cloud providers are designed never to lose a whole region",
+                    "Leave DR plans to banks",
+                    "Treat multi-region as wasted spend"
                   ]
                 },
                 {
@@ -18518,12 +18518,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "Compliance requires dedicated cryptographic hardware, but the team proposes KMS. What is the most defensible choice?",
-                  "a": "If the requirement is single-tenant FIPS 140-2 Level 3, use CloudHSM",
-                  "x": "Managed KMS is multi-tenant by design: when the auditor requires dedicated hardware boundaries, only a dedicated HSM satisfies it.",
+                  "a": "If the requirement is dedicated, single-tenant HSMs under your exclusive control, use CloudHSM",
+                  "x": "AWS KMS runs on FIPS 140-3 Level 3 validated HSMs, but they are multi-tenant; when the auditor requires dedicated hardware boundaries, only a dedicated HSM satisfies it.",
                   "wrong": [
-                    "KMS is always sufficient",
-                    "Hardware is always better: dedicated crypto hardware always beats the KMS outright",
-                    "Compliance requirements are suggestions: the dedicated hardware rules are merely optional guidance"
+                    "KMS is always sufficient, because its HSMs are FIPS validated and that is what every standard asks for",
+                    "Dedicated hardware is always better",
+                    "Treat compliance requirements as suggestions"
                   ]
                 },
                 {
@@ -18534,9 +18534,9 @@
                   "a": "Deprovision immediately and institute quarterly access reviews with automated deprovisioning on HR events",
                   "x": "Orphaned accounts are standing invitations: the fix is joiner-mover-leaver automation so access dies when employment does.",
                   "wrong": [
-                    "They might come back: the departed staff might return someday, so keep access",
-                    "Dormant accounts are harmless: old console accounts without MFA pose no risk",
-                    "MFA is optional for old accounts: the old age exempts these logins from MFA"
+                    "Disable console access for the old users but keep their access keys in case automation depends on them",
+                    "Leave them in case the people return",
+                    "Treat dormant accounts as harmless"
                   ]
                 },
                 {
@@ -18544,12 +18544,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "Cloud backups live in the same account as production, and ransomware just encrypted both. What is the most defensible redesign?",
-                  "a": "Separate backup account with Object Lock immutability",
+                  "a": "A separate backup account with Object Lock immutability",
                   "x": "A backup an attacker can delete is a copy, not a recovery plan. Immutability plus a separate account puts recovery outside the blast radius.",
                   "wrong": [
-                    "Same-account backups are simpler",
-                    "Back up more often: hourly copies in the same account beat encryption",
-                    "Encrypt the backups more: stronger encryption alone stops ransomware reaching the copies"
+                    "Back up hourly within the same account so that a recent copy is always available after an attack",
+                    "Keep same-account backups for simplicity",
+                    "Encrypt the backups with a stronger key"
                   ]
                 },
                 {
@@ -18557,12 +18557,12 @@
                   "deckId": "secplus-cloud-scenarios",
                   "trackId": "cyber",
                   "q": "The API gateway fronts 200 microservices with a single shared API key. What is the most defensible change?",
-                  "a": "Per-client credentials with scopes and rotation, rate limiting per key",
+                  "a": "Per-client credentials with scopes, rotation and per-key rate limiting",
                   "x": "A shared key means one leak revokes everyone or revokes nobody: per-client keys make compromise survivable.",
                   "wrong": [
-                    "Shared keys are easier to manage: a single shared key serves all 200 services",
-                    "Internal APIs do not need keys: internal callers are trusted with no credentials at all",
-                    "Rotate the shared key yearly: one annual rotation secures all 200 microservices"
+                    "Keep the shared key but rotate it every year and limit it to internal IP ranges",
+                    "Use no keys for internal APIs",
+                    "Keep one shared key for simplicity"
                   ]
                 },
                 {
@@ -18573,9 +18573,9 @@
                   "a": "Replace it with an IAM role attached to the instance",
                   "x": "Static keys are standing credentials that never expire on their own: roles for compute give the same access with no secret to steal, and rotation is automatic.",
                   "wrong": [
-                    "Rotate the static key yearly",
-                    "Baked-in keys are fine on private AMIs: private images keep baked secrets safe",
-                    "Put the key in an env var instead: environment variables hide the baked-in secret"
+                    "Rotate the static access key every year and store it in an environment variable instead of the AMI",
+                    "Leave it, since private AMIs are safe",
+                    "Move the key into the application config file"
                   ]
                 }
               ],
