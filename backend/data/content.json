@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:17:30.982Z",
+  "generatedAt": "2026-11-17T01:19:56.357Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -13492,12 +13492,12 @@
                   "deckId": "cy-governance",
                   "trackId": "cyber",
                   "q": "HIPAA: who must comply and what is protected?",
-                  "a": "Covered entities and business associates",
+                  "a": "Covered entities and their business associates; protected health information",
                   "x": "The Security Rule mandates administrative, physical, and technical safeguards.",
                   "wrong": [
-                    "Only hospitals: HIPAA covers hospitals and nobody else at all",
-                    "Only insurers: HIPAA covers insurers and nobody else at all",
-                    "Credit card data: payment numbers are what HIPAA protects"
+                    "Any US company that stores employee health insurance details, including payroll data on benefits",
+                    "Only hospitals; insurers and clinics are exempt",
+                    "Card payment data held by healthcare providers"
                   ]
                 },
                 {
@@ -13505,12 +13505,12 @@
                   "deckId": "cy-governance",
                   "trackId": "cyber",
                   "q": "HIPAA breach notification: what are the timelines?",
-                  "a": "Notify affected individuals within 60 days; HHS promptly",
-                  "x": "Delays compound the violation.",
+                  "a": "Individuals without unreasonable delay and within 60 days; HHS within 60 days for 500+ people",
+                  "x": "Breaches affecting fewer than 500 people are reported to HHS annually; large breaches also require media notice.",
                   "wrong": [
-                    "One year",
-                    "No deadline: HIPAA breach notice has no time limit at all",
-                    "72 hours: notify everyone within three days of discovery"
+                    "Within 72 hours to the regulator, and individuals only if they ask",
+                    "Within one year of discovery",
+                    "No deadline as long as the breach is contained"
                   ]
                 },
                 {
@@ -13521,9 +13521,9 @@
                   "a": "Reliable financial reporting, which needs controlled IT systems",
                   "x": "Change management, access controls, and audit trails over financial systems.",
                   "wrong": [
-                    "Encrypt all email: SOX demands every message be encrypted",
-                    "Ban personal devices: SOX forbids all staff-owned hardware outright always",
-                    "Annual pentests only: SOX demands yearly testing and nothing else"
+                    "Encryption of every email that mentions financial results or forecasts",
+                    "A ban on personal devices for finance staff",
+                    "An annual penetration test of the finance systems"
                   ]
                 },
                 {
@@ -13534,9 +13534,9 @@
                   "a": "Know, delete, and opt out of sale/sharing of personal data",
                   "x": "Applies above revenue or data-volume thresholds; fines per violation.",
                   "wrong": [
-                    "Only breach notice: CCPA grants breach notice and nothing else",
-                    "No rights: California consumers have none under the CCPA",
-                    "EU rights only: California consumers get European rights alone"
+                    "Breach notification only, with no other rights",
+                    "No rights unless the company is headquartered in California and sells data",
+                    "Exactly the same rights as the GDPR"
                   ]
                 },
                 {
@@ -13547,9 +13547,9 @@
                   "a": "Financial institutions: banks, lenders, even car dealerships offering financing",
                   "x": "Requires a written security program with risk assessment.",
                   "wrong": [
-                    "Hospitals: the GLBA hits healthcare providers, not banks",
-                    "Schools: the GLBA hits schools instead of financial firms",
-                    "Only big banks: GLBA hits large banks alone, never others"
+                    "Hospitals and healthcare providers that bill insurers electronically for patient care",
+                    "Schools and universities",
+                    "Only banks with over $1 billion in assets"
                   ]
                 },
                 {
@@ -13560,9 +13560,9 @@
                   "a": "Student education records: schools need consent to disclose them",
                   "x": "Parents (or adult students) can inspect and amend records.",
                   "wrong": [
-                    "Medical records: health files are what FERPA protects",
-                    "Tax records: revenue files are what FERPA protects here",
-                    "Criminal records: police files are what FERPA protects here, not student records"
+                    "Medical records held by school nurses and treated under HIPAA instead",
+                    "Tax records of school employees",
+                    "Criminal records of students"
                   ]
                 },
                 {
@@ -13573,9 +13573,9 @@
                   "a": "Categorise, select NIST 800-53 controls, assess, authorise, and continuously monitor",
                   "x": "The RMF operationalises FISMA compliance.",
                   "wrong": [
-                    "A risk assessment only: FISMA demands one report and nothing more",
-                    "Annual passwords: FISMA demands yearly password changes and nothing else",
-                    "Ban cloud: FISMA forbids federal cloud use entirely, always"
+                    "A single annual risk assessment report",
+                    "A yearly password change for every federal employee, plus an annual security quiz",
+                    "A ban on cloud services for agencies"
                   ]
                 },
                 {
@@ -13586,9 +13586,9 @@
                   "a": "Twelve: build secure networks, protect cardholder data, manage vulns, control access, monitor, test, and maintain policy",
                   "x": "Applies to anyone storing, processing, or transmitting card data.",
                   "wrong": [
-                    "Three: three requirement families make up the standard",
-                    "Fifty: fifty requirement families make up the standard",
-                    "One: a single requirement family in the standard"
+                    "Six: the six control objectives are the requirements themselves",
+                    "Three: network, data and access",
+                    "Fifty, one for each type of payment channel"
                   ]
                 },
                 {
@@ -13599,9 +13599,9 @@
                   "a": "Transaction volume and breach history decide self-assessment vs on-site audit",
                   "x": "Level 1 merchants need a Report on Compliance by a QSA.",
                   "wrong": [
-                    "Company size only: headcount alone decides SAQ versus ROC audits",
-                    "Random selection: SAQ or ROC decided by lottery draw alone",
-                    "Revenue: merchant earnings decide SAQ or ROC alone"
+                    "The merchant's headcount and number of retail stores, whatever its card volume",
+                    "The payment brand's random selection",
+                    "Annual revenue alone"
                   ]
                 },
                 {
@@ -13612,9 +13612,9 @@
                   "a": "Access, rectification, erasure, portability, and objection to processing",
                   "x": "\"Right to be forgotten\" is the famous one — with legal exceptions.",
                   "wrong": [
-                    "No other rights",
-                    "Only access: the sole GDPR right is seeing data",
-                    "Only erasure: deletion is the sole GDPR right granted"
+                    "None beyond breach notification, which is the only right GDPR gives individuals",
+                    "Only the right of access",
+                    "Only the right to erasure"
                   ]
                 },
                 {
@@ -13625,9 +13625,9 @@
                   "a": "EU rules requiring consent before storing non-essential cookies or tracking",
                   "x": "Complements GDPR for electronic communications.",
                   "wrong": [
-                    "A US law: American federal legislation governing cookie consent",
-                    "About passwords: the ePrivacy Directive governs login secrets only",
-                    "Repealed everywhere: the ePrivacy Directive no longer exists anywhere at all"
+                    "A US federal law requiring cookie consent banners on every website used by Americans",
+                    "An EU rule on password storage",
+                    "A directive that has been repealed everywhere"
                   ]
                 },
                 {
@@ -13638,9 +13638,9 @@
                   "a": "Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor",
                   "x": "Authorisation is a risk decision by the authorizing official.",
                   "wrong": [
-                    "Plan, Do, Check: three steps make the whole RMF",
-                    "Scan, Patch, Repeat: three steps make the whole RMF",
-                    "Detect, Respond: the first two RMF steps in order"
+                    "Identify, Protect, Detect, Respond, Recover, Govern, Improve",
+                    "Plan, Do, Check, Act, Review, Report, Repeat",
+                    "Categorize, Select, Implement, Assess, Authorize, Monitor, then Retire the system"
                   ]
                 },
                 {
@@ -13651,9 +13651,9 @@
                   "a": "27001: certifiable requirements for an ISMS; 27002: the code of practice with control guidance",
                   "x": "Get certified against 27001 using 27002’s controls.",
                   "wrong": [
-                    "27001 is guidance only: the requirements standard cannot be certified against",
-                    "27002 is certifiable: the guidance standard itself earns certification",
-                    "Both are laws: 27001 and 27002 are both statutes"
+                    "27001 is guidance only; 27002 is the certifiable standard",
+                    "Both are certifiable in the same way",
+                    "Both are national laws"
                   ]
                 },
                 {
@@ -13664,9 +13664,9 @@
                   "a": "Privacy information management: PIMS controls for data controllers and processors",
                   "x": "Bridges ISO security management and GDPR-style privacy duties.",
                   "wrong": [
-                    "More firewalls: 27701 adds perimeter boxes to 27001",
-                    "Faster audits: 27701 exists to speed audit work up",
-                    "More paperwork: 27701 only adds audit forms"
+                    "Network security controls for perimeter firewalls, segmentation and intrusion prevention",
+                    "A faster audit process for 27001",
+                    "Extra documentation with no new controls"
                   ]
                 },
                 {
@@ -13677,9 +13677,9 @@
                   "a": "Implementation Groups IG1, IG2, IG3",
                   "x": "Start at IG1: inventory, secure configs, patching, access control, backups.",
                   "wrong": [
-                    "By price",
-                    "Randomly: CIS control tiers are assigned purely by chance",
-                    "By vendor: control tiers follow the supplier name alone"
+                    "By cost of implementation",
+                    "By the vendor that supplies the tool",
+                    "By industry sector"
                   ]
                 },
                 {
@@ -13690,9 +13690,9 @@
                   "a": "Security, Availability, Processing Integrity, Confidentiality, Privacy",
                   "x": "Security is mandatory; the others are added per engagement.",
                   "wrong": [
-                    "Speed, cost, uptime: these are the five trust criteria",
-                    "Three criteria only: SOC 2 has just three trust criteria",
-                    "Ten criteria: SOC 2 has ten trust services criteria total"
+                    "Speed, Cost, Uptime, Support, Scalability",
+                    "Security, Availability and Privacy only",
+                    "Confidentiality, Integrity, Availability, Authenticity, Accountability"
                   ]
                 },
                 {
@@ -13703,9 +13703,9 @@
                   "a": "A cloud-specific control framework mapping to ISO, SOC 2, and others",
                   "x": "Use it to evaluate cloud provider security consistently.",
                   "wrong": [
-                    "A cloud contract: a signed deal with a provider",
-                    "A contract: a signed agreement is the Cloud Controls Matrix",
-                    "A certification exam: a test cloud auditors must pass first"
+                    "A standard contract template that cloud providers must sign with every customer",
+                    "A certification exam for cloud auditors",
+                    "A list of approved cloud vendors"
                   ]
                 },
                 {
@@ -13716,9 +13716,9 @@
                   "a": "A governance framework linking enterprise goals to IT processes and controls",
                   "x": "ISACA’s answer to \"is IT delivering business value securely?\"",
                   "wrong": [
-                    "A pentest tool: COBIT as software for testing systems",
-                    "An encryption standard: COBIT as a cipher specification document",
-                    "A compliance checklist: a tick-box list for the annual audit"
+                    "A penetration testing toolkit from ISACA for checking IT general controls",
+                    "An encryption standard from ISACA",
+                    "A tick-box checklist for the annual audit"
                   ]
                 },
                 {
@@ -13729,9 +13729,9 @@
                   "a": "Organisational context, risk strategy, and supply-chain oversight as a top-level function",
                   "x": "Governance now sits above Identify, Protect, Detect, Respond, Recover.",
                   "wrong": [
-                    "Nothing new: the Govern function added nothing at all",
-                    "Removed Identify: Govern deletes the whole Identify function entirely",
-                    "Only renamed: Govern just relabels the existing functions here"
+                    "Nothing new: it renamed the Identify function and kept the same categories underneath",
+                    "It removed the Identify function",
+                    "Only new names for the existing categories"
                   ]
                 },
                 {
@@ -13742,9 +13742,9 @@
                   "a": "Standardised security authorisation for US federal cloud services",
                   "x": "A FedRAMP authorisation spares each agency a separate review.",
                   "wrong": [
-                    "EU cloud rules",
-                    "A federal VPN: an encrypted tunnel for government staff only",
-                    "A procurement list: a catalogue of approved federal software vendors"
+                    "EU rules governing which cloud services member-state governments may buy and use",
+                    "A VPN service for federal staff",
+                    "A catalogue of approved federal software"
                   ]
                 },
                 {
@@ -13755,9 +13755,9 @@
                   "a": "Permitted and prohibited uses of systems, data handling, and consequences",
                   "x": "Everyone signs it; enforcement must be consistent to survive challenge.",
                   "wrong": [
-                    "Password rules: the AUP only sets password-change frequency",
-                    "Lunch breaks: meal times are what the AUP covers",
-                    "Dress code: what staff may wear is the policy"
+                    "Only how often passwords must be changed, and which characters they must contain",
+                    "Working hours and break times",
+                    "The staff dress code"
                   ]
                 },
                 {
@@ -13768,9 +13768,9 @@
                   "a": "Long passphrases, no forced rotation without cause, check against breached lists",
                   "x": "Complexity theater is out; length and uniqueness are in.",
                   "wrong": [
-                    "Change monthly: rotate passwords every thirty days without fail",
-                    "Eight chars max: passwords must be short, eight characters maximum",
-                    "No MFA needed: long passphrases replace second factors entirely"
+                    "Change passwords monthly and require symbols, numbers and capitals in every password",
+                    "Passwords of at most eight characters",
+                    "Long passphrases make MFA unnecessary"
                   ]
                 },
                 {
@@ -13778,12 +13778,12 @@
                   "deckId": "cy-governance",
                   "trackId": "cyber",
                   "q": "What does a data retention policy define?",
-                  "a": "How long each data type is kept",
+                  "a": "How long each type of data is kept, and how it is disposed of",
                   "x": "Keep it for legal need, not forever: retention is also a breach multiplier.",
                   "wrong": [
-                    "Backup schedules: a retention policy sets the backup timings",
-                    "Password length: character count is the retention policy rule",
-                    "Firewall rules: the allow and deny list at the network edge"
+                    "The schedule for nightly and weekly backups, and which media each backup is written to",
+                    "The minimum password length",
+                    "Which firewall rules to keep"
                   ]
                 },
                 {
@@ -13794,9 +13794,9 @@
                   "a": "MDM enrolment and containerisation separating work from personal data",
                   "x": "Plus remote wipe rights the user explicitly accepts.",
                   "wrong": [
-                    "Free phones: handsets for staff as the BYOD pillars",
-                    "No controls: BYOD needs no technical measures at all",
-                    "VPN only: a tunnel is the BYOD technical pillar"
+                    "A company-paid phone for every member of staff, configured and owned by IT",
+                    "No technical controls, just a signed policy",
+                    "A VPN client as the only control"
                   ]
                 },
                 {
@@ -13807,9 +13807,9 @@
                   "a": "Approved devices, encrypted storage, secure Wi-Fi expectations, and incident reporting",
                   "x": "Home networks are hostile territory.",
                   "wrong": [
-                    "Nothing more: a VPN is all remote work needs",
-                    "Faster home internet: remote work needs bigger broadband",
-                    "New laptops: fresh hardware is the remote-work rule"
+                    "Nothing more: a VPN covers every remote-work risk, including the device and home network",
+                    "Faster home broadband",
+                    "New laptops for all remote staff"
                   ]
                 },
                 {
@@ -13820,9 +13820,9 @@
                   "a": "To stop staff leaking sensitive info or damaging the brand online",
                   "x": "Cover personal vs official accounts and pre-publication review for sensitive roles.",
                   "wrong": [
-                    "To ban phones: social media policy outlaws mobile phones entirely",
-                    "For fun: a social media policy exists for entertainment",
-                    "To boost followers: the policy exists to grow the company account"
+                    "To encourage every member of staff to promote the brand on their personal accounts",
+                    "To encourage staff to promote the brand",
+                    "To grow the company's follower count"
                   ]
                 },
                 {
@@ -13833,9 +13833,9 @@
                   "a": "Labels (Public/Internal/Confidential/Restricted) plus handling rules per label",
                   "x": "Classification without handling rules is decoration.",
                   "wrong": [
-                    "Salaries",
-                    "Job titles: data classification assigns staff roles to people",
-                    "Office locations: data classification assigns office buildings to data, labels live on the map"
+                    "Salary bands for each role",
+                    "Job titles and reporting lines for each department, so access follows the org chart",
+                    "Office locations for each team"
                   ]
                 },
                 {
@@ -13846,9 +13846,9 @@
                   "a": "What data, which algorithms and key lengths, and who manages keys",
                   "x": "Mandate TLS 1.2+, AES-256, and HSM-backed CA keys where risk warrants.",
                   "wrong": [
-                    "Key length only: the policy names one key size and stops there",
-                    "Wi-Fi keys: wireless passwords are the whole encryption policy, nothing else to specify",
-                    "Vendor logos: the policy names which suppliers may sell encryption"
+                    "One approved key length for all data",
+                    "The office Wi-Fi password",
+                    "Which vendors may sell encryption products to the company, and at what price"
                   ]
                 },
                 {
@@ -13859,9 +13859,9 @@
                   "a": "Policy: management intent; plan: organisation-wide approach; playbook: step-by-step for one scenario",
                   "x": "Policy authorises, plan organises, playbook executes.",
                   "wrong": [
-                    "The plan is the policy: the approach itself is management intent",
-                    "Only playbooks matter: policy and plan are both irrelevant",
-                    "Policy is technical: management intent is written as code"
+                    "The policy gives the step-by-step actions; the plan states management intent; the playbook covers the whole organisation",
+                    "Only playbooks matter in practice",
+                    "The policy is written as code"
                   ]
                 },
                 {
@@ -13872,9 +13872,9 @@
                   "a": "Approval, impact analysis, testing, scheduled windows, and backout plans",
                   "x": "Emergency changes follow a fast-track path — still documented.",
                   "wrong": [
-                    "No changes ever: change policy forbids every alteration outright, always",
-                    "Verbal approval: spoken agreement counts as full change control",
-                    "Change anytime: alter systems with no approval needed ever"
+                    "A freeze on all production changes",
+                    "Verbal approval from any manager",
+                    "Changes may be made at any time, as long as the engineer documents them afterwards"
                   ]
                 },
                 {
@@ -13885,9 +13885,9 @@
                   "a": "Internal serves management and the board; external serves regulators, customers, or the public",
                   "x": "Internal can be continuous; external is point-in-time and independent.",
                   "wrong": [
-                    "Same audience: internal and external audits serve identical readers",
-                    "Both serve attackers: audits exist to help the adversaries",
-                    "Neither serves anyone: audits serve no one at all"
+                    "Internal serves regulators and the public; external serves management and the board, who commission it",
+                    "Both serve the IT department only",
+                    "Neither has a defined audience"
                   ]
                 },
                 {
@@ -13898,9 +13898,9 @@
                   "a": "Clear objectives, systems, time period, and criteria",
                   "x": "Scope creep wastes effort; scope gaps miss risk.",
                   "wrong": [
-                    "Vague goals: unclear objectives make a good audit scope",
-                    "No time limits: audit scope sets no time boundaries at all",
-                    "Audit everything: scope every system with no boundaries at all"
+                    "Broad goals left open so auditors can follow any lead they find",
+                    "No time period, so all history is in scope",
+                    "Every system in the organisation"
                   ]
                 },
                 {
@@ -13911,9 +13911,9 @@
                   "a": "The auditing standard behind SOC 1, 2, and 3 reports",
                   "x": "An auditor opines on control design and operating effectiveness.",
                   "wrong": [
-                    "A firewall",
-                    "An encryption law",
-                    "A pentest method: testing systems is the SSAE standard"
+                    "An encryption standard that defines how audit evidence must be stored",
+                    "A US law on data protection",
+                    "A penetration testing methodology"
                   ]
                 },
                 {
@@ -13924,9 +13924,9 @@
                   "a": "Documents, logs, configurations, interviews, and direct observation",
                   "x": "Stronger evidence is independent and corroborated.",
                   "wrong": [
-                    "Rumours",
-                    "Marketing slides: sales decks count as audit evidence here, logs are optional",
-                    "Guesses: hunches and gut feel count as evidence"
+                    "Rumours from staff",
+                    "The vendor's marketing slides, customer testimonials and the sales team's assurances",
+                    "The auditor's assumptions"
                   ]
                 },
                 {
@@ -13937,9 +13937,9 @@
                   "a": "Finding: control failed; observation: weakness noted; recommendation: how to fix",
                   "x": "Findings demand management response and dates.",
                   "wrong": [
-                    "Observations are findings: noted weakness means the control failed",
-                    "Findings are good: failed controls count as a success",
-                    "Recommendations are findings: fixing advice proves the control failed"
+                    "Observations are findings by another name",
+                    "Findings mean a control worked well",
+                    "Recommendations prove the control failed"
                   ]
                 },
                 {
@@ -13950,9 +13950,9 @@
                   "a": "Compliance: do controls operate as designed; substantive: are the numbers/data right",
                   "x": "Test the lock and also check the door stayed shut.",
                   "wrong": [
-                    "Substantive tests controls: checking the numbers proves controls operate as designed",
-                    "Only one exists: audits use a single testing type",
-                    "Neither is used: audits use neither testing type at all"
+                    "Substantive testing checks controls; compliance checks the numbers",
+                    "Only one type is used in audits",
+                    "Neither is used in modern audits"
                   ]
                 },
                 {
@@ -13963,9 +13963,9 @@
                   "a": "Automated, ongoing control testing instead of annual sampling",
                   "x": "Dashboards over spreadsheets.",
                   "wrong": [
-                    "Auditing nonstop manually: auditors test controls by hand without stopping",
-                    "No audits: continuous auditing means all testing stops entirely",
-                    "Annual audits only: test controls once a year, nothing more"
+                    "Auditors testing every control by hand throughout the year instead of sampling",
+                    "Stopping audits once controls are automated",
+                    "Testing controls once a year"
                   ]
                 },
                 {
@@ -13976,9 +13976,9 @@
                   "a": "Collect and keep only the personal data you need",
                   "x": "Less data means smaller breach blast radius and easier compliance.",
                   "wrong": [
-                    "Collect everything: gather all personal data just in case",
-                    "Delete nothing: retain every personal record indefinitely, without limit",
-                    "Encrypt everything: encrypting all data counts as data minimisation"
+                    "Collect everything that might be useful later, but encrypt it",
+                    "Keep every record indefinitely",
+                    "Encrypt everything you collect"
                   ]
                 },
                 {
@@ -13989,9 +13989,9 @@
                   "a": "Use personal data only for the purpose it was collected for",
                   "x": "Marketing reuse of support-ticket data violates it.",
                   "wrong": [
-                    "Unlimited use: personal data may serve any purpose whatsoever",
-                    "Sell the data: trade personal data freely, no limits",
-                    "No limits: personal data may be used for any purpose"
+                    "Use personal data for any purpose once it has been collected lawfully",
+                    "Sell the data to partners",
+                    "No limits for internal use"
                   ]
                 },
                 {
@@ -14002,9 +14002,9 @@
                   "a": "PII: identifies a person; PHI: health data; PCI: cardholder data",
                   "x": "Different laws, different handling: know which regime each dataset triggers.",
                   "wrong": [
-                    "PCI is health data: cardholder records are just medical files",
-                    "Only PII matters: card and health data are unprotected",
-                    "PHI is cardholder data: health records are just payment records"
+                    "PII: health data; PHI: cardholder data; PCI: any information about a person",
+                    "Only PII is regulated",
+                    "PHI and PCI data are the same thing"
                   ]
                 },
                 {
@@ -14015,9 +14015,9 @@
                   "a": "Data subject to the laws of the country where it resides",
                   "x": "Drives residency requirements and cloud region choices.",
                   "wrong": [
-                    "Owning a server: owning hardware is data sovereignty in itself",
-                    "A data passport: a document letting data cross any border freely",
-                    "A data centre: a building full of servers in one country"
+                    "Owning the servers the data is stored on",
+                    "A document that lets data cross any border without further checks",
+                    "The data centre a provider uses"
                   ]
                 },
                 {
@@ -14028,9 +14028,9 @@
                   "a": "Finding every copy: backups, logs, analytics, vendor systems",
                   "x": "Erasure must be verifiable across the data lifecycle.",
                   "wrong": [
-                    "Deleting one row",
-                    "It is trivial: erasure is easy, copies find themselves, no hunting required",
-                    "No challenges: erasure has no hard parts at all"
+                    "Deleting one database row",
+                    "Nothing; erasure is easy",
+                    "Getting the regulator's written approval before each deletion"
                   ]
                 },
                 {
@@ -14041,9 +14041,9 @@
                   "a": "Opt-in: consent before collection; opt-out: collect until refused",
                   "x": "GDPR demands opt-in for most processing; opt-out is weaker.",
                   "wrong": [
-                    "Opt-in collects first: consent is asked after the data is gathered",
-                    "Opt-out is stronger: collecting first protects privacy better always",
-                    "Consent is optional: collect first and never ask permission"
+                    "Opt-in: collect first and ask later; opt-out: ask before any data is collected",
+                    "Opt-out protects privacy better",
+                    "Consent is optional either way"
                   ]
                 },
                 {
@@ -14054,9 +14054,9 @@
                   "a": "Bake privacy into systems from the start",
                   "x": "The seven foundational principles from Ann Cavoukian.",
                   "wrong": [
-                    "Add it later",
-                    "Only legal review: privacy by design means lawyers only",
-                    "A privacy notice: a public web page is all privacy by design needs"
+                    "Add privacy controls after launch",
+                    "Add privacy controls after launch once real usage is known",
+                    "A privacy notice on the website"
                   ]
                 },
                 {
@@ -14067,9 +14067,9 @@
                   "a": "Controller decides purposes and means; processor acts only on instructions",
                   "x": "Both have GDPR duties, but the controller carries primary accountability.",
                   "wrong": [
-                    "Same role: controller and processor are the same job",
-                    "Processor decides: the processor sets purposes and means alone",
-                    "Neither decides: nobody sets the purposes for data processing"
+                    "They are the same role",
+                    "The processor decides the purposes and means; the controller only follows instructions",
+                    "Neither; the regulator decides"
                   ]
                 },
                 {
@@ -14078,11 +14078,11 @@
                   "trackId": "cyber",
                   "q": "Cross-border transfers under GDPR: what mechanisms?",
                   "a": "Adequacy decisions, Standard Contractual Clauses, or Binding Corporate Rules",
-                  "x": "Schrems II killed Privacy Shield; SCCs need transfer assessments.",
+                  "x": "Schrems II (2020) invalidated Privacy Shield; the EU-US Data Privacy Framework (2023) now gives adequacy for certified US companies. SCCs still need transfer impact assessments.",
                   "wrong": [
-                    "Email is fine: send personal data abroad by email",
-                    "No mechanisms: GDPR transfers need no legal basis at all",
-                    "Just encrypt: encryption alone makes cross-border transfers lawful, no clauses needed"
+                    "Encryption alone, without any legal transfer mechanism",
+                    "No mechanism is needed when the transfer stays inside the same corporate group",
+                    "Sending by email with recipient consent"
                   ]
                 },
                 {
@@ -14093,9 +14093,9 @@
                   "a": "De-identification removes direct identifiers but re-ID may be possible; anonymization irreversibly prevents it",
                   "x": "Only true anonymization escapes GDPR scope.",
                   "wrong": [
-                    "Anonymization allows re-ID: anonymized data can always be linked back",
-                    "Both reversible: de-identification and anonymization both undo cleanly always",
-                    "Both hide names: de-identification and anonymization only remove names"
+                    "Anonymisation removes direct identifiers but can be reversed; de-identification is permanent and takes data out of GDPR scope",
+                    "Both are fully reversible",
+                    "Both simply remove names"
                   ]
                 },
                 {
@@ -14106,9 +14106,9 @@
                   "a": "Before high-risk processing: new tech, large-scale profiling, or sensitive data",
                   "x": "GDPR Article 35; consult the DPO and document mitigations.",
                   "wrong": [
-                    "For every email: DPIAs are needed before sending any message",
-                    "After launch: assess privacy only once the system ships",
-                    "Only for breaches: DPIAs follow incidents and never precede them"
+                    "Before sending any email containing personal data to someone outside the company",
+                    "After launch, once real data is flowing",
+                    "Only after a breach"
                   ]
                 },
                 {
@@ -14119,9 +14119,9 @@
                   "a": "Security posture, financial health, compliance certs, and incident history",
                   "x": "Questionnaires plus evidence: SOC 2, pentest summaries, and references.",
                   "wrong": [
-                    "Their logo: the vendor’s brand mark proves due diligence",
-                    "Office size: the vendor’s square footage as due diligence",
-                    "Their lunch menu: catering quality shows how the vendor is run"
+                    "Their brand reputation and customer logos",
+                    "The size of their offices",
+                    "How quickly their sales team responds to enquiries and how polished their proposal is"
                   ]
                 },
                 {
@@ -14132,9 +14132,9 @@
                   "a": "The right to assess the vendor’s controls yourself or via a third party",
                   "x": "Without it you rely entirely on their marketing.",
                   "wrong": [
-                    "A refund: audit clauses return your money if controls fail",
-                    "Discounts: right-to-audit clauses win you vendor price cuts",
-                    "Free upgrades: audit clauses entitle you to new features at no cost"
+                    "A refund if controls fail",
+                    "A discount on renewal",
+                    "Free upgrades to new versions of the vendor's product for the life of the contract"
                   ]
                 },
                 {
@@ -14145,9 +14145,9 @@
                   "a": "Trusted vendor updates can carry malware to thousands at once",
                   "x": "Vet build pipelines, demand SBOMs, and segment vendor access.",
                   "wrong": [
-                    "Updates are safe: vendor updates can never carry any malware",
-                    "Vendors never err: trusted suppliers make no mistakes ever",
-                    "Air-gap everything: disconnect every system after the SolarWinds breach"
+                    "Vendor updates are always safe to install immediately, as soon as they are released",
+                    "Trusted vendors do not make mistakes",
+                    "Air-gap every system that receives updates"
                   ]
                 },
                 {
@@ -14158,9 +14158,9 @@
                   "a": "Service levels, how they are measured, and remedies/credits for misses",
                   "x": "Without remedies it is a wish, not an agreement.",
                   "wrong": [
-                    "Prices only: an SLA defines only what things cost",
-                    "Logos: brand marks are what an SLA defines",
-                    "Meeting times: schedules are what an SLA must define"
+                    "Prices only",
+                    "The vendor's brand guidelines and logo usage rules",
+                    "Meeting schedules"
                   ]
                 },
                 {
@@ -14171,9 +14171,9 @@
                   "a": "SLA: contractual promise; SLO: internal target; SLI: the measured metric",
                   "x": "SLIs feed SLOs; SLO breaches trigger SLA consequences.",
                   "wrong": [
-                    "SLIs are promises: measured metrics are the contractual guarantee",
-                    "Only SLA exists: promises alone, no targets or indicators",
-                    "SLOs are contractual: internal targets are the binding promise"
+                    "SLI: the contractual promise; SLA: the measured metric",
+                    "Only SLAs exist in practice",
+                    "SLOs are the contractual promise"
                   ]
                 },
                 {
@@ -14184,9 +14184,9 @@
                   "a": "Risk from your vendors’ vendors, whom you never vetted",
                   "x": "Map critical supply chains at least one layer deeper.",
                   "wrong": [
-                    "A fourth firewall: another perimeter box for vendor risk",
-                    "No such thing: vendors’ vendors pose no risk at all",
-                    "Only direct vendors: your vendors’ vendors pose no risk here"
+                    "Risk from a fourth layer of firewalls that nobody manages",
+                    "There is no such risk",
+                    "Risk from direct vendors only"
                   ]
                 },
                 {
@@ -14197,9 +14197,9 @@
                   "a": "Revoke access, retrieve data, confirm deletion, and close accounts",
                   "x": "Orphaned vendor VPN accounts are a classic breach path.",
                   "wrong": [
-                    "Keep their data: ex-vendors retain copies of everything they held",
-                    "Send a card: a greeting card closes vendor offboarding",
-                    "Keep access open: vendors keep access after offboarding forever, revocation is optional"
+                    "Let the vendor keep copies of the data",
+                    "Send a closing letter confirming the end date",
+                    "Keep their access open in case the vendor is needed again"
                   ]
                 },
                 {
@@ -14210,9 +14210,9 @@
                   "a": "Leverage disappears after the contract is signed",
                   "x": "Bake in encryption, audit rights, breach notice, and data return up front.",
                   "wrong": [
-                    "It is cheaper later: security costs less once the contract is signed",
-                    "Vendors prefer it: suppliers like security demands arriving late",
-                    "It slows deals down: security clauses only delay the signature"
+                    "Security requirements cost less to negotiate once the contract is signed",
+                    "Vendors prefer late security demands",
+                    "Security clauses only delay signature"
                   ]
                 }
               ],
@@ -14272,9 +14272,9 @@
                   "a": "RAM holds processes, network connections, keys, and fileless malware",
                   "x": "Tools: WinPmem, LiME; analyse with Volatility.",
                   "wrong": [
-                    "RAM is backed up automatically: memory copies itself without any help",
-                    "Disks are volatile: stored data vanishes when power dies",
-                    "It is required by the OS: the system demands memory images"
+                    "RAM is backed up automatically to disk when the system shuts down cleanly",
+                    "Disks lose data when power is removed",
+                    "The OS requires a memory image before shutdown"
                   ]
                 },
                 {
@@ -14285,9 +14285,9 @@
                   "a": "A bit-for-bit copy including deleted and unallocated space",
                   "x": "Verify with a hash before and after.",
                   "wrong": [
-                    "A compressed backup: shrunken copies count as the forensic image",
-                    "Only the file system: images copy files, not deleted space",
-                    "A screenshot: a screen picture as the forensic image"
+                    "A compressed backup of the user's files",
+                    "A copy of the file system only, without deleted or unallocated space",
+                    "A screenshot of the running system"
                   ]
                 },
                 {
@@ -14298,9 +14298,9 @@
                   "a": "Prevents any changes to evidence media during acquisition",
                   "x": "Preserves integrity and admissibility.",
                   "wrong": [
-                    "Encrypts the disk: a write blocker scrambles the media",
-                    "Blocks network traffic: a write blocker filters network packets",
-                    "Erases the disk: a write blocker wipes the media"
+                    "Encrypts the evidence disk",
+                    "Blocks all network traffic to the suspect host during acquisition",
+                    "Wipes the destination drive"
                   ]
                 },
                 {
@@ -14311,9 +14311,9 @@
                   "a": "An instruction to preserve relevant data from deletion",
                   "x": "Overrides normal retention schedules.",
                   "wrong": [
-                    "Arresting an attacker: handcuffs are what a legal hold means",
-                    "Encrypting evidence: scrambling data counts as the legal hold",
-                    "Blocking an IP"
+                    "Detaining a suspect at the premises while the police are on their way",
+                    "Encrypting evidence for storage",
+                    "Blocking the attacker's IP address"
                   ]
                 },
                 {
@@ -14324,9 +14324,9 @@
                   "a": "Ordering artefacts by time to reconstruct attacker actions",
                   "x": "Tools like Plaso build super-timelines.",
                   "wrong": [
-                    "Scheduling backups: backup timetables count as timeline analysis here",
-                    "Estimating RTO: recovery targets are what timeline analysis means",
-                    "Planning a pentest: scheduling tests counts as timeline analysis here"
+                    "Scheduling backups across time zones",
+                    "Estimating the recovery time objective",
+                    "Planning the dates and times of the next penetration test against the network"
                   ]
                 },
                 {
@@ -14337,9 +14337,9 @@
                   "a": "Stopping the spread vs removing the cause",
                   "x": "Then recover and monitor for re-infection.",
                   "wrong": [
-                    "Same step",
-                    "Eradication comes first: remove the cause before containing spread",
-                    "Containment deletes malware: stopping the spread removes the cause"
+                    "They are the same step",
+                    "Eradication always comes before containment in the NIST lifecycle",
+                    "Containment removes the malware"
                   ]
                 },
                 {
@@ -14350,9 +14350,9 @@
                   "a": "A blameless post-incident review to improve controls",
                   "x": "Update playbooks and detections afterward.",
                   "wrong": [
-                    "Firing the responsible person: sack staff as the lessons learned",
-                    "A legal proceeding: a court case as the lessons review",
-                    "A blame session: a meeting to name who caused the incident"
+                    "A review to decide who should be dismissed",
+                    "A legal proceeding against the attacker",
+                    "A meeting to identify which employee caused the incident"
                   ]
                 },
                 {
@@ -14363,9 +14363,9 @@
                   "a": "The attacker may be watching normal email and chat",
                   "x": "Use a pre-arranged separate channel.",
                   "wrong": [
-                    "Email is monitored: the SOC watches staff mail during incidents",
-                    "Email is too slow: slow mail forces out-of-band comms",
-                    "Regulations require phones: rules mandate phone calls during incidents"
+                    "Email is too slow during an incident",
+                    "Regulations require phone calls rather than email during incidents",
+                    "The SOC monitors staff email during incidents"
                   ]
                 },
                 {
@@ -14376,9 +14376,9 @@
                   "a": "A predefined, step-by-step procedure for an incident type",
                   "x": "e.g. phishing, ransomware, compromised account.",
                   "wrong": [
-                    "A list of attackers",
-                    "A pentest report: test findings as the incident playbook",
-                    "An asset inventory: a device list as the incident playbook"
+                    "A list of known attacker groups and the industries they target",
+                    "A penetration test report",
+                    "An inventory of affected assets"
                   ]
                 },
                 {
@@ -14389,9 +14389,9 @@
                   "a": "Leadership with legal counsel, per laws and contracts",
                   "x": "Deadlines vary: GDPR 72 hours; SEC material incidents within 4 business days.",
                   "wrong": [
-                    "The SOC analyst alone: one analyst decides all notifications",
-                    "The attacker: the intruder decides who gets notified when",
-                    "The PR team: communications decides who gets told and when"
+                    "The SOC analyst who first found the incident, since they know it best",
+                    "The PR team, without legal input",
+                    "The affected system's administrator"
                   ]
                 },
                 {
@@ -14402,22 +14402,22 @@
                   "a": "Prefetch files (and Amcache/ShimCache)",
                   "x": "Show what ran and when.",
                   "wrong": [
-                    "hosts file",
-                    "pagefile only: the swap file alone proves program execution",
-                    "desktop.ini: folder settings prove programs executed on Windows"
+                    "The hosts file",
+                    "The pagefile, which records every program ever run on the host",
+                    "desktop.ini files"
                   ]
                 },
                 {
                   "id": "cy-ir-forensics-11",
                   "deckId": "cy-ir-forensics",
                   "trackId": "cyber",
-                  "q": "The four NIST SP 800-61 incident response phases in order?",
+                  "q": "The four phases of the classic NIST SP 800-61 (Rev. 2) incident response lifecycle, in order?",
                   "a": "Preparation; Detection & Analysis; Containment, Eradication & Recovery; Post-Incident Activity",
-                  "x": "Preparation is where incidents are won or lost.",
+                  "x": "Preparation is where incidents are won or lost. SP 800-61 Rev. 3 (2025) now maps IR to the NIST CSF 2.0 functions, but this lifecycle remains the common model.",
                   "wrong": [
-                    "Detect, Delete, Done: three phases make the incident response",
-                    "Scan, Patch, Report: three phases make the incident response",
-                    "Isolate, Reboot, Ignore: three phases make the incident response"
+                    "Identify; Protect; Detect; Respond",
+                    "Detection; Containment; Recovery; Lessons learned",
+                    "Preparation; Identification; Eradication; Reporting"
                   ]
                 },
                 {
@@ -14428,9 +14428,9 @@
                   "a": "Playbooks, tooling, backups, contact lists, training, tabletop exercises",
                   "x": "You cannot invent process in the middle of an incident.",
                   "wrong": [
-                    "Buying insurance only: a policy is all preparation needs",
-                    "Hiring lawyers only: counsel alone counts as full preparation",
-                    "Nothing until attacked: prepare only after the breach hits you, playbooks can wait"
+                    "Buying cyber insurance",
+                    "Hiring outside counsel",
+                    "Nothing until an attack happens, so plans fit the real incident"
                   ]
                 },
                 {
@@ -14441,9 +14441,9 @@
                   "a": "An alert is not an incident until analysis confirms scope and impact",
                   "x": "Triage first: validate, then declare.",
                   "wrong": [
-                    "They are separate phases: detection and analysis split apart entirely",
-                    "Analysis comes later: detect first, analyse on another day",
-                    "Detection is enough: an alert alone makes an incident"
+                    "They are separate phases in NIST's model",
+                    "Analysis waits until containment is finished",
+                    "An alert alone is enough to declare an incident and start containment"
                   ]
                 },
                 {
@@ -14454,9 +14454,9 @@
                   "a": "Short-term: isolate now to stop the bleeding; long-term: hardened fixes while operating",
                   "x": "Pull the network cable first; rebuild cleanly after.",
                   "wrong": [
-                    "Short-term hardens systems: isolating now means patching everything first",
-                    "Long-term means waiting: containment means waiting the attack out",
-                    "Short-term deletes data: isolating now erases all the evidence"
+                    "Short-term patches everything; long-term isolates",
+                    "Long-term means waiting for the attack to stop",
+                    "Short-term deletes the evidence"
                   ]
                 },
                 {
@@ -14467,9 +14467,9 @@
                   "a": "Isolate affected hosts now — do NOT power off yet",
                   "x": "Powering off loses memory evidence and may trigger destructive payloads.",
                   "wrong": [
-                    "Power everything off: kill every host to stop the ransomware",
-                    "Do nothing: let the ransomware spread unchecked through hosts",
-                    "Email the attacker: negotiate with the intruder directly yourself"
+                    "Power off every host immediately",
+                    "Let it run while you watch",
+                    "Contact the attacker to negotiate a delay while backups are checked"
                   ]
                 },
                 {
@@ -14480,9 +14480,9 @@
                   "a": "When persistence is uncertain — rebuild from known-good media",
                   "x": "Cleaning cannot prove a rootkit is gone.",
                   "wrong": [
-                    "When it is faster: rebuilding is preferred whenever cleaning takes longer",
-                    "Always clean instead: scrub malware and never rebuild hosts",
-                    "Only on Fridays: rebuilds happen on Friday alone, never otherwise"
+                    "Whenever rebuilding is faster than cleaning, whatever the persistence risk",
+                    "Never; always clean instead",
+                    "Only for servers, never for laptops"
                   ]
                 },
                 {
@@ -14493,9 +14493,9 @@
                   "a": "Eradication verified and a clean restore path confirmed",
                   "x": "Recovering into the same vulnerability just re-infects you.",
                   "wrong": [
-                    "Restore first: bring systems back, then check the malware is gone",
-                    "Notify customers: tell everyone about the breach before restoring anything",
-                    "Paying the ransom"
+                    "Restore from backup first, then check whether the malware is gone",
+                    "Notify customers before anything else",
+                    "Pay the ransom to get a decryptor"
                   ]
                 },
                 {
@@ -14506,9 +14506,9 @@
                   "a": "Lessons-learned review and concrete control improvements",
                   "x": "Feed findings back into detections and playbooks.",
                   "wrong": [
-                    "Blame and firings: punish staff as the post-incident outputs",
-                    "A bigger budget request: ask for more money after the incident",
-                    "A press statement: announce the breach and move on quickly"
+                    "Disciplinary action against the staff whose mistakes caused the incident",
+                    "A bigger budget request",
+                    "A press statement"
                   ]
                 },
                 {
@@ -14519,9 +14519,9 @@
                   "a": "A discussion-based walkthrough of an incident scenario with stakeholders",
                   "x": "Tests the plan and the people without touching production.",
                   "wrong": [
-                    "A furniture test: checking tables counts as incident preparation here, bring the chairs too",
-                    "A real attack drill: a live breach as the tabletop",
-                    "A video game: entertainment software, not an attack tool"
+                    "A live attack drill against production systems with the red team",
+                    "An automated attack simulation in a lab",
+                    "A review of last year's incident reports"
                   ]
                 },
                 {
@@ -14532,9 +14532,9 @@
                   "a": "IR lead, IT ops, comms/PR, legal, and business owners of affected systems",
                   "x": "Predefined roles beat an ad-hoc crowd.",
                   "wrong": [
-                    "Only the CEO: the war room needs the chief alone",
-                    "Only interns: the war room needs junior staff alone",
-                    "The attackers: the intruders belong in the war room"
+                    "Only the CEO and the CISO",
+                    "Everyone in IT, so that nobody misses an update",
+                    "Everyone in IT"
                   ]
                 },
                 {
@@ -14542,12 +14542,12 @@
                   "deckId": "cy-ir-forensics",
                   "trackId": "cyber",
                   "q": "What is the order of volatility (RFC 3227)?",
-                  "a": "RAM and running state first",
-                  "x": "Full order: registers/cache → RAM → network state → running processes → disk → logs → backups.",
+                  "a": "The most volatile first: CPU registers and cache, then memory, before disk",
+                  "x": "RFC 3227: registers and cache; routing/ARP/process tables and memory; temporary file systems; disk; remote logs; physical configuration; archival media.",
                   "wrong": [
-                    "Disk first",
-                    "Logs first",
-                    "Backups first: copy data before capturing any volatile memory"
+                    "Disk first, because it holds the most data",
+                    "Logs first, because they show the timeline",
+                    "Backups first, because they are safest"
                   ]
                 },
                 {
@@ -14558,9 +14558,9 @@
                   "a": "Documented, unbroken record of who handled evidence, when, and why",
                   "x": "Gaps can make evidence inadmissible in court.",
                   "wrong": [
-                    "A bike lock: a chain securing a bicycle frame",
-                    "A firewall chain: linked filters are the custody record",
-                    "A handover note: a memo passed between shifts"
+                    "A lock that secures evidence bags inside a cabinet in the SOC",
+                    "A chain of firewall rules",
+                    "A shift handover note"
                   ]
                 },
                 {
@@ -14571,9 +14571,9 @@
                   "a": "To prove later that the copy is identical to the original",
                   "x": "SHA-256 before and after; a mismatch means tainted evidence.",
                   "wrong": [
-                    "To compress it: hashing shrinks evidence down for storage",
-                    "To encrypt it: hashing scrambles evidence for secrecy alone",
-                    "To label it: hashing names the evidence file for the shelf"
+                    "To compress the evidence so that it fits on a smaller forensic drive",
+                    "To encrypt it",
+                    "To give it a file name"
                   ]
                 },
                 {
@@ -14584,9 +14584,9 @@
                   "a": "It alters metadata and risks malware",
                   "x": "Curiosity is how incidents start.",
                   "wrong": [
-                    "It voids the warranty: plugging in unknown drives voids the workstation warranty",
-                    "It is too old: parking-lot drives use outdated connectors",
-                    "USB is obsolete: flash drives no longer exist anywhere today"
+                    "It voids the workstation's warranty",
+                    "Parking-lot drives use outdated connectors",
+                    "USB drives are no longer supported"
                   ]
                 },
                 {
@@ -14597,9 +14597,9 @@
                   "a": "Dead-box: powered-off disk image; live: capture RAM from a running system",
                   "x": "Go live first for volatile data, then dead-box.",
                   "wrong": [
-                    "Live means powered off: live forensics images disks after shutdown",
-                    "Dead-box is faster: powered-off imaging beats live capture always",
-                    "Live is illegal: the law forbids live forensics entirely"
+                    "Live means imaging after shutdown",
+                    "Dead-box is always faster and captures more than live forensics",
+                    "Live forensics is illegal"
                   ]
                 },
                 {
@@ -14610,9 +14610,9 @@
                   "a": "RTO: how fast to restore; RPO: how much data loss is tolerable",
                   "x": "RTO 4h / RPO 1h drives backup frequency and DR design.",
                   "wrong": [
-                    "RPO is the restore speed: how much data loss is how fast systems return",
-                    "RTO is cost: recovery targets measure money, not time",
-                    "RPO is staff: recovery objectives count people, not data"
+                    "RPO: how fast to restore; RTO: how much data loss is tolerable",
+                    "RTO measures cost",
+                    "RPO measures staff availability"
                   ]
                 },
                 {
@@ -14624,8 +14624,8 @@
                   "x": "The offline/air-gapped copy defeats ransomware.",
                   "wrong": [
                     "3 admins, 2 keys, 1 safe",
-                    "3 sites, 2 clouds, 1 tape: places and media, not copies",
-                    "Back up 3 times daily: three copies a day, any media"
+                    "3 sites, 2 cloud providers and 1 tape library, all kept in sync",
+                    "Back up 3 times a day"
                   ]
                 },
                 {
@@ -14636,9 +14636,9 @@
                   "a": "Untested restores fail exactly when you need them most",
                   "x": "Ransomware groups target backups first.",
                   "wrong": [
-                    "Testing wastes time",
-                    "Backups never fail: untested restores always work when needed",
-                    "It is illegal to test: the law forbids backup testing"
+                    "Testing takes too much time",
+                    "Backups never fail",
+                    "Testing restores is not allowed on production systems by most auditors"
                   ]
                 },
                 {
@@ -14649,9 +14649,9 @@
                   "a": "BC keeps the business running during disruption; DR restores IT systems after",
                   "x": "BC is the playbook, DR is the technical recovery.",
                   "wrong": [
-                    "DR keeps business running: restoring IT is what keeps staff working",
-                    "BC is for floods only: continuity covers water damage alone",
-                    "DR replaces BC: disaster recovery makes business continuity unnecessary"
+                    "DR keeps the business running during disruption; BC restores IT systems afterwards",
+                    "BC covers floods only",
+                    "DR replaces BC"
                   ]
                 },
                 {
@@ -14662,9 +14662,9 @@
                   "a": "Hot: ready-to-run replica; cold: empty space to build out",
                   "x": "Warm is in between. Your RTO decides which you pay for.",
                   "wrong": [
-                    "Temperature zones: hot and cold are climate bands",
-                    "Sauna vs freezer: hot sites are saunas, cold freezers, the sauna has towels",
-                    "Cold sites run hot: empty rooms fail over instantly with no setup"
+                    "Climate zones for data centres",
+                    "Hot sites run in summer and cold sites in winter, by agreement with the provider",
+                    "Cold sites fail over instantly"
                   ]
                 },
                 {
@@ -14675,9 +14675,9 @@
                   "a": "Pre-built segments let you quarantine a VLAN without killing the business",
                   "x": "Microsegmentation limits lateral movement by default.",
                   "wrong": [
-                    "It speeds traffic: segmentation makes packets move faster always",
-                    "It detects malware: segments spot infected hosts automatically",
-                    "No role: segmentation plays no part in containment at all"
+                    "It speeds up traffic",
+                    "It detects malware automatically on each segment",
+                    "It plays no part in containment"
                   ]
                 },
                 {
@@ -14688,9 +14688,9 @@
                   "a": "Attackers harvest credentials; any reused password re-opens the door",
                   "x": "Rotate service accounts and API keys too, not just user passwords.",
                   "wrong": [
-                    "It looks busy: rotating credentials only looks productive, nothing more",
-                    "Compliance theater: rotating credentials is just for show here",
-                    "Passwords never leak: exposed credentials stay secret throughout eradication"
+                    "It shows management the team is busy",
+                    "It is required only for compliance",
+                    "Passwords cannot leak during an incident, so rotation is optional"
                   ]
                 },
                 {
@@ -14699,11 +14699,11 @@
                   "trackId": "cyber",
                   "q": "An exec wants to \"just pay the ransom quietly.\" What is the IR-correct response?",
                   "a": "Escalate to leadership and legal",
-                  "x": "Paying funds crime and may not restore data. The decision is business and legal — never the analyst’s alone.",
+                  "x": "Paying funds crime and may not restore data; payments to sanctioned groups can also be illegal (see US OFAC guidance). The decision is a business and legal one, never the analyst's alone.",
                   "wrong": [
-                    "Pay and stay silent: settle quietly and tell nobody at all",
-                    "Delete the backups: erase copies before paying the ransom",
-                    "Hide the incident: conceal the breach from leadership and legal"
+                    "Pay quietly and tell nobody",
+                    "Delete the backups before paying",
+                    "Hide the incident from legal"
                   ]
                 },
                 {
@@ -14714,9 +14714,9 @@
                   "a": "Declare, assemble the team, establish comms, begin scoping",
                   "x": "Scope before action; premature fixes destroy evidence.",
                   "wrong": [
-                    "Rebuild servers",
-                    "Email customers: notify the victims within the first hour, before declaring anything",
-                    "Take a lunch break: eat first, then declare the incident"
+                    "Rebuild the affected servers",
+                    "Email all customers",
+                    "Wait for more alerts to arrive before declaring anything or calling anyone"
                   ]
                 },
                 {
@@ -14727,9 +14727,9 @@
                   "a": "A timeline of who knew what when, for legal review",
                   "x": "Memory is unreliable under stress; regulators may ask too.",
                   "wrong": [
-                    "To train new hires: the log is a teaching aid for the next cohort",
-                    "For social media: the comms log feeds public posts",
-                    "To bill hours: the comms log tracks chargeable time"
+                    "To train new hires",
+                    "To feed the company's social media posts about the incident",
+                    "To bill hours"
                   ]
                 },
                 {
@@ -14740,9 +14740,9 @@
                   "a": "Finding the underlying failure that allowed the incident",
                   "x": "Fix the cause (unpatched VPN), not only the symptom (ransomware).",
                   "wrong": [
-                    "Blaming users",
-                    "A timeline: a list of events in the order they happened",
-                    "Buying tools: new products count as root cause analysis"
+                    "Identifying which user clicked the link",
+                    "Listing the events of the incident in the order they happened",
+                    "Choosing a new security product"
                   ]
                 },
                 {
@@ -14753,9 +14753,9 @@
                   "a": "Post-incident remediation was never implemented or verified",
                   "x": "Track action items to closure with owners and dates.",
                   "wrong": [
-                    "The attackers are lucky: repeat success is pure chance",
-                    "Tools are useless: products cannot stop any repeat attacks",
-                    "The patch cycle: patches were applied, so nothing else could have failed"
+                    "The attackers were lucky",
+                    "Security tools cannot stop repeat attacks once attackers know the way in",
+                    "The patch cycle was too slow"
                   ]
                 },
                 {
@@ -14766,9 +14766,9 @@
                   "a": "Forensics wants systems frozen; the business wants them back online",
                   "x": "Resolve it in the plan beforehand with leadership sign-off.",
                   "wrong": [
-                    "No tension exists: forensics and business never conflict at all, resume business instantly",
-                    "Always choose speed: resume business and destroy the evidence",
-                    "Always choose forensics: freeze systems and ignore the business"
+                    "There is no tension",
+                    "Always resume business first",
+                    "Always freeze systems for forensics, however long the business is down"
                   ]
                 },
                 {
@@ -14779,9 +14779,9 @@
                   "a": "Privilege, notification duties, and evidence handling have legal consequences",
                   "x": "A misstep can create liability.",
                   "wrong": [
-                    "Lawyers fix malware: legal counsel removes the infection directly",
-                    "It is tradition: legal joins breaches purely out of habit",
-                    "To slow things down: legal exists to delay response"
+                    "Lawyers can remove the malware and restore systems faster than IT",
+                    "It is tradition",
+                    "To slow the response down"
                   ]
                 },
                 {
@@ -14792,9 +14792,9 @@
                   "a": "Mean time to detect/respond trending down, repeat causes falling",
                   "x": "Measure, do not guess.",
                   "wrong": [
-                    "Number of alerts: more alerts prove that IR is improving, the more the better",
-                    "Budget spent: money used is what proves IR improves",
-                    "Staff count: headcount is what proves IR is improving"
+                    "The number of alerts raised per day, which should rise as IR improves",
+                    "The budget spent on tools",
+                    "The number of analysts"
                   ]
                 }
               ],
