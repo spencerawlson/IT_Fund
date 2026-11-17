@@ -225,6 +225,14 @@ from admin import router as admin_router  # noqa: E402
 app.include_router(admin_router)
 app.include_router(admin_router, prefix="/api")
 
+# Public site stats (seats counter on the landing page). No auth: the count
+# and cap are public information. Both prefixes like the other routers, so
+# /api/public/seats works behind the /api rewrite.
+from public import router as public_router  # noqa: E402
+
+app.include_router(public_router)
+app.include_router(public_router, prefix="/api")
+
 # Character voices (Cyber Missions Phase 2 — Cypher first) and Cypher
 # analytics. Both prefixes like the other routers, so /api/voice/* and
 # /api/analytics/* work behind the /api rewrite.

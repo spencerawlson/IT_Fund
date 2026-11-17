@@ -19,6 +19,19 @@ from dataclasses import dataclass
 from sqlalchemy import func, select
 
 from db_models import Identity, User
+from public import SEAT_CAP
+
+
+class SeatsFullError(Exception):
+    """Raised when a brand-new account would exceed the seat cap (SEAT_CAP).
+
+    Only new public signups are refused: a returning identity, a
+    verified-email auto-merge into an existing user, and a first sign-in
+    merging into an admin-created account all reuse an existing user and
+    are unaffected. Admin manual enrollment (POST /admin/accounts) creates
+    accounts directly and never goes through here, so Spencer's own
+    enrollments stay available at any count.
+    """
 
 
 @dataclass
@@ -68,6 +81,13 @@ def upsert_identity(db, info: OAuthIdentity) -> User:
     if info.email_verified and info.norm_email:
         user = _find_user_by_verified_email(db, info.norm_email)  # auto-merge
     if user is None:
+        # Seat cap: no new public accounts once the platform is full. The
+        # count runs in this transaction, so two signups racing at the
+        # boundary can overshoot by a small number — the cap is a gate on
+        # new signups, not a hard invariant under concurrency.
+        total = db.execute(select(func.count()).select_from(User)).scalar() or 0
+        if total >= SEAT_CAP:
+            raise SeatsFullError(f"All {SEAT_CAP} seats are taken — sign-ups are closed.")
         user = User(display_name=info.name or "", avatar_url=info.avatar_url)
         db.add(user)
         db.flush()

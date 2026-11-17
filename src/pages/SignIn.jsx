@@ -113,6 +113,10 @@ export default function SignIn() {
   const { isAuthenticated, isLoadingAuth, user, signInWith, signOut } = useAuth();
   const [params] = useSearchParams();
   const oauthFailed = params.get('error') === 'oauth';
+  // Seats full: the OAuth callback refused to create a new account because
+  // the platform hit the 10,000-seat cap (see backend/auth/identity.py).
+  // No waitlist exists — the message says so plainly and nothing is offered.
+  const seatsFull = params.get('error') === 'seats_full';
   // Which OAuth providers the server actually has configured, so we only show
   // buttons that work. null = not yet known -> show both (optimistic fallback,
   // so a slow/failed fetch never hides sign-in).
@@ -182,6 +186,11 @@ export default function SignIn() {
         {oauthFailed && (
           <p role="alert" className="mb-4 text-small text-danger">
             Sign-in didn&apos;t complete. Please try again.
+          </p>
+        )}
+        {seatsFull && (
+          <p role="alert" className="mb-4 text-small text-danger">
+            All seats are taken — sign-ups are closed.
           </p>
         )}
         <div className="flex flex-col gap-3">

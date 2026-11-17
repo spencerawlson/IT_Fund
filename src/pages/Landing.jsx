@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { BookOpen, FlaskConical, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui-glass';
@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
 import LandingBackground from '@/components/landing/LandingBackground';
+import { fetchSeats } from '@/api/seats';
 import { openConsentSettings } from '@/lib/consent';
 import { COUNTS } from '@/data/counts';
 
@@ -102,6 +103,19 @@ const HOME_JSON_LD = {
 
 export default function Landing() {
   const { isAuthenticated, isLoadingAuth } = useAuth();
+  // Live seats counter (public /public/seats): total accounts vs the 10,000
+  // seat cap. null = not loaded (or the fetch failed) — the counter renders
+  // nothing rather than a wrong number. When the cap is reached, sign-ups
+  // are closed: the signup CTAs are disabled and the hero says so plainly.
+  // Returning users can still sign in, and labs still work without an account.
+  const [seats, setSeats] = useState(null);
+  useEffect(() => {
+    let live = true;
+    fetchSeats().then((s) => { if (live) setSeats(s); });
+    return () => { live = false; };
+  }, []);
+  const seatsFull = seats !== null && seats.totalAccounts >= seats.cap;
+  const fmt = (n) => n.toLocaleString('en-CA');
 
   if (!isLoadingAuth && isAuthenticated) {
     return <Navigate to="/app" replace />;
@@ -122,13 +136,20 @@ export default function Landing() {
         {/* Phones get one primary "Sign in" (both buttons open /signin); wider screens show both. */}
         <div className="flex items-center gap-1 whitespace-nowrap sm:gap-2">
           <ThemeToggle />
-          <Button variant="ghost" size="sm" to="/signin" className="hidden sm:inline-flex">Sign in</Button>
+          {/* The ghost "Sign in" is desktop-only normally (phones get the
+              secondary button's "Sign in" span); at the cap it is the only
+              header action on every screen, so it shows everywhere. */}
+          <Button variant="ghost" size="sm" to="/signin" className={seatsFull ? 'inline-flex' : 'hidden sm:inline-flex'}>Sign in</Button>
           {/* R-11: one primary CTA per homepage — the hero's "Start learning
-              free". This header action is secondary so it doesn't compete. */}
-          <Button size="sm" variant="secondary" to="/signin">
-            <span className="sm:hidden">Sign in</span>
-            <span className="hidden sm:inline">Create free account</span>
-          </Button>
+              free". This header action is secondary so it doesn't compete.
+              When seats are full there is no signup to offer, so it is
+              hidden instead of becoming a second "Sign in". */}
+          {!seatsFull && (
+            <Button size="sm" variant="secondary" to="/signin">
+              <span className="sm:hidden">Sign in</span>
+              <span className="hidden sm:inline">Create free account</span>
+            </Button>
+          )}
         </div>
       </header>
 
@@ -143,13 +164,26 @@ export default function Landing() {
             terminals, and timed practice exams. Free to start.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" to="/signin" icon={ArrowRight}>
+            <Button size="lg" to="/signin" icon={ArrowRight} disabled={seatsFull}>
               Start learning free
             </Button>
             <Button size="lg" variant="secondary" to="/labs" icon={FlaskConical}>
               Try a lab
             </Button>
           </div>
+          {/* Seats counter: live "N of 10,000 seats taken" under the CTAs.
+              Nothing renders until the fetch resolves, and nothing renders if
+              it fails — never a hardcoded or stale number. */}
+          {seats && (
+            <p className="mt-5 text-center text-small text-ink-2" data-testid="seats-counter">
+              {fmt(seats.totalAccounts)} of {fmt(seats.cap)} seats taken
+            </p>
+          )}
+          {seatsFull && (
+            <p className="mt-2 text-center text-small font-semibold text-ink-1" role="status">
+              All {fmt(seats.cap)} seats are taken — sign-ups are closed.
+            </p>
+          )}
         </section>
 
         {/* Proof: one quiet line, not a grid */}
@@ -222,8 +256,9 @@ export default function Landing() {
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               {/* R-11: the hero's "Start learning free" is the page's one
-                  primary CTA; this closing action is secondary. */}
-              <Button size="lg" variant="secondary" to="/signin" icon={ArrowRight}>Create free account</Button>
+                  primary CTA; this closing action is secondary. Disabled
+                  when seats are full — sign-ups are closed. */}
+              <Button size="lg" variant="secondary" to="/signin" icon={ArrowRight} disabled={seatsFull}>Create free account</Button>
               <Button size="lg" variant="ghost" to="/signin">Sign in</Button>
             </div>
             <ul className="mx-auto mt-6 flex max-w-md flex-col gap-2 text-left text-small text-ink-2">

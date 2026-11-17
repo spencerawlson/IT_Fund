@@ -14,6 +14,8 @@ if str(backend_dir) not in sys.path:
 from fastapi import Request, Response
 from fastapi.testclient import TestClient
 
+import pytest
+
 import db
 import main
 from auth import oauth as oauth_mod
@@ -77,6 +79,71 @@ def test_account_email_only_set_from_verified_claim():
         u = upsert_identity(s, _github("gh-1", "priv@example.com", verified=False))
         s.commit()
         assert u.email is None  # unverified email is not promoted to the account
+
+
+# ---- seat cap (SEAT_CAP = 10,000): new public signups stop at the cap ----
+
+def _seed_users(n):
+    with db.SessionLocal() as s:
+        s.bulk_save_objects(
+            [User(id=f"cap-{i:05d}", display_name=f"Cap {i}", email=f"cap{i}@example.com") for i in range(n)]
+        )
+        s.commit()
+
+
+def test_seat_cap_allows_creation_at_9999():
+    from public import SEAT_CAP
+
+    _seed_users(9999)
+    with db.SessionLocal() as s:
+        u = upsert_identity(s, _google("g-new", "new@example.com"))
+        s.commit()
+    assert u is not None
+    with db.SessionLocal() as s:
+        assert s.query(User).count() == SEAT_CAP
+
+
+def test_seat_cap_refuses_creation_at_10000():
+    from auth.identity import SeatsFullError
+    from public import SEAT_CAP
+
+    _seed_users(SEAT_CAP)
+    with db.SessionLocal() as s:
+        with pytest.raises(SeatsFullError):
+            upsert_identity(s, _google("g-new", "new@example.com"))
+    # Nothing was created: the refusal happens before the insert.
+    with db.SessionLocal() as s:
+        assert s.query(User).count() == SEAT_CAP
+
+
+def test_seat_cap_returning_identity_and_merge_still_work_at_cap():
+    from public import SEAT_CAP
+
+    _seed_users(9999)
+    with db.SessionLocal() as s:
+        u1 = upsert_identity(s, _google("g-1", "ada@example.com"))
+        s.commit()
+    # Now at the cap: the same identity signs in again, and a verified-email
+    # merge into that existing user also works — neither creates an account.
+    with db.SessionLocal() as s:
+        u2 = upsert_identity(s, _google("g-1", "ada@example.com"))
+        assert u2.id == u1.id
+        u3 = upsert_identity(s, _github("gh-9", "ada@example.com"))
+        assert u3.id == u1.id
+        assert s.query(User).count() == SEAT_CAP
+
+
+def test_oauth_callback_redirects_to_signin_seats_full_at_cap(monkeypatch):
+    import auth.router as auth_router
+    from public import SEAT_CAP
+
+    _seed_users(SEAT_CAP)
+    monkeypatch.setattr(oauth_mod, "fetch_identity", _fake_fetch)
+    monkeypatch.setattr(auth_router, "FRONTEND_URL", "https://app.example.test")
+    r = client.get("/api/auth/google/callback", follow_redirects=False)
+    assert r.status_code == 302
+    assert r.headers["location"] == "https://app.example.test/signin?error=seats_full"
+    assert COOKIE_NAME not in r.cookies  # no session was issued
 
 
 # ---- sessions ----
