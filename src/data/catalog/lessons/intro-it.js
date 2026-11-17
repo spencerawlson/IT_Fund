@@ -33,6 +33,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Follow one request through IT',
+        code: 'You open shop.example.com on a laptop\n Hardware    laptop CPU, RAM, Wi-Fi card\n Software    browser on the operating system\n Network     Wi-Fi -> router -> ISP -> internet (DNS finds the server)\n Server      web app and database in a data centre or cloud\n Security    HTTPS encrypts the page and your password\n Support     help desk resets the password you forgot',
+        explanation: 'Every IT role looks after one piece of this chain; a problem anywhere breaks the whole experience.',
+      },
+    ],
     cheatSheet: [
       ['Hardware', 'The physical parts of a computer — CPU, RAM, drive, screen, keyboard.'],
       ['Software', 'The instructions that run on hardware — operating systems and apps.'],
@@ -163,6 +170,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Read a spec sheet',
+        code: 'CPU:      8 cores / 16 threads, 3.8 GHz, x86-64\nRAM:      16 GB DDR5\nStorage:  1 TB NVMe SSD\nGPU:      integrated\nNetwork:  Wi-Fi 6E, 2.5 GbE\nPSU:      650 W',
+        explanation: 'Cores and threads decide how much runs at once, RAM how much is held in fast memory, and the SSD how quickly programs load.',
+      },
+    ],
     cheatSheet: [
       ['CPU', 'The processor: fetches, decodes, and executes instructions.'],
       ['Core', 'An independent processing unit inside the CPU chip.'],
@@ -218,6 +232,13 @@ export default {
           'RAID groups disks so one disk dying does not mean data loss. RAID 0 stripes data across disks for speed, with no redundancy — lose one disk, lose everything. RAID 1 mirrors two disks, so either one alone holds the data. RAID 5 spreads parity across the disks and survives one failure (minimum three disks). RAID 6 uses dual parity and survives two failures (minimum four). RAID 10 mirrors striped pairs, combining performance and redundancy (minimum four). The exam expects you to match each level to its minimum disk count and its failure tolerance.',
           'Because the bays are hot-swappable, a failed drive slides out and a replacement rebuilds from parity or mirror while the NAS keeps serving files. That is the point of the whole design: the storage stays up while its parts are replaced underneath it.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Why a 1 TB drive shows 931 GB',
+        code: 'Manufacturer:  1 TB  = 1,000,000,000,000 bytes (decimal)\nWindows shows: 1,000,000,000,000 / 1,073,741,824 = 931.3 \'GB\'\n               (really 931.3 GiB, binary units)',
+        explanation: 'Nothing is missing: drive makers count in powers of 10 and Windows in powers of 2 while still printing \'GB\'.',
       },
     ],
     cheatSheet: [
@@ -286,6 +307,13 @@ export default {
         '  desktop',
       ),
     },
+    examples: [
+      {
+        title: 'The UEFI boot sequence',
+        code: '1. Power on -> firmware (UEFI) runs POST hardware checks\n2. UEFI reads boot entries from NVRAM, finds the EFI System Partition (GPT disk)\n3. Secure Boot verifies the bootloader\'s signature\n4. Bootloader (Windows Boot Manager / GRUB) loads the kernel\n5. Kernel starts drivers and the first process (init / systemd, or wininit)\n6. Services start -> login screen',
+        explanation: 'Knowing the order tells you where a failure is: no POST beep is hardware, \'no boot device\' is firmware or disk, a crash after the logo is the OS.',
+      },
+    ],
     cheatSheet: [
       ['Operating system', 'Manages hardware, memory, files, processes, and users.'],
       ['Kernel', 'The OS core with full hardware access; apps must ask it.'],

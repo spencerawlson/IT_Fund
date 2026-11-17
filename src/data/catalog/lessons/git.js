@@ -23,6 +23,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'First repository',
+        code: '$ git init demo && cd demo\n$ echo \'# Demo\' > README.md\n$ git status --short\n?? README.md\n$ git add README.md\n$ git commit -m "Add README"\n$ git log --oneline\na1b2c3d Add README',
+        explanation: 'Files move from untracked to staged (git add) to committed (git commit). git status tells you which state each file is in.',
+      },
+    ],
     cheatSheet: [
       ['Distributed VCS', 'Every clone holds the full history; work and commit offline'],
       ['Repository (.git)', 'Hidden folder holding all history, objects, refs and config'],
@@ -53,6 +60,13 @@ export default {
           '`git log` prints the commit history, newest first; `git log --oneline` compresses each commit to a single readable line, and `git show <commit>` expands one commit into its full diff. A good commit message explains why a change was made, not merely what — the diff already shows the what. Keep commits small and focused so each one can be understood, reviewed, and reverted on its own.',
           'A .gitignore file lists patterns Git should never track — build output, dependency folders like node_modules, local config, and above all secrets such as .env files and private keys. This matters enormously because Git keeps history forever: a password committed once and “deleted” in the next commit is still sitting in the history, fully recoverable. The habit is simple and non-negotiable: secrets go in .gitignore, never in a commit, and anything that does leak must be rotated, not merely removed.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Stage part of a change',
+        code: '$ git add -p app.py          # choose hunks: y = stage, n = skip\n$ git diff --staged          # what will be committed\n$ git diff                   # what is still unstaged\n$ git commit -m "Fix rounding in invoice totals"',
+        explanation: 'Interactive staging lets one messy working session become several focused commits, each with a clear message.',
       },
     ],
     cheatSheet: [
@@ -87,6 +101,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Fetch, inspect, then integrate',
+        code: '$ git fetch origin\n$ git log --oneline main..origin/main     # commits you don\'t have yet\n4e5f6a7 Update dependencies\n$ git merge --ff-only origin/main         # or: git pull --rebase\n$ git push -u origin feature/login        # set upstream on first push',
+        explanation: 'fetch is always safe: it downloads without touching your branches, so you can look before you merge.',
+      },
+    ],
     cheatSheet: [
       ['Remote', 'A named reference to another copy of the repo; default is origin'],
       ['git push', 'Upload local commits to the remote branch'],
@@ -117,6 +138,13 @@ export default {
           '`git merge <branch>` integrates another branch’s commits into the one you are on. When your current branch has not advanced since the other branched off, Git can simply slide the pointer forward — a fast-forward merge, with no extra commit, because the history is already linear. When both branches have new commits, Git performs a true three-way merge and records a merge commit with two parents, tying the two lines of history together.',
           'The everyday rhythm is: branch for each feature or fix, commit there until it is done, switch to main, and merge the branch in. This keeps main releasable while work proceeds in isolation, and it makes each change reviewable as a unit. When a branch is merged and no longer needed, `git branch -d <name>` deletes it cleanly (use -D only to force-delete unmerged work you are sure you want gone).',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Feature branch lifecycle',
+        code: '$ git switch -c feature/search\n# ...commits...\n$ git switch main && git pull\n$ git merge --no-ff feature/search\n$ git branch -d feature/search\n$ git log --oneline --graph -5',
+        explanation: 'Branches are cheap pointers to commits. --no-ff keeps a merge commit so the feature remains visible as a unit in history.',
       },
     ],
     cheatSheet: [
@@ -151,6 +179,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Resolve a merge conflict',
+        code: '<<<<<<< HEAD\nTIMEOUT = 30\n=======\nTIMEOUT = 60\n>>>>>>> feature/slow-api\n\n# edit to the intended result, remove the markers:\nTIMEOUT = 60\n$ git add config.py && git commit',
+        explanation: 'Git marks both versions; you decide the correct result, then stage it to mark the conflict resolved. Run the tests before committing.',
+      },
+    ],
     cheatSheet: [
       ['Merge conflict', 'Two branches changed the same lines; Git asks you to choose'],
       ['<<<<<<< ======= >>>>>>>', 'Markers around the two versions — edit and DELETE all three'],
@@ -181,6 +216,13 @@ export default {
           '`git stash` shelves your uncommitted changes and hands you a clean working tree — perfect when you need to switch branches mid-thought or pull without committing half-finished work. `git stash pop` reapplies the most recent stash and drops it from the list; `git stash apply` reapplies but keeps it. And `git commit --amend` replaces the last commit, letting you fix its message or fold in a forgotten file — but avoid amending anything you have already pushed.',
           'The reflog is the feature that turns most “I lost my work” panics into a two-minute fix. `git reflog` records everywhere HEAD has been — every commit, reset, checkout, and merge — even commits no branch points to anymore. After a bad `reset --hard`, the reflog still lists the commit you reset away from, and you can recover it. Git very rarely deletes your commits immediately; the reflog is how you find them again.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Pick the right undo',
+        code: 'Situation                                 Command\n----------------------------------------  -------------------------------\nDiscard unstaged edits to a file          git restore app.py\nUnstage a file                            git restore --staged app.py\nFix the last unpushed commit message      git commit --amend\nUndo a pushed commit safely               git revert <sha>\nFind a \'lost\' commit after a reset        git reflog',
+        explanation: 'Rewrite only unpushed history; for anything shared, revert creates a new commit that undoes the change.',
       },
     ],
     cheatSheet: [
@@ -215,6 +257,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Trunk-based flow with a pull request',
+        code: '$ git switch -c fix/null-total main\n$ git commit -am "Handle empty cart total"\n$ git push -u origin fix/null-total\n# open PR -> CI runs tests -> review -> squash merge to main within a day\n$ git switch main && git pull && git branch -d fix/null-total',
+        explanation: 'Short-lived branches merged daily keep conflicts small; unfinished features hide behind flags rather than long-lived branches.',
+      },
+    ],
     cheatSheet: [
       ['Feature-branch workflow', 'One branch per change, merged via review — main stays stable'],
       ['Pull request', 'Proposal to merge, with review, discussion and CI gates'],
@@ -245,6 +294,13 @@ export default {
           'The single most important discipline is keeping secrets out. Because every commit is permanent and content-addressed, a committed password lives on in history even after you “delete” it — so use .gitignore plus a secret scanner such as gitleaks in a pre-commit hook, and if something does leak, rotate the credential rather than trusting a cleanup. For provenance, signing commits and tags with GPG or SSH cryptographically proves who authored them, defending against impersonation in the log.',
           'A few more habits keep repositories fast and sane. Large binaries bloat every clone’s history forever, so store them with Git LFS, which keeps lightweight pointers in Git and the bytes elsewhere. Write commit messages that explain the why, because future debuggers will read them. And treat the golden rule as sacred: never rewrite history that has been shared. Local cleanup before you push is good craftsmanship; rewriting public history is how you break everyone downstream of you.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Look inside a commit object',
+        code: '$ git cat-file -p HEAD\ntree 9b2c...\nparent 4e5f...\nauthor Ana <ana@example.com> 1715500000 +0000\ncommitter Ana <ana@example.com> 1715500000 +0000\n\nAdd README\n$ git cat-file -p 9b2c...\n100644 blob 7d1e...    README.md',
+        explanation: 'A commit points to a tree (a directory listing), which points to blobs (file contents), all addressed by hash. Change any byte and every hash above it changes.',
       },
     ],
     cheatSheet: [

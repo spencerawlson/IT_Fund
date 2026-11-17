@@ -25,6 +25,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Compile and run a first program',
+        code: '// hello.cpp\n#include <iostream>\n#include <string>\n\nint main() {\n    std::string name;\n    std::cout << "Name? ";\n    std::cin >> name;\n    std::cout << "Hello, " << name << "!\\n";\n    return 0;\n}\n\n$ g++ -std=c++20 -Wall -Wextra hello.cpp -o hello && ./hello',
+        explanation: 'Turn on warnings (-Wall -Wextra) from day one; the compiler catches many mistakes before they become bugs.',
+      },
+    ],
     cheatSheet: [
       ['Compiled language', 'Translated to machine code before running; fast, but must build first.'],
       ['Preprocess → compile → link', 'The three build stages: expand includes, make object files, combine into an executable.'],
@@ -57,6 +64,13 @@ export default {
           'Signed integer overflow is undefined behaviour in C++ — not "wraps around," not "throws an exception," but literally anything-goes. (Unsigned overflow does wrap, by definition.) Never write code that depends on what signed overflow does.',
           'For conversions, prefer `static_cast<double>(x)` over the old C-style `(double)x`. The named cast is explicit, greppable, and checked at compile time — a small habit that keeps conversions honest.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Integer overflow and safe conversion',
+        code: '#include <cstdint>\n#include <limits>\nstd::int32_t big = std::numeric_limits<std::int32_t>::max(); // 2147483647\n// big + 1  -> undefined behaviour for signed types\nstd::uint8_t b = 255; b += 1;   // wraps to 0 (unsigned wrap is defined)\ndouble d = 3.99;\nint i = static_cast<int>(d);    // 3: truncates toward zero, explicitly',
+        explanation: 'Signed overflow is undefined behaviour; unsigned arithmetic wraps. Use fixed-width types when size matters and static_cast to make conversions visible.',
       },
     ],
     cheatSheet: [
@@ -92,6 +106,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Pass by value, reference and const reference',
+        code: 'void byValue(std::string s)        { s += "!"; }   // copies; caller unchanged\nvoid byRef(std::string& s)         { s += "!"; }   // modifies caller\'s string\nstd::size_t len(const std::string& s) { return s.size(); } // no copy, read-only\n\nstd::string msg = "hi";\nbyValue(msg);  // msg == "hi"\nbyRef(msg);    // msg == "hi!"',
+        explanation: 'Pass large objects by const reference to avoid copies, and use a non-const reference only when the function is meant to change the argument.',
+      },
+    ],
     cheatSheet: [
       ['do-while', 'Runs its body at least once; the condition is checked after.'],
       ['break / continue', '`break` exits the loop; `continue` skips to the next iteration.'],
@@ -123,6 +144,13 @@ export default {
           'Local variables live on the stack and are freed automatically when their scope ends. Heap memory — obtained with `new` — is yours to manage: `new` returns a pointer, and you must `delete` it, or the memory is lost until the program exits. That loss has a name: a memory leak.',
           'Worse than a leak is a dangling pointer: one that points to memory already freed or out of scope. Using it is undefined behaviour and a favorite exploit primitive. And arrays allocated with `new[]` must be freed with `delete[]` — mismatching the forms is undefined behaviour. The modern answer to all of this is smart pointers (see the RAII lesson), but you must understand the raw mechanics first, because every abstraction leaks eventually.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Dangling pointer',
+        code: 'int* make() {\n    int x = 42;\n    return &x;            // BUG: x dies when make() returns\n}\n\nstd::unique_ptr<int> makeSafe() {\n    return std::make_unique<int>(42);  // heap, owned, freed automatically\n}',
+        explanation: 'Returning the address of a local variable leaves a dangling pointer; reading it is undefined behaviour. Return by value or a smart pointer instead.',
       },
     ],
     cheatSheet: [
@@ -160,6 +188,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Virtual functions and a virtual destructor',
+        code: 'struct Shape {\n    virtual ~Shape() = default;           // needed for delete via base pointer\n    virtual double area() const = 0;\n};\nstruct Circle : Shape {\n    double r;\n    explicit Circle(double r) : r(r) {}\n    double area() const override { return 3.14159 * r * r; }\n};\nstd::unique_ptr<Shape> s = std::make_unique<Circle>(2.0);\ns->area();   // calls Circle::area via dynamic dispatch',
+        explanation: 'override lets the compiler check the signature, and the virtual destructor ensures Circle\'s destructor runs when deleted through a Shape pointer.',
+      },
+    ],
     cheatSheet: [
       ['class vs struct', 'Nearly identical; `class` defaults to private, `struct` to public.'],
       ['Constructor', 'Initializes an object at creation; same name as the class, no return type.'],
@@ -193,6 +228,13 @@ export default {
           'An iterator is an object that points into a container and can be advanced to traverse it — a generalization of the pointer idea. `begin()` and `end()` delimit the range, and `end()` is the past-the-end sentinel: `std::find` returns `end()` when the value is absent, so always compare against it before using the result.',
           'The modern way to traverse is the range-based for loop: `for (const auto& x : container)`. The `&` avoids copying each element; `const` promises read-only. For everything else there is `<algorithm>`: `std::sort(v.begin(), v.end())` sorts ascending by default (pass a comparator for custom order), and dozens of siblings — `find`, `count`, `transform`, `any_of` — turn raw loops into named intent.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Algorithms instead of loops',
+        code: 'std::vector<int> v{5, 3, 8, 1, 9, 2};\nstd::ranges::sort(v);                                // 1 2 3 5 8 9\nauto it = std::ranges::find(v, 8);                   // iterator to 8\nint evens = std::ranges::count_if(v, [](int x){ return x % 2 == 0; }); // 2\nv.erase(std::remove_if(v.begin(), v.end(), [](int x){ return x > 5; }), v.end());\n// v == 1 2 3 5',
+        explanation: 'Standard algorithms are tested and state intent clearly. The erase-remove idiom (or C++20 std::erase_if) is how you delete matching elements from a vector.',
       },
     ],
     cheatSheet: [
@@ -229,6 +271,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'RAII file handle and lock',
+        code: 'void append(const std::string& line) {\n    std::lock_guard<std::mutex> lock(m);   // unlocked when lock goes out of scope\n    std::ofstream out("log.txt", std::ios::app); // closed by destructor\n    out << line << \'\\n\';\n    if (line.empty()) throw std::invalid_argument("empty"); // still unlocks and closes\n}',
+        explanation: 'Resources tied to object lifetimes are released on every exit path, including exceptions, with no cleanup code to forget.',
+      },
+    ],
     cheatSheet: [
       ['RAII', 'Tie resource lifetime to object scope; the destructor releases it automatically.'],
       ['unique_ptr', 'Exclusive ownership; movable but not copyable; auto-frees.'],
@@ -262,6 +311,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'A constrained template (C++20 concepts)',
+        code: '#include <concepts>\ntemplate <std::integral T>\nT gcd(T a, T b) {\n    while (b != 0) { T t = a % b; a = b; b = t; }\n    return a;\n}\ngcd(12, 18);      // 6\n// gcd(1.5, 2.0); // error: double does not satisfy std::integral',
+        explanation: 'Concepts state requirements up front, so misuse produces a short, readable error instead of pages of template instantiation messages.',
+      },
+    ],
     cheatSheet: [
       ['Template', 'Compile-time blueprint generating code per type used; lives in headers.'],
       ['Lambda', 'Anonymous inline function: `[](int x){ return x*2; }`.'],
@@ -293,6 +349,13 @@ export default {
           'The compiler is your first line of defence: build with `-Wall -Wextra` to enable warnings that catch likely bugs, and consider `-Werror` in CI so warnings cannot be ignored into production. Warnings are the cheapest bugs you will ever fix.',
           'What warnings miss, sanitizers catch at runtime. AddressSanitizer (`-fsanitize=address`) detects use-after-free, buffer overflows, and leaks during testing with modest slowdown — run your test suite under it routinely. Valgrind finds the same class of memory errors without recompilation, at the cost of much slower execution. Between strict warnings, sanitizers, RAII, and bounds-checked access, modern C++ is far safer than its reputation — but every layer is opt-in, and the language will never force you to use them.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Catch memory bugs with sanitizers',
+        code: '$ g++ -std=c++20 -g -fsanitize=address,undefined bug.cpp -o bug && ./bug\n==1234==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000000014\nWRITE of size 4 at 0x602000000014 thread T0\n    #0 0x401234 in main bug.cpp:7',
+        explanation: 'AddressSanitizer and UBSan turn silent memory corruption into an exact file and line. Run tests with them in CI; prefer std::vector::at, std::span and smart pointers in code.',
       },
     ],
     cheatSheet: [

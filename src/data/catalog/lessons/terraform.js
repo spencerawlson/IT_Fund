@@ -31,6 +31,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Declare, plan, apply',
+        code: '# main.tf\nresource "aws_s3_bucket" "logs" {\n  bucket = "acme-logs-prod"\n  tags   = { owner = "platform" }\n}\n\n$ terraform init\n$ terraform plan\n  + aws_s3_bucket.logs will be created\nPlan: 1 to add, 0 to change, 0 to destroy.\n$ terraform apply',
+        explanation: 'You declare the desired end state; Terraform compares it with the state file and real infrastructure and shows the plan before changing anything.',
+      },
+    ],
     cheatSheet: [
       ['IaC', 'Infrastructure managed through versioned, machine-readable configuration files.'],
       ['Declarative', 'Describe the desired end state; the tool computes the steps.'],
@@ -72,6 +79,13 @@ export default {
           'terraform validate checks that the configuration is syntactically valid and internally consistent: references resolve, required arguments are present, types line up. It talks to no provider and touches no infrastructure, which makes it fast and perfect for CI. Validate answers "is this well-formed?"; only plan can answer "is this wise?".',
           'And when the environment has served its purpose, terraform destroy tears it all down — an apply aimed at an empty desired state. It plans first, asks first, and removes every tracked resource. Preview a destroy the same way you preview anything else: terraform plan -destroy shows exactly what would vanish.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Plan file in CI',
+        code: 'terraform fmt -check\nterraform validate\nterraform plan -out=tfplan\nterraform show -no-color tfplan > plan.txt   # attach to the PR for review\nterraform apply tfplan                      # applies exactly what was reviewed',
+        explanation: 'Saving the plan guarantees the apply matches what reviewers approved, even if the code or cloud changed in between.',
       },
     ],
     cheatSheet: [
@@ -117,6 +131,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'References create dependencies',
+        code: 'resource "aws_vpc" "main" { cidr_block = "10.0.0.0/16" }\n\nresource "aws_subnet" "app" {\n  vpc_id     = aws_vpc.main.id      # implicit dependency\n  cidr_block = "10.0.1.0/24"\n}\n\ndata "aws_ami" "al2023" {\n  most_recent = true\n  owners      = ["amazon"]\n  filter {\n    name   = "name"\n    values = ["al2023-ami-*-x86_64"]\n  }\n}',
+        explanation: 'Referencing aws_vpc.main.id tells Terraform to create the VPC first. Data sources read existing objects without managing them.',
+      },
+    ],
     cheatSheet: [
       ['Resource address', 'type.name, e.g. aws_instance.web — unique identifier in config.'],
       ['Reference', 'type.name.attribute feeds values and creates an implicit dependency.'],
@@ -153,6 +174,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Typed variable with validation',
+        code: 'variable "environment" {\n  type = string\n  validation {\n    condition     = contains(["dev", "staging", "prod"], var.environment)\n    error_message = "environment must be dev, staging or prod."\n  }\n}\nvariable "db_password" {\n  type      = string\n  sensitive = true      # hidden in plan output (still stored in state)\n}\noutput "bucket_arn" { value = aws_s3_bucket.logs.arn }',
+        explanation: 'Validation fails fast on bad input. sensitive hides values from output but not from state, so protect the state file.',
+      },
+    ],
     cheatSheet: [
       ['variable block', 'Declares an input; referenced as var.<name>.'],
       ['Value precedence', '-var > -var-file > terraform.tfvars/*.auto.tfvars > TF_VAR_* > default > prompt.'],
@@ -186,6 +214,13 @@ export default {
           'Two deserve special attention for defensive coding. try() evaluates its arguments in order and returns the first one that does not error, which tames optional attributes that may not exist. can() is its boolean sibling for validation. Together they let configurations tolerate the ragged edges of real provider data without collapsing.',
           'String interpolation — embedding ${ ... } inside quotes — glues it all together: "web-${var.env}". One piece of etiquette: where a bare reference works, use it. name = var.prefix is cleaner than name = "${var.prefix}", and modern Terraform will tell you so. Interpolation is for composition, not decoration.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'for_each over a map',
+        code: 'variable "buckets" {\n  default = { logs = "GLACIER", media = "STANDARD_IA" }\n}\nresource "aws_s3_bucket" "b" {\n  for_each = var.buckets\n  bucket   = "acme-${each.key}"\n}\noutput "names" { value = [for k, b in aws_s3_bucket.b : b.bucket] }',
+        explanation: 'for_each keys instances by name (aws_s3_bucket.b["logs"]), so removing one entry does not shift or recreate the others, unlike count.',
       },
     ],
     cheatSheet: [
@@ -226,6 +261,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Remote state with S3-native locking',
+        code: 'terraform {\n  backend "s3" {\n    bucket       = "acme-tfstate"\n    key          = "network/prod.tfstate"\n    region       = "eu-west-1"\n    encrypt      = true\n    use_lockfile = true    # Terraform 1.10+; no DynamoDB table needed\n  }\n}',
+        explanation: 'Shared, encrypted remote state lets a team work safely; the lock stops two applies running at once. Enable bucket versioning to recover from mistakes.',
+      },
+    ],
     cheatSheet: [
       ['State', 'terraform.tfstate — the mapping between config and real infrastructure.'],
       ['Backend', 'Where state is stored and how operations coordinate (s3, remote, etc.).'],
@@ -261,6 +303,13 @@ export default {
           'Provider configuration belongs in the root module. Child modules should declare what they need and receive providers explicitly when they must — but the credentials, regions, and aliases live at the top, where a reviewer can see the full blast radius in one place. A child module quietly configuring its own provider is a child module that will surprise you in exactly the wrong environment.',
           'The public Terraform Registry at registry.terraform.io is where the community\'s modules live, with verified authorship marked. Treat registry modules like any third-party dependency: read the source, pin the version, and prefer the boring, widely-used ones. A module with ten thousand downloads and a clear README has been debugged by strangers on your behalf.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Call a versioned module',
+        code: 'module "vpc" {\n  source  = "terraform-aws-modules/vpc/aws"\n  version = "~> 5.8"          # >= 5.8, < 6.0\n  name    = "prod"\n  cidr    = "10.0.0.0/16"\n  azs             = ["eu-west-1a", "eu-west-1b"]\n  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]\n}\noutput "vpc_id" { value = module.vpc.vpc_id }',
+        explanation: 'Pinning the module version means upgrades are deliberate; module outputs are read as module.<name>.<output>.',
       },
     ],
     cheatSheet: [
@@ -305,6 +354,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Lifecycle rules',
+        code: 'resource "aws_db_instance" "main" {\n  # ...\n  lifecycle {\n    prevent_destroy       = true          # plan errors if it would be destroyed\n    ignore_changes        = [tags["LastBackup"]]\n  }\n}\nresource "aws_instance" "web" {\n  # ...\n  lifecycle { create_before_destroy = true }\n}',
+        explanation: 'prevent_destroy protects stateful resources from an accidental replace; create_before_destroy avoids downtime when a resource must be recreated.',
+      },
+    ],
     cheatSheet: [
       ['count', 'N copies indexed count.index; brittle when the list changes shape.'],
       ['for_each', 'One instance per map/set key; stable identities — prefer over count.'],
@@ -346,6 +402,13 @@ export default {
           'Credentials in this pipeline come from short-lived, injected secrets or OIDC federation, never from the repository. Hard-coding a key in a .tf file is not a shortcut; it is a breach with a commit hash. And when something does go wrong, remember there is no terraform rollback command: you revert the configuration in version control and apply the previous state of the code. Git history is the undo button — one more reason every change flows through it.',
           'Protect the state like the crown jewels, because that is what it is: secrets, topology, the complete map of your infrastructure. Encrypt it at rest, lock down who can read it, and enable versioning on the storage bucket so a corrupted state can be rewound. Run terraform plan on every pull request even when nothing seems Terraform-related — the plan is cheap, and the surprise it catches never is.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Scan and gate a plan',
+        code: '$ terraform plan -out=tfplan && terraform show -json tfplan > plan.json\n$ checkov -f plan.json\nCheck: CKV_AWS_18 "Ensure the S3 bucket has access logging enabled"\n  FAILED for resource: aws_s3_bucket.logs\n$ trivy config .',
+        explanation: 'Policy scanners catch insecure settings before apply. Run them in the pipeline and use OIDC roles for CI instead of stored cloud keys.',
       },
     ],
     cheatSheet: [

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:53:46.035Z",
+  "generatedAt": "2026-11-17T10:56:33.178Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -49970,6 +49970,13 @@
         "caption": "Encapsulation as data moves down the stack. Each layer wraps the one above with its own header (Ethernet also adds an FCS trailer); the receiver removes them in reverse.",
         "diagram": "Layer 7-5  Data                                   [ HTTP request ]\nLayer 4    Segment                      [ TCP hdr | HTTP request ]\nLayer 3    Packet              [ IP hdr | TCP hdr | HTTP request ]\nLayer 2    Frame     [ Eth hdr | IP hdr | TCP hdr | HTTP request ] + FCS\nLayer 1    Bits      0101 1001 0111 0100 ... on the wire, fibre or radio"
       },
+      "examples": [
+        {
+          "title": "Troubleshoot layer by layer",
+          "code": "Layer 1  link light on? cable/Wi-Fi connected?\nLayer 2  ip link / arp -a        MAC addresses seen?\nLayer 3  ping 192.168.1.1        reach the gateway? ping 1.1.1.1\nLayer 4  Test-NetConnection shop.example.com -Port 443\nLayer 7  nslookup shop.example.com ; curl -I https://shop.example.com",
+          "explanation": "Work bottom-up: if you can ping 1.1.1.1 but not a name, the problem is DNS, not the cable."
+        }
+      ],
       "cheatSheet": [
         [
           "L1 Physical",
@@ -50354,6 +50361,13 @@
             "A patch panel is the permanent end of every copper run. The cable from the wall or ceiling terminates on the rear 110 punch-down blocks — punched down to the T568A or T568B wiring order (the two differ only in which pair is green and which is orange; pick one standard and use it everywhere) — and the front is 48 numbered RJ45 ports. Short patch cords connect those ports to the switch. Moving a device means moving one patch cord, never re-terminating a cable, which is the whole point of structured cabling.",
             "Power in the rack comes from a PDU (power distribution unit): 8, 12 or 24 outlets in a 1U strip or a 0U vertical bar, with surge protection and optional remote monitoring. Plan the power the same way you plan the ports — a rack full of switches and servers that trips its breaker is down just as surely as one with a cut cable."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Switch MAC table vs router route table",
+          "code": "Switch# show mac address-table\nVlan  Mac Address       Type     Ports\n10    a4bb.6d12.3401    DYNAMIC  Gi0/3\n\nRouter# show ip route\nC   192.168.10.0/24 is directly connected, Gi0/0\nS*  0.0.0.0/0 [1/0] via 203.0.113.1",
+          "explanation": "A switch forwards frames by MAC address within a network; a router forwards packets by IP address between networks."
         }
       ],
       "cheatSheet": [
@@ -50938,6 +50952,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Find where traffic stops",
+          "code": "$ traceroute -n 8.8.8.8\n 1  192.168.1.1   1.1 ms\n 2  10.20.0.1     8.4 ms\n 3  * * *\n 4  * * *\n$ mtr -rwc 50 8.8.8.8      # loss per hop over 50 probes",
+          "explanation": "Timeouts at one hop that continue onward are often just ICMP rate limiting; loss that persists to the destination points to a real problem at or after that hop."
+        }
+      ],
       "cheatSheet": [
         [
           "SNMPv3",
@@ -51316,6 +51337,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Longest prefix match",
+          "code": "Router# show ip route\nO   10.1.0.0/16 [110/20] via 10.0.0.2\nS   10.1.5.0/24 [1/0]    via 10.0.0.9\nS*  0.0.0.0/0  [1/0]     via 203.0.113.1\n\nPacket to 10.1.5.7  -> 10.1.5.0/24 (most specific) -> 10.0.0.9\nPacket to 10.1.9.7  -> 10.1.0.0/16                 -> 10.0.0.2\nPacket to 8.8.8.8   -> default route",
+          "explanation": "The most specific matching prefix wins; administrative distance only decides between the same prefix learned from different sources."
+        }
+      ],
       "cheatSheet": [
         [
           "Longest-prefix match",
@@ -51628,6 +51656,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "A minimal IS-IS configuration",
+          "code": "router isis CORE\n net 49.0001.1921.6800.1001.00     ! area 49.0001, system ID 1921.6800.1001\n is-type level-2-only\n metric-style wide\n!\ninterface Gi0/0\n ip router isis CORE\n isis network point-to-point",
+          "explanation": "The NET encodes the area and a unique system ID. IS-IS runs directly over Layer 2, not IP, which is one reason large ISPs favour it."
+        }
+      ],
       "cheatSheet": [
         [
           "Type",
@@ -51814,6 +51849,13 @@
           "body": [
             "Prevention is never perfect, so monitor. Log routing changes and feed them to a SIEM: alert on unexpected neighbours, prefix origin changes, sudden table churn, and authentication failures. BGP monitoring services and route-origin feeds catch hijacks that your own routers cannot see. This is the same detect-and-investigate discipline as the platform's log-triage and SIEM labs, applied to the control plane."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Check a route's RPKI validity",
+          "code": "ROA:  prefix 203.0.113.0/24, max length /24, origin AS64500\n\nAnnouncement                 Origin    Result\n---------------------------  --------  ---------\n203.0.113.0/24               AS64500   Valid\n203.0.113.0/24               AS64666   Invalid (wrong origin) -> drop\n203.0.113.128/25             AS64500   Invalid (longer than max length)\n198.51.100.0/24              AS64510   NotFound (no ROA)",
+          "explanation": "Route origin validation (RFC 6811) rejects hijacks from the wrong AS and more-specific announcements; MANRS asks networks to filter Invalid routes."
         }
       ],
       "cheatSheet": [
@@ -61919,6 +61961,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Compile and run a first program",
+          "code": "// hello.cpp\n#include <iostream>\n#include <string>\n\nint main() {\n    std::string name;\n    std::cout << \"Name? \";\n    std::cin >> name;\n    std::cout << \"Hello, \" << name << \"!\\n\";\n    return 0;\n}\n\n$ g++ -std=c++20 -Wall -Wextra hello.cpp -o hello && ./hello",
+          "explanation": "Turn on warnings (-Wall -Wextra) from day one; the compiler catches many mistakes before they become bugs."
+        }
+      ],
       "cheatSheet": [
         [
           "Compiled language",
@@ -61977,6 +62026,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Integer overflow and safe conversion",
+          "code": "#include <cstdint>\n#include <limits>\nstd::int32_t big = std::numeric_limits<std::int32_t>::max(); // 2147483647\n// big + 1  -> undefined behaviour for signed types\nstd::uint8_t b = 255; b += 1;   // wraps to 0 (unsigned wrap is defined)\ndouble d = 3.99;\nint i = static_cast<int>(d);    // 3: truncates toward zero, explicitly",
+          "explanation": "Signed overflow is undefined behaviour; unsigned arithmetic wraps. Use fixed-width types when size matters and static_cast to make conversions visible."
+        }
+      ],
       "cheatSheet": [
         [
           "int / double / char / bool",
@@ -62032,6 +62088,13 @@
             "For large objects you do not want to modify, the idiom is `const T&`: pass by const reference. It avoids an expensive copy while promising the function will not touch the object. This is the default way to pass big read-only parameters in modern C++.",
             "Two functions can share a name if their parameter lists differ — that is overloading, and the compiler picks the best match by the arguments you pass. You can also give parameters defaults (`int f(int x, int y = 0)`), so callers may omit them. And remember: a function must be declared — by its definition or a forward declaration (prototype) — before its first use, which is why headers exist."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Pass by value, reference and const reference",
+          "code": "void byValue(std::string s)        { s += \"!\"; }   // copies; caller unchanged\nvoid byRef(std::string& s)         { s += \"!\"; }   // modifies caller's string\nstd::size_t len(const std::string& s) { return s.size(); } // no copy, read-only\n\nstd::string msg = \"hi\";\nbyValue(msg);  // msg == \"hi\"\nbyRef(msg);    // msg == \"hi!\"",
+          "explanation": "Pass large objects by const reference to avoid copies, and use a non-const reference only when the function is meant to change the argument."
         }
       ],
       "cheatSheet": [
@@ -62092,6 +62155,13 @@
             "Local variables live on the stack and are freed automatically when their scope ends. Heap memory — obtained with `new` — is yours to manage: `new` returns a pointer, and you must `delete` it, or the memory is lost until the program exits. That loss has a name: a memory leak.",
             "Worse than a leak is a dangling pointer: one that points to memory already freed or out of scope. Using it is undefined behaviour and a favorite exploit primitive. And arrays allocated with `new[]` must be freed with `delete[]` — mismatching the forms is undefined behaviour. The modern answer to all of this is smart pointers (see the RAII lesson), but you must understand the raw mechanics first, because every abstraction leaks eventually."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Dangling pointer",
+          "code": "int* make() {\n    int x = 42;\n    return &x;            // BUG: x dies when make() returns\n}\n\nstd::unique_ptr<int> makeSafe() {\n    return std::make_unique<int>(42);  // heap, owned, freed automatically\n}",
+          "explanation": "Returning the address of a local variable leaves a dangling pointer; reading it is undefined behaviour. Return by value or a smart pointer instead."
         }
       ],
       "cheatSheet": [
@@ -62159,6 +62229,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Virtual functions and a virtual destructor",
+          "code": "struct Shape {\n    virtual ~Shape() = default;           // needed for delete via base pointer\n    virtual double area() const = 0;\n};\nstruct Circle : Shape {\n    double r;\n    explicit Circle(double r) : r(r) {}\n    double area() const override { return 3.14159 * r * r; }\n};\nstd::unique_ptr<Shape> s = std::make_unique<Circle>(2.0);\ns->area();   // calls Circle::area via dynamic dispatch",
+          "explanation": "override lets the compiler check the signature, and the virtual destructor ensures Circle's destructor runs when deleted through a Shape pointer."
+        }
+      ],
       "cheatSheet": [
         [
           "class vs struct",
@@ -62224,6 +62301,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Algorithms instead of loops",
+          "code": "std::vector<int> v{5, 3, 8, 1, 9, 2};\nstd::ranges::sort(v);                                // 1 2 3 5 8 9\nauto it = std::ranges::find(v, 8);                   // iterator to 8\nint evens = std::ranges::count_if(v, [](int x){ return x % 2 == 0; }); // 2\nv.erase(std::remove_if(v.begin(), v.end(), [](int x){ return x > 5; }), v.end());\n// v == 1 2 3 5",
+          "explanation": "Standard algorithms are tested and state intent clearly. The erase-remove idiom (or C++20 std::erase_if) is how you delete matching elements from a vector."
+        }
+      ],
       "cheatSheet": [
         [
           "std::vector",
@@ -62283,6 +62367,13 @@
             "Move semantics transfer resources instead of copying them: `std::move` casts to an rvalue so the move constructor (not the copy constructor) is chosen. Moving a vector hands over its buffer pointer rather than duplicating every element — the difference between O(1) and O(n).",
             "The Rule of Five says: if you define any of the destructor, copy constructor, copy assignment, move constructor, or move assignment, consider all five — managing a resource usually means handling them as a set. But the better rule is the Rule of Zero: design classes so you need none of them, letting members like smart pointers and vectors manage resources for you. The safest special member function is the one you never write."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "RAII file handle and lock",
+          "code": "void append(const std::string& line) {\n    std::lock_guard<std::mutex> lock(m);   // unlocked when lock goes out of scope\n    std::ofstream out(\"log.txt\", std::ios::app); // closed by destructor\n    out << line << '\\n';\n    if (line.empty()) throw std::invalid_argument(\"empty\"); // still unlocks and closes\n}",
+          "explanation": "Resources tied to object lifetimes are released on every exit path, including exceptions, with no cleanup code to forget."
         }
       ],
       "cheatSheet": [
@@ -62345,6 +62436,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "A constrained template (C++20 concepts)",
+          "code": "#include <concepts>\ntemplate <std::integral T>\nT gcd(T a, T b) {\n    while (b != 0) { T t = a % b; a = b; b = t; }\n    return a;\n}\ngcd(12, 18);      // 6\n// gcd(1.5, 2.0); // error: double does not satisfy std::integral",
+          "explanation": "Concepts state requirements up front, so misuse produces a short, readable error instead of pages of template instantiation messages."
+        }
+      ],
       "cheatSheet": [
         [
           "Template",
@@ -62400,6 +62498,13 @@
             "The compiler is your first line of defence: build with `-Wall -Wextra` to enable warnings that catch likely bugs, and consider `-Werror` in CI so warnings cannot be ignored into production. Warnings are the cheapest bugs you will ever fix.",
             "What warnings miss, sanitizers catch at runtime. AddressSanitizer (`-fsanitize=address`) detects use-after-free, buffer overflows, and leaks during testing with modest slowdown — run your test suite under it routinely. Valgrind finds the same class of memory errors without recompilation, at the cost of much slower execution. Between strict warnings, sanitizers, RAII, and bounds-checked access, modern C++ is far safer than its reputation — but every layer is opt-in, and the language will never force you to use them."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Catch memory bugs with sanitizers",
+          "code": "$ g++ -std=c++20 -g -fsanitize=address,undefined bug.cpp -o bug && ./bug\n==1234==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000000014\nWRITE of size 4 at 0x602000000014 thread T0\n    #0 0x401234 in main bug.cpp:7",
+          "explanation": "AddressSanitizer and UBSan turn silent memory corruption into an exact file and line. Run tests with them in CI; prefer std::vector::at, std::span and smart pointers in code."
         }
       ],
       "cheatSheet": [
@@ -62462,6 +62567,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Image vs container",
+          "code": "$ docker pull nginx:1.27            # download an image (read-only template)\n$ docker run -d --name web -p 8080:80 nginx:1.27   # start a container from it\n$ docker ps\nCONTAINER ID  IMAGE       STATUS        PORTS                  NAMES\n3f1c2a...     nginx:1.27  Up 5 seconds  0.0.0.0:8080->80/tcp   web\n$ docker stop web && docker rm web",
+          "explanation": "One image can start many containers. Removing a container deletes its writable layer, not the image."
+        }
+      ],
       "cheatSheet": [
         [
           "Container",
@@ -62518,6 +62630,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "A cache-friendly Dockerfile",
+          "code": "FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt   # cached until requirements change\nCOPY . .                                            # code changes only rebuild from here\nUSER 1000\nCMD [\"python\", \"app.py\"]",
+          "explanation": "Copy the dependency file and install before copying source code, so editing code does not reinstall every package."
+        }
+      ],
       "cheatSheet": [
         [
           "FROM",
@@ -62572,6 +62691,13 @@
             "A running container is not a black box. `docker exec -it <container> sh` starts a new shell inside the existing container — exec runs alongside the main process, it does not replace it. `docker logs` (with -f to follow) shows what the main process has printed, which is where every debugging session begins. And `docker stop` followed by `docker rm` ends the lifecycle; `docker rm -f` does both at once.",
             "Here is the truth that surprises everyone once: anything written inside the container — outside a volume — dies with it. The container’s writable layer is deleted on removal, by design. Containers are ephemeral; they are cattle, not pets. If the data matters, it belongs in a volume, which is exactly where the next lesson begins."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Common run options",
+          "code": "docker run -d \\\n  --name api \\\n  -p 127.0.0.1:8000:8000 \\\n  -e DATABASE_URL=postgres://db:5432/app \\\n  --restart unless-stopped \\\n  --memory 512m --cpus 1 \\\n  myorg/api:1.4.2",
+          "explanation": "Binding to 127.0.0.1 keeps the port off the public interface; limits stop one container starving the host; pin an image tag rather than latest."
         }
       ],
       "cheatSheet": [
@@ -62634,6 +62760,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Named volume and user-defined network",
+          "code": "docker network create appnet\ndocker volume create pgdata\ndocker run -d --name db --network appnet -v pgdata:/var/lib/postgresql/data \\\n  -e POSTGRES_PASSWORD_FILE=/run/secrets/pg postgres:16\ndocker run -d --name api --network appnet myorg/api:1.4.2\n# inside api, the database is reachable at host name 'db'",
+          "explanation": "Containers on a user-defined network resolve each other by name (the default bridge does not), and the named volume keeps data when the db container is replaced."
+        }
+      ],
       "cheatSheet": [
         [
           "Volume",
@@ -62688,6 +62821,13 @@
             "Configuration lives with the service, not in the image: the environment: mapping (or env_file:) keeps secrets and settings out of built artifacts, where they belong. When code changes, `docker compose up --build` rebuilds the images that have a build context before starting. And when one service needs muscle, `docker compose up --scale web=3` runs three copies — Compose handles the replicas while something upstream spreads the traffic.",
             "Compose is deliberately single-host: it orchestrates containers on one machine beautifully, and that covers development, CI, demos, and small production deployments. When you outgrow one host — true clustering, self-healing across machines — that is the moment Kubernetes enters the picture, and the next track is waiting."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "A compose file with a health check",
+          "code": "services:\n  db:\n    image: postgres:16\n    volumes: [pgdata:/var/lib/postgresql/data]\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n      interval: 5s\n  api:\n    build: .\n    ports: [\"8000:8000\"]\n    depends_on:\n      db: { condition: service_healthy }\nvolumes:\n  pgdata:",
+          "explanation": "depends_on with service_healthy waits until the database actually accepts connections, not just until its container has started."
         }
       ],
       "cheatSheet": [
@@ -62746,6 +62886,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Tag and push to a registry",
+          "code": "docker build -t myorg/api:1.4.2 .\ndocker tag myorg/api:1.4.2 ghcr.io/myorg/api:1.4.2\necho $GHCR_TOKEN | docker login ghcr.io -u myorg --password-stdin\ndocker push ghcr.io/myorg/api:1.4.2\ndocker buildx imagetools inspect ghcr.io/myorg/api:1.4.2   # shows the digest",
+          "explanation": "The registry host is part of the image name. Deploy by digest (@sha256:...) for an immutable reference; tags can be moved."
+        }
+      ],
       "cheatSheet": [
         [
           "Registry",
@@ -62800,6 +62947,13 @@
             "Then shrink the runtime blast radius. Run as a non-root USER — a one-line instruction that limits what a compromised process can do. Consider --read-only so the app cannot write to its own filesystem, mounting a writable volume only where it truly needs one. And treat layers as public: anything baked into a layer, even deleted later, remains recoverable from image history. Secrets go in at runtime, never in the build.",
             "Finally, verify. Scan every image for known CVEs with Trivy or Docker Scout and gate the pipeline on the results. Sign images with a tool like cosign so clusters can verify authenticity before deploying — in a supply-chain-attack world, “this exact image came from our CI” is a claim worth proving, not assuming."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Multi-stage build to a minimal image",
+          "code": "FROM golang:1.23 AS build\nWORKDIR /src\nCOPY . .\nRUN CGO_ENABLED=0 go build -o /out/app .\n\nFROM gcr.io/distroless/static-debian12:nonroot\nCOPY --from=build /out/app /app\nUSER nonroot\nENTRYPOINT [\"/app\"]",
+          "explanation": "The compiler and source stay in the build stage; the final image holds only the binary, runs as non-root and has no shell, so it is tiny with few CVEs to scan."
         }
       ],
       "cheatSheet": [
@@ -62858,6 +63012,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Debug a container that keeps restarting",
+          "code": "$ docker ps -a --filter name=api\napi   Restarting (1) 3 seconds ago\n$ docker logs --tail 20 api\nError: connect ECONNREFUSED 127.0.0.1:5432\n$ docker inspect -f '{{.State.ExitCode}} {{.RestartCount}}' api\n1 14",
+          "explanation": "Logs show the app trying localhost: inside a container that is the container itself, not the database. Point it at the db service name instead."
+        }
+      ],
       "cheatSheet": [
         [
           "HEALTHCHECK",
@@ -62912,6 +63073,13 @@
             "A change in Git travels through three places. The working directory is the files you see and edit. The staging area (also called the index) is a holding pen where you assemble precisely what the next snapshot will contain. The repository is the committed history itself, stored in .git. You edit in the first, stage into the second, and commit into the third.",
             "The staging area is the part newcomers underestimate. It exists so a commit can be a deliberate, curated unit rather than “whatever happened to be lying around.” You might edit five files but stage only two, committing a single coherent change and leaving the rest for later. `git init` creates a new empty repository, `git clone <url>` copies an existing one with its full history, and `git status` is your constant companion — it tells you which files are untracked, modified, or staged at any moment."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "First repository",
+          "code": "$ git init demo && cd demo\n$ echo '# Demo' > README.md\n$ git status --short\n?? README.md\n$ git add README.md\n$ git commit -m \"Add README\"\n$ git log --oneline\na1b2c3d Add README",
+          "explanation": "Files move from untracked to staged (git add) to committed (git commit). git status tells you which state each file is in."
         }
       ],
       "cheatSheet": [
@@ -62970,6 +63138,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Stage part of a change",
+          "code": "$ git add -p app.py          # choose hunks: y = stage, n = skip\n$ git diff --staged          # what will be committed\n$ git diff                   # what is still unstaged\n$ git commit -m \"Fix rounding in invoice totals\"",
+          "explanation": "Interactive staging lets one messy working session become several focused commits, each with a clear message."
+        }
+      ],
       "cheatSheet": [
         [
           "git add <file>",
@@ -63024,6 +63199,13 @@
             "`git fetch` and `git pull` are often confused. Fetch downloads the remote’s new commits but does not touch your working branch — it simply updates your view of what the remote has, letting you inspect the incoming changes before integrating them. Pull is fetch plus an automatic merge into your current branch. When you want to look before you leap, fetch; when you are ready to integrate, pull.",
             "The habit that prevents pain is to pull before you start work and push often. Beginning the day on code your teammates changed hours ago means a bigger, messier reconciliation later. And treat `git push --force` as a loaded weapon: on a shared branch it can erase other people’s commits. If you genuinely must rewrite a pushed branch, prefer `--force-with-lease`, which refuses to overwrite work you have not seen — and never force-push a branch others build on."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Fetch, inspect, then integrate",
+          "code": "$ git fetch origin\n$ git log --oneline main..origin/main     # commits you don't have yet\n4e5f6a7 Update dependencies\n$ git merge --ff-only origin/main         # or: git pull --rebase\n$ git push -u origin feature/login        # set upstream on first push",
+          "explanation": "fetch is always safe: it downloads without touching your branches, so you can look before you merge."
         }
       ],
       "cheatSheet": [
@@ -63082,6 +63264,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Feature branch lifecycle",
+          "code": "$ git switch -c feature/search\n# ...commits...\n$ git switch main && git pull\n$ git merge --no-ff feature/search\n$ git branch -d feature/search\n$ git log --oneline --graph -5",
+          "explanation": "Branches are cheap pointers to commits. --no-ff keeps a merge commit so the feature remains visible as a unit in history."
+        }
+      ],
       "cheatSheet": [
         [
           "Branch",
@@ -63136,6 +63325,13 @@
             "There are two ways to bring main’s latest work into your feature branch. `git merge main` creates a merge commit joining the histories, preserving exactly what happened — branches, forks, and all. `git rebase main` instead replays your branch’s commits one by one on top of the current main, producing a clean, linear history as if you had started from main today. Rebase rewrites your commits, giving them new hashes.",
             "The trade-off is honesty versus tidiness, and the golden rule settles most arguments: never rebase commits you have already pushed and shared. Rewriting public history changes hashes out from under your collaborators and breaks their clones. Rebase freely on your own local, unpushed work to tidy it before sharing; use merge to integrate anything that others already have. Conflicts can occur during a rebase too — resolve, `git add`, then `git rebase --continue`."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Resolve a merge conflict",
+          "code": "<<<<<<< HEAD\nTIMEOUT = 30\n=======\nTIMEOUT = 60\n>>>>>>> feature/slow-api\n\n# edit to the intended result, remove the markers:\nTIMEOUT = 60\n$ git add config.py && git commit",
+          "explanation": "Git marks both versions; you decide the correct result, then stage it to mark the conflict resolved. Run the tests before committing."
         }
       ],
       "cheatSheet": [
@@ -63194,6 +63390,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Pick the right undo",
+          "code": "Situation                                 Command\n----------------------------------------  -------------------------------\nDiscard unstaged edits to a file          git restore app.py\nUnstage a file                            git restore --staged app.py\nFix the last unpushed commit message      git commit --amend\nUndo a pushed commit safely               git revert <sha>\nFind a 'lost' commit after a reset        git reflog",
+          "explanation": "Rewrite only unpushed history; for anything shared, revert creates a new commit that undoes the change."
+        }
+      ],
       "cheatSheet": [
         [
           "git restore <file>",
@@ -63250,6 +63453,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Trunk-based flow with a pull request",
+          "code": "$ git switch -c fix/null-total main\n$ git commit -am \"Handle empty cart total\"\n$ git push -u origin fix/null-total\n# open PR -> CI runs tests -> review -> squash merge to main within a day\n$ git switch main && git pull && git branch -d fix/null-total",
+          "explanation": "Short-lived branches merged daily keep conflicts small; unfinished features hide behind flags rather than long-lived branches."
+        }
+      ],
       "cheatSheet": [
         [
           "Feature-branch workflow",
@@ -63304,6 +63514,13 @@
             "The single most important discipline is keeping secrets out. Because every commit is permanent and content-addressed, a committed password lives on in history even after you “delete” it — so use .gitignore plus a secret scanner such as gitleaks in a pre-commit hook, and if something does leak, rotate the credential rather than trusting a cleanup. For provenance, signing commits and tags with GPG or SSH cryptographically proves who authored them, defending against impersonation in the log.",
             "A few more habits keep repositories fast and sane. Large binaries bloat every clone’s history forever, so store them with Git LFS, which keeps lightweight pointers in Git and the bytes elsewhere. Write commit messages that explain the why, because future debuggers will read them. And treat the golden rule as sacred: never rewrite history that has been shared. Local cleanup before you push is good craftsmanship; rewriting public history is how you break everyone downstream of you."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Look inside a commit object",
+          "code": "$ git cat-file -p HEAD\ntree 9b2c...\nparent 4e5f...\nauthor Ana <ana@example.com> 1715500000 +0000\ncommitter Ana <ana@example.com> 1715500000 +0000\n\nAdd README\n$ git cat-file -p 9b2c...\n100644 blob 7d1e...    README.md",
+          "explanation": "A commit points to a tree (a directory listing), which points to blobs (file contents), all addressed by hash. Change any byte and every hash above it changes."
         }
       ],
       "cheatSheet": [
@@ -63432,6 +63649,13 @@
           "body": [
             "Strings are immutable sequences of bytes — build them with `strings.Builder` or convert to `[]byte` when you need to mutate. The `byte` type is an alias for `uint8`; a `rune` is an alias for `int32` holding a Unicode code point, which is what `range` yields when you iterate a string. One sharp edge: `len(s)` counts bytes, not runes, so multibyte UTF-8 text needs `utf8.RuneCountInString`. Constants are declared with `const` (compile-time only, no `:=`, cannot take their address), and `iota` generates successive integer constants inside a `const` block — the idiomatic way to write enumerations."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Structs, methods and interfaces",
+          "code": "type Shape interface{ Area() float64 }\n\ntype Rect struct{ W, H float64 }\nfunc (r Rect) Area() float64 { return r.W * r.H }\n\nfunc total(shapes []Shape) float64 {\n    sum := 0.0\n    for _, s := range shapes { sum += s.Area() }\n    return sum\n}\n// total([]Shape{Rect{2, 3}, Rect{1, 1}}) == 7",
+          "explanation": "Rect satisfies Shape implicitly by having an Area method; Go has no 'implements' keyword."
         }
       ],
       "cheatSheet": [
@@ -63892,6 +64116,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Explore a cluster",
+          "code": "$ kubectl get nodes\nNAME     STATUS   ROLES           VERSION\ncp-1     Ready    control-plane   v1.31.2\nwork-1   Ready    <none>          v1.31.2\n$ kubectl get pods -A\n$ kubectl describe pod web-7c9d-abc12   # events explain scheduling and pull errors\n$ kubectl explain deployment.spec.replicas",
+          "explanation": "get lists, describe explains (including events), and explain documents any field without leaving the terminal."
+        }
+      ],
       "cheatSheet": [
         [
           "Control plane",
@@ -63946,6 +64177,13 @@
             "A Deployment declares “I want N identical pods of this spec,” and a ReplicaSet underneath does the counting — adding pods when there are too few, removing them when there are too many. Scale with `kubectl scale deploy/name --replicas=5` or by editing the manifest; either way the ReplicaSet converges reality to the number.",
             "The glue is labels and selectors: pods carry labels, and the Deployment’s selector matches them. This indirection — controllers finding their pods by label rather than by name — is how Kubernetes stays flexible, and it is also how Services will find them in the networking lesson. Self-healing falls out for free: a dead pod means the count is wrong, so a replacement is scheduled on a healthy node without anyone being paged."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "A Deployment",
+          "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata: { name: web }\nspec:\n  replicas: 3\n  selector: { matchLabels: { app: web } }\n  template:\n    metadata: { labels: { app: web } }\n    spec:\n      containers:\n      - name: web\n        image: nginx:1.27\n        ports: [{ containerPort: 80 }]\n        resources:\n          requests: { cpu: 100m, memory: 128Mi }\n          limits:   { memory: 256Mi }",
+          "explanation": "The Deployment manages a ReplicaSet that keeps three pods running; delete one and a replacement is created."
         }
       ],
       "cheatSheet": [
@@ -64004,6 +64242,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "ConfigMap and Secret as environment",
+          "code": "kubectl create configmap app-cfg --from-literal=LOG_LEVEL=info\nkubectl create secret generic db --from-literal=PASSWORD='s3cr3t'\n\n# in the pod spec:\nenvFrom:\n- configMapRef: { name: app-cfg }\nenv:\n- name: DB_PASSWORD\n  valueFrom: { secretKeyRef: { name: db, key: PASSWORD } }",
+          "explanation": "Secrets are only base64-encoded by default; enable encryption at rest for etcd and restrict who can read them with RBAC."
+        }
+      ],
       "cheatSheet": [
         [
           "apiVersion/kind/metadata/spec",
@@ -64058,6 +64303,13 @@
             "Service discovery runs on cluster DNS: inside its namespace a Service is reachable by bare name (“db”), and fully qualified as db.mynamespace.svc.cluster.local from anywhere. CoreDNS serves it all, which is why the earlier lesson’s advice — services reach each other by name — works without any manual wiring.",
             "For HTTP traffic from outside, Ingress is the front door: one entry point routing by host and path to the right Services, with TLS termination along the way. The critical detail beginners miss: an Ingress object alone does nothing — an Ingress controller (nginx, Traefik, or your cloud’s) must be running in the cluster to implement the rules. No controller, no routing."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Service and Ingress",
+          "code": "apiVersion: v1\nkind: Service\nmetadata: { name: web }\nspec:\n  selector: { app: web }\n  ports: [{ port: 80, targetPort: 80 }]\n---\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata: { name: web }\nspec:\n  rules:\n  - host: shop.example.com\n    http:\n      paths:\n      - { path: /, pathType: Prefix, backend: { service: { name: web, port: { number: 80 } } } }",
+          "explanation": "The Service gives pods a stable name and IP (web.<namespace>.svc); the Ingress routes external HTTP by host and path to it. An ingress controller must be installed."
         }
       ],
       "cheatSheet": [
@@ -64116,6 +64368,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "PersistentVolumeClaim",
+          "code": "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata: { name: data }\nspec:\n  accessModes: [ReadWriteOnce]\n  storageClassName: standard\n  resources: { requests: { storage: 10Gi } }\n---\n# pod spec\nvolumes: [{ name: data, persistentVolumeClaim: { claimName: data } }]\ncontainers: [{ name: db, image: postgres:16, volumeMounts: [{ name: data, mountPath: /var/lib/postgresql/data }] }]",
+          "explanation": "The claim asks for storage; the StorageClass provisions a volume dynamically. Data survives pod restarts and rescheduling."
+        }
+      ],
       "cheatSheet": [
         [
           "Ephemeral storage",
@@ -64170,6 +64429,13 @@
             "Three probes, three questions. Liveness: “is this container still alive?” — a failure restarts it. Readiness: “should it receive traffic yet?” — a not-ready pod is quietly removed from Service endpoints until it is. Startup: “has this slow starter finished booting?” — it holds the liveness probe off during long initializations so healthy-but-slow containers are not killed for being deliberate.",
             "Scaling and fairness complete the picture. The Horizontal Pod Autoscaler adjusts replica counts from metrics like CPU — but it needs metrics-server running to see anything. And resource requests versus limits is the fairness contract: requests guide the scheduler’s placement, limits cap what a pod may consume. A container that exceeds its memory limit is OOM-killed; CPU overuse is throttled instead. Set both, always — unbounded pods let one workload starve the node and everyone on it."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Roll out and roll back",
+          "code": "$ kubectl set image deploy/web web=nginx:1.27.1\n$ kubectl rollout status deploy/web\nWaiting for deployment \"web\" rollout to finish: 1 of 3 updated replicas are available...\n$ kubectl rollout history deploy/web\n$ kubectl rollout undo deploy/web          # back to the previous ReplicaSet",
+          "explanation": "Rolling updates replace pods gradually, gated by readiness probes; a bad version can be undone in one command."
         }
       ],
       "cheatSheet": [
@@ -64228,6 +64494,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Drain a node for maintenance",
+          "code": "$ kubectl cordon work-1                 # no new pods scheduled here\n$ kubectl drain work-1 --ignore-daemonsets --delete-emptydir-data\n# ...patch and reboot...\n$ kubectl uncordon work-1",
+          "explanation": "Drain evicts pods so controllers recreate them elsewhere, respecting PodDisruptionBudgets so the service stays up."
+        }
+      ],
       "cheatSheet": [
         [
           "StatefulSet",
@@ -64282,6 +64555,13 @@
             "Start with the pod. Run as non-root (runAsNonRoot with a non-zero runAsUser), never set privileged: true — it grants near-host access and the Pod Security Standards forbid it in restricted profiles — and drop unneeded Linux capabilities. Apply those standards per namespace through admission control so the hardening is enforced, not suggested. Then segment the network: a NetworkPolicy can restrict which pods and namespaces may talk to each other, but remember the default is allow-all until a policy selects a pod — the first policy you write is the one that starts enforcing.",
             "Finally, guard the supply chain. Scan images for CVEs, pin digests so “the same tag” cannot silently become different software, and require admission policies that block unsigned or unscanned images. Secrets reach pods through the Secret object — with etcd encryption at rest and RBAC guarding access — or better, from an external secrets manager; they are never baked into images or committed to repositories. Quotas and LimitRanges per namespace cap what any tenant can consume, because availability is a security property too."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Least-privilege RBAC and a restricted pod",
+          "code": "kind: Role\nmetadata: { name: read-pods, namespace: shop }\nrules:\n- apiGroups: [\"\"]\n  resources: [\"pods\", \"pods/log\"]\n  verbs: [\"get\", \"list\"]\n---\n# namespace label for Pod Security Admission\npod-security.kubernetes.io/enforce: restricted\n# containers then must run as non-root, drop ALL capabilities, no privilege escalation",
+          "explanation": "Roles grant only the verbs needed in one namespace; the restricted Pod Security Standard blocks risky pod settings at admission."
         }
       ],
       "cheatSheet": [
@@ -65074,6 +65354,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Enums and exhaustive match",
+          "code": "enum Payment { Card { last4: String }, Cash, Voucher(u32) }\n\nfn describe(p: &Payment) -> String {\n    match p {\n        Payment::Card { last4 } => format!(\"card ending {last4}\"),\n        Payment::Cash => \"cash\".to_string(),\n        Payment::Voucher(v) => format!(\"voucher #{v}\"),\n    }\n}",
+          "explanation": "match must cover every variant, so adding a new payment type is a compile error until each match handles it."
+        }
+      ],
       "cheatSheet": [
         [
           "let x = 5;",
@@ -65515,6 +65802,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Create, insert and query",
+          "code": "CREATE TABLE customers (\n  id    INTEGER PRIMARY KEY,\n  name  TEXT NOT NULL,\n  city  TEXT\n);\nINSERT INTO customers (id, name, city) VALUES (1, 'Ana', 'Lisbon'), (2, 'Ben', 'Leeds');\nSELECT name FROM customers WHERE city = 'Lisbon';\n-- Ana",
+          "explanation": "Tables have typed columns and a primary key that uniquely identifies each row."
+        }
+      ],
       "cheatSheet": [
         [
           "SQL",
@@ -65574,6 +65868,13 @@
             "`ORDER BY column DESC` sorts results descending; ascending (`ASC`) is the default. Sorting is usually paired with `LIMIT n` — \"the ten most recent orders\" is `ORDER BY created_at DESC LIMIT 10`. (SQL Server spells it `TOP n` instead of `LIMIT`.)",
             "`DISTINCT` removes duplicate rows from the result: `SELECT DISTINCT country FROM users` lists each country once. And when a column name is ugly or a computed value needs a label, alias it: `SELECT price AS cost` renames the column in the output. Aliases also name computed columns, which matters the moment you start doing arithmetic in `SELECT`."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Filter, sort and limit",
+          "code": "SELECT name, total\nFROM orders\nWHERE status = 'paid'\n  AND created_at >= '2026-01-01'\n  AND coupon IS NULL          -- not '= NULL'\nORDER BY total DESC\nLIMIT 5;",
+          "explanation": "NULL is never equal to anything, including NULL, so use IS NULL. Clauses are written SELECT-FROM-WHERE-ORDER BY but evaluated FROM first."
         }
       ],
       "cheatSheet": [
@@ -65640,6 +65941,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "GROUP BY with HAVING",
+          "code": "SELECT customer_id, COUNT(*) AS orders, SUM(total) AS spent\nFROM orders\nWHERE status = 'paid'          -- filters rows before grouping\nGROUP BY customer_id\nHAVING SUM(total) > 1000       -- filters groups after\nORDER BY spent DESC;",
+          "explanation": "WHERE cannot use aggregates because it runs before grouping; HAVING runs after and can."
+        }
+      ],
       "cheatSheet": [
         [
           "COUNT(*) / COUNT(col)",
@@ -65691,6 +65999,13 @@
             "A join is only as reliable as the relationship it follows. That relationship is enforced by a foreign key: a column in one table that references the primary key of another, with the database guaranteeing every reference points somewhere real. This is referential integrity, and it is what separates a database from a pile of spreadsheets.",
             "Without foreign keys, joins still run — SQL will happily join on any condition — but nothing stops orphaned rows or dangling references from silently corrupting your results. Design the keys first; the joins then take care of themselves."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "INNER vs LEFT JOIN",
+          "code": "-- customers: Ana(1), Ben(2), Cy(3); orders exist for 1 and 2 only\nSELECT c.name, o.id\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id;\n-- Ana 101 | Ben 102 | Cy NULL\n\n-- customers with no orders:\n... LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id IS NULL;   -- Cy",
+          "explanation": "INNER JOIN keeps only matches; LEFT JOIN keeps every left row and fills NULLs, which makes 'find the missing ones' queries easy."
         }
       ],
       "cheatSheet": [
@@ -65753,6 +66068,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Safe UPDATE",
+          "code": "BEGIN;\nSELECT id, price FROM products WHERE category = 'cables';   -- check what will change\nUPDATE products SET price = price * 1.05 WHERE category = 'cables';\n-- 42 rows updated (matches the SELECT)\nCOMMIT;   -- or ROLLBACK if the count is wrong",
+          "explanation": "An UPDATE or DELETE without WHERE changes every row. Previewing with SELECT inside a transaction lets you check the count before committing."
+        }
+      ],
       "cheatSheet": [
         [
           "DDL",
@@ -65803,6 +66125,13 @@
             "A common table expression — `WITH monthly AS (SELECT ...)` — names a temporary result you can reference in the main query, like a variable for result sets. CTEs turn a tangled nested query into readable, named steps, and recursive CTEs can even walk hierarchies like org charts. They exist for the reader as much as for the machine.",
             "Set operators combine whole result sets: `UNION` stacks two queries' rows and removes duplicates (`UNION ALL` keeps them and runs faster), `INTERSECT` returns rows present in both, `EXCEPT` returns rows in the first but not the second. The contract: both queries must return the same number of columns with compatible types, and the column names come from the first query."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Subquery and CTE",
+          "code": "-- customers who spent more than average\nWITH spend AS (\n  SELECT customer_id, SUM(total) AS spent\n  FROM orders GROUP BY customer_id\n)\nSELECT customer_id, spent\nFROM spend\nWHERE spent > (SELECT AVG(spent) FROM spend);",
+          "explanation": "A CTE names an intermediate result so the query reads top to bottom; the scalar subquery computes the average once for comparison."
         }
       ],
       "cheatSheet": [
@@ -65863,6 +66192,13 @@
             "Normalization is the discipline of eliminating redundancy. First Normal Form demands atomic values — no arrays or repeating groups stuffed into a single cell, one value per column per row. Third Normal Form goes further, removing transitive dependencies: every non-key attribute must depend on the key, the whole key, and nothing but the key. The payoff is integrity — one fact stored in one place cannot contradict itself, and updates cannot leave stale copies behind.",
             "But normalization optimizes for correctness, not speed, and reporting queries that join a dozen tables pay for it. Deliberate denormalization — accepting some redundancy to avoid joins — is a legitimate performance technique, common in analytics. The rule: normalize by default for integrity, denormalize by measurement when reads demand it. Never denormalize by guess."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "See an index change the plan",
+          "code": "EXPLAIN SELECT * FROM orders WHERE customer_id = 42;\n-- Seq Scan on orders  (cost=0.00..18334.00 rows=10)\nCREATE INDEX idx_orders_customer ON orders (customer_id);\nEXPLAIN SELECT * FROM orders WHERE customer_id = 42;\n-- Index Scan using idx_orders_customer on orders  (cost=0.42..12.60 rows=10)",
+          "explanation": "Without an index the database reads every row; with it, it jumps to the matches. Indexes speed reads but slow writes, so add them for real query patterns."
         }
       ],
       "cheatSheet": [
@@ -65927,6 +66263,13 @@
             "A view is a saved `SELECT` you query like a table — it usually stores no data itself. Views simplify complex queries and, crucially, can restrict which columns different users see: the reporting team gets the view without the salary column. Window functions like `ROW_NUMBER() OVER (...)` compute across rows related to the current row without collapsing them, unlike `GROUP BY` — ranking, running totals, and moving averages without losing detail.",
             "Then the adversary. SQL injection — smuggling malicious SQL through unsanitized input — remains a top web vulnerability decades after it was understood. The defence is non-negotiable: parameterized queries (prepared statements), where the driver sends data separately from the SQL so input can never become code. Complement it with least-privilege database accounts — a reporting user that can only read, an app user that cannot `DROP` — so a compromise is contained. And passwords are never stored as text: store a salted hash with bcrypt or argon2, because any breach that exposes reversible passwords has already lost."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Atomic transfer with least-privilege user",
+          "code": "BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;   -- both or neither\n\nCREATE ROLE app_rw LOGIN PASSWORD '...';\nGRANT SELECT, INSERT, UPDATE ON accounts TO app_rw;   -- no DROP, no DELETE",
+          "explanation": "The transaction makes the transfer atomic; the application account gets only the privileges it needs, limiting the damage of SQL injection."
         }
       ],
       "cheatSheet": [
@@ -66001,6 +66344,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Declare, plan, apply",
+          "code": "# main.tf\nresource \"aws_s3_bucket\" \"logs\" {\n  bucket = \"acme-logs-prod\"\n  tags   = { owner = \"platform\" }\n}\n\n$ terraform init\n$ terraform plan\n  + aws_s3_bucket.logs will be created\nPlan: 1 to add, 0 to change, 0 to destroy.\n$ terraform apply",
+          "explanation": "You declare the desired end state; Terraform compares it with the state file and real infrastructure and shows the plan before changing anything."
+        }
+      ],
       "cheatSheet": [
         [
           "IaC",
@@ -66065,6 +66415,13 @@
             "terraform validate checks that the configuration is syntactically valid and internally consistent: references resolve, required arguments are present, types line up. It talks to no provider and touches no infrastructure, which makes it fast and perfect for CI. Validate answers \"is this well-formed?\"; only plan can answer \"is this wise?\".",
             "And when the environment has served its purpose, terraform destroy tears it all down — an apply aimed at an empty desired state. It plans first, asks first, and removes every tracked resource. Preview a destroy the same way you preview anything else: terraform plan -destroy shows exactly what would vanish."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Plan file in CI",
+          "code": "terraform fmt -check\nterraform validate\nterraform plan -out=tfplan\nterraform show -no-color tfplan > plan.txt   # attach to the PR for review\nterraform apply tfplan                      # applies exactly what was reviewed",
+          "explanation": "Saving the plan guarantees the apply matches what reviewers approved, even if the code or cloud changed in between."
         }
       ],
       "cheatSheet": [
@@ -66136,6 +66493,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "References create dependencies",
+          "code": "resource \"aws_vpc\" \"main\" { cidr_block = \"10.0.0.0/16\" }\n\nresource \"aws_subnet\" \"app\" {\n  vpc_id     = aws_vpc.main.id      # implicit dependency\n  cidr_block = \"10.0.1.0/24\"\n}\n\ndata \"aws_ami\" \"al2023\" {\n  most_recent = true\n  owners      = [\"amazon\"]\n  filter {\n    name   = \"name\"\n    values = [\"al2023-ami-*-x86_64\"]\n  }\n}",
+          "explanation": "Referencing aws_vpc.main.id tells Terraform to create the VPC first. Data sources read existing objects without managing them."
+        }
+      ],
       "cheatSheet": [
         [
           "Resource address",
@@ -66198,6 +66562,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Typed variable with validation",
+          "code": "variable \"environment\" {\n  type = string\n  validation {\n    condition     = contains([\"dev\", \"staging\", \"prod\"], var.environment)\n    error_message = \"environment must be dev, staging or prod.\"\n  }\n}\nvariable \"db_password\" {\n  type      = string\n  sensitive = true      # hidden in plan output (still stored in state)\n}\noutput \"bucket_arn\" { value = aws_s3_bucket.logs.arn }",
+          "explanation": "Validation fails fast on bad input. sensitive hides values from output but not from state, so protect the state file."
+        }
+      ],
       "cheatSheet": [
         [
           "variable block",
@@ -66254,6 +66625,13 @@
             "Two deserve special attention for defensive coding. try() evaluates its arguments in order and returns the first one that does not error, which tames optional attributes that may not exist. can() is its boolean sibling for validation. Together they let configurations tolerate the ragged edges of real provider data without collapsing.",
             "String interpolation — embedding ${ ... } inside quotes — glues it all together: \"web-${var.env}\". One piece of etiquette: where a bare reference works, use it. name = var.prefix is cleaner than name = \"${var.prefix}\", and modern Terraform will tell you so. Interpolation is for composition, not decoration."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "for_each over a map",
+          "code": "variable \"buckets\" {\n  default = { logs = \"GLACIER\", media = \"STANDARD_IA\" }\n}\nresource \"aws_s3_bucket\" \"b\" {\n  for_each = var.buckets\n  bucket   = \"acme-${each.key}\"\n}\noutput \"names\" { value = [for k, b in aws_s3_bucket.b : b.bucket] }",
+          "explanation": "for_each keys instances by name (aws_s3_bucket.b[\"logs\"]), so removing one entry does not shift or recreate the others, unlike count."
         }
       ],
       "cheatSheet": [
@@ -66323,6 +66701,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Remote state with S3-native locking",
+          "code": "terraform {\n  backend \"s3\" {\n    bucket       = \"acme-tfstate\"\n    key          = \"network/prod.tfstate\"\n    region       = \"eu-west-1\"\n    encrypt      = true\n    use_lockfile = true    # Terraform 1.10+; no DynamoDB table needed\n  }\n}",
+          "explanation": "Shared, encrypted remote state lets a team work safely; the lock stops two applies running at once. Enable bucket versioning to recover from mistakes."
+        }
+      ],
       "cheatSheet": [
         [
           "State",
@@ -66387,6 +66772,13 @@
             "Provider configuration belongs in the root module. Child modules should declare what they need and receive providers explicitly when they must — but the credentials, regions, and aliases live at the top, where a reviewer can see the full blast radius in one place. A child module quietly configuring its own provider is a child module that will surprise you in exactly the wrong environment.",
             "The public Terraform Registry at registry.terraform.io is where the community's modules live, with verified authorship marked. Treat registry modules like any third-party dependency: read the source, pin the version, and prefer the boring, widely-used ones. A module with ten thousand downloads and a clear README has been debugged by strangers on your behalf."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Call a versioned module",
+          "code": "module \"vpc\" {\n  source  = \"terraform-aws-modules/vpc/aws\"\n  version = \"~> 5.8\"          # >= 5.8, < 6.0\n  name    = \"prod\"\n  cidr    = \"10.0.0.0/16\"\n  azs             = [\"eu-west-1a\", \"eu-west-1b\"]\n  private_subnets = [\"10.0.1.0/24\", \"10.0.2.0/24\"]\n}\noutput \"vpc_id\" { value = module.vpc.vpc_id }",
+          "explanation": "Pinning the module version means upgrades are deliberate; module outputs are read as module.<name>.<output>."
         }
       ],
       "cheatSheet": [
@@ -66455,6 +66847,13 @@
             "A dynamic block generates repeatable nested blocks from a collection — a dozen ingress rules from a list of ports, for example — the way for_each generates resources. It keeps configurations DRY precisely where copy-paste would otherwise breed: inside the repeated stanzas that differ only in values.",
             "Provisioners deserve their reputation as the last resort, and the reason is architectural: they are imperative commands that run only at create or destroy time, and Terraform does not track their effects in state. A provisioner that installs software leaves no record of having done so; the next plan cannot see it, the next engineer cannot audit it. Prefer provider resources, cloud-init user data, or a proper configuration tool — anything whose results live in the world Terraform understands. When nothing else fits, the terraform_data resource (successor to the older null_resource) at least gives the workaround a clean, provider-free home."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Lifecycle rules",
+          "code": "resource \"aws_db_instance\" \"main\" {\n  # ...\n  lifecycle {\n    prevent_destroy       = true          # plan errors if it would be destroyed\n    ignore_changes        = [tags[\"LastBackup\"]]\n  }\n}\nresource \"aws_instance\" \"web\" {\n  # ...\n  lifecycle { create_before_destroy = true }\n}",
+          "explanation": "prevent_destroy protects stateful resources from an accidental replace; create_before_destroy avoids downtime when a resource must be recreated."
         }
       ],
       "cheatSheet": [
@@ -66526,6 +66925,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Scan and gate a plan",
+          "code": "$ terraform plan -out=tfplan && terraform show -json tfplan > plan.json\n$ checkov -f plan.json\nCheck: CKV_AWS_18 \"Ensure the S3 bucket has access logging enabled\"\n  FAILED for resource: aws_s3_bucket.logs\n$ trivy config .",
+          "explanation": "Policy scanners catch insecure settings before apply. Run them in the pipeline and use OIDC roles for CI instead of stored cloud keys."
+        }
+      ],
       "cheatSheet": [
         [
           "Workspaces",
@@ -66591,6 +66997,13 @@
             "Most computing today is client–server. A client asks for a service; a server provides it. Your browser is a client when it asks a web server for a page, and one server can answer thousands of clients at once. Servers are built for that job: they stay on, they have redundant parts, and they run server operating systems.",
             "The IT support technician sits between the systems and the people. The job is mostly diagnosis and communication: understand what is wrong, find the cause, fix it, and show the user how to avoid it next time. Every other course on this path assumes you can already think this way."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Follow one request through IT",
+          "code": "You open shop.example.com on a laptop\n Hardware    laptop CPU, RAM, Wi-Fi card\n Software    browser on the operating system\n Network     Wi-Fi -> router -> ISP -> internet (DNS finds the server)\n Server      web app and database in a data centre or cloud\n Security    HTTPS encrypts the page and your password\n Support     help desk resets the password you forgot",
+          "explanation": "Every IT role looks after one piece of this chain; a problem anywhere breaks the whole experience."
         }
       ],
       "cheatSheet": [
@@ -66757,6 +67170,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Read a spec sheet",
+          "code": "CPU:      8 cores / 16 threads, 3.8 GHz, x86-64\nRAM:      16 GB DDR5\nStorage:  1 TB NVMe SSD\nGPU:      integrated\nNetwork:  Wi-Fi 6E, 2.5 GbE\nPSU:      650 W",
+          "explanation": "Cores and threads decide how much runs at once, RAM how much is held in fast memory, and the SSD how quickly programs load."
+        }
+      ],
       "cheatSheet": [
         [
           "CPU",
@@ -66845,6 +67265,13 @@
             "RAID groups disks so one disk dying does not mean data loss. RAID 0 stripes data across disks for speed, with no redundancy — lose one disk, lose everything. RAID 1 mirrors two disks, so either one alone holds the data. RAID 5 spreads parity across the disks and survives one failure (minimum three disks). RAID 6 uses dual parity and survives two failures (minimum four). RAID 10 mirrors striped pairs, combining performance and redundancy (minimum four). The exam expects you to match each level to its minimum disk count and its failure tolerance.",
             "Because the bays are hot-swappable, a failed drive slides out and a replacement rebuilds from parity or mirror while the NAS keeps serving files. That is the point of the whole design: the storage stays up while its parts are replaced underneath it."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Why a 1 TB drive shows 931 GB",
+          "code": "Manufacturer:  1 TB  = 1,000,000,000,000 bytes (decimal)\nWindows shows: 1,000,000,000,000 / 1,073,741,824 = 931.3 'GB'\n               (really 931.3 GiB, binary units)",
+          "explanation": "Nothing is missing: drive makers count in powers of 10 and Windows in powers of 2 while still printing 'GB'."
         }
       ],
       "cheatSheet": [
@@ -66937,6 +67364,13 @@
         "caption": "The boot sequence: each stage hands off to the next. A failure at any stage stops the machine there.",
         "diagram": "  power on\n     |\n  POST — firmware checks CPU, RAM, devices\n     |\n  firmware finds the boot device (UEFI / BIOS)\n     |\n  bootloader loads the kernel  (BOOTMGR / GRUB)\n     |\n  kernel starts services, drivers, login screen\n     |\n  desktop"
       },
+      "examples": [
+        {
+          "title": "The UEFI boot sequence",
+          "code": "1. Power on -> firmware (UEFI) runs POST hardware checks\n2. UEFI reads boot entries from NVRAM, finds the EFI System Partition (GPT disk)\n3. Secure Boot verifies the bootloader's signature\n4. Bootloader (Windows Boot Manager / GRUB) loads the kernel\n5. Kernel starts drivers and the first process (init / systemd, or wininit)\n6. Services start -> login screen",
+          "explanation": "Knowing the order tells you where a failure is: no POST beep is hardware, 'no boot device' is firmware or disk, a crash after the logo is the OS."
+        }
+      ],
       "cheatSheet": [
         [
           "Operating system",

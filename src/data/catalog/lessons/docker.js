@@ -23,6 +23,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Image vs container',
+        code: '$ docker pull nginx:1.27            # download an image (read-only template)\n$ docker run -d --name web -p 8080:80 nginx:1.27   # start a container from it\n$ docker ps\nCONTAINER ID  IMAGE       STATUS        PORTS                  NAMES\n3f1c2a...     nginx:1.27  Up 5 seconds  0.0.0.0:8080->80/tcp   web\n$ docker stop web && docker rm web',
+        explanation: 'One image can start many containers. Removing a container deletes its writable layer, not the image.',
+      },
+    ],
     cheatSheet: [
       ['Container', 'Isolated process sharing the host kernel \u2014 lightweight, fast to start'],
       ['Virtual machine', 'Full guest OS on virtualized hardware \u2014 heavier, slower to boot'],
@@ -55,6 +62,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'A cache-friendly Dockerfile',
+        code: 'FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt   # cached until requirements change\nCOPY . .                                            # code changes only rebuild from here\nUSER 1000\nCMD ["python", "app.py"]',
+        explanation: 'Copy the dependency file and install before copying source code, so editing code does not reinstall every package.',
+      },
+    ],
     cheatSheet: [
       ['FROM', 'Sets the base image; (almost) always the first instruction'],
       ['RUN', 'Executes a command during the build; each one adds a layer'],
@@ -85,6 +99,13 @@ export default {
           'A running container is not a black box. `docker exec -it <container> sh` starts a new shell inside the existing container \u2014 exec runs alongside the main process, it does not replace it. `docker logs` (with -f to follow) shows what the main process has printed, which is where every debugging session begins. And `docker stop` followed by `docker rm` ends the lifecycle; `docker rm -f` does both at once.',
           'Here is the truth that surprises everyone once: anything written inside the container \u2014 outside a volume \u2014 dies with it. The container\u2019s writable layer is deleted on removal, by design. Containers are ephemeral; they are cattle, not pets. If the data matters, it belongs in a volume, which is exactly where the next lesson begins.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Common run options',
+        code: 'docker run -d \\\n  --name api \\\n  -p 127.0.0.1:8000:8000 \\\n  -e DATABASE_URL=postgres://db:5432/app \\\n  --restart unless-stopped \\\n  --memory 512m --cpus 1 \\\n  myorg/api:1.4.2',
+        explanation: 'Binding to 127.0.0.1 keeps the port off the public interface; limits stop one container starving the host; pin an image tag rather than latest.',
       },
     ],
     cheatSheet: [
@@ -120,6 +141,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Named volume and user-defined network',
+        code: 'docker network create appnet\ndocker volume create pgdata\ndocker run -d --name db --network appnet -v pgdata:/var/lib/postgresql/data \\\n  -e POSTGRES_PASSWORD_FILE=/run/secrets/pg postgres:16\ndocker run -d --name api --network appnet myorg/api:1.4.2\n# inside api, the database is reachable at host name \'db\'',
+        explanation: 'Containers on a user-defined network resolve each other by name (the default bridge does not), and the named volume keeps data when the db container is replaced.',
+      },
+    ],
     cheatSheet: [
       ['Volume', 'Docker-managed persistent storage; survives container removal'],
       ['Bind mount', 'Maps a host path into the container; ideal for live dev editing'],
@@ -150,6 +178,13 @@ export default {
           'Configuration lives with the service, not in the image: the environment: mapping (or env_file:) keeps secrets and settings out of built artifacts, where they belong. When code changes, `docker compose up --build` rebuilds the images that have a build context before starting. And when one service needs muscle, `docker compose up --scale web=3` runs three copies \u2014 Compose handles the replicas while something upstream spreads the traffic.',
           'Compose is deliberately single-host: it orchestrates containers on one machine beautifully, and that covers development, CI, demos, and small production deployments. When you outgrow one host \u2014 true clustering, self-healing across machines \u2014 that is the moment Kubernetes enters the picture, and the next track is waiting.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A compose file with a health check',
+        code: 'services:\n  db:\n    image: postgres:16\n    volumes: [pgdata:/var/lib/postgresql/data]\n    healthcheck:\n      test: ["CMD-SHELL", "pg_isready -U postgres"]\n      interval: 5s\n  api:\n    build: .\n    ports: ["8000:8000"]\n    depends_on:\n      db: { condition: service_healthy }\nvolumes:\n  pgdata:',
+        explanation: 'depends_on with service_healthy waits until the database actually accepts connections, not just until its container has started.',
       },
     ],
     cheatSheet: [
@@ -184,6 +219,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Tag and push to a registry',
+        code: 'docker build -t myorg/api:1.4.2 .\ndocker tag myorg/api:1.4.2 ghcr.io/myorg/api:1.4.2\necho $GHCR_TOKEN | docker login ghcr.io -u myorg --password-stdin\ndocker push ghcr.io/myorg/api:1.4.2\ndocker buildx imagetools inspect ghcr.io/myorg/api:1.4.2   # shows the digest',
+        explanation: 'The registry host is part of the image name. Deploy by digest (@sha256:...) for an immutable reference; tags can be moved.',
+      },
+    ],
     cheatSheet: [
       ['Registry', 'Stores/distributes images: Docker Hub, GHCR, ECR'],
       ['docker push / pull', 'Upload to / download from a registry (login first)'],
@@ -216,6 +258,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Multi-stage build to a minimal image',
+        code: 'FROM golang:1.23 AS build\nWORKDIR /src\nCOPY . .\nRUN CGO_ENABLED=0 go build -o /out/app .\n\nFROM gcr.io/distroless/static-debian12:nonroot\nCOPY --from=build /out/app /app\nUSER nonroot\nENTRYPOINT ["/app"]',
+        explanation: 'The compiler and source stay in the build stage; the final image holds only the binary, runs as non-root and has no shell, so it is tiny with few CVEs to scan.',
+      },
+    ],
     cheatSheet: [
       ['Multi-stage build', 'Build in a full toolchain stage; ship only the artifact in a slim stage'],
       ['Alpine / distroless', 'Minimal bases: fewer packages, fewer CVEs, faster pulls'],
@@ -246,6 +295,13 @@ export default {
           'When something is wrong, work the same routine every time. Start with `docker logs`: what did the process say before it died? If it is still running, `docker exec -it` gets you a shell inside to inspect files, processes, and connectivity from the container\u2019s point of view. `docker stats` shows live CPU, memory, network and I/O per container \u2014 the fastest way to spot the one eating the host. And `docker inspect` dumps the full JSON truth: mounts, networks, environment, everything the container believes about itself.',
           'Prefer small, single-purpose containers and this routine stays short: one process per container means logs tell one story and failures have one suspect. And keep the host tidy \u2014 `docker system prune` reclaims the stopped containers, dangling images and unused networks that accumulate silently, though the aggressive flags (-a, --volumes) deserve respect and a second look before you run them.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Debug a container that keeps restarting',
+        code: '$ docker ps -a --filter name=api\napi   Restarting (1) 3 seconds ago\n$ docker logs --tail 20 api\nError: connect ECONNREFUSED 127.0.0.1:5432\n$ docker inspect -f \'{{.State.ExitCode}} {{.RestartCount}}\' api\n1 14',
+        explanation: 'Logs show the app trying localhost: inside a container that is the container itself, not the database. Point it at the db service name instead.',
       },
     ],
     cheatSheet: [

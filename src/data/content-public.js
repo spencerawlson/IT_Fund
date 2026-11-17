@@ -23483,6 +23483,13 @@ export const freeLessonContent = {
       "caption": "Encapsulation as data moves down the stack. Each layer wraps the one above with its own header (Ethernet also adds an FCS trailer); the receiver removes them in reverse.",
       "diagram": "Layer 7-5  Data                                   [ HTTP request ]\nLayer 4    Segment                      [ TCP hdr | HTTP request ]\nLayer 3    Packet              [ IP hdr | TCP hdr | HTTP request ]\nLayer 2    Frame     [ Eth hdr | IP hdr | TCP hdr | HTTP request ] + FCS\nLayer 1    Bits      0101 1001 0111 0100 ... on the wire, fibre or radio"
     },
+    "examples": [
+      {
+        "title": "Troubleshoot layer by layer",
+        "code": "Layer 1  link light on? cable/Wi-Fi connected?\nLayer 2  ip link / arp -a        MAC addresses seen?\nLayer 3  ping 192.168.1.1        reach the gateway? ping 1.1.1.1\nLayer 4  Test-NetConnection shop.example.com -Port 443\nLayer 7  nslookup shop.example.com ; curl -I https://shop.example.com",
+        "explanation": "Work bottom-up: if you can ping 1.1.1.1 but not a name, the problem is DNS, not the cable."
+      }
+    ],
     "cheatSheet": [
       [
         "L1 Physical",

@@ -23,6 +23,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Explore a cluster',
+        code: '$ kubectl get nodes\nNAME     STATUS   ROLES           VERSION\ncp-1     Ready    control-plane   v1.31.2\nwork-1   Ready    <none>          v1.31.2\n$ kubectl get pods -A\n$ kubectl describe pod web-7c9d-abc12   # events explain scheduling and pull errors\n$ kubectl explain deployment.spec.replicas',
+        explanation: 'get lists, describe explains (including events), and explain documents any field without leaving the terminal.',
+      },
+    ],
     cheatSheet: [
       ['Control plane', 'API server, scheduler, controller-manager, etcd \u2014 the brains'],
       ['Worker node', 'Runs workloads via the kubelet and container runtime'],
@@ -53,6 +60,13 @@ export default {
           'A Deployment declares \u201CI want N identical pods of this spec,\u201D and a ReplicaSet underneath does the counting \u2014 adding pods when there are too few, removing them when there are too many. Scale with `kubectl scale deploy/name --replicas=5` or by editing the manifest; either way the ReplicaSet converges reality to the number.',
           'The glue is labels and selectors: pods carry labels, and the Deployment\u2019s selector matches them. This indirection \u2014 controllers finding their pods by label rather than by name \u2014 is how Kubernetes stays flexible, and it is also how Services will find them in the networking lesson. Self-healing falls out for free: a dead pod means the count is wrong, so a replacement is scheduled on a healthy node without anyone being paged.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'A Deployment',
+        code: 'apiVersion: apps/v1\nkind: Deployment\nmetadata: { name: web }\nspec:\n  replicas: 3\n  selector: { matchLabels: { app: web } }\n  template:\n    metadata: { labels: { app: web } }\n    spec:\n      containers:\n      - name: web\n        image: nginx:1.27\n        ports: [{ containerPort: 80 }]\n        resources:\n          requests: { cpu: 100m, memory: 128Mi }\n          limits:   { memory: 256Mi }',
+        explanation: 'The Deployment manages a ReplicaSet that keeps three pods running; delete one and a replacement is created.',
       },
     ],
     cheatSheet: [
@@ -87,6 +101,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'ConfigMap and Secret as environment',
+        code: 'kubectl create configmap app-cfg --from-literal=LOG_LEVEL=info\nkubectl create secret generic db --from-literal=PASSWORD=\'s3cr3t\'\n\n# in the pod spec:\nenvFrom:\n- configMapRef: { name: app-cfg }\nenv:\n- name: DB_PASSWORD\n  valueFrom: { secretKeyRef: { name: db, key: PASSWORD } }',
+        explanation: 'Secrets are only base64-encoded by default; enable encryption at rest for etcd and restrict who can read them with RBAC.',
+      },
+    ],
     cheatSheet: [
       ['apiVersion/kind/metadata/spec', 'The four fields of every manifest; spec is desired state'],
       ['Namespace', 'Logical partition: dev, staging, team-a; scopes names and quotas'],
@@ -117,6 +138,13 @@ export default {
           'Service discovery runs on cluster DNS: inside its namespace a Service is reachable by bare name (\u201Cdb\u201D), and fully qualified as db.mynamespace.svc.cluster.local from anywhere. CoreDNS serves it all, which is why the earlier lesson\u2019s advice \u2014 services reach each other by name \u2014 works without any manual wiring.',
           'For HTTP traffic from outside, Ingress is the front door: one entry point routing by host and path to the right Services, with TLS termination along the way. The critical detail beginners miss: an Ingress object alone does nothing \u2014 an Ingress controller (nginx, Traefik, or your cloud\u2019s) must be running in the cluster to implement the rules. No controller, no routing.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Service and Ingress',
+        code: 'apiVersion: v1\nkind: Service\nmetadata: { name: web }\nspec:\n  selector: { app: web }\n  ports: [{ port: 80, targetPort: 80 }]\n---\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata: { name: web }\nspec:\n  rules:\n  - host: shop.example.com\n    http:\n      paths:\n      - { path: /, pathType: Prefix, backend: { service: { name: web, port: { number: 80 } } } }',
+        explanation: 'The Service gives pods a stable name and IP (web.<namespace>.svc); the Ingress routes external HTTP by host and path to it. An ingress controller must be installed.',
       },
     ],
     cheatSheet: [
@@ -151,6 +179,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'PersistentVolumeClaim',
+        code: 'apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata: { name: data }\nspec:\n  accessModes: [ReadWriteOnce]\n  storageClassName: standard\n  resources: { requests: { storage: 10Gi } }\n---\n# pod spec\nvolumes: [{ name: data, persistentVolumeClaim: { claimName: data } }]\ncontainers: [{ name: db, image: postgres:16, volumeMounts: [{ name: data, mountPath: /var/lib/postgresql/data }] }]',
+        explanation: 'The claim asks for storage; the StorageClass provisions a volume dynamically. Data survives pod restarts and rescheduling.',
+      },
+    ],
     cheatSheet: [
       ['Ephemeral storage', 'Container/pod filesystems die with the pod \u2014 plan for it'],
       ['PersistentVolume (PV)', 'Cluster storage resource, provisioned statically or dynamically'],
@@ -181,6 +216,13 @@ export default {
           'Three probes, three questions. Liveness: \u201Cis this container still alive?\u201D \u2014 a failure restarts it. Readiness: \u201Cshould it receive traffic yet?\u201D \u2014 a not-ready pod is quietly removed from Service endpoints until it is. Startup: \u201Chas this slow starter finished booting?\u201D \u2014 it holds the liveness probe off during long initializations so healthy-but-slow containers are not killed for being deliberate.',
           'Scaling and fairness complete the picture. The Horizontal Pod Autoscaler adjusts replica counts from metrics like CPU \u2014 but it needs metrics-server running to see anything. And resource requests versus limits is the fairness contract: requests guide the scheduler\u2019s placement, limits cap what a pod may consume. A container that exceeds its memory limit is OOM-killed; CPU overuse is throttled instead. Set both, always \u2014 unbounded pods let one workload starve the node and everyone on it.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Roll out and roll back',
+        code: '$ kubectl set image deploy/web web=nginx:1.27.1\n$ kubectl rollout status deploy/web\nWaiting for deployment "web" rollout to finish: 1 of 3 updated replicas are available...\n$ kubectl rollout history deploy/web\n$ kubectl rollout undo deploy/web          # back to the previous ReplicaSet',
+        explanation: 'Rolling updates replace pods gradually, gated by readiness probes; a bad version can be undone in one command.',
       },
     ],
     cheatSheet: [
@@ -215,6 +257,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Drain a node for maintenance',
+        code: '$ kubectl cordon work-1                 # no new pods scheduled here\n$ kubectl drain work-1 --ignore-daemonsets --delete-emptydir-data\n# ...patch and reboot...\n$ kubectl uncordon work-1',
+        explanation: 'Drain evicts pods so controllers recreate them elsewhere, respecting PodDisruptionBudgets so the service stays up.',
+      },
+    ],
     cheatSheet: [
       ['StatefulSet', 'Stable identity + per-pod PVCs for databases and queues'],
       ['DaemonSet', 'One pod per node; for agents: logging, monitoring, CNI'],
@@ -245,6 +294,13 @@ export default {
           'Start with the pod. Run as non-root (runAsNonRoot with a non-zero runAsUser), never set privileged: true \u2014 it grants near-host access and the Pod Security Standards forbid it in restricted profiles \u2014 and drop unneeded Linux capabilities. Apply those standards per namespace through admission control so the hardening is enforced, not suggested. Then segment the network: a NetworkPolicy can restrict which pods and namespaces may talk to each other, but remember the default is allow-all until a policy selects a pod \u2014 the first policy you write is the one that starts enforcing.',
           'Finally, guard the supply chain. Scan images for CVEs, pin digests so \u201Cthe same tag\u201D cannot silently become different software, and require admission policies that block unsigned or unscanned images. Secrets reach pods through the Secret object \u2014 with etcd encryption at rest and RBAC guarding access \u2014 or better, from an external secrets manager; they are never baked into images or committed to repositories. Quotas and LimitRanges per namespace cap what any tenant can consume, because availability is a security property too.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Least-privilege RBAC and a restricted pod',
+        code: 'kind: Role\nmetadata: { name: read-pods, namespace: shop }\nrules:\n- apiGroups: [""]\n  resources: ["pods", "pods/log"]\n  verbs: ["get", "list"]\n---\n# namespace label for Pod Security Admission\npod-security.kubernetes.io/enforce: restricted\n# containers then must run as non-root, drop ALL capabilities, no privilege escalation',
+        explanation: 'Roles grant only the verbs needed in one namespace; the restricted Pod Security Standard blocks risky pod settings at admission.',
       },
     ],
     cheatSheet: [

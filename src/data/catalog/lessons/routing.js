@@ -56,6 +56,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Longest prefix match',
+        code: 'Router# show ip route\nO   10.1.0.0/16 [110/20] via 10.0.0.2\nS   10.1.5.0/24 [1/0]    via 10.0.0.9\nS*  0.0.0.0/0  [1/0]     via 203.0.113.1\n\nPacket to 10.1.5.7  -> 10.1.5.0/24 (most specific) -> 10.0.0.9\nPacket to 10.1.9.7  -> 10.1.0.0/16                 -> 10.0.0.2\nPacket to 8.8.8.8   -> default route',
+        explanation: 'The most specific matching prefix wins; administrative distance only decides between the same prefix learned from different sources.',
+      },
+    ],
     cheatSheet: [
       ['Longest-prefix match', 'Most specific route (largest mask) wins first'],
       ['Administrative distance', 'Trust ranking between sources; lower wins (Conn 0, Static 1, EIGRP 90, OSPF 110, RIP 120)'],
@@ -300,6 +307,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'A minimal IS-IS configuration',
+        code: 'router isis CORE\n net 49.0001.1921.6800.1001.00     ! area 49.0001, system ID 1921.6800.1001\n is-type level-2-only\n metric-style wide\n!\ninterface Gi0/0\n ip router isis CORE\n isis network point-to-point',
+        explanation: 'The NET encodes the area and a unique system ID. IS-IS runs directly over Layer 2, not IP, which is one reason large ISPs favour it.',
+      },
+    ],
     cheatSheet: [
       ['Type', 'Link-state over Layer 2 (CLNS), not IP'],
       ['Levels', 'L1 intra-area, L2 backbone, L1/L2 both'],
@@ -439,6 +453,13 @@ export default {
         body: [
           'Prevention is never perfect, so monitor. Log routing changes and feed them to a SIEM: alert on unexpected neighbours, prefix origin changes, sudden table churn, and authentication failures. BGP monitoring services and route-origin feeds catch hijacks that your own routers cannot see. This is the same detect-and-investigate discipline as the platform\'s log-triage and SIEM labs, applied to the control plane.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Check a route\'s RPKI validity',
+        code: 'ROA:  prefix 203.0.113.0/24, max length /24, origin AS64500\n\nAnnouncement                 Origin    Result\n---------------------------  --------  ---------\n203.0.113.0/24               AS64500   Valid\n203.0.113.0/24               AS64666   Invalid (wrong origin) -> drop\n203.0.113.128/25             AS64500   Invalid (longer than max length)\n198.51.100.0/24              AS64510   NotFound (no ROA)',
+        explanation: 'Route origin validation (RFC 6811) rejects hijacks from the wrong AS and more-specific announcements; MANRS asks networks to filter Invalid routes.',
       },
     ],
     cheatSheet: [

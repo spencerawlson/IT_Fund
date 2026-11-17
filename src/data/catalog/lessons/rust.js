@@ -82,6 +82,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Enums and exhaustive match',
+        code: 'enum Payment { Card { last4: String }, Cash, Voucher(u32) }\n\nfn describe(p: &Payment) -> String {\n    match p {\n        Payment::Card { last4 } => format!("card ending {last4}"),\n        Payment::Cash => "cash".to_string(),\n        Payment::Voucher(v) => format!("voucher #{v}"),\n    }\n}',
+        explanation: 'match must cover every variant, so adding a new payment type is a compile error until each match handles it.',
+      },
+    ],
     cheatSheet: [
       ['let x = 5;', 'Immutable binding by default'],
       ['let mut x = 5;', 'Explicitly mutable binding'],

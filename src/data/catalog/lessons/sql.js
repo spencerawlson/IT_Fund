@@ -25,6 +25,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Create, insert and query',
+        code: 'CREATE TABLE customers (\n  id    INTEGER PRIMARY KEY,\n  name  TEXT NOT NULL,\n  city  TEXT\n);\nINSERT INTO customers (id, name, city) VALUES (1, \'Ana\', \'Lisbon\'), (2, \'Ben\', \'Leeds\');\nSELECT name FROM customers WHERE city = \'Lisbon\';\n-- Ana',
+        explanation: 'Tables have typed columns and a primary key that uniquely identifies each row.',
+      },
+    ],
     cheatSheet: [
       ['SQL', 'Structured Query Language — the standard language for relational databases.'],
       ['Table', 'Rows (records) × columns (fields); one row = one record.'],
@@ -57,6 +64,13 @@ export default {
           '`ORDER BY column DESC` sorts results descending; ascending (`ASC`) is the default. Sorting is usually paired with `LIMIT n` — "the ten most recent orders" is `ORDER BY created_at DESC LIMIT 10`. (SQL Server spells it `TOP n` instead of `LIMIT`.)',
           '`DISTINCT` removes duplicate rows from the result: `SELECT DISTINCT country FROM users` lists each country once. And when a column name is ugly or a computed value needs a label, alias it: `SELECT price AS cost` renames the column in the output. Aliases also name computed columns, which matters the moment you start doing arithmetic in `SELECT`.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Filter, sort and limit',
+        code: 'SELECT name, total\nFROM orders\nWHERE status = \'paid\'\n  AND created_at >= \'2026-01-01\'\n  AND coupon IS NULL          -- not \'= NULL\'\nORDER BY total DESC\nLIMIT 5;',
+        explanation: 'NULL is never equal to anything, including NULL, so use IS NULL. Clauses are written SELECT-FROM-WHERE-ORDER BY but evaluated FROM first.',
       },
     ],
     cheatSheet: [
@@ -93,6 +107,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'GROUP BY with HAVING',
+        code: 'SELECT customer_id, COUNT(*) AS orders, SUM(total) AS spent\nFROM orders\nWHERE status = \'paid\'          -- filters rows before grouping\nGROUP BY customer_id\nHAVING SUM(total) > 1000       -- filters groups after\nORDER BY spent DESC;',
+        explanation: 'WHERE cannot use aggregates because it runs before grouping; HAVING runs after and can.',
+      },
+    ],
     cheatSheet: [
       ['COUNT(*) / COUNT(col)', 'Rows vs non-null values in a column.'],
       ['SUM / AVG / MIN / MAX', 'Total, average, extremes; all ignore NULLs.'],
@@ -123,6 +144,13 @@ export default {
           'A join is only as reliable as the relationship it follows. That relationship is enforced by a foreign key: a column in one table that references the primary key of another, with the database guaranteeing every reference points somewhere real. This is referential integrity, and it is what separates a database from a pile of spreadsheets.',
           'Without foreign keys, joins still run — SQL will happily join on any condition — but nothing stops orphaned rows or dangling references from silently corrupting your results. Design the keys first; the joins then take care of themselves.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'INNER vs LEFT JOIN',
+        code: '-- customers: Ana(1), Ben(2), Cy(3); orders exist for 1 and 2 only\nSELECT c.name, o.id\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id;\n-- Ana 101 | Ben 102 | Cy NULL\n\n-- customers with no orders:\n... LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id IS NULL;   -- Cy',
+        explanation: 'INNER JOIN keeps only matches; LEFT JOIN keeps every left row and fills NULLs, which makes \'find the missing ones\' queries easy.',
       },
     ],
     cheatSheet: [
@@ -158,6 +186,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Safe UPDATE',
+        code: 'BEGIN;\nSELECT id, price FROM products WHERE category = \'cables\';   -- check what will change\nUPDATE products SET price = price * 1.05 WHERE category = \'cables\';\n-- 42 rows updated (matches the SELECT)\nCOMMIT;   -- or ROLLBACK if the count is wrong',
+        explanation: 'An UPDATE or DELETE without WHERE changes every row. Previewing with SELECT inside a transaction lets you check the count before committing.',
+      },
+    ],
     cheatSheet: [
       ['DDL', 'Data Definition: `CREATE` / `ALTER` / `DROP TABLE`.'],
       ['DML', 'Data Manipulation: `INSERT` / `UPDATE` / `DELETE`.'],
@@ -187,6 +222,13 @@ export default {
           'A common table expression — `WITH monthly AS (SELECT ...)` — names a temporary result you can reference in the main query, like a variable for result sets. CTEs turn a tangled nested query into readable, named steps, and recursive CTEs can even walk hierarchies like org charts. They exist for the reader as much as for the machine.',
           'Set operators combine whole result sets: `UNION` stacks two queries\' rows and removes duplicates (`UNION ALL` keeps them and runs faster), `INTERSECT` returns rows present in both, `EXCEPT` returns rows in the first but not the second. The contract: both queries must return the same number of columns with compatible types, and the column names come from the first query.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Subquery and CTE',
+        code: '-- customers who spent more than average\nWITH spend AS (\n  SELECT customer_id, SUM(total) AS spent\n  FROM orders GROUP BY customer_id\n)\nSELECT customer_id, spent\nFROM spend\nWHERE spent > (SELECT AVG(spent) FROM spend);',
+        explanation: 'A CTE names an intermediate result so the query reads top to bottom; the scalar subquery computes the average once for comparison.',
       },
     ],
     cheatSheet: [
@@ -222,6 +264,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'See an index change the plan',
+        code: 'EXPLAIN SELECT * FROM orders WHERE customer_id = 42;\n-- Seq Scan on orders  (cost=0.00..18334.00 rows=10)\nCREATE INDEX idx_orders_customer ON orders (customer_id);\nEXPLAIN SELECT * FROM orders WHERE customer_id = 42;\n-- Index Scan using idx_orders_customer on orders  (cost=0.42..12.60 rows=10)',
+        explanation: 'Without an index the database reads every row; with it, it jumps to the matches. Indexes speed reads but slow writes, so add them for real query patterns.',
+      },
+    ],
     cheatSheet: [
       ['Index', 'B-tree structure speeding lookups on indexed columns — like a book index.'],
       ['Index trade-off', 'Faster reads; slower writes and more storage.'],
@@ -254,6 +303,13 @@ export default {
           'A view is a saved `SELECT` you query like a table — it usually stores no data itself. Views simplify complex queries and, crucially, can restrict which columns different users see: the reporting team gets the view without the salary column. Window functions like `ROW_NUMBER() OVER (...)` compute across rows related to the current row without collapsing them, unlike `GROUP BY` — ranking, running totals, and moving averages without losing detail.',
           'Then the adversary. SQL injection — smuggling malicious SQL through unsanitized input — remains a top web vulnerability decades after it was understood. The defence is non-negotiable: parameterized queries (prepared statements), where the driver sends data separately from the SQL so input can never become code. Complement it with least-privilege database accounts — a reporting user that can only read, an app user that cannot `DROP` — so a compromise is contained. And passwords are never stored as text: store a salted hash with bcrypt or argon2, because any breach that exposes reversible passwords has already lost.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Atomic transfer with least-privilege user',
+        code: 'BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;   -- both or neither\n\nCREATE ROLE app_rw LOGIN PASSWORD \'...\';\nGRANT SELECT, INSERT, UPDATE ON accounts TO app_rw;   -- no DROP, no DELETE',
+        explanation: 'The transaction makes the transfer atomic; the application account gets only the privileges it needs, limiting the damage of SQL injection.',
       },
     ],
     cheatSheet: [

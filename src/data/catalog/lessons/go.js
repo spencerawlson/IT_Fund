@@ -83,6 +83,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Structs, methods and interfaces',
+        code: 'type Shape interface{ Area() float64 }\n\ntype Rect struct{ W, H float64 }\nfunc (r Rect) Area() float64 { return r.W * r.H }\n\nfunc total(shapes []Shape) float64 {\n    sum := 0.0\n    for _, s := range shapes { sum += s.Area() }\n    return sum\n}\n// total([]Shape{Rect{2, 3}, Rect{1, 1}}) == 7',
+        explanation: 'Rect satisfies Shape implicitly by having an Area method; Go has no \'implements\' keyword.',
+      },
+    ],
     cheatSheet: [
       ['x := 5', 'Short declaration (functions only), type inferred'],
       ['var x int', 'Explicit declaration; starts at the zero value'],
