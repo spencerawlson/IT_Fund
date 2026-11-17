@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:41:09.377Z",
+  "generatedAt": "2026-11-17T10:42:17.978Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -37090,7 +37090,7 @@
                   "a": "A plugin that lets Terraform manage a specific platform (AWS, Azure, Kubernetes…)",
                   "x": "Providers expose resources and data sources for their API.",
                   "wrong": [
-                    "The cloud account",
+                    "The cloud account and credentials Terraform deploys into",
                     "A remote backend",
                     "A reusable module"
                   ]
@@ -37155,7 +37155,7 @@
                   "a": "Terraform provisions infrastructure (declarative state); Ansible configures it (procedural)",
                   "x": "They are complementary: Terraform builds the server, Ansible installs software on it.",
                   "wrong": [
-                    "They are identical",
+                    "Ansible provisions infrastructure (declarative state); Terraform configures it (procedural)",
                     "Ansible provisions, Terraform configures",
                     "Both only manage containers"
                   ]
@@ -37299,7 +37299,7 @@
                   "x": "A changed immutable argument forces replacement.",
                   "wrong": [
                     "Updated in place, changed without being replaced",
-                    "Only created, nothing is destroyed at all",
+                    "Created only, with nothing destroyed",
                     "Only destroyed, nothing is created to replace it"
                   ]
                 },
@@ -37398,7 +37398,7 @@
                   "wrong": [
                     "Provider and region",
                     "Module and variable",
-                    "Two tags"
+                    "Two tags applied to the instance"
                   ]
                 },
                 {
@@ -37409,7 +37409,7 @@
                   "a": "<type>.<name>.<attribute>, e.g. aws_vpc.main.id",
                   "x": "Referencing an attribute also creates an implicit dependency.",
                   "wrong": [
-                    "Just the name",
+                    "Just the resource name, e.g. main",
                     "var.<name>",
                     "module.<name> only"
                   ]
@@ -37435,7 +37435,7 @@
                   "a": "For hidden dependencies, not expressed by references",
                   "x": "It forces ordering Terraform cannot infer.",
                   "wrong": [
-                    "On every resource, without any exception at all ever",
+                    "On every resource that has dependencies",
                     "Never — it is deprecated, removed from Terraform",
                     "Only inside variables, never on real resources"
                   ]
@@ -37474,7 +37474,7 @@
                   "a": "Arguments are inputs you set; attributes are values exported after creation",
                   "x": "e.g. you set `ami`; you read the exported `id`.",
                   "wrong": [
-                    "They are the same",
+                    "Attributes are inputs you set; arguments are values exported after creation",
                     "Attributes are inputs",
                     "Arguments are read-only"
                   ]
@@ -37501,7 +37501,7 @@
                   "x": "Pin with version constraints like \"~> 5.0\".",
                   "wrong": [
                     "To make init faster, downloading less each time",
-                    "It is required for every resource, no exceptions",
+                    "Terraform refuses to init without pins",
                     "To hide credentials, keeping secrets out of code"
                   ]
                 },
@@ -37510,12 +37510,12 @@
                   "deckId": "tf-resources",
                   "trackId": "terraform",
                   "q": "What does the constraint `~> 5.1` allow?",
-                  "a": ">= 5.1.0 and < 5.2.0 (patch updates only)",
-                  "x": "The pessimistic operator locks the left-most unpinned segment.",
+                  "a": ">= 5.1 and < 6.0 (minor and patch updates within 5.x)",
+                  "x": "The pessimistic operator lets only the right-most stated part increase: ~> 5.1 allows 5.x from 5.1 up; ~> 5.1.0 would allow only 5.1.x.",
                   "wrong": [
-                    "Exactly 5.1.0, no other version is allowed",
-                    "Any version 5 or higher, including major upgrades",
-                    "< 5.1 only, older versions are fine too"
+                    ">= 5.1.0 and < 5.2.0 (patch updates only)",
+                    "Exactly 5.1.0, no other version",
+                    "Any version 5.1 or higher, including 6.x"
                   ]
                 }
               ],
@@ -37559,7 +37559,7 @@
                   "a": "A `variable \"name\" {}` block, optionally with type, default and description",
                   "x": "Reference it as var.name.",
                   "wrong": [
-                    "A `local` block",
+                    "A `locals` block listing each input with its default",
                     "An `output` block",
                     "A resource block"
                   ]
@@ -37585,7 +37585,7 @@
                   "a": "Terraform prompts for it, or errors non-interactively",
                   "x": "Provide values via -var, a .tfvars file or env vars.",
                   "wrong": [
-                    "It defaults to null silently, with no warning whatsoever",
+                    "It defaults to null without a warning",
                     "Apply is skipped, nothing is created or changed",
                     "It uses an empty string, as if you typed one"
                   ]
@@ -37624,7 +37624,7 @@
                   "a": "A named expression computed once and reused, referenced as local.<name>",
                   "x": "Locals reduce repetition; they are not inputs.",
                   "wrong": [
-                    "An input variable",
+                    "An input variable that callers set with -var",
                     "A provider alias",
                     "A state file entry"
                   ]
@@ -37665,7 +37665,7 @@
                   "wrong": [
                     "Yes, fully encrypted, AES-256 in the state file",
                     "Yes, with AES-256, strong encryption throughout",
-                    "It removes it from state, keeping it nowhere at all"
+                    "It keeps it out of the state file"
                   ]
                 },
                 {
@@ -37676,7 +37676,7 @@
                   "a": "string, number, bool, list, set, map, object and tuple",
                   "x": "Type constraints catch mistakes early.",
                   "wrong": [
-                    "Only string and number",
+                    "Only string and number; lists and maps are untyped",
                     "Only maps",
                     "Any, untyped only"
                   ]
@@ -37753,7 +37753,7 @@
                   "a": "A list of the id attribute from every instance in that resource",
                   "x": "Shorthand for [for i in aws_instance.web : i.id].",
                   "wrong": [
-                    "The first id only",
+                    "The id of the first instance only",
                     "A single string",
                     "The count number"
                   ]
@@ -37805,7 +37805,7 @@
                   "a": "jsondecode(str) — turns JSON text into a Terraform value",
                   "x": "jsonencode() goes the other way.",
                   "wrong": [
-                    "parsejson()",
+                    "parsejson(str), returning a map of strings",
                     "fromjson()",
                     "read_json()"
                   ]
@@ -37819,7 +37819,7 @@
                   "x": "Used for user-data, config files, policy documents.",
                   "wrong": [
                     "Reads the state file",
-                    "Formats code",
+                    "Formats a template file to canonical style",
                     "Creates a resource"
                   ]
                 },
@@ -37878,7 +37878,7 @@
                   "a": "So everyone shares one source of truth and runs do not clobber each other",
                   "x": "Local state on laptops diverges and leaks secrets.",
                   "wrong": [
-                    "It makes plans faster",
+                    "Plans run faster against a remote backend",
                     "It is required by HCL",
                     "To avoid writing providers"
                   ]
@@ -37902,7 +37902,7 @@
                   "trackId": "terraform",
                   "q": "Why is state locking important?",
                   "a": "Stops two applies modifying the same state",
-                  "x": "e.g. S3 backend uses DynamoDB (or S3 native) for the lock.",
+                  "x": "e.g. the S3 backend now locks with an S3 lock file (use_lockfile, Terraform 1.10+); the older DynamoDB table locking is deprecated.",
                   "wrong": [
                     "It encrypts the code, scrambling the configuration",
                     "It speeds up apply, running changes in parallel",
@@ -37983,7 +37983,7 @@
                   "x": "A plan (or refresh) detects it; apply reconciles it.",
                   "wrong": [
                     "A corrupt .tf file",
-                    "A provider upgrade",
+                    "A provider upgrade that changes resource schemas",
                     "A locked state"
                   ]
                 },
@@ -38068,7 +38068,7 @@
                   "a": "A local path, a registry address, a git URL, etc.",
                   "x": "e.g. \"./modules/vpc\" or \"terraform-aws-modules/vpc/aws\".",
                   "wrong": [
-                    "Only local paths",
+                    "Only local paths inside the repo",
                     "Only the registry",
                     "A provider name"
                   ]
@@ -38121,7 +38121,7 @@
                   "x": "e.g. a \"vpc\" module, not \"all of prod\".",
                   "wrong": [
                     "One per resource always",
-                    "One giant module",
+                    "One giant module that holds the whole environment",
                     "One per provider"
                   ]
                 },
@@ -38202,7 +38202,7 @@
                   "a": "Creates N copies of a resource, indexed count.index",
                   "x": "Address them as <res>[0], <res>[1]…",
                   "wrong": [
-                    "Counts applies",
+                    "Counts how many times apply has run",
                     "Limits providers",
                     "Sets a timeout"
                   ]
@@ -38254,7 +38254,7 @@
                   "a": "Makes Terraform error rather than destroy that resource",
                   "x": "A guardrail for critical resources like a database.",
                   "wrong": [
-                    "Skips the resource",
+                    "Skips the resource in every plan",
                     "Deletes it silently",
                     "Pins its version"
                   ]
@@ -38267,7 +38267,7 @@
                   "a": "Ignores drift on specific attributes after creation",
                   "x": "e.g. ignore tags mutated by another system.",
                   "wrong": [
-                    "Ignores the whole resource, never updating it ever again",
+                    "Ignores the whole resource after creation",
                     "Disables state, Terraform forgets everything",
                     "Ignores the plan, applying without a preview"
                   ]
@@ -38308,7 +38308,7 @@
                   "wrong": [
                     "Deletes state",
                     "Defines a provider",
-                    "Creates a VM"
+                    "Creates a minimal VM used to run scripts"
                   ]
                 },
                 {
@@ -38370,7 +38370,7 @@
                   "a": "No — shared backend and config",
                   "x": "Workspaces suit lightweight variants, not hard prod boundaries.",
                   "wrong": [
-                    "Yes, fully isolated, nothing is shared at all",
+                    "Yes, each workspace is fully isolated",
                     "Yes, with locking, preventing concurrent changes",
                     "They encrypt prod, keeping production secrets safe"
                   ]
@@ -38384,7 +38384,7 @@
                   "x": "You still write matching config; modern Terraform supports import blocks.",
                   "wrong": [
                     "Creates a new resource",
-                    "Copies a module",
+                    "Copies a module from the registry into the project",
                     "Downloads providers"
                   ]
                 },
@@ -38437,7 +38437,7 @@
                   "wrong": [
                     "apply then plan",
                     "destroy then apply",
-                    "apply on every push, no review"
+                    "plan → apply on every push → fmt/validate → security scan afterwards"
                   ]
                 },
                 {
@@ -38449,7 +38449,7 @@
                   "x": "There is no automatic undo; git history is your rollback.",
                   "wrong": [
                     "terraform rollback, a command that undoes applies",
-                    "Restore state from a snapshot only, nothing else",
+                    "Restore the state file from a snapshot",
                     "It auto-reverts on error, undoing itself automatically every time"
                   ]
                 },
@@ -38463,7 +38463,7 @@
                   "wrong": [
                     "To format the code, tidying indentation and spacing",
                     "To download modules, fetching them from the registry",
-                    "It is not needed, plans add nothing at all"
+                    "It is not needed when CI runs apply"
                   ]
                 },
                 {
@@ -38548,7 +38548,7 @@
                   "a": "Compiled — source is translated to machine code before it runs",
                   "x": "A compiler (e.g. g++, clang++, MSVC) produces a native executable.",
                   "wrong": [
-                    "Interpreted line by line",
+                    "Interpreted one statement at a time",
                     "Run on a virtual machine like Java, with bytecode translated as it executes",
                     "Both, at runtime"
                   ]
@@ -38626,7 +38626,7 @@
                   "a": "Pulls all std names into scope; it can cause name clashes in larger code",
                   "x": "Prefer std:: qualification in headers and real projects.",
                   "wrong": [
-                    "Imports a file",
+                    "Imports the std header files automatically",
                     "Disables the std library",
                     "It is required for cout"
                   ]
@@ -38838,12 +38838,12 @@
                   "deckId": "cpp-types",
                   "trackId": "cpp",
                   "q": "What does `static_cast<double>(x)` do?",
-                  "a": "Explicitly converts x to a double at compile time",
-                  "x": "Prefer named casts over C-style (double)x casts.",
+                  "a": "Explicitly converts x to a double, with the conversion checked by the compiler",
+                  "x": "The compiler verifies the conversion is allowed; the value is converted when the code runs. Prefer named casts over C-style (double)x casts.",
                   "wrong": [
-                    "Casts at runtime only",
-                    "Reinterprets the bits",
-                    "Does nothing"
+                    "Reinterprets the bits of x as a double without converting",
+                    "Converts x only if it is already a double",
+                    "Does nothing at runtime; it only changes the type name"
                   ]
                 }
               ],
@@ -38933,7 +38933,7 @@
                   "x": "Or by pointer: void f(int* x).",
                   "wrong": [
                     "Return void",
-                    "Pass by value, letting the function work on its own private copy",
+                    "Pass by value",
                     "Make it const"
                   ]
                 },
@@ -38973,7 +38973,7 @@
                   "wrong": [
                     "A global variable",
                     "The return value",
-                    "A required argument, one the caller must supply on every single call"
+                    "A required argument"
                   ]
                 },
                 {
@@ -38984,7 +38984,7 @@
                   "a": "Before its first use — via a definition or a forward declaration (prototype)",
                   "x": "Headers provide declarations so callers can see them.",
                   "wrong": [
-                    "Only after main",
+                    "Only after main, which the compiler reads first",
                     "Anywhere, order is irrelevant",
                     "Inside main only"
                   ]
@@ -39096,7 +39096,7 @@
                   "a": "A reference is an alias that must bind on creation and cannot be reseated or null",
                   "x": "Pointers can be null and re-pointed.",
                   "wrong": [
-                    "They are identical",
+                    "A pointer is an alias that must bind on creation; a reference can be null and re-pointed",
                     "References can be null",
                     "Pointers cannot be reassigned"
                   ]
@@ -39283,7 +39283,7 @@
                   "a": "Calling a virtual function through a base pointer/reference dispatches to the derived override",
                   "x": "Enabled by the virtual table (vtable).",
                   "wrong": [
-                    "Function overloading",
+                    "Function overloading, where the compiler picks a function by its arguments",
                     "Templates",
                     "Compile-time only"
                   ]
@@ -39309,7 +39309,7 @@
                   "a": "A function with no base body; it makes the class abstract (not instantiable)",
                   "x": "Derived classes must override it.",
                   "wrong": [
-                    "A static function, concrete and callable without any object of the class at all",
+                    "A static function callable without an object",
                     "A constructor",
                     "A private helper"
                   ]
@@ -39322,7 +39322,7 @@
                   "a": "ClassName() : member(value) { } — initialises members before the body runs",
                   "x": "More efficient than assigning in the body; required for const/reference members.",
                   "wrong": [
-                    "A list of default args",
+                    "A list of default arguments for the constructor",
                     "An array literal",
                     "The destructor body"
                   ]
@@ -39539,7 +39539,7 @@
                   "a": "Resource Acquisition Is Initialization: tie a resource's lifetime to an object's scope",
                   "x": "The destructor releases the resource automatically — C++'s core memory idiom.",
                   "wrong": [
-                    "A garbage collector",
+                    "A garbage collector that frees objects once no references remain",
                     "A design pattern for threads",
                     "Manual free() everywhere"
                   ]
@@ -39617,7 +39617,7 @@
                   "a": "If you define any of destructor, copy/move constructor or copy/move assignment, consider all five",
                   "x": "Managing a resource usually means defining or deleting them together.",
                   "wrong": [
-                    "Five namespaces per file",
+                    "Keep each class to at most five member functions for readability",
                     "Five parameters max",
                     "Five levels of inheritance"
                   ]
@@ -39630,7 +39630,7 @@
                   "a": "Design classes so you need none of the special members — let members (e.g. smart pointers) manage resources",
                   "x": "The simplest, safest default in modern C++.",
                   "wrong": [
-                    "Never use classes",
+                    "Never write constructors; rely on zero-initialisation of every member instead",
                     "Zero-initialise everything",
                     "No constructors allowed"
                   ]
@@ -39702,7 +39702,7 @@
                   "x": "e.g. template<typename T> T max(T a, T b).",
                   "wrong": [
                     "A runtime generic (type erasure)",
-                    "A macro",
+                    "A preprocessor macro that pastes code before compiling",
                     "A base class"
                   ]
                 },
@@ -39779,7 +39779,7 @@
                   "a": "The header declares the interface; the .cpp defines it, so callers compile against the declaration",
                   "x": "Templates are the exception — they usually stay header-only.",
                   "wrong": [
-                    "For faster runtime",
+                    "For faster runtime, because headers are compiled once",
                     "It is required for main",
                     "To hide it from the linker"
                   ]
@@ -39807,7 +39807,7 @@
                   "wrong": [
                     "A pointer",
                     "A pair",
-                    "An always-present value, guaranteed to hold something usable at all times"
+                    "An always-present value"
                   ]
                 },
                 {
@@ -39818,7 +39818,7 @@
                   "a": "Contiguous storage: cache-friendly, fast index access and iteration",
                   "x": "Reach for list/map only when you need their specific behaviour.",
                   "wrong": [
-                    "O(1) insertion anywhere",
+                    "O(1) insertion anywhere in the container",
                     "It never reallocates",
                     "It is thread-safe by default"
                   ]
@@ -39865,7 +39865,7 @@
                   "a": "Code the standard gives no meaning to — the compiler may do anything",
                   "x": "Examples: out-of-bounds access, signed overflow, use-after-free.",
                   "wrong": [
-                    "A runtime exception",
+                    "A runtime exception that the program can catch",
                     "A compile error",
                     "Implementation-defined but safe"
                   ]
@@ -39969,7 +39969,7 @@
                   "a": "Accessing memory through a pointer after it was freed — undefined behaviour and exploitable",
                   "x": "Null the pointer or use smart pointers to avoid it.",
                   "wrong": [
-                    "Freeing memory twice",
+                    "Freeing the same memory twice in a row",
                     "A memory leak",
                     "A stack overflow"
                   ]
