@@ -10096,7 +10096,7 @@ export const tracks = [
                 "wrong": [
                   "The OS, patching and configuring it themselves",
                   "The hardware, racks and servers in the data centre",
-                  "Nothing at all, the provider manages everything"
+                  "Nothing; the provider manages data and access too"
                 ]
               },
               {
@@ -10121,7 +10121,7 @@ export const tracks = [
                 "x": "Community cloud is shared by organisations with common needs.",
                 "wrong": [
                   "Two public clouds from two different providers",
-                  "Only private cloud, nothing public at all",
+                  "A private cloud hosted by a third party",
                   "A cloud with no internet, completely offline"
                 ]
               },
@@ -10135,7 +10135,7 @@ export const tracks = [
                 "wrong": [
                   "The provider secures everything",
                   "The customer secures everything",
-                  "An insurance contract"
+                  "The customer secures the hardware; the provider secures the data and identities"
                 ]
               },
               {
@@ -10159,7 +10159,7 @@ export const tracks = [
                 "a": "Scaling resources up and down with demand",
                 "x": "Scalability is the ability to grow; elasticity is doing it automatically, both ways.",
                 "wrong": [
-                  "Fixed capacity, the same servers all year round",
+                  "Fixed capacity sized for the yearly peak",
                   "Manual provisioning, adding servers by hand",
                   "Data replication, copying data across regions"
                 ]
@@ -10185,7 +10185,7 @@ export const tracks = [
                 "a": "A site that caches content close to users (CDN)",
                 "x": "e.g. CloudFront, Azure Front Door, Cloud CDN.",
                 "wrong": [
-                  "A backup region",
+                  "A backup region used for disaster recovery",
                   "A private data centre",
                   "A VPN endpoint"
                 ]

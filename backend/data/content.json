@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:38:27.643Z",
+  "generatedAt": "2026-11-17T10:39:20.333Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -21577,7 +21577,7 @@
                   "wrong": [
                     "The OS, patching and configuring it themselves",
                     "The hardware, racks and servers in the data centre",
-                    "Nothing at all, the provider manages everything"
+                    "Nothing; the provider manages data and access too"
                   ]
                 },
                 {
@@ -21602,7 +21602,7 @@
                   "x": "Community cloud is shared by organisations with common needs.",
                   "wrong": [
                     "Two public clouds from two different providers",
-                    "Only private cloud, nothing public at all",
+                    "A private cloud hosted by a third party",
                     "A cloud with no internet, completely offline"
                   ]
                 },
@@ -21616,7 +21616,7 @@
                   "wrong": [
                     "The provider secures everything",
                     "The customer secures everything",
-                    "An insurance contract"
+                    "The customer secures the hardware; the provider secures the data and identities"
                   ]
                 },
                 {
@@ -21640,7 +21640,7 @@
                   "a": "Scaling resources up and down with demand",
                   "x": "Scalability is the ability to grow; elasticity is doing it automatically, both ways.",
                   "wrong": [
-                    "Fixed capacity, the same servers all year round",
+                    "Fixed capacity sized for the yearly peak",
                     "Manual provisioning, adding servers by hand",
                     "Data replication, copying data across regions"
                   ]
@@ -21666,7 +21666,7 @@
                   "a": "A site that caches content close to users (CDN)",
                   "x": "e.g. CloudFront, Azure Front Door, Cloud CDN.",
                   "wrong": [
-                    "A backup region",
+                    "A backup region used for disaster recovery",
                     "A private data centre",
                     "A VPN endpoint"
                   ]
@@ -22151,7 +22151,7 @@
                   "a": "Cost allocation, ownership, automation, and policy",
                   "x": "e.g. owner, environment, cost-center tags.",
                   "wrong": [
-                    "Faster performance",
+                    "Faster performance for tagged resources",
                     "Encryption",
                     "Required by TCP"
                   ]
@@ -22203,7 +22203,7 @@
                   "a": "Collaborative cloud financial management across engineering and finance",
                   "x": "Inform, optimise, operate.",
                   "wrong": [
-                    "A finance app",
+                    "A finance app that pays cloud invoices automatically",
                     "A cloud region",
                     "An audit"
                   ]
@@ -22216,7 +22216,7 @@
                   "a": "Total cost of ownership, hidden costs included",
                   "x": "Compare on-prem power, staff, and hardware refresh against cloud.",
                   "wrong": [
-                    "Monthly cloud bill only, nothing else counted",
+                    "The monthly cloud bill on its own",
                     "A support plan, paying for help from cloud engineers",
                     "Tax credits, money back from the government"
                   ]
@@ -22291,7 +22291,7 @@
                   "a": "Its route table has a route to an Internet Gateway",
                   "x": "Private subnets route outbound via a NAT gateway.",
                   "wrong": [
-                    "It has a public name",
+                    "It has a public DNS name assigned by AWS",
                     "It uses IPv6",
                     "It has no security group"
                   ]
@@ -22356,7 +22356,7 @@
                   "a": "Reaches cloud services privately without the public internet",
                   "x": "Gateway endpoints for S3/DynamoDB; interface endpoints for others.",
                   "wrong": [
-                    "Opens the VPC to the internet",
+                    "Opens the VPC to the internet through a managed gateway",
                     "Replaces IAM",
                     "Creates a subnet"
                   ]
@@ -22422,7 +22422,7 @@
                   "x": "Essential for investigations; do not contain payloads.",
                   "wrong": [
                     "Full packet captures",
-                    "API call logs",
+                    "Records of every API call made against the VPC",
                     "Application logs"
                   ]
                 }
@@ -22554,7 +22554,7 @@
                   "x": "SQS, SNS, and EventBridge decouple services.",
                   "wrong": [
                     "Tight integration",
-                    "Shared databases",
+                    "Services sharing one database so they always see the same data",
                     "Single server design"
                   ]
                 },
@@ -22606,7 +22606,7 @@
                   "x": "Canary shifts a small share of traffic first.",
                   "wrong": [
                     "Colour-coded logs",
-                    "Two regions active",
+                    "Running two regions active-active at all times",
                     "A DR test"
                   ]
                 }
@@ -22713,7 +22713,7 @@
                   "a": "A stable IP/DNS name load-balancing to a set of pods",
                   "x": "Types: ClusterIP, NodePort, LoadBalancer.",
                   "wrong": [
-                    "Storage",
+                    "Persistent storage shared by a set of pods",
                     "A container build",
                     "An image registry"
                   ]
@@ -22765,7 +22765,7 @@
                   "a": "Prevents concurrent corruption and shares state safely",
                   "x": "State can contain secrets: encrypt it and restrict access.",
                   "wrong": [
-                    "Faster plans",
+                    "Faster plans, because state is cached locally",
                     "Required by AWS",
                     "To avoid providers"
                   ]
@@ -22868,7 +22868,7 @@
                   "a": "Roles provide short-lived, automatically rotated credentials",
                   "x": "Use roles for EC2, Lambda, and CI (OIDC federation).",
                   "wrong": [
-                    "Roles are cheaper",
+                    "Roles are cheaper than IAM users with keys",
                     "Keys cannot be used in code",
                     "Roles have no permissions"
                   ]
@@ -22882,7 +22882,7 @@
                   "x": "KMS holds the master key; data keys are used locally.",
                   "wrong": [
                     "Encrypting emails",
-                    "Double AES",
+                    "Encrypting the data twice with AES, using two different master keys",
                     "Hashing twice"
                   ]
                 },
@@ -22896,7 +22896,7 @@
                   "wrong": [
                     "A pentest tool, actively attacking systems to find flaws",
                     "A cost tool, tracking cloud spending by team",
-                    "A backup service, copying data every single night"
+                    "A backup service that snapshots cloud resources"
                   ]
                 },
                 {
@@ -22933,7 +22933,7 @@
                   "a": "It requires a session token, blocking most SSRF credential theft",
                   "x": "The Capital One breach (2019) involved SSRF to instance metadata.",
                   "wrong": [
-                    "It speeds up boot",
+                    "It speeds up boot by caching instance metadata",
                     "It is cheaper",
                     "It enables IPv6"
                   ]
@@ -23068,7 +23068,7 @@
                   "x": "More control over keys, more operational responsibility.",
                   "wrong": [
                     "Bring your own keyboard",
-                    "A licensing model",
+                    "A licensing model where you bring your own software licences",
                     "A backup method"
                   ]
                 },
@@ -23120,7 +23120,7 @@
                   "x": "Use SOC 2, ISO 27001, and FedRAMP attestations.",
                   "wrong": [
                     "Customers can always audit",
-                    "Audits are illegal",
+                    "Customers can audit any provider data centre on request",
                     "Only for SaaS"
                   ]
                 },
@@ -23226,7 +23226,7 @@
                   "a": "Following one request across many services",
                   "x": "Finds the slow or failing hop.",
                   "wrong": [
-                    "Counting logs",
+                    "Counting log lines per service",
                     "Tracking costs",
                     "Mapping subnets"
                   ]
@@ -23278,7 +23278,7 @@
                   "a": "Manual, repetitive, automatable operational work",
                   "x": "Google SRE aims to keep it under 50% of time.",
                   "wrong": [
-                    "Hard engineering",
+                    "Hard engineering work on new features",
                     "On-call pay",
                     "Project planning"
                   ]
