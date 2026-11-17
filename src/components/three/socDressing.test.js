@@ -5,7 +5,7 @@ import {
   makeSign,
   makeScreen,
 } from './socDressing';
-import { CYPHER_SEAT_M, ROOM_SCALE, H_PARTITION_Y_M, V_PARTITION_X_M } from './socLayout';
+import { CYPHER_SEAT_M, ROOM_SCALE, SOC_H_PARTITION_Y_M, SOC_V_PARTITION_X_M } from './socLayout';
 
 // Minimal fake 2d context: enough for drawSign/drawScreen to run (the
 // repo has no jsdom — the dressing takes an injectable canvas factory).
@@ -73,16 +73,17 @@ describe('SOC_DRESSING', () => {
     // Cypher's plate: on the front of his desk, low, east of his chair.
     expect(cypher.zM).toBeLessThan(0.76);
     expect(cypher.x).toBeGreaterThan(CYPHER_SEAT_M.x);
-    expect(cypher.y).toBeLessThan(H_PARTITION_Y_M);
+    expect(cypher.y).toBeLessThan(SOC_H_PARTITION_Y_M);
     // Sentinel's and Patch's: on the H-wall glass (just south of it),
-    // high, above their own rooms (server room west of x 0.42, workshop east).
+    // high, above their own rooms (enlarged SOC, 2026-11-17: server room
+    // west of x 0.63, workshop east).
     for (const sign of [sentinel, patch]) {
-      expect(sign.y).toBeLessThan(H_PARTITION_Y_M);
-      expect(H_PARTITION_Y_M - sign.y).toBeLessThan(0.1);
+      expect(sign.y).toBeLessThan(SOC_H_PARTITION_Y_M);
+      expect(SOC_H_PARTITION_Y_M - sign.y).toBeLessThan(0.1);
       expect(sign.zM).toBeGreaterThan(2.0);
     }
-    expect(sentinel.x).toBeLessThan(V_PARTITION_X_M);
-    expect(patch.x).toBeGreaterThan(V_PARTITION_X_M);
+    expect(sentinel.x).toBeLessThan(SOC_V_PARTITION_X_M);
+    expect(patch.x).toBeGreaterThan(SOC_V_PARTITION_X_M);
   });
 
   it('hangs the R2C screen on the north wall, in front of it and high enough to clear the racks', () => {

@@ -23,6 +23,17 @@ export const ROOM_SCALE = 5.0;
 export const ROOM_FLOOR_HEIGHT_M = 0.17;
 export const ROOM_BOUNDS_M = { xMin: -2.43, xMax: 2.43, yMin: -2.61, yMax: 2.61, zMax: 2.7 };
 
+// The mission SOC room (public/models/soc-room.glb) since 2026-11-17 is
+// BIGGER than the data center above (Spencer: "the room is really too
+// small"): the floor plan is 1.5x (7.28 x 7.82 m) and the ceiling 3.0 m.
+// Furniture kept its real size and moved outward with the plan, and the
+// robots stay 1.70 m, so the rooms finally read as rooms around them.
+// assets/blender/soc-room/build_soc_room.py builds exactly these numbers.
+// The lesson panel still uses the data center and CYPHER_CHAIR_M.
+export const SOC_ROOM_BOUNDS_M = { xMin: -3.64, xMax: 3.64, yMin: -3.91, yMax: 3.91, zMax: 3.0 };
+export const SOC_H_PARTITION_Y_M = 0.27;
+export const SOC_V_PARTITION_X_M = 0.63;
+
 // The internal partitions (Blender metres): the horizontal wall runs at
 // y ≈ +0.18 with wide door gaps, the vertical wall at x ≈ +0.42. The
 // room is ONE merged mesh with ONE opaque material, so there is no
@@ -38,10 +49,11 @@ export const V_PARTITION_X_M = 0.42;
 // The three rooms inside the data center (Blender metres). Spencer's
 // assignment: Cypher in the desk/computer room, Patch in the workshop
 // (soldering equipment + 3D printer), Sentinel in the server room.
+// (The mission SOC's rooms, in the enlarged plan — SOC_ROOM_BOUNDS_M.)
 export const ROOMS_M = {
-  cypher: { name: 'desk room', xMin: -2.43, xMax: 2.43, yMin: -2.61, yMax: H_PARTITION_Y_M },
-  sentinel: { name: 'server room', xMin: -2.43, xMax: V_PARTITION_X_M, yMin: H_PARTITION_Y_M, yMax: 2.61 },
-  patch: { name: 'workshop', xMin: V_PARTITION_X_M, xMax: 2.43, yMin: H_PARTITION_Y_M, yMax: 2.61 },
+  cypher: { name: 'desk room', xMin: SOC_ROOM_BOUNDS_M.xMin, xMax: SOC_ROOM_BOUNDS_M.xMax, yMin: SOC_ROOM_BOUNDS_M.yMin, yMax: SOC_H_PARTITION_Y_M },
+  sentinel: { name: 'server room', xMin: SOC_ROOM_BOUNDS_M.xMin, xMax: SOC_V_PARTITION_X_M, yMin: SOC_H_PARTITION_Y_M, yMax: SOC_ROOM_BOUNDS_M.yMax },
+  patch: { name: 'workshop', xMin: SOC_V_PARTITION_X_M, xMax: SOC_ROOM_BOUNDS_M.xMax, yMin: SOC_H_PARTITION_Y_M, yMax: SOC_ROOM_BOUNDS_M.yMax },
 };
 
 // Where each robot lives (Blender metres, floor plane). Cypher works
@@ -52,13 +64,16 @@ export const ROOMS_M = {
 // WIDE camera sees him over the desk monitors (at y = -1.5 a
 // monitor blocked the view — ray-cast proved), and clear of the chair at
 // (-1.0, -1.2).
+// Spots moved outward 1.5x with the enlarged SOC plan (2026-11-17).
 export const ROBOT_SPOTS_M = {
   cypher: {
-    work: { x: -0.5, y: -1.0 },
-    patrol: { y: -0.35, xMin: -0.5, xMax: 1.2 },
+    // Legacy (Cypher sits at his desk in the SOC): a spot and patrol on
+    // the open floor south of his chair, toward the cameras.
+    work: { x: -0.6, y: -1.9 },
+    patrol: { y: -1.9, xMin: -0.6, xMax: 1.8 },
   },
-  sentinel: { work: { x: -0.3, y: 1.0 } },
-  patch: { work: { x: 1.2, y: 1.0 } },
+  sentinel: { work: { x: -0.45, y: 1.5 } },
+  patch: { work: { x: 1.8, y: 1.5 } },
 };
 
 // Cypher's chair in the desk room (Blender metres, measured from the real
@@ -75,7 +90,11 @@ export const CYPHER_CHAIR_M = { x: -1.05, y: -1.2, seatHeightM: 0.60 };
 // clear of the near monitor (top 1.14 m at x -0.75) that used to cut
 // him off — verified in Blender renders. He sits on it, facing south
 // (his desk), the whole mission: no patrol, no walk clip, no sliding.
-export const CYPHER_SEAT_M = { x: CYPHER_CHAIR_M.x - 0.15, y: CYPHER_CHAIR_M.y };
+// Since the SOC was enlarged (2026-11-17) its desk + chair group moved
+// with the plan (build_soc_room.py: shift(-0.6, +0.09)), so the SOC chair
+// is no longer the data center's CYPHER_CHAIR_M (the lesson panel's).
+export const SOC_CHAIR_M = { x: CYPHER_CHAIR_M.x - 0.6, y: CYPHER_CHAIR_M.y + 0.09, seatHeightM: 0.60 };
+export const CYPHER_SEAT_M = { x: SOC_CHAIR_M.x - 0.15, y: SOC_CHAIR_M.y };
 
 // Facing, as three.js rotationY: the models face +Z (south, toward the
 // learner) at 0; west is -PI/2, east is +PI/2.
@@ -113,10 +132,13 @@ export function robotWorkBox(key) {
 // in Cypher's desk room; R1/SRV are in Sentinel's server room. Kept clear
 // of the robots' spots and of the camera sightlines to the robots.
 export const DEVICE_POSITIONS_M = {
-  R1: { x: 0.0, y: 2.2 },
-  PC1: { x: 2.0, y: -1.5 },
-  GUEST: { x: 2.1, y: 0.0 },
-  SRV: { x: -1.4, y: 0.55 },
+  // Not shown in the SOC since 2026-11-17 (they live in the terminal's 2D
+  // topology); kept consistent with the enlarged plan (1.5x) for callers
+  // that still pass devices.
+  R1: { x: 0.0, y: 3.3 },
+  PC1: { x: 3.0, y: -2.25 },
+  GUEST: { x: 3.15, y: 0.0 },
+  SRV: { x: -2.1, y: 0.825 },
 };
 
 /** Device id -> { x, z } on the room floor, in scene units (x5). */
@@ -164,10 +186,13 @@ export function spotToScene(p, scale = ROOM_SCALE) {
 // The price is a steeper, more top-down establishing shot (32°) than
 // the concept render's level look — the height is what buys the clear
 // view over the bank. See the elevation bar in socLayout.test.js.
+// 2026-11-17: the plan grew 1.5x, so every shot's floor position and
+// target moved 1.5x outward (heights unchanged): same angles, same
+// framing logic, in the bigger room.
 export const CAMERA_SHOTS = {
-  wide: { pos: [1.5, 9, 24], target: [0, 5.5, -4] },
-  sentinel: { pos: [4, 8.5, 8], target: [-1.5, 5.5, -5] },
-  patch: { pos: [11, 8.5, 9], target: [6, 5, -5] },
+  wide: { pos: [2.25, 9, 36], target: [0, 5.5, -6] },
+  sentinel: { pos: [6, 8.5, 12], target: [-2.25, 5.5, -7.5] },
+  patch: { pos: [16.5, 8.5, 13.5], target: [9, 5, -7.5] },
 };
 
 // Cypher's shot is fixed at his chair: he sits, he never patrols in
@@ -240,10 +265,12 @@ export const DEVICE_SHOTS = {
   // R1 from inside the server room east of Sentinel, SRV from inside the
   // server room by the glass (from the desk room the monitor wall blocks
   // it), PC1 from the desk room's open floor (Cypher is far to the west).
-  PC1: { pos: [6, 5, 12], target: [10, SHOWCASE_TARGET_Y, 7.5] },
-  GUEST: { pos: [6.5, 5, 4], target: [10.5, SHOWCASE_TARGET_Y, 0] },
-  R1: { pos: [1.5, 5, -5], target: [0, SHOWCASE_TARGET_Y, -11] },
-  SRV: { pos: [-2, 5, -1], target: [-7, SHOWCASE_TARGET_Y, -2.75] },
+  // Each camera moved WITH its device in the enlarged plan (2026-11-17):
+  // same offset from the device, so the close-up framing is unchanged.
+  PC1: { pos: [11, 5, 15.75], target: [15, SHOWCASE_TARGET_Y, 11.25] },
+  GUEST: { pos: [11.75, 5, 4], target: [15.75, SHOWCASE_TARGET_Y, 0] },
+  R1: { pos: [1.5, 5, -10.5], target: [0, SHOWCASE_TARGET_Y, -16.5] },
+  SRV: { pos: [-5.5, 5, -2.375], target: [-10.5, SHOWCASE_TARGET_Y, -4.125] },
 };
 
 /** The showcase camera for a device id (falls back to wide). */

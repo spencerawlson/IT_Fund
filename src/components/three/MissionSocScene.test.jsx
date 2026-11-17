@@ -33,16 +33,16 @@ describe('socPositions', () => {
   });
 
   it('maps the devices into the data-center room, clear of the robots', () => {
-    // The room is 4.85 x 5.21 m at 5.0x scale (x ±12.1, z ±13.0 units);
-    // every device sits on its free floor, at least 0.95 m (4.75 units)
-    // from every robot, so no device crowds a presenter.
+    // The enlarged SOC (2026-11-17) is 7.28 x 7.82 m at 5.0x scale
+    // (x ±18.2, z ±19.55 units); every device position sits on its free
+    // floor, at least 0.95 m (4.75 units) from every robot.
     const pos = socPositions();
     const spawns = [CYPHER_SPAWN, SENTINEL_SPAWN, PATCH_SPAWN];
     for (const [id, p] of Object.entries(pos)) {
-      expect(p.x).toBeGreaterThan(-12);
-      expect(p.x).toBeLessThan(12);
-      expect(p.z).toBeGreaterThan(-13);
-      expect(p.z).toBeLessThan(13);
+      expect(p.x).toBeGreaterThan(-18.2);
+      expect(p.x).toBeLessThan(18.2);
+      expect(p.z).toBeGreaterThan(-19.55);
+      expect(p.z).toBeLessThan(19.55);
       for (const s of spawns) {
         const distM = Math.hypot(p.x - s.x, p.z - s.z) / 5.0;
         expect(distM).toBeGreaterThanOrEqual(0.95);
@@ -174,8 +174,9 @@ describe('robot spawns', () => {
     // 5.0 lifts the real-scale 1.70 m model so he reads beside the
     // 4-unit devices; rotationY 0 faces him south, toward the learner.
     expect(CYPHER_SPAWN).toEqual({ ...spotToScene(CYPHER_SEAT_M), scale: 5.0, rotationY: 0 });
-    expect(CYPHER_SPAWN.x).toBe(-6);
-    expect(CYPHER_SPAWN.z).toBe(6);
+    // Enlarged SOC (2026-11-17): seat (-1.80, -1.11) m -> (-9, 5.55) units.
+    expect(CYPHER_SPAWN.x).toBeCloseTo(-9, 5);
+    expect(CYPHER_SPAWN.z).toBeCloseTo(5.55, 5);
   });
 
   it('places Sentinel at the racks facing west, Patch at the bench facing east', () => {
