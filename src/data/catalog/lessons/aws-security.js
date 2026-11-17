@@ -34,6 +34,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Read a GuardDuty finding',
+        code: 'Type:      UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS\nSeverity:  High\nResource:  role/web-ec2-role, instance i-0abc123\nDetail:    credentials issued to this instance were used from 203.0.113.50\nAction:    revoke role sessions, rotate, investigate the instance (SSRF?)',
+        explanation: 'Instance-role credentials used from outside AWS usually mean they were stolen, often via SSRF to the metadata service. IMDSv2 makes that much harder.',
+      },
+    ],
     cheatSheet: [
       ['GuardDuty', 'Agentless ML threat detection over CloudTrail, VPC Flow Logs, DNS logs; regional, enable everywhere via delegated admin.'],
       ['Protection plans', 'S3, EBS malware, RDS, Lambda, EKS — enabled and billed separately from foundational detection.'],
@@ -79,6 +86,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Organisation trail to a locked bucket',
+        code: 'aws cloudtrail create-trail --name org-trail \\\n  --s3-bucket-name org-cloudtrail-logs \\\n  --is-organization-trail --is-multi-region-trail \\\n  --enable-log-file-validation \\\n  --kms-key-id alias/cloudtrail\naws cloudtrail start-logging --name org-trail',
+        explanation: 'One trail covers every account and Region; log file validation detects tampering. Keep the bucket in a separate log-archive account with Object Lock.',
+      },
+    ],
     cheatSheet: [
       ['Management vs data events', 'Control-plane API calls (free, default) vs data-plane calls like S3 object access (billed per event, enable selectively).'],
       ['Organization trail', 'Logs all regions and member accounts to one central bucket; covers future regions automatically.'],
@@ -114,6 +128,13 @@ export default {
           'MFA protects against credential theft: a stolen password alone no longer suffices. Enforce it for console access and especially for privileged role assumption — a trust policy condition on aws:MultiFactorAuthPresent makes MFA a gate before any session begins. And the root user deserves special handling: no IAM policy or SCP can limit it, so lock it with MFA, never use it for daily work, and alarm on any root API activity at all. Root usage should be rare enough that every occurrence is worth a page.',
           'Hygiene is a practice, not a project. The IAM credential report shows password and key age, MFA status, and last-used timestamps for every user — the fastest way to find stale keys and MFA-less accounts. IAM Access Analyzer goes further, identifying unused permissions and generating policies from actual CloudTrail activity so you can rightsize toward least privilege based on observed behaviour instead of guesses. And before deploying any policy change, run it through the IAM Policy Simulator: it answers "would this allow or deny that action" without touching production.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'How AWS evaluates a request',
+        code: '1. Explicit Deny anywhere (SCP, RCP, boundary, identity, resource)?  -> DENY\n2. SCPs / RCPs allow it?                       no -> DENY\n3. Resource-based policy allows it?            yes -> ALLOW (same account)\n4. Permissions boundary allows it?             no -> DENY\n5. Session policy allows it?                   no -> DENY\n6. Identity-based policy allows it?            yes -> ALLOW, else implicit DENY',
+        explanation: 'An explicit Deny always wins; everything else must be allowed at every layer that applies. This order explains most \'why is this denied?\' puzzles.',
       },
     ],
     cheatSheet: [
@@ -154,6 +175,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Isolate a compromised EC2 instance',
+        code: 'aws ec2 modify-instance-attribute --instance-id i-0abc123 \\\n  --groups sg-isolation                      # no inbound/outbound rules\naws ec2 create-snapshot --volume-id vol-0def456 \\\n  --description \'IR-2026-07 evidence\'\naws autoscaling detach-instances --instance-ids i-0abc123 \\\n  --auto-scaling-group-name web-asg --should-decrement-desired-capacity',
+        explanation: 'Swap to an isolation security group, snapshot the volumes for forensics and detach from the ASG so it is not terminated. Existing tracked connections may persist, so add a NACL deny if needed.',
+      },
+    ],
     cheatSheet: [
       ['IR order', 'Detect and scope, contain, collect forensics, eradicate, recover, lessons learned.'],
       ['Containment', 'Swap to a deny-all security group; isolate before eradicating.'],
@@ -190,6 +218,13 @@ export default {
           'Monitoring closes the loop when a detection triggers action. A Config rule flags the bucket policy that just went non-compliant; EventBridge catches the compliance-change event and routes it to SNS or a Lambda that remediates. That detect-notify-remediate chain — Config rule plus EventBridge plus response — is the exam\'s standard answer for near-real-time drift detection, whether the drift is an S3 policy, an unencrypted volume, or a security group someone opened to the world.',
           'Cost discipline belongs in the design. Data events are high-volume and billed per event, so enable them on sensitive resources rather than everywhere. Management events already cover the control plane for free. And when retention is about audit rather than investigation, Glacier-class storage behind lifecycle policies beats any queryable store on price.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Alarm on root account use',
+        code: 'Metric filter on CloudTrail log group:\n{ $.userIdentity.type = "Root" && $.userIdentity.invokedBy NOT EXISTS && $.eventType != "AwsServiceEvent" }\n\nMetric: RootUsageCount   Alarm: >= 1 in 5 min -> SNS security-alerts',
+        explanation: 'Root should almost never be used. This CIS AWS Foundations check turns any root activity into an immediate alert.',
       },
     ],
     cheatSheet: [
@@ -230,6 +265,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Private access to S3 with a VPC endpoint',
+        code: 'Route table (private subnet):  pl-s3-prefix-list -> vpce-0123 (gateway endpoint)\n\nBucket policy condition:\n"Condition": { "StringNotEquals": { "aws:SourceVpce": "vpce-0123" } }\n-> with Effect: Deny, the bucket is reachable only through that endpoint',
+        explanation: 'Traffic stays on the AWS network with no NAT gateway, and the bucket rejects requests from anywhere else.',
+      },
+    ],
     cheatSheet: [
       ['Security groups', 'Stateful, allow-only; return traffic automatic; reference peer SGs by ID.'],
       ['NACLs', 'Stateless, allow and deny; evaluated ascending by rule number, first match wins.'],
@@ -266,6 +308,13 @@ export default {
           'Machine identities deserve the same zero-secret treatment. CI/CD pipelines should authenticate to AWS through OIDC federation — GitHub Actions assuming a short-lived role, for example — so there are no static access keys to rotate, leak, or find in a repository six months later.',
           'Two more advanced controls round out the picture. The aws:PrincipalOrgID condition key restricts a resource policy to callers inside your organization — a data-perimeter guardrail that blocks exfiltration to external accounts even when credentials leak. And KMS is the service where key policies rule: cross-account decryption requires the key policy to explicitly allow the external account, because KMS defaults to key-policy authority in a way most services do not.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Permissions boundary for delegated admins',
+        code: 'Developers may create roles only if they attach this boundary:\n"Condition": { "StringEquals": {\n  "iam:PermissionsBoundary": "arn:aws:iam::111122223333:policy/dev-boundary" } }\n\ndev-boundary allows: s3, dynamodb, lambda, logs\nEffective permissions = identity policy AND boundary',
+        explanation: 'Developers can create roles for their apps without being able to grant more than the boundary allows, so no privilege escalation.',
       },
     ],
     cheatSheet: [
@@ -306,6 +355,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'KMS key policy separating admins and users',
+        code: 'Statement 1  Principal: role/KeyAdmins   Actions: kms:Create*, kms:Describe*, kms:Enable*, kms:Put*, kms:ScheduleKeyDeletion ...\nStatement 2  Principal: role/AppRole     Actions: kms:Encrypt, kms:Decrypt, kms:GenerateDataKey*\n(no principal gets both)',
+        explanation: 'Key administrators can manage the key but not use it to decrypt data, and the app can use it but not change it: separation of duties.',
+      },
+    ],
     cheatSheet: [
       ['Customer managed keys', 'You control policy, rotation, audit — the exam answer for regulated data.'],
       ['KMS key policy', 'Primary gate; cross-account use requires the key policy to allow it.'],
@@ -344,6 +400,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Require IMDSv2',
+        code: 'aws ec2 modify-instance-metadata-options --instance-id i-0abc123 \\\n  --http-tokens required --http-put-response-hop-limit 1\n\n# IMDSv2 call needs a session token first:\nTOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token \\\n  -H \'X-aws-ec2-metadata-token-ttl-seconds: 300\')\ncurl -s -H "X-aws-ec2-metadata-token: $TOKEN" \\\n  http://169.254.169.254/latest/meta-data/iam/security-credentials/',
+        explanation: 'The PUT-for-token step and hop limit of 1 defeat most SSRF attacks that tried to read instance credentials through IMDSv1.',
+      },
+    ],
     cheatSheet: [
       ['Inspector', 'Vulnerability and network-reachability assessment for EC2, ECR images, Lambda code.'],
       ['GuardDuty vs Inspector', 'GuardDuty finds active malicious behaviour; Inspector finds patchable CVEs.'],
@@ -380,6 +443,13 @@ export default {
           'Governance needs a written baseline to automate against: the required SCPs, Config rules, logging destinations, encryption defaults, and network patterns, codified and enforced rather than documented and hoped for. A tagging strategy belongs in that baseline and enforced by policy, because SCPs, Config rules, cost allocation, and finding routing all key off consistent tags — untagged resources escape governance entirely.',
           'During an incident, the architecture pays for itself: cross-account CloudTrail is queried from the log archive account with Athena or CloudTrail Lake over the centralised bucket — one query surface for every account. Findings route automatically through Security Hub custom insights and EventBridge rules, directed by account, severity, and resource tags to the owning team\'s channel. And the minimum audit trail an SCS-C03 architect should design for is explicit: organization-wide CloudTrail with log validation to a locked archive, Config recording everywhere, and at least a year of retention. You cannot investigate what you did not record.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'SCP that blocks leaving the organisation and unused Regions',
+        code: '{\n  "Version": "2012-10-17",\n  "Statement": [\n    { "Effect": "Deny", "Action": "organizations:LeaveOrganization", "Resource": "*" },\n    { "Effect": "Deny", "NotAction": ["iam:*", "sts:*", "organizations:*", "support:*"],\n      "Resource": "*",\n      "Condition": { "StringNotEquals": { "aws:RequestedRegion": ["eu-west-1", "us-east-1"] } } }\n  ]\n}',
+        explanation: 'SCPs set the maximum permissions for every member account, including its root user. Global services are excluded so the Region guardrail does not break IAM.',
       },
     ],
     cheatSheet: [

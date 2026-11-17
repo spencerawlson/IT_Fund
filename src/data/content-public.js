@@ -23888,6 +23888,13 @@ export const freeLessonContent = {
         ]
       }
     ],
+    "examples": [
+      {
+        "title": "Who manages what",
+        "code": "Layer           On-prem  IaaS      PaaS      SaaS\n--------------  -------  --------  --------  --------\nData & access   You      You       You       You\nApplication     You      You       You       Provider\nRuntime / OS    You      You       Provider  Provider\nVirtualisation  You      Provider  Provider  Provider\nHardware        You      Provider  Provider  Provider",
+        "explanation": "Each step from IaaS to SaaS hands more layers to the provider, but your data and who can access it are always yours."
+      }
+    ],
     "cheatSheet": [
       [
         "NIST 800-145",

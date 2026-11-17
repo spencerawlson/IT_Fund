@@ -16,7 +16,7 @@ const BASELINE = {
   'card-answer-length-giveaway': 16,
   'card-padded-distractor': 5,
   'card-colon-restatement': 0,
-  'lesson-no-examples': 93,
+  'lesson-no-examples': 62,
   'cross-track-duplicate-reworded': 47,
   'deck-no-sources': 0,
   'near-duplicate-question': 7,
