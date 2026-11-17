@@ -55,10 +55,10 @@ describe('Landing primary CTA (R-11)', () => {
 });
 
 describe('Landing navigation (audit F-05)', () => {
-  it('links to /pricing from the header and the footer', () => {
+  it('links to /pricing from the footer only — the header was trimmed for simplicity', () => {
     const html = renderLanding();
     const pricingLinks = html.match(/href="\/pricing"/g) || [];
-    expect(pricingLinks.length).toBeGreaterThanOrEqual(2);
+    expect(pricingLinks).toHaveLength(1);
     expect(html).toContain('Pricing');
   });
 
@@ -71,6 +71,56 @@ describe('Landing navigation (audit F-05)', () => {
   it('offers a Cookie settings control in the footer (R-04)', () => {
     const html = renderLanding();
     expect(html).toContain('Cookie settings');
+  });
+});
+
+describe('Landing simple structure (skillsbuild-style)', () => {
+  it('keeps the hero H1 and both CTAs', () => {
+    const html = renderLanding();
+    expect(html).toContain('Learn IT by doing it — all the way to CISSP.');
+    expect(html).toContain('Start learning free');
+    expect(html).toContain('Try a lab');
+    // Eyebrow and signup note removed (the closing band carries the sign-in copy).
+    expect(html).not.toContain('IT fundamentals → cloud expert');
+    expect(html).not.toContain('Sign up with Google or GitHub — no password needed.');
+  });
+
+  it('keeps the header to logo + Sign in + Create free account', () => {
+    const html = renderLanding();
+    const header = (html.match(/<header[\s\S]*?<\/header>/) || [])[0] || '';
+    expect(header).toContain('Road to CISSP');
+    expect(header).toContain('Sign in');
+    expect(header).toContain('Create free account');
+    expect(header).not.toContain('href="/labs"');
+    expect(header).not.toContain('href="/pricing"');
+  });
+
+  it('shows the proof as one line, not a stats grid', () => {
+    const html = renderLanding();
+    expect(html).not.toContain('aria-label="Highlights"');
+    expect(html).toContain('flashcards ·');
+    expect(html).toContain('hands-on labs ·');
+    expect(html).toContain('8 CISSP domains ·');
+    expect(html).toContain('5 timed exam simulators');
+  });
+
+  it('keeps all 7 certs on the road', () => {
+    const html = renderLanding();
+    for (const code of ['SY0-701', 'N10-009', 'Linux+', 'CS0-003', 'SAA-C03', 'SCS-C02', 'CISSP']) {
+      expect(html).toContain(code);
+    }
+    expect(html).toContain('Plus skills tracks:');
+  });
+
+  it("has the Who it's for cards and no features grid, how-it-works, or testimonials", () => {
+    const html = renderLanding();
+    expect(html).toContain('Who it&#x27;s for'); // React SSR escapes the apostrophe
+    expect(html).toContain('Starting out');
+    expect(html).toContain('Working in IT');
+    expect(html).toContain('Switching careers');
+    expect(html).not.toContain('Everything you need, in one place');
+    expect(html).not.toContain('How it works');
+    expect(html).not.toContain('Real stories');
   });
 });
 
