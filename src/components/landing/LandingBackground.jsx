@@ -107,31 +107,39 @@ export default function LandingBackground({ className = '' }) {
         style={{ background: 'radial-gradient(circle, rgba(14,165,164,0.18), rgba(14,165,164,0) 70%)' }}
       />
 
-      {/* scattered line-art IT devices */}
-      {SCATTER.map(({ type, top, left, size, color, opacity, rot }, i) => (
-        <svg
-          key={`${type}-${i}`}
-          className="absolute"
-          style={{
-            top: `${top}%`,
-            left: `${left}%`,
-            width: size,
-            height: size,
-            color,
-            opacity,
-            transform: `translate(-50%, -50%) rotate(${rot}deg)`,
-          }}
-          viewBox="-26 -26 52 52"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <Glyph type={type} />
-        </svg>
-      ))}
+      {/* scattered line-art IT devices — blurred so the outlines read as
+          soft texture, not crisp lines. The blur lives on this one wrapper,
+          not on each glyph. */}
+      <div
+        className="absolute inset-0"
+        style={{ filter: 'blur(2px)' }}
+        data-testid="landing-glyphs"
+      >
+        {SCATTER.map(({ type, top, left, size, color, opacity, rot }, i) => (
+          <svg
+            key={`${type}-${i}`}
+            className="absolute"
+            style={{
+              top: `${top}%`,
+              left: `${left}%`,
+              width: size,
+              height: size,
+              color,
+              opacity,
+              transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+            }}
+            viewBox="-26 -26 52 52"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <Glyph type={type} />
+          </svg>
+        ))}
+      </div>
     </div>
   );
 }
