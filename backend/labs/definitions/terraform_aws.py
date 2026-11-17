@@ -1,18 +1,25 @@
 """Terraform for AWS lab: author real HCL and watch it become infrastructure.
 
 Unlike terraform-fundamentals-001 (fixed scenario), here the student writes every
-.tf file with `write <file> '<hcl>'`. The extended terraform_cli shell parses
-resource/variable/output/provider/data/module/backend blocks out of the written
-files and simulates init -> validate -> plan -> apply -> state/outputs against
-them. Nothing is executed and nothing is provisioned.
+.tf file with `write <file> '<hcl>'` — in the container, `write` is a helper
+shipped in the iac image (the terminal runs commands directly, so redirects
+and heredocs do not work there). The lab runs for real in the
+road-to-cissp/iac container: `init`, `validate` and `plan` execute against
+the offline provider mirror with the offline skip stanza. The sandbox has
+no AWS API access, so the capstone stops at a saved, reviewed plan
+(`plan -out=tfplan`) — exactly where a careful engineer reviews before
+touching real infrastructure. Nothing is provisioned.
 
 Every objective teaches HCL thoroughly: the description shows the exact code to
 write with line-by-line explanations of the syntax, not just the commands.
 
 Validators are defined in this module via the shared @validator decorator, so
 importing it registers them in VALIDATORS before registry.py checks objective
-references. Validators read the student's written files (findings['tfa_files']),
-not command history.
+references. Each validator accepts two evidence paths: the Docker attestation
+(`{<validator>: {"attested": true}}`, recorded when the learner presses
+"I did this" after doing the real work in the container) or the file-content
+checks against the student's written files (findings['tfa_files']), which the
+mock shell and the tests use.
 """
 from __future__ import annotations
 
@@ -34,12 +41,40 @@ def _has(pattern, findings):
     return bool(re.search(pattern, _all_hcl(findings)))
 
 
+def _detail(name, findings):
+    """Attestation payload for validator `name`, or None if not attested.
+
+    Docker labs run real commands in the container and return no findings,
+    so the learner presses "I did this" on each objective after doing the
+    real work; the workspace records `{<validator>: {"attested": true}}`.
+    Only a dict payload counts as attestation: the mock shell also sets
+    plain-boolean findings under some validator names (e.g. the
+    `tfa_backend_configured` flag from `terraform init`), and those must
+    fall through to the file-content checks below.
+    """
+    state = findings.get(name)
+    if not isinstance(state, dict):
+        return None
+    return state
+
+
+# The offline skip stanza the provider block must carry for `plan` to run
+# with no AWS API in the sandbox (same stanza as the iac image seed).
+_OFFLINE_SKIP_FLAGS = (
+    'skip_credentials_validation',
+    'skip_metadata_api_check',
+    'skip_requesting_account_id',
+)
+
+
 # ---------------------------------------------------------------------------
 # validators (outcome-based: they read the student's written .tf files)
 # ---------------------------------------------------------------------------
 
 @validator("tfa_provider_configured")
 def tfa_provider_configured(args, findings):
+    if _detail("tfa_provider_configured", findings) is not None:
+        return True, "AWS provider configured with a pinned version and the offline skip stanza (attested).", None
     hcl = _all_hcl(findings)
     missing = []
     if not re.search(r'provider\s+"aws"', hcl):
@@ -48,13 +83,18 @@ def tfa_provider_configured(args, findings):
         missing.append('a required_providers block pinning the AWS provider version')
     if not re.search(r'hashicorp/aws', hcl):
         missing.append('source = "hashicorp/aws" in required_providers')
+    for flag in _OFFLINE_SKIP_FLAGS:
+        if flag not in hcl:
+            missing.append(f'{flag} = true (offline skip stanza — without it, plan tries to validate the dummy credentials against AWS)')
     if not missing:
-        return True, "AWS provider configured with a pinned version.", None
+        return True, "AWS provider configured with a pinned version and the offline skip stanza.", None
     return False, f"provider.tf still needs: {', '.join(missing)}.", None
 
 
 @validator("tfa_vpc_defined")
 def tfa_vpc_defined(args, findings):
+    if _detail("tfa_vpc_defined", findings) is not None:
+        return True, "VPC with 2 subnets defined and linked (attested).", None
     hcl = _all_hcl(findings)
     if not re.search(r'resource\s+"aws_vpc"', hcl):
         return False, 'No resource "aws_vpc" block found. Define the VPC first.', None
@@ -68,6 +108,8 @@ def tfa_vpc_defined(args, findings):
 
 @validator("tfa_ec2_defined")
 def tfa_ec2_defined(args, findings):
+    if _detail("tfa_ec2_defined", findings) is not None:
+        return True, "EC2 instance with user_data and security group defined (attested).", None
     hcl = _all_hcl(findings)
     if not re.search(r'resource\s+"aws_instance"', hcl):
         return False, 'No resource "aws_instance" block found.', None
@@ -85,6 +127,8 @@ def tfa_ec2_defined(args, findings):
 
 @validator("tfa_variables_iam")
 def tfa_variables_iam(args, findings):
+    if _detail("tfa_variables_iam", findings) is not None:
+        return True, "Variables declared and referenced; S3 bucket and IAM role defined (attested).", None
     hcl = _all_hcl(findings)
     missing = []
     if not re.search(r'variable\s+"', hcl):
@@ -103,6 +147,8 @@ def tfa_variables_iam(args, findings):
 
 @validator("tfa_rds_outputs")
 def tfa_rds_outputs(args, findings):
+    if _detail("tfa_rds_outputs", findings) is not None:
+        return True, "RDS instance defined and outputs exposing its attributes (attested).", None
     hcl = _all_hcl(findings)
     if not re.search(r'resource\s+"aws_db_instance"', hcl):
         return False, 'No resource "aws_db_instance" block found.', None
@@ -116,6 +162,8 @@ def tfa_rds_outputs(args, findings):
 
 @validator("tfa_module_defined")
 def tfa_module_defined(args, findings):
+    if _detail("tfa_module_defined", findings) is not None:
+        return True, "Module wired with a source (attested).", None
     hcl = _all_hcl(findings)
     m = re.search(r'module\s+"([^"]+)"\s*\{([^}]*)\}', hcl, re.S)
     if not m:
@@ -128,6 +176,8 @@ def tfa_module_defined(args, findings):
 
 @validator("tfa_backend_configured")
 def tfa_backend_configured(args, findings):
+    if _detail("tfa_backend_configured", findings) is not None:
+        return True, "Remote S3 backend configured for shared state (attested).", None
     if not findings.get('tfa_backend_configured'):
         # also accept it purely from file content (student may not have re-run init)
         if not re.search(r'backend\s+"s3"', _all_hcl(findings)):
@@ -136,11 +186,16 @@ def tfa_backend_configured(args, findings):
     for arg in ('bucket', 'key', 'region'):
         if not re.search(rf'{arg}\s*=', hcl):
             return False, f'S3 backend needs a {arg} argument.', None
+    for flag in _OFFLINE_SKIP_FLAGS:
+        if flag not in hcl:
+            return False, f'S3 backend needs {flag} = true (offline skip stanza — without it, init tries to validate against AWS).', None
     return True, "Remote S3 backend configured for shared state.", None
 
 
 @validator("tfa_workspace_used")
 def tfa_workspace_used(args, findings):
+    if _detail("tfa_workspace_used", findings) is not None:
+        return True, "Workspace created and used in configuration (attested).", None
     if not findings.get('tfa_workspace_created'):
         return False, 'Create a workspace first: terraform workspace new <name>.', None
     if not re.search(r'terraform\.workspace', _all_hcl(findings)):
@@ -150,6 +205,8 @@ def tfa_workspace_used(args, findings):
 
 @validator("tfa_data_source")
 def tfa_data_source(args, findings):
+    if _detail("tfa_data_source", findings) is not None:
+        return True, "Data source reads existing infrastructure (attested).", None
     m = re.search(r'data\s+"([^"]+)"\s+"([^"]+)"', _all_hcl(findings))
     if not m:
         return False, 'No data block found. Add e.g. data "aws_ami" "ubuntu" { ... }.', None
@@ -158,6 +215,8 @@ def tfa_data_source(args, findings):
 
 @validator("tfa_capstone")
 def tfa_capstone(args, findings):
+    if _detail("tfa_capstone", findings) is not None:
+        return True, "Three-tier architecture (ALB -> ASG -> RDS) defined and plan reviewed (attested).", None
     hcl = _all_hcl(findings)
     missing = []
     for rtype, label in (
@@ -169,9 +228,9 @@ def tfa_capstone(args, findings):
             missing.append(label)
     if missing:
         return False, f"Three-tier capstone still needs: {', '.join(missing)}.", None
-    if not findings.get('tfa_applied'):
-        return False, 'Configuration complete — now provision it: terraform apply.', None
-    return True, "Three-tier architecture (ALB -> ASG -> RDS) defined and applied.", None
+    if not findings.get('tfa_plan_saved'):
+        return False, 'Configuration complete — now save and review the plan: terraform plan -out=tfplan. (No AWS API in the sandbox: the capstone stops at the reviewed plan, never a live apply.)', None
+    return True, "Three-tier architecture (ALB -> ASG -> RDS) defined and plan saved for review.", None
 
 
 # ---------------------------------------------------------------------------
@@ -185,15 +244,22 @@ TERRAFORM_AWS_LAB = LabDefinition(
     description=(
         "Author production-style Terraform for AWS from scratch: provider setup, VPC and "
         "subnets, EC2 with user_data, variables with S3 and IAM, RDS with outputs, reusable "
-        "modules, S3 remote state, workspaces, data sources, and a three-tier ALB/ASG/RDS "
-        "capstone. Every step teaches the HCL syntax line by line — you write every file."
+        "modules, workspaces, S3 remote state, data sources, and a three-tier ALB/ASG/RDS "
+        "capstone. Every step teaches the HCL syntax line by line — you write every file. "
+        "The sandbox has no AWS API access, so the capstone stops at a saved, reviewed "
+        "plan — exactly where a careful engineer reviews before touching real infrastructure."
     ),
     category="devops",  # type: ignore[assignment]
     difficulty="intermediate",
     estimated_minutes=90,
     shell="terraform_cli",
     environment=LabEnvironmentConfig(
-        provider="mock",
+        # Docker image road-to-cissp/iac is published on FedServ: real terraform 1.9.8
+        # + tfsec with an offline provider mirror. init/validate/plan run for real;
+        # there is no AWS API in the sandbox, so the capstone is framed around the
+        # saved plan (the honest boundary). Objectives are validated by attestation
+        # ("I did this") after the learner does the real work in the container.
+        provider="docker",
         image="road-to-cissp/iac:latest",
         workdir="/home/student/aws-infra",
         idle_timeout_minutes=20,
@@ -220,20 +286,30 @@ TERRAFORM_AWS_LAB = LabDefinition(
                 '  }\n\n'
                 '  provider "aws" {\n'
                 '    region = "us-east-1"                # every resource inherits this region\n'
+                '    access_key                  = "lab"  # dummy lab values — never real keys\n'
+                '    secret_key                  = "lab"\n'
+                '    skip_credentials_validation = true   # offline sandbox: do not phone AWS\n'
+                '    skip_metadata_api_check     = true   # to validate these dummy credentials\n'
+                '    skip_requesting_account_id  = true\n'
                 '  }\n\n'
                 "HOW IT WORKS: the `terraform {}` block is meta-configuration — it configures "
                 "Terraform itself, not cloud resources. `required_providers` maps the local name "
                 "`aws` to the real plugin `hashicorp/aws` so `terraform init` knows what to "
                 "download. The `provider \"aws\"` block configures that plugin (region, and in "
                 "real life, credentials). Version pinning (`~> 5.0`) prevents a future major "
-                "release from silently breaking your code.\n\n"
+                "release from silently breaking your code. The three `skip_*` flags are the "
+                "offline-lab stanza: this sandbox has no AWS API access, so the provider is "
+                "told not to validate the dummy credentials against AWS — without them, "
+                "`terraform plan` would try to phone home and fail. The `lab` / `lab` values "
+                "are dummies; real code takes credentials from environment variables or IAM "
+                "roles, never hardcoded keys.\n\n"
                 "Write it with: write provider.tf '<the HCL above>' — then run terraform init "
                 "to download the provider and terraform validate to check the syntax."
             ),
             hints=[
                 "write provider.tf '...' — paste the HCL from the description between the quotes.",
                 "terraform init downloads the AWS provider; terraform validate checks your syntax.",
-                "The validator wants: provider \"aws\", required_providers, and hashicorp/aws.",
+                "The validator wants: provider \"aws\", required_providers, hashicorp/aws — plus the three skip_* flags.",
             ],
         ),
         LabObjective(
@@ -432,8 +508,8 @@ TERRAFORM_AWS_LAB = LabDefinition(
             description=(
                 "Copy-paste doesn't scale — MODULES package reusable infrastructure. A module "
                 "is just a directory with .tf files; you CALL it with a `module` block:\n\n"
-                "  # modules/vpc/main.tf  (the REUSABLE unit — write with write modules-vpc.tf\n"
-                "  # in this lab, or just reference the pattern)\n"
+                "  # modules/vpc/main.tf  (the REUSABLE unit — write it first with:\n"
+                "  #   write modules/vpc/main.tf '<the HCL below>')\n"
                 '  variable "vpc_cidr" { type = string }\n'
                 '  variable "azs"      { type = list(string) }\n\n'
                 '  resource "aws_vpc" "this" {\n'
@@ -458,48 +534,19 @@ TERRAFORM_AWS_LAB = LabDefinition(
                 "git URL (`git::https://...//modules/vpc?ref=v1.2.0` — PIN the ref!), or a "
                 "public registry address (`terraform-aws-modules/vpc/aws`). Modules are how "
                 "teams standardize: one reviewed VPC module, used by fifty services.\n\n"
-                "For this lab, add a module block calling ./modules/vpc to main.tf (the "
-                "simulated shell accepts the pattern; in real life you'd create the "
-                "modules/vpc/ directory too)."
+                "For this lab, create the module for real, then call it:\n\n"
+                "  1. Write the module itself: write modules/vpc/main.tf '<the module HCL above>'\n"
+                "     (write creates parent directories as needed)\n"
+                "  2. Add the module block calling ./modules/vpc to main.tf\n"
+                "  3. Run terraform init (installs the local module) and terraform validate.\n\n"
+                "In real life the module directory is a reviewed, versioned unit — the same "
+                "pattern, with the source pinned to a git ref or registry version."
             ),
             hints=[
-                'Add: module "network" { source = "./modules/vpc" ... } with vpc_cidr and azs inputs.',
+                'First write the module: write modules/vpc/main.tf \'...\' with the vpc_cidr/azs variables, the VPC, and the vpc_id output.',
+                'Then add: module "network" { source = "./modules/vpc" ... } with vpc_cidr and azs inputs.',
                 "Module inputs are assigned exactly like resource arguments.",
-                "terraform validate to confirm the module block parses.",
-            ],
-        ),
-        LabObjective(
-            id="remote-state",
-            label="Configure S3 remote state",
-            validator="tfa_backend_configured",
-            description=(
-                "Local terraform.tfstate doesn't survive laptops or teams — BACKENDS store "
-                "state remotely. Add to provider.tf (or a backend.tf):\n\n"
-                "  terraform {\n"
-                '    required_version = ">= 1.5"\n'
-                "    # ... required_providers stays ...\n"
-                '    backend "s3" {\n'
-                '      bucket         = "lab-terraform-state-001"  # must already exist\n'
-                '      key            = "lab/aws-infra.tfstate"    # path INSIDE the bucket\n'
-                '      region         = "us-east-1"\n'
-                '      dynamodb_table = "lab-tf-locks"              # STATE LOCKING table\n'
-                '      encrypt        = true                       # SSE for the state file\n'
-                '    }\n'
-                "  }\n\n"
-                "HOW IT WORKS: `backend \"s3\"` tells Terraform: don't write terraform.tfstate "
-                "locally — PUT it at s3://bucket/key instead. `key` is just an object path, so "
-                "teams use one bucket with many keys (one per project/environment). "
-                "`dynamodb_table` enables STATE LOCKING: before any plan/apply, Terraform "
-                "writes a lock row; if a teammate runs apply simultaneously, they get "
-                "\"Error: state locked\" instead of corrupting state. `encrypt = true` turns on "
-                "server-side encryption — critical because state contains secrets in plaintext "
-                "(remember `sensitive` only hides console output!). Run terraform init again "
-                "after adding a backend — init is what configures it."
-            ),
-            hints=[
-                'Add the backend "s3" block inside the terraform {} block in provider.tf.',
-                "bucket, key, region, dynamodb_table, encrypt — all five.",
-                "Run terraform init again — backends are initialized, not just validated.",
+                "terraform init installs the local module; terraform validate confirms the module block parses.",
             ],
         ),
         LabObjective(
@@ -528,8 +575,8 @@ TERRAFORM_AWS_LAB = LabDefinition(
                 "HOW IT WORKS: `terraform.workspace` is a built-in variable holding the current "
                 "workspace name (\"default\" until you create others). `lookup(map, key, default)` "
                 "returns `map[key]` or the fallback — so the SAME config provisions t3.micro in "
-                "dev and t3.medium in prod, with SEPARATE state files per workspace (with the S3 "
-                "backend: s3://bucket/lab/aws-infra.tfstate becomes "
+                "dev and t3.medium in prod, with SEPARATE state files per workspace (once you "
+                "add the S3 backend in the next objective, the state path becomes "
                 "s3://bucket/lab/env:/prod/aws-infra.tfstate). Commands: `terraform workspace "
                 "new prod`, `terraform workspace list`, `terraform workspace select dev`.\n\n"
                 "Do: terraform workspace new prod — then add the lookup() line to main.tf."
@@ -538,6 +585,48 @@ TERRAFORM_AWS_LAB = LabDefinition(
                 "terraform workspace new prod — then reference terraform.workspace in main.tf.",
                 "lookup(var.instance_types, terraform.workspace, \"t3.micro\") is the pattern.",
                 "Tags with Environment = terraform.workspace make resources self-labeling.",
+            ],
+        ),
+        LabObjective(
+            id="remote-state",
+            label="Configure S3 remote state",
+            validator="tfa_backend_configured",
+            description=(
+                "Local terraform.tfstate doesn't survive laptops or teams — BACKENDS store "
+                "state remotely. Add to provider.tf (or a backend.tf):\n\n"
+                "  terraform {\n"
+                '    required_version = ">= 1.5"\n'
+                "    # ... required_providers stays ...\n"
+                '    backend "s3" {\n'
+                '      bucket         = "lab-terraform-state-001"  # must already exist\n'
+                '      key            = "lab/aws-infra.tfstate"    # path INSIDE the bucket\n'
+                '      region         = "us-east-1"\n'
+                '      dynamodb_table = "lab-tf-locks"              # STATE LOCKING table\n'
+                '      encrypt        = true                       # SSE for the state file\n'
+                '      # Offline sandbox: the backend gets the same skip flags as the\n'
+                '      # provider, so init can configure it without reaching AWS.\n'
+                '      skip_credentials_validation = true\n'
+                '      skip_metadata_api_check     = true\n'
+                '      skip_requesting_account_id  = true\n'
+                '    }\n'
+                "  }\n\n"
+                "HOW IT WORKS: `backend \"s3\"` tells Terraform: don't write terraform.tfstate "
+                "locally — PUT it at s3://bucket/key instead. `key` is just an object path, so "
+                "teams use one bucket with many keys (one per project/environment). "
+                "`dynamodb_table` enables STATE LOCKING: before any plan/apply, Terraform "
+                "writes a lock row; if a teammate runs apply simultaneously, they get "
+                "\"Error: state locked\" instead of corrupting state. `encrypt = true` turns on "
+                "server-side encryption — critical because state contains secrets in plaintext "
+                "(remember `sensitive` only hides console output!). The three `skip_*` flags "
+                "are the same offline stanza as the provider block — without them, init would "
+                "try to validate the dummy credentials against AWS and fail. The backend is "
+                "configured here but never contacted in this sandbox. Run terraform init again "
+                "after adding a backend — init is what configures it."
+            ),
+            hints=[
+                'Add the backend "s3" block inside the terraform {} block in provider.tf.',
+                "bucket, key, region, dynamodb_table, encrypt — plus the three skip_* flags.",
+                "Run terraform init again — backends are initialized, not just validated.",
             ],
         ),
         LabObjective(
@@ -571,12 +660,16 @@ TERRAFORM_AWS_LAB = LabDefinition(
                 "`data \"aws_secretsmanager_secret_version\"` for passwords (never hardcode "
                 "them like objective 5's demo did!), `data \"terraform_remote_state\"` to read "
                 "another config's outputs. Rule of thumb: if Terraform shouldn't own its "
-                "lifecycle, use data."
+                "lifecycle, use data.\n\n"
+                "OFFLINE NOTE: in this sandbox `terraform plan` cannot reach AWS, so it stops "
+                "when it tries to read the data source — that is expected here. "
+                "`terraform validate` is the proof step for this objective: it confirms the "
+                "data block parses and the reference resolves."
             ),
             hints=[
                 'Add a data "aws_ami" block and reference data.aws_ami.ubuntu.id in an instance.',
                 "data.<TYPE>.<NAME>.<ATTR> — same reference syntax as resources, with data. prefix.",
-                "terraform plan will show the data source being READ before resources.",
+                "terraform validate proves the data block parses; plan stops at the live read offline — expected here.",
             ],
         ),
         LabObjective(
@@ -599,7 +692,7 @@ TERRAFORM_AWS_LAB = LabDefinition(
                 '    health_check { path = "/"  matcher = "200" }  # ALB health probes\n'
                 '  }\n\n'
                 '  resource "aws_launch_template" "app" {\n'
-                '    image_id      = data.aws_ami.ubuntu.id      # from objective 9!\n'
+                '    image_id      = "ami-0abcdef1234567890"  # pinned AMI: the data-source lookup needs the AWS API\n'
                 '    instance_type = lookup(var.instance_types, terraform.workspace, "t3.micro")\n'
                 '    user_data     = base64encode(<<-EOF\n'
                 '      #!/bin/bash\n'
@@ -621,18 +714,23 @@ TERRAFORM_AWS_LAB = LabDefinition(
                 "HOW IT ALL FITS: clients hit the ALB (spread across both AZ subnets from "
                 "objective 2). The ALB forwards to the target group, whose health checks "
                 "decide which instances get traffic. The ASG keeps 2–4 instances running "
-                "from the launch template (which bakes in our data-source AMI and "
-                "workspace-aware instance type). RDS (objective 5) is the data tier. "
+                "from the launch template (which bakes in our workspace-aware instance type). "
+                "RDS (objective 5) is the data tier. "
                 "EVERY technique in this lab appears: references wire the tiers together, "
                 "variables parameterize, outputs would expose the ALB DNS name, the S3 "
                 "backend holds state, workspaces isolate prod.\n\n"
                 "Add the four blocks above to main.tf, run terraform validate, then "
-                "terraform apply -auto-approve to provision the full stack."
+                "terraform plan -out=tfplan to save the execution plan and review it with "
+                "terraform show tfplan. The sandbox has no AWS API access, so the stack is "
+                "never provisioned here — the saved plan IS the deliverable, reviewed the "
+                "way a careful engineer reviews before any apply. (The launch template pins "
+                "a literal AMI instead of the data-source AMI from objective 9: a live AMI "
+                "lookup needs the AWS API, and the capstone plan must complete offline.)"
             ),
             hints=[
                 "You need: aws_lb, aws_lb_target_group, aws_launch_template, aws_autoscaling_group.",
                 "RDS from objective 5 completes the data tier — keep it.",
-                "terraform validate first, then terraform apply -auto-approve.",
+                "terraform validate, then terraform plan -out=tfplan — review the saved plan with terraform show tfplan; no apply in the sandbox.",
             ],
         ),
     ],

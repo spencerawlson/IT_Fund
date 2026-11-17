@@ -1,5 +1,6 @@
 # road-to-cissp IaC lab image.
-# Serves: cloud-terraform-001 (Terraform: Provision & Secure Infrastructure).
+# Serves: cloud-terraform-001 (Terraform: Provision & Secure Infrastructure)
+# and terraform-aws-001 (Terraform for AWS: Write Real HCL).
 #
 # Real terraform (1.9.8) + real tfsec (v1.28.14), both checksum-verified.
 # The AWS provider (5.31.0, matching the mock's simulated output) is
@@ -9,6 +10,10 @@
 # `validate`, `fmt`, `tfsec` and `plan` run fully offline and for real.
 # `apply` needs real AWS credentials and network: it is out of scope for the
 # offline lab (the lab definition is data-only by design).
+#
+# The `write` helper (/usr/local/bin/write) mirrors the mock shell's `write`
+# command: the terminal runs commands directly (no shell), so learners author
+# .tf files with `write <file.tf> '<hcl>'` instead of redirects/heredocs.
 FROM debian:bookworm-slim
 
 LABEL org.opencontainers.image.title="Road to CISSP - IaC lab" \
@@ -54,7 +59,10 @@ RUN useradd -m -s /bin/bash student
 # below proves the offline path works: it installs strictly from the mirror.
 COPY seeds/iac/main.tf /home/student/infra/main.tf
 COPY seeds/iac/terraformrc /etc/terraformrc
+COPY seeds/iac/write /usr/local/bin/write
 RUN chown -R student:student /home/student/infra \
+ && chmod 755 /usr/local/bin/write \
+ && mkdir -p /home/student/aws-infra \
  && su student -s /bin/bash -c "cd /home/student/infra && terraform providers mirror /tmp/tfplugins" \
  && mkdir -p /usr/share/terraform/plugins \
  && cp -r /tmp/tfplugins/. /usr/share/terraform/plugins/ \
