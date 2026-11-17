@@ -5,7 +5,16 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 const NETWORK_MESSAGE = 'The tutor couldn’t be reached. Check your connection and try again.';
 
 export async function fetchTutorStatus() {
-  const res = await fetch(`${API_BASE}/ai/status`);
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/ai/status`);
+  } catch {
+    // A fetch that never reaches the server (offline, refused connection,
+    // WebKit CORS/pool failure on an intercepted call) is the same as "off"
+    // — never let it reject, or the failure surfaces as an uncaught error
+    // on every page that shows the tutor button.
+    return { enabled: false };
+  }
   const type = res.headers.get('content-type') || '';
   // A static host without the backend answers with index.html; treat that as "off".
   if (!res.ok || !type.includes('application/json')) return { enabled: false };

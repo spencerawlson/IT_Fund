@@ -136,6 +136,21 @@ describe('Landing background glyphs (blur)', () => {
   });
 });
 
+describe('Landing seats counter (limited seats)', () => {
+  it('renders no counter under SSR — the live count arrives client-side, never hardcoded', () => {
+    const html = renderLanding();
+    expect(html).not.toContain('seats taken');
+    expect(html).not.toContain('seats are taken');
+    expect(html).not.toContain('data-testid="seats-counter"');
+    expect(html).not.toContain('10,000');
+  });
+
+  it('keeps the signup CTAs enabled under SSR (seats state unknown until the fetch resolves)', () => {
+    const html = renderLanding();
+    expect(html).not.toContain('aria-disabled="true"');
+  });
+});
+
 const SOCIAL_URLS = [
   'https://www.youtube.com/@road2cissp',
   'https://www.facebook.com/profile.php?id=61596190452892',

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { streamTutor } from './tutor';
+import { fetchTutorStatus, streamTutor } from './tutor';
 
 const enc = new TextEncoder();
 const sse = (text) => `data: ${JSON.stringify({ t: text })}\n\n`;
@@ -67,5 +67,33 @@ describe('streamTutor', () => {
     vi.stubGlobal('fetch', vi.fn(async () => okStream([errEvent])));
     await expect(streamTutor({ mode: 'chat' }))
       .rejects.toThrow('The model is busy right now.');
+  });
+});
+
+describe('fetchTutorStatus', () => {
+  const jsonRes = (body) => ({
+    ok: true,
+    headers: { get: () => 'application/json' },
+    json: async () => body,
+  });
+
+  it('returns the parsed body when the backend answers', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => jsonRes({ enabled: true })));
+    await expect(fetchTutorStatus()).resolves.toEqual({ enabled: true });
+  });
+
+  it('reports off on a non-OK response', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, headers: { get: () => 'application/json' } })));
+    await expect(fetchTutorStatus()).resolves.toEqual({ enabled: false });
+  });
+
+  it('reports off when the answer is not JSON (static host serving index.html)', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, headers: { get: () => 'text/html' } })));
+    await expect(fetchTutorStatus()).resolves.toEqual({ enabled: false });
+  });
+
+  it('never rejects when the fetch itself fails — a failed status check means "off", not an uncaught error', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+    await expect(fetchTutorStatus()).resolves.toEqual({ enabled: false });
   });
 });

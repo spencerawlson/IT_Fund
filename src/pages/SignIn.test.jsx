@@ -27,11 +27,25 @@ const SIGNED_IN_AUTH = {
   authChecked: true,
 };
 
+const ANON_AUTH = { user: null, isLoadingAuth: false, authChecked: true };
+
 function renderAccount() {
   return renderToString(
     <ThemeProvider>
       <AuthProvider initialAuth={SIGNED_IN_AUTH}>
         <StaticRouter location="/signin">
+          <SignIn />
+        </StaticRouter>
+      </AuthProvider>
+    </ThemeProvider>,
+  );
+}
+
+function renderSignIn(location = '/signin') {
+  return renderToString(
+    <ThemeProvider>
+      <AuthProvider initialAuth={ANON_AUTH}>
+        <StaticRouter location={location}>
           <SignIn />
         </StaticRouter>
       </AuthProvider>
@@ -48,5 +62,20 @@ describe('SignIn account page subscription card (2026-11-13)', () => {
     expect(html).not.toContain('href="/pricing"');
     expect(html).not.toContain('See plans');
     expect(html).not.toContain('Pricing');
+  });
+});
+
+describe('SignIn seats-full refusal (seat cap)', () => {
+  it('surfaces the seats-full refusal plainly when the callback sends ?error=seats_full', () => {
+    const html = renderSignIn('/signin?error=seats_full');
+    expect(html).toContain('All seats are taken');
+    expect(html).toContain('sign-ups are closed');
+    expect(html).not.toContain('waitlist');
+  });
+
+  it('shows no seats-full alert on a plain sign-in', () => {
+    const html = renderSignIn();
+    expect(html).not.toContain('All seats are taken');
+    expect(html).not.toContain('sign-ups are closed');
   });
 });

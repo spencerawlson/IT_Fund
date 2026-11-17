@@ -15,7 +15,7 @@ import db
 from auth import native
 from auth import oauth as oauth_mod
 from auth.deps import bearer_token, require_user_id
-from auth.identity import OAuthIdentity, upsert_identity
+from auth.identity import OAuthIdentity, SeatsFullError, upsert_identity
 from auth.sessions import COOKIE_NAME, cookie_kwargs, create_session, delete_session
 from db_models import User
 
@@ -93,15 +93,24 @@ async def callback(provider: str, request: Request):
         return RedirectResponse(f"{FRONTEND_URL}/signin?error=oauth", status_code=status.HTTP_302_FOUND)
     if challenge:
         # Native app: no cookie here (the system browser is not the app). Hand off a one-time code.
+        try:
+            with db.SessionLocal() as s:
+                user = upsert_identity(s, info)
+                code = native.create_code(s, user.id, challenge)
+                s.commit()
+        except SeatsFullError:
+            # Seats full: no new account, no code — the app shows its own seats-full state.
+            return RedirectResponse(f"{native.NATIVE_REDIRECT}?error=seats_full", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(f"{native.NATIVE_REDIRECT}?code={code}", status_code=status.HTTP_302_FOUND)
+    try:
         with db.SessionLocal() as s:
             user = upsert_identity(s, info)
-            code = native.create_code(s, user.id, challenge)
+            raw = create_session(s, user.id)
             s.commit()
-        return RedirectResponse(f"{native.NATIVE_REDIRECT}?code={code}", status_code=status.HTTP_302_FOUND)
-    with db.SessionLocal() as s:
-        user = upsert_identity(s, info)
-        raw = create_session(s, user.id)
-        s.commit()
+    except SeatsFullError:
+        # Seats full: no account was created (the refusal happens before the
+        # insert), so send the visitor back to sign-in with the reason.
+        return RedirectResponse(f"{FRONTEND_URL}/signin?error=seats_full", status_code=status.HTTP_302_FOUND)
     resp = RedirectResponse(f"{FRONTEND_URL}/", status_code=status.HTTP_302_FOUND)
     resp.set_cookie(COOKIE_NAME, raw, **cookie_kwargs())
     return resp
