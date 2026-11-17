@@ -1054,5 +1054,37 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0066",
+    "severity": "Medium",
+    "category": "incomplete",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-hardening-vuln-3/6/10/12/17/18/21/23, secplus-secops-tooling-3/4/5/6/8/9/13/14/19/21/22/23",
+    "original": "Truncated keyed answers such as 'Unknown assets are unpatched assets', 'Bring it under governance', 'Isolate the host and investigate'",
+    "problem": "The 2026 length rebalance cut correct answers down to fragments that no longer answered the question asked; full answers restored from the explanations.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0067",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-hardening-vuln, secplus-secops-tooling",
+    "original": "'Call the thief and ask for the phone back', 'Glue the USB ports shut', duplicated colon tails",
+    "problem": "Joke and self-repeating options in scenario questions.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]

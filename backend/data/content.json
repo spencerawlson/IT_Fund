@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:24:45.933Z",
+  "generatedAt": "2026-11-17T01:26:25.701Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -15749,12 +15749,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "It’s Tuesday. Your scanner flags: (1) a critical RCE on an internet-facing Exchange server with a public exploit, (2) a critical RCE on an internal HR server with no known exploit, (3) a high-severity flaw on 200 developer laptops. The change board meets Friday and hates emergency changes. What do you push for?",
-                  "a": "Emergency out-of-band patching for the Exchange server today",
+                  "a": "Emergency out-of-band patching for the Exchange server today; the rest through normal change",
                   "x": "Exposure plus active exploitability beats the calendar: an internet-facing, publicly exploited RCE cannot wait for the change board. Process serves risk, not the reverse.",
                   "wrong": [
-                    "Wait for Friday’s change board for all three",
-                    "Patch the 200 laptops first since they are the most numerous",
-                    "Patch the HR server first because HR data is sensitive: sensitive HR data wins"
+                    "Wait for Friday's change board and present all three findings together with a plan",
+                    "Patch the 200 developer laptops first, since they are the largest exposed population, then raise the servers on Friday",
+                    "Patch the HR server first, because the data it holds is the most sensitive"
                   ]
                 },
                 {
@@ -15765,9 +15765,9 @@
                   "a": "Isolate it on a dedicated VLAN with strict firewall rules allowing only the historian, plus enhanced monitoring",
                   "x": "When patching is impossible, shrink exposure to the minimum viable: segmentation plus allow-listed traffic plus watching, documented as a risk exception with review.",
                   "wrong": [
-                    "Connect it to the internet so the vendor can remote in: internet access helps vendors",
-                    "Replace the press immediately regardless of cost: replace the $2M press right now",
-                    "Do nothing — it has worked fine for years: XP worked fine for years"
+                    "Allow the defunct vendor's old remote-access tool through the firewall so support stays possible, and log every session it opens",
+                    "Replace the press immediately, whatever the cost, because XP cannot be secured",
+                    "Accept the risk informally, since the press has run without incident for years"
                   ]
                 },
                 {
@@ -15778,9 +15778,9 @@
                   "a": "Re-apply the baseline via configuration management, require change tickets for deviations, and alert on drift",
                   "x": "Drift is the enemy of hardening: baselines enforced as code plus monitored exceptions turn “needed for troubleshooting” into a tracked, temporary, approved state.",
                   "wrong": [
-                    "Update the baseline to match whatever the servers currently look like: match the drift",
-                    "Manually fix the 40 servers once and move on: one manual fix ends drift",
-                    "Disable auditing everywhere so the audit passes: no audit logs means no drift"
+                    "Update the baseline to match the servers' current state, so the troubleshooting changes become the approved standard for next quarter",
+                    "Fix the 40 servers by hand this week and repeat the audit next quarter",
+                    "Grant the server team standing exceptions for troubleshooting changes"
                   ]
                 },
                 {
@@ -15788,12 +15788,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "A pen test finds a forgotten Jenkins server, internet-facing, with default credentials — it was never in the CMDB. The CISO asks how this happens. What is the most defensible answer and fix?",
-                  "a": "Unknown assets are unpatched assets",
+                  "a": "Unknown assets go unpatched: run continuous discovery reconciled with the CMDB and scan what it finds",
                   "x": "Vulnerability scans only see what they are pointed at; the CMDB is only as good as its inputs. Discovery must be continuous and reconciled, not assumed.",
                   "wrong": [
-                    "Fire whoever stood up the Jenkins server: firing the admin fixes Jenkins",
-                    "Scan harder with the same scope",
-                    "Assume this was a one-time mistake: the forgotten Jenkins server was a one-off"
+                    "Discipline whoever built the Jenkins server, and require written approval from the CISO before any new server is created",
+                    "Scan the existing CMDB ranges more often with the same scanner settings",
+                    "Treat it as a one-off mistake and remove the server"
                   ]
                 },
                 {
@@ -15804,9 +15804,9 @@
                   "a": "Escalate for immediate remediation or formal risk acceptance at the right authority level",
                   "x": "Exceptions are time-boxed risk acceptances, not permanent pardons: when the compensating control dies or reviews lapse, the exception dies with them.",
                   "wrong": [
-                    "Renew the exception for another year: renew the temporary exception for another year",
-                    "Accept the risk verbally and move on: verbal acceptance covers the unpatched database",
-                    "Delete the finding from the scanner: deleting the finding fixes the unpatched database, the PII is safe once deleted"
+                    "Renew the exception for another year, since the database has not been breached and the owner is aware of the risk",
+                    "Have the database owner accept the risk verbally and note it in the ticket",
+                    "Mark the finding as accepted in the scanner so it stops appearing in reports"
                   ]
                 },
                 {
@@ -15817,9 +15817,9 @@
                   "a": "The scan credentials are failing or lack privileges",
                   "x": "A suspiciously clean credentialed scan usually means the scan never really authenticated; trust but verify the scan itself before celebrating.",
                   "wrong": [
-                    "The servers are fully patched; the network scan is wrong: the network scan errs",
-                    "Delete the network scan results",
-                    "The credentialed scan is always right"
+                    "The servers are fully patched; the network scan is reporting false positives",
+                    "The network scanner's plug-ins are out of date",
+                    "Credentialed scans only report missing patches for the OS, not applications"
                   ]
                 },
                 {
@@ -15827,12 +15827,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "Finance adopted a cloud expense app without IT review. It holds employee banking details and integrates with payroll via API. What is the most defensible immediate action?",
-                  "a": "Bring it under governance",
+                  "a": "Bring it under governance: review its security, secure the data and integrations, then decide to approve or migrate",
                   "x": "Shadow IT is a governance failure, not just a policy violation: the data already lives there, so the priority is securing it and preventing the next one, not punishment.",
                   "wrong": [
-                    "Block the app at the firewall immediately: blocking the expense app fixes the governance",
-                    "Delete all the data in the app: deleting the banking details fixes governance",
-                    "Let finance keep using it unsupervised: finance keeps using the expense app unsupervised"
+                    "Block the app at the firewall immediately and tell finance to return to the old process until a replacement is procured and approved",
+                    "Delete the employee data from the app and cancel the subscription",
+                    "Let finance keep it, since it is already integrated with payroll"
                   ]
                 },
                 {
@@ -15843,9 +15843,9 @@
                   "a": "Move them to an isolated IoT VLAN with no internet access, change what credentials can be changed, and monitor the segment",
                   "x": "Unpatchable IoT gets the same treatment as unpatchable legacy: segment, restrict, and watch. Default credentials on a flat network are an invitation.",
                   "wrong": [
-                    "Leave them — thermostats cannot be hacked: the smart thermostats cannot be hacked",
-                    "Replace all 60 immediately: replace all sixty smart thermostats immediately",
-                    "Put them on the guest Wi-Fi: guest Wi-Fi isolates the smart thermostats"
+                    "Leave them on the corporate network, change the passwords that can be changed, and add the thermostats to the next annual audit",
+                    "Replace all 60 immediately with a supported brand before doing anything else",
+                    "Move them to the guest Wi-Fi, which is separated from the corporate LAN"
                   ]
                 },
                 {
@@ -15856,9 +15856,9 @@
                   "a": "Patch immediately, accept the legacy-client breakage, and communicate the workaround",
                   "x": "Risk math: certain active exploitation of your remote-access edge beats a degraded experience for one legacy client. Test in parallel, don’t delay for it.",
                   "wrong": [
-                    "Wait for the next patch that fixes the legacy client",
-                    "Patch half the concentrators and hope: half the concentrators patched suffices, the rest can wait",
-                    "Disable the VPN until a perfect patch exists: wait for the perfect patch"
+                    "Wait for the vendor's next release that fixes the legacy client, and monitor the VPN closely",
+                    "Patch half the concentrators now and the rest once the client issue is fixed",
+                    "Disable the VPN until a patch without known issues is available"
                   ]
                 },
                 {
@@ -15869,9 +15869,9 @@
                   "a": "Enforce organization-wide block-public-access defaults and add a CI check that fails builds creating public storage",
                   "x": "Repeat misconfigurations are a guardrail failure, not a training failure: make the insecure state impossible by default and catch it before deployment.",
                   "wrong": [
-                    "Send the developer to more training: more training fixes the public buckets",
-                    "Fire the developer: firing the developer fixes the public buckets",
-                    "Accept that buckets will sometimes be public: public buckets happen sometimes, accept it"
+                    "Send the developer and their whole team to cloud security training on storage permissions, and add a warning banner to the console",
+                    "Review every new bucket manually before it goes live",
+                    "Accept occasional public buckets as the cost of moving fast"
                   ]
                 },
                 {
@@ -15879,12 +15879,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "An audit finds 30 decommissioned servers still powered on in a remote rack, unpatched for two years, still joined to the domain. What is the most defensible action?",
-                  "a": "Isolate them immediately, verify no production dependencies",
+                  "a": "Isolate them immediately, verify no production dependencies, then decommission and remove them from the domain",
                   "x": "Zombie servers are attacker infrastructure waiting to happen: powered-on, unpatched, and domain-joined is the worst combination. Verify dependencies before pulling the plug.",
                   "wrong": [
-                    "Just unplug them all right now",
-                    "Leave them in case someone needs them",
-                    "Patch them back into compliance: patch the 30 decommissioned servers compliant"
+                    "Unplug all 30 immediately and remove them from the rack today, then check with application owners whether anything has stopped",
+                    "Leave them running in case a team still needs them",
+                    "Patch them back into compliance and keep them as spares"
                   ]
                 },
                 {
@@ -15895,9 +15895,9 @@
                   "a": "Revoke the device’s mail sessions and wipe corporate data via the mail platform’s remote wipe",
                   "x": "Without MDM, your control plane is the identity layer: kill sessions and wipe the corporate container. BYOD without containerization is just hope.",
                   "wrong": [
-                    "Call the thief and ask for the phone back: call the thief for the CEO’s phone",
-                    "Change the CEO’s password and do nothing else: a password change fixes the theft",
-                    "Ban personal phones entirely starting tomorrow: banning BYOD phones fixes the theft, the CEO’s mail is safe"
+                    "Change the CEO's password and wait to see whether the phone is used",
+                    "Ban personal phones from tomorrow and issue company devices",
+                    "Report the theft to the police and wait for the phone to be recovered"
                   ]
                 },
                 {
@@ -15905,12 +15905,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "Your team deploys 50 new VMs a month from a golden image built in 2021. Scans show every new VM ships with the same 40 missing patches. What is the most defensible fix?",
-                  "a": "Rebuild the golden image monthly in a pipeline",
+                  "a": "Rebuild the golden image monthly in a pipeline that patches and scans it before release",
                   "x": "Every manual build multiplies the same debt: an image pipeline makes secure the default instead of a monthly fire drill.",
                   "wrong": [
-                    "Patch each VM after deployment",
-                    "Keep the 2021 image for consistency: the 2021 golden image keeps consistency",
-                    "Deploy fewer VMs: fewer VMs mean fewer of the 40 missing patches"
+                    "Patch each VM after deployment as a step in the build checklist, and audit a sample of new VMs each month",
+                    "Keep the 2021 image for consistency and patch it once a year",
+                    "Deploy fewer VMs until the image can be rebuilt"
                   ]
                 },
                 {
@@ -15921,9 +15921,9 @@
                   "a": "Push the update via your endpoint management platform in waves, starting with the highest-risk users, and track compliance centrally",
                   "x": "Scale demands central push, not user goodwill: staged rollout with compliance tracking turns 800 manual updates into one controlled operation.",
                   "wrong": [
-                    "Email everyone asking them to update: email all 800 remote workers to update",
-                    "Wait for the vendor to fix auto-update: the vendor will fix auto-update",
-                    "Disable VPN access for anyone unpatched with no notice: cut the unpatched workers off"
+                    "Email all 800 remote workers step-by-step update instructions with a one-week deadline, and remind those who have not updated",
+                    "Wait for the vendor to fix auto-update before acting",
+                    "Block every unpatched user from the VPN immediately, with no notice"
                   ]
                 },
                 {
@@ -15934,9 +15934,9 @@
                   "a": "Restore the GPO to policy, scope a documented exception for the VIP with an expiry, and alert on future GPO changes to security settings",
                   "x": "One VIP exception silently became the fleet standard: exceptions must be scoped, expiring, and monitored — and security GPOs need change alerting.",
                   "wrong": [
-                    "Leave USB enabled; the VIP needs it: the VIP needs USB mass storage enabled",
-                    "Disable USB in BIOS on every machine by hand: hand-disable USB in every BIOS",
-                    "Punish the helpdesk technician: punishing the technician fixes the USB GPO"
+                    "Leave USB enabled for everyone, since the VIP still needs it, and add a line to the acceptable use policy asking staff not to copy sensitive data",
+                    "Disable USB in the BIOS of every workstation by hand",
+                    "Discipline the helpdesk technician who changed the GPO"
                   ]
                 },
                 {
@@ -15947,9 +15947,9 @@
                   "a": "Rebuild the base image now, prioritize rebuilding internet-facing services first, and put the rest on a tracked sprint plan with the risk formally accepted meanwhile",
                   "x": "Shared base images are single points of failure: fix the source, sequence by exposure, and make the residual risk explicit and owned — not silent.",
                   "wrong": [
-                    "Rebuild all 40 tonight regardless of testing: rebuild all forty microservices tonight untested",
-                    "Ignore it — containers are ephemeral: ephemeral containers need no rebuild at all",
-                    "Delete the scan findings to keep velocity: deleting findings keeps sprint velocity"
+                    "Rebuild and redeploy all 40 services tonight without the usual testing, since a critical CVE in a shared base image justifies skipping it",
+                    "Ignore it, because containers are short-lived and replaced often",
+                    "Suppress the findings until the next planned rebuild"
                   ]
                 },
                 {
@@ -15960,9 +15960,9 @@
                   "a": "Buy extended support if available, isolate the ERP segment, harden monitoring, and fund the upgrade as a tracked project",
                   "x": "EOL without a plan is a choice to be breached: bridge with vendor support plus segmentation while the real migration gets a budget and a date.",
                   "wrong": [
-                    "Do nothing and hope attackers don’t notice: hope attackers miss the end-of-life ERP",
-                    "Migrate over the weekend: a weekend migration beats the $180k upgrade path",
-                    "Disconnect the ERP from the network permanently: unplug the ERP forever, permanently"
+                    "Keep running the ERP unchanged after end-of-life until budget is approved for the upgrade, and revisit the plan next financial year",
+                    "Migrate the ERP to a new OS over a weekend without the vendor",
+                    "Disconnect the ERP from the network permanently"
                   ]
                 },
                 {
@@ -15970,12 +15970,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "Engineering ignores scanner findings because “everything is critical”. You propose SLAs. What is the most defensible SLA structure?",
-                  "a": "Time-boxed by exploitability and exposure",
+                  "a": "Time-boxed by exploitability and exposure, e.g. exposed KEV criticals in days, internal mediums in months",
                   "x": "“Everything is critical” means nothing is: SLAs must encode risk so engineers feel the difference between an exposed RCE and a theoretical medium.",
                   "wrong": [
-                    "All findings fixed in 24 hours: a single 24-hour deadline fixes every finding",
-                    "No SLAs — trust engineering: trusting engineering beats the SLAs",
-                    "Only fix findings the auditors ask about: fix only the auditor-requested findings"
+                    "Every finding, whatever its severity or exposure, must be fixed within 24 hours of detection, with escalation to the CTO after that",
+                    "No SLAs; engineering decides what to fix and when",
+                    "Only the findings that auditors ask about"
                   ]
                 },
                 {
@@ -15983,12 +15983,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "A pen test report lists 15 findings. Management wants them all fixed by Friday. The top finding is “domain admin credentials in a helpdesk script”. What is the most defensible prioritization?",
-                  "a": "Fix the credential exposure immediately as an emergency change",
+                  "a": "Fix the credential exposure immediately as an emergency change; schedule the rest by risk with owners",
                   "x": "Plaintext domain-admin credentials are a standing invitation, not a Friday task: separate the emergency from the plan, and assign every finding an owner.",
                   "wrong": [
-                    "Fix all 15 by Friday regardless of testing",
-                    "Argue about the report’s accuracy first: debate the report before fixing credentials",
-                    "Accept all 15 as risks: accept all fifteen pen-test findings as risk"
+                    "Fix all 15 by Friday, skipping the usual testing",
+                    "Challenge the report's accuracy before fixing anything",
+                    "Accept all 15 as known risks until the next test"
                   ]
                 },
                 {
@@ -15999,9 +15999,9 @@
                   "a": "Automate config backups on every change into version control, and test restores",
                   "x": "A six-month-old backup is barely a backup: config-as-code with tested restore turns a lockout into a ten-minute rollback.",
                   "wrong": [
-                    "Factory-reset the firewall and rebuild from memory: reset the firewall, rebuild from memory",
-                    "Never push firewall changes again: no firewall pushes means no lockouts",
-                    "Blame the engineer who pushed the change"
+                    "Factory-reset the firewall and rebuild the rule base from memory and old change tickets, then take a fresh backup",
+                    "Freeze all firewall changes until a new process is written",
+                    "Discipline the engineer who pushed the change"
                   ]
                 },
                 {
@@ -16012,9 +16012,9 @@
                   "a": "Badge system controller first, then UPS cards, then printers",
                   "x": "Prioritize by blast radius: physical access control and power infrastructure outrank printers. Then eliminate the class of problem with a credential-change runbook for new devices.",
                   "wrong": [
-                    "Printers first — there are the most of them: twelve printers beat badge systems",
-                    "All at once, no particular order: fix all default credentials at once",
-                    "Printers don’t matter; skip them: the printers do not matter, skip them"
+                    "Printers first, because there are the most of them",
+                    "All at once in a single change, in no particular order",
+                    "Badge controller and UPS cards only; printers do not matter"
                   ]
                 },
                 {
@@ -16022,12 +16022,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "You inherit a network with 200 unmanaged IoT devices (cameras, printers, sensors) on the flat corporate LAN. No inventory exists. What is the most defensible first step?",
-                  "a": "Discover and inventory them",
+                  "a": "Discover and inventory them, then segment them away from the corporate LAN",
                   "x": "You cannot harden what you cannot see: inventory first, then segment. Flat networks turn every camera into a pivot point.",
                   "wrong": [
-                    "Change every default password today by hand: hand-change every IoT password today",
-                    "Disconnect all 200 devices immediately: unplug all 200 IoT devices now",
-                    "Install antivirus on the cameras: camera antivirus fixes the IoT devices"
+                    "Change every default password by hand today, starting with the cameras, and then check which devices are still working",
+                    "Disconnect all 200 devices immediately",
+                    "Install endpoint agents on every device"
                   ]
                 },
                 {
@@ -16038,9 +16038,9 @@
                   "a": "Document formal risk acceptance signed at the right authority level, with compensating controls and a dated remediation plan",
                   "x": "“The business accepts the risk” is only real when it’s written, signed, time-boxed, and owned: verbal acceptance evaporates at the first incident.",
                   "wrong": [
-                    "Launch quietly and fix them later: launch the portal quietly, fix highs later",
-                    "Block the launch unconditionally: block the customer portal launch outright",
-                    "Downgrade the findings to medium: medium findings let the portal launch"
+                    "Launch on schedule and fix the findings in the next sprint",
+                    "Block the launch until every finding is fixed, whatever the business impact",
+                    "Reclassify the findings as medium so the launch can proceed"
                   ]
                 },
                 {
@@ -16048,12 +16048,12 @@
                   "deckId": "secplus-hardening-vuln",
                   "trackId": "cyber",
                   "q": "A security patch blue-screens 10% of workstations. The helpdesk is overwhelmed. What was missing, and what is the most defensible immediate action?",
-                  "a": "A tested rollback plan and phased rollout were missing",
+                  "a": "A tested rollback plan and phased rollout were missing: roll back the patch and redeploy in rings",
                   "x": "Patching without rings and rollback is gambling with the fleet: pilot, ring, monitor — and know how to reverse before you start.",
                   "wrong": [
-                    "Push the patch to the remaining 90% faster",
-                    "Reimage all affected machines from scratch: reimage every blue-screened workstation",
-                    "Blame the vendor and stop patching: the vendor caused the blue-screen patch"
+                    "Push the patch to the remaining 90% faster so the disruption is over sooner, and have the helpdesk reimage what breaks",
+                    "Reimage every affected machine from scratch",
+                    "Stop patching until the vendor confirms the fix"
                   ]
                 },
                 {
@@ -16064,9 +16064,9 @@
                   "a": "Report mean time to remediate for KEV/exposed criticals, exception aging, and repeat findings — outcomes",
                   "x": "Closed-ticket counts reward closing easy findings: the board needs to know how fast the dangerous ones die and whether the same ones keep coming back.",
                   "wrong": [
-                    "10,000 closed is the answer: 10,000 closed findings prove we are safer",
-                    "Show them the raw scanner dashboard: the raw scanner dashboard proves safety",
-                    "Say yes and move on: say yes, 10,000 closed proves safety"
+                    "Report the 10,000 closed findings with a quarter-on-quarter comparison chart, showing the number of tickets closed per team",
+                    "Show the board the scanner's live dashboard",
+                    "Answer yes and offer a detailed briefing later"
                   ]
                 }
               ],
@@ -16110,8 +16110,8 @@
                   "a": "Isolate the host from the network immediately",
                   "x": "Attackers kill the agent before the real work: service tampering followed by log clearing is not a glitch, it is tradecraft. Isolate first.",
                   "wrong": [
-                    "Restart the EDR agent and see if it stays up",
-                    "Ask the developer if they were testing something: ask the developer whether they were testing",
+                    "Restart the EDR agent and confirm that it stays running before investigating",
+                    "Ask the developer whether they were testing something with admin rights",
                     "Reinstall the agent and close the alert"
                   ]
                 },
@@ -16123,9 +16123,9 @@
                   "a": "The NAC health check is reading a stale compliance cache or wrong update source",
                   "x": "Quarantine loops are usually a telemetry mismatch, not a liar: verify the NAC’s definition of “patched” against the endpoint’s before bypassing the control.",
                   "wrong": [
-                    "Give the contractor a permanent NAC exception: exempt the laptop from health checks forever",
-                    "Turn NAC off for contractors: exempt the whole VLAN from health checks",
-                    "Tell the contractor to reinstall Windows: reinstall Windows to fix the NAC"
+                    "Give the contractor's laptop a permanent NAC exception so they can work, and review the exception list at the end of the contract",
+                    "Turn off NAC health checks for all contractors",
+                    "Tell the contractor to reinstall Windows"
                   ]
                 },
                 {
@@ -16136,9 +16136,9 @@
                   "a": "Tune the DLP pattern and add a scoped exception for legal’s document workflow with approval",
                   "x": "Blocking business is how DLP gets turned off permanently: tune the detector and exception the legitimate workflow narrowly, with sign-off, instead of surrendering the control.",
                   "wrong": [
-                    "Exempt legal permanently: give the department a standing DLP bypass",
-                    "Tell legal to stop using clause numbers: tell legal to stop the clause numbers",
-                    "Turn off DLP globally until it is “fixed”: switch DLP off everywhere and wait for a patch"
+                    "Exempt the legal team from DLP permanently",
+                    "Tell legal to stop using numeric clause references",
+                    "Turn DLP off globally until the pattern is fixed"
                   ]
                 },
                 {
@@ -16146,12 +16146,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "The PAM vault is down for emergency maintenance and a production database is down. The on-call DBA asks for the break-glass domain admin password. What is the most defensible procedure?",
-                  "a": "Release it per the break-glass procedure",
+                  "a": "Release it per the break-glass procedure: witnessed, logged, time-limited, then rotated afterwards",
                   "x": "Break-glass exists for exactly this — but it is a controlled exception: every use is witnessed, logged, and followed by rotation, or it becomes a backdoor.",
                   "wrong": [
-                    "Refuse — no vault, no access, let production stay down: production stays down",
-                    "Email the password to the DBA and the team: email the break-glass password to everyone",
-                    "Give the DBA permanent domain admin to avoid this next time: permanent domain admin avoids repeats"
+                    "Refuse: without the vault there is no approved access path, so production stays down until the PAM maintenance is complete",
+                    "Email the password to the DBA and the team so anyone can help",
+                    "Give the DBA permanent domain admin so this never happens again"
                   ]
                 },
                 {
@@ -16159,12 +16159,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "An audit finds a service account with domain admin rights, no owner, last password change six years ago, logging into 40 servers nightly for “backups” nobody can explain. What is the most defensible sequence?",
-                  "a": "Scope what it touches, replace its function with a least-privilege managed account",
+                  "a": "Scope what it touches, replace its function with a least-privilege managed account, then disable it",
                   "x": "Ancient privileged service accounts are attacker persistence waiting to be discovered: understand the dependency before you cut it, or you break backups at 2 AM.",
                   "wrong": [
-                    "Disable it immediately with no investigation",
-                    "Leave it alone — it might be important: leave the service account alone, it matters",
-                    "Change its password and keep using it as-is"
+                    "Disable it immediately without investigating, and wait to see which backups or services fail overnight",
+                    "Leave it alone, since it might be important",
+                    "Change its password and keep using it as it is"
                   ]
                 },
                 {
@@ -16172,12 +16172,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "Your SSO identity provider is down. Nobody can log into email, VPN, or the ticket system — including the SOC. What should have existed, and what is the most defensible immediate action?",
-                  "a": "Break-glass local admin accounts and documented offline procedures should have existed",
+                  "a": "Tested break-glass accounts and offline procedures should have existed; use them to coordinate and restore",
                   "x": "SSO is a single point of failure by design: the control for that is tested break-glass access plus runbooks that don’t live behind the SSO you just lost.",
                   "wrong": [
-                    "Wait it out: do nothing until the vendor restores the service",
-                    "Email everyone the master password: emailing everyone the master password helps, break-glass by email",
-                    "Disable MFA so people can log in directly: disable MFA so people can log in"
+                    "Wait for the identity provider to restore service before doing anything, and send a status update once email is working again",
+                    "Email everyone a shared master password to use until SSO returns",
+                    "Disable MFA so people can log in directly"
                   ]
                 },
                 {
@@ -16185,12 +16185,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "Helpdesk receives a call: “Hi, this is the CFO, I’m locked out, please reset my MFA.” The caller ID shows the CFO’s number and the voice sounds right. The helpdesk tech is new. What is the most defensible procedure?",
-                  "a": "Verify through an independent channel",
+                  "a": "Verify through an independent channel, such as calling back on a directory number or confirming with the CFO's manager",
                   "x": "Caller ID is spoofable and voices are clonable: identity verification for privileged resets must use a channel the attacker doesn’t control.",
                   "wrong": [
-                    "Reset the MFA — the caller ID matches",
-                    "Ask for the CFO’s password as verification: the CFO’s password is the verification",
-                    "Refuse all MFA resets by policy: refuse every MFA reset by policy, always"
+                    "Reset the MFA, because the caller ID matches the CFO's mobile number and the voice sounds right to the technician on the call",
+                    "Ask the caller for their current password as verification",
+                    "Refuse every MFA reset request by policy"
                   ]
                 },
                 {
@@ -16201,9 +16201,9 @@
                   "a": "Remove the access immediately and fix the review process so temporary grants expire",
                   "x": "Privilege creep is a process failure: temporary access without enforced expiry is permanent access. The review caught it — the process must now prevent it.",
                   "wrong": [
-                    "Leave it — the intern needs it for their project",
-                    "Warn the intern: tell them to be careful and leave access in place",
-                    "Delete the intern’s account: deleting the intern’s account fixes prod access, the review can wait"
+                    "Leave the access in place, since the intern still needs it for their project, and add a note to review it again next quarter",
+                    "Warn the intern to be careful and leave the access in place",
+                    "Delete the intern's account entirely"
                   ]
                 },
                 {
@@ -16211,12 +16211,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "EDR flags: rundll32.exe launching with a DLL from a user’s Downloads folder, then opening an outbound connection. The user says they were “installing a printer driver”. What is the most defensible action?",
-                  "a": "Isolate the host and investigate",
+                  "a": "Isolate the host and investigate the DLL, its source and the outbound connection",
                   "x": "LOLBins abuse legitimate tools: the parent-child relationship plus the DLL’s location plus egress is the story, not the binary’s signature. Users’ explanations don’t override telemetry.",
                   "wrong": [
-                    "Allow it — rundll32 is a Windows component: allow it, rundll32 is Windows",
-                    "Help the user finish the printer install: help the user finish installing the printer",
-                    "Whitelist rundll32 globally to reduce alerts: whitelist rundll32 globally, fewer alerts"
+                    "Allow it, because rundll32 is a signed Windows component and printer drivers often use it to register their DLLs",
+                    "Help the user finish installing the printer driver",
+                    "Allow-list rundll32 globally to reduce alerts"
                   ]
                 },
                 {
@@ -16224,12 +16224,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "Facilities wants 200 smart sensors on the corporate LAN. They can’t run agents and use shared default credentials. What is the most defensible NAC approach?",
-                  "a": "Agentless NAC with device profiling",
+                  "a": "Agentless NAC with device profiling, placing the sensors in a restricted segment",
                   "x": "Devices that can’t run agents get profiled, not trusted: fingerprinting plus microsegmentation gives unmanageable devices a manageable network home.",
                   "wrong": [
-                    "Put them on the main LAN with the default credentials: main LAN plus default credentials",
-                    "Buy 200 laptops instead",
-                    "Disable NAC for the sensor VLAN"
+                    "Put the sensors on the main LAN with their default credentials, since they cannot run agents and NAC would block them",
+                    "Disable NAC for the sensor VLAN",
+                    "Replace the sensors with laptops that can run agents"
                   ]
                 },
                 {
@@ -16240,9 +16240,9 @@
                   "a": "Check whether the DLP policy covers browser uploads to unsanctioned cloud apps and whether the agent was running",
                   "x": "A control that didn’t fire is a finding about the control: verify scope, agent health, and policy coverage before blaming the user.",
                   "wrong": [
-                    "Wipe the laptop now: erase the machine before any evidence is gathered",
-                    "Assume the DLP works and the upload was fine: the DLP works, the upload was fine",
-                    "Block all of google.com: blocking all of google.com stops uploads"
+                    "Wipe the laptop immediately to stop further uploads, then ask the employee to explain why they used a personal drive",
+                    "Assume the DLP worked and the upload was allowed",
+                    "Block all of google.com for the company"
                   ]
                 },
                 {
@@ -16253,9 +16253,9 @@
                   "a": "Return the playbook to human-in-the-loop approval for high-impact actions, and require a staging period with alert-only mode for new automations",
                   "x": "Auto-remediation without a proving period turns a false positive into an outage: graduate automation from alert-only to approval to autonomous, by blast radius.",
                   "wrong": [
-                    "Delete the SOAR platform: deleting the SOAR platform fixes false positives",
-                    "Let it keep running — payroll will recover: let it run, payroll will recover",
-                    "Make the playbook more aggressive to catch real malware: make the playbook more aggressive"
+                    "Leave the playbook running unchanged, since payroll will recover and real malware outbreaks need the fastest possible response",
+                    "Leave it running; payroll will recover",
+                    "Make the playbook more aggressive to catch real malware"
                   ]
                 },
                 {
@@ -16266,9 +16266,9 @@
                   "a": "Drive provisioning and deprovisioning from the HR system of record with role-based templates and same-day revocation",
                   "x": "Manual JML is where orphaned accounts are born: the HR system knows who joined, moved, and left — make it the source of truth for identity.",
                   "wrong": [
-                    "Hire more IT staff to process spreadsheets faster: hire more IT staff for the spreadsheets",
-                    "Give new hires admin rights: temporary domain admin speeds up onboarding",
-                    "Email spreadsheets are fine; the ex-contractor was a fluke: emailed spreadsheets are fine, fluke aside"
+                    "Hire more IT staff to process the emailed spreadsheets faster, and add a weekly reminder to check for leavers by hand",
+                    "Give new hires broad access on day one to avoid delays",
+                    "Keep the spreadsheets; the ex-contractor was a one-off"
                   ]
                 },
                 {
@@ -16276,12 +16276,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "A database admin needs emergency production access at 2 AM. PAM can grant it with full session recording. The DBA objects: “recording slows me down”. What is the most defensible stance?",
-                  "a": "Grant it with recording enforced",
+                  "a": "Grant it with recording enforced; recording is the condition of emergency access",
                   "x": "Session recording is the accountability half of privileged access: JIT elevation without a record is just standing privilege with extra steps.",
                   "wrong": [
-                    "Skip recording this once for speed: record nothing, speed matters more",
-                    "Deny the access entirely",
-                    "Let the DBA use a shared admin login: one shared account, no recording needed"
+                    "Skip recording this once, because speed matters at 2 AM and the DBA is trusted, then note the exception in the ticket",
+                    "Deny the access until business hours",
+                    "Let the DBA use a shared admin login"
                   ]
                 },
                 {
@@ -16289,12 +16289,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "A red-team exercise shows the EDR missed a custom in-memory payload on servers, though it caught commodity malware on workstations. What is the most defensible conclusion?",
-                  "a": "Tune and test EDR for server workloads specifically",
+                  "a": "Tune and test EDR for server workloads specifically, using adversary emulation",
                   "x": "EDR is not one control but a per-platform configuration: server workloads need their own policies, exclusions review, and adversary emulation — catching commodity malware is table stakes.",
                   "wrong": [
-                    "The EDR is useless; replace it",
-                    "Servers don’t need EDR",
-                    "Blame the red team: the exercise was unfair, so disregard the findings"
+                    "The EDR product is ineffective and should be replaced",
+                    "Servers do not need EDR if workstations are covered",
+                    "The red team's methods were unrealistic, so disregard them"
                   ]
                 },
                 {
@@ -16305,9 +16305,9 @@
                   "a": "Automate certificate lifecycle management with ownership, expiry alerting, and auto-renewal where possible",
                   "x": "Certificates are identity infrastructure: spreadsheet-tracked expiry is an outage scheduled in advance. Automate issuance and renewal.",
                   "wrong": [
-                    "Buy 10-year certificates: buy ten-year certificates to prevent expiry",
-                    "Fire the spreadsheet owner: sack whoever owned the tracking sheet",
-                    "Disable HTTPS to avoid expiry: disabling HTTPS avoids the certificate expiry"
+                    "Buy the longest-validity certificates available",
+                    "Discipline whoever owned the spreadsheet",
+                    "Serve the portal over HTTP until the process is fixed"
                   ]
                 },
                 {
@@ -16319,8 +16319,8 @@
                   "x": "Security that depends on user diligence fails at scale: make the secure path the only path, then fix the performance complaint that drove the bypass.",
                   "wrong": [
                     "Send a reminder email about VPN usage",
-                    "Accept that remote work is insecure: remote work is insecure, just accept it",
-                    "Ban public Wi-Fi by policy"
+                    "Accept that remote work is less secure",
+                    "Ban public Wi-Fi in the remote-work policy"
                   ]
                 },
                 {
@@ -16331,9 +16331,9 @@
                   "a": "Simplify to three usable labels with clear examples, train on real documents, and tune DLP to the labels that matter",
                   "x": "Classification that cries wolf trains people to ignore it: usable labels plus tuned enforcement beat a perfect taxonomy nobody follows.",
                   "wrong": [
-                    "Mark everything Public instead: mark everything Public to fix DLP",
-                    "Remove DLP so work isn’t blocked: removing DLP unblocks the routine work",
-                    "Punish engineers who mislabel: dock pay for every wrong label"
+                    "Mark every document Public by default so DLP stops blocking routine work, and rely on engineers to restrict what matters",
+                    "Remove DLP so work is not blocked",
+                    "Discipline engineers who mislabel documents"
                   ]
                 },
                 {
@@ -16344,9 +16344,9 @@
                   "a": "Per-service identities in the PAM vault with short-lived credentials, checked out per deployment and fully audited",
                   "x": "Shared credentials destroy accountability and rotation: individual, vaulted, short-lived identities make “who did what” answerable.",
                   "wrong": [
-                    "Put the key in a shared password manager: a shared vault replaces the chat channel",
-                    "Rotate the shared key monthly: monthly rotation of the shared deploy key",
-                    "It’s fine — the channel is private: the private chat channel is fine"
+                    "Move the shared key into a shared team password manager, so it is no longer pasted in chat but everyone can still use it",
+                    "Rotate the shared key monthly",
+                    "Keep it, since the chat channel is private"
                   ]
                 },
                 {
@@ -16354,12 +16354,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "A file is both quarantined by EDR as malware and flagged by DLP as containing PII. The IR team and the privacy team both open tickets. What is the most defensible coordination?",
-                  "a": "Run one coordinated response",
+                  "a": "Run one coordinated response with one incident commander covering both malware and privacy",
                   "x": "One incident, one commander: malware containment and breach assessment are phases of the same response, not competing tickets.",
                   "wrong": [
-                    "Let both teams work independently: let the IR and privacy teams work independently",
-                    "Close the DLP ticket — malware matters more: the privacy team can wait its turn",
-                    "Delete the file and close both tickets: deleting it ends the work for both teams"
+                    "Let the IR and privacy teams work independently",
+                    "Close the DLP ticket, since malware takes priority",
+                    "Delete the file and close both tickets"
                   ]
                 },
                 {
@@ -16370,9 +16370,9 @@
                   "a": "Isolate guest traffic completely and add captive-portal terms with rate limits",
                   "x": "Guest networks are untrusted by definition: the failure wasn’t the weak onboarding, it was the missing isolation between guest and corporate.",
                   "wrong": [
-                    "Require a password for guest Wi-Fi: a guest Wi-Fi password stops pivots",
-                    "Ban guests from the building: ban guests, fix the guest Wi-Fi pivot",
-                    "Monitor guest traffic more closely: monitor the guest traffic more closely, the pivot was a fluke"
+                    "Require a password for the guest Wi-Fi that changes every month, and print it on a card at reception for visitors",
+                    "Ban guests from the building",
+                    "Monitor guest traffic more closely"
                   ]
                 },
                 {
@@ -16380,12 +16380,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "Managers rubber-stamp quarterly access reviews without reading them. What is the most defensible improvement?",
-                  "a": "Show each manager what changed since last review and what the person used",
+                  "a": "Show each manager what changed since the last review and what access the person actually used",
                   "x": "Rubber-stamping is a UX failure: reviewers approve what they can understand. Deltas plus usage data turn attestation into a real decision.",
                   "wrong": [
-                    "Stop doing access reviews: stop the rubber-stamped quarterly access reviews",
-                    "Punish managers who rubber-stamp: fine managers who sign without reading",
-                    "Do reviews monthly instead: monthly reviews catch the rubber-stamping"
+                    "Stop doing quarterly access reviews and rely on yearly audits",
+                    "Discipline managers who rubber-stamp",
+                    "Run the reviews monthly instead"
                   ]
                 },
                 {
@@ -16393,12 +16393,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "An attacker with local admin stops the Windows Event Log service before running ransomware. The SIEM shows a gap. What control would have preserved the evidence?",
-                  "a": "Forward logs in real time to the SIEM/collector",
+                  "a": "Forward logs in real time to the SIEM or a collector",
                   "x": "An attacker with admin owns the local log store: real-time forwarding makes the SIEM the immutable copy, so local tampering leaves a visible gap instead of a clean slate.",
                   "wrong": [
-                    "Bigger local log files",
-                    "Stronger admin passwords: tougher passwords keep the Event Log running",
-                    "Stop the Event Log yourself: disable the service before attackers can"
+                    "Larger local event log files",
+                    "Stronger local admin passwords",
+                    "Disable the Event Log service before attackers can"
                   ]
                 },
                 {
@@ -16406,12 +16406,12 @@
                   "deckId": "secplus-secops-tooling",
                   "trackId": "cyber",
                   "q": "After acquiring a startup, their Google Workspace users need access to your Azure AD apps. IT proposes creating duplicate accounts for everyone. What is the most defensible approach?",
-                  "a": "Federate the identity providers",
+                  "a": "Federate the identity providers so startup users sign in with their existing accounts",
                   "x": "Duplicate accounts double the attack surface and the deprovisioning burden: federation keeps one identity, one MFA policy, one kill switch.",
                   "wrong": [
-                    "Duplicate accounts are simpler: duplicate accounts simplify the startup migration",
-                    "Give everyone the startup’s admin passwords: give everyone the startup admin passwords",
-                    "Block the startup’s users until migration completes: block startup users until migration completes"
+                    "Create duplicate accounts, since that is simpler",
+                    "Share the startup's admin passwords with your IT team",
+                    "Block the startup's users until the migration is complete"
                   ]
                 },
                 {
@@ -16422,9 +16422,9 @@
                   "a": "Enforce USB mass-storage blocking via properly linked GPO/MDM, monitor for violations, and provide an approved encrypted-USB exception process",
                   "x": "Unenforced policy is theater: technical enforcement plus monitoring plus a legitimate exception path beats a rule nobody can follow.",
                   "wrong": [
-                    "Glue the USB ports shut: gluing the USB ports shut stops exfiltration",
-                    "Send another policy reminder: another policy reminder fixes the GPO",
-                    "Ban USB drives in the employee handbook: the handbook ban stops USB exfiltration"
+                    "Physically block the USB ports",
+                    "Send another policy reminder about USB drives to all staff, and ask managers to confirm that their teams have read it and understood it",
+                    "Add a USB ban to the employee handbook"
                   ]
                 }
               ],
