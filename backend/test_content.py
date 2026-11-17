@@ -44,6 +44,10 @@ SDLC_SECURITY_D8_DECKS = {
     "cissp-d8", "cissp-cap-d8", "cy-web", "ai-security", "cpp-safety",
     "rust-ownership", "rust-concurrency", "docker-optimization-security",
     "k8s-security", "sec-ai-apps",
+    # Added by the 2026-11 educational audit, which retagged decks to their
+    # CISSP domain: application attacks (XSS, SQLi) and database security
+    # are D8 software development security.
+    "secplus-social-web-scenarios", "sql-transactions-security",
 }
 
 
@@ -279,7 +283,7 @@ def _pools():
 def test_cissp_d8_pool_is_100_percent_sdlc_security():
     data, decks, cards = _pools()
     d8 = [c for c in cards if (decks[c["deckId"]].get("cissp") or [None])[0] == 8]
-    assert len(d8) == 110
+    assert len(d8) == 145  # 110 + the two decks the 2026-11 audit retagged to D8
     assert {c["deckId"] for c in d8} <= SDLC_SECURITY_D8_DECKS
 
 
@@ -287,7 +291,9 @@ def test_cissp_d3_pool_shrunk_and_d6_grew():
     data, decks, cards = _pools()
     d3 = [c for c in cards if (decks[c["deckId"]].get("cissp") or [None])[0] == 3]
     d6 = [c for c in cards if (decks[c["deckId"]].get("cissp") or [None])[0] == 6]
-    assert len(d3) == 361
+    # 361 + the Security+ cloud and crypto scenario decks (50 cards), which
+    # the 2026-11 audit retagged from D7 to D3 (architecture + cryptography).
+    assert len(d3) == 411
     assert len(d6) >= 36
 
 
