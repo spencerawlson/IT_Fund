@@ -95,6 +95,51 @@
       "reviewed": "2026-11-16",
       "by": "AI content audit (not a human SME)",
       "items": 3
+    },
+    "sec-concepts": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-threats": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-malware": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-crypto": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 13
+    },
+    "sec-iam": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 27
+    },
+    "sec-architecture": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-ops": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-governance": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "sec-ai-apps": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
     }
   }
 }

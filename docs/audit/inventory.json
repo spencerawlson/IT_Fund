@@ -11,7 +11,7 @@
     "moduleNotes": 426,
     "courses": 21,
     "paths": 13,
-    "certifications": 14,
+    "certifications": 16,
     "sourcesRegistered": 92,
     "labs": 61,
     "freeDecks": 5,
@@ -26,9 +26,30 @@
     },
     "secplus": {
       "exam": "Security+ SY0-701",
-      "outline": "SY0-701 exam objectives",
+      "outline": "SY0-701 exam objectives (V8 / SY0-801 launches 17 November 2026 with reweighted domains)",
       "validUntil": "2027-06-11",
-      "source": "https://www.comptia.org/certifications/security"
+      "source": "https://www.comptia.org/en-us/certifications/security/"
+    },
+    "saa": {
+      "exam": "AWS Solutions Architect – Associate SAA-C03",
+      "outline": "SAA-C03 exam guide (no retirement announced as of 2026-11-16)",
+      "validUntil": null,
+      "reviewBy": "2027-05-16",
+      "source": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html"
+    },
+    "cysa": {
+      "exam": "CompTIA CySA+ CS0-004",
+      "outline": "CySA+ V4 exam objectives (launched 23 June 2026)",
+      "validUntil": null,
+      "reviewBy": "2027-05-16",
+      "source": "https://www.comptia.org/en-us/certifications/cybersecurity-analyst/v4/"
+    },
+    "awss": {
+      "exam": "AWS Security – Specialty SCS-C03",
+      "outline": "SCS-C03 exam guide (replaced SCS-C02, December 2025)",
+      "validUntil": null,
+      "reviewBy": "2027-05-16",
+      "source": "https://docs.aws.amazon.com/aws-certification/latest/security-specialty-03/security-specialty-03.html"
     }
   },
   "examDomains": {
@@ -38,64 +59,64 @@
         "title": "Security and Risk Management",
         "weight": 16,
         "color": "#F43F5E",
-        "decks": 18,
-        "cards": 340
+        "decks": 26,
+        "cards": 526
       },
       {
         "id": 2,
         "title": "Asset Security",
         "weight": 10,
         "color": "#F59E0B",
-        "decks": 9,
-        "cards": 112
+        "decks": 10,
+        "cards": 137
       },
       {
         "id": 3,
         "title": "Security Architecture and Engineering",
         "weight": 13,
         "color": "#A855F7",
-        "decks": 27,
-        "cards": 442
+        "decks": 30,
+        "cards": 517
       },
       {
         "id": 4,
         "title": "Communication and Network Security",
         "weight": 13,
         "color": "#3B82F6",
-        "decks": 27,
-        "cards": 334
+        "decks": 28,
+        "cards": 359
       },
       {
         "id": 5,
         "title": "Identity and Access Management",
         "weight": 13,
         "color": "#14B8A6",
-        "decks": 9,
-        "cards": 110
+        "decks": 11,
+        "cards": 145
       },
       {
         "id": 6,
         "title": "Security Assessment and Testing",
         "weight": 12,
         "color": "#6366F1",
-        "decks": 8,
-        "cards": 119
+        "decks": 12,
+        "cards": 206
       },
       {
         "id": 7,
         "title": "Security Operations",
         "weight": 13,
         "color": "#EF4444",
-        "decks": 64,
-        "cards": 1182
+        "decks": 45,
+        "cards": 844
       },
       {
         "id": 8,
         "title": "Software Development Security",
         "weight": 10,
         "color": "#22C55E",
-        "decks": 12,
-        "cards": 157
+        "decks": 14,
+        "cards": 192
       }
     ],
     "secplus": [
@@ -178,7 +199,7 @@
       {
         "id": 1,
         "title": "Security Operations",
-        "weight": 33,
+        "weight": 34,
         "color": "#8B5CF6",
         "decks": 3,
         "cards": 60
@@ -186,7 +207,7 @@
       {
         "id": 2,
         "title": "Vulnerability Management",
-        "weight": 30,
+        "weight": 26,
         "color": "#F59E0B",
         "decks": 2,
         "cards": 40
@@ -194,7 +215,7 @@
       {
         "id": 3,
         "title": "Incident Response and Management",
-        "weight": 20,
+        "weight": 24,
         "color": "#EF4444",
         "decks": 2,
         "cards": 40
@@ -202,7 +223,7 @@
       {
         "id": 4,
         "title": "Reporting and Communication",
-        "weight": 17,
+        "weight": 16,
         "color": "#3B82F6",
         "decks": 1,
         "cards": 20
@@ -211,24 +232,24 @@
     "awss": [
       {
         "id": 1,
-        "title": "Threat Detection and Incident Response",
-        "weight": 14,
+        "title": "Detection",
+        "weight": 16,
         "color": "#EF4444",
-        "decks": 2,
-        "cards": 24
+        "decks": 3,
+        "cards": 41
       },
       {
         "id": 2,
-        "title": "Security Logging and Monitoring",
-        "weight": 18,
+        "title": "Incident Response",
+        "weight": 14,
         "color": "#F59E0B",
-        "decks": 2,
-        "cards": 29
+        "decks": 1,
+        "cards": 12
       },
       {
         "id": 3,
         "title": "Infrastructure Security",
-        "weight": 20,
+        "weight": 18,
         "color": "#3B82F6",
         "decks": 2,
         "cards": 32
@@ -236,7 +257,7 @@
       {
         "id": 4,
         "title": "Identity and Access Management",
-        "weight": 16,
+        "weight": 20,
         "color": "#14B8A6",
         "decks": 2,
         "cards": 26
@@ -251,7 +272,7 @@
       },
       {
         "id": 6,
-        "title": "Management and Security Governance",
+        "title": "Security Foundations and Governance",
         "weight": 14,
         "color": "#6366F1",
         "decks": 1,
@@ -605,7 +626,7 @@
     {
       "slug": "cysa-plus",
       "trackId": "cysa",
-      "title": "CompTIA CySA+ (CS0-003)",
+      "title": "CompTIA CySA+ (CS0-004)",
       "difficulty": "Intermediate",
       "certifications": [
         "cysa-plus"
@@ -3025,11 +3046,7 @@
         "realpython"
       ],
       "resources": 3,
-      "exams": {
-        "cissp": [
-          7
-        ]
-      },
+      "exams": {},
       "lesson": {
         "free": false,
         "hasOverview": true,
@@ -3078,11 +3095,7 @@
         "realpython"
       ],
       "resources": 2,
-      "exams": {
-        "cissp": [
-          7
-        ]
-      },
+      "exams": {},
       "lesson": {
         "free": false,
         "hasOverview": true,
@@ -4332,8 +4345,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          3,
-          7
+          3
         ],
         "secplus": [
           3
@@ -4649,7 +4661,8 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          7
+          7,
+          3
         ],
         "secplus": [
           4
@@ -4680,7 +4693,8 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          7
+          7,
+          5
         ],
         "secplus": [
           4
@@ -4742,6 +4756,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
+          1,
           7
         ],
         "secplus": [
@@ -4805,7 +4820,8 @@
       "resources": 3,
       "exams": {
         "cissp": [
-          7
+          8,
+          1
         ],
         "secplus": [
           2
@@ -4836,6 +4852,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
+          6,
           7
         ],
         "secplus": [
@@ -4867,7 +4884,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          7
+          3
         ],
         "secplus": [
           3
@@ -4898,7 +4915,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          7
+          4
         ],
         "secplus": [
           3
@@ -4929,7 +4946,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          7
+          2
         ],
         "secplus": [
           3
@@ -4960,7 +4977,8 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          7
+          7,
+          1
         ],
         "secplus": [
           3
@@ -4988,7 +5006,7 @@
       "resources": 0,
       "exams": {
         "cissp": [
-          7
+          1
         ],
         "secplus": [
           1
@@ -5016,7 +5034,7 @@
       "resources": 0,
       "exams": {
         "cissp": [
-          7
+          3
         ],
         "secplus": [
           1
@@ -5044,7 +5062,7 @@
       "resources": 0,
       "exams": {
         "cissp": [
-          7
+          1
         ],
         "secplus": [
           5
@@ -5072,7 +5090,8 @@
       "resources": 0,
       "exams": {
         "cissp": [
-          7
+          1,
+          6
         ],
         "secplus": [
           5
@@ -5100,7 +5119,7 @@
       "resources": 0,
       "exams": {
         "cissp": [
-          7
+          1
         ],
         "secplus": [
           5
@@ -5731,6 +5750,7 @@
       "resources": 1,
       "exams": {
         "cissp": [
+          6,
           7
         ],
         "cysa": [
@@ -5821,7 +5841,8 @@
       "resources": 1,
       "exams": {
         "cissp": [
-          7
+          7,
+          6
         ],
         "cysa": [
           2
@@ -5881,6 +5902,7 @@
       "resources": 1,
       "exams": {
         "cissp": [
+          1,
           7
         ],
         "cysa": [
@@ -5954,7 +5976,7 @@
         "examples": 0,
         "cheatSheet": 10,
         "furtherReading": 0,
-        "words": 708
+        "words": 704
       }
     },
     {
@@ -5974,7 +5996,7 @@
           7
         ],
         "awss": [
-          2
+          1
         ]
       },
       "lesson": {
@@ -5984,7 +6006,7 @@
         "examples": 0,
         "cheatSheet": 10,
         "furtherReading": 0,
-        "words": 708
+        "words": 706
       }
     },
     {
@@ -6034,7 +6056,7 @@
           7
         ],
         "awss": [
-          1
+          2
         ]
       },
       "lesson": {
@@ -6044,7 +6066,7 @@
         "examples": 0,
         "cheatSheet": 10,
         "furtherReading": 0,
-        "words": 587
+        "words": 584
       }
     },
     {
@@ -6064,7 +6086,7 @@
           7
         ],
         "awss": [
-          2
+          1
         ]
       },
       "lesson": {
@@ -6074,7 +6096,7 @@
         "examples": 0,
         "cheatSheet": 10,
         "furtherReading": 0,
-        "words": 558
+        "words": 556
       }
     },
     {
@@ -6224,7 +6246,7 @@
         "examples": 0,
         "cheatSheet": 10,
         "furtherReading": 0,
-        "words": 549
+        "words": 552
       }
     },
     {
@@ -7021,11 +7043,7 @@
         "tldr"
       ],
       "resources": 3,
-      "exams": {
-        "cissp": [
-          7
-        ]
-      },
+      "exams": {},
       "lesson": {
         "free": true,
         "hasOverview": true,
@@ -7051,7 +7069,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          7
+          5
         ]
       },
       "lesson": {
@@ -7079,8 +7097,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          5,
-          7
+          5
         ]
       },
       "lesson": {
@@ -7106,11 +7123,7 @@
         "tldr"
       ],
       "resources": 2,
-      "exams": {
-        "cissp": [
-          7
-        ]
-      },
+      "exams": {},
       "lesson": {
         "free": false,
         "hasOverview": true,
@@ -7162,11 +7175,7 @@
         "tldr"
       ],
       "resources": 2,
-      "exams": {
-        "cissp": [
-          7
-        ]
-      },
+      "exams": {},
       "lesson": {
         "free": false,
         "hasOverview": true,
@@ -7219,11 +7228,7 @@
         "comptia-linux"
       ],
       "resources": 2,
-      "exams": {
-        "cissp": [
-          7
-        ]
-      },
+      "exams": {},
       "lesson": {
         "free": false,
         "hasOverview": true,
@@ -7277,8 +7282,7 @@
       "resources": 2,
       "exams": {
         "cissp": [
-          3,
-          7
+          3
         ]
       },
       "lesson": {
@@ -8309,7 +8313,11 @@
         "use-the-index"
       ],
       "resources": 2,
-      "exams": {},
+      "exams": {
+        "cissp": [
+          8
+        ]
+      },
       "lesson": {
         "free": false,
         "hasOverview": true,

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T00:49:48.752Z",
+  "generatedAt": "2026-11-17T00:53:34.503Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -5442,9 +5442,9 @@
                   "a": "Unreviewed changes cause outages and vulnerabilities",
                   "x": "Approval, impact analysis, test results, and a backout plan.",
                   "wrong": [
-                    "It speeds up releases, shipping new code much faster",
-                    "It replaces patching, so updates are unnecessary",
-                    "It is only for finance, tracking money and budgets"
+                    "It speeds up releases by removing review steps",
+                    "It removes the need for regular patching",
+                    "It mainly tracks budget approval for IT purchases"
                   ]
                 }
               ],
@@ -5572,9 +5572,9 @@
                   "a": "Compromising a site the target group frequently visits",
                   "x": "Targets a community rather than one person.",
                   "wrong": [
-                    "Flooding a server",
-                    "Guessing passwords",
-                    "Stealing a laptop"
+                    "Flooding the group's main website with traffic",
+                    "Emailing the group a malicious attachment directly",
+                    "Registering a lookalike of the group's own domain"
                   ]
                 },
                 {
@@ -5624,9 +5624,9 @@
                   "a": "Security awareness training plus verification procedures",
                   "x": "Technical filters help, but people are the target.",
                   "wrong": [
-                    "A stronger firewall",
-                    "Faster patching",
-                    "Longer passwords only"
+                    "A next-generation firewall with SSL inspection",
+                    "Faster patching of every endpoint and server",
+                    "Longer password requirements for all staff"
                   ]
                 },
                 {
@@ -5765,9 +5765,9 @@
                   "a": "A network of compromised machines under an attacker’s command",
                   "x": "Used for DDoS, spam, and credential stuffing. Controlled via C2.",
                   "wrong": [
-                    "A firewall cluster",
-                    "A security scanner",
-                    "A load balancer pool"
+                    "A cluster of firewalls sharing one policy",
+                    "A pool of servers behind a load balancer",
+                    "A distributed vulnerability scanning platform"
                   ]
                 },
                 {
@@ -5817,9 +5817,9 @@
                   "a": "Account compromise: logins from far-apart places too quickly",
                   "x": "A key identity threat detection signal.",
                   "wrong": [
-                    "A VPN outage",
-                    "A DNS error",
-                    "Normal user behaviour"
+                    "A VPN gateway rotating the user's exit IP",
+                    "A DNS resolver returning the wrong region",
+                    "Normal behaviour for a frequently travelling user"
                   ]
                 },
                 {
@@ -5897,7 +5897,7 @@
                   "wrong": [
                     "One shared key used by both sides",
                     "Only hashes, no encryption keys at all",
-                    "A one-time pad, used once and then destroyed"
+                    "A one-time pad shared in advance"
                   ]
                 },
                 {
@@ -5934,9 +5934,9 @@
                   "a": "AES-256",
                   "x": "DES and 3DES are deprecated.",
                   "wrong": [
-                    "DES, the old 56-bit cipher from the 1970s",
+                    "DES",
                     "RC4",
-                    "MD5"
+                    "3DES"
                   ]
                 },
                 {
@@ -5960,9 +5960,9 @@
                   "a": "Adds random data so identical passwords hash differently",
                   "x": "Defeats precomputed rainbow tables.",
                   "wrong": [
-                    "Encrypts the password",
-                    "Speeds up hashing",
-                    "Shortens the hash"
+                    "Encrypts the password before it is hashed",
+                    "Speeds up hashing so logins are faster",
+                    "Shortens the hash so it takes less storage"
                   ]
                 },
                 {
@@ -5997,7 +5997,7 @@
                   "trackId": "security",
                   "q": "How is a revoked certificate checked quickly?",
                   "a": "OCSP (often with OCSP stapling)",
-                  "x": "CRLs are the older list-based method.",
+                  "x": "The client asks the CA's OCSP responder about one certificate; stapling lets the server attach a fresh signed response. CRLs are the older list-based method. Since 2025 some public CAs (for example Let's Encrypt) have dropped OCSP in favour of CRLs for privacy reasons.",
                   "wrong": [
                     "DNSSEC, signing DNS records to prove authenticity",
                     "A CSR, a certificate signing request",
@@ -6023,7 +6023,7 @@
                   "trackId": "security",
                   "q": "What is perfect forward secrecy?",
                   "a": "Ephemeral keys per session, useless for past sessions",
-                  "x": "Provided by ephemeral Diffie-Hellman (DHE/ECDHE); mandatory in TLS 1.3.",
+                  "x": "Provided by ephemeral Diffie-Hellman (DHE/ECDHE). TLS 1.3 removed the static RSA and static Diffie-Hellman key exchanges that lacked forward secrecy.",
                   "wrong": [
                     "Keys that never expire, valid forever with no rotation at all",
                     "Encrypting keys twice, double-wrapping them for extra safety",
@@ -6208,9 +6208,9 @@
                   "a": "Attribute-Based Access Control (ABAC)",
                   "x": "Most granular and flexible; common in cloud IAM policies.",
                   "wrong": [
-                    "RBAC",
-                    "DAC",
-                    "MAC"
+                    "Role-Based Access Control (RBAC)",
+                    "Discretionary Access Control (DAC)",
+                    "Mandatory Access Control (MAC)"
                   ]
                 },
                 {
@@ -6256,13 +6256,13 @@
                   "id": "sec-iam-12",
                   "deckId": "sec-iam",
                   "trackId": "security",
-                  "q": "When is the OAuth authorization code flow used?",
-                  "a": "Server-side web apps that can keep a client secret",
-                  "x": "The classic web SSO login flow; tokens go through the back channel.",
+                  "q": "When is the OAuth authorization code flow (with PKCE) used?",
+                  "a": "Whenever a user signs in through a browser: web, mobile and single-page apps",
+                  "x": "RFC 9700 (OAuth 2.0 Security Best Current Practice, 2025) recommends the authorization code flow with PKCE for all clients. The implicit and resource-owner password grants are deprecated.",
                   "wrong": [
-                    "Mobile apps without a backend",
-                    "TV apps",
-                    "Machine-to-machine only"
+                    "Only for machine-to-machine calls with no user present",
+                    "Only for input-constrained devices such as smart TVs",
+                    "Only when the app collects the user's password itself"
                   ]
                 },
                 {
@@ -6297,7 +6297,7 @@
                   "trackId": "security",
                   "q": "What is PKCE for in OAuth?",
                   "a": "Protecting the code flow in public clients",
-                  "x": "A per-request secret proves the token request came from the same client.",
+                  "x": "A per-request secret (the code verifier) proves the token request came from the same client that started the flow. RFC 9700 now recommends PKCE for confidential clients too, not only public ones.",
                   "wrong": [
                     "Encrypting passwords, scrambling them before storage",
                     "Faster logins, skipping the password step entirely",
@@ -6312,9 +6312,9 @@
                   "a": "OIDC for modern apps and APIs (JSON/JWT); SAML for legacy enterprise web SSO (XML)",
                   "x": "Both are federation protocols; OIDC is lighter and mobile-friendly.",
                   "wrong": [
-                    "SAML for mobile apps",
-                    "OIDC for mainframes",
-                    "They are identical"
+                    "SAML for mobile apps and APIs; OIDC for legacy enterprise SSO",
+                    "OIDC only for on-premises Windows domain logons",
+                    "They are identical protocols with different names"
                   ]
                 },
                 {
@@ -6364,9 +6364,9 @@
                   "a": "A timestamp encrypted with the session key, proving the client holds the ticket",
                   "x": "It prevents replay without resending the password.",
                   "wrong": [
-                    "A password hash",
-                    "A certificate",
-                    "A second ticket"
+                    "A hash of the user's password sent to the service",
+                    "An X.509 certificate presented by the client",
+                    "A second ticket-granting ticket for the same service"
                   ]
                 },
                 {
@@ -6377,9 +6377,9 @@
                   "a": "Centralised AAA for network access",
                   "x": "UDP-based; it encrypts only the password, not the whole packet.",
                   "wrong": [
-                    "Web SSO, logging into websites once",
-                    "Device administration, configuring routers and switches",
-                    "Email encryption, scrambling logins in transit"
+                    "Web single sign-on across SaaS applications",
+                    "Signing and encrypting email messages",
+                    "Issuing certificates to network devices"
                   ]
                 },
                 {
@@ -6416,9 +6416,9 @@
                   "a": "Attackers spam push approvals until the user accepts; stop it with number matching or phishing-resistant MFA",
                   "x": "FIDO2/passkeys eliminate the approve-prompt entirely.",
                   "wrong": [
-                    "Users forgetting passwords",
-                    "Too many password rules",
-                    "Slow login pages"
+                    "Users forget passwords after too many forced resets; stop it with longer reset intervals",
+                    "Too many password complexity rules; stop it by removing special-character requirements",
+                    "Login pages slow down under load; stop it with a CDN in front of the IdP"
                   ]
                 },
                 {
@@ -6501,9 +6501,9 @@
                   "a": "Replaces sensitive data with a non-sensitive token",
                   "x": "Common for card numbers; the mapping lives in a vault.",
                   "wrong": [
-                    "Encrypts with AES",
-                    "Hashes passwords",
-                    "Compresses data"
+                    "Encrypts the data with AES so it can be decrypted later",
+                    "Hashes the data so it can never be recovered",
+                    "Compresses the data before storage"
                   ]
                 },
                 {
@@ -6553,9 +6553,9 @@
                   "a": "Consistent, reviewable, repeatable configuration",
                   "x": "Scan templates for misconfigurations before deployment.",
                   "wrong": [
-                    "No need for access control",
-                    "Faster CPUs",
-                    "No logging needed"
+                    "It removes the need for access control on the pipeline",
+                    "It makes servers run faster in production",
+                    "It replaces logging, since every change is in git"
                   ]
                 },
                 {
@@ -6566,9 +6566,9 @@
                   "a": "Web applications, at Layer 7",
                   "x": "Blocks SQL injection, XSS, and similar attacks.",
                   "wrong": [
-                    "Wireless networks",
-                    "Only DNS",
-                    "Physical servers"
+                    "Wireless networks, at Layer 2",
+                    "DNS resolvers, at Layer 7",
+                    "Physical servers, at the hardware level"
                   ]
                 },
                 {
@@ -6696,7 +6696,7 @@
                   "trackId": "security",
                   "q": "What is a CVE?",
                   "a": "A unique public identifier for a vulnerability",
-                  "x": "Format CVE-YYYY-NNNNN.",
+                  "x": "Format CVE-YYYY-NNNN, where the sequence number has four or more digits.",
                   "wrong": [
                     "A vulnerability score, rating how severe each CVE is",
                     "An exploit kit, ready-made tools for attackers",
@@ -6737,9 +6737,9 @@
                   "a": "Aggregates and correlates logs to detect incidents",
                   "x": "SOAR adds automated response playbooks.",
                   "wrong": [
-                    "Blocks packets at the network edge immediately",
-                    "Encrypts logs only, scrambling them for secure storage",
-                    "Replaces antivirus, so no endpoint agent is needed"
+                    "Blocks packets at the network edge",
+                    "Encrypts logs for long-term storage",
+                    "Replaces endpoint antivirus agents"
                   ]
                 },
                 {
@@ -6759,13 +6759,13 @@
                   "id": "sec-ops-6",
                   "deckId": "sec-ops",
                   "trackId": "security",
-                  "q": "What are the NIST incident response phases (SP 800-61r2)?",
+                  "q": "What are the classic NIST incident response phases (SP 800-61 Rev. 2)?",
                   "a": "Preparation; Detection & Analysis; Containment, Eradication & Recovery; Post-Incident",
-                  "x": "SP 800-61r3 (2025) now maps IR to NIST CSF 2.0 functions.",
+                  "x": "Rev. 2 was superseded by SP 800-61 Rev. 3 (April 2025), which maps incident response to the NIST CSF 2.0 functions. Security+ SY0-701 lists the same lifecycle as preparation, detection, analysis, containment, eradication, recovery and lessons learned.",
                   "wrong": [
-                    "Plan, Do, Check, Act",
-                    "Identify, Scan, Exploit, Report",
-                    "Detect, Delete, Forget"
+                    "Plan; Do; Check; Act — the continuous-improvement cycle",
+                    "Identify; Scan; Exploit; Report — the penetration-test stages",
+                    "Detection; Notification; Restoration; Closure — the service-desk ticket stages"
                   ]
                 },
                 {
@@ -6787,7 +6787,7 @@
                   "trackId": "security",
                   "q": "What is the order of volatility?",
                   "a": "Most volatile evidence first: RAM before disk",
-                  "x": "RAM, then temp files, disk, remote logs, and archives last.",
+                  "x": "RFC 3227 order: CPU registers and cache, memory (RAM), temporary file systems, disk, remote logs, then archival media.",
                   "wrong": [
                     "Disk first, then RAM, working from the slowest",
                     "Backups first, restoring systems before investigating",
@@ -6815,9 +6815,9 @@
                   "a": "Proactively searching for threats that evaded detection",
                   "x": "Hypothesis-driven, often mapped to MITRE ATT&CK.",
                   "wrong": [
-                    "Waiting for alerts",
-                    "Running antivirus",
-                    "Pentesting"
+                    "Waiting for SIEM alerts and triaging them",
+                    "Running scheduled antivirus scans",
+                    "Penetration testing against production systems"
                   ]
                 },
                 {
@@ -6972,9 +6972,9 @@
                   "a": "Policy = what and why; standard = mandatory specifics; procedure = step-by-step how",
                   "x": "Guidelines are recommendations, not mandatory.",
                   "wrong": [
-                    "They are the same",
-                    "Procedure is the highest level",
-                    "Standards are optional"
+                    "They are the same thing at different lengths",
+                    "Procedure is the highest level; policy gives the steps",
+                    "Standards are optional advice; policies are suggestions"
                   ]
                 },
                 {
@@ -7037,9 +7037,9 @@
                   "a": "Controls operated effectively over a period of time",
                   "x": "Type I checks design at a single point in time.",
                   "wrong": [
-                    "A single-day snapshot",
-                    "Financial statements",
-                    "A pentest result"
+                    "Controls were designed correctly on a single day",
+                    "The company's financial statements are accurate",
+                    "The results of an external penetration test"
                   ]
                 },
                 {
@@ -7050,9 +7050,9 @@
                   "a": "Critical functions and the impact of losing them",
                   "x": "Foundation of business continuity planning.",
                   "wrong": [
-                    "The firewall rules, blocking or allowing traffic flows",
-                    "Pentest scope, which systems attackers may test",
-                    "Employee salaries, what everyone earns each month"
+                    "Which firewall rules to tighten first",
+                    "Which systems a penetration test may cover",
+                    "How salaries are budgeted across departments"
                   ]
                 }
               ],
@@ -7145,9 +7145,9 @@
                   "a": "Tricking a logged-in user’s browser into sending an unwanted request",
                   "x": "Fix with anti-CSRF tokens and SameSite cookies.",
                   "wrong": [
-                    "Injecting scripts",
-                    "Stealing passwords by phishing",
-                    "Buffer overflow"
+                    "Injecting script that runs in other users' browsers",
+                    "Stealing passwords with a phishing page",
+                    "Overflowing a buffer to run injected code"
                   ]
                 },
                 {
@@ -7184,9 +7184,9 @@
                   "a": "Proving software came from the publisher unaltered",
                   "x": "Protects the supply chain and users.",
                   "wrong": [
-                    "Encrypting code, scrambling it before it ships anywhere",
-                    "Speeding up code, making it run much faster",
-                    "Obfuscating code, making it hard for humans to read"
+                    "Encrypting the code so it cannot be read",
+                    "Making the code run faster after install",
+                    "Obfuscating the code against reverse engineering"
                   ]
                 },
                 {
@@ -7197,9 +7197,9 @@
                   "a": "Static analysis of source vs dynamic testing of a running app",
                   "x": "Use both in CI/CD.",
                   "wrong": [
-                    "Same thing",
-                    "DAST reads source code",
-                    "SAST attacks production"
+                    "Two names for the same scan",
+                    "DAST reads source; SAST tests the running app",
+                    "SAST attacks production; DAST runs on a laptop"
                   ]
                 },
                 {
@@ -7236,9 +7236,9 @@
                   "a": "A manipulated agent with broad tools acts harmfully",
                   "x": "Limit tools and permissions; require human approval for high-impact actions.",
                   "wrong": [
-                    "Agents are too slow, taking minutes to answer",
-                    "Agents use too much memory, crashing the servers entirely",
-                    "Agents cannot log, leaving no audit trail at all"
+                    "Agents respond too slowly for real-time use",
+                    "Agents use too much memory on the server",
+                    "Agents cannot write any audit logs"
                   ]
                 },
                 {
@@ -7262,9 +7262,9 @@
                   "a": "A software bill of materials: an inventory of components",
                   "x": "Lets you find affected systems fast when a library CVE drops.",
                   "wrong": [
-                    "A backup schedule",
-                    "A billing report",
-                    "A firewall policy"
+                    "A backup schedule for build servers",
+                    "A billing report from the cloud provider",
+                    "A firewall policy for the build pipeline"
                   ]
                 }
               ],
@@ -29411,13 +29411,13 @@
                   "id": "awss-network-security-8",
                   "deckId": "awss-network-security",
                   "trackId": "aws-security",
-                  "q": "Why are VPC endpoints (PrivateLink) a security improvement over internet gateways for AWS service access?",
+                  "q": "Why are VPC endpoints a security improvement over an internet gateway for reaching AWS services?",
                   "a": "Traffic to S3, DynamoDB, and other services stays on the AWS private network",
-                  "x": "No public IPs, no internet exposure, policy control per endpoint.",
+                  "x": "Gateway endpoints (S3, DynamoDB) and interface endpoints (AWS PrivateLink, most other services) keep traffic on the AWS network, need no public IPs, and each endpoint can carry its own policy.",
                   "wrong": [
-                    "They are faster than Direct Connect, moving traffic over the private network at line rate",
-                    "They replace IAM",
-                    "They encrypt VPC peering"
+                    "They give more throughput than Direct Connect",
+                    "They remove the need for IAM policies",
+                    "They encrypt traffic across VPC peering"
                   ]
                 },
                 {
@@ -32365,12 +32365,12 @@
                   "deckId": "cissp-mindset",
                   "trackId": "cissp",
                   "q": "What is due care vs due diligence?",
-                  "a": "Due care: doing the right thing; due diligence: verifying it",
-                  "x": "Negligence is failing at due care.",
+                  "a": "Due care: acting as a reasonable person would; due diligence: the research and checking behind it",
+                  "x": "Memory aid: due diligence is knowing (investigating, planning, verifying); due care is doing (acting responsibly to protect assets). Failing at due care is negligence.",
                   "wrong": [
-                    "Exactly the same thing under two different names",
-                    "Due care is investigation, done before acting",
-                    "Due diligence is legal liability for the breach"
+                    "Two names for the same legal duty",
+                    "Due care is the investigation; due diligence is the action taken",
+                    "Due diligence is the fine paid after a breach"
                   ]
                 },
                 {
@@ -32392,7 +32392,7 @@
                   "trackId": "cissp",
                   "q": "How much should a control cost at most?",
                   "a": "No more than the asset’s value",
-                  "x": "Cost-benefit: annual control cost < reduction in ALE.",
+                  "x": "The usual exam rule: never spend more on a control than the asset is worth. More precisely, the annual cost of the control should be less than the reduction in ALE it delivers.",
                   "wrong": [
                     "Any amount, whatever the cost to the business",
                     "Twice the asset value, to be extra safe",
@@ -32811,7 +32811,7 @@
                   "trackId": "cissp",
                   "q": "Preventive vs detective vs corrective controls?",
                   "a": "Prevent incidents before they happen; detect them in progress; restore afterwards",
-                  "x": "Firewall rules prevent; IDS detects; backups correct.",
+                  "x": "A firewall rule prevents; an IDS detects; antivirus quarantining malware, or patching an exploited flaw, corrects. (Restoring from backup is usually classed as a recovery control.)",
                   "wrong": [
                     "All detect incidents, only the timing differs between them",
                     "Corrective comes first, before prevention or detection",
@@ -34465,8 +34465,8 @@
                   "deckId": "cissp-d8",
                   "trackId": "cissp",
                   "q": "What are the Scrum ceremonies?",
-                  "a": "Sprint planning, daily standup, sprint review, and retrospective",
-                  "x": "Time-boxed events that keep each sprint inspectable and adaptable.",
+                  "a": "Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective",
+                  "x": "The Scrum Guide (2020) calls these events. All four happen inside the Sprint, which is itself the container event.",
                   "wrong": [
                     "Annual reviews, once a year with the HR team",
                     "Change advisory boards, formally approving every production change",
@@ -44287,11 +44287,11 @@
                   "trackId": "docker",
                   "q": "What does `--network host` do?",
                   "a": "Shares the host's network stack (no port mapping needed)",
-                  "x": "Fast, but less isolation; Linux-only behaviour.",
+                  "x": "Fast, but with less isolation. Native on Linux; Docker Desktop on macOS and Windows offers only a limited host-networking mode.",
                   "wrong": [
-                    "Isolates fully, giving the container its own private network with no host access at all",
-                    "Disables networking",
-                    "Creates a new subnet"
+                    "Gives the container its own isolated network namespace",
+                    "Disables all networking for the container",
+                    "Creates a new user-defined bridge subnet"
                   ]
                 },
                 {
@@ -44438,9 +44438,9 @@
                   "trackId": "docker",
                   "q": "How do you express that a web service needs the db first?",
                   "a": "depends_on: [db]",
-                  "x": "Note: it waits for start, not readiness — add a healthcheck for that.",
+                  "x": "depends_on controls start order only, not readiness: add a healthcheck and `condition: service_healthy` to wait until the db is ready. The old `links` key is legacy.",
                   "wrong": [
-                    "links: db, the legacy Compose key that starts the database before the web service",
+                    "expose: [db]",
                     "requires: db",
                     "after: db"
                   ]
@@ -45727,11 +45727,11 @@
                   "trackId": "kubernetes",
                   "q": "How do you mount a Secret into a pod?",
                   "a": "As a volume or env var referencing the Secret",
-                  "x": "Mounted secrets update when the Secret changes.",
+                  "x": "Secrets mounted as volumes are updated (eventually) when the Secret changes; environment variables and subPath mounts keep the old value until the pod restarts.",
                   "wrong": [
-                    "Bake it into the image",
-                    "Via NodePort",
-                    "You cannot"
+                    "Bake it into the container image at build time",
+                    "Expose it to the pod through a NodePort",
+                    "Pods cannot read Secrets directly"
                   ]
                 },
                 {
