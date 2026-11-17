@@ -22,6 +22,13 @@ export default {
           'kubectl is how you speak to the API server: apply to declare, get to observe, describe to investigate, logs to read. The pod \u2014 one or a few tightly-coupled containers sharing network and storage \u2014 is the smallest thing you can deploy. You will rarely create pods directly, though; controllers like Deployments do that for you, which is where the next lesson begins.',
         ],
       },
+      {
+        heading: 'Working with kubectl and contexts',
+        body: [
+          'kubectl reads its connection details from a kubeconfig file (`~/.kube/config` by default), which can hold several clusters, users and namespaces combined into contexts. `kubectl config get-contexts` lists them and `kubectl config use-context staging` switches; checking the current context before running a destructive command prevents changes to the wrong cluster. `kubectl config set-context --current --namespace=shop` sets a default namespace.',
+          'A few flags make kubectl far more useful: `-o wide` adds node and IP columns, `-o yaml` shows the full object as stored, `-l app=web` filters by label, and `--dry-run=client -o yaml` prints the manifest a command would create without creating it, a quick way to generate starting YAML. `kubectl api-resources` lists every resource type the cluster supports.',
+        ],
+      },
     ],
     examples: [
       {
@@ -59,6 +66,13 @@ export default {
         body: [
           'A Deployment declares \u201CI want N identical pods of this spec,\u201D and a ReplicaSet underneath does the counting \u2014 adding pods when there are too few, removing them when there are too many. Scale with `kubectl scale deploy/name --replicas=5` or by editing the manifest; either way the ReplicaSet converges reality to the number.',
           'The glue is labels and selectors: pods carry labels, and the Deployment\u2019s selector matches them. This indirection \u2014 controllers finding their pods by label rather than by name \u2014 is how Kubernetes stays flexible, and it is also how Services will find them in the networking lesson. Self-healing falls out for free: a dead pod means the count is wrong, so a replacement is scheduled on a healthy node without anyone being paged.',
+        ],
+      },
+      {
+        heading: 'Multi-container pods and pod lifecycle',
+        body: [
+          'Most pods run one application container, but helpers are common. Init containers run to completion before the app starts, for example to wait for a database or run a migration. Sidecar containers run alongside the app for the pod\'s lifetime, such as a log shipper or service-mesh proxy; Kubernetes 1.29+ supports native sidecars as init containers with `restartPolicy: Always`, so they start before and stop after the main container.',
+          'A pod\'s phase moves from Pending (scheduled, pulling images) to Running, and ends as Succeeded or Failed. Common problems show in the container status: `ImagePullBackOff` means the image name, tag or registry credentials are wrong; `CrashLoopBackOff` means the container keeps exiting; `OOMKilled` means it exceeded its memory limit. `kubectl describe pod` shows these with the events that explain them.',
         ],
       },
     ],
@@ -100,6 +114,13 @@ export default {
           'One warning the cards stress for good reason: a Kubernetes Secret is base64-encoded, not encrypted, in etcd by default. Treat it accordingly \u2014 enable encryption at rest, lock it down with RBAC, and for the truly crown-jewel secrets, reach for an external secrets manager. Labels, meanwhile, do the quiet organizational work: metadata.labels is how Services select pods, how Deployments find theirs, how you query and group everything. In Kubernetes, labels are the glue.',
         ],
       },
+      {
+        heading: 'Labels, selectors and managing manifests',
+        body: [
+          'Labels are key-value pairs that tie Kubernetes objects together. A Deployment\'s selector picks its pods by label, a Service routes to pods by label, and a NetworkPolicy applies to pods by label, so a typo in a label silently breaks the connection. Use a consistent set, such as the recommended `app.kubernetes.io/name`, `app.kubernetes.io/version` and `app.kubernetes.io/component`. Annotations hold non-identifying metadata such as build information.',
+          'Apply manifests declaratively with `kubectl apply -f dir/`, and keep them in Git so every change is reviewed. `kubectl diff -f dir/` shows what would change before you apply. For variation between environments, Kustomize (built into kubectl with `-k`) layers patches over a base, and Helm packages manifests as templated charts with values files.',
+        ],
+      },
     ],
     examples: [
       {
@@ -137,6 +158,13 @@ export default {
         body: [
           'Service discovery runs on cluster DNS: inside its namespace a Service is reachable by bare name (\u201Cdb\u201D), and fully qualified as db.mynamespace.svc.cluster.local from anywhere. CoreDNS serves it all, which is why the earlier lesson\u2019s advice \u2014 services reach each other by name \u2014 works without any manual wiring.',
           'For HTTP traffic from outside, Ingress is the front door: one entry point routing by host and path to the right Services, with TLS termination along the way. The critical detail beginners miss: an Ingress object alone does nothing \u2014 an Ingress controller (nginx, Traefik, or your cloud\u2019s) must be running in the cluster to implement the rules. No controller, no routing.',
+        ],
+      },
+      {
+        heading: 'Controlling traffic with NetworkPolicy',
+        body: [
+          'By default every pod can talk to every other pod in the cluster, across namespaces. A NetworkPolicy restricts that: once any policy selects a pod for ingress, only traffic the policies allow can reach it. A common pattern is a default-deny policy per namespace (`podSelector: {}` with `policyTypes: [Ingress, Egress]` and no rules), followed by policies that allow specific flows, such as the web pods to the API pods on port 8080, and DNS egress to kube-system.',
+          'NetworkPolicy is enforced by the network plugin, not by Kubernetes itself, so it only works with a CNI that supports it, such as Calico or Cilium. Test policies after applying them: `kubectl exec` into a pod and try to reach a service that should be blocked. The Gateway API is the successor to Ingress for routing external traffic, with richer routing and clearer roles.',
         ],
       },
     ],
@@ -178,6 +206,13 @@ export default {
           'Two more distinctions matter. Access modes describe mountability: ReadWriteOnce means one node mounts it read-write; ReadWriteMany allows many nodes, but only if the storage backend supports it. And workload type follows the data: stateless apps run as Deployments with interchangeable pods, while databases and queues \u2014 anything needing stable identity plus its own storage \u2014 belong in a StatefulSet with per-pod PVCs. Never store database files in the image; images are read-only, shared, and the wrong place for anything writable or durable.',
         ],
       },
+      {
+        heading: 'StatefulSets, snapshots and data safety',
+        body: [
+          'For databases and other stateful workloads, a StatefulSet uses `volumeClaimTemplates` to give each replica its own PersistentVolumeClaim (`data-db-0`, `data-db-1`), and the claim follows the pod\'s stable name if it is rescheduled. Scaling down does not delete those claims, so the data is still there when you scale back up.',
+          'Check the StorageClass reclaim policy: `Delete` removes the underlying disk when the claim is deleted, and `Retain` keeps it for manual recovery. For production data, use `Retain` or make sure backups exist. VolumeSnapshots (with a CSI driver that supports them) take point-in-time copies, and tools such as Velero back up both Kubernetes objects and volume data to object storage. Running a production database in Kubernetes is possible, but a managed database service is often simpler.',
+        ],
+      },
     ],
     examples: [
       {
@@ -215,6 +250,13 @@ export default {
         body: [
           'Three probes, three questions. Liveness: \u201Cis this container still alive?\u201D \u2014 a failure restarts it. Readiness: \u201Cshould it receive traffic yet?\u201D \u2014 a not-ready pod is quietly removed from Service endpoints until it is. Startup: \u201Chas this slow starter finished booting?\u201D \u2014 it holds the liveness probe off during long initializations so healthy-but-slow containers are not killed for being deliberate.',
           'Scaling and fairness complete the picture. The Horizontal Pod Autoscaler adjusts replica counts from metrics like CPU \u2014 but it needs metrics-server running to see anything. And resource requests versus limits is the fairness contract: requests guide the scheduler\u2019s placement, limits cap what a pod may consume. A container that exceeds its memory limit is OOM-killed; CPU overuse is throttled instead. Set both, always \u2014 unbounded pods let one workload starve the node and everyone on it.',
+        ],
+      },
+      {
+        heading: 'Tuning rollouts and protecting availability',
+        body: [
+          'A Deployment\'s rolling update is controlled by `maxSurge` (how many extra pods may be created above the desired count) and `maxUnavailable` (how many may be missing). `maxSurge: 1, maxUnavailable: 0` adds a new pod before removing an old one, keeping full capacity at the cost of extra resources. `minReadySeconds` makes Kubernetes wait until a new pod has been ready for a while before continuing, which catches pods that crash shortly after starting.',
+          'A PodDisruptionBudget protects availability during voluntary disruptions such as node drains: `minAvailable: 2` stops a drain from evicting pods if fewer than two would remain. For riskier releases, canary and blue-green strategies send a small share of traffic to the new version first; tools such as Argo Rollouts or a service mesh automate them with automatic rollback on errors.',
         ],
       },
     ],
@@ -256,6 +298,13 @@ export default {
           'Learn to recognize CrashLoopBackOff: a pod crashing and restarting with growing delays between attempts \u2014 almost always an application problem (bad config, missing dependency), diagnosed via logs and describe. For node maintenance, cordon marks a node unschedulable and drain evicts its pods so they reschedule elsewhere \u2014 the graceful way to take a machine down. Underneath it all runs the same loop every controller follows: observe actual state, compare to desired, act to reconcile, forever. That loop is Kubernetes.',
         ],
       },
+      {
+        heading: 'Observability for clusters',
+        body: [
+          '`kubectl top pods` and `kubectl top nodes` show current CPU and memory use, provided the metrics-server is installed. For history and alerting, most clusters run Prometheus to collect metrics from the kubelet, kube-state-metrics and applications, with Grafana dashboards and alert rules for symptoms such as pods restarting, nodes not ready, persistent volumes filling and Deployments with unavailable replicas.',
+          'Container logs disappear when a pod is deleted, so ship them off the node with an agent such as Fluent Bit running as a DaemonSet. `kubectl get events --sort-by=.lastTimestamp` gives a quick timeline of what the cluster has been doing. For a crashed container, `kubectl logs <pod> --previous` shows the output of the last failed run, and `kubectl debug` attaches an ephemeral debugging container to a running pod.',
+        ],
+      },
     ],
     examples: [
       {
@@ -293,6 +342,13 @@ export default {
         body: [
           'Start with the pod. Run as non-root (runAsNonRoot with a non-zero runAsUser), never set privileged: true \u2014 it grants near-host access and the Pod Security Standards forbid it in restricted profiles \u2014 and drop unneeded Linux capabilities. Apply those standards per namespace through admission control so the hardening is enforced, not suggested. Then segment the network: a NetworkPolicy can restrict which pods and namespaces may talk to each other, but remember the default is allow-all until a policy selects a pod \u2014 the first policy you write is the one that starts enforcing.',
           'Finally, guard the supply chain. Scan images for CVEs, pin digests so \u201Cthe same tag\u201D cannot silently become different software, and require admission policies that block unsigned or unscanned images. Secrets reach pods through the Secret object \u2014 with etcd encryption at rest and RBAC guarding access \u2014 or better, from an external secrets manager; they are never baked into images or committed to repositories. Quotas and LimitRanges per namespace cap what any tenant can consume, because availability is a security property too.',
+        ],
+      },
+      {
+        heading: 'Securing the cluster itself',
+        body: [
+          'Protect the control plane: keep the API server private or restricted to known networks, authenticate users through an identity provider (OIDC) rather than shared certificates, enable audit logging, and encrypt Secrets at rest in etcd, ideally with a KMS provider. Keep Kubernetes and node images patched; minor versions receive upstream patches for about 14 months.',
+          'Limit what workloads can reach. Disable automatic service-account token mounting for pods that do not call the API (`automountServiceAccountToken: false`), and never bind `cluster-admin` to application accounts. Admission policies, through ValidatingAdmissionPolicy, Kyverno or OPA Gatekeeper, can block privileged pods, images from untrusted registries and missing resource limits. The CIS Kubernetes Benchmark, checked with kube-bench, gives a full checklist.',
         ],
       },
     ],

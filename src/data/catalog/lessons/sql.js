@@ -24,6 +24,13 @@ export default {
           '`NULL` is SQL\'s most misunderstood value. It does not mean zero, and it does not mean an empty string — it means unknown or missing. Because of that, `NULL = NULL` is not true; it is unknown. To test for missing values you must write `WHERE col IS NULL`, never `= NULL`. Internalize this early and an entire category of "why is my query wrong" evaporates.',
         ],
       },
+      {
+        heading: 'Data types and constraints',
+        body: [
+          'Every column has a type, and choosing it well prevents whole classes of bugs. Use integer types for counts and identifiers, `DECIMAL(10,2)` or `NUMERIC` for money (never floating point, which cannot store 0.10 exactly), `VARCHAR(n)` or `TEXT` for strings, `DATE` and `TIMESTAMP` for time, and `BOOLEAN` where the database supports it. Store dates as dates, not as text, so sorting and date arithmetic work.',
+          'Constraints let the database enforce rules no matter which application writes the data. `PRIMARY KEY` identifies each row, `FOREIGN KEY` ensures a referenced row exists, `NOT NULL` requires a value, `UNIQUE` prevents duplicates such as two accounts with one email, and `CHECK (price >= 0)` rejects impossible values. Exact type names and behaviours vary between PostgreSQL, MySQL, SQL Server and SQLite, so check your database\'s documentation.',
+        ],
+      },
     ],
     examples: [
       {
@@ -63,6 +70,13 @@ export default {
         body: [
           '`ORDER BY column DESC` sorts results descending; ascending (`ASC`) is the default. Sorting is usually paired with `LIMIT n` — "the ten most recent orders" is `ORDER BY created_at DESC LIMIT 10`. (SQL Server spells it `TOP n` instead of `LIMIT`.)',
           '`DISTINCT` removes duplicate rows from the result: `SELECT DISTINCT country FROM users` lists each country once. And when a column name is ugly or a computed value needs a label, alias it: `SELECT price AS cost` renames the column in the output. Aliases also name computed columns, which matters the moment you start doing arithmetic in `SELECT`.',
+        ],
+      },
+      {
+        heading: 'Pattern matching, ranges and NULL-safe filters',
+        body: [
+          'Beyond equality, a few operators cover most filters. `BETWEEN 10 AND 20` is inclusive of both ends. `IN (\'UK\', \'IE\', \'FR\')` replaces a chain of ORs. `LIKE \'Ana%\'` matches values starting with \'Ana\', `%` standing for any run of characters and `_` for exactly one; a leading wildcard such as `LIKE \'%son\'` usually prevents the database from using an index. Case sensitivity of LIKE depends on the database and collation.',
+          'NULL needs its own care. `WHERE discount <> 10` silently excludes rows where discount is NULL, because comparisons with NULL are unknown, not true. Write `WHERE discount <> 10 OR discount IS NULL` when you mean to include them, or use `COALESCE(discount, 0)` to substitute a default. `CASE WHEN total > 100 THEN \'large\' ELSE \'small\' END` derives labels in the select list.',
         ],
       },
     ],
@@ -106,6 +120,13 @@ export default {
           'Here is the divide that trips everyone once: `WHERE` filters rows before grouping; `HAVING` filters groups after aggregation. "Regions with total sales over 1000" is `GROUP BY region HAVING SUM(sales) > 1000` — you cannot put an aggregate in `WHERE`, because at the moment `WHERE` runs, the groups do not exist yet. `WHERE` narrows the raw material; `HAVING` judges the finished groups.',
         ],
       },
+      {
+        heading: 'Common grouping mistakes',
+        body: [
+          'Every column in the select list must either appear in `GROUP BY` or be inside an aggregate. `SELECT customer_id, city, COUNT(*) FROM orders GROUP BY customer_id` is an error in PostgreSQL and SQL Server because `city` has no single value per group; MySQL may accept it and return an arbitrary city, which hides the bug. Group by every non-aggregated column, or aggregate it.',
+          'Watch for NULL and duplicates. `COUNT(*)` counts rows, `COUNT(email)` counts non-NULL emails, and `AVG(rating)` ignores NULL ratings rather than treating them as zero. Joining before aggregating can multiply rows, so a customer with three orders and two addresses produces six joined rows and inflated sums. Aggregate in a subquery or CTE first, then join the totals.',
+        ],
+      },
     ],
     examples: [
       {
@@ -143,6 +164,13 @@ export default {
         body: [
           'A join is only as reliable as the relationship it follows. That relationship is enforced by a foreign key: a column in one table that references the primary key of another, with the database guaranteeing every reference points somewhere real. This is referential integrity, and it is what separates a database from a pile of spreadsheets.',
           'Without foreign keys, joins still run — SQL will happily join on any condition — but nothing stops orphaned rows or dangling references from silently corrupting your results. Design the keys first; the joins then take care of themselves.',
+        ],
+      },
+      {
+        heading: 'Other join types and set thinking',
+        body: [
+          '`RIGHT JOIN` is a LEFT JOIN written the other way round, and most people rewrite it as a LEFT JOIN for readability. `FULL OUTER JOIN` keeps unmatched rows from both sides, which is useful for reconciling two lists: rows with NULL on one side exist in only one list. `CROSS JOIN` pairs every row with every other row; it is occasionally useful for generating combinations, and accidentally created by a missing ON condition.',
+          'To find rows with no match, use a LEFT JOIN and test the right side for NULL, or `WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)`. Avoid `NOT IN` with a subquery that can return NULL: if any value is NULL, `NOT IN` returns no rows at all. Always join on the full key, and check row counts before and after joining.',
         ],
       },
     ],
@@ -185,6 +213,13 @@ export default {
           '`DELETE` removes selected rows and is logged and rollback-able inside a transaction. `TRUNCATE` empties the entire table far faster but with no granularity and, in most systems, no easy undo. Different tools, different jobs: `DELETE` for precision, `TRUNCATE` for wholesale resets.',
         ],
       },
+      {
+        heading: 'Changing schemas safely',
+        body: [
+          '`ALTER TABLE` changes a live table: `ALTER TABLE customers ADD COLUMN phone VARCHAR(30);` is usually quick, but adding a NOT NULL column with a computed default, changing a type, or adding an index on a large table can lock it or rewrite it entirely. Check how your database handles each operation, and run large changes in a maintenance window or with online tools such as `CREATE INDEX CONCURRENTLY` in PostgreSQL.',
+          'Keep schema changes in version-controlled migration files (Flyway, Liquibase, Alembic, Rails migrations), applied in order to every environment, so development, test and production never drift. Make changes backward compatible in steps: add the new column, deploy code that writes both, backfill, switch reads, and only then drop the old column. `UPSERT` (`INSERT ... ON CONFLICT` in PostgreSQL, `MERGE` in SQL Server) handles insert-or-update in one statement.',
+        ],
+      },
     ],
     examples: [
       {
@@ -221,6 +256,13 @@ export default {
         body: [
           'A common table expression — `WITH monthly AS (SELECT ...)` — names a temporary result you can reference in the main query, like a variable for result sets. CTEs turn a tangled nested query into readable, named steps, and recursive CTEs can even walk hierarchies like org charts. They exist for the reader as much as for the machine.',
           'Set operators combine whole result sets: `UNION` stacks two queries\' rows and removes duplicates (`UNION ALL` keeps them and runs faster), `INTERSECT` returns rows present in both, `EXCEPT` returns rows in the first but not the second. The contract: both queries must return the same number of columns with compatible types, and the column names come from the first query.',
+        ],
+      },
+      {
+        heading: 'Recursive CTEs and choosing the right tool',
+        body: [
+          'A recursive CTE walks hierarchies such as an org chart or a category tree. It has an anchor query that selects the starting rows and a recursive part that joins back to the CTE: `WITH RECURSIVE chain AS (SELECT id, manager_id, name FROM staff WHERE id = 42 UNION ALL SELECT s.id, s.manager_id, s.name FROM staff s JOIN chain c ON s.id = c.manager_id) SELECT * FROM chain;` lists an employee and every manager above them. Recursion stops when the recursive part returns no rows.',
+          'Subqueries, CTEs and joins can often express the same question. Prefer a join when you need columns from both tables, `EXISTS` when you only need to know whether a match exists, and a CTE when naming an intermediate step makes the query easier to read. Check performance with `EXPLAIN` rather than assuming one form is faster.',
         ],
       },
     ],
@@ -263,6 +305,13 @@ export default {
           'But normalization optimizes for correctness, not speed, and reporting queries that join a dozen tables pay for it. Deliberate denormalization — accepting some redundancy to avoid joins — is a legitimate performance technique, common in analytics. The rule: normalize by default for integrity, denormalize by measurement when reads demand it. Never denormalize by guess.',
         ],
       },
+      {
+        heading: 'Composite indexes and when to denormalise',
+        body: [
+          'An index on several columns is used from the left. An index on `(customer_id, created_at)` serves `WHERE customer_id = 42` and `WHERE customer_id = 42 AND created_at > \'2026-01-01\'`, but not `WHERE created_at > \'2026-01-01\'` alone. Put the column used for equality first and the range column second. An index that contains every column a query needs (a covering index) lets the database answer without reading the table.',
+          'Normalisation to third normal form is the right default for transactional systems. Reporting and analytics systems often denormalise on purpose, for example a star schema with a wide fact table and dimension tables, or a stored order total, because reads vastly outnumber writes. Denormalise deliberately, and keep the copies consistent with triggers, scheduled jobs or materialised views.',
+        ],
+      },
     ],
     examples: [
       {
@@ -302,6 +351,13 @@ export default {
         body: [
           'A view is a saved `SELECT` you query like a table — it usually stores no data itself. Views simplify complex queries and, crucially, can restrict which columns different users see: the reporting team gets the view without the salary column. Window functions like `ROW_NUMBER() OVER (...)` compute across rows related to the current row without collapsing them, unlike `GROUP BY` — ranking, running totals, and moving averages without losing detail.',
           'Then the adversary. SQL injection — smuggling malicious SQL through unsanitized input — remains a top web vulnerability decades after it was understood. The defence is non-negotiable: parameterized queries (prepared statements), where the driver sends data separately from the SQL so input can never become code. Complement it with least-privilege database accounts — a reporting user that can only read, an app user that cannot `DROP` — so a compromise is contained. And passwords are never stored as text: store a salted hash with bcrypt or argon2, because any breach that exposes reversible passwords has already lost.',
+        ],
+      },
+      {
+        heading: 'Isolation levels and preventing SQL injection',
+        body: [
+          'Isolation levels decide what concurrent transactions can see. Read committed, the default in PostgreSQL and SQL Server, prevents dirty reads but allows a row to change between two reads in the same transaction. Repeatable read prevents that, and serializable makes concurrent transactions behave as if they ran one at a time, at the cost of more conflicts that the application must retry. Choose the weakest level that keeps your data correct.',
+          'SQL injection happens when user input is concatenated into query text. The fix is parameterised queries in every language, for example `cursor.execute("SELECT * FROM users WHERE email = %s", (email,))`, never string formatting. Back it up with least-privilege database accounts for each application, no administrative accounts in application connection strings, and input validation as a second layer.',
         ],
       },
     ],

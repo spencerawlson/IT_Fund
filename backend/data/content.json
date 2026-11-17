@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T11:37:29.187Z",
+  "generatedAt": "2026-11-17T11:40:12.193Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -62888,6 +62888,13 @@
             "A Docker image is a read-only template — a stack of filesystem layers plus metadata describing how to run them. Nothing in an image changes at runtime; it is the recipe, frozen. A container is a runnable instance of an image: Docker adds a thin writable layer on top and starts the defined process inside its own isolated namespaces.",
             "One image can spawn many containers, each independent. Run `docker run nginx` and Docker pulls the image if it is not local, creates the container, and starts it — that single command is the entire deployment story for simple cases. `docker ps` shows what is running; `docker images` shows the templates waiting on disk. The engine itself is two parts: the dockerd daemon that does the work, and the CLI that talks to it over an API."
           ]
+        },
+        {
+          "heading": "How containers are isolated",
+          "body": [
+            "A container is an ordinary Linux process with restricted views of the system. Namespaces give it its own process IDs, network interfaces, mount points and hostname, so it sees only its own processes and files. Control groups (cgroups) limit how much CPU, memory and I/O it can use. Because containers share the host's kernel, they start in milliseconds and use little memory, but they are not as strongly isolated as virtual machines.",
+            "That shared kernel matters for security and portability. A kernel vulnerability can let a process escape its container, and Linux containers need a Linux kernel: Docker Desktop on Windows and macOS runs them inside a lightweight Linux VM. When strong isolation between tenants is required, use VMs, or sandboxed runtimes such as gVisor or Kata Containers."
+          ]
         }
       ],
       "examples": [
@@ -62951,6 +62958,13 @@
             "Docker caches the result of every layer. Rebuild, and any instruction whose inputs have not changed is skipped — which is why instruction order matters enormously. Put the steps that change rarely first and the ones that change constantly last: COPY the dependency manifest and install before copying the source, so a one-line code change does not trigger a full dependency reinstall.",
             "Two more habits complete the picture. A .dockerignore file keeps .git, node_modules and other build-irrelevant bulk out of the build context, so less data crosses to the daemon and images stay lean. And remember that each RUN creates a layer — the cache is your friend during development, but a bloated layer history is your enemy in production, a theme the optimization lesson takes further."
           ]
+        },
+        {
+          "heading": "Writing a good Dockerfile",
+          "body": [
+            "Pin the base image to a specific version, such as `python:3.12-slim`, rather than `latest`, so builds are reproducible. Add a `.dockerignore` file listing `.git`, `node_modules`, test data and secrets, so they are never sent to the build or copied into the image. Combine related commands into one `RUN` and clean up in the same step, for example `apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*`, because files deleted in a later layer still take up space in an earlier one.",
+            "Know the difference between `CMD` and `ENTRYPOINT`: `ENTRYPOINT` sets the executable and `CMD` supplies default arguments that `docker run` can override. Use the exec form (`[\"python\", \"app.py\"]`) so the process receives signals and stops cleanly. Never pass secrets with `ARG` or `ENV`, which are visible in the image history; use BuildKit secret mounts (`RUN --mount=type=secret`) instead."
+          ]
         }
       ],
       "examples": [
@@ -63013,6 +63027,13 @@
           "body": [
             "A running container is not a black box. `docker exec -it <container> sh` starts a new shell inside the existing container — exec runs alongside the main process, it does not replace it. `docker logs` (with -f to follow) shows what the main process has printed, which is where every debugging session begins. And `docker stop` followed by `docker rm` ends the lifecycle; `docker rm -f` does both at once.",
             "Here is the truth that surprises everyone once: anything written inside the container — outside a volume — dies with it. The container’s writable layer is deleted on removal, by design. Containers are ephemeral; they are cattle, not pets. If the data matters, it belongs in a volume, which is exactly where the next lesson begins."
+          ]
+        },
+        {
+          "heading": "Container lifecycle and cleanup",
+          "body": [
+            "A container moves through created, running, paused, stopped and removed states. `docker stop` sends SIGTERM and, after a grace period (10 seconds by default), SIGKILL, so applications should handle SIGTERM and shut down cleanly. `docker kill` sends SIGKILL immediately. A stopped container keeps its writable layer until you remove it, which is why `docker ps -a` often shows a long list of exited containers.",
+            "Clean up regularly: `docker container prune` removes stopped containers, `docker image prune` removes dangling images, and `docker system df` shows how much space images, containers, volumes and build cache use. `docker system prune -a --volumes` removes everything unused, including volumes, so read its warning before running it on a machine with data you need."
           ]
         }
       ],
@@ -63081,6 +63102,13 @@
             "The default bridge network gives containers a private subnet where they can reach each other — and on a user-defined bridge, they do it by name, thanks to Docker’s built-in DNS. Your web container simply connects to “db”, no IP addresses memorized. That name resolution is the reason to prefer user-defined networks over the default bridge for anything real.",
             "Two special modes complete the picture. `--network host` shares the host’s network stack outright — no port mapping needed, slightly faster, but the container gives up network isolation (and it behaves differently on non-Linux hosts). `--network none` is the opposite: no networking at all, for untrusted or fully offline workloads. Most of the time, though, you will live on a bridge network and let DNS do the work."
           ]
+        },
+        {
+          "heading": "Backing up volumes and publishing ports safely",
+          "body": [
+            "Volumes live outside the container, so they need their own backups. A common method mounts the volume into a temporary container and archives it: `docker run --rm -v pgdata:/data -v \"$PWD\":/backup alpine tar czf /backup/pgdata.tgz -C /data .`. For databases, prefer the database's own dump tool (`pg_dump`, `mysqldump`) so the backup is consistent rather than a copy of files being written.",
+            "Publishing a port with `-p 8080:80` binds to every host interface by default, making the service reachable from the network. Bind to `127.0.0.1:8080:80` for services only the host should reach. Also note that Docker writes its own iptables rules for published ports, which can bypass host firewall rules such as ufw; check what is actually exposed with `ss -tlnp` and a scan from another machine."
+          ]
         }
       ],
       "examples": [
@@ -63143,6 +63171,13 @@
           "body": [
             "Configuration lives with the service, not in the image: the environment: mapping (or env_file:) keeps secrets and settings out of built artifacts, where they belong. When code changes, `docker compose up --build` rebuilds the images that have a build context before starting. And when one service needs muscle, `docker compose up --scale web=3` runs three copies — Compose handles the replicas while something upstream spreads the traffic.",
             "Compose is deliberately single-host: it orchestrates containers on one machine beautifully, and that covers development, CI, demos, and small production deployments. When you outgrow one host — true clustering, self-healing across machines — that is the moment Kubernetes enters the picture, and the next track is waiting."
+          ]
+        },
+        {
+          "heading": "Environments, overrides and secrets in Compose",
+          "body": [
+            "Compose reads variables from a `.env` file in the project directory and substitutes them into `compose.yaml`, for example `image: myapp:${APP_VERSION}`. Per-environment differences go in override files: `compose.override.yaml` is merged automatically for local development, and `docker compose -f compose.yaml -f compose.prod.yaml up -d` applies production settings. `docker compose config` prints the final merged configuration, which is the quickest way to check what will run.",
+            "Keep secrets out of the YAML and out of version control. Compose supports a `secrets:` section that mounts files at `/run/secrets/<name>` inside the container, which many official images read through `_FILE` variables such as `POSTGRES_PASSWORD_FILE`. Profiles (`profiles: [debug]`) let optional services such as admin tools start only when requested with `--profile debug`."
           ]
         }
       ],
@@ -63207,6 +63242,13 @@
             "The lifecycle is simple: `docker login` once, `docker push` to upload, `docker pull` to download (and `docker run` pulls automatically when the image is missing locally). Organizations run private registries to keep proprietary images internal and control exactly what flows into their clusters — standard practice in any serious CI pipeline.",
             "But a registry is a shelf, not a guarantee. Base images and their dependencies carry known vulnerabilities, and pulling blindly is how CVEs enter production. Scan images — with Trivy, Docker Scout, or your registry’s built-in scanner — before they run, ideally as a gate in CI that fails the build. Trust the pipeline, verify the artifact."
           ]
+        },
+        {
+          "heading": "Signing, scanning and retention",
+          "body": [
+            "Before deployment, scan images for known vulnerabilities with tools such as Trivy, Grype or the registry's built-in scanner, and fail the pipeline on critical findings that have a fix. Generate a software bill of materials (SBOM) so you can answer 'which images contain this vulnerable library?' when the next major CVE is announced.",
+            "Signing proves an image came from your pipeline and has not been altered. Sigstore's cosign signs an image digest and stores the signature in the registry, and admission policies in Kubernetes can refuse unsigned images. Set retention rules in the registry to delete old untagged images, and make release tags immutable where the registry supports it, so `app:1.4.2` always means the same image."
+          ]
         }
       ],
       "examples": [
@@ -63269,6 +63311,13 @@
           "body": [
             "Then shrink the runtime blast radius. Run as a non-root USER — a one-line instruction that limits what a compromised process can do. Consider --read-only so the app cannot write to its own filesystem, mounting a writable volume only where it truly needs one. And treat layers as public: anything baked into a layer, even deleted later, remains recoverable from image history. Secrets go in at runtime, never in the build.",
             "Finally, verify. Scan every image for known CVEs with Trivy or Docker Scout and gate the pipeline on the results. Sign images with a tool like cosign so clusters can verify authenticity before deploying — in a supply-chain-attack world, “this exact image came from our CI” is a claim worth proving, not assuming."
+          ]
+        },
+        {
+          "heading": "Hardening at run time",
+          "body": [
+            "Image hardening is half the job; the run options decide what a compromised container can do. Drop all Linux capabilities and add back only what is needed (`--cap-drop ALL --cap-add NET_BIND_SERVICE`), prevent privilege escalation with `--security-opt no-new-privileges`, make the root filesystem read-only with a tmpfs for scratch space, and set memory, CPU and PID limits. Never use `--privileged` for application containers.",
+            "Never mount the Docker socket (`/var/run/docker.sock`) into an application container: whoever controls the socket controls the host. Rootless mode runs the Docker daemon itself as an unprivileged user, and user namespace remapping maps root inside the container to an unprivileged user on the host. Docker Bench for Security checks a host against the CIS Docker Benchmark."
           ]
         }
       ],
@@ -63333,6 +63382,13 @@
             "When something is wrong, work the same routine every time. Start with `docker logs`: what did the process say before it died? If it is still running, `docker exec -it` gets you a shell inside to inspect files, processes, and connectivity from the container’s point of view. `docker stats` shows live CPU, memory, network and I/O per container — the fastest way to spot the one eating the host. And `docker inspect` dumps the full JSON truth: mounts, networks, environment, everything the container believes about itself.",
             "Prefer small, single-purpose containers and this routine stays short: one process per container means logs tell one story and failures have one suspect. And keep the host tidy — `docker system prune` reclaims the stopped containers, dangling images and unused networks that accumulate silently, though the aggressive flags (-a, --volumes) deserve respect and a second look before you run them."
           ]
+        },
+        {
+          "heading": "Logging and monitoring containers",
+          "body": [
+            "Applications in containers should log to standard output and standard error; Docker captures those streams and `docker logs` reads them. The default json-file driver keeps logs on the host with no size limit unless you set one, so configure rotation in `/etc/docker/daemon.json` (`\"log-opts\": {\"max-size\": \"10m\", \"max-file\": \"3\"}`) or ship logs to a central system with a driver such as fluentd, or an agent that reads the files.",
+            "`docker stats` shows live CPU, memory, network and I/O per container, and `docker events` streams lifecycle events such as restarts and out-of-memory kills. For anything beyond one host, export metrics (cAdvisor with Prometheus is a common pairing) and alert on restart loops, memory near the limit and failing health checks."
+          ]
         }
       ],
       "examples": [
@@ -63395,6 +63451,13 @@
           "body": [
             "A change in Git travels through three places. The working directory is the files you see and edit. The staging area (also called the index) is a holding pen where you assemble precisely what the next snapshot will contain. The repository is the committed history itself, stored in .git. You edit in the first, stage into the second, and commit into the third.",
             "The staging area is the part newcomers underestimate. It exists so a commit can be a deliberate, curated unit rather than “whatever happened to be lying around.” You might edit five files but stage only two, committing a single coherent change and leaving the rest for later. `git init` creates a new empty repository, `git clone <url>` copies an existing one with its full history, and `git status` is your constant companion — it tells you which files are untracked, modified, or staged at any moment."
+          ]
+        },
+        {
+          "heading": "Configuring Git and ignoring files",
+          "body": [
+            "Before your first commit, tell Git who you are: `git config --global user.name \"Ana Silva\"` and `git config --global user.email ana@example.com`. These details are recorded in every commit. Other useful settings include `git config --global init.defaultBranch main` and a default editor for commit messages. `git config --list --show-origin` shows every setting and the file it came from.",
+            "A `.gitignore` file lists patterns Git should never track: build output (`dist/`, `*.o`), dependencies (`node_modules/`), editor files and, above all, secrets such as `.env`. Add it at the start of a project; ignoring a file that is already committed does not remove it from history. `git check-ignore -v file` explains which rule ignores a file, and gitignore.io-style templates give sensible starting lists per language."
           ]
         }
       ],
@@ -63459,6 +63522,13 @@
             "`git log` prints the commit history, newest first; `git log --oneline` compresses each commit to a single readable line, and `git show <commit>` expands one commit into its full diff. A good commit message explains why a change was made, not merely what — the diff already shows the what. Keep commits small and focused so each one can be understood, reviewed, and reverted on its own.",
             "A .gitignore file lists patterns Git should never track — build output, dependency folders like node_modules, local config, and above all secrets such as .env files and private keys. This matters enormously because Git keeps history forever: a password committed once and “deleted” in the next commit is still sitting in the history, fully recoverable. The habit is simple and non-negotiable: secrets go in .gitignore, never in a commit, and anything that does leak must be rotated, not merely removed."
           ]
+        },
+        {
+          "heading": "Writing good commit messages",
+          "body": [
+            "A commit message is a note to a future reader, often yourself, trying to understand why the code changed. A widely used convention is a short summary line of about 50 characters in the imperative mood ('Fix rounding in invoice totals', not 'Fixed stuff'), a blank line, then a body that explains why the change was needed and anything non-obvious about how. The diff already shows what changed.",
+            "Keep each commit to one logical change, so it can be reviewed, reverted or cherry-picked on its own. Some teams adopt Conventional Commits (`feat:`, `fix:`, `docs:`), which lets tools generate changelogs and version numbers automatically. Before committing, read `git diff --staged` once more; it is the cheapest review there is, and it catches debugging code and secrets."
+          ]
         }
       ],
       "examples": [
@@ -63521,6 +63591,13 @@
           "body": [
             "`git fetch` and `git pull` are often confused. Fetch downloads the remote’s new commits but does not touch your working branch — it simply updates your view of what the remote has, letting you inspect the incoming changes before integrating them. Pull is fetch plus an automatic merge into your current branch. When you want to look before you leap, fetch; when you are ready to integrate, pull.",
             "The habit that prevents pain is to pull before you start work and push often. Beginning the day on code your teammates changed hours ago means a bigger, messier reconciliation later. And treat `git push --force` as a loaded weapon: on a shared branch it can erase other people’s commits. If you genuinely must rewrite a pushed branch, prefer `--force-with-lease`, which refuses to overwrite work you have not seen — and never force-push a branch others build on."
+          ]
+        },
+        {
+          "heading": "Authentication, forks and keeping in sync",
+          "body": [
+            "Remotes are reached over HTTPS or SSH. HTTPS uses a personal access token or a credential manager rather than your account password; SSH uses a key pair, with the public key added to your hosting account. `git remote -v` shows each remote's URL, and `git remote set-url origin git@github.com:org/repo.git` switches a clone from HTTPS to SSH.",
+            "When contributing to a project you cannot push to, you fork it and clone your fork as `origin`, then add the original as `upstream`: `git remote add upstream https://github.com/org/repo.git`. To stay current, `git fetch upstream` and merge or rebase `upstream/main` into your branch. `git push --force-with-lease` is the safe way to update a branch after rebasing: it refuses if someone else pushed in the meantime."
           ]
         }
       ],
@@ -63585,6 +63662,13 @@
             "`git merge <branch>` integrates another branch’s commits into the one you are on. When your current branch has not advanced since the other branched off, Git can simply slide the pointer forward — a fast-forward merge, with no extra commit, because the history is already linear. When both branches have new commits, Git performs a true three-way merge and records a merge commit with two parents, tying the two lines of history together.",
             "The everyday rhythm is: branch for each feature or fix, commit there until it is done, switch to main, and merge the branch in. This keeps main releasable while work proceeds in isolation, and it makes each change reviewable as a unit. When a branch is merged and no longer needed, `git branch -d <name>` deletes it cleanly (use -D only to force-delete unmerged work you are sure you want gone)."
           ]
+        },
+        {
+          "heading": "Inspecting and tidying branches",
+          "body": [
+            "`git branch -vv` lists local branches with their last commit and the remote branch each one tracks, including how far ahead or behind it is. `git branch --merged main` shows branches whose work is already in main and can be deleted with `git branch -d`. `-D` forces deletion of unmerged work, so use it only when you are sure. `git fetch --prune` removes remote-tracking branches that were deleted on the server.",
+            "`git log --oneline --graph --all` draws the whole branch structure in the terminal, which helps when you are unsure where a branch started or what a merge will bring in. `git log main..feature` lists commits on feature that are not yet in main, and `git diff main...feature` shows the changes the feature branch introduced since it diverged."
+          ]
         }
       ],
       "examples": [
@@ -63647,6 +63731,13 @@
           "body": [
             "There are two ways to bring main’s latest work into your feature branch. `git merge main` creates a merge commit joining the histories, preserving exactly what happened — branches, forks, and all. `git rebase main` instead replays your branch’s commits one by one on top of the current main, producing a clean, linear history as if you had started from main today. Rebase rewrites your commits, giving them new hashes.",
             "The trade-off is honesty versus tidiness, and the golden rule settles most arguments: never rebase commits you have already pushed and shared. Rewriting public history changes hashes out from under your collaborators and breaks their clones. Rebase freely on your own local, unpushed work to tidy it before sharing; use merge to integrate anything that others already have. Conflicts can occur during a rebase too — resolve, `git add`, then `git rebase --continue`."
+          ]
+        },
+        {
+          "heading": "Tools that make conflicts easier",
+          "body": [
+            "Setting `git config --global merge.conflictstyle zdiff3` adds a third section to conflict markers showing the common ancestor's version, which makes it much easier to see what each side changed. `git mergetool` opens a configured visual merge tool, and most editors, including VS Code, show conflicts with buttons to accept either side or both. After resolving, run the tests before committing: a conflict-free merge can still produce broken code.",
+            "If you resolve the same conflict repeatedly, for example while rebasing a long-running branch, enable rerere (`git config --global rerere.enabled true`), which records how you resolved a conflict and reapplies it automatically next time. Conflicts are fewer and smaller when branches are short-lived and merged often."
           ]
         }
       ],
@@ -63711,6 +63802,13 @@
             "`git stash` shelves your uncommitted changes and hands you a clean working tree — perfect when you need to switch branches mid-thought or pull without committing half-finished work. `git stash pop` reapplies the most recent stash and drops it from the list; `git stash apply` reapplies but keeps it. And `git commit --amend` replaces the last commit, letting you fix its message or fold in a forgotten file — but avoid amending anything you have already pushed.",
             "The reflog is the feature that turns most “I lost my work” panics into a two-minute fix. `git reflog` records everywhere HEAD has been — every commit, reset, checkout, and merge — even commits no branch points to anymore. After a bad `reset --hard`, the reflog still lists the commit you reset away from, and you can recover it. Git very rarely deletes your commits immediately; the reflog is how you find them again."
           ]
+        },
+        {
+          "heading": "Choosing the safest undo",
+          "body": [
+            "Before undoing anything, check whether the commits have been pushed. Local, unpushed history can be rewritten freely with `git reset`, `git commit --amend` or an interactive rebase. Shared history should not be rewritten, because collaborators' copies still contain the old commits; use `git revert`, which adds a new commit that undoes the change, and works even for merges with `git revert -m 1 <merge>`.",
+            "`git reset` has three modes. `--soft` moves the branch but keeps your changes staged, `--mixed` (the default) keeps them unstaged, and `--hard` discards them. Uncommitted work lost to `--hard` is very hard to recover, so stash or commit first. To recover a single file from an older commit, `git restore --source=<commit> path/to/file` is precise and leaves everything else alone."
+          ]
         }
       ],
       "examples": [
@@ -63774,6 +63872,13 @@
             "Before sharing a branch, you can tidy it. `git rebase -i` (interactive rebase) lets you reorder, edit, drop, or squash commits — folding “wip,” “fix typo,” and “actually fix it” into one clean commit that tells a coherent story. `git cherry-pick <commit>` copies a single commit from one branch onto another, the standard way to apply a hotfix across branches. And `git tag v1.2.0` marks a specific commit as a release, giving humans and deploy systems a stable name to point at.",
             "Teams choose an overall shape. Trunk-based development keeps everyone merging small changes into main frequently, often behind feature flags, which suits continuous delivery. GitFlow uses longer-lived develop and release branches with a more ceremonial path to production, which suits versioned, scheduled releases. Forking workflows, common in open source, give each contributor their own server-side copy that they propose from. There is no single right answer — only the one your team actually follows."
           ]
+        },
+        {
+          "heading": "Protecting the main branch",
+          "body": [
+            "Whatever workflow a team uses, the main branch should always be releasable. Hosting platforms enforce this with branch protection rules: require pull requests instead of direct pushes, require at least one approving review, require CI checks to pass, and require branches to be up to date before merging. A CODEOWNERS file routes reviews of sensitive paths, such as infrastructure or authentication code, to the right people automatically.",
+            "Agree how pull requests are merged. A merge commit preserves every commit and the branch shape; squash merging collapses a branch into one commit on main, giving a tidy history; rebase merging replays the commits in a straight line. Many teams squash by default. Signed commits and tags (GPG or SSH signing) let reviewers verify who authored a change."
+          ]
         }
       ],
       "examples": [
@@ -63836,6 +63941,13 @@
           "body": [
             "The single most important discipline is keeping secrets out. Because every commit is permanent and content-addressed, a committed password lives on in history even after you “delete” it — so use .gitignore plus a secret scanner such as gitleaks in a pre-commit hook, and if something does leak, rotate the credential rather than trusting a cleanup. For provenance, signing commits and tags with GPG or SSH cryptographically proves who authored them, defending against impersonation in the log.",
             "A few more habits keep repositories fast and sane. Large binaries bloat every clone’s history forever, so store them with Git LFS, which keeps lightweight pointers in Git and the bytes elsewhere. Write commit messages that explain the why, because future debuggers will read them. And treat the golden rule as sacred: never rewrite history that has been shared. Local cleanup before you push is good craftsmanship; rewriting public history is how you break everyone downstream of you."
+          ]
+        },
+        {
+          "heading": "Large files, secrets and repository maintenance",
+          "body": [
+            "Git stores every version of every file forever, so large binary files make clones slow and repositories huge. Git LFS stores large files such as images, models and datasets on a separate server and keeps only small pointer files in the repository. Track patterns with `git lfs track \"*.psd\"` before committing them.",
+            "If a secret is committed, treat it as compromised and revoke it immediately; then remove it from history with `git filter-repo` (the recommended replacement for `git filter-branch`) or BFG, and force-push, knowing that existing clones and forks still hold the old history. Prevent it next time with a pre-commit secret scanner such as gitleaks. `git gc` packs objects and cleans up, and `git fsck` checks the repository's integrity."
           ]
         }
       ],
@@ -64444,6 +64556,13 @@
             "Kubernetes is declarative by design, and that word carries the whole philosophy: you describe what should exist — three replicas of this app, this config, this port — and controllers continuously compare reality to your declaration, fixing drift forever. A crashed pod is not an incident to triage; it is drift, and the controller recreates it as a matter of routine.",
             "kubectl is how you speak to the API server: apply to declare, get to observe, describe to investigate, logs to read. The pod — one or a few tightly-coupled containers sharing network and storage — is the smallest thing you can deploy. You will rarely create pods directly, though; controllers like Deployments do that for you, which is where the next lesson begins."
           ]
+        },
+        {
+          "heading": "Working with kubectl and contexts",
+          "body": [
+            "kubectl reads its connection details from a kubeconfig file (`~/.kube/config` by default), which can hold several clusters, users and namespaces combined into contexts. `kubectl config get-contexts` lists them and `kubectl config use-context staging` switches; checking the current context before running a destructive command prevents changes to the wrong cluster. `kubectl config set-context --current --namespace=shop` sets a default namespace.",
+            "A few flags make kubectl far more useful: `-o wide` adds node and IP columns, `-o yaml` shows the full object as stored, `-l app=web` filters by label, and `--dry-run=client -o yaml` prints the manifest a command would create without creating it, a quick way to generate starting YAML. `kubectl api-resources` lists every resource type the cluster supports."
+          ]
         }
       ],
       "examples": [
@@ -64506,6 +64625,13 @@
           "body": [
             "A Deployment declares “I want N identical pods of this spec,” and a ReplicaSet underneath does the counting — adding pods when there are too few, removing them when there are too many. Scale with `kubectl scale deploy/name --replicas=5` or by editing the manifest; either way the ReplicaSet converges reality to the number.",
             "The glue is labels and selectors: pods carry labels, and the Deployment’s selector matches them. This indirection — controllers finding their pods by label rather than by name — is how Kubernetes stays flexible, and it is also how Services will find them in the networking lesson. Self-healing falls out for free: a dead pod means the count is wrong, so a replacement is scheduled on a healthy node without anyone being paged."
+          ]
+        },
+        {
+          "heading": "Multi-container pods and pod lifecycle",
+          "body": [
+            "Most pods run one application container, but helpers are common. Init containers run to completion before the app starts, for example to wait for a database or run a migration. Sidecar containers run alongside the app for the pod's lifetime, such as a log shipper or service-mesh proxy; Kubernetes 1.29+ supports native sidecars as init containers with `restartPolicy: Always`, so they start before and stop after the main container.",
+            "A pod's phase moves from Pending (scheduled, pulling images) to Running, and ends as Succeeded or Failed. Common problems show in the container status: `ImagePullBackOff` means the image name, tag or registry credentials are wrong; `CrashLoopBackOff` means the container keeps exiting; `OOMKilled` means it exceeded its memory limit. `kubectl describe pod` shows these with the events that explain them."
           ]
         }
       ],
@@ -64570,6 +64696,13 @@
             "A ConfigMap holds non-sensitive configuration as key-value pairs; a Secret holds sensitive data, base64-encoded and access-controlled. Both reach pods the same ways: injected as environment variables (via valueFrom) or mounted as files. The principle never changes: the same image must run in every environment, with environment-specific config injected at deploy time. A config change should never require a rebuild.",
             "One warning the cards stress for good reason: a Kubernetes Secret is base64-encoded, not encrypted, in etcd by default. Treat it accordingly — enable encryption at rest, lock it down with RBAC, and for the truly crown-jewel secrets, reach for an external secrets manager. Labels, meanwhile, do the quiet organizational work: metadata.labels is how Services select pods, how Deployments find theirs, how you query and group everything. In Kubernetes, labels are the glue."
           ]
+        },
+        {
+          "heading": "Labels, selectors and managing manifests",
+          "body": [
+            "Labels are key-value pairs that tie Kubernetes objects together. A Deployment's selector picks its pods by label, a Service routes to pods by label, and a NetworkPolicy applies to pods by label, so a typo in a label silently breaks the connection. Use a consistent set, such as the recommended `app.kubernetes.io/name`, `app.kubernetes.io/version` and `app.kubernetes.io/component`. Annotations hold non-identifying metadata such as build information.",
+            "Apply manifests declaratively with `kubectl apply -f dir/`, and keep them in Git so every change is reviewed. `kubectl diff -f dir/` shows what would change before you apply. For variation between environments, Kustomize (built into kubectl with `-k`) layers patches over a base, and Helm packages manifests as templated charts with values files."
+          ]
         }
       ],
       "examples": [
@@ -64632,6 +64765,13 @@
           "body": [
             "Service discovery runs on cluster DNS: inside its namespace a Service is reachable by bare name (“db”), and fully qualified as db.mynamespace.svc.cluster.local from anywhere. CoreDNS serves it all, which is why the earlier lesson’s advice — services reach each other by name — works without any manual wiring.",
             "For HTTP traffic from outside, Ingress is the front door: one entry point routing by host and path to the right Services, with TLS termination along the way. The critical detail beginners miss: an Ingress object alone does nothing — an Ingress controller (nginx, Traefik, or your cloud’s) must be running in the cluster to implement the rules. No controller, no routing."
+          ]
+        },
+        {
+          "heading": "Controlling traffic with NetworkPolicy",
+          "body": [
+            "By default every pod can talk to every other pod in the cluster, across namespaces. A NetworkPolicy restricts that: once any policy selects a pod for ingress, only traffic the policies allow can reach it. A common pattern is a default-deny policy per namespace (`podSelector: {}` with `policyTypes: [Ingress, Egress]` and no rules), followed by policies that allow specific flows, such as the web pods to the API pods on port 8080, and DNS egress to kube-system.",
+            "NetworkPolicy is enforced by the network plugin, not by Kubernetes itself, so it only works with a CNI that supports it, such as Calico or Cilium. Test policies after applying them: `kubectl exec` into a pod and try to reach a service that should be blocked. The Gateway API is the successor to Ingress for routing external traffic, with richer routing and clearer roles."
           ]
         }
       ],
@@ -64696,6 +64836,13 @@
             "Not everything needs persistence. An emptyDir volume lives exactly as long as its pod — perfect for scratch space and caches, gone when the pod dies. Anything that must survive rescheduling gets a PVC: databases, file uploads, anything you would back up.",
             "Two more distinctions matter. Access modes describe mountability: ReadWriteOnce means one node mounts it read-write; ReadWriteMany allows many nodes, but only if the storage backend supports it. And workload type follows the data: stateless apps run as Deployments with interchangeable pods, while databases and queues — anything needing stable identity plus its own storage — belong in a StatefulSet with per-pod PVCs. Never store database files in the image; images are read-only, shared, and the wrong place for anything writable or durable."
           ]
+        },
+        {
+          "heading": "StatefulSets, snapshots and data safety",
+          "body": [
+            "For databases and other stateful workloads, a StatefulSet uses `volumeClaimTemplates` to give each replica its own PersistentVolumeClaim (`data-db-0`, `data-db-1`), and the claim follows the pod's stable name if it is rescheduled. Scaling down does not delete those claims, so the data is still there when you scale back up.",
+            "Check the StorageClass reclaim policy: `Delete` removes the underlying disk when the claim is deleted, and `Retain` keeps it for manual recovery. For production data, use `Retain` or make sure backups exist. VolumeSnapshots (with a CSI driver that supports them) take point-in-time copies, and tools such as Velero back up both Kubernetes objects and volume data to object storage. Running a production database in Kubernetes is possible, but a managed database service is often simpler."
+          ]
         }
       ],
       "examples": [
@@ -64758,6 +64905,13 @@
           "body": [
             "Three probes, three questions. Liveness: “is this container still alive?” — a failure restarts it. Readiness: “should it receive traffic yet?” — a not-ready pod is quietly removed from Service endpoints until it is. Startup: “has this slow starter finished booting?” — it holds the liveness probe off during long initializations so healthy-but-slow containers are not killed for being deliberate.",
             "Scaling and fairness complete the picture. The Horizontal Pod Autoscaler adjusts replica counts from metrics like CPU — but it needs metrics-server running to see anything. And resource requests versus limits is the fairness contract: requests guide the scheduler’s placement, limits cap what a pod may consume. A container that exceeds its memory limit is OOM-killed; CPU overuse is throttled instead. Set both, always — unbounded pods let one workload starve the node and everyone on it."
+          ]
+        },
+        {
+          "heading": "Tuning rollouts and protecting availability",
+          "body": [
+            "A Deployment's rolling update is controlled by `maxSurge` (how many extra pods may be created above the desired count) and `maxUnavailable` (how many may be missing). `maxSurge: 1, maxUnavailable: 0` adds a new pod before removing an old one, keeping full capacity at the cost of extra resources. `minReadySeconds` makes Kubernetes wait until a new pod has been ready for a while before continuing, which catches pods that crash shortly after starting.",
+            "A PodDisruptionBudget protects availability during voluntary disruptions such as node drains: `minAvailable: 2` stops a drain from evicting pods if fewer than two would remain. For riskier releases, canary and blue-green strategies send a small share of traffic to the new version first; tools such as Argo Rollouts or a service mesh automate them with automatic rollback on errors."
           ]
         }
       ],
@@ -64822,6 +64976,13 @@
             "When a pod misbehaves, work the routine in order. `kubectl logs` first — what did the application say before it died? `kubectl describe pod` second — the events section reveals scheduling failures, image pull errors, and probe failures that logs never show. `kubectl exec -it` gets you inside a running pod to inspect from within, and `kubectl get events` gives the cluster-wide view: evictions, failed scheduling, the weather report of the whole system.",
             "Learn to recognize CrashLoopBackOff: a pod crashing and restarting with growing delays between attempts — almost always an application problem (bad config, missing dependency), diagnosed via logs and describe. For node maintenance, cordon marks a node unschedulable and drain evicts its pods so they reschedule elsewhere — the graceful way to take a machine down. Underneath it all runs the same loop every controller follows: observe actual state, compare to desired, act to reconcile, forever. That loop is Kubernetes."
           ]
+        },
+        {
+          "heading": "Observability for clusters",
+          "body": [
+            "`kubectl top pods` and `kubectl top nodes` show current CPU and memory use, provided the metrics-server is installed. For history and alerting, most clusters run Prometheus to collect metrics from the kubelet, kube-state-metrics and applications, with Grafana dashboards and alert rules for symptoms such as pods restarting, nodes not ready, persistent volumes filling and Deployments with unavailable replicas.",
+            "Container logs disappear when a pod is deleted, so ship them off the node with an agent such as Fluent Bit running as a DaemonSet. `kubectl get events --sort-by=.lastTimestamp` gives a quick timeline of what the cluster has been doing. For a crashed container, `kubectl logs <pod> --previous` shows the output of the last failed run, and `kubectl debug` attaches an ephemeral debugging container to a running pod."
+          ]
         }
       ],
       "examples": [
@@ -64884,6 +65045,13 @@
           "body": [
             "Start with the pod. Run as non-root (runAsNonRoot with a non-zero runAsUser), never set privileged: true — it grants near-host access and the Pod Security Standards forbid it in restricted profiles — and drop unneeded Linux capabilities. Apply those standards per namespace through admission control so the hardening is enforced, not suggested. Then segment the network: a NetworkPolicy can restrict which pods and namespaces may talk to each other, but remember the default is allow-all until a policy selects a pod — the first policy you write is the one that starts enforcing.",
             "Finally, guard the supply chain. Scan images for CVEs, pin digests so “the same tag” cannot silently become different software, and require admission policies that block unsigned or unscanned images. Secrets reach pods through the Secret object — with etcd encryption at rest and RBAC guarding access — or better, from an external secrets manager; they are never baked into images or committed to repositories. Quotas and LimitRanges per namespace cap what any tenant can consume, because availability is a security property too."
+          ]
+        },
+        {
+          "heading": "Securing the cluster itself",
+          "body": [
+            "Protect the control plane: keep the API server private or restricted to known networks, authenticate users through an identity provider (OIDC) rather than shared certificates, enable audit logging, and encrypt Secrets at rest in etcd, ideally with a KMS provider. Keep Kubernetes and node images patched; minor versions receive upstream patches for about 14 months.",
+            "Limit what workloads can reach. Disable automatic service-account token mounting for pods that do not call the API (`automountServiceAccountToken: false`), and never bind `cluster-admin` to application accounts. Admission policies, through ValidatingAdmissionPolicy, Kyverno or OPA Gatekeeper, can block privileged pods, images from untrusted registries and missing resource limits. The CIS Kubernetes Benchmark, checked with kube-bench, gives a full checklist."
           ]
         }
       ],
@@ -66228,6 +66396,13 @@
             "A primary key is the column — or set of columns — that uniquely identifies each row. It must be unique and never null: no two users share an id, and no user lacks one. Other tables reference it through foreign keys, which is how relationships between tables are enforced rather than merely hoped for.",
             "`NULL` is SQL's most misunderstood value. It does not mean zero, and it does not mean an empty string — it means unknown or missing. Because of that, `NULL = NULL` is not true; it is unknown. To test for missing values you must write `WHERE col IS NULL`, never `= NULL`. Internalize this early and an entire category of \"why is my query wrong\" evaporates."
           ]
+        },
+        {
+          "heading": "Data types and constraints",
+          "body": [
+            "Every column has a type, and choosing it well prevents whole classes of bugs. Use integer types for counts and identifiers, `DECIMAL(10,2)` or `NUMERIC` for money (never floating point, which cannot store 0.10 exactly), `VARCHAR(n)` or `TEXT` for strings, `DATE` and `TIMESTAMP` for time, and `BOOLEAN` where the database supports it. Store dates as dates, not as text, so sorting and date arithmetic work.",
+            "Constraints let the database enforce rules no matter which application writes the data. `PRIMARY KEY` identifies each row, `FOREIGN KEY` ensures a referenced row exists, `NOT NULL` requires a value, `UNIQUE` prevents duplicates such as two accounts with one email, and `CHECK (price >= 0)` rejects impossible values. Exact type names and behaviours vary between PostgreSQL, MySQL, SQL Server and SQLite, so check your database's documentation."
+          ]
         }
       ],
       "examples": [
@@ -66295,6 +66470,13 @@
           "body": [
             "`ORDER BY column DESC` sorts results descending; ascending (`ASC`) is the default. Sorting is usually paired with `LIMIT n` — \"the ten most recent orders\" is `ORDER BY created_at DESC LIMIT 10`. (SQL Server spells it `TOP n` instead of `LIMIT`.)",
             "`DISTINCT` removes duplicate rows from the result: `SELECT DISTINCT country FROM users` lists each country once. And when a column name is ugly or a computed value needs a label, alias it: `SELECT price AS cost` renames the column in the output. Aliases also name computed columns, which matters the moment you start doing arithmetic in `SELECT`."
+          ]
+        },
+        {
+          "heading": "Pattern matching, ranges and NULL-safe filters",
+          "body": [
+            "Beyond equality, a few operators cover most filters. `BETWEEN 10 AND 20` is inclusive of both ends. `IN ('UK', 'IE', 'FR')` replaces a chain of ORs. `LIKE 'Ana%'` matches values starting with 'Ana', `%` standing for any run of characters and `_` for exactly one; a leading wildcard such as `LIKE '%son'` usually prevents the database from using an index. Case sensitivity of LIKE depends on the database and collation.",
+            "NULL needs its own care. `WHERE discount <> 10` silently excludes rows where discount is NULL, because comparisons with NULL are unknown, not true. Write `WHERE discount <> 10 OR discount IS NULL` when you mean to include them, or use `COALESCE(discount, 0)` to substitute a default. `CASE WHEN total > 100 THEN 'large' ELSE 'small' END` derives labels in the select list."
           ]
         }
       ],
@@ -66367,6 +66549,13 @@
             "`GROUP BY` collapses rows into groups so aggregates compute per group: total sales per region, average order value per month. In a grouped query, the `SELECT` list may contain only the grouping columns and aggregates — asking for a bare non-grouped column is an error in strict SQL, because the database cannot know which row's value you mean.",
             "Here is the divide that trips everyone once: `WHERE` filters rows before grouping; `HAVING` filters groups after aggregation. \"Regions with total sales over 1000\" is `GROUP BY region HAVING SUM(sales) > 1000` — you cannot put an aggregate in `WHERE`, because at the moment `WHERE` runs, the groups do not exist yet. `WHERE` narrows the raw material; `HAVING` judges the finished groups."
           ]
+        },
+        {
+          "heading": "Common grouping mistakes",
+          "body": [
+            "Every column in the select list must either appear in `GROUP BY` or be inside an aggregate. `SELECT customer_id, city, COUNT(*) FROM orders GROUP BY customer_id` is an error in PostgreSQL and SQL Server because `city` has no single value per group; MySQL may accept it and return an arbitrary city, which hides the bug. Group by every non-aggregated column, or aggregate it.",
+            "Watch for NULL and duplicates. `COUNT(*)` counts rows, `COUNT(email)` counts non-NULL emails, and `AVG(rating)` ignores NULL ratings rather than treating them as zero. Joining before aggregating can multiply rows, so a customer with three orders and two addresses produces six joined rows and inflated sums. Aggregate in a subquery or CTE first, then join the totals."
+          ]
         }
       ],
       "examples": [
@@ -66426,6 +66615,13 @@
           "body": [
             "A join is only as reliable as the relationship it follows. That relationship is enforced by a foreign key: a column in one table that references the primary key of another, with the database guaranteeing every reference points somewhere real. This is referential integrity, and it is what separates a database from a pile of spreadsheets.",
             "Without foreign keys, joins still run — SQL will happily join on any condition — but nothing stops orphaned rows or dangling references from silently corrupting your results. Design the keys first; the joins then take care of themselves."
+          ]
+        },
+        {
+          "heading": "Other join types and set thinking",
+          "body": [
+            "`RIGHT JOIN` is a LEFT JOIN written the other way round, and most people rewrite it as a LEFT JOIN for readability. `FULL OUTER JOIN` keeps unmatched rows from both sides, which is useful for reconciling two lists: rows with NULL on one side exist in only one list. `CROSS JOIN` pairs every row with every other row; it is occasionally useful for generating combinations, and accidentally created by a missing ON condition.",
+            "To find rows with no match, use a LEFT JOIN and test the right side for NULL, or `WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)`. Avoid `NOT IN` with a subquery that can return NULL: if any value is NULL, `NOT IN` returns no rows at all. Always join on the full key, and check row counts before and after joining."
           ]
         }
       ],
@@ -66494,6 +66690,13 @@
             "`INSERT INTO users (name, email) VALUES ('Ada', 'ada@x.io')` adds a row. `UPDATE users SET email = 'new@x.io' WHERE id = 7` changes one. `DELETE FROM users WHERE id = 7` removes one. Notice the pattern: `UPDATE` and `DELETE` without a `WHERE` clause hit every row in the table. That is not a theoretical risk — it is one of the most common production disasters in the industry, and the defence is a habit: never execute a bare `UPDATE` or `DELETE`; always write the `WHERE` first.",
             "`DELETE` removes selected rows and is logged and rollback-able inside a transaction. `TRUNCATE` empties the entire table far faster but with no granularity and, in most systems, no easy undo. Different tools, different jobs: `DELETE` for precision, `TRUNCATE` for wholesale resets."
           ]
+        },
+        {
+          "heading": "Changing schemas safely",
+          "body": [
+            "`ALTER TABLE` changes a live table: `ALTER TABLE customers ADD COLUMN phone VARCHAR(30);` is usually quick, but adding a NOT NULL column with a computed default, changing a type, or adding an index on a large table can lock it or rewrite it entirely. Check how your database handles each operation, and run large changes in a maintenance window or with online tools such as `CREATE INDEX CONCURRENTLY` in PostgreSQL.",
+            "Keep schema changes in version-controlled migration files (Flyway, Liquibase, Alembic, Rails migrations), applied in order to every environment, so development, test and production never drift. Make changes backward compatible in steps: add the new column, deploy code that writes both, backfill, switch reads, and only then drop the old column. `UPSERT` (`INSERT ... ON CONFLICT` in PostgreSQL, `MERGE` in SQL Server) handles insert-or-update in one statement."
+          ]
         }
       ],
       "examples": [
@@ -66552,6 +66755,13 @@
           "body": [
             "A common table expression — `WITH monthly AS (SELECT ...)` — names a temporary result you can reference in the main query, like a variable for result sets. CTEs turn a tangled nested query into readable, named steps, and recursive CTEs can even walk hierarchies like org charts. They exist for the reader as much as for the machine.",
             "Set operators combine whole result sets: `UNION` stacks two queries' rows and removes duplicates (`UNION ALL` keeps them and runs faster), `INTERSECT` returns rows present in both, `EXCEPT` returns rows in the first but not the second. The contract: both queries must return the same number of columns with compatible types, and the column names come from the first query."
+          ]
+        },
+        {
+          "heading": "Recursive CTEs and choosing the right tool",
+          "body": [
+            "A recursive CTE walks hierarchies such as an org chart or a category tree. It has an anchor query that selects the starting rows and a recursive part that joins back to the CTE: `WITH RECURSIVE chain AS (SELECT id, manager_id, name FROM staff WHERE id = 42 UNION ALL SELECT s.id, s.manager_id, s.name FROM staff s JOIN chain c ON s.id = c.manager_id) SELECT * FROM chain;` lists an employee and every manager above them. Recursion stops when the recursive part returns no rows.",
+            "Subqueries, CTEs and joins can often express the same question. Prefer a join when you need columns from both tables, `EXISTS` when you only need to know whether a match exists, and a CTE when naming an intermediate step makes the query easier to read. Check performance with `EXPLAIN` rather than assuming one form is faster."
           ]
         }
       ],
@@ -66619,6 +66829,13 @@
           "body": [
             "Normalization is the discipline of eliminating redundancy. First Normal Form demands atomic values — no arrays or repeating groups stuffed into a single cell, one value per column per row. Third Normal Form goes further, removing transitive dependencies: every non-key attribute must depend on the key, the whole key, and nothing but the key. The payoff is integrity — one fact stored in one place cannot contradict itself, and updates cannot leave stale copies behind.",
             "But normalization optimizes for correctness, not speed, and reporting queries that join a dozen tables pay for it. Deliberate denormalization — accepting some redundancy to avoid joins — is a legitimate performance technique, common in analytics. The rule: normalize by default for integrity, denormalize by measurement when reads demand it. Never denormalize by guess."
+          ]
+        },
+        {
+          "heading": "Composite indexes and when to denormalise",
+          "body": [
+            "An index on several columns is used from the left. An index on `(customer_id, created_at)` serves `WHERE customer_id = 42` and `WHERE customer_id = 42 AND created_at > '2026-01-01'`, but not `WHERE created_at > '2026-01-01'` alone. Put the column used for equality first and the range column second. An index that contains every column a query needs (a covering index) lets the database answer without reading the table.",
+            "Normalisation to third normal form is the right default for transactional systems. Reporting and analytics systems often denormalise on purpose, for example a star schema with a wide fact table and dimension tables, or a stored order total, because reads vastly outnumber writes. Denormalise deliberately, and keep the copies consistent with triggers, scheduled jobs or materialised views."
           ]
         }
       ],
@@ -66690,6 +66907,13 @@
           "body": [
             "A view is a saved `SELECT` you query like a table — it usually stores no data itself. Views simplify complex queries and, crucially, can restrict which columns different users see: the reporting team gets the view without the salary column. Window functions like `ROW_NUMBER() OVER (...)` compute across rows related to the current row without collapsing them, unlike `GROUP BY` — ranking, running totals, and moving averages without losing detail.",
             "Then the adversary. SQL injection — smuggling malicious SQL through unsanitized input — remains a top web vulnerability decades after it was understood. The defence is non-negotiable: parameterized queries (prepared statements), where the driver sends data separately from the SQL so input can never become code. Complement it with least-privilege database accounts — a reporting user that can only read, an app user that cannot `DROP` — so a compromise is contained. And passwords are never stored as text: store a salted hash with bcrypt or argon2, because any breach that exposes reversible passwords has already lost."
+          ]
+        },
+        {
+          "heading": "Isolation levels and preventing SQL injection",
+          "body": [
+            "Isolation levels decide what concurrent transactions can see. Read committed, the default in PostgreSQL and SQL Server, prevents dirty reads but allows a row to change between two reads in the same transaction. Repeatable read prevents that, and serializable makes concurrent transactions behave as if they ran one at a time, at the cost of more conflicts that the application must retry. Choose the weakest level that keeps your data correct.",
+            "SQL injection happens when user input is concatenated into query text. The fix is parameterised queries in every language, for example `cursor.execute(\"SELECT * FROM users WHERE email = %s\", (email,))`, never string formatting. Back it up with least-privilege database accounts for each application, no administrative accounts in application connection strings, and input validation as a second layer."
           ]
         }
       ],

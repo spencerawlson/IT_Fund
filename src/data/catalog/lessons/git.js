@@ -22,6 +22,13 @@ export default {
           'The staging area is the part newcomers underestimate. It exists so a commit can be a deliberate, curated unit rather than “whatever happened to be lying around.” You might edit five files but stage only two, committing a single coherent change and leaving the rest for later. `git init` creates a new empty repository, `git clone <url>` copies an existing one with its full history, and `git status` is your constant companion — it tells you which files are untracked, modified, or staged at any moment.',
         ],
       },
+      {
+        heading: 'Configuring Git and ignoring files',
+        body: [
+          'Before your first commit, tell Git who you are: `git config --global user.name "Ana Silva"` and `git config --global user.email ana@example.com`. These details are recorded in every commit. Other useful settings include `git config --global init.defaultBranch main` and a default editor for commit messages. `git config --list --show-origin` shows every setting and the file it came from.',
+          'A `.gitignore` file lists patterns Git should never track: build output (`dist/`, `*.o`), dependencies (`node_modules/`), editor files and, above all, secrets such as `.env`. Add it at the start of a project; ignoring a file that is already committed does not remove it from history. `git check-ignore -v file` explains which rule ignores a file, and gitignore.io-style templates give sensible starting lists per language.',
+        ],
+      },
     ],
     examples: [
       {
@@ -59,6 +66,13 @@ export default {
         body: [
           '`git log` prints the commit history, newest first; `git log --oneline` compresses each commit to a single readable line, and `git show <commit>` expands one commit into its full diff. A good commit message explains why a change was made, not merely what — the diff already shows the what. Keep commits small and focused so each one can be understood, reviewed, and reverted on its own.',
           'A .gitignore file lists patterns Git should never track — build output, dependency folders like node_modules, local config, and above all secrets such as .env files and private keys. This matters enormously because Git keeps history forever: a password committed once and “deleted” in the next commit is still sitting in the history, fully recoverable. The habit is simple and non-negotiable: secrets go in .gitignore, never in a commit, and anything that does leak must be rotated, not merely removed.',
+        ],
+      },
+      {
+        heading: 'Writing good commit messages',
+        body: [
+          'A commit message is a note to a future reader, often yourself, trying to understand why the code changed. A widely used convention is a short summary line of about 50 characters in the imperative mood (\'Fix rounding in invoice totals\', not \'Fixed stuff\'), a blank line, then a body that explains why the change was needed and anything non-obvious about how. The diff already shows what changed.',
+          'Keep each commit to one logical change, so it can be reviewed, reverted or cherry-picked on its own. Some teams adopt Conventional Commits (`feat:`, `fix:`, `docs:`), which lets tools generate changelogs and version numbers automatically. Before committing, read `git diff --staged` once more; it is the cheapest review there is, and it catches debugging code and secrets.',
         ],
       },
     ],
@@ -100,6 +114,13 @@ export default {
           'The habit that prevents pain is to pull before you start work and push often. Beginning the day on code your teammates changed hours ago means a bigger, messier reconciliation later. And treat `git push --force` as a loaded weapon: on a shared branch it can erase other people’s commits. If you genuinely must rewrite a pushed branch, prefer `--force-with-lease`, which refuses to overwrite work you have not seen — and never force-push a branch others build on.',
         ],
       },
+      {
+        heading: 'Authentication, forks and keeping in sync',
+        body: [
+          'Remotes are reached over HTTPS or SSH. HTTPS uses a personal access token or a credential manager rather than your account password; SSH uses a key pair, with the public key added to your hosting account. `git remote -v` shows each remote\'s URL, and `git remote set-url origin git@github.com:org/repo.git` switches a clone from HTTPS to SSH.',
+          'When contributing to a project you cannot push to, you fork it and clone your fork as `origin`, then add the original as `upstream`: `git remote add upstream https://github.com/org/repo.git`. To stay current, `git fetch upstream` and merge or rebase `upstream/main` into your branch. `git push --force-with-lease` is the safe way to update a branch after rebasing: it refuses if someone else pushed in the meantime.',
+        ],
+      },
     ],
     examples: [
       {
@@ -137,6 +158,13 @@ export default {
         body: [
           '`git merge <branch>` integrates another branch’s commits into the one you are on. When your current branch has not advanced since the other branched off, Git can simply slide the pointer forward — a fast-forward merge, with no extra commit, because the history is already linear. When both branches have new commits, Git performs a true three-way merge and records a merge commit with two parents, tying the two lines of history together.',
           'The everyday rhythm is: branch for each feature or fix, commit there until it is done, switch to main, and merge the branch in. This keeps main releasable while work proceeds in isolation, and it makes each change reviewable as a unit. When a branch is merged and no longer needed, `git branch -d <name>` deletes it cleanly (use -D only to force-delete unmerged work you are sure you want gone).',
+        ],
+      },
+      {
+        heading: 'Inspecting and tidying branches',
+        body: [
+          '`git branch -vv` lists local branches with their last commit and the remote branch each one tracks, including how far ahead or behind it is. `git branch --merged main` shows branches whose work is already in main and can be deleted with `git branch -d`. `-D` forces deletion of unmerged work, so use it only when you are sure. `git fetch --prune` removes remote-tracking branches that were deleted on the server.',
+          '`git log --oneline --graph --all` draws the whole branch structure in the terminal, which helps when you are unsure where a branch started or what a merge will bring in. `git log main..feature` lists commits on feature that are not yet in main, and `git diff main...feature` shows the changes the feature branch introduced since it diverged.',
         ],
       },
     ],
@@ -178,6 +206,13 @@ export default {
           'The trade-off is honesty versus tidiness, and the golden rule settles most arguments: never rebase commits you have already pushed and shared. Rewriting public history changes hashes out from under your collaborators and breaks their clones. Rebase freely on your own local, unpushed work to tidy it before sharing; use merge to integrate anything that others already have. Conflicts can occur during a rebase too — resolve, `git add`, then `git rebase --continue`.',
         ],
       },
+      {
+        heading: 'Tools that make conflicts easier',
+        body: [
+          'Setting `git config --global merge.conflictstyle zdiff3` adds a third section to conflict markers showing the common ancestor\'s version, which makes it much easier to see what each side changed. `git mergetool` opens a configured visual merge tool, and most editors, including VS Code, show conflicts with buttons to accept either side or both. After resolving, run the tests before committing: a conflict-free merge can still produce broken code.',
+          'If you resolve the same conflict repeatedly, for example while rebasing a long-running branch, enable rerere (`git config --global rerere.enabled true`), which records how you resolved a conflict and reapplies it automatically next time. Conflicts are fewer and smaller when branches are short-lived and merged often.',
+        ],
+      },
     ],
     examples: [
       {
@@ -215,6 +250,13 @@ export default {
         body: [
           '`git stash` shelves your uncommitted changes and hands you a clean working tree — perfect when you need to switch branches mid-thought or pull without committing half-finished work. `git stash pop` reapplies the most recent stash and drops it from the list; `git stash apply` reapplies but keeps it. And `git commit --amend` replaces the last commit, letting you fix its message or fold in a forgotten file — but avoid amending anything you have already pushed.',
           'The reflog is the feature that turns most “I lost my work” panics into a two-minute fix. `git reflog` records everywhere HEAD has been — every commit, reset, checkout, and merge — even commits no branch points to anymore. After a bad `reset --hard`, the reflog still lists the commit you reset away from, and you can recover it. Git very rarely deletes your commits immediately; the reflog is how you find them again.',
+        ],
+      },
+      {
+        heading: 'Choosing the safest undo',
+        body: [
+          'Before undoing anything, check whether the commits have been pushed. Local, unpushed history can be rewritten freely with `git reset`, `git commit --amend` or an interactive rebase. Shared history should not be rewritten, because collaborators\' copies still contain the old commits; use `git revert`, which adds a new commit that undoes the change, and works even for merges with `git revert -m 1 <merge>`.',
+          '`git reset` has three modes. `--soft` moves the branch but keeps your changes staged, `--mixed` (the default) keeps them unstaged, and `--hard` discards them. Uncommitted work lost to `--hard` is very hard to recover, so stash or commit first. To recover a single file from an older commit, `git restore --source=<commit> path/to/file` is precise and leaves everything else alone.',
         ],
       },
     ],
@@ -256,6 +298,13 @@ export default {
           'Teams choose an overall shape. Trunk-based development keeps everyone merging small changes into main frequently, often behind feature flags, which suits continuous delivery. GitFlow uses longer-lived develop and release branches with a more ceremonial path to production, which suits versioned, scheduled releases. Forking workflows, common in open source, give each contributor their own server-side copy that they propose from. There is no single right answer — only the one your team actually follows.',
         ],
       },
+      {
+        heading: 'Protecting the main branch',
+        body: [
+          'Whatever workflow a team uses, the main branch should always be releasable. Hosting platforms enforce this with branch protection rules: require pull requests instead of direct pushes, require at least one approving review, require CI checks to pass, and require branches to be up to date before merging. A CODEOWNERS file routes reviews of sensitive paths, such as infrastructure or authentication code, to the right people automatically.',
+          'Agree how pull requests are merged. A merge commit preserves every commit and the branch shape; squash merging collapses a branch into one commit on main, giving a tidy history; rebase merging replays the commits in a straight line. Many teams squash by default. Signed commits and tags (GPG or SSH signing) let reviewers verify who authored a change.',
+        ],
+      },
     ],
     examples: [
       {
@@ -293,6 +342,13 @@ export default {
         body: [
           'The single most important discipline is keeping secrets out. Because every commit is permanent and content-addressed, a committed password lives on in history even after you “delete” it — so use .gitignore plus a secret scanner such as gitleaks in a pre-commit hook, and if something does leak, rotate the credential rather than trusting a cleanup. For provenance, signing commits and tags with GPG or SSH cryptographically proves who authored them, defending against impersonation in the log.',
           'A few more habits keep repositories fast and sane. Large binaries bloat every clone’s history forever, so store them with Git LFS, which keeps lightweight pointers in Git and the bytes elsewhere. Write commit messages that explain the why, because future debuggers will read them. And treat the golden rule as sacred: never rewrite history that has been shared. Local cleanup before you push is good craftsmanship; rewriting public history is how you break everyone downstream of you.',
+        ],
+      },
+      {
+        heading: 'Large files, secrets and repository maintenance',
+        body: [
+          'Git stores every version of every file forever, so large binary files make clones slow and repositories huge. Git LFS stores large files such as images, models and datasets on a separate server and keeps only small pointer files in the repository. Track patterns with `git lfs track "*.psd"` before committing them.',
+          'If a secret is committed, treat it as compromised and revoke it immediately; then remove it from history with `git filter-repo` (the recommended replacement for `git filter-branch`) or BFG, and force-push, knowing that existing clones and forks still hold the old history. Prevent it next time with a pre-commit secret scanner such as gitleaks. `git gc` packs objects and cleans up, and `git fsck` checks the repository\'s integrity.',
         ],
       },
     ],
