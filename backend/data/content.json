@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:39:20.333Z",
+  "generatedAt": "2026-11-17T10:40:08.534Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -30997,7 +30997,7 @@
                   "a": "A model too simple to capture the pattern",
                   "x": "Poor accuracy on both training and validation data.",
                   "wrong": [
-                    "Memorising training data, word for word",
+                    "Memorising the training data exactly",
                     "Too much data, more than it can ever process",
                     "Too many features, confusing the model"
                   ]
@@ -31010,7 +31010,7 @@
                   "a": "To tune on one set and measure true generalisation on unseen data",
                   "x": "Never tune on the test set, or its score is no longer honest.",
                   "wrong": [
-                    "To train faster",
+                    "To train three models in parallel and keep the fastest one",
                     "To reduce storage",
                     "It is required by Python"
                   ]
@@ -31062,7 +31062,7 @@
                   "a": "Precision = few false alarms; recall = few missed threats",
                   "x": "There is usually a trade-off; F1 balances the two.",
                   "wrong": [
-                    "They are the same",
+                    "Precision = few missed threats; recall = few false alarms",
                     "Only accuracy matters",
                     "Recall measures speed"
                   ]
@@ -31229,7 +31229,7 @@
                   "a": "Randomly disabling neurons during training to reduce overfitting",
                   "x": "Disabled at inference time.",
                   "wrong": [
-                    "Deleting data",
+                    "Deleting a random share of the training data each epoch",
                     "Stopping training early",
                     "Lowering the learning rate"
                   ]
@@ -31326,7 +31326,7 @@
                   "a": "The maximum tokens the model can consider at once",
                   "x": "Includes system prompt, conversation, documents, and output.",
                   "wrong": [
-                    "Training data size",
+                    "The amount of training data the model saw",
                     "Screen size",
                     "Response time"
                   ]
@@ -31379,7 +31379,7 @@
                   "x": "Zero-shot gives no examples.",
                   "wrong": [
                     "Training with few GPUs",
-                    "Short prompts",
+                    "Keeping prompts very short so the model answers quickly",
                     "Asking multiple models"
                   ]
                 },
@@ -31430,7 +31430,7 @@
                   "a": "The date after which the model has no training data",
                   "x": "Use search or retrieval for newer facts.",
                   "wrong": [
-                    "A context limit",
+                    "The maximum number of tokens in one request",
                     "A rate limit",
                     "A safety filter"
                   ]
@@ -31525,7 +31525,7 @@
                   "x": "e.g. pgvector, Pinecone, Weaviate, FAISS.",
                   "wrong": [
                     "Raw PDFs only",
-                    "Model weights",
+                    "Model weights for the embedding model",
                     "User passwords"
                   ]
                 },
@@ -31804,7 +31804,7 @@
                   "a": "A standard way to expose tools and data to AI applications",
                   "x": "An open protocol; treat third-party servers as untrusted code.",
                   "wrong": [
-                    "A GPU server",
+                    "A hosted GPU server that runs the model itself",
                     "A vector DB",
                     "A model host"
                   ]
@@ -31885,7 +31885,7 @@
                   "a": "Storing weights in lower precision (e.g. 8-bit, 4-bit) to save memory",
                   "x": "Some quality loss, big savings on hardware.",
                   "wrong": [
-                    "Adding more parameters",
+                    "Adding more parameters so the model can learn more from the same data",
                     "Encrypting weights",
                     "Splitting data"
                   ]
@@ -31937,7 +31937,7 @@
                   "a": "Fine-tuning erodes previously learned general abilities",
                   "x": "Mitigate with adapters, mixed data, and low learning rates.",
                   "wrong": [
-                    "Losing training data",
+                    "Losing the original training data after fine-tuning",
                     "A GPU crash",
                     "Context overflow"
                   ]
@@ -31977,7 +31977,7 @@
                   "x": "Redact PII and control access to logs.",
                   "wrong": [
                     "To retrain automatically, updating the weights every night",
-                    "It is free, costing nothing at all",
+                    "To retrain on every user conversation",
                     "For marketing, showing off the product in the prompt logs"
                   ]
                 }
@@ -32026,7 +32026,7 @@
                   "a": "An LLM in a loop that chooses tools and actions toward a goal",
                   "x": "Observe, think, act, repeat until done.",
                   "wrong": [
-                    "A chatbot with no tools",
+                    "A chatbot that answers questions from its training data",
                     "A cron job",
                     "A fine-tuned model"
                   ]
@@ -32052,7 +32052,7 @@
                   "a": "A lead model delegating subtasks to workers",
                   "x": "Good for broad research; costs more tokens.",
                   "wrong": [
-                    "One model does everything, no delegation at all",
+                    "One model handles every step itself",
                     "Two models vote, the majority answer wins",
                     "Human-only orchestration, people assigning every subtask"
                   ]
@@ -32078,7 +32078,7 @@
                   "a": "A manipulated agent can only do limited damage",
                   "x": "Scope tokens per tool; sandbox code execution.",
                   "wrong": [
-                    "Agents run faster",
+                    "Agents run faster with fewer permissions to check",
                     "Required by APIs",
                     "Reduces token cost"
                   ]
@@ -32130,7 +32130,7 @@
                   "a": "Private data access + untrusted content + a way to send data out",
                   "x": "Remove at least one leg to break the attack.",
                   "wrong": [
-                    "GPU, RAM, disk",
+                    "Model size, prompt length and temperature set too high",
                     "Speed, cost, quality",
                     "Prompt, model, output"
                   ]
@@ -32218,7 +32218,7 @@
                   "a": "Revealing PII, secrets, or confidential data",
                   "x": "Minimise data in context; filter outputs; control access.",
                   "wrong": [
-                    "A slow response, the API taking minutes to return any answer at all",
+                    "Answering more slowly when sensitive topics come up",
                     "A hallucination, confident but fabricated output",
                     "A cost overrun, the bill growing out of control"
                   ]
@@ -32231,7 +32231,7 @@
                   "a": "Passing model output unchecked into browsers, shells, or SQL",
                   "x": "Treat LLM output as untrusted user input: encode and validate.",
                   "wrong": [
-                    "Formatting errors",
+                    "Formatting errors in the model's markdown output",
                     "Long answers",
                     "Short answers"
                   ]
@@ -32283,7 +32283,7 @@
                   "a": "Prompts crafted to bypass a model’s safety behaviour",
                   "x": "A form of prompt injection aimed at policies.",
                   "wrong": [
-                    "Rooting a phone",
+                    "Rooting a phone to install apps",
                     "A GPU exploit",
                     "A network attack"
                   ]
@@ -32322,7 +32322,7 @@
                   "a": "Assume success; limit a compromised model’s reach",
                   "x": "Least privilege, human approval, output validation, isolation.",
                   "wrong": [
-                    "Better prompt wording alone, with nothing else needed",
+                    "Better prompt wording on its own",
                     "A secret system prompt, hidden from every user",
                     "Higher temperature, letting the model sample freely past the guardrails"
                   ]
@@ -32335,7 +32335,7 @@
                   "a": "Recovering training data or cloning a model via repeated queries",
                   "x": "Rate-limit, monitor query patterns, and avoid training on secrets.",
                   "wrong": [
-                    "Encrypting weights",
+                    "Encrypting the model weights at rest",
                     "Fine-tuning",
                     "Distillation by the owner"
                   ]
@@ -32392,7 +32392,7 @@
                   "x": "Unacceptable-risk practices are banned; high-risk systems carry strict obligations.",
                   "wrong": [
                     "Bans all AI, forbidding every use outright",
-                    "Applies only to chatbots, nothing else is covered at all",
+                    "Applies only to chatbots",
                     "Voluntary guidelines only, suggestions with no force"
                   ]
                 },
@@ -32444,7 +32444,7 @@
                   "x": "Datasheets do the same for datasets.",
                   "wrong": [
                     "A GPU spec sheet",
-                    "An API key",
+                    "An API key card issued to each developer",
                     "A pricing page"
                   ]
                 },
@@ -32458,7 +32458,7 @@
                   "wrong": [
                     "For licensing only, tracking who paid for what",
                     "For marketing, listing every model in the launch brochure",
-                    "It is required by Python, the language demands it"
+                    "It is needed to calculate GPU budgets"
                   ]
                 },
                 {
@@ -32471,7 +32471,7 @@
                   "wrong": [
                     "Tools are too slow, answers taking minutes",
                     "Tools are expensive, the subscription costs too much",
-                    "Tools lack themes, no dark mode available"
+                    "Public tools refuse to answer work questions"
                   ]
                 },
                 {
@@ -32482,7 +32482,7 @@
                   "a": "Business leadership with a cross-functional governance group",
                   "x": "Security, legal, privacy, data science, and business owners together.",
                   "wrong": [
-                    "The intern",
+                    "The IT helpdesk",
                     "Only the vendor",
                     "Only data scientists"
                   ]
@@ -32495,7 +32495,7 @@
                   "a": "Adversarially probing for harmful or unsafe behaviour",
                   "x": "Do it before launch and after major changes.",
                   "wrong": [
-                    "Painting servers red, literally with red paint",
+                    "Testing the model's accuracy on a benchmark",
                     "A DDoS test, flooding the servers with junk traffic",
                     "A cost audit, checking where the money goes"
                   ]
