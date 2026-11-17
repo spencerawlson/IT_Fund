@@ -10,7 +10,6 @@ import {
   percentile,
   summarizeLatencies,
   nginxConf,
-  WALKTHROUGH_STEPS,
 } from './loadBalancer';
 
 describe('load balancer engine', () => {
@@ -102,18 +101,5 @@ describe('load balancer engine', () => {
     for (const { id } of ALGORITHMS) {
       expect(pickServer(id, servers, createRoutingState(), { ip: '10.0.0.1' })).toBeGreaterThanOrEqual(0);
     }
-  });
-
-  it('the walkthrough tells the Reel story in four beats', () => {
-    expect(WALKTHROUGH_STEPS.map((s) => s.id)).toEqual(['one-server', 'round-robin', 'least-conn', 'server-dies']);
-    for (const step of WALKTHROUGH_STEPS) {
-      expect(step.caption.length).toBeGreaterThan(0);
-      expect(step.conf).toContain('upstream backend');
-      expect(step.p95).toBeGreaterThan(0);
-    }
-    // The lesson lands in the numbers: round robin leaves p95 high while a
-    // checkout piles onto one box; least_conn brings it back down.
-    expect(WALKTHROUGH_STEPS[1].p95).toBeGreaterThan(WALKTHROUGH_STEPS[2].p95);
-    expect(WALKTHROUGH_STEPS[3].servers[1].status).toBe('down');
   });
 });

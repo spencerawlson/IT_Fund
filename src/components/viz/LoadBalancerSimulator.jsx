@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Pause, Play, RotateCcw, Zap, Activity, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import LoadBalancerDiagram, { LoadBalancerCounters } from './LoadBalancerDiagram';
 import {
   ALGORITHMS,
@@ -70,7 +70,7 @@ function P95Chart({ history }) {
         <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">p95 response time</p>
         <p className="text-[11px] text-ink-3">last {MAX_HISTORY} s · ms</p>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} className="h-28 w-full" role="img" aria-label="p95 response time over the last minute">
+      <svg viewBox={`0 0 ${width} ${height}`} className="h-20 w-full" role="img" aria-label="p95 response time over the last minute">
         {[100, 400, 900].map((v) => {
           const y = height - (v / max) * height;
           return (
@@ -253,18 +253,22 @@ export default function LoadBalancerSimulator() {
   };
 
   const metric = (label, value) => (
-    <div className="rounded-xl border border-black/10 glass-1 px-3 py-2 text-center">
+    <div className="rounded-xl border border-black/10 glass-1 px-2 py-1.5 text-center">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-3">{label}</p>
-      <p className="mt-0.5 text-lg font-bold tabular-nums text-ink-1">{value}</p>
+      <p className="mt-0.5 text-base font-bold tabular-nums text-ink-1">{value}</p>
     </div>
   );
 
+  // One screen on desktop: strategy controls on the left, the flow diagram
+  // and metrics in the middle, the server pool on the right. The response
+  // time (avg / p95 / p99, then the p95 chart) sits under req/s and
+  // completed. On narrow screens the rails stack in reading order.
   return (
-    <div>
-      {/* Controls */}
-      <div className="mb-4 rounded-xl glass-1 p-4">
+    <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px] lg:grid-rows-[auto_auto]">
+      {/* Left rail: balancing strategy + traffic controls */}
+      <div className="rounded-xl glass-1 p-3 lg:col-start-1 lg:row-start-1">
         <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Balancing strategy</p>
-        <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Balancing strategy">
+        <div className="mt-2 grid grid-cols-2 gap-1.5" role="group" aria-label="Balancing strategy">
           {ALGORITHMS.map((algo) => (
             <button
               key={algo.id}
@@ -272,7 +276,7 @@ export default function LoadBalancerSimulator() {
               onClick={() => setAlgorithm(algo.id)}
               aria-pressed={algorithm === algo.id}
               title={algo.blurb}
-              className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+              className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight transition ${
                 algorithm === algo.id ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-2'
               }`}
             >
@@ -280,21 +284,21 @@ export default function LoadBalancerSimulator() {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-sm text-ink-2">{ALGORITHMS.find((a) => a.id === algorithm)?.blurb}</p>
+        <p className="mt-2 text-xs leading-snug text-ink-2">{ALGORITHMS.find((a) => a.id === algorithm)?.blurb}</p>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-3 space-y-2.5">
           <label className="block">
-            <span className="text-sm font-semibold text-ink-1">Traffic — {traffic} req/s</span>
-            <input type="range" min="1" max="20" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-1 w-full accent-[#7C3AED]" aria-label="Traffic in requests per second" />
+            <span className="text-[13px] font-semibold text-ink-1">Traffic — {traffic} req/s</span>
+            <input type="range" min="1" max="20" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Traffic in requests per second" />
           </label>
           <label className="block">
-            <span className="text-sm font-semibold text-ink-1">Checkouts — {checkoutMix}% of requests</span>
-            <input type="range" min="0" max="50" step="5" value={checkoutMix} onChange={(e) => setCheckoutMix(Number(e.target.value))} className="mt-1 w-full accent-[#7C3AED]" aria-label="Checkout share of requests" />
-            <span className="text-xs text-ink-3">Checkouts hold a connection open for seconds; page views finish fast.</span>
+            <span className="text-[13px] font-semibold text-ink-1">Checkouts — {checkoutMix}% of requests</span>
+            <input type="range" min="0" max="50" step="5" value={checkoutMix} onChange={(e) => setCheckoutMix(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Checkout share of requests" />
+            <span className="text-[11px] leading-snug text-ink-3">Checkouts hold a connection open for seconds; page views finish fast.</span>
           </label>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <div className="flex overflow-hidden rounded-lg border border-black/10" role="group" aria-label="Traffic pattern">
             {['steady', 'bursty'].map((p) => (
               <button
@@ -302,62 +306,68 @@ export default function LoadBalancerSimulator() {
                 type="button"
                 onClick={() => setPattern(p)}
                 aria-pressed={pattern === p}
-                className={`px-3 py-1.5 text-sm font-semibold capitalize ${pattern === p ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
+                className={`px-2.5 py-1 text-[13px] font-semibold capitalize ${pattern === p ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
               >
                 {p}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-1 rounded-lg border border-black/10 px-2 py-1">
-            <span className="text-sm font-semibold text-ink-1">Servers</span>
-            <button type="button" onClick={() => changeServerCount(Math.max(2, serverCount - 1))} disabled={serverCount <= 2} aria-label="Fewer servers" className="rounded px-2 py-0.5 text-sm font-bold text-ink-1 disabled:opacity-40">−</button>
+          <div className="flex items-center gap-1 rounded-lg border border-black/10 px-1.5 py-0.5">
+            <span className="text-[13px] font-semibold text-ink-1">Servers</span>
+            <button type="button" onClick={() => changeServerCount(Math.max(2, serverCount - 1))} disabled={serverCount <= 2} aria-label="Fewer servers" className="rounded px-1.5 py-0.5 text-sm font-bold text-ink-1 disabled:opacity-40">−</button>
             <span className="w-4 text-center text-sm font-bold tabular-nums">{serverCount}</span>
-            <button type="button" onClick={() => changeServerCount(Math.min(6, serverCount + 1))} disabled={serverCount >= 6} aria-label="More servers" className="rounded px-2 py-0.5 text-sm font-bold text-ink-1 disabled:opacity-40">+</button>
+            <button type="button" onClick={() => changeServerCount(Math.min(6, serverCount + 1))} disabled={serverCount >= 6} aria-label="More servers" className="rounded px-1.5 py-0.5 text-sm font-bold text-ink-1 disabled:opacity-40">+</button>
           </div>
-          <button type="button" onClick={burst} className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 glass-1 px-3 py-1.5 text-sm font-semibold text-ink-1">
-            <Zap size={15} /> Burst ×25
+        </div>
+
+        <div className="mt-2.5 grid grid-cols-3 gap-1.5">
+          <button type="button" onClick={burst} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+            Burst ×25
           </button>
-          <button type="button" onClick={() => setPaused((p) => !p)} className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 glass-1 px-3 py-1.5 text-sm font-semibold text-ink-1">
-            {paused ? <Play size={15} /> : <Pause size={15} />} {paused ? 'Resume' : 'Pause'}
+          <button type="button" onClick={() => setPaused((p) => !p)} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+            {paused ? 'Resume' : 'Pause'}
           </button>
-          <button type="button" onClick={() => reset()} className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 glass-1 px-3 py-1.5 text-sm font-semibold text-ink-1">
-            <RotateCcw size={15} /> Reset
+          <button type="button" onClick={() => reset()} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+            Reset
           </button>
         </div>
       </div>
 
-      <LoadBalancerCounters p95={stats.p95} errors503={sim.failed503} healthy={`${healthyCount}/${sim.servers.length}`} />
-      <LoadBalancerDiagram
-        servers={diagramServers}
-        dots={dots}
-        balancerLabel={ALGORITHMS.find((a) => a.id === algorithm)?.label || 'LOAD BALANCER'}
-      />
+      {/* Middle: diagram, live metrics, response-time chart */}
+      <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+        <LoadBalancerCounters p95={stats.p95} errors503={sim.failed503} healthy={`${healthyCount}/${sim.servers.length}`} />
+        <LoadBalancerDiagram
+          servers={diagramServers}
+          dots={dots}
+          balancerLabel={ALGORITHMS.find((a) => a.id === algorithm)?.label || 'LOAD BALANCER'}
+        />
 
-      {/* Live metrics */}
-      <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-6">
-        {metric('req/s', reqPerSec)}
-        {metric('completed', sim.completed)}
-        {metric('503s', sim.failed503)}
-        {metric('avg', `${stats.avg} ms`)}
-        {metric('p95', `${stats.p95} ms`)}
-        {metric('p99', `${stats.p99} ms`)}
+        {/* Live metrics: request counts on top, response time underneath. */}
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {metric('req/s', reqPerSec)}
+          {metric('completed', sim.completed)}
+          {metric('503s', sim.failed503)}
+          {metric('avg', `${stats.avg} ms`)}
+          {metric('p95', `${stats.p95} ms`)}
+          {metric('p99', `${stats.p99} ms`)}
+        </div>
+
+        <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+          <P95Chart history={sim.p95History} />
+        </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-black/10 glass-1 p-4">
-        <P95Chart history={sim.p95History} />
-      </div>
-
-      {/* Per-server cards */}
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Right rail: the server pool */}
+      <div className="flex flex-col gap-2.5 lg:col-start-3 lg:row-start-1">
         {sim.servers.map((server, i) => (
-          <div key={server.id} className={`rounded-xl border p-3 ${server.healthy ? 'border-black/10 glass-1' : 'border-red-500/40 bg-red-500/5'}`}>
+          <div key={server.id} className={`rounded-xl border p-2.5 ${server.healthy ? 'border-black/10 glass-1' : 'border-red-500/40 bg-red-500/5'}`}>
             <div className="flex items-center justify-between gap-2">
-              <p className="font-bold text-ink-1">{server.name} <span className="font-mono text-xs font-normal text-ink-3">{server.host}</span></p>
+              <p className="font-bold text-ink-1">{server.name} <span className="font-mono text-[11px] font-normal text-ink-3">{server.host}</span></p>
               <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${server.healthy ? 'bg-emerald-500/10 text-emerald-700' : 'bg-red-500/10 text-red-700'}`}>
                 {server.healthy ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />} {server.healthy ? 'healthy' : 'DOWN'}
               </span>
             </div>
-            <div className="mt-2 flex items-center gap-2 text-xs text-ink-2">
+            <div className="mt-1.5 flex items-center gap-2 text-[11px] text-ink-2">
               <Activity size={13} />
               <span>{server.active} / {SERVER_CAPACITY} conns</span>
               <span>· {server.completed} done</span>
@@ -366,7 +376,7 @@ export default function LoadBalancerSimulator() {
             <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-black/10" aria-hidden="true">
               <div className={`h-full rounded-full ${server.healthy ? 'bg-emerald-500' : 'bg-red-500'}`} style={{ width: `${Math.min(100, (server.active / SERVER_CAPACITY) * 100)}%` }} />
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <span className="flex items-center gap-1 text-xs font-semibold text-ink-1">
                 Weight
                 <button type="button" onClick={() => updateServer(i, { weight: Math.max(1, server.weight - 1) })} disabled={server.weight <= 1} aria-label={`Lower weight of ${server.name}`} className="rounded border border-black/10 px-1.5 py-0.5 disabled:opacity-40">−</button>
@@ -394,27 +404,27 @@ export default function LoadBalancerSimulator() {
         ))}
       </div>
 
-      {/* nginx.conf + event log */}
-      <div className="mt-4 grid gap-3 lg:grid-cols-2">
-        <div>
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">nginx.conf — updates live</p>
-          <pre className="overflow-x-auto rounded-xl bg-[#002B36] p-3 font-mono text-xs leading-relaxed text-[#859900]">{nginxConf(algorithm, sim.servers)}</pre>
-        </div>
-        <div>
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Health-check log</p>
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            {sim.events.length === 0 ? (
-              <p className="text-sm text-ink-3">No health events yet. Kill a server, or push traffic until one fails 3 health checks in a row.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sim.events.map((event) => (
-                  <li key={event.id} className="text-sm text-ink-2">
-                    <span className="font-mono text-xs text-ink-3">{event.time}</span> — {event.text}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+      {/* nginx.conf, under the strategy rail */}
+      <div className="lg:col-start-1 lg:row-start-2">
+        <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">nginx.conf — updates live</p>
+        <pre className="overflow-x-auto rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{nginxConf(algorithm, sim.servers)}</pre>
+      </div>
+
+      {/* Health-check log, under the server pool */}
+      <div className="lg:col-start-3 lg:row-start-2">
+        <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Health-check log</p>
+        <div className="rounded-xl border border-black/10 glass-1 p-3">
+          {sim.events.length === 0 ? (
+            <p className="text-[13px] text-ink-3">No health events yet. Kill a server, or push traffic until one fails 3 health checks in a row.</p>
+          ) : (
+            <ul className="space-y-1.5">
+              {sim.events.map((event) => (
+                <li key={event.id} className="text-[13px] text-ink-2">
+                  <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

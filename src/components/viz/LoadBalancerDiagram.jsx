@@ -1,10 +1,10 @@
 import React from 'react';
 
-// Presentational flow diagram shared by the simulator and the guided
-// walkthrough: clients on the left, the load balancer in the middle, the
-// server pool on the right, and the requests as dots travelling between
-// them. No simulation logic lives here — parents pass dots as {x, y}
-// percentages and servers as { name, conns, max, status }.
+// Presentational flow diagram for the simulator: clients on the left, the
+// load balancer in the middle, the server pool on the right, and the
+// requests as dots travelling between them. No simulation logic lives here
+// — the parent passes dots as {x, y} percentages and servers as
+// { name, conns, max, status }.
 //
 // Colours are the light theme's: white stage, ink text, blue page-view
 // dots, amber checkout dots, red for failed/dropped. The only dark surface
@@ -40,7 +40,7 @@ export function LoadBalancerCounters({ p95, errors503, healthy }) {
 
 export default function LoadBalancerDiagram({ servers, dots = [], balancerLabel = 'LOAD BALANCER' }) {
   return (
-    <div className="relative h-72 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white via-violet-50 to-white sm:h-80">
+    <div className="relative h-60 overflow-hidden rounded-xl border border-black/10 bg-gradient-to-b from-white via-violet-50 to-white lg:h-64">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(99,102,241,0.06)_1px,transparent_0)] bg-[length:22px_22px]" />
 
       {/* Client */}
