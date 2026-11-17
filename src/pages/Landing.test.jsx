@@ -124,6 +124,18 @@ describe('Landing simple structure (skillsbuild-style)', () => {
   });
 });
 
+describe('Landing background glyphs (blur)', () => {
+  it('blurs the scattered-glyphs layer so the outlines read as soft texture', () => {
+    const html = renderLanding();
+    const glyphs = (html.match(/<div[^>]*data-testid="landing-glyphs"[^>]*>/) || [])[0] || '';
+    expect(glyphs).toContain('filter:blur(2px)');
+    // The blur lives on the one layer wrapper, not on each glyph.
+    expect(html.match(/filter:blur\(2px\)/g) || []).toHaveLength(1);
+    // Scatter, colours, opacities unchanged — the glyphs are still there.
+    expect((html.match(/viewBox="-26 -26 52 52"/g) || []).length).toBe(170);
+  });
+});
+
 const SOCIAL_URLS = [
   'https://www.youtube.com/@road2cissp',
   'https://www.facebook.com/profile.php?id=61596190452892',
