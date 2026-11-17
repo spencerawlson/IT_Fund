@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T00:53:34.503Z",
+  "generatedAt": "2026-11-17T00:57:31.861Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -25982,9 +25982,9 @@
                   "a": "Triage incoming alerts and escalate confirmed incidents",
                   "x": "Tier 1 filters noise and does initial investigation; Tier 2 performs deep analysis and Tier 3 does threat hunting.",
                   "wrong": [
-                    "Writing SIEM detection rules",
-                    "Reverse-engineering malware samples",
-                    "Approving firewall change requests, signing off on rule changes before they reach production"
+                    "Write and tune the SIEM correlation rules",
+                    "Reverse-engineer malware samples pulled from escalated incidents",
+                    "Lead threat hunts based on new intelligence"
                   ]
                 },
                 {
@@ -25995,9 +25995,9 @@
                   "a": "A true positive is an alert for a real malicious event",
                   "x": "A false negative — a missed attack — is the most dangerous outcome.",
                   "wrong": [
-                    "A true positive is always critical severity",
-                    "A false positive means the SIEM is broken, misfiring on harmless traffic instead of real attacks",
-                    "They are the same thing"
+                    "A true positive is any alert rated critical severity",
+                    "A true positive is an alert the SOAR closed automatically",
+                    "A true positive is a real attack the SIEM failed to alert on"
                   ]
                 },
                 {
@@ -26008,9 +26008,9 @@
                   "a": "Analysts become desensitized by excessive false positives and risk missing real threats",
                   "x": "Solved through tuning, correlation, and SOAR automation.",
                   "wrong": [
-                    "A SIEM licensing limit",
-                    "Analysts working too few hours",
-                    "A type of DDoS attack, flooding analysts with alerts until real threats slip through unnoticed by the whole team"
+                    "The SIEM drops events once the licensed volume is exceeded",
+                    "Analysts get worn down by long overnight shifts, whatever the quality of the alerts they see",
+                    "Attackers flood the SOC with alerts to cover a real intrusion"
                   ]
                 },
                 {
@@ -26021,9 +26021,9 @@
                   "a": "Collects, normalizes, and correlates logs to detect security events",
                   "x": "It provides central visibility; it does not block traffic inline.",
                   "wrong": [
-                    "Blocks malicious packets inline",
-                    "Encrypts logs at rest",
-                    "Replaces endpoint agents"
+                    "Inspects traffic inline at the perimeter and drops malicious packets before they arrive",
+                    "Stores logs encrypted for compliance only",
+                    "Replaces EDR agents on endpoints"
                   ]
                 },
                 {
@@ -26034,9 +26034,9 @@
                   "a": "Firewalls, IDS/IPS, EDR, servers, identity systems, and cloud audit logs",
                   "x": "Breadth of telemetry determines detection quality.",
                   "wrong": [
-                    "Only antivirus logs, since malware detections are the only events worth correlating",
-                    "Only email gateways",
-                    "Only NetFlow data"
+                    "Antivirus detections only, since they are the highest-fidelity events",
+                    "Email gateway logs and web proxy logs only",
+                    "NetFlow records only, because they cover every host"
                   ]
                 },
                 {
@@ -26047,9 +26047,9 @@
                   "a": "Converting logs from different formats into a common schema",
                   "x": "Normalization enables correlation across vendors and products.",
                   "wrong": [
-                    "Compressing logs to save disk, shrinking each log file so more history fits on disk",
-                    "Encrypting logs in transit",
-                    "Deleting duplicate logs"
+                    "Compressing older logs so that more months of history fit on the same disk",
+                    "Encrypting logs in transit to the collector",
+                    "Removing duplicate events before storage"
                   ]
                 },
                 {
@@ -26060,9 +26060,9 @@
                   "a": "An event is any observable occurrence; an incident is a confirmed policy or security violation",
                   "x": "Only incidents trigger the formal incident response process.",
                   "wrong": [
-                    "They are synonyms",
-                    "An incident is always less severe, ranking below ordinary events in the triage queue every single time",
-                    "An event requires legal notification"
+                    "They are synonyms in the NIST terminology",
+                    "An incident is any observable occurrence; an event is a confirmed violation",
+                    "An event always requires breach notification"
                   ]
                 },
                 {
@@ -26073,9 +26073,9 @@
                   "a": "The prioritized list of alerts analysts work through",
                   "x": "Prioritized by severity, asset criticality, and threat intel context.",
                   "wrong": [
-                    "A firewall rule list",
-                    "A backup job schedule",
-                    "A list of patched systems"
+                    "The list of firewall change requests waiting for the security team's approval",
+                    "The schedule of scans and backup jobs",
+                    "The list of systems awaiting patches"
                   ]
                 },
                 {
@@ -26086,9 +26086,9 @@
                   "a": "The average time from compromise to detection",
                   "x": "Lower MTTD limits attacker dwell time.",
                   "wrong": [
-                    "Time to apply a patch, measuring how fast the team deploys a fix after release",
-                    "Time to reboot a server",
-                    "Time to write a report"
+                    "The average time from patch release to deployment",
+                    "The average time from detection to containment",
+                    "The average time to restore from backup"
                   ]
                 },
                 {
@@ -26099,9 +26099,9 @@
                   "a": "The average time from detection to containment or remediation",
                   "x": "A key SOC efficiency metric tracked over time.",
                   "wrong": [
-                    "Time to detect an alert",
-                    "Time to provision an account, measuring how fast IT creates accounts for new starters",
-                    "Time to back up data"
+                    "The average time from the initial compromise until the SOC first detects it",
+                    "The average time to provision a new account",
+                    "The average time a ticket waits in the queue"
                   ]
                 },
                 {
@@ -26112,9 +26112,9 @@
                   "a": "How long an attacker remains undetected in the environment",
                   "x": "Industry averages are measured in days to weeks; hunting reduces it.",
                   "wrong": [
-                    "The time a user stays logged in, from sign-in until the session times out",
-                    "SIEM data retention period",
-                    "The length of a SOC shift"
+                    "How long a user's session stays active before the identity provider times it out",
+                    "How long the SIEM retains searchable logs",
+                    "How long an alert waits before triage"
                   ]
                 },
                 {
@@ -26125,9 +26125,9 @@
                   "a": "A documented step-by-step procedure for handling a specific alert type",
                   "x": "Runbooks ensure consistent Tier 1 response.",
                   "wrong": [
-                    "A list of admin passwords",
-                    "A network topology diagram",
-                    "A vulnerability scan report"
+                    "An inventory of privileged accounts, their owners and when each was last reviewed",
+                    "A diagram of the network topology and zones",
+                    "A report of the latest vulnerability scan"
                   ]
                 },
                 {
@@ -26138,9 +26138,9 @@
                   "a": "A broader conditional response plan linking multiple runbooks, tools, and decisions",
                   "x": "SOAR platforms automate playbooks.",
                   "wrong": [
-                    "A sports strategy document, laying out plays and formations for the team to follow during the game",
-                    "A password policy",
-                    "A backup schedule"
+                    "A single fixed checklist for one alert type",
+                    "A catalogue of the SOC's detection rules",
+                    "A rota of which analysts are on shift and who is on call for each tier of escalation"
                   ]
                 },
                 {
@@ -26151,9 +26151,9 @@
                   "a": "Automatically adding context to a ticket",
                   "x": "Enrichment speeds up triage decisions.",
                   "wrong": [
-                    "Deleting old tickets",
-                    "Assigning tickets randomly",
-                    "Closing tickets without review, clearing the queue by resolving every ticket unseen"
+                    "Merging duplicate tickets into one",
+                    "Routing tickets to the next free analyst",
+                    "Closing tickets that match a known false positive"
                   ]
                 },
                 {
@@ -26164,9 +26164,9 @@
                   "a": "Severity is the technical impact of the event; priority is the response order",
                   "x": "A compromised domain controller outranks a compromised print server.",
                   "wrong": [
-                    "They are identical",
-                    "Priority is always higher than severity, ranking above impact in every triage decision the SOC makes",
-                    "Severity applies only to malware"
+                    "They are identical labels in most SIEMs",
+                    "Priority is the technical impact; severity is the response order",
+                    "Severity applies only to malware alerts"
                   ]
                 },
                 {
@@ -26177,9 +26177,9 @@
                   "a": "Tier 1 triage → Tier 2 investigation → Tier 3 hunting and IR → management",
                   "x": "The path is defined in the incident response plan.",
                   "wrong": [
-                    "Analyst → attacker → management",
-                    "Tier 3 → Tier 1 → Tier 2",
-                    "There is no defined path"
+                    "Tier 3 hunting → Tier 1 triage → Tier 2 investigation → management",
+                    "Analyst → management → legal, skipping tiers",
+                    "Each analyst escalates directly to the CISO"
                   ]
                 },
                 {
@@ -26190,9 +26190,9 @@
                   "a": "A profile of normal behavior used to spot anomalies",
                   "x": "Deviations from baseline trigger investigation.",
                   "wrong": [
-                    "The minimum password length, setting the shortest password any user is allowed to choose",
-                    "A backup copy",
-                    "A firewall default rule"
+                    "The minimum configuration every server must meet",
+                    "A backup copy of a known-good system image",
+                    "The default-deny rule at the end of a firewall policy"
                   ]
                 },
                 {
@@ -26203,9 +26203,9 @@
                   "a": "More important systems raise an alert’s response priority",
                   "x": "A domain controller alert outranks a print server alert.",
                   "wrong": [
-                    "It determines the SIEM license cost, pricing the platform by how critical each asset is",
-                    "It sets the analyst salary",
-                    "It has no operational effect"
+                    "It sets the SIEM licensing cost per asset",
+                    "It decides which analyst tier handles the alert",
+                    "None, because severity alone decides the response order for every alert"
                   ]
                 },
                 {
@@ -26216,9 +26216,9 @@
                   "a": "An IDS alerts for analyst review; an IPS blocks inline",
                   "x": "Poorly tuned IPS rules can disrupt legitimate business traffic.",
                   "wrong": [
-                    "They are the same device",
-                    "An IDS blocks; an IPS only alerts, passing suspicious traffic while the analyst decides",
-                    "An IPS cannot generate logs"
+                    "They are the same appliance running in two different licensing modes",
+                    "An IDS blocks inline; an IPS only alerts",
+                    "An IPS cannot generate logs for the SIEM"
                   ]
                 },
                 {
@@ -26229,9 +26229,9 @@
                   "a": "The ongoing collection and analysis of security telemetry",
                   "x": "Required by frameworks such as NIST CSF; not a once-a-year audit.",
                   "wrong": [
-                    "An annual penetration test",
-                    "A quarterly access review",
-                    "A yearly policy update"
+                    "An annual penetration test of critical systems by an external firm",
+                    "A quarterly review of user access rights",
+                    "A yearly audit against a control framework"
                   ]
                 }
               ],
@@ -26269,9 +26269,9 @@
                   "a": "Automated discovery of known weaknesses in systems",
                   "x": "It finds flaws; penetration testing exploits them to prove impact.",
                   "wrong": [
-                    "Exploiting systems for access, breaking in through known weaknesses to prove they work",
-                    "Encrypting vulnerable data",
-                    "Blocking malicious IPs"
+                    "Exploiting weaknesses to prove an attacker could gain access",
+                    "Encrypting data on systems with known flaws",
+                    "Blocking IP addresses linked to known exploits"
                   ]
                 },
                 {
@@ -26282,9 +26282,9 @@
                   "a": "Credentialed scans authenticate and see configuration detail; non-credentialed scans show the attacker’s external view",
                   "x": "Credentialed scans find missing patches; non-credentialed scans find exposed services.",
                   "wrong": [
-                    "They produce identical results",
-                    "Non-credentialed scans are more accurate, seeing configuration detail the authenticated scan misses entirely every time",
-                    "Credentialed scans are illegal"
+                    "They produce identical results on patched systems",
+                    "Non-credentialed scans see configuration detail; credentialed scans show the external view",
+                    "Credentialed scans need written legal approval from the vendor"
                   ]
                 },
                 {
@@ -26295,9 +26295,9 @@
                   "a": "A lightweight agent on the host reports vulnerabilities continuously",
                   "x": "Works well for remote, roaming, or intermittently offline assets.",
                   "wrong": [
-                    "A scan run by a human agent, with an analyst testing each system by hand",
-                    "A scan of physical security guards",
-                    "A scan that requires no software"
+                    "An analyst manually tests each host against a checklist, one system at a time",
+                    "A network scan launched from a central appliance",
+                    "A scan that needs no software on the target"
                   ]
                 },
                 {
@@ -26306,11 +26306,11 @@
                   "trackId": "cysa",
                   "q": "What is CVSS?",
                   "a": "An open standard for scoring vulnerability severity from 0.0 to 10.0",
-                  "x": "It has base, temporal, and environmental metric groups.",
+                  "x": "CVSS v3.1 has base, temporal and environmental metric groups; CVSS v4.0 (2023) uses base, threat, environmental and supplemental.",
                   "wrong": [
-                    "A malware family",
-                    "A compliance law",
-                    "An encryption standard"
+                    "The public catalogue of vulnerabilities known to be actively exploited in the wild",
+                    "A numbering scheme that gives each flaw a unique ID",
+                    "A model of exploitation probability over 30 days"
                   ]
                 },
                 {
@@ -26321,9 +26321,9 @@
                   "a": "Critical severity",
                   "x": "Scores of 9.0–10.0 are critical, but score alone does not equal organizational risk.",
                   "wrong": [
-                    "Low severity",
-                    "No risk",
-                    "An informational finding"
+                    "High severity",
+                    "Medium severity",
+                    "Low severity"
                   ]
                 },
                 {
@@ -26331,12 +26331,12 @@
                   "deckId": "cysa-vuln-basics",
                   "trackId": "cysa",
                   "q": "What is a CVE?",
-                  "a": "A unique public identifier for a known vulnerability, formatted CVE-YYYY-NNNNN",
-                  "x": "CVEs enable common referencing across tools and teams.",
+                  "a": "A unique public identifier for a known vulnerability, such as CVE-2021-44228",
+                  "x": "Format CVE-YYYY-NNNN, where the sequence number has four or more digits. CVEs let tools and teams refer to the same flaw.",
                   "wrong": [
-                    "A vulnerability severity score, rating each known flaw from 0.0 to 10.0 for every known flaw",
-                    "An exploit toolkit",
-                    "A software patch"
+                    "A severity score from 0.0 to 10.0 that NIST assigns to each newly published flaw",
+                    "A probability that a flaw will be exploited soon",
+                    "A vendor patch identifier for a known flaw"
                   ]
                 },
                 {
@@ -26347,9 +26347,9 @@
                   "a": "NIST’s database of CVEs with CVSS scores and references",
                   "x": "The primary US source analysts consult for vulnerability details.",
                   "wrong": [
-                    "A type of firewall, blocking traffic to systems with known vulnerabilities",
-                    "A backup solution",
-                    "An antivirus engine"
+                    "MITRE's master list of CVE identifiers, published without any severity scores",
+                    "CISA's catalogue of actively exploited flaws",
+                    "FIRST's model of exploitation probability"
                   ]
                 },
                 {
@@ -26360,9 +26360,9 @@
                   "a": "A reported vulnerability that does not actually exist",
                   "x": "Validate findings before committing to patching sprints.",
                   "wrong": [
-                    "A vulnerability the scan missed, leaving a real flaw unreported in the results",
-                    "A correctly identified flaw",
-                    "A zero-day exploit"
+                    "A real vulnerability that the scan failed to report in its results",
+                    "A correctly identified vulnerability",
+                    "A vulnerability with no available patch"
                   ]
                 },
                 {
@@ -26373,9 +26373,9 @@
                   "a": "A real vulnerability the scan failed to detect",
                   "x": "False negatives are more dangerous than false positives.",
                   "wrong": [
-                    "A duplicate finding",
-                    "A misconfigured scanner",
-                    "A patched system"
+                    "A finding reported twice by two scanners",
+                    "A reported vulnerability that does not exist",
+                    "A finding on a system outside the scan scope"
                   ]
                 },
                 {
@@ -26386,9 +26386,9 @@
                   "a": "Fully fixing the root cause, usually by patching or reconfiguring",
                   "x": "Remediation is preferred over temporary workarounds.",
                   "wrong": [
-                    "Hiding the vulnerability, concealing the flaw so scanners and auditors cannot find it",
-                    "Ignoring the finding",
-                    "Deleting the scan report"
+                    "Adding a compensating control around the system while the flaw itself stays in place",
+                    "Formally accepting the risk with an expiry date",
+                    "Suppressing the finding in the scanner"
                   ]
                 },
                 {
@@ -26399,9 +26399,9 @@
                   "a": "Reducing exposure without fully fixing the flaw, for example with compensating controls",
                   "x": "Used when patching is not immediately possible.",
                   "wrong": [
-                    "Deleting the vulnerable system",
-                    "Pretending the flaw does not exist, carrying on as if the system were fully patched and safe from every attack",
-                    "Running the scan again"
+                    "Removing the root cause entirely, by patching the software or reconfiguring the system so the flaw is gone",
+                    "Formally accepting the risk with owner sign-off",
+                    "Re-running the scan to confirm the finding"
                   ]
                 },
                 {
@@ -26412,9 +26412,9 @@
                   "a": "Formal documented acceptance of a vulnerability’s risk by an owner",
                   "x": "Exceptions require sign-off and an expiry date.",
                   "wrong": [
-                    "An excuse to skip scanning, letting the team avoid scans by citing the accepted risk",
-                    "A type of malware",
-                    "A firewall bypass"
+                    "Excluding a host from all future scans",
+                    "Suppressing a finding as a false positive",
+                    "Delaying a patch until the next scheduled maintenance window without telling the owner"
                   ]
                 },
                 {
@@ -26425,9 +26425,9 @@
                   "a": "The process of testing and deploying updates on a schedule",
                   "x": "Includes rollback planning for failed patches.",
                   "wrong": [
-                    "Only updating antivirus",
-                    "Rebooting servers randomly",
-                    "Deleting old software"
+                    "Updating antivirus signatures daily",
+                    "Applying every vendor update to production the moment it is released, without testing",
+                    "Removing unsupported software from servers"
                   ]
                 },
                 {
@@ -26438,9 +26438,9 @@
                   "a": "A scheduled period for disruptive changes such as patching",
                   "x": "Minimizes business impact of reboots and outages.",
                   "wrong": [
-                    "A lunch break for admins, pausing all changes while the team eats",
-                    "A backup retention period",
-                    "A SIEM license term"
+                    "The period during which backup copies must be retained before they can be deleted",
+                    "The hours when the SOC is fully staffed",
+                    "The term of a vendor support contract"
                   ]
                 },
                 {
@@ -26451,9 +26451,9 @@
                   "a": "An assessment finds and reports weaknesses; a pentest exploits them to prove impact",
                   "x": "CySA+ focuses primarily on the assessment and analysis side.",
                   "wrong": [
-                    "They are the same activity, finding weaknesses and exploiting them in one pass with a single report",
-                    "Assessments are illegal",
-                    "Pentests never produce reports"
+                    "They are the same activity under different names",
+                    "A pentest finds and reports; an assessment exploits to prove impact",
+                    "An assessment needs no authorisation; a pentest does"
                   ]
                 },
                 {
@@ -26464,9 +26464,9 @@
                   "a": "Checking systems against secure baselines such as CIS Benchmarks",
                   "x": "Finds drift from approved configurations.",
                   "wrong": [
-                    "Scanning for open ports only, checking nothing but which ports answer on each host",
-                    "Testing password strength",
-                    "Monitoring email"
+                    "Scanning each host for open ports and listening services, and nothing else",
+                    "Testing the strength of user passwords",
+                    "Checking software licences for compliance"
                   ]
                 },
                 {
@@ -26477,9 +26477,9 @@
                   "a": "Consensus-based secure configuration guidance for platforms and applications",
                   "x": "Used as audit baselines for hardening.",
                   "wrong": [
-                    "A type of malware",
-                    "A network cable standard",
-                    "A backup tool"
+                    "A score that rates vulnerability severity",
+                    "A vendor's published list of which product versions are still supported with security patches",
+                    "A government law that mandates hardening"
                   ]
                 },
                 {
@@ -26490,9 +26490,9 @@
                   "a": "The defined set of assets included in a vulnerability scan",
                   "x": "Scanning outside scope can be disruptive or unauthorized.",
                   "wrong": [
-                    "The scanner’s brand name, identifying which vendor’s product ran the scan",
-                    "The scan’s color scheme",
-                    "The analyst’s job title"
+                    "The plug-ins enabled in the scanner",
+                    "How deep the scanner probes each host, from a light ping sweep to full plug-in checks",
+                    "The time window the scan runs in"
                   ]
                 },
                 {
@@ -26503,9 +26503,9 @@
                   "a": "Scanning can degrade performance or crash fragile systems",
                   "x": "Legacy and OT systems are especially sensitive to scan traffic.",
                   "wrong": [
-                    "Analysts prefer night shifts",
-                    "Scanners only work at night, since their engines shut down during business hours",
-                    "It is a legal requirement"
+                    "Scanners are licensed only for off-hours use",
+                    "Results are more accurate when traffic is low",
+                    "Regulations require all vulnerability scans to run outside business hours"
                   ]
                 },
                 {
@@ -26516,9 +26516,9 @@
                   "a": "Combining multiple lower-severity flaws into a serious exploit path",
                   "x": "Prioritize findings with attack-path context, not just single scores.",
                   "wrong": [
-                    "Linking scanners together",
-                    "A type of network cable, linking switches together to carry traffic between floors",
-                    "Chaining firewall rules"
+                    "Running several scanners against one host",
+                    "Linking every finding for the same CVE across hosts into a single grouped ticket",
+                    "Linking firewall rules into a single policy"
                   ]
                 }
               ],
@@ -26562,9 +26562,9 @@
                   "a": "Linking related events across sources into a single incident view",
                   "x": "Example: failed logins followed by a successful login and data exfiltration.",
                   "wrong": [
-                    "Compressing log files",
-                    "Deleting old events",
-                    "Encrypting event data"
+                    "Compressing related events to save storage",
+                    "Removing events older than the retention period so searches stay fast and cheap",
+                    "Encrypting events before they are indexed"
                   ]
                 },
                 {
@@ -26575,9 +26575,9 @@
                   "a": "Logic that fires an alert when a defined pattern of events occurs",
                   "x": "Example: five failed logins in two minutes from one source.",
                   "wrong": [
-                    "A firewall access rule, deciding which packets may pass based on ports and addresses",
-                    "A password complexity rule",
-                    "A backup retention rule"
+                    "A firewall rule that allows or blocks traffic based on source, destination and port",
+                    "A parser that maps raw logs to fields",
+                    "A retention rule for a log source"
                   ]
                 },
                 {
@@ -26588,9 +26588,9 @@
                   "a": "Combining similar events into one to reduce alert volume",
                   "x": "Prevents alert storms from repeated identical events.",
                   "wrong": [
-                    "Splitting events apart, breaking one combined alert back into its separate events",
-                    "Encrypting event payloads",
-                    "Deleting raw logs"
+                    "Splitting one combined alert back into the separate raw events that produced it",
+                    "Encrypting event payloads at rest",
+                    "Deleting raw logs after parsing"
                   ]
                 },
                 {
@@ -26601,9 +26601,9 @@
                   "a": "A defined detection scenario mapped to a specific threat",
                   "x": "Example: impossible-travel detection for compromised accounts.",
                   "wrong": [
-                    "A SIEM licensing tier, setting how many events per second the platform will ingest",
-                    "A vendor sales pitch",
-                    "A user login session"
+                    "A licensing tier that sets how many events per second the SIEM may ingest",
+                    "A dashboard showing alert volume by source",
+                    "A log source onboarded to the SIEM"
                   ]
                 },
                 {
@@ -26614,9 +26614,9 @@
                   "a": "Adjust thresholds, add allowlists, and require additional corroborating events",
                   "x": "Measure the false positive rate before and after tuning.",
                   "wrong": [
-                    "Disable the rule permanently",
-                    "Delete all historical logs",
-                    "Increase log retention"
+                    "Disable the rule until it can be rewritten",
+                    "Lower the rule's severity so it is ignored",
+                    "Increase log retention so the rule has more historical data to compare each event against"
                   ]
                 },
                 {
@@ -26627,9 +26627,9 @@
                   "a": "Security orchestration, automation, and response: automated playbooks that act on alerts",
                   "x": "It enriches, contains, and tickets without manual clicks.",
                   "wrong": [
-                    "A type of firewall, blocking malicious packets inline before they reach the network or any host behind it",
-                    "A backup appliance",
-                    "An antivirus product"
+                    "Security operations and response: a SIEM that blocks traffic inline",
+                    "A threat intelligence platform for sharing IOCs",
+                    "An endpoint agent that isolates infected hosts"
                   ]
                 },
                 {
@@ -26640,9 +26640,9 @@
                   "a": "Enrichment, ticket creation, IP blocking, account disablement, and evidence collection",
                   "x": "Humans should still approve high-impact destructive actions.",
                   "wrong": [
-                    "Writing malware",
-                    "Approving security budgets, signing off on spending for tools and headcount each year without any further approval",
-                    "Conducting job interviews"
+                    "Final decisions on whether an incident is a reportable breach under the applicable regulations",
+                    "Approval of security budgets and tooling",
+                    "Writing new detection rules from scratch"
                   ]
                 },
                 {
@@ -26653,9 +26653,9 @@
                   "a": "The alert condition that starts a sequence of automated actions",
                   "x": "Example: a phishing alert triggers URL detonation and mailbox search.",
                   "wrong": [
-                    "A manual phone call, ringing the on-call analyst to start the response by hand",
-                    "A yearly audit",
-                    "A password reset"
+                    "An analyst manually reviewing the alert and then choosing which playbook to run",
+                    "A scheduled job that runs the playbook nightly",
+                    "The final action that closes the ticket"
                   ]
                 },
                 {
@@ -26666,9 +26666,9 @@
                   "a": "Automated containment can disrupt legitimate business activity",
                   "x": "Use human-in-the-loop approval for destructive actions like network isolation.",
                   "wrong": [
-                    "Automation is always safe",
-                    "SOAR cannot make mistakes",
-                    "There is no risk"
+                    "Automation is slower than manual triage",
+                    "SOAR cannot integrate with the firewalls, EDR and ticketing tools already in place",
+                    "Automated actions are never logged"
                   ]
                 },
                 {
@@ -26679,9 +26679,9 @@
                   "a": "Automatic matching of observed indicators against known-bad IOCs",
                   "x": "Known threats get triaged faster with less analyst effort.",
                   "wrong": [
-                    "Slower alert processing",
-                    "Fewer log sources",
-                    "Higher licensing costs only, raising the SIEM bill without adding any detection value"
+                    "Behavioural baselining of every user and host so that deviations raise an alert",
+                    "More log sources for the SIEM to ingest",
+                    "Automatic blocking of every external IP"
                   ]
                 },
                 {
@@ -26692,9 +26692,9 @@
                   "a": "An IOC is an artifact of compromise such as a hash or IP; an IOA is a behavior pattern",
                   "x": "IOAs survive attacker infrastructure changes better than IOCs.",
                   "wrong": [
-                    "They are identical",
-                    "IOCs are behaviors; IOAs are hashes, so analysts hunt hashes and block behavior patterns at the perimeter instead",
-                    "Neither is useful"
+                    "They are identical terms from different vendors",
+                    "IOCs are behaviour patterns; IOAs are hashes and IPs",
+                    "IOAs apply only to network traffic"
                   ]
                 },
                 {
@@ -26705,9 +26705,9 @@
                   "a": "Standards for sharing threat intelligence: STIX is the format, TAXII the transport",
                   "x": "They enable machine-readable intel sharing between organizations.",
                   "wrong": [
-                    "Two SIEM vendors, selling competing platforms for sharing threat intelligence between companies",
-                    "Two types of malware",
-                    "Two firewall models"
+                    "STIX is the transport; TAXII is the data format",
+                    "Two SIEM query languages",
+                    "Two scoring systems for threat severity"
                   ]
                 },
                 {
@@ -26718,9 +26718,9 @@
                   "a": "How long logs are kept; it determines the forensic lookback window",
                   "x": "Compliance often mandates a year or more of retention.",
                   "wrong": [
-                    "How fast logs are deleted",
-                    "The SIEM’s color theme",
-                    "Analyst shift length"
+                    "How fast the SIEM indexes new logs",
+                    "How many log sources the SIEM can parse",
+                    "How long alerts are allowed to wait in the triage queue before they must be picked up"
                   ]
                 },
                 {
@@ -26731,9 +26731,9 @@
                   "a": "Events per second: the ingest rate the SIEM must handle",
                   "x": "Under-licensing EPS causes dropped events and blind spots.",
                   "wrong": [
-                    "Encrypted packet size, measuring how large each encrypted packet is on the wire",
-                    "Email protection service",
-                    "Endpoint protection suite"
+                    "Encrypted packets per second: the volume of TLS traffic the SIEM must decrypt",
+                    "Endpoints per sensor in the deployment",
+                    "Errors per search in the SIEM"
                   ]
                 },
                 {
@@ -26744,9 +26744,9 @@
                   "a": "Code that extracts fields from raw logs into the SIEM’s schema",
                   "x": "A parser is needed for each log source type.",
                   "wrong": [
-                    "A type of firewall, inspecting raw logs before they reach the SIEM schema",
-                    "A backup utility",
-                    "An encryption key"
+                    "A correlation rule that links events from several sources into a single alert",
+                    "An agent that forwards logs from hosts",
+                    "A dashboard that charts parsed fields"
                   ]
                 },
                 {
@@ -26757,9 +26757,9 @@
                   "a": "An agent is software on the host forwarding logs; agentless collection has the SIEM pull",
                   "x": "Agents provide richer endpoint telemetry.",
                   "wrong": [
-                    "They are the same",
-                    "Agentless is always better, pulling logs faster and more reliably than any host agent ever could",
-                    "Agents cannot forward logs"
+                    "They produce identical telemetry",
+                    "Agentless collection always gives richer endpoint data",
+                    "Agents can only read logs, never forward them"
                   ]
                 },
                 {
@@ -26770,9 +26770,9 @@
                   "a": "User and entity behavior analytics: baselining normal behavior to flag anomalies",
                   "x": "Effective against insider threats and compromised accounts.",
                   "wrong": [
-                    "A firewall brand",
-                    "A backup method",
-                    "An encryption algorithm"
+                    "User and endpoint backup automation",
+                    "A rule engine that matches events against signatures of known-bad activity only",
+                    "A threat intelligence sharing standard"
                   ]
                 },
                 {
@@ -26783,9 +26783,9 @@
                   "a": "A custom list of entities such as IPs, users, or domains to alert on",
                   "x": "Useful for VIP accounts and known-bad infrastructure.",
                   "wrong": [
-                    "A list of approved software, whitelisting the applications users are allowed to run on company machines",
-                    "A vacation calendar",
-                    "A patch schedule"
+                    "A list of approved applications that users are allowed to run on managed devices",
+                    "A list of suppressed alerts treated as noise",
+                    "A schedule of upcoming patch windows"
                   ]
                 },
                 {
@@ -26796,9 +26796,9 @@
                   "a": "Likely account takeover via brute force; force a password reset and review session activity",
                   "x": "Corroborate with impossible-travel logic and MFA logs.",
                   "wrong": [
-                    "Normal user travel, with the employee logging in from a new country on a business trip overseas that week",
-                    "A scanner misfire",
-                    "Routine patching noise"
+                    "Normal travel: the user is on a business trip and logged in after mistyping the password",
+                    "A vulnerability scanner testing VPN logins",
+                    "A VPN outage causing repeated failures"
                   ]
                 },
                 {
@@ -26809,9 +26809,9 @@
                   "a": "Auto-isolate the host, block the IP at the perimeter, enrich the ticket",
                   "x": "Automation handles containment while the analyst investigates scope.",
                   "wrong": [
-                    "Ignore it as a false positive",
-                    "Email the user asking nicely, requesting they stop talking to the malicious IP at once",
-                    "Wait for the next shift"
+                    "Close it as a likely false positive",
+                    "Email the user to ask what they were doing, then decide on containment once they reply",
+                    "Wait for Tier 2 before taking any action"
                   ]
                 }
               ],
@@ -26848,9 +26848,9 @@
                   "a": "Proactive, hypothesis-driven searching for threats that evaded automated detection",
                   "x": "It assumes breach and hunts beyond existing alerts.",
                   "wrong": [
-                    "Waiting for SIEM alerts",
+                    "Triaging alerts raised by the SIEM",
                     "Running scheduled antivirus scans",
-                    "Applying patches"
+                    "Applying vendor patches to vulnerable hosts as soon as the weekly scan reports them"
                   ]
                 },
                 {
@@ -26861,9 +26861,9 @@
                   "a": "An educated guess about attacker behavior to test against telemetry",
                   "x": "Example: “attackers use WMI for lateral movement in this environment.”",
                   "wrong": [
-                    "A random guess with no basis, picking an attacker behavior out of thin air to test",
-                    "A vendor marketing claim",
-                    "A compliance checklist item"
+                    "A confirmed incident that is waiting for the containment team to isolate the affected hosts",
+                    "An IOC received from a threat feed",
+                    "A compliance requirement to review logs"
                   ]
                 },
                 {
@@ -26874,9 +26874,9 @@
                   "a": "Hypothesize, investigate, uncover, and inform or improve",
                   "x": "Findings feed back into new detections and hypotheses.",
                   "wrong": [
-                    "Scan, patch, reboot, fixing whatever the scan finds and restarting the host",
-                    "Alert, ignore, close",
-                    "Buy, install, forget"
+                    "Detect, contain, eradicate, recover",
+                    "Scan, prioritise, patch, verify",
+                    "Collect, normalise, correlate, alert, and then close the ticket"
                   ]
                 },
                 {
@@ -26887,9 +26887,9 @@
                   "a": "Starting from threat reports and known actor TTPs",
                   "x": "Map the hunt to MITRE ATT&CK techniques.",
                   "wrong": [
-                    "Hunting without any data, searching for threats with no telemetry to examine at all",
-                    "Reading vendor brochures",
-                    "Guessing passwords"
+                    "Searching telemetry for statistical outliers without any lead",
+                    "Reviewing alerts the SIEM already raised",
+                    "Scanning hosts for known vulnerabilities"
                   ]
                 },
                 {
@@ -26900,9 +26900,9 @@
                   "a": "Exploring telemetry for anomalies without a specific intelligence lead",
                   "x": "Uses clustering and outlier analysis on large datasets.",
                   "wrong": [
-                    "Only using firewall logs",
-                    "Ignoring all context",
-                    "Hunting without hypotheses"
+                    "Starting from a published threat report on a named actor and searching for that actor's known TTPs",
+                    "Following an IOC from a threat feed",
+                    "Reviewing alerts closed as false positives"
                   ]
                 },
                 {
@@ -26913,9 +26913,9 @@
                   "a": "Regular, low-volume callbacks at fixed intervals, often with slight jitter",
                   "x": "Look for periodicity in NetFlow and DNS logs.",
                   "wrong": [
-                    "Large file downloads, pulling gigabytes down from the internet in a steady stream",
-                    "Slow web page loads",
-                    "Printer traffic spikes"
+                    "Occasional very large downloads from many different external hosts at random times",
+                    "Slow page loads on many internal hosts",
+                    "Bursts of traffic during backup windows"
                   ]
                 },
                 {
@@ -26926,9 +26926,9 @@
                   "a": "Long encoded subdomains with high query volume to rarely seen domains",
                   "x": "Data is exfiltrated inside DNS queries.",
                   "wrong": [
-                    "Normal web browsing, with users visiting ordinary websites throughout the day",
-                    "Routine email traffic",
-                    "DHCP requests"
+                    "Many queries to popular, well-known domains such as CDNs and software update services",
+                    "Repeated DHCP requests from one host",
+                    "A single query that returns NXDOMAIN"
                   ]
                 },
                 {
@@ -26939,9 +26939,9 @@
                   "a": "Determining who talked to whom, when, and how much — without payload content",
                   "x": "Reveals lateral movement and exfiltration patterns.",
                   "wrong": [
-                    "Reading email bodies, opening each message to see what it actually says inside",
-                    "Decrypting TLS sessions",
-                    "Blocking spam"
+                    "Reading the full payload of every session to see exactly what data was sent and received",
+                    "Decrypting TLS traffic for inspection",
+                    "Blocking traffic from known-bad addresses"
                   ]
                 },
                 {
@@ -26952,9 +26952,9 @@
                   "a": "Unexpected parent-child process relationships, such as Word spawning PowerShell",
                   "x": "EDR telemetry is the primary source for this analysis.",
                   "wrong": [
-                    "Normal system updates",
-                    "Scheduled disk defragmentation",
-                    "User opening a spreadsheet"
+                    "A process running from C:\\Windows\\System32",
+                    "A scheduled update by the vendor's updater",
+                    "A user opening several spreadsheets at once, each starting a new instance of Excel"
                   ]
                 },
                 {
@@ -26965,9 +26965,9 @@
                   "a": "Attackers using legitimate system tools like PowerShell, WMI, and PsExec to evade detection",
                   "x": "Requires behavior-based detection rather than signature matching.",
                   "wrong": [
-                    "Living near the office, working from home just down the street from headquarters to save on commuting",
-                    "Using only custom malware",
-                    "Attacking from home networks"
+                    "Attackers relying only on custom malware they compiled",
+                    "Attackers working from compromised home networks",
+                    "Attackers hiding in unused cloud regions"
                   ]
                 },
                 {
@@ -26978,9 +26978,9 @@
                   "a": "Return-Path, the Received chain, and SPF, DKIM, and DMARC results",
                   "x": "They reveal spoofing and the true sending infrastructure.",
                   "wrong": [
-                    "Only the subject line",
-                    "Font size and color, checking whether the text looks like a legitimate company email",
-                    "The sender’s display name alone"
+                    "The subject line and display name",
+                    "The message size, the attachment names and the Importance header",
+                    "The X-Priority and Importance headers"
                   ]
                 },
                 {
@@ -26991,9 +26991,9 @@
                   "a": "Safely opening a suspicious link in a sandbox to observe its behavior",
                   "x": "A standard step in phishing email triage.",
                   "wrong": [
-                    "Deleting the URL",
-                    "Blocking the entire internet, cutting off all web access so no link can ever load",
-                    "Forwarding the email"
+                    "Blocking the URL at the proxy without analysis",
+                    "Rewriting the link so that every click is first routed through the web proxy's filter",
+                    "Checking the URL against a reputation list only"
                   ]
                 },
                 {
@@ -27004,9 +27004,9 @@
                   "a": "Credential entry on a lookalike domain, followed by impossible travel or new mailbox rules",
                   "x": "Check for auto-forwarding rules created by the attacker.",
                   "wrong": [
-                    "The user deleting the email",
-                    "The email going to spam",
-                    "A bounced message"
+                    "The user deleting the email after reading it",
+                    "The message landing in the junk folder",
+                    "A bounce message for one recipient"
                   ]
                 },
                 {
@@ -27017,9 +27017,9 @@
                   "a": "Creating auto-forwarding rules or rules that delete security alerts",
                   "x": "Hunt for recently created or modified inbox rules after phishing.",
                   "wrong": [
-                    "Changing the email theme, switching colors and layout in the mailbox settings",
-                    "Adding a signature",
-                    "Archiving old mail"
+                    "Changing the mailbox's display language and time zone so alerts arrive at odd hours",
+                    "Adding a new email signature",
+                    "Archiving messages older than a year"
                   ]
                 },
                 {
@@ -27030,9 +27030,9 @@
                   "a": "Finding fileless malware, injected code, and encryption keys in RAM",
                   "x": "Memory is volatile: capture it before rebooting.",
                   "wrong": [
-                    "Reading deleted emails, recovering messages from the trash to see what they said",
-                    "Recovering backup tapes",
-                    "Analyzing firewall rules"
+                    "Recovering deleted emails from the mail server so investigators can read them",
+                    "Recovering data from old backup tapes",
+                    "Reviewing firewall rule changes"
                   ]
                 },
                 {
@@ -27043,9 +27043,9 @@
                   "a": "Collect the most volatile evidence first: CPU cache and RAM before disk",
                   "x": "Rebooting destroys the most valuable forensic evidence.",
                   "wrong": [
-                    "Disk first, then RAM, collecting the slowest evidence before the fastest disappears",
-                    "Backups first",
-                    "Any order works"
+                    "Disk first, then RAM, then network state",
+                    "Archived backups first, then live systems",
+                    "Any order, as long as each item is hashed"
                   ]
                 },
                 {
@@ -27056,9 +27056,9 @@
                   "a": "Ordering artifacts by timestamp to reconstruct the attack sequence",
                   "x": "Super-timelines combine disk, log, and registry timestamps.",
                   "wrong": [
-                    "Drawing network diagrams",
-                    "Writing the final report first",
-                    "Counting vulnerabilities"
+                    "Drawing a network diagram that shows every host the attacker touched",
+                    "Ranking findings by CVSS score",
+                    "Listing affected hosts alphabetically"
                   ]
                 },
                 {
@@ -27069,9 +27069,9 @@
                   "a": "Recovering deleted files from unallocated disk space",
                   "x": "Useful when attackers delete logs or tools.",
                   "wrong": [
-                    "Carving wooden models, shaping wood into figures with chisels and knives",
-                    "Encrypting disk images",
-                    "Compressing evidence"
+                    "Splitting a large disk image into smaller files so it is easier to transfer",
+                    "Encrypting a disk image for transport",
+                    "Hashing each file on a seized disk"
                   ]
                 },
                 {
@@ -27082,9 +27082,9 @@
                   "a": "Highly suspicious; rundll32 is a common living-off-the-land loader",
                   "x": "Legitimate rundll32 use almost always has a visible command line.",
                   "wrong": [
-                    "Normal Windows behavior",
-                    "A printer driver updating, fetching new drivers from the internet in the background",
-                    "Safe to ignore"
+                    "Normal; rundll32 often runs without arguments",
+                    "A signed driver update fetching files from the vendor's download servers",
+                    "A false positive caused by EDR telemetry gaps"
                   ]
                 },
                 {
@@ -27095,9 +27095,9 @@
                   "a": "Likely DNS tunneling or exfiltration — block the domain and inspect the source host",
                   "x": "The entropy and volume pattern is the key indicator.",
                   "wrong": [
-                    "Normal CDN behavior, with content delivery networks issuing thousands of queries per hour to random-looking subdomains",
-                    "A misconfigured printer",
-                    "Routine Windows telemetry"
+                    "Normal CDN behaviour for a busy site",
+                    "A misconfigured printer retrying failed lookups against a domain it can no longer reach",
+                    "Windows telemetry checking for updates"
                   ]
                 }
               ],
@@ -27135,9 +27135,9 @@
                   "a": "The Exploit Prediction Scoring System: the estimated probability a vulnerability will be exploited in the next 30 days",
                   "x": "Prioritize high-EPSS flaws over high-CVSS flaws with no exploit activity.",
                   "wrong": [
-                    "An encryption standard",
-                    "A firewall vendor",
-                    "A backup protocol"
+                    "A severity score from 0.0 to 10.0 for each CVE",
+                    "CISA's catalogue of actively exploited flaws",
+                    "A standard for sharing exploit code between vendors"
                   ]
                 },
                 {
@@ -27148,9 +27148,9 @@
                   "a": "It measures severity, not likelihood of exploitation or asset context",
                   "x": "Combine CVSS with EPSS, KEV status, and asset criticality.",
                   "wrong": [
-                    "CVSS is always wrong, scoring vulnerabilities so badly that its numbers mean nothing",
-                    "CVSS only applies to Windows",
-                    "CVSS cannot be calculated"
+                    "CVSS scores are assigned by vendors and are too often wrong to be useful at all",
+                    "CVSS covers only operating-system flaws",
+                    "CVSS cannot be calculated without a vendor"
                   ]
                 },
                 {
@@ -27161,9 +27161,9 @@
                   "a": "The list of vulnerabilities known to be actively exploited in the wild",
                   "x": "US federal agencies must remediate KEV entries by binding deadlines.",
                   "wrong": [
-                    "A list of secure products, naming the tools and systems approved for use",
-                    "A type of firewall",
-                    "An antivirus database"
+                    "A list of products certified as secure by CISA",
+                    "NIST's full database of CVEs with scores",
+                    "A list of the flaws with the highest predicted probability of exploitation in the next 30 days"
                   ]
                 },
                 {
@@ -27174,9 +27174,9 @@
                   "a": "Remediate the KEV-listed flaw first: known exploitation beats theoretical severity",
                   "x": "Risk equals likelihood times impact, not score alone.",
                   "wrong": [
-                    "Always fix the 9.8 first",
-                    "Fix them alphabetically",
-                    "Fix the oldest CVE first, patching vulnerabilities in the order they were published"
+                    "The 9.8 first: higher severity always wins",
+                    "Whichever CVE was published first",
+                    "Both together in the next scheduled maintenance window, since either could be exploited"
                   ]
                 },
                 {
@@ -27187,9 +27187,9 @@
                   "a": "Remediation fixes the root cause; mitigation reduces exposure; acceptance formally documents the risk",
                   "x": "The choice depends on feasibility, cost, and risk appetite.",
                   "wrong": [
-                    "They are synonyms",
-                    "Mitigation is always best",
-                    "Acceptance means ignoring it"
+                    "They are synonyms for fixing the flaw",
+                    "Mitigation fixes the root cause; remediation reduces exposure",
+                    "Acceptance means closing the finding without a record"
                   ]
                 },
                 {
@@ -27197,12 +27197,12 @@
                   "deckId": "cysa-vuln-management",
                   "trackId": "cysa",
                   "q": "When is mitigation preferred over remediation?",
-                  "a": "When no patch exists, the system is legacy",
+                  "a": "When no patch exists or the system cannot yet be patched, such as legacy equipment",
                   "x": "Deploy compensating controls until remediation is possible.",
                   "wrong": [
-                    "Never",
-                    "Always",
-                    "Only on weekends, when the change freeze lifts and patching is allowed again"
+                    "Whenever the CVSS score is below 7.0",
+                    "Whenever a patch is available but untested",
+                    "Whenever the asset owner would prefer not to reboot the server during business hours"
                   ]
                 },
                 {
@@ -27213,9 +27213,9 @@
                   "a": "Network segmentation, IPS signatures, or restricted access around the vulnerable system",
                   "x": "Document it in the risk exception with an expiry date.",
                   "wrong": [
-                    "Ignoring the vulnerability, leaving the flaw open and hoping nobody finds it before the next audit",
-                    "Deleting the server",
-                    "Hoping attackers miss it"
+                    "Raising the finding's priority in the scanner so the server owner patches it sooner",
+                    "Running the scanner more often on that server",
+                    "Marking the finding as a false positive"
                   ]
                 },
                 {
@@ -27226,9 +27226,9 @@
                   "a": "Confirming a scanner finding is real and exploitable before acting on it",
                   "x": "Validation eliminates false positives before remediation work begins.",
                   "wrong": [
-                    "Running the scan twice, repeating the same scan to see if the finding appears again",
-                    "Deleting the finding",
-                    "Asking the vendor"
+                    "Running the same scan a second time",
+                    "Asking the vendor to confirm whether the flaw exists before any further work is done",
+                    "Checking the CVSS score in the NVD"
                   ]
                 },
                 {
@@ -27239,9 +27239,9 @@
                   "a": "It validates exploitability and finds scanner blind spots",
                   "x": "Pentesting complements scanning; it does not replace it.",
                   "wrong": [
-                    "It replaces all scanning",
-                    "It is only for compliance",
-                    "It finds no real issues"
+                    "It replaces vulnerability scanning for internet-facing systems",
+                    "It is only needed for compliance audits",
+                    "It produces CVSS scores for each finding"
                   ]
                 },
                 {
@@ -27252,9 +27252,9 @@
                   "a": "Ongoing cycles of discovery, prioritization, and remediation",
                   "x": "Modern programs scan continuously, not annually.",
                   "wrong": [
-                    "One scan per year, checking for new vulnerabilities in a single annual sweep",
-                    "Scanning only new servers",
-                    "A single pentest"
+                    "One full scan per year before the audit",
+                    "Scanning only newly deployed servers",
+                    "An annual penetration test of key systems, followed by a remediation sprint"
                   ]
                 },
                 {
@@ -27265,9 +27265,9 @@
                   "a": "Weighting vulnerabilities by active threat intelligence relevant to your sector",
                   "x": "Example: prioritizing CVEs that ransomware groups are currently exploiting.",
                   "wrong": [
-                    "Patching randomly, fixing whatever appears first in the list with no order at all",
-                    "Ignoring threat intel",
-                    "Only patching Microsoft flaws"
+                    "Ranking findings by CVSS base score only",
+                    "Patching the oldest CVEs first",
+                    "Patching only the flaws the vendor itself rates as critical, in the order they were released"
                   ]
                 },
                 {
@@ -27278,9 +27278,9 @@
                   "a": "A deadline for fixing vulnerabilities based on severity, such as criticals within 15 days",
                   "x": "SLA compliance is tracked as a core security metric.",
                   "wrong": [
-                    "A vendor sales agreement, setting the price and terms for the scanning tool each year, with the price fixed in advance",
-                    "A type of firewall",
-                    "An insurance policy"
+                    "A vendor agreement for the scanning tool's support response times and availability",
+                    "An uptime guarantee for the scanner service",
+                    "A cyber-insurance policy covering vulnerabilities"
                   ]
                 },
                 {
@@ -27291,9 +27291,9 @@
                   "a": "Request, risk assessment, owner approval, expiry date, and periodic review",
                   "x": "Exceptions must expire; otherwise accepted risk accumulates silently.",
                   "wrong": [
-                    "An excuse to never patch",
-                    "A malware variant",
-                    "A firewall bypass"
+                    "Marking a finding as a false positive in the scanner so it no longer appears in reports",
+                    "Moving the host out of the scan scope",
+                    "Raising a change request to patch the host"
                   ]
                 },
                 {
@@ -27304,9 +27304,9 @@
                   "a": "Accepted risk accumulates until it becomes breach material",
                   "x": "Review exceptions at least quarterly.",
                   "wrong": [
-                    "There is no risk",
-                    "Exceptions improve security, making the environment safer by documenting every accepted risk",
-                    "Auditors love them"
+                    "Scanners stop reporting the excepted hosts",
+                    "Auditors reject any exception older than a year",
+                    "Vendors stop releasing patches for systems that have an accepted exception"
                   ]
                 },
                 {
@@ -27317,9 +27317,9 @@
                   "a": "Systems gradually diverging from their secure baselines over time",
                   "x": "Compliance scanning detects drift between audits.",
                   "wrong": [
-                    "Network latency, measuring the delay packets experience crossing the network",
-                    "A type of malware",
-                    "Disk fragmentation"
+                    "Increasing network latency between sites",
+                    "Malware that changes system settings at random",
+                    "Clock skew between servers and the domain controller that breaks Kerberos authentication"
                   ]
                 },
                 {
@@ -27330,9 +27330,9 @@
                   "a": "Authenticated scans find missing patches and misconfigurations; unauthenticated scans find exposed services",
                   "x": "Each shows a different view of the attack surface.",
                   "wrong": [
-                    "One of them is illegal",
-                    "They produce identical results, finding the same flaws whether or not credentials are used, with or without a login to the target",
-                    "Only one is needed"
+                    "Unauthenticated scans are required by law; authenticated are optional",
+                    "They produce identical results, so one is a backup",
+                    "Authenticated scans find exposed services; unauthenticated find missing patches"
                   ]
                 },
                 {
@@ -27343,9 +27343,9 @@
                   "a": "Patch internet-facing hosts first, then internal hosts ordered by EPSS, KEV status, and asset criticality",
                   "x": "Exposure plus exploitability drives the order, not alphabetical lists.",
                   "wrong": [
-                    "Patch alphabetically",
-                    "Patch all 200 simultaneously",
-                    "Ignore the internal hosts"
+                    "All 200 hosts simultaneously in one change window",
+                    "Internal hosts first, because they hold the data",
+                    "Hosts ordered alphabetically by hostname"
                   ]
                 },
                 {
@@ -27356,9 +27356,9 @@
                   "a": "An official channel for researchers to report flaws to the vendor",
                   "x": "It is distinct from a bug bounty, which pays for reports.",
                   "wrong": [
-                    "A marketing program, promoting the product to new customers through advertising",
-                    "A type of malware",
-                    "A firewall feature"
+                    "A program that pays researchers for every valid report",
+                    "A public list of the vulnerabilities the vendor has already patched in released versions",
+                    "A vendor's schedule for monthly security updates"
                   ]
                 },
                 {
@@ -27366,12 +27366,12 @@
                   "deckId": "cysa-vuln-management",
                   "trackId": "cysa",
                   "q": "What is coordinated vulnerability disclosure?",
-                  "a": "The vendor remediates before the flaw is publicly released",
+                  "a": "The reporter and vendor agree the timing, so a fix can ship before details go public",
                   "x": "It protects users during the window between discovery and patching.",
                   "wrong": [
-                    "Releasing exploits immediately, publishing the flaw and its exploit the same day",
-                    "Never disclosing flaws",
-                    "Only telling attackers"
+                    "The researcher publishes the flaw and a working exploit immediately so users can protect themselves",
+                    "The vendor keeps the flaw secret indefinitely",
+                    "Details go only to government agencies, never the public"
                   ]
                 },
                 {
@@ -27382,9 +27382,9 @@
                   "a": "Mean time to remediate by severity, percentage of criticals past SLA, and scan coverage",
                   "x": "Report trends over time, not just raw counts.",
                   "wrong": [
-                    "The number of scanners owned, counting how many scanning tools the team has bought and licensed",
-                    "Analyst headcount",
-                    "The scanner’s brand"
+                    "The number of scanning tools licensed and the number of plug-ins each one has enabled",
+                    "The total number of findings per scan",
+                    "The number of analysts on the team"
                   ]
                 }
               ],
@@ -27424,13 +27424,13 @@
                   "id": "cysa-incident-response-0",
                   "deckId": "cysa-incident-response",
                   "trackId": "cysa",
-                  "q": "What are the NIST SP 800-61 incident response phases?",
+                  "q": "What are the classic NIST SP 800-61 Rev. 2 incident response phases?",
                   "a": "Preparation; Detection and Analysis; Containment, Eradication, and Recovery; Post-Incident Activity",
-                  "x": "The foundational lifecycle every IR plan follows.",
+                  "x": "Rev. 2's lifecycle is still the model most IR plans follow. SP 800-61 Rev. 3 (April 2025) superseded it and maps incident response to the NIST CSF 2.0 functions.",
                   "wrong": [
-                    "Plan, Do, Check, Act",
-                    "Identify, Scan, Exploit, Report",
-                    "Detect, Delete, Forget"
+                    "Identify; Protect; Detect; Respond; Recover",
+                    "Preparation; Identification; Containment; Eradication; Recovery; Lessons",
+                    "Detection; Response; Mitigation; Reporting; Recovery; Remediation; Lessons"
                   ]
                 },
                 {
@@ -27441,9 +27441,9 @@
                   "a": "Building the IR team, tooling, playbooks, and communication plans",
                   "x": "Tabletop exercises validate readiness before a real incident.",
                   "wrong": [
-                    "Containing the attacker, isolating the compromised host before anything else happens",
-                    "Writing the final report",
-                    "Paying the ransom"
+                    "Isolating the first compromised host and taking a memory image before anything else",
+                    "Writing the post-incident report",
+                    "Notifying regulators of the breach"
                   ]
                 },
                 {
@@ -27454,9 +27454,9 @@
                   "a": "Contain it: isolate the host from the network immediately",
                   "x": "Stop lateral spread before beginning detailed analysis.",
                   "wrong": [
-                    "Pay the ransom, sending the demanded cryptocurrency so the attacker returns the key",
-                    "Reboot everything",
-                    "Delete the logs"
+                    "Restore the host from the last known-good backup straight away",
+                    "Power the host off to stop encryption",
+                    "Run a full antivirus scan on the host"
                   ]
                 },
                 {
@@ -27467,9 +27467,9 @@
                   "a": "Short-term containment isolates the threat now; long-term containment provides temporary clean systems",
                   "x": "It balances stopping spread against business disruption.",
                   "wrong": [
-                    "There is no difference, both isolating the threat now and restoring service the same way, now and for the long term alike",
-                    "Short-term means waiting",
-                    "Long-term means ignoring it"
+                    "Short-term restores from backup; long-term rebuilds the network",
+                    "Short-term is for malware; long-term is for insider threats",
+                    "Short-term waits for evidence; long-term isolates the host"
                   ]
                 },
                 {
@@ -27480,9 +27480,9 @@
                   "a": "Removing all attacker presence: malware, backdoors, and persistence mechanisms",
                   "x": "Verify eradication with clean scans before recovery.",
                   "wrong": [
-                    "Deleting user files",
-                    "Rebooting the server",
-                    "Changing the Wi-Fi password"
+                    "Isolating the host from the network",
+                    "Restoring data and systems from known-good backups so the business can operate again",
+                    "Rebooting the server to clear memory"
                   ]
                 },
                 {
@@ -27493,9 +27493,9 @@
                   "a": "Restoring systems to normal operation from known-good backups or images",
                   "x": "Monitor closely for reinfection after recovery.",
                   "wrong": [
-                    "Paying the attacker, sending money so the attacker returns access to the systems",
-                    "Deleting all evidence",
-                    "Ignoring the incident"
+                    "Removing all malware, backdoors and persistence mechanisms the attacker left behind",
+                    "Isolating the affected systems",
+                    "Reviewing what went wrong and why"
                   ]
                 },
                 {
@@ -27506,9 +27506,9 @@
                   "a": "Blameless analysis of what happened and how to improve people, process, and technology",
                   "x": "Findings feed playbook and control updates.",
                   "wrong": [
-                    "Assigning blame, naming the person whose mistake caused the incident in the first place",
-                    "Deleting evidence",
-                    "Billing the customer"
+                    "Identifying which employee caused the incident",
+                    "Deciding whether to notify customers",
+                    "Calculating the cost of the incident so it can be billed back to the responsible business unit"
                   ]
                 },
                 {
@@ -27519,9 +27519,9 @@
                   "a": "The scientific collection and analysis of digital evidence",
                   "x": "Methodology preserves the evidence’s admissibility.",
                   "wrong": [
-                    "Guessing what happened, reconstructing the attack from hunches instead of evidence",
-                    "Deleting log files",
-                    "Reinstalling operating systems"
+                    "Restoring compromised systems to service",
+                    "Searching telemetry for threats that evaded automated detection",
+                    "Testing systems for exploitable flaws"
                   ]
                 },
                 {
@@ -27532,9 +27532,9 @@
                   "a": "The documented record of who handled evidence, when, and how",
                   "x": "An unbroken chain is required for evidence to be admissible.",
                   "wrong": [
-                    "The attack path diagram",
-                    "A firewall rule list",
-                    "The backup schedule"
+                    "The path the attacker took through the network",
+                    "The order in which evidence must be collected",
+                    "The list of systems in scope for the investigation and who owns each one"
                   ]
                 },
                 {
@@ -27545,9 +27545,9 @@
                   "a": "A bit-for-bit copy of storage media used for analysis",
                   "x": "The original media stays pristine and hashed.",
                   "wrong": [
-                    "A photograph of the server, capturing the machine’s physical state for the record",
-                    "A system backup",
-                    "A screenshot"
+                    "A full system backup taken by the backup tool on its normal schedule",
+                    "A logical copy of the user's files only",
+                    "A screenshot of the running system"
                   ]
                 },
                 {
@@ -27558,9 +27558,9 @@
                   "a": "Hardware or software that prevents any writes to evidence media",
                   "x": "It preserves hash integrity of the original evidence.",
                   "wrong": [
-                    "Speeds up imaging, copying the media faster by skipping the write checks",
-                    "Encrypts the evidence",
-                    "Deletes temporary files"
+                    "A setting that speeds up imaging by skipping the hash verification step",
+                    "Encrypts the evidence copy for transport",
+                    "Wipes the destination drive before imaging"
                   ]
                 },
                 {
@@ -27571,9 +27571,9 @@
                   "a": "Protecting privilege, managing breach notification obligations, and liaising with law enforcement",
                   "x": "Engage legal early in significant incidents.",
                   "wrong": [
-                    "Writing firewall rules, drafting the rules that block the attacker’s traffic at the perimeter before any traffic gets in",
-                    "Analyzing malware",
-                    "Patching servers"
+                    "Writing the firewall rules that block the attacker",
+                    "Analysing the malware sample",
+                    "Leading technical containment"
                   ]
                 },
                 {
@@ -27584,9 +27584,9 @@
                   "a": "Forensics wants systems frozen; the business wants them restored quickly",
                   "x": "Predefined criteria in the IR plan resolve the conflict.",
                   "wrong": [
-                    "There is no tension",
-                    "Forensics always wins",
-                    "Business always wins"
+                    "There is none once backups exist",
+                    "Forensics always takes priority over operations, however long the systems stay down",
+                    "The business always decides without the IR plan"
                   ]
                 },
                 {
@@ -27597,9 +27597,9 @@
                   "a": "Revoke sessions and access keys, block API access, and snapshot resources for forensics",
                   "x": "Cloud containment is typically faster than on-premises.",
                   "wrong": [
-                    "Delete the cloud account, wiping every resource and log the account ever held in one stroke",
-                    "Ignore it until Monday",
-                    "Email the attacker"
+                    "Delete the account and every resource in it so the attacker loses access immediately",
+                    "Reset the console password only",
+                    "Wait for the provider to detect the abuse"
                   ]
                 },
                 {
@@ -27610,9 +27610,9 @@
                   "a": "A breach is confirmed unauthorized acquisition of data",
                   "x": "Breach determination triggers notification laws.",
                   "wrong": [
-                    "They are identical",
-                    "A breach is less severe, ranking below an ordinary incident in the response queue",
-                    "An incident requires notification"
+                    "They are the same term",
+                    "Any incident involving malware is a breach",
+                    "An incident always requires notification; a breach does not"
                   ]
                 },
                 {
@@ -27623,9 +27623,9 @@
                   "a": "Generally avoid definitive attribution; focus on TTPs and remediation",
                   "x": "Attribution is difficult and rarely changes the response.",
                   "wrong": [
-                    "Always name the country, attributing every incident to a nation-state actor publicly",
-                    "Never investigate at all",
-                    "Only the FBI may analyze"
+                    "Always attribute first, because who the attacker is decides the containment steps",
+                    "Always name the suspected country in the report",
+                    "Only law enforcement may look at TTPs"
                   ]
                 },
                 {
@@ -27636,9 +27636,9 @@
                   "a": "A centralized coordination space or channel with defined roles during major incidents",
                   "x": "Keeps communications structured under pressure.",
                   "wrong": [
-                    "A physical weapons room",
-                    "A lunch room",
-                    "A server closet"
+                    "The SOC's normal day-to-day monitoring floor where Tier 1 analysts work the queue",
+                    "The data centre where affected servers sit",
+                    "A sandbox for detonating malware samples"
                   ]
                 },
                 {
@@ -27649,9 +27649,9 @@
                   "a": "A pre-contracted external incident response firm for surge support",
                   "x": "It is far faster than procuring help mid-crisis.",
                   "wrong": [
-                    "A lawyer’s yearly fee, paying counsel an annual retainer for legal advice",
-                    "A firewall subscription",
-                    "An insurance deductible"
+                    "An annual fee paid to outside legal counsel",
+                    "A cyber-insurance deductible",
+                    "A subscription to a commercial threat intelligence feed for the SOC"
                   ]
                 },
                 {
@@ -27662,9 +27662,9 @@
                   "a": "Treat as potential BEC plus compromise: isolate the host, check mailbox rules",
                   "x": "Correlate endpoint and email telemetry before deciding scope.",
                   "wrong": [
-                    "Just reimage the machine",
-                    "Ignore the email as coincidence",
-                    "Approve the wire transfer, sending the money as instructed before anyone checks the email"
+                    "Reimage the workstation, since EDR quarantined the malware, and close the ticket",
+                    "Treat the wire request as unrelated",
+                    "Approve the transfer and monitor the account"
                   ]
                 },
                 {
@@ -27675,9 +27675,9 @@
                   "a": "Likely exfiltration in progress: contain the host and preserve the archive as evidence",
                   "x": "Do not delete the staged data; it is evidence.",
                   "wrong": [
-                    "Delete the zip immediately, destroying the staged data before anyone can examine it for clues",
-                    "Wait for business hours",
-                    "Reboot the server"
+                    "Delete the zip so the data cannot leave",
+                    "Wait until business hours so IT can confirm whether the transfer was a scheduled backup job",
+                    "Reboot the server to stop the transfer"
                   ]
                 }
               ],
@@ -27715,9 +27715,9 @@
                   "a": "A knowledge base of adversary tactics, techniques, and procedures",
                   "x": "Analysts map detections and incidents to its technique IDs.",
                   "wrong": [
-                    "A firewall product",
-                    "An antivirus engine",
-                    "A compliance law"
+                    "A scoring system that rates the severity of vulnerabilities from 0 to 10",
+                    "A list of the most critical web app risks",
+                    "A catalogue of defensive countermeasures"
                   ]
                 },
                 {
@@ -27725,12 +27725,12 @@
                   "deckId": "cysa-attack-frameworks",
                   "trackId": "cysa",
                   "q": "What is the difference between a tactic, technique, and procedure in ATT&CK?",
-                  "a": "A tactic is the adversary’s goal, a technique is how they achieve it",
+                  "a": "Tactic = the adversary's goal; technique = how it is achieved; procedure = a specific actor's implementation",
                   "x": "Example: Persistence (tactic) via Registry Run Keys (technique).",
                   "wrong": [
-                    "They are synonyms",
-                    "A tactic is a tool, naming the specific software the adversary runs against the target",
-                    "A procedure is a policy"
+                    "They are synonyms used interchangeably",
+                    "A tactic is a tool; a technique is a goal; a procedure is a policy",
+                    "A tactic is a single command; a procedure is a whole campaign"
                   ]
                 },
                 {
@@ -27741,9 +27741,9 @@
                   "a": "Reconnaissance, weaponization, delivery, exploitation, installation, command and control, and actions on objectives",
                   "x": "Breaking any link stops the attack.",
                   "wrong": [
-                    "Scan, patch, reboot, finding weaknesses, fixing them, and restarting the host to apply them after the reboot finishes",
-                    "Alert, ticket, close",
-                    "Buy, install, configure"
+                    "Reconnaissance, initial access, execution, persistence, exfiltration",
+                    "Identify, protect, detect, respond, recover",
+                    "Preparation, detection, containment, eradication, recovery"
                   ]
                 },
                 {
@@ -27754,9 +27754,9 @@
                   "a": "It is non-linear and far more granular",
                   "x": "The kill chain is a useful model but too rigid alone.",
                   "wrong": [
-                    "It is simpler",
-                    "It replaces all models, making the kill chain and every other framework obsolete",
-                    "It only covers malware"
+                    "It is simpler, with fewer stages to learn",
+                    "It replaces every other model, including the kill chain",
+                    "It covers malware only, not human operators"
                   ]
                 },
                 {
@@ -27767,9 +27767,9 @@
                   "a": "A framework linking adversary, capability, infrastructure, and victim with analytic pivoting",
                   "x": "Pivoting across vertices enriches investigations.",
                   "wrong": [
-                    "A jewelry appraisal method",
-                    "A network topology",
-                    "A backup strategy"
+                    "A model that breaks every intrusion into tactics, techniques and procedures, with an ID for each",
+                    "A seven-stage linear model of an intrusion",
+                    "A scoring model for intelligence confidence"
                   ]
                 },
                 {
@@ -27780,9 +27780,9 @@
                   "a": "Credential Access",
                   "x": "Technique T1003 covers OS credential dumping.",
                   "wrong": [
-                    "Initial Access",
-                    "Exfiltration",
-                    "Impact"
+                    "Privilege Escalation",
+                    "Discovery",
+                    "Defense Evasion"
                   ]
                 },
                 {
@@ -27791,7 +27791,7 @@
                   "trackId": "cysa",
                   "q": "Which ATT&CK tactic covers scheduled tasks used for persistence?",
                   "a": "Persistence",
-                  "x": "Technique T1053 covers scheduled task and job abuse.",
+                  "x": "Technique T1053 (Scheduled Task/Job) appears under Execution, Persistence and Privilege Escalation; used to survive reboots, it is Persistence.",
                   "wrong": [
                     "Discovery",
                     "Collection",
@@ -27806,9 +27806,9 @@
                   "a": "Techniques adversaries use to move through the environment, such as PsExec, RDP, and WMI",
                   "x": "Detect it via anomalous use of admin protocols.",
                   "wrong": [
-                    "Moving office desks, rearranging the furniture to make room for new staff joining the team",
-                    "Switching VPN servers",
-                    "Rotating passwords"
+                    "Techniques for gaining the first foothold",
+                    "Techniques for raising privileges on a single host, such as exploiting a vulnerable driver",
+                    "Techniques for keeping access after a reboot"
                   ]
                 },
                 {
@@ -27819,9 +27819,9 @@
                   "a": "Techniques adversaries use to avoid detection, such as obfuscation and disabling security tools",
                   "x": "Fileless attacks live primarily in this tactic.",
                   "wrong": [
-                    "Installing antivirus, adding endpoint protection to every host in the environment before the attack begins",
-                    "Enabling logging",
-                    "Patching systems"
+                    "Techniques for keeping access across reboots",
+                    "Techniques for mapping the environment",
+                    "Techniques for moving collected data out of the network, such as transfer to cloud storage"
                   ]
                 },
                 {
@@ -27832,9 +27832,9 @@
                   "a": "Techniques for stealing data, such as automated transfer, exfiltration over C2",
                   "x": "DLP and egress monitoring counter it.",
                   "wrong": [
-                    "Backing up data, copying files to safe storage so nothing is ever lost, even if the originals are stolen",
-                    "Encrypting disks",
-                    "Compressing logs"
+                    "Techniques for gathering and staging data before it is moved, such as archiving files",
+                    "Techniques for encrypting data for ransom",
+                    "Techniques for moving between internal hosts"
                   ]
                 },
                 {
@@ -27845,9 +27845,9 @@
                   "a": "The techniques used to gain the first foothold, such as phishing, exploits, or valid accounts",
                   "x": "Hardening email and patching internet-facing systems cut it off.",
                   "wrong": [
-                    "The first firewall rule",
-                    "Initial user onboarding",
-                    "The helpdesk ticket queue"
+                    "The first technique observed in any alert",
+                    "Techniques for scanning and profiling the victim from outside before any compromise happens",
+                    "Techniques for keeping access after discovery"
                   ]
                 },
                 {
@@ -27858,9 +27858,9 @@
                   "a": "Techniques for gaining higher-level permissions, such as exploitation or token manipulation",
                   "x": "Least privilege limits the blast radius.",
                   "wrong": [
-                    "Promoting an employee, moving a staff member to a higher-level role with more pay and a bigger office",
-                    "Upgrading software",
-                    "Increasing log retention"
+                    "Techniques for moving to another host",
+                    "Techniques for avoiding detection",
+                    "Techniques for reading stored credentials, such as dumping LSASS or browser password stores"
                   ]
                 },
                 {
@@ -27871,9 +27871,9 @@
                   "a": "Tie each detection to specific tactic and technique IDs",
                   "x": "Mapping reveals coverage gaps in the detection program.",
                   "wrong": [
-                    "It cannot be done, since detections and framework IDs belong to different systems",
-                    "Only vendors can map",
-                    "Mapping is automatic"
+                    "Map only by vendor product name",
+                    "Map each rule to a CVE instead",
+                    "Mapping happens automatically in every SIEM once detections are enabled"
                   ]
                 },
                 {
@@ -27884,9 +27884,9 @@
                   "a": "Visualizing technique coverage across defenses as heatmaps",
                   "x": "It shows detection maturity per technique.",
                   "wrong": [
-                    "Navigating office buildings, guiding visitors through hallways with indoor maps",
-                    "A GPS application",
-                    "A password manager"
+                    "Searching the ATT&CK website for a technique ID and its description",
+                    "Running attack simulations against hosts",
+                    "Generating detection rules automatically"
                   ]
                 },
                 {
@@ -27897,9 +27897,9 @@
                   "a": "Prioritizing controls against the TTPs most relevant to your sector and threat landscape",
                   "x": "It combines threat intel with ATT&CK mapping.",
                   "wrong": [
-                    "Buying every tool",
-                    "Ignoring threat intel",
-                    "Only patching"
+                    "Buying a tool for every ATT&CK technique",
+                    "Patching every critical CVE first",
+                    "Following a compliance checklist control by control, in the order the framework lists them"
                   ]
                 },
                 {
@@ -27910,9 +27910,9 @@
                   "a": "TTPs describe attacker behavior, which changes slowly; IOCs are artifacts that attackers rotate quickly",
                   "x": "Behavioral detections age far better than hash or IP blocklists.",
                   "wrong": [
-                    "IOCs never change, staying fixed while attacker behavior shifts underneath them every single day, all year round",
-                    "TTPs are easier to evade",
-                    "There is no difference"
+                    "IOCs never change, so they are less reliable",
+                    "TTPs are easier for attackers to change",
+                    "There is no difference in practice"
                   ]
                 },
                 {
@@ -27920,12 +27920,12 @@
                   "deckId": "cysa-attack-frameworks",
                   "trackId": "cysa",
                   "q": "Scenario: an attacker used valid VPN credentials, moved via WMI, then staged data for theft. Which kill chain phases apply?",
-                  "a": "Delivery and exploitation via valid accounts, installation and C2, then actions on objectives",
-                  "x": "Valid credentials let attackers skip early kill chain phases.",
+                  "a": "Valid accounts collapse delivery and exploitation; WMI movement and staging belong to actions on objectives",
+                  "x": "The linear kill chain fits this poorly: valid credentials skip weaponization and installation. ATT&CK describes it more precisely as Initial Access (T1078 Valid Accounts), Lateral Movement and Collection (T1074 Data Staged).",
                   "wrong": [
-                    "Only reconnaissance",
-                    "Only weaponization",
-                    "No phases apply, since legitimate access skips every stage of the kill chain entirely, from start to finish"
+                    "Reconnaissance only",
+                    "Weaponization and installation only",
+                    "None, because valid credentials are not an attack"
                   ]
                 },
                 {
@@ -27936,9 +27936,9 @@
                   "a": "A knowledge base of defensive techniques mapped against offensive TTPs",
                   "x": "It guides countermeasure selection for observed techniques.",
                   "wrong": [
-                    "An attack tool, launching offensive techniques against a target network on demand",
-                    "A compliance framework",
-                    "A SIEM vendor"
+                    "An offensive toolkit that automatically runs ATT&CK techniques against a test network",
+                    "A compliance framework for SOC audits",
+                    "A scoring system for detection coverage"
                   ]
                 },
                 {
@@ -27949,9 +27949,9 @@
                   "a": "Simulating a specific threat actor’s TTPs to test defensive controls",
                   "x": "A purple-team activity bridging red and blue teams.",
                   "wrong": [
-                    "A real attack",
-                    "A compliance audit",
-                    "A backup test"
+                    "A real attack by an unknown adversary",
+                    "An annual compliance audit that checks whether security controls are documented",
+                    "A restore test of backup systems"
                   ]
                 },
                 {
@@ -27962,9 +27962,9 @@
                   "a": "It standardizes reporting and reveals systemic detection gaps",
                   "x": "The mapping feeds detection engineering improvements.",
                   "wrong": [
-                    "It is required by law, with regulators fining teams that skip the mapping",
-                    "It replaces the incident report",
-                    "It has no value"
+                    "It is a legal requirement after a breach",
+                    "It replaces the written incident report",
+                    "It assigns responsibility to the team whose detection missed the attack"
                   ]
                 }
               ],
@@ -28001,9 +28001,9 @@
                   "a": "Business impact, scope, actions taken, and next steps — without technical jargon",
                   "x": "Executives need decisions, not packet captures.",
                   "wrong": [
-                    "Full log dumps, pasting every raw log line into the summary for executives to read in full",
-                    "File hash values",
-                    "Analyst shift schedules"
+                    "Full log extracts and indicator lists",
+                    "File hashes and the malware analysis",
+                    "The analyst shift log and the full list of indicators of compromise, with hashes"
                   ]
                 },
                 {
@@ -28014,9 +28014,9 @@
                   "a": "As trend metrics showing detection and response efficiency over time",
                   "x": "Improving trends demonstrate program value to leadership.",
                   "wrong": [
-                    "They are never reported",
-                    "Only reported once",
-                    "They measure backup speed, tracking how fast backups complete each night"
+                    "As single snapshots in the annual report, never trended from month to month",
+                    "Only in the annual audit",
+                    "As measures of backup speed"
                   ]
                 },
                 {
@@ -28027,9 +28027,9 @@
                   "a": "How long vulnerabilities remain open past their remediation SLA",
                   "x": "It shows remediation discipline, not just scan counts.",
                   "wrong": [
-                    "The age of the scanner",
-                    "Analyst years of service",
-                    "Server uptime"
+                    "How old the scanner's plug-ins are",
+                    "How long each asset has been in service since it was first deployed to production",
+                    "How long since the last full scan"
                   ]
                 },
                 {
@@ -28040,9 +28040,9 @@
                   "a": "The percentage of assets scanned during the period",
                   "x": "Unscanned assets are blind spots in the program.",
                   "wrong": [
-                    "The scanner’s warranty period, covering repairs while the scanning tool is under guarantee",
-                    "The office floor area",
-                    "The analyst’s vacation balance"
+                    "The number of findings per scanned asset",
+                    "The proportion of findings fixed within SLA",
+                    "The share of scheduled scans that completed without errors or timeouts"
                   ]
                 },
                 {
@@ -28053,9 +28053,9 @@
                   "a": "Metrics measure activity; KPIs tie measurements to business objectives",
                   "x": "“Critical vulnerabilities remediated within SLA” is a KPI.",
                   "wrong": [
-                    "They are identical, both measuring activity without tying it to business objectives",
-                    "KPIs are always larger",
-                    "Metrics are never useful"
+                    "They are identical, both measuring activity",
+                    "KPIs measure activity; metrics tie it to business goals",
+                    "Metrics are only for engineers; KPIs only for auditors"
                   ]
                 },
                 {
@@ -28066,9 +28066,9 @@
                   "a": "Executives, legal, public relations, IT, HR, customers, and regulators",
                   "x": "A predefined communications plan covers each audience.",
                   "wrong": [
-                    "Only the SOC analysts, keeping executives and legal out of the response entirely",
-                    "Only the attackers",
-                    "Only the helpdesk"
+                    "The SOC, IT operations and the security vendor",
+                    "Executives and the board only",
+                    "Legal and the regulator only"
                   ]
                 },
                 {
@@ -28079,9 +28079,9 @@
                   "a": "A plan defining who gets told what, when, and by whom during an incident",
                   "x": "It prevents leaks, rumors, and confused messaging.",
                   "wrong": [
-                    "An org chart",
-                    "A firewall rule set",
-                    "A password list"
+                    "An org chart of the security team",
+                    "A RACI chart showing who is responsible for each step of the vulnerability program",
+                    "A list of contacts at the attacker's ISP"
                   ]
                 },
                 {
@@ -28092,9 +28092,9 @@
                   "a": "What happened, the types of data affected, steps taken, and contact information",
                   "x": "Timelines and content requirements vary by regulation.",
                   "wrong": [
-                    "The attacker’s name, identifying exactly who broke in and where they live today",
-                    "Full log files",
-                    "Analyst opinions"
+                    "The attacker's suspected identity, location and motive, as determined by the investigation",
+                    "The full technical logs of the intrusion",
+                    "The names of the analysts who responded"
                   ]
                 },
                 {
@@ -28105,9 +28105,9 @@
                   "a": "Supervisory authorities must be notified within 72 hours of becoming aware of a breach",
                   "x": "Affected individuals are notified when there is high risk to them.",
                   "wrong": [
-                    "A password expiry rule, forcing every password to change within 72 hours of it being set",
-                    "A backup retention rule",
-                    "A patching deadline"
+                    "Affected individuals must be told within 72 hours in every case",
+                    "Breaches must be fully resolved within 72 hours",
+                    "Logs must be kept for 72 hours after a breach"
                   ]
                 },
                 {
@@ -28118,9 +28118,9 @@
                   "a": "Legal counsel directing the investigation so findings are protected",
                   "x": "Engage counsel early in significant incidents.",
                   "wrong": [
-                    "A type of encryption",
-                    "A firewall feature",
-                    "An HR policy, governing how employees handle investigations and confidential findings"
+                    "Encrypting the incident report",
+                    "An NDA signed by every responder",
+                    "An HR policy on how employees must handle confidential investigation findings"
                   ]
                 },
                 {
@@ -28131,9 +28131,9 @@
                   "a": "A blameless post-incident analysis with assigned action items",
                   "x": "Each improvement gets an owner and a deadline.",
                   "wrong": [
-                    "A blame assignment document",
-                    "A press release",
-                    "An invoice"
+                    "A record of who caused the incident",
+                    "A press release about the incident",
+                    "The invoice and time report from the external IR retainer firm"
                   ]
                 },
                 {
@@ -28144,9 +28144,9 @@
                   "a": "Lead with risk and business impact, using analogies and visuals",
                   "x": "Avoid acronym soup; translate technical detail into decisions.",
                   "wrong": [
-                    "Read the raw logs aloud, reciting every log line to the audience word for word",
-                    "Show hex dumps",
-                    "Use only jargon"
+                    "Present the raw logs so nothing is lost",
+                    "Show the packet captures and hex dumps",
+                    "Use precise technical terms and full detail, so nothing in the findings is ambiguous"
                   ]
                 },
                 {
@@ -28157,9 +28157,9 @@
                   "a": "Description, severity, owner, remediation plan, and deadline",
                   "x": "It creates accountability for each accepted or open risk.",
                   "wrong": [
-                    "The scanner’s serial number, identifying the physical tool that ran the scan",
-                    "Analyst lunch preferences",
-                    "Office locations"
+                    "The scanner name, scan date and the raw plug-in output for the host",
+                    "The CVE number only",
+                    "The full scan output for the host"
                   ]
                 },
                 {
@@ -28170,9 +28170,9 @@
                   "a": "PCI DSS, HIPAA, SOC 2, and ISO 27001",
                   "x": "They require evidence of a continuous, documented process.",
                   "wrong": [
-                    "None of them, since no framework ever asks for vulnerability management reporting",
-                    "Only tax regulations",
-                    "Only local bylaws"
+                    "None; frameworks leave reporting to the organisation",
+                    "Only national tax regulations",
+                    "Only frameworks for government agencies"
                   ]
                 },
                 {
@@ -28183,9 +28183,9 @@
                   "a": "An incident report covers timeline and business impact; a forensic report details technical evidence",
                   "x": "They serve different audiences and purposes.",
                   "wrong": [
-                    "They are the same document",
-                    "Forensic reports go to the press",
-                    "Incident reports contain no facts"
+                    "They are the same document with different titles",
+                    "A forensic report is written for the press",
+                    "An incident report contains only technical evidence"
                   ]
                 },
                 {
@@ -28196,9 +28196,9 @@
                   "a": "It reinforces effective controls and recognizes good team actions",
                   "x": "Balanced reviews build a stronger security culture.",
                   "wrong": [
-                    "It wastes time, spending review hours on praise instead of fixing what failed",
-                    "Only failures matter",
-                    "Auditors forbid it"
+                    "It is not needed, because only what failed should be reviewed",
+                    "Auditors require it for certification",
+                    "It replaces the list of action items"
                   ]
                 },
                 {
@@ -28209,9 +28209,9 @@
                   "a": "Showing alert volume, true positive rate, and MTTR over time",
                   "x": "Trends justify staffing, tooling, and budget decisions.",
                   "wrong": [
-                    "A weather forecast, predicting rain and temperature for the week ahead",
-                    "A stock market report",
-                    "A single data point"
+                    "A forecast of next quarter's attacks",
+                    "A single month's alert count",
+                    "A ranking of individual analysts by the number of tickets each one closed this month"
                   ]
                 },
                 {
@@ -28222,9 +28222,9 @@
                   "a": "With risk framing: top risks, mitigation status, and trends — never absolute claims",
                   "x": "“Secure” is not a state; risk management is the honest answer.",
                   "wrong": [
-                    "“Yes, completely”",
-                    "“No, we are doomed”",
-                    "Show them raw firewall logs, walking the board through every blocked connection line by line"
+                    "\"Yes, we are compliant with every framework\"",
+                    "\"No; nothing can be secured\"",
+                    "Show the board the firewall's blocked-connection count as proof of how many attacks are stopped"
                   ]
                 },
                 {
@@ -28235,9 +28235,9 @@
                   "a": "Coordinated, factual public statements made after remediation, prepared with PR and legal",
                   "x": "It controls the narrative instead of letting rumors spread.",
                   "wrong": [
-                    "Tweeting exploits immediately",
-                    "Never saying anything",
-                    "Blaming customers"
+                    "Publishing the technical details and indicators as soon as the flaw is found, before the fix",
+                    "Saying nothing publicly to avoid liability",
+                    "Statements issued by the SOC without PR or legal"
                   ]
                 },
                 {
@@ -28248,9 +28248,9 @@
                   "a": "Open investigations, pending actions, and items to watch",
                   "x": "Good handoffs prevent dropped incidents between shifts.",
                   "wrong": [
-                    "Personal opinions, noting what the outgoing analyst thinks of each investigation",
-                    "Lunch orders",
-                    "Sports scores"
+                    "The analyst's personal view of each open case",
+                    "A count of alerts closed on the shift",
+                    "The next shift's lunch order"
                   ]
                 }
               ],

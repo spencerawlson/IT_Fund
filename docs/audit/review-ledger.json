@@ -140,6 +140,46 @@
       "reviewed": "2026-11-16",
       "by": "AI content audit (not a human SME)",
       "items": 12
+    },
+    "cysa-soc-foundations": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-vuln-basics": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-siem-soar": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-threat-hunting": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-vuln-management": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-incident-response": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-attack-frameworks": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
+    },
+    "cysa-reporting": {
+      "reviewed": "2026-11-16",
+      "by": "AI content audit (not a human SME)",
+      "items": 20
     }
   }
 }

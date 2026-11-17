@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { loadContent, loadCatalog, structuralIssues, summarise, buildInventory } from './lib.mjs';
+import { longestRates } from './longest.mjs';
 
 // Automated STRUCTURAL validation of the whole content bank (Phase 9 of the
 // educational audit). It never judges technical truth — that needs a source
@@ -12,8 +13,8 @@ import { loadContent, loadCatalog, structuralIssues, summarise, buildInventory }
 //     2026-11-16 baseline, so new content cannot add to it. Lower a cap when
 //     you fix items; never raise one to make a failing change pass.
 const BASELINE = {
-  'card-answer-length-giveaway': 345,
-  'card-padded-distractor': 176,
+  'card-answer-length-giveaway': 295,
+  'card-padded-distractor': 167,
   'lesson-no-examples': 159,
   'cross-track-duplicate-reworded': 47,
   'deck-no-sources': 15,
@@ -66,5 +67,16 @@ describe('content bank — structural validation', async () => {
     const today = new Date().toISOString().slice(0, 10);
     const expired = Object.entries(catalog.examOutlines).filter(([, o]) => o.validUntil && o.validUntil < today).map(([k]) => k);
     expect(expired).toEqual([]);
+  });
+
+  it('no track lets "pick the longest option" win (answer longest in at most 35% of items)', () => {
+    const over = Object.entries(longestRates(content)).filter(([, r]) => r.longest / r.items > 0.35).map(([t, r]) => `${t}: ${r.longest}/${r.items}`);
+    expect(over).toEqual([]);
+  });
+
+  it('every exam outline past its review-by date has been re-checked', () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const stale = Object.entries(catalog.examOutlines).filter(([, o]) => o.reviewBy && o.reviewBy < today).map(([k]) => k);
+    expect(stale).toEqual([]);
   });
 });
