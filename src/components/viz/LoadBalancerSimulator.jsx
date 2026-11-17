@@ -407,7 +407,7 @@ export default function LoadBalancerSimulator() {
       {/* nginx.conf, under the strategy rail */}
       <div className="lg:col-start-1 lg:row-start-2">
         <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">nginx.conf — updates live</p>
-        <pre className="overflow-x-auto rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{nginxConf(algorithm, sim.servers)}</pre>
+        <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{nginxConf(algorithm, sim.servers)}</pre>
       </div>
 
       {/* Health-check log, under the server pool */}
