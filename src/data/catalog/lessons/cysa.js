@@ -41,6 +41,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Triage an alert in five questions',
+        code: 'Alert: 25 failed logons for svc_backup from 10.4.2.88, then 1 success\n1. Is it real?        Source is a workstation; svc_backup only logs on from BKP01\n2. What is affected?  Domain account with backup rights (high value)\n3. Is it spreading?   Same source touched 3 servers in 10 min\n4. Severity/priority? Credential compromise on a privileged account -> P1\n5. Escalate?          Yes: Tier 2 + disable account per runbook',
+        explanation: 'A consistent triage script turns a noisy queue into decisions; asset value and spread set priority, not the alert\'s default severity.',
+      },
+    ],
     cheatSheet: [
       ['SOC tiers', 'Tier 1 triages alerts; Tier 2 investigates escalations; Tier 3 hunts threats and supports IR.'],
       ['True positive / false positive / false negative', 'Real attack alerted / benign activity alerted / real attack missed. False negatives are the most dangerous.'],
@@ -93,6 +100,13 @@ export default {
           'Configuration compliance scanning checks systems against secure baselines rather than known CVEs — asking "is this system configured the way we decided it should be?" CIS Benchmarks are the standard reference here: consensus-based secure configuration guidance for platforms and applications, built by practitioners and freely available. A system can be fully patched and still be insecure because its configuration drifted from the baseline.',
           'That drift is worth naming explicitly. Configuration drift is systems gradually diverging from their secure baselines over time — the firewall rule added for a project and never removed, the service re-enabled by an update. Continuous compliance scanning exists because drift is constant, and vulnerability management that only tracks CVEs misses the misconfigurations attackers actually exploit. And vulnerability chaining is why even low-severity findings matter: attackers combine multiple minor flaws into a serious exploit path, so the "low" you deferred can be the stepping stone to the "critical" you feared.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Compare credentialed and non-credentialed scans',
+        code: 'Host 10.0.5.20 (Ubuntu 22.04)\nNon-credentialed:  22/tcp OpenSSH 8.9p1 (banner)  -> 3 \'possible\' CVEs\nCredentialed:      openssh-server 1:8.9p1-3ubuntu0.10 (dpkg)\n                   -> 0 CVEs; vendor backported the fixes',
+        explanation: 'Banner checks guess from version strings and miss distribution backports; the authenticated scan reads the package database and removes the false positives.',
       },
     ],
     cheatSheet: [
@@ -148,6 +162,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'A correlation rule (Sigma)',
+        code: 'title: Brute force then success from one source\nlogsource: { product: windows, service: security }\ndetection:\n  fail:    { EventID: 4625 }\n  success: { EventID: 4624 }\n  condition: fail | count(TargetUserName) by IpAddress > 10 and success\ntimeframe: 10m\nlevel: high',
+        explanation: 'Neither event alone is interesting; the sequence from one IP within ten minutes is. Writing rules in Sigma lets you convert the same logic to Splunk, Sentinel or Elastic.',
+      },
+    ],
     cheatSheet: [
       ['Correlation', 'Linking related events across sources into a single incident.'],
       ['Correlation rule', 'Logic that fires an alert when a defined pattern of events occurs.'],
@@ -199,6 +220,13 @@ export default {
           'Collection follows the order of volatility: gather the most ephemeral evidence first — CPU cache and registers, RAM, network connections, running processes — before moving to disk and logs. Volatile evidence disappears the moment a system is powered off or rebooted, so the order is not a suggestion. An analyst who images the disk before capturing memory has already lost the fileless payload.',
           'Timeline analysis then reconstructs the attack by ordering artifacts by timestamp — file modifications, log entries, registry changes — into a single narrative of what happened when. And file carving recovers deleted files from unallocated disk space, useful when attackers try to cover their tracks. Together they turn a confirmed compromise into a complete story: initial access, persistence, lateral movement, and exfiltration, each with its timestamp.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Stack-count to find rare autoruns',
+        code: 'SELECT run_key_value, COUNT(DISTINCT host) AS hosts\nFROM autoruns\nGROUP BY run_key_value\nORDER BY hosts ASC\nLIMIT 10;\n\n-- result: C:\\Users\\Public\\svchost.exe   hosts = 1',
+        explanation: 'Legitimate software runs on hundreds of machines; an autorun seen on one host, in a public folder, with a system-binary name, is where to look first.',
       },
     ],
     cheatSheet: [
@@ -254,6 +282,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Risk-based ranking with EPSS and KEV',
+        code: 'CVE              CVSS  EPSS   KEV  Asset           Order\n---------------  ----  -----  ---  --------------  -----\nCVE-2023-4966    9.4   0.97   Yes  NetScaler edge  1\nCVE-2024-1111    9.8   0.01   No   Isolated lab    3\nCVE-2023-2222    7.5   0.62   No   Payment API     2',
+        explanation: 'The 9.8 drops to last: almost no exploitation likelihood on an unreachable host. Likelihood (EPSS, KEV) times asset value drives the order.',
+      },
+    ],
     cheatSheet: [
       ['EPSS', 'Exploit Prediction Scoring System: estimated probability a vulnerability is exploited in the next 30 days.'],
       ['CISA KEV', 'Catalog of vulnerabilities known to be actively exploited; KEV listings outrank CVSS-only prioritization.'],
@@ -307,6 +342,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Contain a compromised host without losing evidence',
+        code: '1. EDR: network-isolate host FIN-WS-14 (keeps EDR channel)\n2. Capture memory: winpmem.exe C:\\ir\\FIN-WS-14.raw\n3. Hash it:         certutil -hashfile C:\\ir\\FIN-WS-14.raw SHA256\n4. Log custody:     who, when, hash, storage location\n5. Then image disk, then eradicate',
+        explanation: 'Isolation stops the spread while keeping the machine powered, so volatile memory (processes, keys, injected code) survives for analysis.',
+      },
+    ],
     cheatSheet: [
       ['NIST SP 800-61 phases', 'Preparation; Detection and Analysis; Containment, Eradication, and Recovery; Post-Incident Activity.'],
       ['Preparation', 'IR team, tooling, playbooks, communication plans, and an IR retainer — built before the incident.'],
@@ -352,6 +394,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Map an incident to ATT&CK',
+        code: 'Observed                                   Tactic              Technique\n-----------------------------------------  ------------------  ----------------\nVPN login with stolen password             Initial Access      T1078 Valid Accounts\nPowerShell download cradle                 Execution           T1059.001\nRun key added                              Persistence         T1547.001\nLSASS memory read                          Credential Access   T1003.001\nArchive files to C:\\temp\\out.7z            Collection          T1074 Data Staged',
+        explanation: 'Mapping turns a narrative into gaps: if you had no alert for T1003.001, that is your next detection to build.',
+      },
+    ],
     cheatSheet: [
       ['MITRE ATT&CK', 'Knowledge base of adversary tactics, techniques, and procedures organized as a matrix.'],
       ['Tactic vs technique vs procedure', 'Tactic is the adversary\'s goal; technique is the method; procedure is the specific implementation.'],
@@ -394,6 +443,13 @@ export default {
           'Breach notification has its own formal requirements. A notification must cover what happened, the types of data affected, the steps taken, and what affected individuals should do — and the timelines are law, not courtesy. Under GDPR, supervisory authorities must be notified within 72 hours of becoming aware of a qualifying breach. Attorney-client privilege protects the investigation itself when legal counsel directs it, which is why counsel belongs in the response structure from the start rather than being called after the notifications go out.',
           'The lessons-learned report is the final reporting product of every incident: a blameless post-incident analysis with assigned action items and owners. It differs from a forensic report, which documents evidence and technical findings for potential legal use — the incident report covers timeline and business impact, the forensic report covers artifacts and analysis. Document what went well alongside what failed; it reinforces the controls that worked and keeps the review honest. And responsible disclosure communication — coordinated, factual public statements made after remediation — is how the organization talks about the incident to the outside world without creating new liability.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'An executive incident summary',
+        code: 'What happened:  Phishing led to one compromised finance mailbox (12 May).\nImpact:         No payments made; 340 customer emails exposed.\nActions:        Account disabled in 20 min; mailbox rules removed; MFA enforced.\nObligations:    Legal assessing GDPR notification (72-hour clock started 12 May 10:00).\nNext steps:     Phishing-resistant MFA for finance by 30 June (owner: IT Ops).',
+        explanation: 'Five lines in business terms, with owners and dates. Hashes, IPs and log excerpts belong in the technical report, not here.',
       },
     ],
     cheatSheet: [

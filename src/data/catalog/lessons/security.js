@@ -43,6 +43,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'Map controls to CIA and control type',
+        code: 'Control                         CIA goal         Type\n------------------------------  ---------------  ----------\nBitLocker on laptops            Confidentiality  Preventive\nSHA-256 file integrity check    Integrity        Detective\nNightly backup + restore test   Availability     Corrective\nCCTV at the server room door    Confidentiality  Detective\nSigned purchase approvals       Non-repudiation  Preventive',
+        explanation: 'Classify every control by the goal it protects and how it acts. Gaps show up fast: here nothing deters, so a warning banner or visible guard would add a deterrent layer.',
+      },
+    ],
     cheatSheet: [
       ['Confidentiality / Integrity / Availability', 'Encryption / hashing / redundancy'],
       ['Non-repudiation', 'Cannot deny sending: digital signatures'],
@@ -91,6 +98,13 @@ export default {
         body: [
           'The attack surface is every point where an attacker could try to get in: exposed services, open ports, user accounts, APIs, third-party integrations, and the people themselves. Reduce it by removing unused services, ports and accounts, and by knowing what you actually run.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Dissect a spear-phishing email',
+        code: 'From: "Anna Cole (CFO)" <anna.cole@examp1e-corp.com>\nReply-To: anna.cole.cfo@gmail.com\nSubject: URGENT - wire before 3pm\n\nPlease pay the attached invoice today. I\'m in a board\nmeeting, so email only - don\'t call.',
+        explanation: 'Four tells: a lookalike domain (examp1e), a Reply-To that differs from From, manufactured urgency, and a request to avoid the phone. The defence is a process rule: verify payment changes by calling a known number.',
       },
     ],
     cheatSheet: [
@@ -152,6 +166,13 @@ export default {
         body: [
           'A supply chain attack compromises a vendor or component to reach its customers. SolarWinds (2020) shipped a backdoored update to thousands of organisations; the xz Utils backdoor (2024) was slipped into a widely used open-source library by a patient contributor. Defences include vendor risk management, software bills of materials and verifying what you install.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Read indicators from an EDR alert',
+        code: 'parent: WINWORD.EXE\nchild:  powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4A...\nnet:    TLS to 185.220.101.4:443 every 60s (+/-2s)\nfile:   C:\\Users\\ana\\AppData\\Roaming\\upd.dll  (unsigned)',
+        explanation: 'Office spawning encoded PowerShell, a periodic outbound connection (beaconing) and an unsigned DLL in a user-writable path together point to a macro dropper with C2. Isolate the host before cleaning it.',
       },
     ],
     cheatSheet: [
@@ -282,6 +303,13 @@ export default {
         ],
       },
     ],
+    examples: [
+      {
+        title: 'OAuth authorization code flow with PKCE',
+        code: '1. App creates code_verifier (random) and code_challenge = SHA256(verifier)\n2. Browser -> IdP /authorize?response_type=code&code_challenge=...\n3. User signs in (MFA) -> IdP redirects back with ?code=abc123\n4. App -> IdP /token  { code=abc123, code_verifier=... }\n5. IdP checks SHA256(verifier) == challenge -> returns access + ID token',
+        explanation: 'PKCE proves that whoever redeems the code is the same client that started the flow, so an intercepted code is useless. RFC 9700 recommends this flow for every client.',
+      },
+    ],
     cheatSheet: [
       ['Factors', 'Know, have, are (+ somewhere you are)'],
       ['Two passwords', 'Still one factor'],
@@ -330,6 +358,13 @@ export default {
           'High availability designs systems to keep running despite failures, using redundancy, clustering, load balancing and failover. Backups follow the 3-2-1 rule: three copies, on two media types, with one offsite, and keep one copy offline or immutable so ransomware cannot encrypt it.',
           'SASE (Secure Access Service Edge) delivers networking and security from the cloud together: secure web gateway (SWG), CASB, zero trust network access (ZTNA) and SD-WAN. SSE (Security Service Edge) is the security-only subset.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Tokenise a card number',
+        code: 'Checkout receives PAN   4111 1111 1111 1111\nVault stores           tok_8f3a29 -> 4111 1111 1111 1111\nOrder database keeps   tok_8f3a29   (shown as **** **** **** 1111)\nRefunds call vault     tok_8f3a29 -> PAN, inside PCI scope only',
+        explanation: 'Only the vault ever sees the real card number, so the order database and analytics fall out of PCI scope. Masking (****1111) is for display; tokenisation removes the data.',
       },
     ],
     cheatSheet: [
@@ -394,6 +429,13 @@ export default {
         body: [
           'Threat hunting proactively searches for threats that evaded detection. It is hypothesis-driven ("if an attacker used stolen VPN credentials, we would see...") and often mapped to MITRE ATT&CK techniques. A tabletop exercise is a discussion-based walk-through of an incident scenario: a cheap, effective way to test plans, roles and communication.',
         ],
+      },
+    ],
+    examples: [
+      {
+        title: 'Prioritise three findings',
+        code: 'Finding                       CVSS  KEV  Exposure          Priority\n----------------------------  ----  ---  ----------------  --------\nVPN RCE (CVE-2024-xxxx)       9.8   Yes  Internet-facing   1 (today)\nHR app SQLi                   8.6   No   Internal only     2 (this sprint)\nDev laptop browser bug        6.5   No   Users only        3 (patch cycle)',
+        explanation: 'CVSS alone would tie the first two. Known exploitation (KEV) and internet exposure make the VPN today\'s emergency.',
       },
     ],
     cheatSheet: [

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:46:35.619Z",
+  "generatedAt": "2026-11-17T10:50:15.331Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -51952,6 +51952,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Map controls to CIA and control type",
+          "code": "Control                         CIA goal         Type\n------------------------------  ---------------  ----------\nBitLocker on laptops            Confidentiality  Preventive\nSHA-256 file integrity check    Integrity        Detective\nNightly backup + restore test   Availability     Corrective\nCCTV at the server room door    Confidentiality  Detective\nSigned purchase approvals       Non-repudiation  Preventive",
+          "explanation": "Classify every control by the goal it protects and how it acts. Gaps show up fast: here nothing deters, so a warning banner or visible guard would add a deterrent layer."
+        }
+      ],
       "cheatSheet": [
         [
           "Confidentiality / Integrity / Availability",
@@ -52029,6 +52036,13 @@
           "body": [
             "The attack surface is every point where an attacker could try to get in: exposed services, open ports, user accounts, APIs, third-party integrations, and the people themselves. Reduce it by removing unused services, ports and accounts, and by knowing what you actually run."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Dissect a spear-phishing email",
+          "code": "From: \"Anna Cole (CFO)\" <anna.cole@examp1e-corp.com>\nReply-To: anna.cole.cfo@gmail.com\nSubject: URGENT - wire before 3pm\n\nPlease pay the attached invoice today. I'm in a board\nmeeting, so email only - don't call.",
+          "explanation": "Four tells: a lookalike domain (examp1e), a Reply-To that differs from From, manufactured urgency, and a request to avoid the phone. The defence is a process rule: verify payment changes by calling a known number."
         }
       ],
       "cheatSheet": [
@@ -52180,6 +52194,13 @@
           "body": [
             "A supply chain attack compromises a vendor or component to reach its customers. SolarWinds (2020) shipped a backdoored update to thousands of organisations; the xz Utils backdoor (2024) was slipped into a widely used open-source library by a patient contributor. Defences include vendor risk management, software bills of materials and verifying what you install."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Read indicators from an EDR alert",
+          "code": "parent: WINWORD.EXE\nchild:  powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4A...\nnet:    TLS to 185.220.101.4:443 every 60s (+/-2s)\nfile:   C:\\Users\\ana\\AppData\\Roaming\\upd.dll  (unsigned)",
+          "explanation": "Office spawning encoded PowerShell, a periodic outbound connection (beaconing) and an unsigned DLL in a user-writable path together point to a macro dropper with C2. Isolate the host before cleaning it."
         }
       ],
       "cheatSheet": [
@@ -52370,6 +52391,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "OAuth authorization code flow with PKCE",
+          "code": "1. App creates code_verifier (random) and code_challenge = SHA256(verifier)\n2. Browser -> IdP /authorize?response_type=code&code_challenge=...\n3. User signs in (MFA) -> IdP redirects back with ?code=abc123\n4. App -> IdP /token  { code=abc123, code_verifier=... }\n5. IdP checks SHA256(verifier) == challenge -> returns access + ID token",
+          "explanation": "PKCE proves that whoever redeems the code is the same client that started the flow, so an intercepted code is useless. RFC 9700 recommends this flow for every client."
+        }
+      ],
       "cheatSheet": [
         [
           "Factors",
@@ -52450,6 +52478,13 @@
             "High availability designs systems to keep running despite failures, using redundancy, clustering, load balancing and failover. Backups follow the 3-2-1 rule: three copies, on two media types, with one offsite, and keep one copy offline or immutable so ransomware cannot encrypt it.",
             "SASE (Secure Access Service Edge) delivers networking and security from the cloud together: secure web gateway (SWG), CASB, zero trust network access (ZTNA) and SD-WAN. SSE (Security Service Edge) is the security-only subset."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Tokenise a card number",
+          "code": "Checkout receives PAN   4111 1111 1111 1111\nVault stores           tok_8f3a29 -> 4111 1111 1111 1111\nOrder database keeps   tok_8f3a29   (shown as **** **** **** 1111)\nRefunds call vault     tok_8f3a29 -> PAN, inside PCI scope only",
+          "explanation": "Only the vault ever sees the real card number, so the order database and analytics fall out of PCI scope. Masking (****1111) is for display; tokenisation removes the data."
         }
       ],
       "cheatSheet": [
@@ -52561,6 +52596,13 @@
           "body": [
             "Threat hunting proactively searches for threats that evaded detection. It is hypothesis-driven (\"if an attacker used stolen VPN credentials, we would see...\") and often mapped to MITRE ATT&CK techniques. A tabletop exercise is a discussion-based walk-through of an incident scenario: a cheap, effective way to test plans, roles and communication."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Prioritise three findings",
+          "code": "Finding                       CVSS  KEV  Exposure          Priority\n----------------------------  ----  ---  ----------------  --------\nVPN RCE (CVE-2024-xxxx)       9.8   Yes  Internet-facing   1 (today)\nHR app SQLi                   8.6   No   Internal only     2 (this sprint)\nDev laptop browser bug        6.5   No   Users only        3 (patch cycle)",
+          "explanation": "CVSS alone would tie the first two. Known exploitation (KEV) and internet exposure make the VPN today's emergency."
         }
       ],
       "cheatSheet": [
@@ -59239,6 +59281,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Triage an alert in five questions",
+          "code": "Alert: 25 failed logons for svc_backup from 10.4.2.88, then 1 success\n1. Is it real?        Source is a workstation; svc_backup only logs on from BKP01\n2. What is affected?  Domain account with backup rights (high value)\n3. Is it spreading?   Same source touched 3 servers in 10 min\n4. Severity/priority? Credential compromise on a privileged account -> P1\n5. Escalate?          Yes: Tier 2 + disable account per runbook",
+          "explanation": "A consistent triage script turns a noisy queue into decisions; asset value and spread set priority, not the alert's default severity."
+        }
+      ],
       "cheatSheet": [
         [
           "SOC tiers",
@@ -59320,6 +59369,13 @@
             "Configuration compliance scanning checks systems against secure baselines rather than known CVEs — asking \"is this system configured the way we decided it should be?\" CIS Benchmarks are the standard reference here: consensus-based secure configuration guidance for platforms and applications, built by practitioners and freely available. A system can be fully patched and still be insecure because its configuration drifted from the baseline.",
             "That drift is worth naming explicitly. Configuration drift is systems gradually diverging from their secure baselines over time — the firewall rule added for a project and never removed, the service re-enabled by an update. Continuous compliance scanning exists because drift is constant, and vulnerability management that only tracks CVEs misses the misconfigurations attackers actually exploit. And vulnerability chaining is why even low-severity findings matter: attackers combine multiple minor flaws into a serious exploit path, so the \"low\" you deferred can be the stepping stone to the \"critical\" you feared."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Compare credentialed and non-credentialed scans",
+          "code": "Host 10.0.5.20 (Ubuntu 22.04)\nNon-credentialed:  22/tcp OpenSSH 8.9p1 (banner)  -> 3 'possible' CVEs\nCredentialed:      openssh-server 1:8.9p1-3ubuntu0.10 (dpkg)\n                   -> 0 CVEs; vendor backported the fixes",
+          "explanation": "Banner checks guess from version strings and miss distribution backports; the authenticated scan reads the package database and removes the false positives."
         }
       ],
       "cheatSheet": [
@@ -59404,6 +59460,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "A correlation rule (Sigma)",
+          "code": "title: Brute force then success from one source\nlogsource: { product: windows, service: security }\ndetection:\n  fail:    { EventID: 4625 }\n  success: { EventID: 4624 }\n  condition: fail | count(TargetUserName) by IpAddress > 10 and success\ntimeframe: 10m\nlevel: high",
+          "explanation": "Neither event alone is interesting; the sequence from one IP within ten minutes is. Writing rules in Sigma lets you convert the same logic to Splunk, Sentinel or Elastic."
+        }
+      ],
       "cheatSheet": [
         [
           "Correlation",
@@ -59484,6 +59547,13 @@
             "Collection follows the order of volatility: gather the most ephemeral evidence first — CPU cache and registers, RAM, network connections, running processes — before moving to disk and logs. Volatile evidence disappears the moment a system is powered off or rebooted, so the order is not a suggestion. An analyst who images the disk before capturing memory has already lost the fileless payload.",
             "Timeline analysis then reconstructs the attack by ordering artifacts by timestamp — file modifications, log entries, registry changes — into a single narrative of what happened when. And file carving recovers deleted files from unallocated disk space, useful when attackers try to cover their tracks. Together they turn a confirmed compromise into a complete story: initial access, persistence, lateral movement, and exfiltration, each with its timestamp."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Stack-count to find rare autoruns",
+          "code": "SELECT run_key_value, COUNT(DISTINCT host) AS hosts\nFROM autoruns\nGROUP BY run_key_value\nORDER BY hosts ASC\nLIMIT 10;\n\n-- result: C:\\Users\\Public\\svchost.exe   hosts = 1",
+          "explanation": "Legitimate software runs on hundreds of machines; an autorun seen on one host, in a public folder, with a system-binary name, is where to look first."
         }
       ],
       "cheatSheet": [
@@ -59568,6 +59638,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Risk-based ranking with EPSS and KEV",
+          "code": "CVE              CVSS  EPSS   KEV  Asset           Order\n---------------  ----  -----  ---  --------------  -----\nCVE-2023-4966    9.4   0.97   Yes  NetScaler edge  1\nCVE-2024-1111    9.8   0.01   No   Isolated lab    3\nCVE-2023-2222    7.5   0.62   No   Payment API     2",
+          "explanation": "The 9.8 drops to last: almost no exploitation likelihood on an unreachable host. Likelihood (EPSS, KEV) times asset value drives the order."
+        }
+      ],
       "cheatSheet": [
         [
           "EPSS",
@@ -59650,6 +59727,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Contain a compromised host without losing evidence",
+          "code": "1. EDR: network-isolate host FIN-WS-14 (keeps EDR channel)\n2. Capture memory: winpmem.exe C:\\ir\\FIN-WS-14.raw\n3. Hash it:         certutil -hashfile C:\\ir\\FIN-WS-14.raw SHA256\n4. Log custody:     who, when, hash, storage location\n5. Then image disk, then eradicate",
+          "explanation": "Isolation stops the spread while keeping the machine powered, so volatile memory (processes, keys, injected code) survives for analysis."
+        }
+      ],
       "cheatSheet": [
         [
           "NIST SP 800-61 phases",
@@ -59724,6 +59808,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Map an incident to ATT&CK",
+          "code": "Observed                                   Tactic              Technique\n-----------------------------------------  ------------------  ----------------\nVPN login with stolen password             Initial Access      T1078 Valid Accounts\nPowerShell download cradle                 Execution           T1059.001\nRun key added                              Persistence         T1547.001\nLSASS memory read                          Credential Access   T1003.001\nArchive files to C:\\temp\\out.7z            Collection          T1074 Data Staged",
+          "explanation": "Mapping turns a narrative into gaps: if you had no alert for T1003.001, that is your next detection to build."
+        }
+      ],
       "cheatSheet": [
         [
           "MITRE ATT&CK",
@@ -59792,6 +59883,13 @@
             "Breach notification has its own formal requirements. A notification must cover what happened, the types of data affected, the steps taken, and what affected individuals should do — and the timelines are law, not courtesy. Under GDPR, supervisory authorities must be notified within 72 hours of becoming aware of a qualifying breach. Attorney-client privilege protects the investigation itself when legal counsel directs it, which is why counsel belongs in the response structure from the start rather than being called after the notifications go out.",
             "The lessons-learned report is the final reporting product of every incident: a blameless post-incident analysis with assigned action items and owners. It differs from a forensic report, which documents evidence and technical findings for potential legal use — the incident report covers timeline and business impact, the forensic report covers artifacts and analysis. Document what went well alongside what failed; it reinforces the controls that worked and keeps the review honest. And responsible disclosure communication — coordinated, factual public statements made after remediation — is how the organization talks about the incident to the outside world without creating new liability."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "An executive incident summary",
+          "code": "What happened:  Phishing led to one compromised finance mailbox (12 May).\nImpact:         No payments made; 340 customer emails exposed.\nActions:        Account disabled in 20 min; mailbox rules removed; MFA enforced.\nObligations:    Legal assessing GDPR notification (72-hour clock started 12 May 10:00).\nNext steps:     Phishing-resistant MFA for finance by 30 June (owner: IT Ops).",
+          "explanation": "Five lines in business terms, with owners and dates. Hashes, IPs and log excerpts belong in the technical report, not here."
         }
       ],
       "cheatSheet": [
@@ -59864,6 +59962,13 @@
           "body": [
             "The English CISSP exam uses computerised adaptive testing (CAT): 100 to 150 items in 3 hours, with a passing score of 700 out of 1000. Full certification needs 5 years of paid work in 2 or more of the 8 domains; a relevant degree or approved certification can waive 1 year. Pass without the experience and you become an Associate of ISC2 while you earn it."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Choose the CISSP answer",
+          "code": "Scenario: A fire alarm sounds while you are mid-way through\nimaging a compromised server for evidence.\n\nA. Finish the image, then leave     (protects evidence)\nB. Power the server off and leave   (protects data)\nC. Leave immediately                (protects people)   <- answer\nD. Call the CISO for a decision     (defers)",
+          "explanation": "Life safety outranks evidence, data and systems every time. When several options are technically sensible, pick the one a manager responsible for people and the business would choose."
         }
       ],
       "cheatSheet": [
@@ -59989,6 +60094,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Quantitative risk: is the control worth it?",
+          "code": "Asset value (AV)            $500,000\nExposure factor (EF)        40%\nSLE = AV x EF               $200,000\nARO (once every 4 years)    0.25\nALE = SLE x ARO             $50,000 per year\n\nControl cost                $30,000 per year\nALE after control           $10,000 per year\nValue = 50,000 - 10,000 - 30,000 = $10,000 per year  -> justified",
+          "explanation": "A control is worth buying when the reduction in ALE exceeds its annual cost. Present it to management in exactly these terms."
+        }
+      ],
       "cheatSheet": [
         [
           "Quantitative vs qualitative",
@@ -60074,6 +60186,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "From BIA to recovery targets",
+          "code": "Function         MTD     RTO     RPO     Strategy\n---------------  ------  ------  ------  -------------------------\nOrder taking     8 h     4 h     15 min  Warm site + log shipping\nPayroll          5 days  2 days  24 h    Restore from nightly backup\nIntranet wiki    14 days 7 days  1 week  Rebuild from weekly backup",
+          "explanation": "The BIA sets MTD; RTO must fit inside it and RPO sets backup frequency. The strategy (and its cost) follows from those numbers, not the other way round."
+        }
+      ],
       "cheatSheet": [
         [
           "BCP vs DRP",
@@ -60154,6 +60273,13 @@
           "body": [
             "Scoping selects the controls from a standard baseline (such as NIST SP 800-53) that are relevant to a system; tailoring then adjusts them to the environment. Digital rights management (DRM) protects how content is used after distribution, controlling copying, printing and forwarding."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "A data classification and handling table",
+          "code": "Class         Example               Storage           Transmission     Disposal\n------------  --------------------  ----------------  ---------------  -----------------\nRestricted    Card data, health     Encrypted, MFA    TLS + DLP block  Purge or destroy\nConfidential  Contracts, salaries   Encrypted         TLS              Purge\nInternal      Policies, org chart   Access-controlled Any internal     Clear\nPublic        Marketing site        Any               Any              None",
+          "explanation": "The data owner assigns the class; the custodian applies the handling rules. Classification without handling rules changes nothing."
         }
       ],
       "cheatSheet": [
@@ -60277,6 +60403,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Sanitising media under NIST SP 800-88",
+          "code": "Media                      Leaving org?  Method\n-------------------------  ------------  --------------------------------\nHDD, reused internally     No            Clear  (single overwrite)\nHDD, sold to recycler      Yes           Purge  (ATA Secure Erase) or destroy\nSSD, any reuse             Either        Purge  (crypto erase / sanitize cmd)\nSSD, end of life           Yes           Destroy (shred), with certificate",
+          "explanation": "The method depends on where the media is going and the data's classification. Degaussing does nothing to SSDs."
+        }
+      ],
       "cheatSheet": [
         [
           "Lifecycle",
@@ -60369,6 +60502,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Bell-LaPadula vs Biba",
+          "code": "Subject clearance: SECRET\n\nBell-LaPadula (confidentiality)\n  read  TOP SECRET   -> denied   (no read up)\n  write CONFIDENTIAL -> denied   (no write down)\n\nBiba (integrity), subject integrity: MEDIUM\n  read  LOW          -> denied   (no read down)\n  write HIGH         -> denied   (no write up)",
+          "explanation": "The two models are mirror images: BLP stops secrets leaking down; Biba stops untrusted data contaminating trusted data."
+        }
+      ],
       "cheatSheet": [
         [
           "Bell-LaPadula",
@@ -60453,6 +60593,13 @@
             "Converged networking carries storage (FCoE, iSCSI), voice (VoIP) and other traffic over standard IP and Ethernet. It is convenient, but it widens the attack surface of those services, which once ran on separate media.",
             "A CDN absorbs DDoS attacks and shields origin servers, and is often combined with a WAF at the edge."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "IPsec tunnel mode packet",
+          "code": "Original:  [IP hdr 10.1.1.5 -> 10.2.2.9][TCP][data]\n\nESP tunnel mode:\n[New IP 203.0.113.1 -> 198.51.100.7][ESP hdr][ IP 10.1.1.5 -> 10.2.2.9 | TCP | data ][ESP trailer][ICV]\n                                             \\_____________ encrypted _____________/",
+          "explanation": "Tunnel mode wraps and encrypts the whole original packet, hiding internal addresses between gateways; transport mode encrypts only the payload."
         }
       ],
       "cheatSheet": [
@@ -60540,6 +60687,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Biometric error rates",
+          "code": "Threshold   FRR (Type I)   FAR (Type II)\n---------   ------------   -------------\nLow         1%             8%\nMedium      3%             3%   <- crossover error rate (CER)\nHigh        9%             0.5%",
+          "explanation": "Raising sensitivity trades false acceptances for false rejections. The CER compares systems; a lower CER means a more accurate device. For a data-centre door, tune toward low FAR."
+        }
+      ],
       "cheatSheet": [
         [
           "Sequence",
@@ -60615,6 +60769,13 @@
             "KPIs (key performance indicators) report past results; KRIs (key risk indicators) give early warning of rising risk. Report both to leadership in business terms.",
             "Protect audit logs, because attackers alter or delete them to hide activity. Centralise them, restrict access, and use write-once storage or integrity checks."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Read a SOC 2 Type II report",
+          "code": "Scope:     Production SaaS platform (not the mobile app)\nPeriod:    1 Jan - 30 Jun\nCriteria:  Security, Availability\nOpinion:   Qualified\nException: CC6.2 - 4 of 25 sampled leavers kept access > 5 days\nCUECs:     Customer must manage its own user provisioning",
+          "explanation": "A 'SOC 2' claim tells you little. The scope, period, exceptions and complementary user entity controls (CUECs) tell you what was tested and what remains your job."
         }
       ],
       "cheatSheet": [
@@ -60697,6 +60858,13 @@
           "body": [
             "In an emergency, evacuate people first; systems and data are secondary. Doors on escape routes fail safe (unlocked) for life safety."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Chain-of-custody record",
+          "code": "Item:      Laptop SN 5CG1234XYZ, image file CASE-17-01.E01\nSHA-256:   9f2c...e41a (acquisition) = 9f2c...e41a (verification)\n2024-05-12 09:14  Collected by  J. Ortiz   from desk 4.12\n2024-05-12 09:40  Imaged by     J. Ortiz   write-blocker WB-2\n2024-05-12 10:05  Transferred   J. Ortiz -> evidence locker 3 (K. Lee)\nSealed bag no.  0047812",
+          "explanation": "Every handover is recorded with who, when and why, and the hash proves the image never changed. A gap in this record can make the evidence inadmissible."
         }
       ],
       "cheatSheet": [
@@ -60887,6 +61055,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "A formal risk acceptance",
+          "code": "Risk:        Unpatched DB server ORDDB01 (CVE-2024-xxxx), no vendor patch\nCompensating: Isolated VLAN, IPS signature, access from app tier only\nResidual:    Medium\nOwner:       VP Operations (signed)\nExpiry:      90 days or vendor patch, whichever first\nReview:      Monthly by security risk committee",
+          "explanation": "Acceptance is a documented business decision with an owner, compensating controls and an expiry, never a silent 'we'll live with it'."
+        }
+      ],
       "cheatSheet": [
         [
           "No patch + cannot go offline",
@@ -60929,6 +61104,13 @@
             "Production PII in a test environment is a breach waiting to happen: test systems rarely carry production-grade access controls, logging, or monitoring. The answer is always masked, anonymised, or synthetic data.",
             "A litigation hold suspends the normal retention and destruction schedule for the affected data. Destroying held data is spoliation. When in doubt, preserve and ask legal."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Safe test data",
+          "code": "-- copy production structure, not production people\nINSERT INTO test.customers (id, name, email, card_last4)\nSELECT id,\n       'Customer ' || id,\n       'user' || id || '@example.test',\n       '0000'\nFROM prod.customers TABLESAMPLE SYSTEM (1);",
+          "explanation": "Test environments get masked or synthetic values that keep the shape of real data. Real PII in test is a breach waiting for an auditor."
         }
       ],
       "cheatSheet": [
@@ -60975,6 +61157,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Fail closed in code",
+          "code": "def is_authorised(user, resource):\n    try:\n        return policy_service.check(user, resource)\n    except Exception:\n        log.error('policy service unavailable')\n        return False   # fail closed: deny when unsure",
+          "explanation": "When a security dependency breaks, the safe default is to deny. Returning True in the except branch would turn every outage into an open door."
+        }
+      ],
       "cheatSheet": [
         [
           "Fail-secure",
@@ -61017,6 +61206,13 @@
             "Guest, IoT, and partner networks are untrusted by definition. The first design step is always segmentation — separate VLANs and firewall zones — before tuning any monitoring or access rules.",
             "Segmentation contains lateral movement. Everything else (monitoring, NAC, passwords) is secondary to not letting the hostile network touch the trusted one."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Segment guest Wi-Fi",
+          "code": "VLAN 10  Corporate   10.10.0.0/16   802.1X (EAP-TLS)\nVLAN 50  Guest       172.20.0.0/22  WPA3-Personal + captive portal\n\nFirewall policy (zone guest):\n  allow  guest -> internet : 80, 443\n  deny   guest -> corporate: any   (log)\n  deny   guest -> mgmt     : any   (log)",
+          "explanation": "Guests are untrusted by definition, so the guest zone reaches the internet and nothing else; logging the denies shows anyone probing inward."
         }
       ],
       "cheatSheet": [
@@ -61063,6 +61259,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "Step-up authentication policy",
+          "code": "Session: signed in with password + push MFA at 09:00\n\nAction                       Requirement\n---------------------------  ------------------------------\nRead dashboards              existing session\nChange payee bank details    re-authenticate with FIDO2 key\nAdd an admin role            FIDO2 + approval by second admin\nIdle > 15 min                sign in again",
+          "explanation": "MFA at login proves identity once; step-up and short idle timeouts bound what a stolen session can do, scaled to the risk of each action."
+        }
+      ],
       "cheatSheet": [
         [
           "SSO without sharing passwords",
@@ -61105,6 +61308,13 @@
             "Five hundred scanner findings are a starting point, not a plan. Prioritise by risk: exploitability times business impact. An internet-facing critical system outranks an isolated lab box regardless of raw severity.",
             "Vendor claims are marketing until verified. SOC 2, ISO 27001, pentest letters — read the actual report: scope, period, methodology, and qualifications. Third-party risk management runs on evidence."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Choose the right test",
+          "code": "Question                                         Best test\n-----------------------------------------------  ----------------------------\nAre there flaws in our source before release?    SAST in CI\nIs the running app exploitable by an attacker?   Authorised penetration test\nDo our detections catch real techniques?         Breach & attack simulation\nDid last month's patch still work?               Regression + rescan",
+          "explanation": "Each test answers a different question. Pick it by what you need to prove, then make sure every finding gets an owner and a date."
         }
       ],
       "cheatSheet": [
@@ -61151,6 +61361,13 @@
           ]
         }
       ],
+      "examples": [
+        {
+          "title": "First hour of a ransomware incident",
+          "code": "00:00  Declare incident; open bridge; assign IC and scribe\n00:05  Isolate affected subnets (EDR network containment)\n00:15  Preserve: memory from 2 hosts, firewall + EDR logs\n00:20  Notify legal and leadership via out-of-band channel\n00:30  Scope: which accounts, which data, is exfiltration seen?\n00:45  Confirm backups are intact and offline",
+          "explanation": "Contain first, preserve evidence, communicate out of band, then scope. Restoring before scoping usually brings the attacker back with the data."
+        }
+      ],
       "cheatSheet": [
         [
           "Active attack RIGHT NOW",
@@ -61193,6 +61410,13 @@
             "A secret in version control is compromised the moment it is pushed — repositories are copied, backed up, and mirrored. Revoke and rotate immediately, move to a vault, and add pre-commit scanning so it cannot recur.",
             "Bugs are cheapest where they are born: threat modelling in design beats a pentest finding, which beats an emergency production patch. Shift-left is economics, not ideology."
           ]
+        }
+      ],
+      "examples": [
+        {
+          "title": "Respond to a committed secret",
+          "code": "$ git log -p | grep -n 'AKIA'\n  commit 3f9a... +AWS_ACCESS_KEY_ID=AKIA...\n1. Revoke the key in IAM now (assume it is compromised)\n2. Review CloudTrail for its use since the commit time\n3. Move secrets to a vault; inject at runtime\n4. Add gitleaks as a pre-commit hook and in CI",
+          "explanation": "Deleting the line does not help: the key is in history and any clone. Revoke first, investigate second, then fix the process so it cannot recur."
         }
       ],
       "cheatSheet": [

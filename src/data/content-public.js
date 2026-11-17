@@ -23560,6 +23560,13 @@ export const freeLessonContent = {
         ]
       }
     ],
+    "examples": [
+      {
+        "title": "Map controls to CIA and control type",
+        "code": "Control                         CIA goal         Type\n------------------------------  ---------------  ----------\nBitLocker on laptops            Confidentiality  Preventive\nSHA-256 file integrity check    Integrity        Detective\nNightly backup + restore test   Availability     Corrective\nCCTV at the server room door    Confidentiality  Detective\nSigned purchase approvals       Non-repudiation  Preventive",
+        "explanation": "Classify every control by the goal it protects and how it acts. Gaps show up fast: here nothing deters, so a warning banner or visible guard would add a deterrent layer."
+      }
+    ],
     "cheatSheet": [
       [
         "Confidentiality / Integrity / Availability",
