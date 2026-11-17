@@ -1486,5 +1486,37 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0093",
+    "severity": "Medium",
+    "category": "multiple-defensible",
+    "file": "src/data/academy/intro-it.js",
+    "contentId": "it-binary-basics-11",
+    "original": "What does 1 KB mean? -> 1,024 bytes (distractor 1,000 bytes)",
+    "problem": "Under SI, 1 kB = 1,000 bytes; 1,024 bytes is a kibibyte. Question scoped to the binary convention and KiB explained.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "https://physics.nist.gov/cuu/Units/binary.html",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
+  },
+  {
+    "id": "R-0094",
+    "severity": "Low",
+    "category": "distractor-quality",
+    "file": "src/data/academy/kubernetes.js, git.js, intro-it.js",
+    "contentId": "78 cards",
+    "original": "'…ever, period, end of story', '…always and forever', short options beside long answers",
+    "problem": "Filler-padded and length-giveaway options.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]

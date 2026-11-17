@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:44:39.475Z",
+  "generatedAt": "2026-11-17T10:46:35.619Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -45311,7 +45311,7 @@
                   "x": "The single source of truth; back it up.",
                   "wrong": [
                     "A container runtime",
-                    "A logging tool",
+                    "A logging tool that collects container output on each node",
                     "The scheduler"
                   ]
                 },
@@ -45375,7 +45375,7 @@
                   "a": "Declarative — you describe desired state and controllers reconcile reality to it",
                   "x": "kubectl apply submits the desired state.",
                   "wrong": [
-                    "Imperative only",
+                    "Imperative: you run commands that change the cluster step by step",
                     "Event-driven only",
                     "Neither"
                   ]
@@ -45453,7 +45453,7 @@
                   "a": "A desired number of identical Pods, with rolling updates and rollbacks",
                   "x": "The standard way to run stateless apps.",
                   "wrong": [
-                    "A single node",
+                    "A single node and the pods scheduled on it",
                     "The control plane",
                     "A storage volume"
                   ]
@@ -45506,7 +45506,7 @@
                   "x": "The ReplicaSet adds/removes pods to match.",
                   "wrong": [
                     "kubectl run x5",
-                    "docker scale",
+                    "docker scale deploy/name=5 on each node",
                     "Edit etcd directly"
                   ]
                 },
@@ -45531,7 +45531,7 @@
                   "a": "Detailed state and recent events — great for debugging why a pod is unhealthy",
                   "x": "Shows scheduling, image pulls, probe failures.",
                   "wrong": [
-                    "Live logs streaming from the container in real time, line by line, as they happen right now",
+                    "Live logs streamed from the container",
                     "A shell",
                     "The node list"
                   ]
@@ -45544,7 +45544,7 @@
                   "a": "Reschedules replacement pods onto healthy nodes (self-healing)",
                   "x": "The controller restores the desired replica count.",
                   "wrong": [
-                    "Nothing happens at all — the dead pod simply stays gone forever, with no replacement",
+                    "Nothing; the pod stays gone until someone recreates it",
                     "Alerts you to act",
                     "Restarts the node"
                   ]
@@ -45608,7 +45608,7 @@
                   "a": "Logically partitioning a cluster (e.g. dev, staging, team-a)",
                   "x": "They scope names, quotas and access.",
                   "wrong": [
-                    "Physical machines",
+                    "Physical machines grouped into separate clusters",
                     "Storage volumes",
                     "Container images"
                   ]
@@ -45712,7 +45712,7 @@
                   "a": "The desired state the controllers should make real",
                   "x": "status (read-only) reports the actual state.",
                   "wrong": [
-                    "The current status",
+                    "The current status reported by the kubelet",
                     "The logs",
                     "The node it runs on"
                   ]
@@ -45752,7 +45752,7 @@
                   "a": "Pod IPs are ephemeral; a Service gives a stable IP/name and load-balances",
                   "x": "Clients target the Service, not individual pods.",
                   "wrong": [
-                    "Pods have no IPs at all and can never be reached directly by anyone on the network",
+                    "Pods have no IPs, so they cannot be reached directly",
                     "Services run the containers",
                     "For storage"
                   ]
@@ -45791,7 +45791,7 @@
                   "a": "Provisions an external load balancer (via the cloud provider) for the Service",
                   "x": "The common way to expose prod traffic on a managed cluster.",
                   "wrong": [
-                    "Only works on-prem",
+                    "Exposes the Service on a port on every node, for on-prem clusters only",
                     "Internal only",
                     "Replaces Ingress always"
                   ]
@@ -45844,7 +45844,7 @@
                   "x": "Without a controller, Ingress objects do nothing.",
                   "wrong": [
                     "The scheduler",
-                    "etcd",
+                    "etcd, which stores and applies the routing rules",
                     "kubelet"
                   ]
                 },
@@ -45915,7 +45915,7 @@
                   "a": "It is ephemeral — lost when the pod is rescheduled or restarted",
                   "x": "Persistent data needs a volume.",
                   "wrong": [
-                    "It is read-only, so containers can never write any files there at all",
+                    "It is read-only, so containers cannot write there",
                     "It is too small",
                     "It is encrypted"
                   ]
@@ -45928,7 +45928,7 @@
                   "a": "A piece of cluster storage provisioned for use by pods",
                   "x": "An admin- or dynamically-provisioned resource.",
                   "wrong": [
-                    "A pod",
+                    "A pod that serves files to other pods",
                     "A namespace",
                     "A Service"
                   ]
@@ -46032,7 +46032,7 @@
                   "a": "Images are read-only and shared; data must be writable and durable per instance",
                   "x": "Mount a PVC instead.",
                   "wrong": [
-                    "It is fine to do",
+                    "It is fine, since each image layer can store data",
                     "For smaller pods",
                     "Images are writable"
                   ]
@@ -46156,7 +46156,7 @@
                   "a": "It is OOM-killed (terminated) and typically restarted",
                   "x": "CPU over-limit is throttled, not killed.",
                   "wrong": [
-                    "Nothing",
+                    "Nothing; the limit is only a scheduling hint",
                     "The node reboots",
                     "It gets more memory"
                   ]
@@ -46236,7 +46236,7 @@
                   "a": "Runs one copy of a pod on every (or selected) node",
                   "x": "Used for node agents: log collectors, monitoring, CNI.",
                   "wrong": [
-                    "Runs one pod total",
+                    "Runs exactly one pod for the whole cluster",
                     "Scales on CPU",
                     "Runs batch jobs"
                   ]
@@ -46249,7 +46249,7 @@
                   "a": "A workload that runs pods to completion (batch work), then stops",
                   "x": "A CronJob runs Jobs on a schedule.",
                   "wrong": [
-                    "A long-running server that stays up forever, serving traffic day and night",
+                    "A long-running server that serves traffic",
                     "A Service",
                     "A node"
                   ]
@@ -46288,7 +46288,7 @@
                   "a": "Cordon marks a node unschedulable; drain evicts its pods — for maintenance",
                   "x": "Pods reschedule elsewhere.",
                   "wrong": [
-                    "Delete the node permanently",
+                    "Cordon deletes the node; drain removes its storage volumes",
                     "Scale the cluster",
                     "Back up etcd"
                   ]
@@ -46340,7 +46340,7 @@
                   "a": "Observe actual state → compare to desired spec → act to reconcile — forever",
                   "x": "This is how K8s self-heals.",
                   "wrong": [
-                    "Run once at deploy",
+                    "Run once at deploy time and exit",
                     "Only on kubectl apply",
                     "A cron schedule"
                   ]
@@ -46459,7 +46459,7 @@
                   "a": "Hardened defaults: non-root, no privilege escalation, dropped capabilities, etc.",
                   "x": "Applied via admission control per namespace.",
                   "wrong": [
-                    "Nothing at all — the restricted profile is purely advisory and never actually enforced",
+                    "Nothing; the restricted profile is advisory only",
                     "Only resource limits",
                     "Networking rules"
                   ]
@@ -46472,7 +46472,7 @@
                   "a": "To cap resource use and prevent a tenant from exhausting the cluster",
                   "x": "Multi-tenant safety and cost control.",
                   "wrong": [
-                    "For DNS",
+                    "To reserve DNS names for each namespace",
                     "For RBAC",
                     "They are cosmetic"
                   ]
@@ -46548,7 +46548,7 @@
                   "a": "A distributed VCS — every clone is a full copy with complete history",
                   "x": "You can commit, branch and view history offline.",
                   "wrong": [
-                    "A centralised VCS",
+                    "A centralised VCS where history lives only on the server",
                     "A backup tool",
                     "A file-sync service"
                   ]
@@ -46587,7 +46587,7 @@
                   "a": "The working directory, the staging area (index), and the repository (.git)",
                   "x": "You edit in the working dir, stage, then commit.",
                   "wrong": [
-                    "Local, remote, cloud",
+                    "Local, remote and cloud copies of the repository",
                     "Branch, tag, HEAD",
                     "Add, commit, push"
                   ]
@@ -46626,7 +46626,7 @@
                   "a": "A snapshot of the staged files at a point in time, with a message and parent",
                   "x": "Git stores snapshots, not just diffs.",
                   "wrong": [
-                    "A single line change",
+                    "A single line change to one file",
                     "A branch",
                     "A remote push"
                   ]
@@ -46717,7 +46717,7 @@
                   "a": "Records the staged changes as a new commit with that message",
                   "x": "Only staged changes are committed.",
                   "wrong": [
-                    "Stages all files",
+                    "Stages all modified files and pushes them",
                     "Pushes to the remote",
                     "Creates a branch"
                   ]
@@ -46756,7 +46756,7 @@
                   "a": "Tells Git which untracked files/patterns to ignore (e.g. node_modules, .env)",
                   "x": "Keeps build output and secrets out of the repo.",
                   "wrong": [
-                    "Deletes files",
+                    "Deletes the listed files from the repository",
                     "Hides commit history",
                     "Ignores merge conflicts"
                   ]
@@ -46821,7 +46821,7 @@
                   "a": "Git keeps full history, so a committed secret stays recoverable even after deletion",
                   "x": "Use .gitignore + a pre-commit scan; rotate anything leaked.",
                   "wrong": [
-                    "They make repos large",
+                    "They make the repository too large to clone",
                     "Git encrypts them anyway",
                     "It breaks the build"
                   ]
@@ -46873,7 +46873,7 @@
                   "a": "A named reference to another copy of the repo (e.g. on GitHub)",
                   "x": "The default remote is called origin.",
                   "wrong": [
-                    "A branch",
+                    "A branch that tracks another developer's work",
                     "A commit",
                     "A tag"
                   ]
@@ -46899,7 +46899,7 @@
                   "a": "Fetches remote changes AND merges them into your current branch",
                   "x": "It is fetch + merge in one step.",
                   "wrong": [
-                    "Only uploads",
+                    "Uploads your local commits to the remote",
                     "Only downloads without merging",
                     "Creates a branch"
                   ]
@@ -46951,7 +46951,7 @@
                   "a": "A local branch linked to a remote branch, so push/pull know the target",
                   "x": "git branch --set-upstream-to or push -u sets it.",
                   "wrong": [
-                    "A deleted branch",
+                    "A branch deleted on the remote but kept locally",
                     "A tag",
                     "The staging area"
                   ]
@@ -47049,7 +47049,7 @@
                   "a": "A pointer to your current branch (and thus the commit you are on)",
                   "x": "Checking out moves HEAD.",
                   "wrong": [
-                    "The latest remote commit",
+                    "The latest commit on the remote's main branch",
                     "The first commit",
                     "The staging area"
                   ]
@@ -47088,7 +47088,7 @@
                   "a": "Moving the branch pointer forward when there is no divergent history",
                   "x": "No merge commit is needed.",
                   "wrong": [
-                    "A forced merge",
+                    "A merge that overwrites the other branch's changes",
                     "A rebase",
                     "A conflict"
                   ]
@@ -47153,7 +47153,7 @@
                   "a": "Moves HEAD to the main branch, updating your working directory to match",
                   "x": "Commit or stash first to avoid losing changes.",
                   "wrong": [
-                    "Deletes main",
+                    "Merges your current branch into main",
                     "Merges into main",
                     "Creates main"
                   ]
@@ -47219,7 +47219,7 @@
                   "x": "Staging marks the conflict resolved.",
                   "wrong": [
                     "git merge --abort",
-                    "Nothing, it is automatic — Git detects the edited file and completes the merge on its own",
+                    "Nothing; Git completes the merge automatically",
                     "git push"
                   ]
                 },
@@ -47257,7 +47257,7 @@
                   "a": "Merge preserves history with a merge commit; rebase rewrites it into a straight line",
                   "x": "Rebase gives cleaner history but changes commit hashes.",
                   "wrong": [
-                    "They are identical",
+                    "Rebase preserves history with a merge commit; merge rewrites it into a straight line",
                     "Rebase keeps merge commits",
                     "Merge rewrites history"
                   ]
@@ -47270,7 +47270,7 @@
                   "a": "Never rebase commits that have been pushed/shared — it rewrites others' history",
                   "x": "Rebase only local, unpushed work.",
                   "wrong": [
-                    "Always rebase shared branches",
+                    "Always rebase shared branches so history stays linear",
                     "Rebase before every commit",
                     "Rebase is never safe"
                   ]
@@ -47400,7 +47400,7 @@
                   "a": "Resets the branch and WIPES working/staged changes — unrecoverable if uncommitted",
                   "x": "Use with care; prefer stash first.",
                   "wrong": [
-                    "Keeps all changes",
+                    "Keeps all changes but unstages them",
                     "Only unstages",
                     "Reverts safely"
                   ]
@@ -47439,7 +47439,7 @@
                   "a": "A log of where HEAD has been — it can recover \"lost\" commits after a bad reset",
                   "x": "git reflog shows the history of moves.",
                   "wrong": [
-                    "The commit log",
+                    "The commit log of the current branch",
                     "The remote log",
                     "A merge tool"
                   ]
@@ -47537,7 +47537,7 @@
                   "a": "A proposal to merge a branch, with review and discussion before it lands",
                   "x": "Where code review and CI gates happen.",
                   "wrong": [
-                    "A git command",
+                    "A git command that merges two branches",
                     "A forced merge",
                     "A backup"
                   ]
@@ -47615,7 +47615,7 @@
                   "a": "Trunk-based: small, frequent merges to main behind flags; GitFlow: long-lived release/develop branches",
                   "x": "Trunk-based suits continuous delivery.",
                   "wrong": [
-                    "They are identical",
+                    "GitFlow: small, frequent merges to main behind flags; trunk-based: long-lived release/develop branches",
                     "Both avoid branches",
                     "GitFlow has no branches"
                   ]
@@ -47694,7 +47694,7 @@
                   "wrong": [
                     "Rows and tables",
                     "Branches only",
-                    "Files and folders only, with directories stored directly and no separate commit objects at all"
+                    "Files and folders only, with no commit objects"
                   ]
                 },
                 {
@@ -47731,7 +47731,7 @@
                   "a": ".gitignore + a pre-commit secret scanner (e.g. gitleaks); rotate anything that leaks",
                   "x": "History makes a committed secret hard to erase.",
                   "wrong": [
-                    "Just delete the file later",
+                    "Delete the file in a later commit",
                     "Git encrypts them",
                     "Push to a private repo"
                   ]
@@ -47783,7 +47783,7 @@
                   "a": "Running checks (lint, tests, secret/marker scans) before a commit is recorded",
                   "x": "Catches problems at the earliest point.",
                   "wrong": [
-                    "Deploys code",
+                    "Deploying the code once the commit is recorded",
                     "Pushes automatically",
                     "Merges branches"
                   ]
@@ -47845,7 +47845,7 @@
                   "a": "The use of computers, networks, software, and data to store, process, and share information.",
                   "x": "IT is the technology side of handling information — the machines, the networks that connect them, the software that runs on them, and the data they hold.",
                   "wrong": [
-                    "Only building websites and mobile apps for paying clients, and absolutely nothing else at all, ever",
+                    "Only building websites and mobile apps for clients, plus the hosting and domain names they run on",
                     "Only repairing printers and replacing cables",
                     "Only writing code for new software"
                   ]
@@ -47858,7 +47858,7 @@
                   "a": "Hardware is the physical parts you can touch; software is the instructions that run on them.",
                   "x": "A laptop's keyboard and screen are hardware. The operating system and the browser are software — they have no weight, but they tell the hardware what to do.",
                   "wrong": [
-                    "Hardware is the stored data and software is the cables connecting it all together inside the box",
+                    "Hardware is the stored data and documents; software is the cables and ports that connect the parts together",
                     "Hardware is the screen and software is the box",
                     "There is no difference — the words mean the same thing"
                   ]
@@ -47885,7 +47885,7 @@
                   "x": "Applications exist to do work you can name: write a document, send a message, edit a photo. They rely on the operating system underneath.",
                   "wrong": [
                     "It manages the computer's hardware directly",
-                    "It replaces the operating system when it runs",
+                    "It manages the computer's hardware directly, deciding which program gets the CPU and memory next",
                     "It writes the firmware on the motherboard"
                   ]
                 },
@@ -47897,7 +47897,7 @@
                   "a": "Data goes in, the computer works on it, a result comes out, and it can be saved.",
                   "x": "Every computer job follows the same cycle: input (keyboard, mouse, files), process (the CPU), output (screen, printer, speaker), and storage (the drive) if the result is kept.",
                   "wrong": [
-                    "The order a computer boots up in, from power-on until the login screen finally appears at last",
+                    "The order a computer boots in, from power-on through firmware and bootloader to the login screen",
                     "The steps for installing a new program",
                     "The way files are compressed for backup"
                   ]
@@ -47936,7 +47936,7 @@
                   "a": "Share resources and communicate with each other.",
                   "x": "A network is a set of connected machines. It lets them share files, printers, and internet access — and lets people on different machines work together.",
                   "wrong": [
-                    "Run without any software at all",
+                    "Run programs without any software installed on the machines themselves",
                     "Store data without a hard drive",
                     "Work without an operating system"
                   ]
@@ -48009,7 +48009,7 @@
                   "a": "One binary digit — 0 or 1 — the smallest unit of data.",
                   "x": "A bit is a single switch state. Everything a computer stores is built from bits: eight of them make a byte.",
                   "wrong": [
-                    "Eight binary digits grouped together into one single storage unit, always, by definition",
+                    "Eight binary digits grouped together as the smallest unit a computer can store",
                     "A small file stored on a hard drive",
                     "A character on a keyboard"
                   ]
@@ -48115,7 +48115,7 @@
                   "wrong": [
                     "Hex values are stored more compactly in memory",
                     "Hex uses fewer transistors than binary",
-                    "Hex numbers are always smaller than binary numbers"
+                    "Hex numbers take less memory than binary numbers, so programs store everything in hexadecimal"
                   ]
                 },
                 {
@@ -48126,7 +48126,7 @@
                   "a": "A standard that assigns numbers to characters — letters, digits, and symbols.",
                   "x": "In ASCII, A is 65 and a is 97. One byte holds one character, which is why plain text files are so simple.",
                   "wrong": [
-                    "A file system used on Windows drives to store and organise files and folders neatly",
+                    "A file system used on Windows drives that stores names in a table at the start of the disk",
                     "A programming language for web pages",
                     "A compression method for images"
                   ]
@@ -48139,7 +48139,7 @@
                   "a": "The standard encoding for text on the web, covering every writing system.",
                   "x": "UTF-8 extends ASCII: ordinary English characters still take one byte, while accented letters, Arabic, Chinese, and emoji take two to four.",
                   "wrong": [
-                    "A video compression format for streaming movies and shows online in high definition",
+                    "A video compression format used for streaming that encodes each frame in eight-bit blocks",
                     "A secure way to store passwords",
                     "A protocol for sending email"
                   ]
@@ -48148,9 +48148,9 @@
                   "id": "it-binary-basics-11",
                   "deckId": "it-binary-basics",
                   "trackId": "intro-it",
-                  "q": "In data sizes, what does 1 KB mean?",
+                  "q": "In the binary convention used by Windows and most IT exams, what does 1 KB mean?",
                   "a": "1,024 bytes.",
-                  "x": "Computers count in powers of two, so 1 KB = 1,024 bytes, 1 MB = 1,024 KB, and 1 GB = 1,024 MB. Disk makers advertise with powers of ten, which is why a \"1 TB\" drive shows less in Windows.",
+                  "x": "Strictly, 1,024 bytes is a kibibyte (KiB) and the SI kilobyte (kB) is 1,000 bytes. Windows and most IT courses use KB = 1,024 bytes, while disk makers advertise in powers of ten, which is why a \"1 TB\" drive shows less in Windows.",
                   "wrong": [
                     "1,000 bytes",
                     "100 bytes",
@@ -48217,7 +48217,7 @@
                   "wrong": [
                     "It stores files permanently",
                     "It draws images on the screen",
-                    "It connects the computer to the internet"
+                    "It connects the computer to the internet and manages every network connection the programs open"
                   ]
                 },
                 {
@@ -48255,7 +48255,7 @@
                   "x": "L1 is the fastest and smallest, then L2, then L3 — each a trade-off between speed and size. Cache exists because RAM is too slow to keep a 3 GHz CPU fed.",
                   "wrong": [
                     "The memory on a graphics card",
-                    "The long-term storage inside a hard drive",
+                    "The long-term storage area inside a hard drive that keeps frequently used files ready to open",
                     "The buffer on a network card"
                   ]
                 },
@@ -48267,7 +48267,7 @@
                   "a": "The main circuit board that connects every component in the computer.",
                   "x": "The CPU, RAM, storage, and expansion cards all plug into the motherboard, which carries power and data between them.",
                   "wrong": [
-                    "The power supply unit, converting wall power for all the parts inside",
+                    "The power supply unit that converts wall power and feeds every part through one cable",
                     "The metal case that holds the parts",
                     "The software that starts the computer"
                   ]
@@ -48280,7 +48280,7 @@
                   "a": "It governs which CPUs, memory speeds, and expansion cards the board supports.",
                   "x": "The chipset is the motherboard's traffic controller and rulebook. Two boards with the same socket can support different CPUs if their chipsets differ.",
                   "wrong": [
-                    "It stores the operating system and every installed program on the disk forever",
+                    "It stores the operating system and installed programs so the computer can boot from it",
                     "It generates the computer's display",
                     "It powers the cooling fans directly"
                   ]
@@ -48294,7 +48294,7 @@
                   "x": "When you open a document, it lives in RAM. RAM is fast to read and write — and it forgets everything the moment the power goes off.",
                   "wrong": [
                     "Storing files permanently",
-                    "Running the computer without electricity",
+                    "Permanent storage for files, which keeps everything safe when the computer is switched off",
                     "Cooling the processor"
                   ]
                 },
@@ -48308,7 +48308,7 @@
                   "wrong": [
                     "RAM is permanent and ROM is temporary",
                     "RAM is on the hard drive and ROM is on the CPU",
-                    "There is no difference at all — RAM and ROM are just two names for one single thing"
+                    "There is no difference; they are two names for one thing"
                   ]
                 },
                 {
@@ -48319,7 +48319,7 @@
                   "a": "Expansion cards — graphics cards, network cards, and NVMe drives.",
                   "x": "PCIe slots are the computer's high-speed expansion bus. A graphics card in a PCIe x16 slot has a direct, very fast path to the CPU and RAM.",
                   "wrong": [
-                    "Keyboards and mice, plus every other USB device sitting on the desk nearby",
+                    "Keyboards, mice and other USB devices, plus the power cables that run from the wall socket",
                     "Power cables from the wall",
                     "The monitor's stand"
                   ]
@@ -48334,7 +48334,7 @@
                   "wrong": [
                     "x86-64 is only for phones and ARM only for servers",
                     "ARM cannot run an operating system",
-                    "x86-64 uses no electricity at all"
+                    "x86-64 is used only in phones; ARM only in supercomputers"
                   ]
                 },
                 {
@@ -48345,7 +48345,7 @@
                   "a": "Multiprocessing runs work in parallel on several cores; multitasking switches one core.",
                   "x": "Multiprocessing is genuinely parallel — two cores, two jobs at once. Multitasking is the OS rapidly switching one core between jobs so they all appear to run together.",
                   "wrong": [
-                    "Multiprocessing is slower than multitasking, always and in every single case, by design, forever",
+                    "Multitasking runs work in parallel on several cores; multiprocessing switches one core between jobs",
                     "Multitasking needs several CPUs to work",
                     "They are the same thing with different names"
                   ]
@@ -48411,9 +48411,9 @@
                   "a": "Storage keeps data after the power goes off; memory (RAM) forgets it.",
                   "x": "Your files live in storage — SSD or hard drive. When you open one, a copy goes into RAM. Save it, and the changes go back to storage.",
                   "wrong": [
-                    "Storage is faster than memory, reading any stored data in an instant, always",
+                    "Storage is faster than memory",
                     "Memory is permanent and storage is temporary",
-                    "There is no difference — both keep data forever"
+                    "There is no difference: both keep data after the power goes off and both forget it on restart"
                   ]
                 },
                 {
@@ -48424,7 +48424,7 @@
                   "a": "A ladder from the fastest, smallest storage near the CPU down to the slowest, largest storage far away.",
                   "x": "Registers and cache are fastest but tiny; RAM is the middle; SSDs and hard drives are slowest but huge. Each level holds what the level above is most likely to need next.",
                   "wrong": [
-                    "A way to organise files into folders",
+                    "A way of organising files into nested folders, from the root of the drive down to each file",
                     "The order in which programs are installed",
                     "A list of the fastest internet connections"
                   ]
@@ -48450,7 +48450,7 @@
                   "a": "An HDD stores data on spinning platters; an SSD stores it in flash chips.",
                   "x": "HDDs are cheaper per gigabyte and hold more, but they are slower and fragile. SSDs are fast and silent, and they survive drops that would kill a hard drive.",
                   "wrong": [
-                    "An HDD has no moving parts at all and an SSD spins its platters really fast",
+                    "An HDD has no moving parts and stores data in flash chips; an SSD stores it on spinning platters",
                     "An SSD can only store music files",
                     "An HDD is always faster than an SSD"
                   ]
@@ -48463,8 +48463,8 @@
                   "a": "How fast the platters spin — usually 5,400 or 7,200 revolutions per minute.",
                   "x": "Higher RPM means the head reaches data sooner, so a 7,200 RPM drive is noticeably quicker than a 5,400 RPM one — though both are far slower than an SSD.",
                   "wrong": [
-                    "How many files the drive can possibly hold in total, at absolute most, ever",
-                    "How fast the drive's cable transfers data",
+                    "How many files the drive can hold",
+                    "How fast the drive's cable transfers data to the motherboard, in revolutions per minute",
                     "How much power the drive uses"
                   ]
                 },
@@ -48476,7 +48476,7 @@
                   "a": "The smallest unit the drive can address, traditionally 512 bytes.",
                   "x": "Data is written in sectors. A file is a chain of sectors — which is why a 1-byte file still takes a whole sector of space.",
                   "wrong": [
-                    "A folder on the desktop",
+                    "A folder on the desktop that groups related files together for the user",
                     "A partition table entry",
                     "A type of file system"
                   ]
@@ -48502,7 +48502,7 @@
                   "a": "It writes a file system on it so the operating system can store and find files.",
                   "x": "Formatting lays down the empty structure — the index of files, free space, and folders. Quick format writes a fresh index; full format also checks every sector.",
                   "wrong": [
-                    "It physically replaces the whole disk inside the computer case with a completely brand-new one instead",
+                    "It replaces the disk's firmware with a newer version so the drive reads and writes faster",
                     "It upgrades the disk to a newer model",
                     "It merges two disks into one"
                   ]
@@ -48515,8 +48515,8 @@
                   "a": "The controller spreads writes evenly across the flash cells.",
                   "x": "Flash cells survive a limited number of writes. Wear levelling, plus TRIM — which tells the drive which blocks are free — is how an SSD lasts for years of daily use.",
                   "wrong": [
-                    "A way to make the drive spin more quietly than it ever did before",
-                    "A backup feature that copies data to the cloud",
+                    "A way to make the drive spin more quietly",
+                    "A backup feature that copies every written block to the cloud as soon as it changes",
                     "A security feature that encrypts every file"
                   ]
                 },
@@ -48528,7 +48528,7 @@
                   "a": "There is no seek penalty on flash, so defrag gains nothing — and it burns through the drive's limited write cycles.",
                   "x": "Defrag exists for spinning disks, where reading a scattered file means waiting for the platter. On an SSD every address is equally fast, so defrag is pure wear.",
                   "wrong": [
-                    "Defrag makes SSDs run slower by design",
+                    "Defrag would make the SSD's platters spin out of alignment and lose data",
                     "Defrag erases the operating system",
                     "Defrag is illegal on solid-state drives"
                   ]
@@ -48541,8 +48541,8 @@
                   "a": "A damaged area of a disk that can no longer hold data reliably.",
                   "x": "A few bad sectors are normal wear. A count that keeps growing is a warning: the drive is failing — back it up and replace it.",
                   "wrong": [
-                    "A file that was deleted by mistake and can never be recovered at all",
-                    "A partition that was never formatted",
+                    "A file that was deleted by mistake",
+                    "A partition that was never formatted, so the operating system cannot read it",
                     "A virus hiding on the drive"
                   ]
                 },
@@ -48554,8 +48554,8 @@
                   "a": "Makers count in powers of ten; Windows counts in powers of two.",
                   "x": "1 TB on the box is 1,000,000,000,000 bytes. Windows divides by 1,024 three times, which comes out to about 931 GiB — the same bytes, measured with a different ruler.",
                   "wrong": [
-                    "The drive is defective and missing space straight from the factory floor",
-                    "Windows reserves 69 GB for the operating system",
+                    "The drive is defective and missing space",
+                    "Windows reserves about 69 GB of every drive for the operating system and its updates",
                     "The drive was formatted incorrectly"
                   ]
                 }
@@ -48618,7 +48618,7 @@
                   "wrong": [
                     "It writes new programs for the user",
                     "It manufactures the computer's parts",
-                    "It connects the computer to the internet"
+                    "It connects the computer to the internet and downloads updates for every installed program"
                   ]
                 },
                 {
@@ -48629,9 +48629,9 @@
                   "a": "The kernel runs with full hardware access; applications run restricted.",
                   "x": "This split is the OS's safety boundary. A crashing app can be killed; a crashing kernel takes the whole machine down.",
                   "wrong": [
-                    "Kernel space is where user files are stored, safe and sound, always and forever",
+                    "Kernel space is where user files are stored",
                     "User space is faster than kernel space",
-                    "There is no boundary — apps access hardware directly"
+                    "There is no boundary: applications talk to the hardware directly, just like the kernel does"
                   ]
                 },
                 {
@@ -48642,7 +48642,7 @@
                   "a": "A process is a running program with its own memory; a thread shares that memory.",
                   "x": "A browser is one process per tab; each tab's threads share the tab's memory. Threads are cheap to start, but one thread's crash can take its process with it.",
                   "wrong": [
-                    "A process is always faster than a thread, every single time, guaranteed, without any exceptions at all",
+                    "A process is always faster than a thread, because each process gets a whole CPU core to itself",
                     "A thread has its own separate memory",
                     "They are the same thing"
                   ]
@@ -48655,7 +48655,7 @@
                   "a": "Disk space used to extend RAM when physical memory runs short.",
                   "x": "When RAM fills up, the OS pages the least-used data out to a swap file. It works — but slowly, because the disk is far slower than RAM.",
                   "wrong": [
-                    "Memory that only exists in the cloud",
+                    "Memory that only exists in the cloud and is streamed to the computer when it runs short",
                     "A second CPU used for graphics",
                     "A backup copy of the hard drive"
                   ]
@@ -48668,7 +48668,7 @@
                   "a": "BIOS is the old firmware interface; UEFI is its modern replacement.",
                   "x": "UEFI replaced BIOS because it can handle large drives, boots in seconds, and can verify that the bootloader is signed before running it.",
                   "wrong": [
-                    "BIOS is faster and UEFI is older, slower, and worse in every possible way",
+                    "BIOS is the newer, faster firmware interface; UEFI is the legacy one it replaced",
                     "UEFI is a type of operating system",
                     "BIOS and UEFI are the same thing"
                   ]
@@ -48681,7 +48681,7 @@
                   "a": "The Power-On Self-Test — the first step of boot, checking CPU, memory, and key devices.",
                   "x": "If POST fails, you hear beeps or see an error code instead of a boot screen. One short beep usually means everything passed.",
                   "wrong": [
-                    "The very last step of all, right before the desktop finally appears on the screen at last",
+                    "The last step of boot, just before the desktop appears",
                     "A test run when the computer is shut down",
                     "A security scan of installed programs"
                   ]
@@ -48720,7 +48720,7 @@
                   "a": "MBR is limited to 2 TB disks and four primary partitions; GPT supports huge disks, up to 128 partitions, and keeps backup copies with error checking.",
                   "x": "MBR dates from 1983 and stores the table in the first sector, with no backup. GPT, part of UEFI, keeps a backup table at the end of the disk and uses CRC checks to detect damage.",
                   "wrong": [
-                    "MBR is newer and GPT is the legacy format",
+                    "GPT is limited to 2 TB disks and four primary partitions; MBR supports huge disks, up to 128 partitions, and keeps backup copies",
                     "GPT cannot boot a computer",
                     "MBR supports unlimited partitions"
                   ]
@@ -48746,7 +48746,7 @@
                   "a": "A container partition that holds logical partitions, working around MBR's limit.",
                   "x": "With one extended partition, you can have three primaries plus as many logical drives as you need — the classic way dual-boot setups fit on an MBR disk.",
                   "wrong": [
-                    "A partition that cannot hold any files at all, ever, under any circumstances whatsoever",
+                    "A partition that holds a backup copy of the boot sector, used to repair a damaged disk",
                     "A backup copy of the boot sector",
                     "A partition that only Linux can use"
                   ]
@@ -48813,7 +48813,7 @@
                   "a": "NTFS — permissions, journaling, encryption, and large files.",
                   "x": "NTFS replaced FAT32 on Windows because it tracks who may read or change each file, logs changes so a crash does not corrupt the volume, and supports files far larger than 4 GB.",
                   "wrong": [
-                    "FAT32 — no permissions and a 4 GB file limit on every single file",
+                    "FAT32 — simple and readable everywhere, with a 4 GB file limit and no permissions",
                     "ext4 — the Linux default",
                     "exFAT — for camera memory cards"
                   ]
@@ -48826,7 +48826,7 @@
                   "a": "ext4 — journaled, reliable, and built for Linux permissions.",
                   "x": "ext4 is the standard Linux file system. It journals changes like NTFS, handles large files, and is the reason a Linux install feels at home on any disk.",
                   "wrong": [
-                    "NTFS",
+                    "NTFS, the same journaled file system that Windows uses for its system drive",
                     "FAT32",
                     "APFS"
                   ]
@@ -48839,7 +48839,7 @@
                   "a": "A single file cannot exceed 4 GB, and it has no file permissions.",
                   "x": "FAT32 is universal — every OS can read it — but a 4 GB file cap and no ownership make it a poor choice for a modern system drive. It survives on USB sticks and cameras.",
                   "wrong": [
-                    "It only works on Windows, and never on any other system at all, ever",
+                    "It only works on Windows",
                     "It cannot store text files",
                     "It requires an internet connection"
                   ]
@@ -48852,7 +48852,7 @@
                   "a": "Flash drives and memory cards that work on Windows and macOS without the 4 GB limit.",
                   "x": "exFAT is the middle ground: cross-platform like FAT32, but without the 4 GB cap. It has no journaling or permissions, so it is for removable media, not system drives.",
                   "wrong": [
-                    "Booting a Linux server from a USB stick at startup every single time, always and forever",
+                    "Booting a Linux server from a USB stick that holds the operating system and its logs",
                     "Encrypting a system drive",
                     "Running a database"
                   ]
@@ -48867,7 +48867,7 @@
                   "wrong": [
                     "Absolute paths only work on Windows",
                     "Relative paths are always longer",
-                    "There is no difference between them"
+                    "A relative path starts at the root; an absolute path starts at the current directory"
                   ]
                 },
                 {
@@ -48891,7 +48891,7 @@
                   "a": "Windows hides known extensions, so it looks like a harmless PDF but is a program.",
                   "x": "With \"Hide extensions for known file types\" on — the default — invoice.pdf.exe shows as invoice.pdf. Double-clicking runs the .exe. Showing extensions is a basic security habit.",
                   "wrong": [
-                    "It is not dangerous at all — PDF files cannot run any code, ever, period, end of story",
+                    "It is not dangerous, because PDF files cannot run code and Windows checks every download",
                     "It is a corrupted file that cannot open",
                     "It is only dangerous on Linux"
                   ]
@@ -48917,7 +48917,7 @@
                   "a": "A text interface where you type commands to control the computer directly.",
                   "x": "The CLI has no buttons or windows — you type, and the shell answers. It is faster for repetitive work, easy to automate, and the native language of servers.",
                   "wrong": [
-                    "A graphical desktop for new users, with icons and windows absolutely everywhere",
+                    "A graphical desktop with icons and windows, designed for users who do not want to type",
                     "A web browser built into the OS",
                     "A type of file system"
                   ]
@@ -48958,7 +48958,7 @@
                   "wrong": [
                     "Buffering stores data permanently and caching is temporary",
                     "Caching is slower than buffering",
-                    "They are the same thing"
+                    "A cache holds data while a slower device catches up; a buffer keeps recently used data in fast memory for the next request"
                   ]
                 }
               ],
