@@ -25,15 +25,27 @@ async function underlineDrawn(page) {
     return null;
   });
   if (!box) return null;
-  const withHl = await page.screenshot({ clip: box });
-  await page.evaluate(() => { window.__hl = CSS.highlights.get('acronym'); CSS.highlights.delete('acronym'); });
-  await page.waitForTimeout(100);
-  const without = await page.screenshot({ clip: box });
-  await page.waitForTimeout(300);
-  const control = await page.screenshot({ clip: box });
-  await page.evaluate(() => CSS.highlights.set('acronym', window.__hl));
-  if (!without.equals(control)) return 'unstable';
-  return !withHl.equals(without);
+  // Each shot waits for two animation frames first, so the browser has
+  // actually painted the highlight change: on a loaded CI runner WebKit
+  // could still be painting when the "with underline" shot was taken, and
+  // the check reported underlines "registered but not drawn" on pages that
+  // draw them fine (passes locally and on main, failed twice on #126).
+  const painted = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  let result = false;
+  for (let attempt = 0; attempt < 3 && result !== true; attempt += 1) {
+    await painted();
+    const withHl = await page.screenshot({ clip: box });
+    await page.evaluate(() => { window.__hl = CSS.highlights.get('acronym'); CSS.highlights.delete('acronym'); });
+    await painted();
+    await page.waitForTimeout(100);
+    const without = await page.screenshot({ clip: box });
+    await page.waitForTimeout(300);
+    const control = await page.screenshot({ clip: box });
+    await page.evaluate(() => CSS.highlights.set('acronym', window.__hl));
+    result = !without.equals(control) ? 'unstable' : !withHl.equals(without);
+    if (result !== true) await page.waitForTimeout(500);
+  }
+  return result;
 }
 
 for (const [engine, [type, device]] of Object.entries(PHONES)) {

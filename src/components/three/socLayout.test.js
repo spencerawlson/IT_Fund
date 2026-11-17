@@ -30,6 +30,9 @@ import {
   socFovForAspect,
   SOC_DEVICE_LABEL_Y,
   SHOWCASE_TARGET_Y,
+  ROBOT_SPEAK_FACING,
+  ROBOT_WORK_FACING,
+  talkingClipFor,
 } from './socLayout';
 
 // The three rooms inside the data center (Spencer's assignment):
@@ -371,5 +374,47 @@ describe('socFovForAspect', () => {
     expect(socFovForAspect(0.46)).toBe(SOC_MAX_FOV);
     expect(socFovForAspect(0)).toBe(SOC_CAMERA_FOV);
     expect(socFovForAspect(Number.NaN)).toBe(SOC_CAMERA_FOV);
+  });
+});
+
+describe('in-room speaker cameras (2026-11-17)', () => {
+  // Spencer: "when Sentinel is talking, the camera should go inside the room
+  // to show his face". Scene units -> Blender metres: x / 5, y = -z / 5.
+  const toM = ([x, , z]) => ({ x: x / ROOM_SCALE, y: -z / ROOM_SCALE });
+  const inRoom = (room, p) => p.x > room.xMin && p.x < room.xMax && p.y > room.yMin && p.y < room.yMax;
+
+  it.each(['sentinel', 'patch'])('puts %s’s camera inside his own room, close, aimed at his face', (key) => {
+    const shot = CAMERA_SHOTS[key];
+    const cam = toM(shot.pos);
+    const spot = ROBOT_SPOTS_M[key].work;
+    expect(inRoom(ROOMS_M[key], cam)).toBe(true);
+    const dist = Math.hypot(cam.x - spot.x, cam.y - spot.y);
+    expect(dist).toBeGreaterThan(1.2);
+    expect(dist).toBeLessThan(2.2);
+    // Aimed at the robot (target on his spot), at face height, eye-level camera.
+    expect(toM(shot.target)).toEqual(expect.objectContaining({ x: spot.x, y: spot.y }));
+    expect(shot.target[1] / ROOM_SCALE).toBeGreaterThan(1.2);
+    expect(shot.pos[1] / ROOM_SCALE).toBeCloseTo(1.5, 5);
+  });
+
+  it.each(['sentinel', 'patch'])('turns %s to face his camera while he speaks (face within 25 degrees)', (key) => {
+    const shot = CAMERA_SHOTS[key];
+    // Direction robot -> camera as a three.js yaw (models face +z at 0).
+    const dx = shot.pos[0] - shot.target[0];
+    const dz = shot.pos[2] - shot.target[2];
+    const toCamera = Math.atan2(dx, dz);
+    const off = Math.abs(((ROBOT_SPEAK_FACING[key] - toCamera + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+    expect((off * 180) / Math.PI).toBeLessThan(25);
+    // And he still turns away from pure work facing (racks / bench) to do it.
+    expect(ROBOT_SPEAK_FACING[key]).not.toBe(ROBOT_WORK_FACING[key]);
+  });
+
+  it('keeps Sentinel and Patch working while they talk: talk, with a reach every few seconds', () => {
+    for (const key of ['sentinel', 'patch']) {
+      const clips = Array.from({ length: 160 }, (_, i) => talkingClipFor(key, i * 0.1));
+      expect(clips.filter((c) => c === 'talk').length).toBeGreaterThan(clips.length / 2);
+      expect(clips).toContain('point');
+      expect(new Set(clips)).toEqual(new Set(['talk', 'point']));
+    }
   });
 });
