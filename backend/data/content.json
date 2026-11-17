@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:23:14.719Z",
+  "generatedAt": "2026-11-17T01:24:45.933Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -15214,7 +15214,7 @@
                   "a": "Decode once before matching, and watch for double-encoding that one decode leaves as %2e",
                   "x": "Path traversal (T1083) hides in encoded and mixed-slash forms; canonicalise, then confine to a base directory.",
                   "wrong": [
-                    "Block only the literal ../ string",
+                    "Block only the literal ../ string and its Windows backslash form, without decoding the input first",
                     "Trust the browser to normalise the path",
                     "Match the raw bytes without decoding"
                   ]
@@ -15227,7 +15227,7 @@
                   "a": "Volumetric: very high requests per second; slowloris: few requests holding many connections open",
                   "x": "The lab exposes peak_rps vs peak_concurrent vs total_requests so each attack’s giveaway metric differs.",
                   "wrong": [
-                    "They look identical in web server logs",
+                    "Volumetric: few long-held connections; slowloris: very high requests per second across reused connections",
                     "By the source port of each connection",
                     "By the HTTP method used"
                   ]
@@ -15460,7 +15460,7 @@
                   "x": "Retention tiers exist precisely for this: cold storage is the compliance archive. “Somewhere” means the retrieval process was never tested — fix that after this request.",
                   "wrong": [
                     "Tell legal the logs are gone after 90 days",
-                    "Send the warm logs and hope they cover the period",
+                    "Send the warm logs for the last 12 months and tell legal the extra two months were never collected",
                     "Ask legal to narrow the request to 90 days"
                   ]
                 },
@@ -15537,7 +15537,7 @@
                   "a": "URL and attachment extraction, sandbox detonation, mailbox search, and IoC blocking for reported phish",
                   "x": "Automate the highest-volume, lowest-judgment workflow first: phishing triage is repetitive, time-sensitive, and proven. Incident command stays human.",
                   "wrong": [
-                    "Automatically close phishing reports on arrival",
+                    "Automatic closure of phishing reports on arrival, with a weekly summary email to the CISO of what was closed",
                     "Automatically disable users who click links",
                     "A chatbot that reminds users not to click"
                   ]
@@ -15654,7 +15654,7 @@
                   "a": "The data-staging alert — observed adversary behavior on crown-jewel data outranks an unexploited CVE, even a critical one",
                   "x": "Severity classification must weigh observed malicious activity over theoretical severity: staging is a late-kill-chain step, while the CVE is a possibility behind a WAF.",
                   "wrong": [
-                    "The critical CVE, because critical always outranks medium",
+                    "The critical CVE on the login page, because a critical severity always outranks a medium alert, whatever is observed",
                     "Both are equal; work them in arrival order",
                     "The website, because it is customer-facing"
                   ]
@@ -15668,7 +15668,7 @@
                   "x": "Shift handoffs are where investigations die: unstated assumptions become missed follow-ups. Document the open questions, not just the closed ones.",
                   "wrong": [
                     "Tell them the EDR handled it",
-                    "Leave a note saying to check the assistant's machine",
+                    "A quick verbal summary that the download was blocked, with a promise to send the IoCs in the morning",
                     "Email the CFO about the incident"
                   ]
                 },
@@ -15706,7 +15706,7 @@
                   "a": "Query all hosts for WMI event consumers, filters, and bindings, and compare against a known-good baseline, investigating deviations",
                   "x": "Hunting starts from a hypothesis and a baseline: enumerate the mechanism everywhere, and the outliers — not the volume — reveal the attacker.",
                   "wrong": [
-                    "Disable WMI on all 300 hosts immediately",
+                    "Disable WMI on all 300 hosts immediately through Group Policy, then wait to see whether the affiliate's activity stops",
                     "Search event logs for the word ransomware",
                     "Reimage every host before hunting"
                   ]
