@@ -20,8 +20,8 @@ const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'
 const Nas3D = React.lazy(() => import('@/components/three/Nas3D'));
 const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
 const RackServer3D = React.lazy(() => import('@/components/three/RackServer3D'));
-const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
 const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'));
+import CloudSimulator from '@/components/viz/CloudSimulator';
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
@@ -92,7 +92,7 @@ export const SUBJECTS = [
   { id: 'rt-link-failure', category: 'Routing', kind: 'anim', icon: Zap, label: 'Link Failure & Reconvergence', blurb: 'A link fails; watch the network recompute paths and reroute.' },
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
-  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
+  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'Drive a live cloud on one screen — scale out under traffic, fail over across availability zones, watch the bill move.' },
   { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'Drive a live balancer on one screen — six strategies on the left, the flow in the middle, the server pool on the right.' },
   { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
   { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
@@ -132,7 +132,7 @@ export const RENDERERS = {
   motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
   'rack-server': RackServer3D, ups: Ups3D,
   router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: Nas3D, 'patch-panel': PatchPanel3D,
+  cloud: () => <CloudSimulator />, 'firewall-3d': Firewall3D, nas: Nas3D, 'patch-panel': PatchPanel3D,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
