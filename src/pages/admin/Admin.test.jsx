@@ -5,10 +5,13 @@ import {
   AdminLoginForm,
   AccountsTable,
   AddCustomerForm,
+  DeleteAccountConfirm,
+  EditAccountForm,
   OverviewView,
   ReportView,
   SubscriptionsView,
   AiCallsView,
+  isReservedSeat,
 } from './Admin';
 
 describe('Admin login form', () => {
@@ -146,6 +149,103 @@ describe('AccountsTable manual access', () => {
     );
     expect(html).not.toContain('Grant access');
     expect(html).not.toContain('Revoke');
+  });
+});
+
+describe('AccountsTable edit and delete', () => {
+  const items = [
+    {
+      id: 'u1', display_name: 'Dummy 1', email: '1@road2cissp.local',
+      created_at: '2026-11-16T10:00:00+00:00', last_active: null,
+      lessons_passed: 0, labs_completed: 0, subscription_status: 'none',
+      manual_grant: { active: true, granted_at: '2026-11-16T10:00:00+00:00', note: 'Reserved seat', revoked_at: null, revoked_note: '' },
+    },
+    {
+      id: 'u2', display_name: 'Alice', email: 'a@example.com',
+      created_at: null, last_active: null,
+      lessons_passed: 0, labs_completed: 0, subscription_status: 'none',
+      manual_grant: null,
+    },
+  ];
+
+  it('shows Edit and Delete buttons when handlers are given', () => {
+    const html = renderToString(
+      <AccountsTable items={items} total={2} page={1} pageSize={25} onPage={() => {}} onGrant={() => {}} onRevoke={() => {}} onEdit={() => {}} onDelete={() => {}} />,
+    );
+    expect(html).toContain('Edit');
+    expect(html).toContain('Delete');
+    expect(html).toContain('Manage');
+  });
+
+  it('hides the Manage column without handlers (report mode)', () => {
+    const html = renderToString(
+      <AccountsTable items={items} total={2} page={1} pageSize={25} onPage={() => {}} />,
+    );
+    expect(html).not.toContain('Manage');
+    expect(html).not.toContain('>Edit<');
+    expect(html).not.toContain('>Delete<');
+  });
+
+  it('marks reserved seats and does not ask for confirmation up front', () => {
+    const html = renderToString(
+      <AccountsTable items={items} total={2} page={1} pageSize={25} onPage={() => {}} onGrant={() => {}} onRevoke={() => {}} onEdit={() => {}} onDelete={() => {}} />,
+    );
+    expect(html).toContain('Reserved');
+    // The delete confirmation ("Delete account") only appears after the
+    // row's Delete button is clicked — it must not render, and no API call
+    // can happen, before that click.
+    expect(html).not.toContain('Delete account');
+    expect(html).not.toContain('This cannot be undone');
+  });
+});
+
+describe('EditAccountForm', () => {
+  it('renders prefilled with the account name and email', () => {
+    const html = renderToString(
+      <EditAccountForm account={{ id: 'u1', display_name: 'Dummy 1', email: '1@road2cissp.local' }} onSubmit={() => {}} onCancel={() => {}} busy={false} error="" />,
+    );
+    expect(html).toContain('value="Dummy 1"');
+    expect(html).toContain('value="1@road2cissp.local"');
+    expect(html).toContain('Save changes');
+    expect(html).toContain('Cancel');
+  });
+
+  it('shows a server error without closing', () => {
+    const html = renderToString(
+      <EditAccountForm account={{ id: 'u1', display_name: 'Dummy 1', email: '1@road2cissp.local' }} onSubmit={() => {}} onCancel={() => {}} busy={false} error="An account with this email already exists." />,
+    );
+    expect(html).toContain('An account with this email already exists.');
+  });
+});
+
+describe('DeleteAccountConfirm', () => {
+  it('shows the account name and email and warns before any API call', () => {
+    const html = renderToString(
+      <DeleteAccountConfirm account={{ id: 'u1', display_name: 'Dummy 1', email: '1@road2cissp.local' }} onConfirm={() => {}} onCancel={() => {}} busy={false} error="" />,
+    );
+    expect(html).toContain('Dummy 1');
+    expect(html).toContain('1@road2cissp.local');
+    expect(html).toContain('This removes the account from the board and revokes its manual grant. This cannot be undone.');
+    expect(html).toContain('Delete account');
+    expect(html).toContain('Cancel');
+  });
+
+  it('shows a server error (e.g. live Stripe subscription) and stays open', () => {
+    const html = renderToString(
+      <DeleteAccountConfirm account={{ id: 'u1', display_name: 'Alice', email: 'a@example.com' }} onConfirm={() => {}} onCancel={() => {}} busy={false} error="This account has an active Stripe subscription. Cancel it in Stripe first, then delete the account." />,
+    );
+    expect(html).toContain('Cancel it in Stripe first');
+  });
+});
+
+describe('isReservedSeat', () => {
+  it('matches @road2cissp.local case-insensitively and nothing else', () => {
+    expect(isReservedSeat('1@road2cissp.local')).toBe(true);
+    expect(isReservedSeat('42@ROAD2CISSP.LOCAL')).toBe(true);
+    expect(isReservedSeat('a@example.com')).toBe(false);
+    expect(isReservedSeat('x@road2cissp.local.evil.com')).toBe(false);
+    expect(isReservedSeat(null)).toBe(false);
+    expect(isReservedSeat(undefined)).toBe(false);
   });
 });
 

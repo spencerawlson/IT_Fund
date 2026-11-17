@@ -25,7 +25,7 @@ import db
 import main
 from auth.identity import OAuthIdentity, upsert_identity
 from auth.sessions import COOKIE_NAME, create_session
-from db_models import AiTutorCall, LabCompletion, Progress, Subscription, User
+from db_models import AiTutorCall, LabCompletion, ManualGrant, Progress, Subscription, User
 
 client = TestClient(main.app)
 
@@ -374,10 +374,12 @@ def test_manual_endpoints_reject_without_admin_session():
         ("get", "/api/admin/report"),
         ("get", "/api/admin/report.csv"),
         ("post", "/api/admin/accounts"),
+        ("patch", "/api/admin/accounts/u-aaa"),
+        ("delete", "/api/admin/accounts/u-aaa"),
         ("post", "/api/admin/accounts/u-aaa/manual-grant"),
         ("post", "/api/admin/accounts/u-aaa/manual-grant/revoke"),
     ):
-        r = client.request(method, path, json={} if method == "post" else None)
+        r = client.request(method, path, json={} if method in ("post", "patch") else None)
         assert r.status_code == 401, path
 
 
@@ -482,6 +484,172 @@ def test_overview_and_accounts_show_manual_grants():
     alice = [a for a in body["items"] if a["email"] == "a@example.com"][0]
     assert alice["manual_grant"]["active"] is True
     assert alice["manual_grant"]["note"] == "Enrolled in person"
+
+
+# ---------- account edit + delete (reserved-seat conversion, board management) ----------
+
+
+def _add_dummy(name="Dummy 1", email="1@road2cissp.local"):
+    r = client.post(
+        "/api/admin/accounts",
+        json={"display_name": name, "email": email, "note": "Reserved seat"},
+    )
+    assert r.status_code == 201, r.text
+    return r.json()["user"]
+
+
+def test_edit_account_keeps_manual_grant():
+    """Converting a reserved seat: new name + email, same account id, same
+    grant — the person keeps paid access."""
+    _admin_login()
+    dummy = _add_dummy()
+    uid = dummy["id"]
+    assert billing.is_subscribed(uid) is True
+    r = client.patch(
+        f"/api/admin/accounts/{uid}",
+        json={"display_name": "Marie Dupont", "email": "MARIE@Example.com"},
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["user"]["display_name"] == "Marie Dupont"
+    assert r.json()["user"]["email"] == "marie@example.com"  # lowercased
+    assert r.json()["user"]["id"] == uid
+    # Same grant row, still active — paid access survived the conversion.
+    assert billing.is_subscribed(uid) is True
+    with db.SessionLocal() as s:
+        grant = s.get(ManualGrant, uid)
+        assert grant is not None and grant.revoked_at is None
+        assert s.get(User, uid).email == "marie@example.com"
+    body = client.get("/api/admin/accounts").json()
+    assert [a for a in body["items"] if a["email"] == "marie@example.com"][0]["manual_grant"]["active"] is True
+
+
+def test_edit_account_name_only_and_same_email():
+    _admin_login()
+    dummy = _add_dummy()
+    uid = dummy["id"]
+    r = client.patch(f"/api/admin/accounts/{uid}", json={"display_name": "Dummy One"})
+    assert r.status_code == 200
+    assert r.json()["user"]["display_name"] == "Dummy One"
+    assert r.json()["user"]["email"] == "1@road2cissp.local"
+    # "Changing" the email to its current value is not a collision.
+    r = client.patch(f"/api/admin/accounts/{uid}", json={"email": "1@road2cissp.local"})
+    assert r.status_code == 200
+
+
+def test_edit_account_email_collision_case_insensitive():
+    _seed_user("u-aaa", "a@example.com", "Alice")
+    _admin_login()
+    dummy = _add_dummy()
+    r = client.patch(f"/api/admin/accounts/{dummy['id']}", json={"email": "A@EXAMPLE.COM"})
+    assert r.status_code == 409
+    assert "already exists" in r.json()["detail"]
+    with db.SessionLocal() as s:
+        assert s.get(User, dummy["id"]).email == "1@road2cissp.local"
+
+
+def test_edit_account_validates_input():
+    _admin_login()
+    dummy = _add_dummy()
+    uid = dummy["id"]
+    assert client.patch(f"/api/admin/accounts/{uid}", json={}).status_code == 400
+    assert client.patch(
+        f"/api/admin/accounts/{uid}", json={"display_name": ""}
+    ).status_code == 400
+    assert client.patch(
+        f"/api/admin/accounts/{uid}", json={"display_name": "x" * 121}
+    ).status_code == 400
+    assert client.patch(
+        f"/api/admin/accounts/{uid}", json={"email": "not-an-email"}
+    ).status_code == 400
+    assert client.patch(
+        f"/api/admin/accounts/{uid}", json={"display_name": 42}
+    ).status_code == 400
+    assert client.patch("/api/admin/accounts/nope", json={"email": "a@example.com"}).status_code == 404
+
+
+def test_delete_account_soft_deletes_revokes_grant_and_frees_seat():
+    """Soft delete: the row stays (deleted_at set) so grants, progress, and
+    subscription records are never orphaned — but the account leaves the
+    board list, the totals, and the seats counter, its grant is revoked,
+    and the seat frees."""
+    _admin_login()
+    dummy = _add_dummy()
+    uid = dummy["id"]
+    assert client.get("/api/public/seats").json()["total_accounts"] == 1
+    r = client.delete(f"/api/admin/accounts/{uid}")
+    assert r.status_code == 200
+    assert r.json() == {"ok": True, "deleted_user_id": uid}
+    assert client.get("/api/admin/accounts").json()["total"] == 0
+    assert client.get("/api/admin/overview").json()["total_users"] == 0
+    assert client.get("/api/public/seats").json()["total_accounts"] == 0
+    with db.SessionLocal() as s:
+        user = s.get(User, uid)
+        assert user is not None  # the row stays
+        assert user.deleted_at is not None
+        grant = s.get(ManualGrant, uid)
+        assert grant is not None  # the grant row stays too
+        assert grant.revoked_at is not None
+        assert grant.revoked_note == "Account deleted."
+    assert billing.is_subscribed(uid) is False
+    # A deleted account is gone for the board: editing or deleting it again
+    # is a 404, not a second delete.
+    assert client.patch(f"/api/admin/accounts/{uid}", json={"display_name": "X"}).status_code == 404
+    assert client.delete(f"/api/admin/accounts/{uid}").status_code == 404
+
+
+def test_delete_then_recreate_same_email_works():
+    """The duplicate-email check ignores deleted accounts, so a deleted
+    seat's email can be used again — 409 only fires against live accounts."""
+    _admin_login()
+    dummy = _add_dummy()
+    assert client.delete(f"/api/admin/accounts/{dummy['id']}").status_code == 200
+    r = client.post(
+        "/api/admin/accounts",
+        json={"display_name": "Marie Dupont", "email": "1@road2cissp.local", "note": ""},
+    )
+    assert r.status_code == 201, r.text
+    assert r.json()["user"]["email"] == "1@road2cissp.local"
+    assert r.json()["user"]["id"] != dummy["id"]  # a fresh account, not a resurrection
+    assert client.get("/api/public/seats").json()["total_accounts"] == 1
+
+
+def _seed_subscription(uid, status):
+    with db.SessionLocal() as s:
+        s.add(Subscription(user_id=uid, stripe_customer_id=f"cus_{uid}", status=status))
+        s.commit()
+
+
+def test_delete_blocked_with_live_stripe_subscription():
+    _admin_login()
+    for status in ("active", "trialing", "past_due"):
+        uid = _seed_user(f"u-{status}", f"{status}@example.com", status.title())
+        _seed_subscription(uid, status)
+        r = client.delete(f"/api/admin/accounts/{uid}")
+        assert r.status_code == 409, status
+        assert "Stripe" in r.json()["detail"]
+        # The account is untouched.
+        items = client.get("/api/admin/accounts").json()["items"]
+        assert [a for a in items if a["email"] == f"{status}@example.com"], status
+        with db.SessionLocal() as s:
+            assert s.get(User, uid) is not None
+
+
+def test_delete_allowed_when_stripe_subscription_canceled():
+    _admin_login()
+    uid = _seed_user("u-aaa", "a@example.com", "Alice")
+    _seed_subscription(uid, "canceled")
+    r = client.delete(f"/api/admin/accounts/{uid}")
+    assert r.status_code == 200
+    with db.SessionLocal() as s:
+        user = s.get(User, uid)
+        assert user is not None  # soft delete: the row stays
+        assert user.deleted_at is not None
+        assert s.get(Subscription, uid) is not None  # the Stripe record stays too
+
+
+def test_delete_unknown_account_is_404():
+    _admin_login()
+    assert client.delete("/api/admin/accounts/nope").status_code == 404
 
 
 # ---------- report ----------

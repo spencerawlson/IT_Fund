@@ -116,6 +116,27 @@ def test_seat_cap_refuses_creation_at_10000():
         assert s.query(User).count() == SEAT_CAP
 
 
+def test_seat_cap_deleted_accounts_do_not_count():
+    """A soft-deleted account frees its seat: at 10,000 rows with one
+    deleted, a new public signup still goes through."""
+    from datetime import datetime, timezone
+
+    from public import SEAT_CAP
+
+    _seed_users(SEAT_CAP)
+    with db.SessionLocal() as s:
+        u = s.get(User, "cap-00000")
+        u.deleted_at = datetime.now(timezone.utc)
+        s.commit()
+    with db.SessionLocal() as s:
+        u = upsert_identity(s, _google("g-new", "new@example.com"))
+        s.commit()
+    assert u is not None
+    with db.SessionLocal() as s:
+        live = s.query(User).filter(User.deleted_at.is_(None)).count()
+        assert live == SEAT_CAP
+
+
 def test_seat_cap_returning_identity_and_merge_still_work_at_cap():
     from public import SEAT_CAP
 

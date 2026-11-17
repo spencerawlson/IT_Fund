@@ -40,6 +40,13 @@ export const adminApi = {
       method: 'POST',
       body: JSON.stringify({ note: note || '' }),
     }),
+  updateAccount: (userId, { display_name, email }) =>
+    req(`/admin/accounts/${encodeURIComponent(userId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ display_name, email }),
+    }),
+  deleteAccount: (userId) =>
+    req(`/admin/accounts/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
   revokeAccess: (userId, note) =>
     req(`/admin/accounts/${encodeURIComponent(userId)}/manual-grant/revoke`, {
       method: 'POST',

@@ -31,7 +31,8 @@ router = APIRouter()
 def public_seats() -> dict:
     """Total accounts created and the seat cap. Public: no auth of any kind."""
     with db.SessionLocal() as s:
-        # Same count as the admin overview's total_users, so the public
-        # counter and the admin board can never disagree.
-        total = s.query(func.count()).select_from(User).scalar() or 0
+        # Deleted accounts (deleted_at set) do not count: deleting an
+        # account frees its seat, and the board can never disagree with
+        # the cap check in auth.identity (same filter there).
+        total = s.query(func.count()).select_from(User).filter(User.deleted_at.is_(None)).scalar() or 0
     return {"total_accounts": total, "cap": SEAT_CAP}
