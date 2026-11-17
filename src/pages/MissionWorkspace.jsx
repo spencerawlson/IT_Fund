@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Check, X, Lock, RotateCcw, SearchX, TerminalSquare, ShieldCheck } from 'lucide-react';
 import { Button, Card, EmptyState } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
@@ -175,6 +175,10 @@ export default function MissionWorkspace() {
   const { missionId } = useParams();
   const isSocMission = missionId === SOC_MISSION_ID;
   const navigate = useNavigate();
+  // Arrived from the SOC briefing (see the start effect below). A ref: it
+  // only matters on mount, and the effect must not re-run when it changes.
+  const location = useLocation();
+  const briefedRef = useRef(!!location.state?.briefed);
   const [missionDef, setMissionDef] = useState(null);
   const [attempt, setAttempt] = useState(null);
   const [session, setSession] = useState(null);
@@ -226,6 +230,14 @@ export default function MissionWorkspace() {
         const def = await missionsApi.getMission(missionId);
         const started = await missionsApi.start(missionId);
         if (!live) return;
+        // Every mission starts in the SOC room (Spencer, 2026-11-17). A
+        // brand-new attempt that did not come through the briefing (a
+        // bookmark, a typed URL) goes there first; the briefing hands back
+        // with state.briefed. Resumed attempts stay: they already started.
+        if (!started.resumed && !briefedRef.current) {
+          navigate(`/missions/${missionId}`, { replace: true, state: { fromTerminal: true } });
+          return;
+        }
         setMissionDef(def);
         setAttempt(started.attempt || null);
         setSession(started.session || null);
@@ -241,7 +253,7 @@ export default function MissionWorkspace() {
       }
     })();
     return () => { live = false; };
-  }, [missionId]);
+  }, [missionId, navigate]);
 
   // Debrief analytics: one debrief_viewed per completed mission (counts,
   // never conversation content). `debrief` is only set on completion.

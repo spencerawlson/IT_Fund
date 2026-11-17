@@ -400,6 +400,24 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     await act(async () => { renderer.unmount(); });
   });
 
+  it('briefs a learner the terminal sent here, even though the attempt already exists', async () => {
+    // Opening a mission's terminal directly on a brand-new attempt sends the
+    // learner here (state.fromTerminal). The terminal's start created the
+    // attempt, so this start reports it resumed: the briefing must still play
+    // (every mission starts in the SOC room), then hand back as briefed.
+    startControl.resumed = true;
+    let renderer;
+    await act(async () => {
+      renderer = renderBriefing({ pathname: '/missions/op-broken-shield', state: { fromTerminal: true } });
+    });
+    await flush();
+    expect(lastPath).toBe('/missions/op-broken-shield');
+    await advance(2000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+
+    await act(async () => { renderer.unmount(); });
+  });
+
   it('every mission starts in the SOC room: the flood mission is briefed there, with no equipment tour', async () => {
     // Spencer 2026-11-17: every mission starts in the SOC room, where the
     // robots give the instructions. Operation Packet Flood has no devices
@@ -471,6 +489,8 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     await act(async () => {
       renderer = renderBriefing();
     });
+    // The scene is React.lazy: let its module load before looking for it.
+    await act(async () => { await import('@/components/three/MissionSocScene'); });
     await flush();
     const scene = renderer.root.findAll((n) => n.props && Array.isArray(n.props.devices));
     expect(scene.length).toBeGreaterThan(0);

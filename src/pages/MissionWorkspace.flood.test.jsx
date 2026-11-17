@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import TestRenderer, { act } from 'react-test-renderer';
-import { StaticRouter, Routes, Route } from 'react-router-dom';
+import { StaticRouter, MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import MissionWorkspace from './MissionWorkspace';
 
 // Terminal-only mission (Operation Packet Flood): the workspace must render
@@ -181,7 +181,7 @@ vi.mock('@/components/UpgradePrompt', () => ({ default: () => null }));
 
 function renderWorkspace() {
   return TestRenderer.create(
-    <StaticRouter location="/missions/op-packet-flood/terminal">
+    <StaticRouter location={{ pathname: '/missions/op-packet-flood/terminal', state: { briefed: true } }}>
       <Routes>
         <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
       </Routes>
@@ -227,6 +227,35 @@ describe('MissionWorkspace — Operation Packet Flood (terminal-only mission)', 
   afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
+  });
+
+  it('sends a fresh attempt that skipped the briefing to the SOC room first', async () => {
+    // Spencer 2026-11-17: every mission starts in the SOC room. Opening the
+    // terminal URL directly (a bookmark, a typed address) on a brand-new
+    // attempt goes to the briefing, marked as coming from the terminal.
+    let seen = null;
+    function Capture() {
+      const loc = useLocation();
+      seen = { path: loc.pathname, state: loc.state };
+      return null;
+    }
+    let renderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        <MemoryRouter initialEntries={['/missions/op-packet-flood/terminal']}>
+          <Capture />
+          <Routes>
+            <Route path="/missions/:missionId/terminal" element={<MissionWorkspace />} />
+            <Route path="/missions/:missionId" element={<div>SOC BRIEFING</div>} />
+          </Routes>
+        </MemoryRouter>,
+      );
+    });
+    await flush();
+    expect(seen.path).toBe('/missions/op-packet-flood');
+    expect(seen.state).toEqual({ fromTerminal: true });
+    expect(hasText(renderer.root, 'SOC BRIEFING')).toBe(true);
+    await act(async () => { renderer.unmount(); });
   });
 
   it('renders the terminal workspace: evidence, attestation list, flooder report, console — and no SOC room', async () => {
