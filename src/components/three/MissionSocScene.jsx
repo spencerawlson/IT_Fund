@@ -296,9 +296,12 @@ export default function MissionSocScene({
 
     // --- Cables between the lab devices, at ankle height.
     const cableMat = new THREE.LineBasicMaterial({ color: 0x64748b });
+    // Only between devices this mission actually has: a mission with no
+    // devices (Operation Packet Flood) gets an uncluttered room.
+    const present = new Set(devices.map((d) => d.id));
     [['PC1', 'R1'], ['GUEST', 'R1'], ['R1', 'SRV']].forEach(([a, b]) => {
-      const pa = pos[a];
-      const pb = pos[b];
+      const pa = present.has(a) && pos[a];
+      const pb = present.has(b) && pos[b];
       if (!pa || !pb) return;
       scene.add(new THREE.Line(
         new THREE.BufferGeometry().setFromPoints([

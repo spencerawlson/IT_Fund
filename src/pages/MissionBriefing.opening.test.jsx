@@ -405,19 +405,30 @@ describe('MissionBriefing opening — briefing, showcase, redirect', () => {
     await act(async () => { renderer.unmount(); });
   });
 
-  it('a non-SOC mission redirects to the terminal immediately — no room, no briefing', async () => {
-    // The flood mission has no 3D room: Launch Mission must land on the
-    // terminal page, never on a briefing screen with nothing to show.
+  it('every mission starts in the SOC room: the flood mission is briefed there, with no equipment tour', async () => {
+    // Spencer 2026-11-17: every mission starts in the SOC room, where the
+    // robots give the instructions. Operation Packet Flood has no devices
+    // in the room (its evidence is a capture), so its briefing plays and
+    // then hands off to the terminal with no equipment tour.
     defControl.def = FLOOD_DEF;
     let renderer;
     await act(async () => {
       renderer = renderBriefing('/missions/op-packet-flood');
     });
     await flush();
+    expect(lastPath).toBe('/missions/op-packet-flood');
+    expect(terminalVisible(renderer.root)).toBe(false);
+
+    // Cinematic open (1.8 s) -> the flood briefing is spoken in the room.
+    await advance(2000);
+    expect(voiceControl.playCalls).toHaveLength(1);
+    expect(voiceControl.playCalls[0]).toContain('flood of packets');
+
+    // After the turn: no equipment tour, straight to the connecting hand-off.
+    await advance(300 + 2000 + 500);
+    expect(captionOf(renderer.root) || '').not.toMatch(/Equipment tour/);
+    await advance(5000);
     expect(lastPath).toBe('/missions/op-packet-flood/terminal');
-    expect(terminalVisible(renderer.root)).toBe(true);
-    await advance(10000);
-    expect(voiceControl.playCalls).toHaveLength(0);
 
     await act(async () => { renderer.unmount(); });
   });

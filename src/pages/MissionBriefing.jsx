@@ -18,6 +18,8 @@ import { useTheme } from '@/components/ThemeProvider';
 const MissionSocScene = React.lazy(() => import('@/components/three/MissionSocScene'));
 
 const SOC_MISSION_ID = 'op-broken-shield';
+// Stable empty device list for missions without a network in the room.
+const NO_DEVICES = [];
 
 // Mission opening timings (seconds). The opening plays like a video on
 // entry (fresh attempt only): a short cinematic establishing shot, then
@@ -49,9 +51,14 @@ const ESTABLISHED_S = 0.8;
  * screen. When the briefing finishes (all turns played + the device tour,
  * or the learner skips it) the screen shows the connecting transition and
  * hands the learner to the mission terminal page (/missions/:missionId/terminal),
- * which has no 3D room at all. Terminal missions and resumed attempts never
- * see this screen — they go straight to the terminal (the old "opening
- * skipped" behaviour, now a redirect instead of a silent phase change).
+ * which has no 3D room at all. EVERY mission starts here (Spencer,
+ * 2026-11-17: "every single mission starts in the SOC room — that is where
+ * you get your instructions"): the robots read that mission's briefing.
+ * The equipment tour (PC1 / GUEST / R1 / SRV) is Operation Broken Shield's
+ * network, so only that mission shows the devices and tours them; other
+ * missions go from the briefing straight to the hand-off. A resumed
+ * attempt is mid-mission, not starting it, so it goes straight to the
+ * terminal.
  * The heavy 3D code loads ONLY here: the terminal page must never import
  * the scene. If the 3D renderer fails, there is no 2D fallback on this
  * page anymore — the learner goes straight to the terminal, where the
@@ -59,7 +66,9 @@ const ESTABLISHED_S = 0.8;
 export default function MissionBriefing() {
   useDocumentTitle('Mission Briefing · Road to CISSP');
   const { missionId } = useParams();
-  const isSocMission = missionId === SOC_MISSION_ID;
+  // Broken Shield is the mission whose network the SOC room holds: its
+  // devices are placed in the room and toured after the briefing.
+  const hasSocDevices = missionId === SOC_MISSION_ID;
   const navigate = useNavigate();
   const { theme } = useTheme();
   const terminalUrl = `/missions/${missionId}/terminal`;
@@ -175,11 +184,11 @@ export default function MissionBriefing() {
       if (!missionDef) return undefined;
       const turns = briefingTurns;
       if (!turns.length) {
-        setOpeningPhase('showcase');
+        setOpeningPhase(hasSocDevices ? 'showcase' : 'done');
         return undefined;
       }
       if (briefingTurnIdx >= turns.length) {
-        setOpeningPhase('showcase');
+        setOpeningPhase(hasSocDevices ? 'showcase' : 'done');
         return undefined;
       }
       const turn = turns[briefingTurnIdx];
@@ -208,7 +217,7 @@ export default function MissionBriefing() {
       return undefined;
     }
     return undefined;
-  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, cypherVoice.loading, cypherVoice.playing]);
+  }, [openingPhase, missionDef, briefingTurns, briefingTurnIdx, cypherVoice.loading, cypherVoice.playing, hasSocDevices]);
   // Briefing safety-cap cleanup: the cap guards one turn, so it is
   // cleared when the turn advances or the briefing ends (a new turn
   // sets its own). Without this the cap would fire into a later turn
@@ -294,7 +303,7 @@ export default function MissionBriefing() {
         const def = await missionsApi.getMission(missionId);
         const started = await missionsApi.start(missionId);
         if (!live) return;
-        if (!isSocMission || started.resumed) {
+        if (started.resumed) {
           navigate(terminalUrl, { replace: true });
           return;
         }
@@ -312,7 +321,7 @@ export default function MissionBriefing() {
       }
     })();
     return () => { live = false; };
-  }, [missionId, isSocMission, terminalUrl, navigate]);
+  }, [missionId, terminalUrl, navigate]);
 
   // Warm the mission GLB cache on mount: on direct entry the SOC scene
   // would otherwise load cypher.glb cold (the lesson handoff path
@@ -421,7 +430,7 @@ export default function MissionBriefing() {
       <div className="h-full w-full portrait:h-auto portrait:aspect-square">
       <React.Suspense fallback={<div className="flex h-full items-center justify-center text-ink-2">Loading SOC room…</div>}>
         <MissionSocScene
-          devices={MISSION_TOPOLOGY_DEVICES}
+          devices={hasSocDevices ? MISSION_TOPOLOGY_DEVICES : NO_DEVICES}
           incidentActive={incidentActive}
           contained={contained}
           onRendererFailed={handleRendererFailed}
