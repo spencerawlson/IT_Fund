@@ -1198,5 +1198,21 @@
     "confidence": "high",
     "humanReview": false,
     "status": "fixed"
+  },
+  {
+    "id": "R-0075",
+    "severity": "High",
+    "category": "distractor-quality",
+    "file": "src/data/academy/cyber.js",
+    "contentId": "secplus-resilience-scenarios, secplus-concepts-scenarios",
+    "original": "'Rollbacks are for cowards', 'Rotate people out of the company', colon duplicates",
+    "problem": "Joke options and colon duplicates; truncated answers restored.",
+    "evidence": "Read during the full track review.",
+    "proposedCorrection": "Applied in docs/audit/edits/.",
+    "sourceUrl": "",
+    "sourceDate": "2026-11-17",
+    "confidence": "high",
+    "humanReview": false,
+    "status": "fixed"
   }
 ]

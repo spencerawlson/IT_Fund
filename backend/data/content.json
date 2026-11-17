@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T01:33:22.625Z",
+  "generatedAt": "2026-11-17T01:34:59.507Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -19333,9 +19333,9 @@
                   "a": "3-2-1: three copies, two different media, one offsite",
                   "x": "A backup sharing fate with production is a copy, not a recovery plan. The offsite copy is what survives fire, flood, and ransomware.",
                   "wrong": [
-                    "Same-SAN is faster to restore: same-SAN backups restore fastest of all",
-                    "Add a second SAN: a mirror array in the same rack fixes it",
-                    "One copy is enough: one backup copy on the SAN is enough"
+                    "Add a second SAN in the same rack that mirrors the first, so a disk or controller failure cannot lose data",
+                    "Keep it on the same SAN for faster restores",
+                    "Keep one copy, since it already exists"
                   ]
                 },
                 {
@@ -19343,12 +19343,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The contract demands RPO of one hour, but backups run nightly. What is the most defensible change?",
-                  "a": "Increase backup frequency to meet the RPO",
+                  "a": "Increase backup frequency (or add replication) to meet the one-hour RPO",
                   "x": "RPO is the maximum data loss the business accepts: nightly backups guarantee up to 24 hours of loss. The schedule must satisfy the contract.",
                   "wrong": [
-                    "RPO is aspirational",
-                    "Nightly is industry standard",
-                    "Renegotiate the contract down: renegotiate the one-hour RPO contract down"
+                    "Keep nightly backups, since they are the industry norm, and explain the gap in the next service review",
+                    "Treat the RPO as aspirational",
+                    "Renegotiate the contract down"
                   ]
                 },
                 {
@@ -19359,9 +19359,9 @@
                   "a": "Immutable or offline copies — air-gapped, Object Lock, or tape — that no compromised credential can delete",
                   "x": "Online backups live in the blast radius: ransomware hunts them first. Immutability puts recovery outside the attacker’s reach.",
                   "wrong": [
-                    "Back up more often: frequent online copies outpace the encryption",
-                    "Keep backups online: offline copies are too slow to restore from",
-                    "Pay the ransom faster: quick payment stops encryption spreading to backups"
+                    "Back up more often, so that the latest online copy is newer than the encryption, and keep backups on the network",
+                    "Keep backups online, since offline restores are too slow",
+                    "Pay the ransom faster"
                   ]
                 },
                 {
@@ -19372,9 +19372,9 @@
                   "a": "Tabletop exercises, then simulations, then full failover tests on a cadence",
                   "x": "Plans rot: staff, systems, and vendors all changed. Testing graduates from discussion to simulation to real failover, on schedule.",
                   "wrong": [
-                    "The plan is well written: the well-written DR plan needs no testing",
-                    "Testing causes outages: testing the untested DR plan causes outages",
-                    "DR is for natural disasters only: DR is only for natural disasters, nothing else"
+                    "Have the plan reviewed and signed off again by the leadership team, since it is well written",
+                    "Avoid testing, which could cause outages",
+                    "Keep it for natural disasters only"
                   ]
                 },
                 {
@@ -19382,12 +19382,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "A cold site is chosen to meet a two-hour RTO. What is the most defensible correction?",
-                  "a": "Cold sites cannot meet a two-hour RTO",
+                  "a": "Cold sites cannot meet a two-hour RTO: use a hot or warm site, or change the RTO",
                   "x": "Cold means empty building: procuring and restoring in two hours is fiction. The site type must match the RTO the business signed.",
                   "wrong": [
-                    "Cold sites are cheaper and fine: cheap cold sites meet two-hour RTOs easily",
-                    "RTOs are negotiable after disaster: negotiate RTOs after the disaster strikes",
-                    "Two hours is plenty: a cold site boots up well within two hours"
+                    "Keep the cold site, because it is cheaper and the team can restore quickly if equipment is ordered in advance",
+                    "Renegotiate the RTO after a disaster",
+                    "Two hours is plenty for a cold site"
                   ]
                 },
                 {
@@ -19395,12 +19395,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The generator has never been load-tested; it “starts fine”. What is the most defensible program?",
-                  "a": "Monthly load tests under real load",
+                  "a": "Monthly load tests under real building load",
                   "x": "Untested generators are the classic outage multiplier: the test must prove it carries the actual load, not just turns over.",
                   "wrong": [
-                    "It starts, so it works",
-                    "Test it during the next outage: test the generator during the next outage",
-                    "Generators are reliable: the generator starts fine, so it is reliable"
+                    "Run it off-load for five minutes each week, since a generator that starts reliably will carry the load",
+                    "Test it during the next real outage",
+                    "Assume generators are reliable"
                   ]
                 },
                 {
@@ -19408,12 +19408,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The UPS holds ten minutes but the generator needs twenty to take load. What is the most defensible fix?",
-                  "a": "Size the UPS to bridge the gap with margin",
+                  "a": "Size the UPS to bridge the generator's start time with margin",
                   "x": "Power resilience is a chain: the UPS covers exactly the generator’s start time plus margin. A ten-minute bridge over a twenty-minute gap is an outage.",
                   "wrong": [
-                    "Ten minutes is standard: ten minutes of UPS runtime is standard",
-                    "The generator will start faster in a real outage: the generator starts faster in real outages",
-                    "UPSs are for surges: UPS units are for surges, not bridging"
+                    "Keep ten minutes of UPS runtime, since generators start faster under real outage conditions",
+                    "Treat ten minutes as the standard",
+                    "Use the UPS for surge protection only"
                   ]
                 },
                 {
@@ -19421,12 +19421,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The company has one ISP and the SLA promises 99.99% uptime. What is the most defensible correction?",
-                  "a": "Add a diverse second path",
+                  "a": "Add a diverse second path, ideally a second provider with a separate building entry",
                   "x": "Carrier SLAs pay credits, not continuity: real availability comes from diverse paths, ideally diverse providers and entries.",
                   "wrong": [
-                    "SLA guarantees uptime",
+                    "Rely on the 99.99% SLA, since the carrier is contractually obliged to keep the link up",
                     "One good ISP is enough",
-                    "99.99% is easy: a single ISP easily delivers 99.99% uptime, guaranteed by SLA"
+                    "Treat 99.99% as easy for one provider"
                   ]
                 },
                 {
@@ -19437,9 +19437,9 @@
                   "a": "HA pair or anycast — the front door cannot be a single point of failure",
                   "x": "Every request crosses the load balancer: its failure is everyone’s failure. Redundant balancers with health checks fix it.",
                   "wrong": [
-                    "Load balancers rarely fail: the single load balancer rarely ever fails",
-                    "One is simpler to manage: one load balancer is simpler to manage",
-                    "DNS round-robin is enough: DNS round-robin replaces the load balancer entirely"
+                    "Keep a single load balancer but monitor it closely and keep a spare configuration ready to deploy",
+                    "Keep one for simplicity",
+                    "Replace it with DNS round-robin"
                   ]
                 },
                 {
@@ -19450,9 +19450,9 @@
                   "a": "Add replication or clustering matched to the RPO",
                   "x": "The replica is the RPO made real: without it, recovery means restoring from last night’s backup and losing the day.",
                   "wrong": [
-                    "Masters are reliable",
-                    "Backups replace replicas: nightly backups replace replication for the single master",
-                    "Replication is for reads: database replication serves read traffic only"
+                    "Rely on nightly backups, which can restore the single master if it fails",
+                    "Treat masters as reliable",
+                    "Replicas only serve read traffic"
                   ]
                 },
                 {
@@ -19463,9 +19463,9 @@
                   "a": "Scheduled restore tests — a backup without a tested restore is a prayer",
                   "x": "Success reports measure the write, not the read: restores fail on corruption, missing keys, and wrong procedures. Test the read.",
                   "wrong": [
-                    "Success reports are proof: nightly success reports prove restores work",
-                    "Restores always work: the nightly successful backups always restore",
-                    "Testing restores risks production: restore tests might break live systems"
+                    "Rely on the nightly success reports, which confirm every job wrote its data without errors",
+                    "Assume restores always work",
+                    "Avoid restore tests to protect production"
                   ]
                 },
                 {
@@ -19473,12 +19473,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The array runs RAID 5 across twelve 12TB drives. What is the most defensible concern?",
-                  "a": "Rebuild time and URE risk",
+                  "a": "Rebuild time and unrecoverable read error risk: move to RAID 6/10 or erasure coding",
                   "x": "RAID 5 rebuilds read every surviving disk: with huge drives the rebuild takes days, and one bad sector ends it. RAID 6/10 or erasure coding fits.",
                   "wrong": [
-                    "RAID 5 is the standard: RAID 5 across twelve 12TB drives is standard",
-                    "Bigger drives are safer: twelve 12TB drives make the RAID 5 safer",
-                    "Add a hot spare: a spare drive removes the rebuild risk entirely"
+                    "Add a hot spare, so that a failed drive is replaced automatically and the array rebuilds without risk",
+                    "Treat RAID 5 as the standard",
+                    "Bigger drives make RAID 5 safer"
                   ]
                 },
                 {
@@ -19489,9 +19489,9 @@
                   "a": "Lower TTLs well before the cutover",
                   "x": "DNS caching obeys the TTL you published yesterday: cutover speed is decided before the event, not during it.",
                   "wrong": [
-                    "TTLs do not matter",
-                    "Change TTL during failover: change the 24-hour TTLs during the failover itself",
-                    "DNS is instant: DNS failover is instant, 24-hour TTLs do not matter"
+                    "Lower the TTLs during the failover itself, once the new site is confirmed to be working",
+                    "Ignore TTLs, since DNS changes are instant",
+                    "Leave the TTLs, since they do not matter"
                   ]
                 },
                 {
@@ -19499,12 +19499,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "Nobody knows the graceful shutdown order, and the last outage corrupted the database. What is the most defensible fix?",
-                  "a": "A documented, tested runbook with the order",
+                  "a": "A documented, tested runbook that sets the shutdown and startup order",
                   "x": "Ungraceful shutdowns corrupt state: the runbook makes the order explicit and rehearsed, not improvised at 3 AM.",
                   "wrong": [
-                    "Shutdowns are all the same",
-                    "Corruption is bad luck",
-                    "Just pull the plug faster: pulling the plug faster prevents database corruption"
+                    "Pull the power faster during outages so the database has less time to write partial transactions",
+                    "Treat it as bad luck",
+                    "Treat all shutdowns as the same"
                   ]
                 },
                 {
@@ -19512,12 +19512,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The DR strategy is “we are in the cloud”. What is the most defensible correction?",
-                  "a": "A region is not a DR plan",
+                  "a": "A region is not a DR plan: replicate and test recovery to another region or provider",
                   "x": "Cloud regions fail too: without replication and tested procedures, “we are in the cloud” is a hope with a logo.",
                   "wrong": [
-                    "Clouds do not fail: clouds never fail, so no DR plan is needed",
-                    "One region is DR enough: one cloud region is enough for DR",
-                    "DR is legacy thinking: DR strategy in the cloud is legacy thinking"
+                    "Rely on multi-AZ deployment within one region, which already counts as disaster recovery",
+                    "Clouds do not fail",
+                    "Treat DR as legacy thinking"
                   ]
                 },
                 {
@@ -19528,9 +19528,9 @@
                   "a": "True offsite rotation — different facility, tested retrieval — because the building is the shared failure",
                   "x": "Fire, flood, and theft do not respect floors: offsite means a different risk zone, and retrieval must be proven, not assumed.",
                   "wrong": [
-                    "Same building is offsite enough: the same-building storage room is offsite enough",
-                    "Tapes are obsolete: tape backups are obsolete, skip offsite rotation",
-                    "The storage room is fireproof: the fireproof storage room protects the tapes"
+                    "Keep the tapes in the same building, since the storage room is fireproof and on a different floor",
+                    "Skip offsite rotation; tapes are obsolete",
+                    "Assume the room protects the tapes"
                   ]
                 },
                 {
@@ -19541,9 +19541,9 @@
                   "a": "A crisis communication plan with named owners, templates, and legal review",
                   "x": "Notification duties have clocks: the plan names who decides, who writes, and who calls, before the midnight call happens.",
                   "wrong": [
-                    "PR will handle it: the PR team handles all breach notifications",
-                    "Say nothing and hope: say nothing at midnight, hope for the best",
-                    "The CEO decides live: the CEO decides breach notifications live"
+                    "Leave it to the PR team, which handles all external communications and can decide on the night",
+                    "Say nothing and hope",
+                    "Let the CEO decide live"
                   ]
                 },
                 {
@@ -19554,9 +19554,9 @@
                   "a": "Cross-training plus tested runbooks — the bus factor of one is an outage waiting for a holiday",
                   "x": "Recovery cannot depend on one person’s memory: document the procedure, train a second pair of hands, test together.",
                   "wrong": [
-                    "She has her phone: the engineer has her phone on vacation",
-                    "Documenting is overhead: documenting the backup restore is pure overhead",
-                    "Vacations are the risk: the engineer’s vacation is the real risk"
+                    "Rely on the engineer being reachable by phone on holiday, and pay her for any time she spends",
+                    "Skip documentation as overhead",
+                    "Cancel her vacations"
                   ]
                 },
                 {
@@ -19564,12 +19564,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "Sales promises 99.9% uptime on a single-server deployment. What is the most defensible correction?",
-                  "a": "99.9% allows ~9 hours of downtime a year and still needs maintenance windows covered",
+                  "a": "99.9% allows about 9 hours of downtime a year, including maintenance, which one server cannot deliver",
                   "x": "Availability math is unforgiving: promises must follow architecture. Redundancy, not optimism, delivers the nines.",
                   "wrong": [
-                    "Nines are marketing: the 99.9% uptime promises are mere marketing",
-                    "Single servers are reliable: the single server is reliable enough",
-                    "Downtime does not count at night: nighttime downtime never counts toward 99.9% uptime"
+                    "Accept the promise, since nighttime maintenance does not count toward the availability figure",
+                    "Treat the nines as marketing",
+                    "Single servers are reliable enough"
                   ]
                 },
                 {
@@ -19577,12 +19577,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "Snapshots are the only “backup” — same array, same site. What is the most defensible correction?",
-                  "a": "Snapshots are not backups",
+                  "a": "Snapshots are not backups: copy to separate media at a separate site",
                   "x": "A snapshot is a pointer, not a copy: array failure, ransomware, or site loss takes snapshots with it. Separate media, separate site.",
                   "wrong": [
-                    "Snapshots are backups",
-                    "Same-array is fine: same-array snapshots are fine as backups",
-                    "Snapshots beat offsite backups: snapshots restore faster, so they count"
+                    "Snapshots count as backups, because they can restore any file to an earlier point in time quickly",
+                    "Same-array snapshots are fine",
+                    "Snapshots beat offsite backups"
                   ]
                 },
                 {
@@ -19590,12 +19590,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The DR plan was last updated before the cloud migration. What is the most defensible maintenance?",
-                  "a": "Review the plan after every architecture change",
+                  "a": "Review and test the plan after every architecture change",
                   "x": "DR plans rot with every migration: the review cadence must follow the change cadence, or the plan is fiction.",
                   "wrong": [
-                    "Plans are timeless: the DR plan is timeless, never needs updates",
-                    "Cloud made DR obsolete: the cloud migration made the DR plan obsolete",
-                    "Update it after the next incident: update the DR plan after the next incident"
+                    "Update the plan after the next incident, when the gaps are known from real experience",
+                    "Treat the plan as timeless",
+                    "The cloud made DR obsolete"
                   ]
                 },
                 {
@@ -19603,12 +19603,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "After ransomware, the CFO asks whether to just pay. What is the most defensible answer?",
-                  "a": "Restore from clean, verified backups",
+                  "a": "Restore from clean, verified backups; payment is a legal and business decision, not a shortcut",
                   "x": "Paying buys uncertainty: decryptors fail, data is already stolen, and payers get re-targeted. Tested backups are the answer.",
                   "wrong": [
-                    "Paying is faster",
-                    "Insurance covers it: the cyber insurance covers the ransom payment",
-                    "Pay in instalments: spread the ransom over monthly payments"
+                    "Pay, because it is faster than restoring and the insurer will reimburse the ransom",
+                    "Pay in instalments",
+                    "Assume insurance covers it"
                   ]
                 },
                 {
@@ -19619,9 +19619,9 @@
                   "a": "Continuous config replication or IaC-driven rebuilds",
                   "x": "Failover to stale configs fails differently but equally: the recovery site must track production, automatically.",
                   "wrong": [
-                    "Stale configs are close enough",
-                    "Update configs during failover",
-                    "DR sites do not need configs: six-month-stale configs at alternate sites are fine"
+                    "Update the alternate site's configs during the failover, once production is confirmed to be down",
+                    "Treat stale configs as close enough",
+                    "DR sites do not need current configs"
                   ]
                 },
                 {
@@ -19632,9 +19632,9 @@
                   "a": "Every change ships with a tested backout plan",
                   "x": "Changes fail: the question is whether failure is a 10-minute rollback or a 10-hour incident. Backout plans are mandatory.",
                   "wrong": [
-                    "Forward-fix everything: forward-fix every change window, never roll back",
-                    "Rollbacks are for cowards: rollback plans are for cowards, not engineers",
-                    "Good changes do not need backout: good changes never need any backout plan"
+                    "Fix forward on every change, since rollbacks waste time and good engineers rarely need them",
+                    "Treat rollbacks as failure",
+                    "Good changes need no backout"
                   ]
                 },
                 {
@@ -19642,12 +19642,12 @@
                   "deckId": "secplus-resilience-scenarios",
                   "trackId": "cyber",
                   "q": "The same root cause has caused three outages this year, and each post-mortem recommended the same fix. What is the most defensible read?",
-                  "a": "The lessons-learned process is broken",
+                  "a": "The lessons-learned process is broken: actions need owners, deadlines and verification",
                   "x": "Repeat incidents are a management failure, not a technical one: track every action item to closure or the post-mortem was theater.",
                   "wrong": [
+                    "The engineers are careless and need retraining on change procedures",
                     "Bad luck",
-                    "Engineers are careless: careless engineers cause the same three outages",
-                    "Post-mortems are the fix: the post-mortems alone fix repeated outages"
+                    "The post-mortems themselves are the fix"
                   ]
                 }
               ],
@@ -19686,9 +19686,9 @@
                   "a": "Strong identity everywhere first — MFA on every account and app, before touching the network",
                   "x": "Identity is the new perimeter: without strong authentication, network segmentation just rearranges who the attacker impersonates. MFA kills the credential-reuse path that flat networks invite.",
                   "wrong": [
-                    "Rip out all VLANs and rebuild the network first: rebuild the network before identity",
-                    "Buy a NAC appliance and call it zero trust: hardware is zero trust",
-                    "Put a bigger firewall at the internet edge: a bigger edge box fixes trust"
+                    "Rebuild the network into many VLANs first, since segmentation is the foundation of zero trust",
+                    "Buy a NAC appliance and call it zero trust",
+                    "Put a bigger firewall at the internet edge"
                   ]
                 },
                 {
@@ -19699,9 +19699,9 @@
                   "a": "Compensating controls: isolate it on its own segment, allow access only via jump host, and monitor it heavily",
                   "x": "When the ideal control is impossible, compensating controls reduce the risk to an acceptable level: isolation plus monitoring contains what patching and MFA would have prevented.",
                   "wrong": [
-                    "Leave it on the main network since it works: the old clock stays connected",
-                    "Disconnect it and make staff use paper timesheets: paper logs replace the clock",
-                    "Open it to the internet so the vendor can maintain it: remote access helps vendors"
+                    "Leave it on the main network, since it works and has never been attacked in ten years",
+                    "Disconnect it and use paper timesheets",
+                    "Open it to the internet for the vendor"
                   ]
                 },
                 {
@@ -19709,12 +19709,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "The board wants 'defense in depth' but the budget covers one project. The CISO proposes adding a second firewall behind the first from the same vendor. What is the most defensible correction?",
-                  "a": "Defense in depth means different layers",
+                  "a": "Defense in depth means different layers of different control types, not two identical boxes",
                   "x": "Two identical firewalls fail identically to the same exploit. Real depth layers different control types — preventive, detective, corrective — across network, endpoint, identity, and data.",
                   "wrong": [
-                    "Two firewalls are exactly defense in depth: two boxes are defense in depth",
-                    "Spend it all on the most expensive firewall: the priciest box is depth",
-                    "One layer is fine if it is enterprise-grade: one premium firewall suffices"
+                    "Two firewalls are defense in depth, as long as both have their signatures updated every day",
+                    "Spend it on the most expensive firewall",
+                    "One enterprise-grade layer is enough"
                   ]
                 },
                 {
@@ -19725,9 +19725,9 @@
                   "a": "Obscurity is not a control: fix the authentication",
                   "x": "Security through obscurity fails the moment the secret leaks — and scanners find 'hidden' paths in minutes. It can supplement real controls but never replace them.",
                   "wrong": [
-                    "Hidden URLs are a valid primary control",
+                    "Hiding the URL is a valid primary control if the path is long and random enough",
                     "Remove the admin panel entirely",
-                    "Tell nobody the URL and it is fine: secrecy secures the admin panel"
+                    "Keep the URL secret and leave the authentication"
                   ]
                 },
                 {
@@ -19738,9 +19738,9 @@
                   "a": "The accounting leg of AAA: SSO events must feed the SIEM with alerting",
                   "x": "AAA is authentication, authorization, and accounting: without accounting, you cannot detect misuse of valid credentials — the exact scenario SSO centralizes.",
                   "wrong": [
-                    "SSO replaces the need for logging: single sign-on needs no SIEM feed at all",
-                    "Export logs once a quarter for the auditors: SSO logs go out quarterly",
-                    "Logs are the IdP vendor’s problem: the IdP vendor owns every SSO log"
+                    "SSO replaces the need for logging, because every login is already verified with MFA at the IdP",
+                    "Export logs quarterly for auditors",
+                    "Leave logs to the IdP vendor"
                   ]
                 },
                 {
@@ -19751,9 +19751,9 @@
                   "a": "Default deny with explicit, documented allows",
                   "x": "Implicit deny is the safe default: everything not explicitly permitted is blocked. A decade of accumulated allows is how attackers walk through 'enterprise' firewalls.",
                   "wrong": [
-                    "Migrate all 3,000 rules as-is to be safe: every old rule migrates untouched",
-                    "Default allow with blocks for known-bad IPs: allow everything, block the known-bad only",
-                    "Delete the firewall and use host firewalls: endpoints alone guard the whole network"
+                    "Migrate all 3,000 rules as they are, to be safe, and review them after the migration",
+                    "Default allow with blocks for known-bad IPs",
+                    "Remove the firewall and use host firewalls"
                   ]
                 },
                 {
@@ -19761,12 +19761,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "A developer who writes code also deploys it straight to production. What is the most defensible separation?",
-                  "a": "Split build and deploy",
+                  "a": "Split build and deploy: a different person or pipeline approval releases changes",
                   "x": "Separation of duties means no single person can both create and release a change — it blocks both fraud and the 'oops, it worked on my laptop' outage.",
                   "wrong": [
-                    "Give the developer a second account for deploys: two logins separate the duties",
-                    "Trust senior developers with both: senior developers write and deploy the production code",
-                    "Require the developer to email before deploying: an email separates build and deploy"
+                    "Give the developer a second account used only for deploys, so that build and deploy are separate identities",
+                    "Trust senior developers with both",
+                    "Have the developer email before deploying"
                   ]
                 },
                 {
@@ -19777,8 +19777,8 @@
                   "a": "Mandatory vacation: someone else runs payroll for two consecutive weeks",
                   "x": "Mandatory vacations are a detective control — fraud that needs the perpetrator present to sustain itself breaks when they are gone.",
                   "wrong": [
-                    "Let her keep working; she is reliable: six years proves she is trustworthy",
-                    "Give her a bonus instead: reward six years of solo payroll without a vacation",
+                    "Let her keep working, since six years of reliable payroll runs proves she can be trusted",
+                    "Give her a bonus instead",
                     "Move payroll to a new hire"
                   ]
                 },
@@ -19790,9 +19790,9 @@
                   "a": "No unilateral overrides: emergencies use a pre-defined second approver, because the override is the attack path",
                   "x": "Dual control fails the moment one person can bypass it — social engineers and fraudsters both aim straight at the exception process.",
                   "wrong": [
-                    "The CFO override is standard practice: the emergency CFO override is standard practice",
-                    "Raise the threshold to $500,000: higher limits dodge the two-person approval rule",
-                    "Remove approvals; they slow business: dropping approvals speeds the wire transfers"
+                    "Keep the CFO override, because emergencies need speed and the CFO is the most senior approver",
+                    "Raise the threshold to $500,000",
+                    "Remove approvals to speed things up"
                   ]
                 },
                 {
@@ -19800,12 +19800,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "The 'assume breach' principle is adopted. A sales laptop is stolen from a hotel. What is the most defensible response?",
-                  "a": "Treat it as compromised",
+                  "a": "Treat it as compromised: wipe it, rotate its credentials and tokens, and review its access",
                   "x": "Assume breach means acting as if the attacker already has access: a wipe command may never arrive, but rotated credentials are useless to a thief either way.",
                   "wrong": [
-                    "Remote-wipe it and move on: wiping the stolen laptop ends the incident",
-                    "It had disk encryption, so nothing to do: encryption covers the stolen laptop",
-                    "Wait to see if anything happens: watch the stolen laptop before acting at all"
+                    "Remote-wipe it and close the incident, since the wipe removes all data from the device",
+                    "Do nothing, since it had disk encryption",
+                    "Wait to see if anything happens"
                   ]
                 },
                 {
@@ -19813,12 +19813,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "A vendor RFP asks for the 'policy engine, policy administrator, and policy enforcement point' of your zero-trust design. What is the most defensible way to answer?",
-                  "a": "Describe the three roles",
+                  "a": "Describe the three roles: the engine decides, the administrator configures, the enforcement point allows or blocks",
                   "x": "NIST SP 800-207 splits the job: the policy engine evaluates trust, the administrator pushes configuration, and enforcement points (agents, gateways) carry out allow/deny.",
                   "wrong": [
-                    "They are three brand names for a firewall: engine, administrator, enforcement point",
-                    "One appliance does all three, end of answer: a single box is the engine",
-                    "Zero trust has no such components: the engine, administrator, enforcement point do not exist"
+                    "Explain that one appliance performs all three functions, and name the product used",
+                    "They are three brand names for a firewall",
+                    "Zero trust has no such components"
                   ]
                 },
                 {
@@ -19829,9 +19829,9 @@
                   "a": "Step-up authentication and session re-validation on sensitive actions",
                   "x": "Continuous validation is a zero-trust pillar: a session hijacked at 10 AM inherits the morning's trust unless sensitive actions re-verify.",
                   "wrong": [
+                    "Log everyone out every hour, so that a stolen session token is valid for at most sixty minutes",
                     "Longer sessions improve productivity",
-                    "Log everyone out every hour: hourly logouts replace step-up authentication on finance",
-                    "MFA once a year is enough: a single annual prompt covers the all-day sessions"
+                    "One MFA prompt a year is enough"
                   ]
                 },
                 {
@@ -19842,9 +19842,9 @@
                   "a": "Signed, ticketed approvals from a named approver",
                   "x": "Non-repudiation means the approver cannot later deny it: approvals need identity, timestamp, and a record — 'whoever was online' is none of those.",
                   "wrong": [
-                    "Email approval is standard",
+                    "Approval by email from a manager is enough, since email shows who approved and when",
                     "Verbal approval is faster",
-                    "Approvals slow down security: signed ticketed approvals delay urgent firewall changes"
+                    "Approvals slow security down"
                   ]
                 },
                 {
@@ -19855,9 +19855,9 @@
                   "a": "Accounting failed: the reader authenticated but did not log",
                   "x": "AAA breaks into three legs: the badge authenticated, the door authorized, but accounting (the record) failed. An access event nobody can reconstruct is a gap.",
                   "wrong": [
-                    "Authentication failed; replace the badges",
-                    "Authorization failed; reprogram the doors: new rules fix the missing audit log entry",
-                    "Nothing failed; the visitor was escorted: the escort covers the missing log"
+                    "Authentication failed, so the visitor badges should be replaced",
+                    "Authorisation failed, so the door rules should be reprogrammed",
+                    "Nothing failed, since the visitor was escorted"
                   ]
                 },
                 {
@@ -19868,9 +19868,9 @@
                   "a": "Segmentation with implicit deny between trust zones",
                   "x": "Network segmentation enforces least privilege at the network layer: the guest zone's default route should be the internet, never internal segments.",
                   "wrong": [
-                    "Guests need finance access sometimes",
-                    "Wi-Fi is inherently insecure",
-                    "The firewall is misconfigured, delete it: deleting the firewall fixes guest routing"
+                    "The firewall is misconfigured, so the guest network should bypass it entirely",
+                    "Guests sometimes need finance access",
+                    "Wi-Fi is inherently insecure"
                   ]
                 },
                 {
@@ -19878,12 +19878,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "The company wants to roll out biometrics for the data center. What is the most defensible enrollment caution?",
-                  "a": "Biometrics cannot be revoked",
+                  "a": "Biometrics cannot be revoked: protect templates and never use them as the only factor",
                   "x": "You get ten fingers and two eyes for life — a compromised biometric is compromised forever. Treat templates as high-value data and never as a single factor.",
                   "wrong": [
-                    "Biometrics replace passwords entirely",
-                    "Store templates in a shared folder for convenience: shared folders hold biometric templates",
-                    "Fingerprints are unguessable, so one factor is fine: biometrics alone guard the center"
+                    "Fingerprints cannot be guessed, so a single biometric factor is enough for the data centre",
+                    "Store templates in a shared folder",
+                    "Biometrics replace passwords entirely"
                   ]
                 },
                 {
@@ -19891,12 +19891,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "Job rotation is proposed for the SOC but analysts fear losing expertise. What is the most defensible implementation?",
-                  "a": "Rotate through roles with documented handovers",
+                  "a": "Rotate through roles with documented handovers and overlap",
                   "x": "Rotation is both a security control and a resilience practice: it prevents single-person dependency and exposes processes that only work in one person's head.",
                   "wrong": [
-                    "Keep everyone fixed in their specialty",
+                    "Keep everyone in their specialty, since expertise matters more than rotation for SOC analysts",
                     "Rotate people out of the company",
-                    "Rotation is only for executives: only the executives rotate through SOC roles"
+                    "Rotate executives only"
                   ]
                 },
                 {
@@ -19904,12 +19904,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "A file share contains 'salary_2024_final_FINAL.xlsx' visible to the whole company. What is the most defensible classification fix?",
-                  "a": "The data owner classifies it",
+                  "a": "The data owner classifies it, and access is limited to those with a need to know",
                   "x": "Classification starts with the data owner — the business side that understands the data's value — and 'need to know' limits access to those with a legitimate purpose.",
                   "wrong": [
-                    "IT decides what is sensitive",
-                    "Everyone needs to see it for transparency: the salary file stays company-wide",
-                    "Rename the file to hide it: a new name hides the salary file"
+                    "IT decides how sensitive it is, since IT manages the file share and its permissions",
+                    "Leave it visible for transparency",
+                    "Rename the file to hide it"
                   ]
                 },
                 {
@@ -19920,9 +19920,9 @@
                   "a": "A mantrap or turnstile with enforced badging on every entry",
                   "x": "Physical access control fails at the weakest door: tailgating defeats a $50,000 reader in seconds. Enforce badging at all entries, no exceptions.",
                   "wrong": [
-                    "Put up a sign asking people to close it",
-                    "Remove the badge reader to save money",
-                    "Smokers can use the front door only on weekends: weekend front-door access only"
+                    "Put up a sign asking people to close the door, and remind smokers in the next staff meeting",
+                    "Remove the badge reader",
+                    "Allow front-door access only at weekends"
                   ]
                 },
                 {
@@ -19930,12 +19930,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "Honeytokens are proposed: fake credentials planted in the environment. What is the most defensible deployment?",
-                  "a": "Place them where no legitimate user goes",
+                  "a": "Place them where no legitimate user or process would ever touch them",
                   "x": "Deception works when false positives are near zero: a honeytoken in a real workflow pages you about your own staff. Put it in attacker-only territory.",
                   "wrong": [
-                    "Plant them in the CEO’s inbox: the CEO’s inbox traps every single attacker",
-                    "Tell all staff where they are: every staff member knows the honeytoken spots",
-                    "Honeytokens replace the SIEM: planted fake credentials replace all log monitoring"
+                    "Plant them in the CEO's inbox, since attackers always target executives first",
+                    "Tell all staff where they are",
+                    "Use them instead of the SIEM"
                   ]
                 },
                 {
@@ -19946,9 +19946,9 @@
                   "a": "Preventive: it stops unauthorized use before it happens",
                   "x": "Controls are classified by function (preventive/detective/corrective) and nature (technical/administrative/physical): a gap analysis that finds only detective controls has found a real gap.",
                   "wrong": [
-                    "Detective: it detects idle users",
-                    "Classification is academic: the preventive versus detective labels are mere theory",
-                    "All controls are preventive: every single control stops incidents before they happen"
+                    "Detective, because it notices that a user has gone idle and records the event",
+                    "The distinction is only academic",
+                    "All controls are preventive"
                   ]
                 },
                 {
@@ -19959,9 +19959,9 @@
                   "a": "Monitored alarming on motion in restricted areas plus retained footage",
                   "x": "Cameras nobody watches are forensic, not protective: pair recording with real-time alerting on the zones that matter.",
                   "wrong": [
-                    "More cameras everywhere",
-                    "Cameras deter everything already",
-                    "Delete footage to save disk: erasing the CCTV footage frees storage space"
+                    "Install more cameras so that every area is covered and footage is kept for longer",
+                    "Rely on cameras as a deterrent",
+                    "Delete old footage to save disk"
                   ]
                 },
                 {
@@ -19972,9 +19972,9 @@
                   "a": "Real review: risk assessment per change, testing evidence, and a backout plan",
                   "x": "Change management is a preventive control: unreviewed changes are how outages and backdoors ship. Every change needs risk review and a rollback plan.",
                   "wrong": [
-                    "Approve faster to help the business: speed always beats review for firewall changes",
-                    "Skip CAB for security changes: the security firewall changes skip the board",
-                    "CAB is bureaucracy; disband it: scrapping the board speeds firewall changes right up"
+                    "Approve changes faster to help the business, and review any that cause problems afterwards",
+                    "Skip the CAB for security changes",
+                    "Disband the CAB"
                   ]
                 },
                 {
@@ -19982,12 +19982,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "An intern asks why the company bothers with 'least privilege' when everyone is trusted. What is the most defensible explanation?",
-                  "a": "Trust is not the issue",
+                  "a": "Trust is not the issue: credentials get stolen, and least privilege limits the damage",
                   "x": "Least privilege assumes credentials will be stolen: the damage is bounded by what the account could reach. 'Trusted' staff get phished too.",
                   "wrong": [
-                    "Trust replaces access controls: trusted staff need no access controls at all",
-                    "Least privilege slows work too much: trusted staff need full access always",
-                    "Admins are exempt from least privilege: the trusted admins need no limits at all"
+                    "Trusted staff do not need access controls, since controls exist to stop malicious employees",
+                    "Least privilege slows work too much",
+                    "Admins are exempt"
                   ]
                 },
                 {
@@ -19995,12 +19995,12 @@
                   "deckId": "secplus-concepts-scenarios",
                   "trackId": "cyber",
                   "q": "The data center installed bollards, a mantrap, and badge readers — but the loading dock door is on a shared code. What is the most defensible fix?",
-                  "a": "Individual badges on every entry including the dock",
+                  "a": "Individual badges on every entry, including the loading dock",
                   "x": "Accountability requires attribution: a shared code authenticates 'someone with the code', which is no authentication at all for incident response.",
                   "wrong": [
+                    "Change the shared dock code every month and give it only to the delivery team",
                     "Shared codes are fine for docks",
-                    "Remove the dock door",
-                    "Change the code monthly: rotating codes fixes the loading dock gap"
+                    "Remove the dock door"
                   ]
                 }
               ],
