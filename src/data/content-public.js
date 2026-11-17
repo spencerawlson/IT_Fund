@@ -1070,7 +1070,7 @@ export const tracks = [
                 "a": "Each layer wrapping data with its own header on the way down",
                 "x": "The receiver de-encapsulates, stripping headers on the way up.",
                 "wrong": [
-                  "Encrypting data",
+                  "Encrypting each layer's data with its own key",
                   "Compressing data",
                   "Splitting a network"
                 ]

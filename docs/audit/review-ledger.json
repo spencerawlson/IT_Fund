@@ -465,6 +465,51 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 10
+    },
+    "net-osi": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-ports": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 15
+    },
+    "net-devices-media": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-ip-subnet": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-switch-route": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-services-wireless": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-troubleshoot": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-ops": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
+    },
+    "net-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 12
     }
   }
 }

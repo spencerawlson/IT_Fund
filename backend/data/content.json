@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:36:13.139Z",
+  "generatedAt": "2026-11-17T10:37:05.229Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -1994,7 +1994,7 @@
                   "a": "Each layer wrapping data with its own header on the way down",
                   "x": "The receiver de-encapsulates, stripping headers on the way up.",
                   "wrong": [
-                    "Encrypting data",
+                    "Encrypting each layer's data with its own key",
                     "Compressing data",
                     "Splitting a network"
                   ]
@@ -2455,7 +2455,7 @@
                   "a": "Distributes traffic across multiple servers",
                   "x": "Improves availability and scale; often terminates TLS.",
                   "wrong": [
-                    "Filters spam",
+                    "Filters malicious requests at Layer 7",
                     "Assigns IPs",
                     "Resolves names"
                   ]
@@ -2669,7 +2669,7 @@
                   "a": "Lets an IPv6 host configure its own address from router advertisements",
                   "x": "Stateless Address Autoconfiguration; DHCPv6 is the stateful option.",
                   "wrong": [
-                    "Translates IPv4 to IPv6, rewriting every single address on the fly as it passes",
+                    "Translates IPv4 packets into IPv6 at the network edge",
                     "Assigns MAC addresses",
                     "Encrypts IPv6"
                   ]
@@ -2682,7 +2682,7 @@
                   "a": "Maps private addresses to a public address (PAT uses ports)",
                   "x": "PAT lets many hosts share one public IP. NAT is not a security control by itself.",
                   "wrong": [
-                    "Encrypts traffic",
+                    "Encrypts traffic leaving the private network",
                     "Assigns IPs",
                     "Resolves hostnames"
                   ]
@@ -3047,7 +3047,7 @@
                   "a": "Forwards DHCP broadcasts to a server on another subnet",
                   "x": "Routers block broadcasts, so a central DHCP server needs relays.",
                   "wrong": [
-                    "Caches DNS",
+                    "Caches DNS answers for hosts on the subnet",
                     "Assigns MACs",
                     "Blocks rogue servers"
                   ]
@@ -3204,7 +3204,7 @@
                   "wrong": [
                     "Verify full functionality",
                     "Implement the solution",
-                    "Escalate"
+                    "Escalate the ticket to the next support tier"
                   ]
                 },
                 {
@@ -3293,7 +3293,7 @@
                   "a": "Physical layer: bad cable, interference, or duplex mismatch",
                   "x": "Start troubleshooting at Layer 1.",
                   "wrong": [
-                    "DNS misconfiguration",
+                    "A DNS misconfiguration on the client",
                     "Wrong VLAN",
                     "Expired certificate"
                   ]
@@ -3396,7 +3396,7 @@
                   "a": "Recording traffic flow metadata: who talked to whom, how much",
                   "x": "Great for capacity planning and spotting exfiltration.",
                   "wrong": [
-                    "Full packet capture",
+                    "Full packet capture of every session",
                     "Routing",
                     "Assigning IPs"
                   ]
@@ -3449,7 +3449,7 @@
                   "x": "Warm sits between: hardware but not current data.",
                   "wrong": [
                     "They are the same",
-                    "Cold is faster",
+                    "Cold is faster, because there is no old data to clear",
                     "Hot is cheaper"
                   ]
                 },
@@ -3474,7 +3474,7 @@
                   "a": "Short-term battery power and clean power during outages",
                   "x": "A generator covers long outages; the UPS bridges the gap.",
                   "wrong": [
-                    "Long-term power for days",
+                    "Long-term power for days during a regional outage",
                     "Cooling",
                     "Network redundancy"
                   ]
@@ -3500,7 +3500,7 @@
                   "a": "Controlling and documenting changes to reduce outages",
                   "x": "Most outages follow a change. Always have a rollback plan.",
                   "wrong": [
-                    "Speeding up changes",
+                    "Speeding up changes by skipping approvals",
                     "Avoiding documentation",
                     "Assigning blame"
                   ]
@@ -3526,7 +3526,7 @@
                   "a": "Defining network config in version-controlled code",
                   "x": "Ansible, Terraform, and pipelines make changes repeatable and reviewable.",
                   "wrong": [
-                    "Hand-typing CLI changes",
+                    "Typing CLI changes on each device by hand",
                     "A Wi-Fi mode",
                     "A cable standard"
                   ]
@@ -3621,7 +3621,7 @@
                   "a": "Reaching another VLAN via switch spoofing or double tagging",
                   "x": "Disable DTP, set an unused native VLAN, and hard-code access ports.",
                   "wrong": [
-                    "Moving a cable",
+                    "Moving a cable to a port in a different VLAN",
                     "Routing between VLANs legally",
                     "Changing an SSID"
                   ]
@@ -3647,7 +3647,7 @@
                   "a": "A segment for public-facing services, isolated from the internal LAN",
                   "x": "Firewalls control traffic between internet, DMZ, and inside.",
                   "wrong": [
-                    "A guest Wi-Fi",
+                    "A guest Wi-Fi network for visitors",
                     "A VPN",
                     "A VLAN trunk"
                   ]
@@ -3701,7 +3701,7 @@
                   "wrong": [
                     "Stealing a password",
                     "A phishing email",
-                    "A single-host scan"
+                    "A single host scanning the target's ports"
                   ]
                 },
                 {
