@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T10:35:04.885Z",
+  "generatedAt": "2026-11-17T10:36:13.139Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -4057,7 +4057,7 @@
                   "a": "A static default route (candidate default)",
                   "x": "S = static, * marks it as the gateway of last resort.",
                   "wrong": [
-                    "A summary route",
+                    "A summary route advertised by a static entry",
                     "A stale route",
                     "A secured route"
                   ]
@@ -4369,7 +4369,7 @@
                   "a": "The number of adjacencies on a multi-access (broadcast) segment",
                   "x": "Routers form full adjacencies with the DR/BDR instead of every neighbor, cutting LSA flooding.",
                   "wrong": [
-                    "The OSPF cost",
+                    "The OSPF cost of every link on the segment",
                     "The number of areas",
                     "The router ID range"
                   ]
@@ -4647,7 +4647,7 @@
                   "a": "The contiguous set of Level 2 routers",
                   "x": "Unlike OSPF's fixed Area 0, the L2 backbone just needs to be contiguous.",
                   "wrong": [
-                    "Area 0",
+                    "Area 0, as in OSPF",
                     "The DIS",
                     "The ASBR"
                   ]
@@ -4769,7 +4769,7 @@
                   "a": "Routing between autonomous systems (the internet's inter-domain protocol)",
                   "x": "BGP exchanges reachability (NLRI) and path attributes between ASes, not interior best-cost paths.",
                   "wrong": [
-                    "Routing inside one area",
+                    "Routing inside one area of a single organisation's network",
                     "Switching frames",
                     "Assigning IP addresses"
                   ]
@@ -4782,7 +4782,7 @@
                   "a": "A network under one administrative/routing policy, identified by an ASN",
                   "x": "eBGP runs between ASNs; iBGP runs within one ASN.",
                   "wrong": [
-                    "A single router running BGP entirely on its own, with no neighboring peers at all",
+                    "A single router running BGP that has no neighbours configured",
                     "A VLAN",
                     "A subnet"
                   ]
@@ -4821,7 +4821,7 @@
                   "a": "Weight (highest), a Cisco-local value",
                   "x": "Then Local Preference (highest), locally-originated, shortest AS_PATH, lowest MED, eBGP over iBGP...",
                   "wrong": [
-                    "AS_PATH",
+                    "AS_PATH (shortest wins)",
                     "MED",
                     "Origin"
                   ]
@@ -5140,7 +5140,7 @@
                   "a": "Cryptographic authentication (e.g. HMAC-SHA / MD5 keychains, TCP-AO for BGP)",
                   "x": "This stops unauthorized or spoofed peers from injecting routes.",
                   "wrong": [
-                    "Disabling the protocol",
+                    "Filtering neighbours by source IP address with an access list on each interface",
                     "Using plaintext only",
                     "ARP inspection"
                   ]
@@ -5192,7 +5192,7 @@
                   "a": "Accepting or propagating bogus/leaked prefixes",
                   "x": "Combine prefix-lists, AS_PATH filters, max-prefix limits and RPKI.",
                   "wrong": [
-                    "Slow convergence",
+                    "Slow convergence after a peer flaps",
                     "DR election storms",
                     "MTU black holes"
                   ]

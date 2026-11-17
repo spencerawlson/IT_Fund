@@ -415,6 +415,56 @@
       "reviewed": "2026-11-17",
       "by": "AI content audit (not a human SME)",
       "items": 22
+    },
+    "rt-fundamentals": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-static": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-rip": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-ospf": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "rt-eigrp": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-isis": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-bgp": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 11
+    },
+    "rt-redistribution": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-routing-security": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
+    },
+    "rt-routing-troubleshooting": {
+      "reviewed": "2026-11-17",
+      "by": "AI content audit (not a human SME)",
+      "items": 10
     }
   }
 }
