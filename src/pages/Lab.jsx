@@ -9,7 +9,6 @@ import {
 // 3D scenes are code-split: three.js (~600 KB) only loads when a 3D subject is opened,
 // never as part of the initial bundle.
 const Motherboard3D = React.lazy(() => import('@/components/three/Motherboard3D'));
-const Switch3D = React.lazy(() => import('@/components/three/Switch3D'));
 const ServerRack3D = React.lazy(() => import('@/components/three/ServerRack3D'));
 const Vpc3D = React.lazy(() => import('@/components/three/Vpc3D'));
 const LoadBalancer3D = React.lazy(() => import('@/components/three/LoadBalancer3D'));
@@ -22,6 +21,7 @@ const RackServer3D = React.lazy(() => import('@/components/three/RackServer3D'))
 const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
 const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'));
 import TcpAnimation from '@/components/viz/TcpAnimation';
+import SwitchSimulator from '@/components/viz/SwitchSimulator';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
 import NasSimulator from '@/components/viz/NasSimulator';
@@ -67,7 +67,7 @@ const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Secur
 export const SUBJECTS = [
   // Hardware
   { id: 'motherboard', category: 'Hardware', kind: '3d', icon: Cpu, label: '3D Motherboard', blurb: 'Rotate a real board — CPU socket, RAM, PCIe, chipset, and power paths.' },
-  { id: 'switch', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Network Switch Blueprint', blurb: 'A managed 48-port switch — ports, SFP+ uplinks, status LEDs, internals and specs.' },
+  { id: 'switch', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Network Switch Blueprint', blurb: 'Drive a live 48-port switch on one screen — watch the CAM table learn, survive a broadcast storm, elect an STP root.' },
   { id: 'server-rack', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Server Rack Blueprint', blurb: 'A 42U rack cabinet — rack units, rails, cable management, cooling and power distribution.' },
   { id: 'rack-server', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Rack Server Blueprint', blurb: 'A 2U rack server — drive bays, power supplies, cooling fans, management port and internals.' },
   { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Rack-mounted battery backup — status display, protected outlets, battery module and internals.' },
@@ -129,7 +129,7 @@ const ALIASES = {
 // Every renderable subject id -> how to render it. Superset of the gallery, so deep-links survive
 // curation. Flow subjects are data-driven via FlowDiagram.
 export const RENDERERS = {
-  motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
+  motherboard: Motherboard3D, switch: () => <SwitchSimulator />, 'server-rack': ServerRack3D,
   'rack-server': RackServer3D, ups: Ups3D,
   router: Router3D, 'access-point': AccessPoint3D,
   cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: () => <NasSimulator />, 'patch-panel': PatchPanel3D,
