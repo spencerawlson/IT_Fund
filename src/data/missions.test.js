@@ -190,18 +190,22 @@ describe('splitBriefing', () => {
 });
 
 describe('closingTurns', () => {
-  it('congratulates in all three voices and announces the next mission', () => {
+  it('opens, explains automatically, thanks, congratulates and announces the next mission', () => {
     const turns = closingTurns('Operation Broken Shield', 'Operation Packet Flood');
-    expect(turns.map((t) => t.speaker)).toEqual(['cypher', 'sentinel', 'patch', 'cypher']);
+    expect(turns.map((t) => t.speaker)).toEqual(['cypher', 'cypher', 'sentinel', 'patch', 'cypher']);
     expect(turns[0].text).toContain('Operation Broken Shield');
-    expect(turns[3].text).toContain('next mission for you: Operation Packet Flood');
-    expect(turns[3].text).toContain('See you on the next mission');
+    expect(turns[0].text).toContain('walk you through what you did');
+    // The explanation turn is filled at play time with this learner's result.
+    expect(turns[1]).toEqual({ speaker: 'cypher', explain: true });
+    expect(turns[4].text).toContain('you passed, and you helped us solve the problem we had');
+    expect(turns[4].text).toContain('Your next mission is Operation Packet Flood');
+    expect(turns[4].text).toContain('We hope to see you on the next mission');
   });
 
   it('says more missions are coming after the last one, and never speaks a score', () => {
     const turns = closingTurns('Operation Packet Flood', null);
-    expect(turns[3].text).toContain('More missions are on the way');
-    // Lines are identical for every learner, so the voice cache serves them.
-    for (const t of turns) expect(t.text).not.toMatch(/\d/);
+    expect(turns[4].text).toContain('More missions are on the way');
+    // Scripted lines are identical for every learner, so the voice cache serves them.
+    for (const t of turns.filter((x) => x.text)) expect(t.text).not.toMatch(/\d/);
   });
 });
