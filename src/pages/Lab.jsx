@@ -12,7 +12,6 @@ const Motherboard3D = React.lazy(() => import('@/components/three/Motherboard3D'
 const Vpc3D = React.lazy(() => import('@/components/three/Vpc3D'));
 const LoadBalancer3D = React.lazy(() => import('@/components/three/LoadBalancer3D'));
 const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
-const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
 import PatchPanelSimulator from '@/components/viz/PatchPanelSimulator';
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import SwitchSimulator from '@/components/viz/SwitchSimulator';
@@ -25,6 +24,7 @@ import UpsSimulator from '@/components/viz/UpsSimulator';
 import CloudSimulator from '@/components/viz/CloudSimulator';
 import RouterSimulator from '@/components/viz/RouterSimulator';
 import NgfwSimulator from '@/components/viz/NgfwSimulator';
+import AccessPointSimulator from '@/components/viz/AccessPointSimulator';
 import AutoScalingAnimation from '@/components/viz/AutoScalingAnimation';
 import CICDAnimation from '@/components/viz/CICDAnimation';
 import SubnetCalculator from '@/components/tools/SubnetCalculator';
@@ -75,7 +75,7 @@ export const SUBJECTS = [
   // Networking
   { id: 'osi', category: 'Networking', kind: 'blueprint', icon: Layers, label: 'OSI Model Blueprint', blurb: 'All seven layers — functions, protocols, encapsulation, and the PDU at each layer.' },
   { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'Drive a live router on one screen — build the routing table, fail over to a floating static, watch NAT translate.' },
-  { id: 'access-point', category: 'Networking', kind: 'blueprint', icon: Wifi, label: 'Wireless Access Point Blueprint', blurb: 'Ceiling-mounted Wi-Fi — status ring, PoE uplink, MIMO antenna layout and internals.' },
+  { id: 'access-point', category: 'Networking', kind: 'blueprint', icon: Wifi, label: 'Wireless Access Point Blueprint', blurb: 'Drive a live wireless access point on one screen — pick a clean channel, roam clients between APs, lock it down with WPA3.' },
   { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
   { id: 'udp', category: 'Networking', kind: 'anim', icon: Radio, label: 'UDP Datagrams', blurb: 'See fire-and-forget delivery — fast, connectionless, and lossy.' },
   { id: 'dns', category: 'Networking', kind: 'anim', icon: Globe, label: 'DNS Resolution', blurb: 'Follow a name through root, TLD, and authoritative servers.' },
@@ -131,7 +131,7 @@ const ALIASES = {
 export const RENDERERS = {
   motherboard: Motherboard3D, switch: () => <SwitchSimulator />, 'server-rack': () => <ServerRackSimulator />,
   'rack-server': () => <RackServerSimulator />, ups: () => <UpsSimulator />,
-  router: () => <RouterSimulator />, 'access-point': AccessPoint3D,
+  router: () => <RouterSimulator />, 'access-point': () => <AccessPointSimulator />,
   cloud: () => <CloudSimulator />, 'firewall-3d': () => <NgfwSimulator />, nas: () => <NasSimulator />, 'patch-panel': () => <PatchPanelSimulator />,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
