@@ -53,3 +53,11 @@ describe('AppShell sidebar pricing (2026-11-13)', () => {
     expect(html).toContain('Road to CISSP');
   });
 });
+
+describe('AppShell Learn nav (navigation fix, 2026-11-18)', () => {
+  it('Learn opens the courses index, not the last-opened course', () => {
+    const html = renderShell(SIGNED_IN_AUTH);
+    expect(html).toContain('href="/academy/courses"');
+    expect(html).not.toContain('href="/academy/courses/network-engineering"');
+  });
+});

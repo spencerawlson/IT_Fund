@@ -120,6 +120,7 @@ export default function LessonView() {
   const walkthrough = WALKTHROUGH_VIDEO_FOR[lesson.id];
   const crumbs = [
     { label: 'Home', to: '/' },
+    { label: 'Courses', to: '/academy/courses' },
     { label: course.title, to: courseHref(course) },
     { label: `Module ${module.number}`, to: moduleHref(module) },
     { label: `Lesson ${lesson.number}` },
