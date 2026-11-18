@@ -61,10 +61,10 @@ and 49 unused npm deps were pruned in the production-readiness pass). Auth is OA
 
 ## Interactive labs (backend/labs)
 
-- Providers: `mock` (simulation — the default for the 32 simulated lab definitions)
+- Providers: `mock` (simulation — the default for the 31 simulated lab definitions)
   and `docker` (`labs/providers/docker.py`: one hardened container per session:
   dropped caps, no-new-privileges, CPU/mem/PID limits, one internal-only network
-  per session when the lab denies internet egress). 29 definitions name
+  per session when the lab denies internet egress). 30 definitions name
   `provider="docker"`. Docker registers only with `LAB_DOCKER_ENABLED=1` on a host
   with a reachable daemon; flip a lab's `environment.provider` to `"docker"` once its image is published.
 - DB: `APP_ENV=production` requires `DATABASE_URL` + `SESSION_SECRET` and runs Alembic migrations

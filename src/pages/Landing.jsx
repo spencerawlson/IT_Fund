@@ -180,7 +180,7 @@ export default function Landing() {
 
         {/* Proof: one quiet line, not a grid */}
         <p className="pb-4 text-center text-small text-ink-3">
-          {COUNTS.totalCardsPlus} flashcards · {COUNTS.labsPlus} hands-on labs · 8 CISSP domains · 5 timed exam simulators
+          {COUNTS.totalCardsPlus} flashcards · {COUNTS.labs} hands-on labs · 8 CISSP domains · 5 timed exam simulators
         </p>
 
         {/* Who it's for */}
