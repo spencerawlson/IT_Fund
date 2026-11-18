@@ -38,8 +38,8 @@ function DnsForm({ value, onChange }) {
       <Field label="Record type" hint="A = IPv4, AAAA = IPv6, MX = mail, CNAME = alias.">
         <select className={inputCls} value={value.qtype}
           onChange={(e) => onChange({ ...value, qtype: Number(e.target.value) })}>
-          {Object.entries(DNS_QTYPES).map(([code, name]) => (
-            <option key={code} value={code}>{name} ({code})</option>
+          {DNS_QTYPES.map((t) => (
+            <option key={t.value} value={t.value}>{t.label} ({t.value})</option>
           ))}
         </select>
       </Field>
