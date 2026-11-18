@@ -158,6 +158,20 @@ export const RENDERERS = {
 
 const resolveId = (id) => (RENDERERS[ALIASES[id]] ? ALIASES[id] : id);
 
+// Subjects whose renderer is an interactive simulator (the load balancer +
+// the 10 equipment subjects), not a static blueprint sheet, animation or
+// tool. The gallery filter + card tag read this set, so a subject shows
+// under "Interactive" and carries the Simulator tag. The six subjects whose
+// simulator PRs are still open are already listed here, so they light up
+// automatically when those PRs merge, with no further edits. kind stays
+// 'blueprint' for these subjects: the stage still renders them full-width
+// and the *3D fallbacks still apply.
+export const SIMULATOR_IDS = new Set([
+  'load-balancer', 'switch', 'nas', 'rack-server', 'server-rack', 'ups',
+  'patch-panel', 'router', 'access-point', 'cloud', 'firewall-3d',
+]);
+export const isSimulator = (id) => SIMULATOR_IDS.has(resolveId(id));
+
 // Visual Lab scenario -> the Interactive Lab(s) where you build/configure it ("See → Build").
 const BUILD_IN_LAB = {
   'rt-ospf-neighbor': ['net-ospf-001'],
@@ -180,7 +194,7 @@ function metaFor(id) {
 // the page (and the browser Back button); the stage has no back button of its own.
 function Stage({ id }) {
   const meta = metaFor(id);
-  const k = KINDS[meta.kind] || KINDS.anim;
+  const k = SIMULATOR_IDS.has(id) ? KINDS.simulator : (KINDS[meta.kind] || KINDS.anim);
   const Icon = meta.icon;
   const refs = getModulesForLab(id);
   const Renderer = RENDERERS[id];
@@ -345,7 +359,7 @@ export default function Lab() {
           </div>
         </header>
 
-        {active ? <Stage id={active} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} />}
+        {active ? <Stage id={active} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} isSimulator={isSimulator} />}
 
       </div>
     </div>

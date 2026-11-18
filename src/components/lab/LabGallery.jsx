@@ -9,13 +9,16 @@ export const KINDS = {
   blueprint: { label: 'Blueprint', dot: 'bg-sky-400', pill: 'border-sky-400/30 bg-sky-400/10 text-sky-700', grad: 'from-sky-500/30 to-blue-500/10', icon: 'text-sky-700' },
   anim: { label: 'Animated', dot: 'bg-blue-400', pill: 'border-blue-400/30 bg-blue-400/10 text-blue-700', grad: 'from-blue-500/30 to-indigo-500/10', icon: 'text-blue-700' },
   tool: { label: 'Interactive', dot: 'bg-amber-400', pill: 'border-amber-400/30 bg-amber-400/10 text-amber-700', grad: 'from-amber-500/30 to-orange-500/10', icon: 'text-amber-700' },
+  // An interactive simulator: same amber family as the Interactive tools, but labelled
+  // Simulator so a card that drives a live model never reads as a static sheet.
+  simulator: { label: 'Simulator', dot: 'bg-amber-400', pill: 'border-amber-400/30 bg-amber-400/10 text-amber-700', grad: 'from-amber-500/30 to-orange-500/10', icon: 'text-amber-700' },
   flow: { label: 'Walkthrough', dot: 'bg-violet-400', pill: 'border-violet-400/30 bg-violet-400/10 text-violet-700', grad: 'from-violet-500/30 to-fuchsia-500/10', icon: 'text-violet-700' },
 };
 
 const FILTERS = [['all', 'All'], ['3d', '3D'], ['blueprint', 'Blueprints'], ['anim', 'Animated'], ['tool', 'Interactive'], ['flow', 'Walkthroughs']];
 
-function Tile({ subject, onSelect }) {
-  const k = KINDS[subject.kind] || KINDS.anim;
+function Tile({ subject, onSelect, isSimulator }) {
+  const k = isSimulator(subject.id) ? KINDS.simulator : (KINDS[subject.kind] || KINDS.anim);
   const Icon = subject.icon;
   return (
     <button
@@ -41,12 +44,19 @@ function Tile({ subject, onSelect }) {
   );
 }
 
-export default function LabGallery({ subjects, categories, onSelect }) {
+export default function LabGallery({ subjects, categories, onSelect, isSimulator = () => false }) {
   const [filter, setFilter] = useState('all');
 
+  // The Interactive filter shows the hands-on tools AND the simulators: a
+  // simulator's kind stays 'blueprint' (or 'anim' for the load balancer), so
+  // it would otherwise be hidden here even though it is driven live.
   const shown = useMemo(
-    () => (filter === 'all' ? subjects : subjects.filter((s) => s.kind === filter)),
-    [subjects, filter],
+    () => (filter === 'all'
+      ? subjects
+      : filter === 'tool'
+        ? subjects.filter((s) => s.kind === 'tool' || isSimulator(s.id))
+        : subjects.filter((s) => s.kind === filter)),
+    [subjects, filter, isSimulator],
   );
   const byCategory = useMemo(
     () => categories.map((cat) => [cat, shown.filter((s) => s.category === cat)]).filter(([, list]) => list.length),
@@ -80,7 +90,7 @@ export default function LabGallery({ subjects, categories, onSelect }) {
               <span className="text-caption text-ink-3">{list.length}</span>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {list.map((s) => <Tile key={s.id} subject={s} onSelect={onSelect} />)}
+              {list.map((s) => <Tile key={s.id} subject={s} onSelect={onSelect} isSimulator={isSimulator} />)}
             </div>
           </section>
         ))}
