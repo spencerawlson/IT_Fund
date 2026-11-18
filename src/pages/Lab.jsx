@@ -15,7 +15,6 @@ const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
 const Router3D = React.lazy(() => import('@/components/three/Router3D'));
 const Firewall3D = React.lazy(() => import('@/components/three/Firewall3D'));
 const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
-const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
 import PatchPanelSimulator from '@/components/viz/PatchPanelSimulator';
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import SwitchSimulator from '@/components/viz/SwitchSimulator';
@@ -25,6 +24,7 @@ import NasSimulator from '@/components/viz/NasSimulator';
 import RackServerSimulator from '@/components/viz/RackServerSimulator';
 import ServerRackSimulator from '@/components/viz/ServerRackSimulator';
 import UpsSimulator from '@/components/viz/UpsSimulator';
+import CloudSimulator from '@/components/viz/CloudSimulator';
 import AutoScalingAnimation from '@/components/viz/AutoScalingAnimation';
 import CICDAnimation from '@/components/viz/CICDAnimation';
 import SubnetCalculator from '@/components/tools/SubnetCalculator';
@@ -92,7 +92,7 @@ export const SUBJECTS = [
   { id: 'rt-link-failure', category: 'Routing', kind: 'anim', icon: Zap, label: 'Link Failure & Reconvergence', blurb: 'A link fails; watch the network recompute paths and reroute.' },
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
-  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
+  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'Drive a live cloud on one screen — scale out under traffic, fail over across availability zones, watch the bill move.' },
   { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'Drive a live balancer on one screen — six strategies on the left, the flow in the middle, the server pool on the right.' },
   { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
   { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
@@ -132,7 +132,7 @@ export const RENDERERS = {
   motherboard: Motherboard3D, switch: () => <SwitchSimulator />, 'server-rack': () => <ServerRackSimulator />,
   'rack-server': () => <RackServerSimulator />, ups: () => <UpsSimulator />,
   router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: () => <NasSimulator />, 'patch-panel': () => <PatchPanelSimulator />,
+  cloud: () => <CloudSimulator />, 'firewall-3d': Firewall3D, nas: () => <NasSimulator />, 'patch-panel': () => <PatchPanelSimulator />,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
