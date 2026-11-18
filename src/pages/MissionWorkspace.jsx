@@ -9,10 +9,11 @@ import FirewallConsole from '@/components/missions/FirewallConsole';
 import IncidentReportForm from '@/components/missions/IncidentReportForm';
 import FloodReportForm from '@/components/missions/FloodReportForm';
 import CypherVoiceButton from '@/components/missions/CypherVoiceButton';
-import { useTutor, useTutorEnabled, TutorText, Thinking } from '@/components/academy/tutor/TutorAssist';
+import { useTutor, useTutorEnabled } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
-import { getMission } from '@/data/missions';
+import { getMission, closingTurns } from '@/data/missions';
+import SocClosing from '@/components/missions/SocClosing';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
@@ -213,9 +214,18 @@ export default function MissionWorkspace() {
   const tutorEnabled = useTutorEnabled();
   const {
     text: explainText, loading: explainLoading, error: explainError,
-    ask: askExplain, stop: stopExplain,
+    ask: askExplain,
   } = useTutor();
   const debriefLoggedRef = useRef(false);
+  // The latest completeMission, for the console's `complete` command (the
+  // runner is defined before it).
+  const completeRef = useRef(null);
+  // The SOC closing scene (Spencer, 2026-11-18): shown over this page as soon
+  // as the mission completes; "Review my results" closes it, revealing the
+  // debrief and the dossier below. nextMission is the next one in the
+  // catalogue order, or null after the last.
+  const [showClosing, setShowClosing] = useState(false);
+  const [nextMission, setNextMission] = useState(null);
   // Draft autosave state: the timer for the debounce, the latest unsaved
   // values, and whether a save is in flight (a save that lands while one
   // is in flight is queued and sent right after).
@@ -264,20 +274,20 @@ export default function MissionWorkspace() {
     }
   }, [debrief, missionId]);
 
-  // "Cypher explains the outcome": the question is built from the
-  // server-validated state (score + passed/open objectives + debrief text).
-  // The tutor explains from that state — nothing is re-graded client-side.
-  const explainOutcome = () => {
-    // A re-ask speaks again: the auto-play guard below remembers the last
-    // spoken outcome, so clear it before the new answer arrives.
-    explainAutoPlayedRef.current = '';
-    const passed = objectives.filter((o) => o.passed).map((o) => o.label || o.id);
-    const open = objectives.filter((o) => !o.passed).map((o) => o.label || o.id);
-    const q = `I just completed ${title} with a score of ${debrief?.score ?? '—'} out of 100. `
-      + `Objectives passed (${passed.length}/${objectives.length}): ${passed.join('; ') || 'none'}. `
+  // "Cypher explains the outcome" (Spencer, 2026-11-18): no button any more.
+  // When the mission completes, the explanation is requested at once and
+  // spoken in the SOC room (SocClosing), without the learner asking. The
+  // question is built from the server-validated state (score + passed/open
+  // objectives + debrief text) -- nothing is re-graded client-side.
+  const askOutcome = useCallback((res, objs) => {
+    const passedList = objs.filter((o) => o.passed).map((o) => o.label || o.id);
+    const open = objs.filter((o) => !o.passed).map((o) => o.label || o.id);
+    const q = `I just completed ${title} with a score of ${res?.score ?? '—'} out of 100. `
+      + `Objectives passed (${passedList.length}/${objs.length}): ${passedList.join('; ') || 'none'}. `
       + `Still open: ${open.join('; ') || 'none'}. `
-      + `The debrief says: ${debrief?.debrief || '—'}. `
-      + `Explain what I did well, what the open objectives mean, and the one concept I should review next. Do not re-grade my work — explain from this state.`;
+      + `The debrief says: ${res?.debrief || '—'}. `
+      + 'Explain, speaking to me directly, what happened in this incident and what I did to resolve it, step by step, '
+      + 'in a few short spoken sentences with no lists or headings. Do not re-grade my work.';
     askExplain({
       mode: 'chat',
       track: lessonId || 'net-security',
@@ -285,28 +295,7 @@ export default function MissionWorkspace() {
       level: 'intermediate',
       messages: [{ role: 'user', content: q }],
     });
-  };
-
-  // The spoken outcome: the server debrief first, then Cypher's
-  // explanation. The debrief opens with the congratulation ("Great job
-  // completing … with a perfect score! …"), so speaking it first
-  // guarantees the congratulation is heard — the tutor's answer alone
-  // might not open with it. Both parts are shown in this card; the
-  // voice reads the whole outcome aloud, in the order it is read.
-  const explainSpokenText = [debrief?.debrief, explainText].filter(Boolean).join('\n');
-  // Listen-first (PR #78 pattern): when Cypher's explanation finishes
-  // arriving, he reads the outcome aloud — one tap on "Ask Cypher to
-  // explain the outcome" gives text AND voice together, no second tap.
-  // The ref guards against replays on re-renders; explainOutcome resets
-  // it so a re-ask speaks again. (cypherVoice.play is a stable
-  // callback, so it is safe in the dep array.)
-  const explainAutoPlayedRef = useRef('');
-  useEffect(() => {
-    if (!explainText || explainLoading || explainError) return;
-    if (explainAutoPlayedRef.current === explainSpokenText) return;
-    explainAutoPlayedRef.current = explainSpokenText;
-    cypherVoice.play(explainSpokenText);
-  }, [explainText, explainLoading, explainError, explainSpokenText, cypherVoice.play]);
+  }, [askExplain, title, lessonId]);
 
   const applyAttemptState = useCallback((res) => {
     if (!res) return;
@@ -431,7 +420,18 @@ export default function MissionWorkspace() {
     const count = () => `${objectives.filter((o) => o.passed).length}/${objectives.length} objectives complete`;
 
     if (c === 'objectives') return { output: formatObjectives(objectives) };
-    if (c === 'progress' || (c === 'lab' && sub === 'status') || (c === 'status')) return { output: count() };
+    const allDone = objectives.length > 0 && objectives.every((o) => o.passed);
+    if (c === 'progress' || (c === 'lab' && sub === 'status') || (c === 'status')) {
+      return { output: allDone ? `${count()} — type \`complete\` (or click Mission complete) to finish the mission.` : count() };
+    }
+    // Finish from the console (Spencer, 2026-11-18): same as the Mission
+    // complete button -- once every objective (the incident report included)
+    // passes, it completes the mission and the SOC room takes over.
+    if (c === 'complete' || c === 'completed') {
+      if (!allDone) return { output: `Not yet: ${count()}. Run \`objectives\` to see what is left.` };
+      completeRef.current?.();
+      return { output: 'Mission complete — heading back to the SOC…' };
+    }
     if (c === 'hint') {
       const open = objectives.find((o) => !o.passed);
       if (!open) return { output: 'Every objective is complete — file the incident report.' };
@@ -556,6 +556,9 @@ export default function MissionWorkspace() {
     try {
       const res = await missionsApi.complete(attempt.id);
       setDebrief(res);
+      // Start the explanation now, while the SOC room loads, so it is ready
+      // to be spoken right after Cypher's opening line.
+      if (tutorEnabled) askOutcome(res, res.objectives || objectives);
       if (res.attempt) setAttempt(res.attempt);
       if (res.objectives) setObjectives(res.objectives);
       // The server's xp_awarded is the mission's first-completion award
@@ -563,12 +566,24 @@ export default function MissionWorkspace() {
       // ledger — a debrief number alone never reached the dashboard, which
       // is why the live first completion showed 0 XP awarded.
       if (res.xp_awarded > 0) recordMissionCompletion(missionId, res.xp_awarded);
+      // Which mission comes next (catalogue order). Best-effort: without it
+      // the robots say more missions are on the way.
+      try {
+        const { missions = [] } = await missionsApi.listDefinitions();
+        const i = missions.findIndex((m) => m.id === missionId);
+        const next = i >= 0 ? missions[i + 1] : null;
+        setNextMission(next ? { id: next.id, title: next.title || next.callsign || next.id } : null);
+      } catch {
+        setNextMission(null);
+      }
+      setShowClosing(true);
     } catch (e) {
       setError(friendlyErrorMessage(e));
     } finally {
       setBusy(false);
     }
-  }, [attempt, missionId]);
+  }, [attempt, missionId, tutorEnabled, askOutcome, objectives]);
+  completeRef.current = completeMission;
 
   const total = objectives.length;
   const passed = (id) => objectives.find((o) => o.id === id)?.passed || false;
@@ -684,6 +699,19 @@ export default function MissionWorkspace() {
 
   return (
     <div className="min-h-[100dvh] text-ink-1">
+      {showClosing && (
+        <SocClosing
+          turns={closingTurns(title, nextMission?.title)}
+          explanation={{
+            text: explainText,
+            loading: explainLoading,
+            failed: !tutorEnabled || !!explainError,
+            fallback: debrief?.debrief || '',
+          }}
+          nextMission={nextMission}
+          onReview={() => setShowClosing(false)}
+        />
+      )}
       <header className="sticky top-safe z-30 px-3 pt-3 sm:px-6 sm:pt-5">
         <div className="glass-1 nav-solid mx-auto flex max-w-6xl flex-wrap items-center gap-2 rounded-card px-3 py-2 sm:px-4 min-[1810px]:max-w-[112rem]">
           <ShieldCheck size={18} className="shrink-0 text-ink-2" aria-hidden="true" />
@@ -942,7 +970,7 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
                     <Check size={18} aria-hidden="true" /> Incident report filed.
                   </p>
                   <Button size="lg" icon={ShieldCheck} onClick={completeMission} loading={busy} className="mt-3 w-full">
-                    Complete mission — debrief
+                    Mission complete
                   </Button>
                 </div>
               )}
@@ -962,42 +990,6 @@ tshark -r flood.pcap -T fields -e ip.src | sort | uniq -c | sort -n`}
                 {typeof debrief.xp_awarded === 'number' && <> · XP awarded: <strong>{debrief.xp_awarded}</strong></>}
               </p>
               {debrief.debrief && <p className="mt-2 whitespace-pre-wrap text-body text-ink-2">{debrief.debrief}</p>}
-              {tutorEnabled && (
-                <div className="mt-4 border-t border-black/10 pt-4">
-                  <p className="text-body font-semibold text-ink-1">Cypher explains the outcome</p>
-                  <p className="mt-1 text-small text-ink-2">
-                    Cypher reads your validated results — score and which objectives
-                    passed — and explains what they mean. He never re-grades your work.
-                    He reads it aloud as soon as it arrives.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button size="sm" variant="secondary" onClick={explainOutcome} loading={explainLoading} disabled={explainLoading}>
-                      Ask Cypher to explain the outcome
-                    </Button>
-                    {explainLoading && (
-                      <Button size="sm" variant="ghost" onClick={stopExplain}>Stop</Button>
-                    )}
-                  </div>
-                  {explainError && <p className="mt-3 text-small text-danger">{explainError}</p>}
-                  {explainText && (
-                    <div className="mt-3 rounded-control border border-violet-700/20 bg-violet-50 p-3.5 text-sm leading-relaxed text-ink-1" aria-live="polite">
-                      <TutorText text={explainText} />
-                      {cypherVoice.playing && (
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <Button size="sm" variant="ghost" onClick={() => { cypherVoice.stop(); }}>Stop</Button>
-                        </div>
-                      )}
-                      {cypherVoice.subtitle && (
-                        <p className="mt-2 text-small text-ink-2" aria-live="polite">
-                          <span className="font-bold text-action-hover">Cypher:</span> {cypherVoice.subtitle}
-                        </p>
-                      )}
-                      {cypherVoice.error && <p className="mt-2 text-small text-danger">{cypherVoice.error}</p>}
-                    </div>
-                  )}
-                  {explainLoading && !explainText && <div className="mt-3"><Thinking /></div>}
-                </div>
-              )}
             </Card>
           )}
           {done && (
