@@ -205,7 +205,7 @@ VULN_SCANNING_LAB = LabDefinition(
         "Run a full vulnerability management cycle against a fictional network: scan, interpret "
         "CVSS vectors, cross-check the CISA KEV catalog, prioritize by RISK (CVSS + EPSS + KEV + "
         "asset criticality — not CVSS alone), choose remediation vs mitigation, rescan to verify, "
-        "and write the executive summary. Maps to CySA+ CS0-003 Vulnerability Management (30%)."
+        "and write the executive summary. Maps to CySA+ CS0-004 Vulnerability Management (26%)."
     ),
     category="cybersecurity",
     shell="vuln_cli",

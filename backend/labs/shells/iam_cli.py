@@ -1,4 +1,4 @@
-"""A simulated IAM policy shell for the least-privilege lab (SCS-C02).
+"""A simulated IAM policy shell for the least-privilege lab (SCS-C03).
 
 Deterministic and safe: models IAM users, roles, managed policies and trust policies in memory,
 plus a policy evaluation simulator with real IAM semantics — explicit deny wins, wildcard

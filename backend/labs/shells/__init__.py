@@ -20,7 +20,7 @@ _SHELLS = {
     'linux_python': linux_python, # python automation lab (simulated python3)
     'aws_audit': aws_audit,       # cloud security audit (AWS CLI)
     'aws_cli': aws_cli,           # AWS CLI fundamentals (SAA-C03: ec2/s3/vpc/elb/iam/cw)
-    'iam_cli': iam_cli,           # IAM policy workbench: least privilege (SCS-C02)
+    'iam_cli': iam_cli,           # IAM policy workbench: least privilege (SCS-C03)
     'terraform': terraform,       # IaC provisioning + cloud security
     'docker_siem': docker_siem,   # container security monitoring + SIEM investigation
     'docker_cli': docker_cli,     # docker fundamentals (images/containers/compose)
