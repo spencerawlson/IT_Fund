@@ -5,9 +5,6 @@ import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useAuth } from '@/lib/AuthContext';
 import { useTutorEnabled } from '@/components/academy/tutor/TutorAssist';
-import { getCourse, courseHref } from '@/data/catalog';
-import { useAcademy } from '@/lib/academy';
-import { continueLearning } from '@/lib/progress/engine';
 import { cn } from '@/lib/utils';
 import { useTutorPanel } from './TutorContext';
 
@@ -16,10 +13,11 @@ const LEARN = /^\/academy\/(courses|lessons|paths)(\/|$)|^\/academy\/(?!roadmap|
 const PRACTICE = /^\/(practice|lab|challenge|library|tracks|learning-path|roadmap|module)(\/|$)/;
 
 function useNavItems() {
-  const state = useAcademy();
   const { isAuthenticated } = useAuth();
-  const next = continueLearning(state);
-  const learnTo = next ? courseHref(getCourse(next.lesson.courseSlug)) : '/academy/courses';
+  // Learn always opens the courses index — a learner must be able to reach
+  // every course from the main nav, not just the one they last opened
+  // (Spencer, 2026-11-18). Resume lives on the Home dashboard instead.
+  const learnTo = '/academy/courses';
   return [
     { to: '/', label: 'Home', icon: Home, match: (p) => p === '/' || p === '/academy' },
     { to: learnTo, label: 'Learn', icon: BookOpen, match: (p) => LEARN.test(p) },

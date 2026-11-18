@@ -109,6 +109,21 @@ function imgSrcs(root) {
   return root.root.findAllByType('img').map((n) => n.props.src);
 }
 
+describe('LessonView breadcrumbs (navigation fix, 2026-11-18)', () => {
+  it('shows Home › Courses › Course › Module › Lesson, with Courses linking to the index', async () => {
+    const root = await renderLesson('net-switch-route');
+    const nav = root.root.findByProps({ 'aria-label': 'Breadcrumb' });
+    const links = nav.findAllByType('a').map((n) => ({ href: n.props.href, label: n.children.join('') }));
+    const current = nav.findAllByType('span').map((n) => n.children.join(''));
+    expect(links[0]).toEqual({ href: '/', label: 'Home' });
+    expect(links[1]).toEqual({ href: '/academy/courses', label: 'Courses' });
+    // Home, Courses, course, module — the lesson itself is the current page.
+    expect(links.length).toBe(4);
+    expect(current).toHaveLength(1);
+    expect(current[0]).toMatch(/^Lesson /);
+  });
+});
+
 describe('LessonView blueprints', () => {
   it('net-switch-route shows the ASCII diagram AND both its sheets', async () => {
     const root = await renderLesson('net-switch-route');

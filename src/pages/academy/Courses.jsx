@@ -285,7 +285,7 @@ export function ModuleDetail() {
         jsonLd={moduleLd}
       />
       <PageHeader
-        breadcrumbs={[{ label: 'Home', to: '/' }, { label: course.title, to: courseHref(course) }, { label: `Module ${module.number}` }]}
+        breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Courses', to: '/academy/courses' }, { label: course.title, to: courseHref(course) }, { label: `Module ${module.number}` }]}
         eyebrow={`Module ${module.number} · ${module.level}`}
         title={module.title}
         description={module.summary}
