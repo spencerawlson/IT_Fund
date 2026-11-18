@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MISSIONS, MISSION_FOR_LESSON, MISSION_ONLY_LABS, labForMission, getMission, beatFor, splitBriefing } from './missions';
+import { MISSIONS, MISSION_FOR_LESSON, MISSION_ONLY_LABS, labForMission, getMission, beatFor, splitBriefing, closingTurns } from './missions';
 
 const BROKEN_SHIELD_OBJECTIVES = [
   'topology',
@@ -186,5 +186,22 @@ describe('splitBriefing', () => {
     expect(splitBriefing([])).toEqual([]);
     expect(splitBriefing()).toEqual([]);
     expect(splitBriefing(null)).toEqual([]);
+  });
+});
+
+describe('closingTurns', () => {
+  it('congratulates in all three voices and announces the next mission', () => {
+    const turns = closingTurns('Operation Broken Shield', 'Operation Packet Flood');
+    expect(turns.map((t) => t.speaker)).toEqual(['cypher', 'sentinel', 'patch', 'cypher']);
+    expect(turns[0].text).toContain('Operation Broken Shield');
+    expect(turns[3].text).toContain('next mission for you: Operation Packet Flood');
+    expect(turns[3].text).toContain('See you on the next mission');
+  });
+
+  it('says more missions are coming after the last one, and never speaks a score', () => {
+    const turns = closingTurns('Operation Packet Flood', null);
+    expect(turns[3].text).toContain('More missions are on the way');
+    // Lines are identical for every learner, so the voice cache serves them.
+    for (const t of turns) expect(t.text).not.toMatch(/\d/);
   });
 });

@@ -12,7 +12,8 @@ import CypherVoiceButton from '@/components/missions/CypherVoiceButton';
 import { useTutor, useTutorEnabled, TutorText, Thinking } from '@/components/academy/tutor/TutorAssist';
 import { useCypherVoice } from '@/api/voice';
 import { logCypherEvent } from '@/api/analytics';
-import { getMission } from '@/data/missions';
+import { getMission, closingTurns } from '@/data/missions';
+import SocClosing from '@/components/missions/SocClosing';
 import { buildPingCommands } from '@/components/missions/firewallCommands';
 import { missionsApi } from '@/api/missions';
 import { labsApi } from '@/api/labs';
@@ -216,6 +217,12 @@ export default function MissionWorkspace() {
     ask: askExplain, stop: stopExplain,
   } = useTutor();
   const debriefLoggedRef = useRef(false);
+  // The SOC closing scene (Spencer, 2026-11-18): shown over this page as soon
+  // as the mission completes; "Review my results" closes it, revealing the
+  // debrief and the dossier below. nextMission is the next one in the
+  // catalogue order, or null after the last.
+  const [showClosing, setShowClosing] = useState(false);
+  const [nextMission, setNextMission] = useState(null);
   // Draft autosave state: the timer for the debounce, the latest unsaved
   // values, and whether a save is in flight (a save that lands while one
   // is in flight is queued and sent right after).
@@ -563,6 +570,17 @@ export default function MissionWorkspace() {
       // ledger — a debrief number alone never reached the dashboard, which
       // is why the live first completion showed 0 XP awarded.
       if (res.xp_awarded > 0) recordMissionCompletion(missionId, res.xp_awarded);
+      // Which mission comes next (catalogue order). Best-effort: without it
+      // the robots say more missions are on the way.
+      try {
+        const { missions = [] } = await missionsApi.listDefinitions();
+        const i = missions.findIndex((m) => m.id === missionId);
+        const next = i >= 0 ? missions[i + 1] : null;
+        setNextMission(next ? { id: next.id, title: next.title || next.callsign || next.id } : null);
+      } catch {
+        setNextMission(null);
+      }
+      setShowClosing(true);
     } catch (e) {
       setError(friendlyErrorMessage(e));
     } finally {
@@ -684,6 +702,13 @@ export default function MissionWorkspace() {
 
   return (
     <div className="min-h-[100dvh] text-ink-1">
+      {showClosing && (
+        <SocClosing
+          turns={closingTurns(title, nextMission?.title)}
+          nextMission={nextMission}
+          onReview={() => setShowClosing(false)}
+        />
+      )}
       <header className="sticky top-safe z-30 px-3 pt-3 sm:px-6 sm:pt-5">
         <div className="glass-1 nav-solid mx-auto flex max-w-6xl flex-wrap items-center gap-2 rounded-card px-3 py-2 sm:px-4 min-[1810px]:max-w-[112rem]">
           <ShieldCheck size={18} className="shrink-0 text-ink-2" aria-hidden="true" />

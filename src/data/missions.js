@@ -190,3 +190,27 @@ export function intelFrom(mission, findings) {
   }
   return out;
 }
+
+/**
+ * The closing scene in the SOC room once a mission is complete (Spencer,
+ * 2026-11-18: "the SOC room reappears to congratulate the person and tell
+ * them we have a next mission for you — see you on the next mission").
+ * Same shape as splitBriefing: [{ speaker, text }], spoken in order, each in
+ * that robot's voice with the camera in his room. The lines never include
+ * the score (it is on the end card): identical text is generated once and
+ * replayed from the voice cache for every learner.
+ */
+export function closingTurns(missionTitle, nextTitle) {
+  const name = missionTitle || 'this mission';
+  return [
+    { speaker: 'cypher', text: `Mission complete! Great work on ${name}.` },
+    { speaker: 'sentinel', text: 'The network is secure and the logs are clean. Nice work holding the line.' },
+    { speaker: 'patch', text: 'Everything is fixed and running smoothly. I could not have done it better myself.' },
+    {
+      speaker: 'cypher',
+      text: nextTitle
+        ? `We have a next mission for you: ${nextTitle}. See you on the next mission!`
+        : 'More missions are on the way. See you on the next mission!',
+    },
+  ];
+}

@@ -111,6 +111,10 @@ vi.mock('@/api/missions', () => ({
     getAttempt: vi.fn(async () => ({ attempt: ATTEMPT, session: SESSION, objectives: OBJECTIVES })),
     action: vi.fn(async () => ({ attempt: ATTEMPT, session: SESSION, objectives: OBJECTIVES })),
     complete: vi.fn(async () => DEBRIEF),
+    listDefinitions: vi.fn(async () => ({ missions: [
+      { id: 'op-broken-shield', title: 'Operation Broken Shield' },
+      { id: 'op-packet-flood', title: 'Operation Packet Flood' },
+    ] })),
     history: vi.fn(async () => []),
   },
 }));
@@ -163,7 +167,7 @@ vi.mock('@/api/voice', async () => {
       muted: false, setMuted: () => {}, volume: 0.9, setVolume: () => {},
     };
   }
-  return { useCypherVoice, __clearVoiceCache: () => {} };
+  return { useCypherVoice, fetchVoiceStatus: async () => ({ characters: {} }), __clearVoiceCache: () => {} };
 });
 
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
@@ -278,6 +282,20 @@ describe('MissionWorkspace — debrief auto-play (perfect score)', () => {
     expect(completeButton).toBeTruthy();
     await act(async () => { await completeButton.props.onClick(); });
     await flush();
+
+    // Completing brings the SOC room back over the terminal (Spencer,
+    // 2026-11-18): the robots congratulate the learner and announce the
+    // next mission. Skip to its end card, which names the next mission.
+    expect(root.findAll((n) => n.props?.role === 'dialog').length).toBe(1);
+    await act(async () => { findButton(root, 'Skip').props.onClick(); });
+    await flush();
+    expect(hasText(root, 'Operation Packet Flood')).toBe(true);
+    expect(hasText(root, 'Start next mission')).toBe(true);
+    // "Review my results" closes the SOC layer, revealing the debrief.
+    await act(async () => { findButton(root, 'Review my results').props.onClick(); });
+    await flush();
+    expect(root.findAll((n) => n.props?.role === 'dialog').length).toBe(0);
+    expect(voiceControl.playCalls).toHaveLength(0);
 
     // The debrief card is up: perfect score, the server debrief text,
     // and the tutor section with its single Ask button.
