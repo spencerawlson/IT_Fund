@@ -172,6 +172,19 @@ export const SIMULATOR_IDS = new Set([
 ]);
 export const isSimulator = (id) => SIMULATOR_IDS.has(resolveId(id));
 
+// A simulator's shown title reads "... Simulator", not "... Blueprint":
+// the stored label keeps the Blueprint wording (kind stays 'blueprint'),
+// so the display title is derived here from SIMULATOR_IDS. The gallery
+// card and the stage heading both read this helper, and the six subjects
+// whose simulator PRs are still open are already in the set — their
+// titles flip with it, matching the Simulator tag they already carry;
+// their simulators arrive with their PRs. Subjects with no trailing
+// " Blueprint" (e.g. the load balancer) are unchanged.
+export const displayLabel = (subject) => {
+  if (!subject || !isSimulator(subject.id)) return subject?.label ?? '';
+  return (subject.label || '').replace(/ Blueprint$/, ' Simulator');
+};
+
 // Visual Lab scenario -> the Interactive Lab(s) where you build/configure it ("See → Build").
 const BUILD_IN_LAB = {
   'rt-ospf-neighbor': ['net-ospf-001'],
@@ -207,7 +220,7 @@ function Stage({ id }) {
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-bold text-ink-1">{meta.label}</h2>
+            <h2 className="text-xl font-bold text-ink-1">{displayLabel(meta)}</h2>
             <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${k.pill}`}>
               <span className={`h-1.5 w-1.5 rounded-full ${k.dot}`} /> {k.label}
             </span>
@@ -359,7 +372,7 @@ export default function Lab() {
           </div>
         </header>
 
-        {active ? <Stage id={active} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} isSimulator={isSimulator} />}
+        {active ? <Stage id={active} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} isSimulator={isSimulator} displayLabel={displayLabel} />}
 
       </div>
     </div>
