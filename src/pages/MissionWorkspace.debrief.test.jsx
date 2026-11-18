@@ -111,6 +111,10 @@ vi.mock('@/api/missions', () => ({
     getAttempt: vi.fn(async () => ({ attempt: ATTEMPT, session: SESSION, objectives: OBJECTIVES })),
     action: vi.fn(async () => ({ attempt: ATTEMPT, session: SESSION, objectives: OBJECTIVES })),
     complete: vi.fn(async () => DEBRIEF),
+    listDefinitions: vi.fn(async () => ({ missions: [
+      { id: 'op-broken-shield', title: 'Operation Broken Shield' },
+      { id: 'op-packet-flood', title: 'Operation Packet Flood' },
+    ] })),
     history: vi.fn(async () => []),
   },
 }));
@@ -163,7 +167,7 @@ vi.mock('@/api/voice', async () => {
       muted: false, setMuted: () => {}, volume: 0.9, setVolume: () => {},
     };
   }
-  return { useCypherVoice, __clearVoiceCache: () => {} };
+  return { useCypherVoice, fetchVoiceStatus: async () => ({ characters: {} }), __clearVoiceCache: () => {} };
 });
 
 vi.mock('@/api/analytics', () => ({ logCypherEvent: vi.fn() }));
@@ -265,7 +269,10 @@ describe('MissionWorkspace — debrief auto-play (perfect score)', () => {
     vi.clearAllMocks();
   });
 
-  it('one tap on "Ask Cypher to explain the outcome" shows the text AND speaks it, congratulation first — no "Hear Cypher say it" button', async () => {
+  it('Mission complete takes the learner to the SOC room, where Cypher explains what they did without being asked', async () => {
+    // Spencer 2026-11-18: no "explain" button on a card. Clicking Mission
+    // complete brings the SOC room back; the robots explain what happened
+    // and what the learner did automatically, then congratulate them.
     let renderer;
     await act(async () => {
       renderer = renderWorkspace();
@@ -273,35 +280,33 @@ describe('MissionWorkspace — debrief auto-play (perfect score)', () => {
     await flush();
     const root = renderer.root;
 
-    // The report is filed, so the debrief button is on the page.
-    const completeButton = findButton(root, 'Complete mission — debrief');
+    const completeButton = findButton(root, 'Mission complete');
     expect(completeButton).toBeTruthy();
     await act(async () => { await completeButton.props.onClick(); });
     await flush();
 
-    // The debrief card is up: perfect score, the server debrief text,
-    // and the tutor section with its single Ask button.
+    // The SOC room is up, and there is no explain button anywhere.
+    expect(root.findAll((n) => n.props?.role === 'dialog').length).toBe(1);
+    expect(findButton(root, 'Ask Cypher to explain the outcome')).toBeFalsy();
+
+    // Cypher opens (1.8 s establishing shot, then his line), and the
+    // explanation he speaks next was requested without anyone asking.
+    await advance(2000 + 300 + 2300 + 500);
+    expect(voiceControl.playCalls[0]).toContain('Let me walk you through what you did');
+    await advance(300 + 2300 + 500);
+    expect(voiceControl.playCalls[1]).toContain('least privilege done right');
+
+    // Skip to the end card: it names the next mission; Review my results
+    // closes the SOC layer and the score card + debrief are underneath.
+    await act(async () => { findButton(root, 'Skip').props.onClick(); });
+    await flush();
+    expect(hasText(root, 'Operation Packet Flood')).toBe(true);
+    expect(hasText(root, 'Start next mission')).toBe(true);
+    await act(async () => { findButton(root, 'Review my results').props.onClick(); });
+    await flush();
+    expect(root.findAll((n) => n.props?.role === 'dialog').length).toBe(0);
     expect(hasText(root, 'Mission complete.')).toBe(true);
     expect(hasText(root, 'Great job completing Operation Broken Shield with a perfect score!')).toBe(true);
-    expect(hasText(root, 'Cypher explains the outcome')).toBe(true);
-    const askButton = findButton(root, 'Ask Cypher to explain the outcome');
-    expect(askButton).toBeTruthy();
-
-    // One tap: the explanation text arrives…
-    await act(async () => { await askButton.props.onClick(); });
-    await advance(1000);
-    expect(hasText(root, 'least privilege done right')).toBe(true);
-
-    // …and Cypher speaks it at the same time — no second tap. The
-    // spoken outcome is the server debrief first (it opens with the
-    // congratulation) and then the explanation.
-    expect(voiceControl.playCalls).toHaveLength(1);
-    expect(voiceControl.playCalls[0]).toContain('Great job completing Operation Broken Shield with a perfect score!');
-    expect(voiceControl.playCalls[0]).toContain('least privilege done right');
-    // While speaking, only Stop shows — the "Hear Cypher say it"
-    // button is gone entirely.
-    expect(findButton(root, 'Hear Cypher say it')).toBeFalsy();
-    expect(findButton(root, 'Stop')).toBeTruthy();
 
     await act(async () => { renderer.unmount(); });
   });
