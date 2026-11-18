@@ -117,3 +117,10 @@ jobs:
         env:
           DATABASE_URL: postgresql+psycopg://ci:ci@localhost:5432/itfund
         run: alembic upgrade head
+      - name: Enrollment capacity never oversells under simultaneous checkouts (Postgres row locks)
+        working-directory: backend
+        env:
+          ENROLLMENT_PG_URL: postgresql+psycopg://ci:ci@localhost:5432/itfund
+        run: |
+          pip install pytest
+          python -m pytest -q test_enrollment.py -k simultaneous

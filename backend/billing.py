@@ -279,6 +279,12 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
                 user.attribution_tag = tag
         s.commit()
     log.info("subscription synced: user=%s status=%s", user_id, sub["status"])
+    # Founding-membership place: taken when access starts, kept through a
+    # renewal or the past_due grace, freed when paid access ends. Never
+    # fails the webhook — reconcile() repairs a missed sync.
+    import enrollment
+
+    enrollment.sync_user_safely(user_id)
 
 
 #: Shown when the live Stripe price can't be read (local dev / billing unconfigured).
@@ -442,6 +448,20 @@ async def create_checkout(request: Request,
             status_code=status.HTTP_409_CONFLICT,
             detail="Already subscribed. Manage your subscription in the Customer Portal.",
         )
+    # Founding-membership capacity: hold a place for this checkout. Refused
+    # only when every place is taken; any other bookkeeping failure must not
+    # block a sale (reconcile() repairs the allocation later).
+    import enrollment
+
+    try:
+        enrollment.reserve(user_id)
+    except enrollment.CapacityFull:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="All founding memberships are taken right now. Please check back soon.",
+        )
+    except Exception:
+        log.exception("could not reserve a membership place for %s; continuing checkout", user_id)
     app_url = os.environ.get("BILLING_APP_URL", "https://www.road2cissp.com").rstrip("/")
     with db.SessionLocal() as s:
         from db_models import User
@@ -652,11 +672,17 @@ def _revoke_for_refund(stripe, charge: dict) -> str | None:
             .filter(Subscription.stripe_subscription_id == sub_id)
             .first()
         )
+        refunded_user = None
         if row is not None and row.status in ("active", "trialing", "past_due"):
             row.status = "canceled"
             row.current_period_end = datetime.now(timezone.utc)
             row.past_due_since = None
+            refunded_user = row.user_id
             s.commit()
+    if refunded_user:
+        import enrollment
+
+        enrollment.sync_user_safely(refunded_user)  # a full refund ends access: free the place
     log.info("subscription %s revoked after full refund of charge %s", sub_id, charge_id)
     return sub_id
 
