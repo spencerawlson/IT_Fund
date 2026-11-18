@@ -158,7 +158,11 @@ export const FAQ_GROUPS = [
     faqs: [
       {
         q: 'What does Pro unlock?',
-        a: `One subscription unlocks every track, ${COUNTS.labs} hands-on labs, and Security+ & CISSP exam simulators — $29 USD/month, cancel anytime. Your progress syncs across devices.`,
+        a: `One subscription unlocks every track, ${COUNTS.labs} hands-on labs, and Security+ & CISSP exam simulators — $29 USD/month or $250 USD/year, cancel anytime. Your progress syncs across devices.`,
+      },
+      {
+        q: 'Is there a yearly option?',
+        a: 'Yes — $250 USD per year, about $20.83 a month. That saves $98 compared with paying $29 a month for a year. Same access, same cancellation and refund terms.',
       },
       {
         q: 'Can I cancel anytime?',

@@ -41,4 +41,27 @@ describe('Pricing', () => {
     expect(html).toContain('keep full access for 7 days');
     expect(html).toContain('href="/terms"');
   });
+
+  it('shows both plans with the decided prices — monthly $29, annual $250 flat (Spencer, 2026-11-18)', () => {
+    const html = renderPage();
+    expect(html).toContain('Monthly');
+    expect(html).toContain('Annual');
+    expect(html).toContain('$29');
+    // SSR renders the interval as `/ <!-- -->month` (React comment node).
+    expect(html).toMatch(/\/\s*<!-- -->\s*month/);
+    expect(html).toContain('$250');
+    expect(html).toMatch(/\/\s*<!-- -->\s*year/);
+    // $29 x 12 = $348; $348 - $250 = $98 saved, about $20.83 a month.
+    expect(html).toContain('save $98 a year');
+    expect(html).toContain('$20.83');
+    expect(html).toContain('Best value');
+  });
+
+  it('disables annual checkout until the price is configured, so an unconfigured annual plan can never break checkout', () => {
+    // SSR renders the fallback state: no live /billing/plans fetch ran, so
+    // annual is unconfigured and its button must be disabled, not live.
+    const html = renderPage();
+    expect(html).toContain('Annual billing coming soon');
+    expect(html).toContain('disabled');
+  });
 });
