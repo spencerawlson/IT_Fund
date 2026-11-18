@@ -456,7 +456,7 @@ export default function MissionSocScene({
         const talking = !!voice?.talking;
         const cypherSpeaking = talking && speaker === 'cypher';
         cypher.setTalking(cypherSpeaking);
-        cypher.setTalkLevel(cypherSpeaking ? (voice?.level || 0) : 0);
+        cypher.setTalkLevel(cypherSpeaking ? (voice?.level || 0) : 0, cypherSpeaking ? voice?.bands : null);
         cypher.update(dt);
       }
 
@@ -477,7 +477,7 @@ export default function MissionSocScene({
         if (sentinelSpeaking) {
           // Talking AND working: the talk loop with a reach to the racks.
           sentinel.play(talkingClipFor('sentinel', t));
-          sentinel.setTalkLevel(voiceRef.current.level || 0);
+          sentinel.setTalkLevel(voiceRef.current.level || 0, voiceRef.current.bands);
         } else {
           if (sentinel.isTalking()) sentinel.setTalking(false);
           sentinel.setTalkLevel(0);
@@ -492,7 +492,7 @@ export default function MissionSocScene({
         if (patchSpeaking) {
           // Talking AND working: the talk loop with a reach to the bench.
           patch.play(talkingClipFor('patch', t));
-          patch.setTalkLevel(voiceRef.current.level || 0);
+          patch.setTalkLevel(voiceRef.current.level || 0, voiceRef.current.bands);
         } else {
           if (patch.isTalking()) patch.setTalking(false);
           patch.setTalkLevel(0);

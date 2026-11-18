@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { modelUrl } from '@/components/three/deviceModels';
+import { attachMouth } from '@/components/three/robotMouth';
 
 // The three Meshy robots (Cypher, Sentinel, Patch) share one rig shape:
 // 1.70 m tall, 24 bones, 1 SkinnedMesh, and exactly the same six animation
@@ -130,7 +131,7 @@ export const SEATED_HIPS_LIFT_M = 0.08;
  *   untouched.
  * The caller owns the group: add it to the scene, remove + dispose() on cleanup.
  */
-export function createRobotController(gltf) {
+export function createRobotController(gltf, key = null) {
   const group = gltf.scene;
   const clips = {};
   gltf.animations.forEach((clip) => { clips[clip.name] = clip; });
@@ -139,12 +140,16 @@ export function createRobotController(gltf) {
   let currentName = null;
   let talking = false;
   let talkLevel = 0;
+  let talkBands = null;
   let seated = false;
   const bones = {};
   group.traverse((obj) => {
     if (obj.isBone) bones[obj.name] = obj;
   });
   const headBone = bones.head || null;
+  // The live mouth (lip sync): built now, in the bind pose, on the head bone.
+  // Null in node tests (no DOM canvas) and for unknown keys.
+  const mouth = key ? attachMouth(key, headBone) : null;
   // Rest orientations, captured before any clip plays: a seated pose is
   // rest-quaternion x delta (see SEATED_POSE), never an absolute euler.
   const restPose = new Map();
@@ -228,9 +233,13 @@ export function createRobotController(gltf) {
     if (talking && headBone && talkLevel > 0.02) {
       headBone.rotation.x += talkLevel * 0.06 * Math.sin(performance.now() / 90);
     }
+    // Lip sync: the mouth follows the voice whenever a level is fed in
+    // (the scene feeds 0 when this robot is not the one speaking).
+    if (mouth) mouth.update(talkLevel, talkBands, dt);
   };
 
   const dispose = () => {
+    if (mouth) mouth.dispose();
     mixer.stopAllAction();
     mixer.uncacheRoot(group);
     group.traverse((obj) => {
@@ -252,7 +261,10 @@ export function createRobotController(gltf) {
     sit,
     isSeated: () => seated,
     setTalking,
-    setTalkLevel: (level) => { talkLevel = Math.max(0, Math.min(1, level || 0)); },
+    // level 0..1 and (optionally) the voice's 24 frequency bands, which
+    // shape the mouth.
+    setTalkLevel: (level, bands = null) => { talkLevel = Math.max(0, Math.min(1, level || 0)); talkBands = bands; },
+    hasMouth: () => !!mouth,
     isTalking: () => talking,
     update,
     dispose,
@@ -268,7 +280,7 @@ export function loadRobotCharacter(key) {
   return new Promise((resolve, reject) => {
     loader().load(
       modelUrl(key),
-      (gltf) => resolve(createRobotController(gltf)),
+      (gltf) => resolve(createRobotController(gltf, key)),
       undefined,
       (err) => reject(err),
     );

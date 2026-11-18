@@ -9,28 +9,28 @@ import {
 // 3D scenes are code-split: three.js (~600 KB) only loads when a 3D subject is opened,
 // never as part of the initial bundle.
 const Motherboard3D = React.lazy(() => import('@/components/three/Motherboard3D'));
-const Switch3D = React.lazy(() => import('@/components/three/Switch3D'));
-const ServerRack3D = React.lazy(() => import('@/components/three/ServerRack3D'));
 const Vpc3D = React.lazy(() => import('@/components/three/Vpc3D'));
 const LoadBalancer3D = React.lazy(() => import('@/components/three/LoadBalancer3D'));
 const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
-const Router3D = React.lazy(() => import('@/components/three/Router3D'));
 const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
-const Nas3D = React.lazy(() => import('@/components/three/Nas3D'));
-const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
-const RackServer3D = React.lazy(() => import('@/components/three/RackServer3D'));
-const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
-const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'));
+import PatchPanelSimulator from '@/components/viz/PatchPanelSimulator';
 import TcpAnimation from '@/components/viz/TcpAnimation';
+import SwitchSimulator from '@/components/viz/SwitchSimulator';
 import UdpAnimation from '@/components/viz/UdpAnimation';
 import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
+import NasSimulator from '@/components/viz/NasSimulator';
+import RackServerSimulator from '@/components/viz/RackServerSimulator';
+import ServerRackSimulator from '@/components/viz/ServerRackSimulator';
+import UpsSimulator from '@/components/viz/UpsSimulator';
+import CloudSimulator from '@/components/viz/CloudSimulator';
+import RouterSimulator from '@/components/viz/RouterSimulator';
+import NgfwSimulator from '@/components/viz/NgfwSimulator';
 import AutoScalingAnimation from '@/components/viz/AutoScalingAnimation';
 import CICDAnimation from '@/components/viz/CICDAnimation';
 import SubnetCalculator from '@/components/tools/SubnetCalculator';
 import TerminalSimulator from '@/components/tools/TerminalSimulator';
 import DnsAnimation from '@/components/viz/DnsAnimation';
 import FirewallAnimation from '@/components/viz/FirewallAnimation';
-import NgfwSimulator from '@/components/viz/NgfwSimulator';
 import EncryptionAnimation from '@/components/viz/EncryptionAnimation';
 import NumberSystemConverter from '@/components/tools/NumberSystemConverter';
 import AwsAnimation from '@/components/viz/AwsAnimation';
@@ -67,14 +67,14 @@ const CATEGORIES = ['Hardware', 'Networking', 'Routing', 'Cloud & Scale', 'Secur
 export const SUBJECTS = [
   // Hardware
   { id: 'motherboard', category: 'Hardware', kind: '3d', icon: Cpu, label: '3D Motherboard', blurb: 'Rotate a real board — CPU socket, RAM, PCIe, chipset, and power paths.' },
-  { id: 'switch', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Network Switch Blueprint', blurb: 'A managed 48-port switch — ports, SFP+ uplinks, status LEDs, internals and specs.' },
-  { id: 'server-rack', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Server Rack Blueprint', blurb: 'A 42U rack cabinet — rack units, rails, cable management, cooling and power distribution.' },
-  { id: 'rack-server', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Rack Server Blueprint', blurb: 'A 2U rack server — drive bays, power supplies, cooling fans, management port and internals.' },
-  { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Rack-mounted battery backup — status display, protected outlets, battery module and internals.' },
-  { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'A 48-port Cat6 patch panel — numbered RJ45 ports, 110 punch-down termination, T568A/T568B wiring.' },
+  { id: 'switch', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Network Switch Blueprint', blurb: 'Drive a live 48-port switch on one screen — watch the CAM table learn, survive a broadcast storm, elect an STP root.' },
+  { id: 'server-rack', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Server Rack Blueprint', blurb: 'Drive a live 42U rack on one screen — trip a breaker, move the load to feed B, shed load and watch the temperature fall.' },
+  { id: 'rack-server', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Rack Server Blueprint', blurb: 'Drive a live 2U rack server on one screen — hot-swap a drive, fail a PSU, manage it out-of-band while the OS is down.' },
+  { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Drive a live UPS on one screen — load it up, watch the runtime shrink, hand off to the generator before the battery dies.' },
+  { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'Drive a live 48-port patch panel on one screen — terminate T568A/B, catch the mixed-standard crossover, check your run lengths.' },
   // Networking
   { id: 'osi', category: 'Networking', kind: 'blueprint', icon: Layers, label: 'OSI Model Blueprint', blurb: 'All seven layers — functions, protocols, encapsulation, and the PDU at each layer.' },
-  { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'An edge router — WAN and LAN ports, management and console access, internals and specs.' },
+  { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'Drive a live router on one screen — build the routing table, fail over to a floating static, watch NAT translate.' },
   { id: 'access-point', category: 'Networking', kind: 'blueprint', icon: Wifi, label: 'Wireless Access Point Blueprint', blurb: 'Ceiling-mounted Wi-Fi — status ring, PoE uplink, MIMO antenna layout and internals.' },
   { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
   { id: 'udp', category: 'Networking', kind: 'anim', icon: Radio, label: 'UDP Datagrams', blurb: 'See fire-and-forget delivery — fast, connectionless, and lossy.' },
@@ -92,7 +92,7 @@ export const SUBJECTS = [
   { id: 'rt-link-failure', category: 'Routing', kind: 'anim', icon: Zap, label: 'Link Failure & Reconvergence', blurb: 'A link fails; watch the network recompute paths and reroute.' },
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
-  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
+  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'Drive a live cloud on one screen — scale out under traffic, fail over across availability zones, watch the bill move.' },
   { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'Drive a live balancer on one screen — six strategies on the left, the flow in the middle, the server pool on the right.' },
   { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
   { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
@@ -106,7 +106,7 @@ export const SUBJECTS = [
   { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
   // Data & Systems
   { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
-  { id: 'nas', category: 'Data & Systems', kind: 'blueprint', icon: HardDrive, label: 'NAS Storage Blueprint', blurb: 'An 8-bay NAS appliance — hot-swap drive bays, network ports, redundant power and RAID levels.' },
+  { id: 'nas', category: 'Data & Systems', kind: 'blueprint', icon: HardDrive, label: 'NAS Storage Blueprint', blurb: 'Drive a live 8-bay NAS on one screen — switch RAID levels, hot-swap a disk, watch a rebuild survive or lose the array.' },
   { id: 'system-architecture', category: 'Data & Systems', kind: 'flow', icon: Boxes, label: 'System Architecture', blurb: 'A resilient request path with caching, failover, and observability.' },
   { id: 'cloud-migration', category: 'Data & Systems', kind: 'flow', icon: CloudCog, label: 'Cloud Migration', blurb: 'Assess, lift-and-shift, refactor, then optimize.' },
   { id: 'capacity-planning', category: 'Data & Systems', kind: 'flow', icon: Gauge, label: 'Capacity Planning', blurb: 'From workload inputs to a validated, cost-aware plan.' },
@@ -129,10 +129,10 @@ const ALIASES = {
 // Every renderable subject id -> how to render it. Superset of the gallery, so deep-links survive
 // curation. Flow subjects are data-driven via FlowDiagram.
 export const RENDERERS = {
-  motherboard: Motherboard3D, switch: Switch3D, 'server-rack': ServerRack3D,
-  'rack-server': RackServer3D, ups: Ups3D,
-  router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': () => <NgfwSimulator />, nas: Nas3D, 'patch-panel': PatchPanel3D,
+  motherboard: Motherboard3D, switch: () => <SwitchSimulator />, 'server-rack': () => <ServerRackSimulator />,
+  'rack-server': () => <RackServerSimulator />, ups: () => <UpsSimulator />,
+  router: () => <RouterSimulator />, 'access-point': AccessPoint3D,
+  cloud: () => <CloudSimulator />, 'firewall-3d': () => <NgfwSimulator />, nas: () => <NasSimulator />, 'patch-panel': () => <PatchPanelSimulator />,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
@@ -158,6 +158,20 @@ export const RENDERERS = {
 
 const resolveId = (id) => (RENDERERS[ALIASES[id]] ? ALIASES[id] : id);
 
+// Subjects whose renderer is an interactive simulator (the load balancer +
+// the 10 equipment subjects), not a static blueprint sheet, animation or
+// tool. The gallery filter + card tag read this set, so a subject shows
+// under "Interactive" and carries the Simulator tag. The six subjects whose
+// simulator PRs are still open are already listed here, so they light up
+// automatically when those PRs merge, with no further edits. kind stays
+// 'blueprint' for these subjects: the stage still renders them full-width
+// and the *3D fallbacks still apply.
+export const SIMULATOR_IDS = new Set([
+  'load-balancer', 'switch', 'nas', 'rack-server', 'server-rack', 'ups',
+  'patch-panel', 'router', 'access-point', 'cloud', 'firewall-3d',
+]);
+export const isSimulator = (id) => SIMULATOR_IDS.has(resolveId(id));
+
 // Visual Lab scenario -> the Interactive Lab(s) where you build/configure it ("See → Build").
 const BUILD_IN_LAB = {
   'rt-ospf-neighbor': ['net-ospf-001'],
@@ -180,7 +194,7 @@ function metaFor(id) {
 // the page (and the browser Back button); the stage has no back button of its own.
 function Stage({ id }) {
   const meta = metaFor(id);
-  const k = KINDS[meta.kind] || KINDS.anim;
+  const k = SIMULATOR_IDS.has(id) ? KINDS.simulator : (KINDS[meta.kind] || KINDS.anim);
   const Icon = meta.icon;
   const refs = getModulesForLab(id);
   const Renderer = RENDERERS[id];
@@ -345,7 +359,7 @@ export default function Lab() {
           </div>
         </header>
 
-        {active ? <Stage id={active} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} />}
+        {active ? <Stage id={active} /> : <LabGallery subjects={SUBJECTS} categories={CATEGORIES} onSelect={open} isSimulator={isSimulator} />}
 
       </div>
     </div>
