@@ -29,7 +29,7 @@ describe('generate-counts', () => {
     // Totals across the catalogue.
     expect(COUNTS.totalCards).toBe(3145);
     expect(COUNTS.totalDecks).toBe(222);
-    // Labs: 32 mock + 29 docker (backend/labs/registry.list_labs()).
+    // Labs: 31 mock + 30 docker (backend/labs/registry.list_labs()).
     expect(COUNTS.labs).toBe(61);
     // The Security+ path is the cyber track: 37 lessons, 980 cards.
     // (The landing page once claimed "40 lessons" — the data says 37.)

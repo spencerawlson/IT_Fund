@@ -12,6 +12,7 @@
 // under "All practice exams". Same-question-different-answer pairs are kept
 // as separate entries (e.g. "Do I need to install anything?" — one answer
 // for the Visual Lab, one for the Interactive Labs).
+import { COUNTS } from '@/data/counts';
 import {
   CERT_EXAMS,
   EXAM_QUESTION_COUNT,
@@ -157,7 +158,7 @@ export const FAQ_GROUPS = [
     faqs: [
       {
         q: 'What does Pro unlock?',
-        a: 'One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators — $29 USD/month, cancel anytime. Your progress syncs across devices.',
+        a: `One subscription unlocks every track, ${COUNTS.labs} hands-on labs, and Security+ & CISSP exam simulators — $29 USD/month, cancel anytime. Your progress syncs across devices.`,
       },
       {
         q: 'Can I cancel anytime?',

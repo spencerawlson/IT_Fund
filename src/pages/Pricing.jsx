@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useSubscription, FREE_LABS } from '@/lib/subscription';
 import { labTitle } from '@/data/deckLabs';
 import { getAttributionTag } from '@/lib/attribution';
+import { COUNTS } from '@/data/counts';
 import Seo from '@/components/Seo';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -24,7 +25,7 @@ const FEATURES = [
   { icon: BookOpen, title: 'Every track, every lesson', text: 'Networking, Security+, Linux, Python, Cloud, and the CISSP capstone — all flashcards, lessons, and cheat sheets.' },
   {
     icon: FlaskConical,
-    title: 'All 23+ hands-on labs',
+    title: `All ${COUNTS.labs} hands-on labs`,
     text: (
       <>
         Real terminals: Cisco IOS, Linux triage, Python automation, cloud sandboxes. The free tier gets two —{' '}
@@ -84,7 +85,7 @@ export default function Pricing() {
       {
         '@type': 'Product',
         name: 'Road to CISSP membership',
-        description: 'Full access: all learning tracks, 23+ hands-on labs, Security+ & CISSP exam simulators, and progress sync.',
+        description: `Full access: all learning tracks, ${COUNTS.labs} hands-on labs, Security+ & CISSP exam simulators, and progress sync.`,
         offers: {
           '@type': 'Offer',
           price: price.amount,
@@ -126,7 +127,7 @@ export default function Pricing() {
     <div className="min-h-screen text-ink-1">
       <Seo
         title={`Pricing — Road to CISSP membership, ${price.display}/${intervalShort}`}
-        description={`One subscription unlocks every track, 23+ hands-on labs, and Security+ & CISSP exam simulators. ${price.display}/${intervalShort}, cancel anytime. Free tier with no account needed.`}
+        description={`One subscription unlocks every track, ${COUNTS.labs} hands-on labs, and Security+ & CISSP exam simulators. ${price.display}/${intervalShort}, cancel anytime. Free tier with no account needed.`}
         path="/pricing"
         jsonLd={jsonLd}
       />
@@ -161,7 +162,7 @@ export default function Pricing() {
               <span className="text-body text-ink-2"> / {intervalLabel}</span>
             </p>
             <ul className="mx-auto mt-6 max-w-sm space-y-3 text-left">
-              {['All learning tracks, zero to CISSP', 'All 23+ hands-on labs', 'Security+ & CISSP exam simulators', 'Progress sync across devices', 'New content every month'].map((f) => (
+              {['All learning tracks, zero to CISSP', `All ${COUNTS.labs} hands-on labs`, 'Security+ & CISSP exam simulators', 'Progress sync across devices', 'New content every month'].map((f) => (
                 <li key={f} className="flex gap-3 text-body text-ink-1">
                   <Check size={18} className="mt-1 shrink-0 text-success" aria-hidden="true" /> {f}
                 </li>
