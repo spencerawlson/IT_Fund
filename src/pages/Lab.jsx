@@ -17,7 +17,7 @@ const Firewall3D = React.lazy(() => import('@/components/three/Firewall3D'));
 const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
 const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
 const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
-const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'));
+import PatchPanelSimulator from '@/components/viz/PatchPanelSimulator';
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import SwitchSimulator from '@/components/viz/SwitchSimulator';
 import UdpAnimation from '@/components/viz/UdpAnimation';
@@ -71,7 +71,7 @@ export const SUBJECTS = [
   { id: 'server-rack', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Server Rack Blueprint', blurb: 'Drive a live 42U rack on one screen — trip a breaker, move the load to feed B, shed load and watch the temperature fall.' },
   { id: 'rack-server', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Rack Server Blueprint', blurb: 'Drive a live 2U rack server on one screen — hot-swap a drive, fail a PSU, manage it out-of-band while the OS is down.' },
   { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Rack-mounted battery backup — status display, protected outlets, battery module and internals.' },
-  { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'A 48-port Cat6 patch panel — numbered RJ45 ports, 110 punch-down termination, T568A/T568B wiring.' },
+  { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'Drive a live 48-port patch panel on one screen — terminate T568A/B, catch the mixed-standard crossover, check your run lengths.' },
   // Networking
   { id: 'osi', category: 'Networking', kind: 'blueprint', icon: Layers, label: 'OSI Model Blueprint', blurb: 'All seven layers — functions, protocols, encapsulation, and the PDU at each layer.' },
   { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'An edge router — WAN and LAN ports, management and console access, internals and specs.' },
@@ -132,7 +132,7 @@ export const RENDERERS = {
   motherboard: Motherboard3D, switch: () => <SwitchSimulator />, 'server-rack': () => <ServerRackSimulator />,
   'rack-server': () => <RackServerSimulator />, ups: Ups3D,
   router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: () => <NasSimulator />, 'patch-panel': PatchPanel3D,
+  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: () => <NasSimulator />, 'patch-panel': () => <PatchPanelSimulator />,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
