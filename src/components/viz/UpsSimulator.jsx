@@ -176,325 +176,331 @@ export default function UpsSimulator() {
   // reading order.
   return (
     <div>
-      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px] lg:grid-rows-[auto_auto]">
-        {/* Left rail: topology + power controls */}
-        <div className="rounded-xl glass-1 p-3 lg:col-start-1 lg:row-start-1">
-          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">UPS topology</p>
-          <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="UPS topology">
-            {TOPOLOGIES.map((topo) => (
+      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px]">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-1">
+          {/* Left rail: topology + power controls */}
+          <div className="rounded-xl glass-1 p-3">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">UPS topology</p>
+            <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="UPS topology">
+              {TOPOLOGIES.map((topo) => (
+                <button
+                  key={topo.id}
+                  type="button"
+                  onClick={() => changeTopology(topo.id)}
+                  aria-pressed={topology === topo.id}
+                  title={topo.blurb}
+                  className={`rounded-lg px-1 py-1.5 text-[12px] font-semibold leading-tight transition ${
+                    topology === topo.id ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-2'
+                  }`}
+                >
+                  {topo.label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs leading-snug text-ink-2">{topologyById(topology).blurb}</p>
+
+            <div className="mt-3 border-t border-black/10 pt-3">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-ink-1">Extra load — {extraLoad} VA</span>
+                <input
+                  type="range"
+                  min="0"
+                  max={MAX_EXTRA_LOAD_VA}
+                  step="10"
+                  value={extraLoad}
+                  onChange={(e) => changeExtraLoad(Number(e.target.value))}
+                  className="mt-0.5 w-full accent-[#7C3AED]"
+                  aria-label="Extra load in volt-amps"
+                />
+                <span className="text-[11px] leading-snug text-ink-3">
+                  Total load {va.toLocaleString('en-US')} VA ({pct}%) of the {RATED_VA.toLocaleString('en-US')} VA rating.
+                  Push past the rating and the overload is blocked.
+                </span>
+              </label>
+              {overloadNote && (
+                <p className="mt-1.5 rounded-lg border border-red-500/40 bg-red-500/5 px-2 py-1 text-[12px] font-semibold leading-snug text-red-700" role="alert">
+                  {overloadNote}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-1.5 border-t border-black/10 pt-3">
               <button
-                key={topo.id}
                 type="button"
-                onClick={() => changeTopology(topo.id)}
-                aria-pressed={topology === topo.id}
-                title={topo.blurb}
-                className={`rounded-lg px-1 py-1.5 text-[12px] font-semibold leading-tight transition ${
-                  topology === topo.id ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-2'
-                }`}
+                onClick={toggleMains}
+                className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight ${ups.mains ? 'border border-black/10 glass-1 text-ink-1' : 'bg-amber-500/15 text-amber-700'}`}
               >
-                {topo.label}
+                {ups.mains ? 'Simulate blackout' : 'Restore mains'}
               </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs leading-snug text-ink-2">{topologyById(topology).blurb}</p>
+              <button
+                type="button"
+                onClick={toggleGenerator}
+                aria-pressed={ups.generator}
+                className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight ${ups.generator ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-1'}`}
+              >
+                {ups.generator ? 'Stop generator' : 'Start generator'}
+              </button>
+              <button
+                type="button"
+                onClick={hotSwap}
+                className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1"
+              >
+                Hot-swap battery
+              </button>
+              <button
+                type="button"
+                onClick={() => { logEvent(sim, restartServers(ups)); bump(); }}
+                disabled={serversOff === 0 || ups.epo}
+                className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1 disabled:opacity-40"
+              >
+                Restart servers
+              </button>
+              <button
+                type="button"
+                onClick={epo}
+                disabled={ups.epo}
+                className="col-span-2 rounded-lg border border-red-500/40 bg-red-500/5 px-2 py-1.5 text-[13px] font-semibold leading-tight text-red-700 disabled:opacity-40"
+              >
+                Emergency power off
+              </button>
+            </div>
 
-          <div className="mt-3 border-t border-black/10 pt-3">
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">Extra load — {extraLoad} VA</span>
-              <input
-                type="range"
-                min="0"
-                max={MAX_EXTRA_LOAD_VA}
-                step="10"
-                value={extraLoad}
-                onChange={(e) => changeExtraLoad(Number(e.target.value))}
-                className="mt-0.5 w-full accent-[#7C3AED]"
-                aria-label="Extra load in volt-amps"
-              />
-              <span className="text-[11px] leading-snug text-ink-3">
-                Total load {va.toLocaleString('en-US')} VA ({pct}%) of the {RATED_VA.toLocaleString('en-US')} VA rating.
-                Push past the rating and the overload is blocked.
-              </span>
-            </label>
-            {overloadNote && (
-              <p className="mt-1.5 rounded-lg border border-red-500/40 bg-red-500/5 px-2 py-1 text-[12px] font-semibold leading-snug text-red-700" role="alert">
-                {overloadNote}
-              </p>
+            <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+              <button type="button" onClick={() => setPaused((p) => !p)} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                {paused ? 'Resume' : 'Pause'}
+              </button>
+              <button type="button" onClick={reset} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                Reset
+              </button>
+            </div>
+          </div>
+
+          {/* UPS config */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">UPS config — updates live</p>
+            <pre className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900] lg:min-h-32 lg:max-h-none lg:flex-1 lg:basis-0">{upsConf(ups)}</pre>
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2">
+
+          {/* Middle: counters, power flow, derived metrics */}
+          <div className="min-w-0">
+            {ups.epo && (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-500/5 p-3" role="alert">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-700" />
+                <p className="text-[13px] leading-snug text-red-700">
+                  <strong>Emergency power off.</strong> Power was cut to everything at once — no graceful shutdown.
+                  Reset the UPS before restarting anything.
+                </p>
+              </div>
             )}
-          </div>
+            {overloaded && !ups.epo && (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-500/5 p-3" role="alert">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-700" />
+                <p className="text-[13px] leading-snug text-red-700">
+                  <strong>Overload.</strong> The load is {va.toLocaleString('en-US')} VA but the {activeMods.length} module{activeMods.length === 1 ? '' : 's'} up can only carry {activeCapacityVa(ups).toLocaleString('en-US')} VA.
+                  Shed load or restore a module.
+                </p>
+              </div>
+            )}
+            {source === 'battery' && !ups.epo && (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3" role="alert">
+                <BatteryCharging size={16} className="mt-0.5 shrink-0 text-amber-700" />
+                <p className="text-[13px] leading-snug text-amber-700">
+                  <strong>On battery power</strong> — {runtime === Infinity ? 'no load to drain it' : `${runtime} min of runtime left`}.
+                  The UPS is buying time for a graceful shutdown, not for working through the outage.
+                </p>
+              </div>
+            )}
+            {ups.shuttingDown && (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3" role="alert">
+                <PlugZap size={16} className="mt-0.5 shrink-0 text-amber-700" />
+                <p className="text-[13px] leading-snug text-amber-700">
+                  <strong>Graceful shutdown in progress</strong> — the UPS is signalling the servers to power off cleanly, one by one.
+                </p>
+              </div>
+            )}
+            {source === 'generator' && (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-violet-500/40 bg-violet-500/5 p-3">
+                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-violet-700" />
+                <p className="text-[13px] leading-snug text-violet-700">
+                  <strong>On generator power</strong> — the generator carries the load and the battery is recharging to 100%.
+                </p>
+              </div>
+            )}
 
-          <div className="mt-3 grid grid-cols-2 gap-1.5 border-t border-black/10 pt-3">
-            <button
-              type="button"
-              onClick={toggleMains}
-              className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight ${ups.mains ? 'border border-black/10 glass-1 text-ink-1' : 'bg-amber-500/15 text-amber-700'}`}
-            >
-              {ups.mains ? 'Simulate blackout' : 'Restore mains'}
-            </button>
-            <button
-              type="button"
-              onClick={toggleGenerator}
-              aria-pressed={ups.generator}
-              className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight ${ups.generator ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-1'}`}
-            >
-              {ups.generator ? 'Stop generator' : 'Start generator'}
-            </button>
-            <button
-              type="button"
-              onClick={hotSwap}
-              className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1"
-            >
-              Hot-swap battery
-            </button>
-            <button
-              type="button"
-              onClick={() => { logEvent(sim, restartServers(ups)); bump(); }}
-              disabled={serversOff === 0 || ups.epo}
-              className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1 disabled:opacity-40"
-            >
-              Restart servers
-            </button>
-            <button
-              type="button"
-              onClick={epo}
-              disabled={ups.epo}
-              className="col-span-2 rounded-lg border border-red-500/40 bg-red-500/5 px-2 py-1.5 text-[13px] font-semibold leading-tight text-red-700 disabled:opacity-40"
-            >
-              Emergency power off
-            </button>
-          </div>
+            <div className="grid grid-cols-3 gap-2">
+              {metric('load', `${va.toLocaleString('en-US')} VA`, overloaded ? 'text-red-700' : 'text-ink-1')}
+              {metric('load %', `${pct}%`)}
+              {metric('battery', `${Math.round(ups.batteryPct)}%`, ups.batteryPct <= 20 ? 'text-red-700' : 'text-ink-1')}
+            </div>
+            {/* Derived metrics, directly */}
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {metric('runtime left', runtime === Infinity ? '—' : `${runtime} min`, ups.batteryPct <= 20 && source === 'battery' ? 'text-red-700' : 'text-ink-1')}
+              {metric('watts', `${watts.toLocaleString('en-US')} W`)}
+              {metric('transfer time', `${transferTimeMs(topology)} ms`)}
+            </div>
 
-          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-            <button type="button" onClick={() => setPaused((p) => !p)} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              {paused ? 'Resume' : 'Pause'}
-            </button>
-            <button type="button" onClick={reset} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              Reset
-            </button>
-          </div>
-        </div>
-
-        {/* Middle: counters, power flow, derived metrics */}
-        <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          {ups.epo && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-500/5 p-3" role="alert">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-700" />
-              <p className="text-[13px] leading-snug text-red-700">
-                <strong>Emergency power off.</strong> Power was cut to everything at once — no graceful shutdown.
-                Reset the UPS before restarting anything.
-              </p>
-            </div>
-          )}
-          {overloaded && !ups.epo && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-500/5 p-3" role="alert">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-700" />
-              <p className="text-[13px] leading-snug text-red-700">
-                <strong>Overload.</strong> The load is {va.toLocaleString('en-US')} VA but the {activeMods.length} module{activeMods.length === 1 ? '' : 's'} up can only carry {activeCapacityVa(ups).toLocaleString('en-US')} VA.
-                Shed load or restore a module.
-              </p>
-            </div>
-          )}
-          {source === 'battery' && !ups.epo && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3" role="alert">
-              <BatteryCharging size={16} className="mt-0.5 shrink-0 text-amber-700" />
-              <p className="text-[13px] leading-snug text-amber-700">
-                <strong>On battery power</strong> — {runtime === Infinity ? 'no load to drain it' : `${runtime} min of runtime left`}.
-                The UPS is buying time for a graceful shutdown, not for working through the outage.
-              </p>
-            </div>
-          )}
-          {ups.shuttingDown && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3" role="alert">
-              <PlugZap size={16} className="mt-0.5 shrink-0 text-amber-700" />
-              <p className="text-[13px] leading-snug text-amber-700">
-                <strong>Graceful shutdown in progress</strong> — the UPS is signalling the servers to power off cleanly, one by one.
-              </p>
-            </div>
-          )}
-          {source === 'generator' && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl border border-violet-500/40 bg-violet-500/5 p-3">
-              <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-violet-700" />
-              <p className="text-[13px] leading-snug text-violet-700">
-                <strong>On generator power</strong> — the generator carries the load and the battery is recharging to 100%.
-              </p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-3 gap-2">
-            {metric('load', `${va.toLocaleString('en-US')} VA`, overloaded ? 'text-red-700' : 'text-ink-1')}
-            {metric('load %', `${pct}%`)}
-            {metric('battery', `${Math.round(ups.batteryPct)}%`, ups.batteryPct <= 20 ? 'text-red-700' : 'text-ink-1')}
-          </div>
-          {/* Derived metrics, directly under the primary counters. */}
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {metric('runtime left', runtime === Infinity ? '—' : `${runtime} min`, ups.batteryPct <= 20 && source === 'battery' ? 'text-red-700' : 'text-ink-1')}
-            {metric('watts', `${watts.toLocaleString('en-US')} W`)}
-            {metric('transfer time', `${transferTimeMs(topology)} ms`)}
-          </div>
-
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <div className="mb-1 flex items-baseline justify-between">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Mains → UPS → PDU → servers</p>
-              <p className="text-[11px] text-ink-3">power source: {source}</p>
-            </div>
-            <svg viewBox="0 0 640 240" className="w-full" role="img" aria-label="Power flow: mains and generator feed the UPS, which feeds the PDU and seven servers">
-              {/* Mains feed */}
-              <line x1="118" y1="120" x2="240" y2="120" stroke={ups.mains ? '#16A34A' : '#9CA3AF'} strokeWidth="3" strokeDasharray={ups.mains ? undefined : '5 4'} />
-              {/* Generator feed */}
-              <line x1="118" y1="185" x2="240" y2="150" stroke={ups.generator ? '#7C3AED' : '#D1D5DB'} strokeWidth="3" strokeDasharray={ups.generator ? undefined : '5 4'} />
-              {/* UPS to PDU */}
-              <line x1="400" y1="120" x2="452" y2="120" stroke={flowColor} strokeWidth="3" />
-              {/* PDU to servers */}
-              {ups.servers.map((server, i) => (
-                <line key={server.id} x1="500" y1="120" x2="548" y2={24 + i * 30} stroke={server.on ? flowColor : '#D1D5DB'} strokeWidth="1.5" />
-              ))}
-              {/* Mains box */}
-              <g>
-                <rect x="18" y="95" width="100" height="50" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="68" y="115" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827">MAINS</text>
-                <text x="68" y="133" textAnchor="middle" fontSize="10" fill={ups.mains ? '#16A34A' : '#DC2626'} fontWeight="700">{ups.mains ? 'live' : 'FAILED'}</text>
-              </g>
-              {/* Generator box */}
-              <g>
-                <rect x="18" y="160" width="100" height="50" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="68" y="180" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827">GENERATOR</text>
-                <text x="68" y="198" textAnchor="middle" fontSize="10" fill={ups.generator ? '#7C3AED' : '#5B6472'} fontWeight="700">{ups.generator ? 'running' : 'standby'}</text>
-              </g>
-              {/* UPS box */}
-              <g>
-                <rect x="240" y="70" width="160" height="100" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="320" y="92" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827">UPS · 2U</text>
-                <text x="320" y="109" textAnchor="middle" fontSize="10" fill="#5B6472">{topologyById(topology).label} · {sineWave(topology)}</text>
-                <rect x="258" y="120" width="124" height="12" rx="6" fill="rgba(0,0,0,0.08)" />
-                <rect x="258" y="120" width={Math.max(0, (124 * ups.batteryPct) / 100)} height="12" rx="6" fill={batteryBarColor} />
-                <text x="320" y="150" textAnchor="middle" fontSize="10" fill="#5B6472">
-                  battery {Math.round(ups.batteryPct)}% · {runtime === Infinity ? 'no load' : `${runtime} min left`}
-                </text>
-                <text x="320" y="163" textAnchor="middle" fontSize="10" fill="#5B6472">
-                  modules {activeMods.map((m) => m.id).join(' + ') || 'none'} up · N+1
-                </text>
-              </g>
-              {/* PDU strip */}
-              <g>
-                <rect x="452" y="88" width="48" height="64" rx="8" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="476" y="108" textAnchor="middle" fontSize="11" fontWeight="800" fill="#111827">PDU</text>
-                <text x="476" y="124" textAnchor="middle" fontSize="9" fill="#5B6472">8 x C13</text>
-                <text x="476" y="138" textAnchor="middle" fontSize="9" fill="#5B6472">{ups.servers.filter((s) => s.on).length}/7 on</text>
-              </g>
-              {/* Servers */}
-              {ups.servers.map((server, i) => (
-                <g key={server.id}>
-                  <rect x="548" y={10 + i * 30} width="74" height="26" rx="6" fill={server.on ? '#FFFFFF' : '#F3F4F6'} stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                  <circle cx="560" cy={23 + i * 30} r="4" fill={server.on ? '#16A34A' : '#9CA3AF'} />
-                  <text x="570" y={27 + i * 30} fontSize="10" fontWeight="700" fill="#111827">{server.id}</text>
-                  <text x="612" y={27 + i * 30} textAnchor="end" fontSize="9" fill="#5B6472">{server.va} VA</text>
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <div className="mb-1 flex items-baseline justify-between">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Mains → UPS → PDU → servers</p>
+                <p className="text-[11px] text-ink-3">power source: {source}</p>
+              </div>
+              <svg viewBox="0 0 640 240" className="w-full" role="img" aria-label="Power flow: mains and generator feed the UPS, which feeds the PDU and seven servers">
+                {/* Mains feed */}
+                <line x1="118" y1="120" x2="240" y2="120" stroke={ups.mains ? '#16A34A' : '#9CA3AF'} strokeWidth="3" strokeDasharray={ups.mains ? undefined : '5 4'} />
+                {/* Generator feed */}
+                <line x1="118" y1="185" x2="240" y2="150" stroke={ups.generator ? '#7C3AED' : '#D1D5DB'} strokeWidth="3" strokeDasharray={ups.generator ? undefined : '5 4'} />
+                {/* UPS to PDU */}
+                <line x1="400" y1="120" x2="452" y2="120" stroke={flowColor} strokeWidth="3" />
+                {/* PDU to servers */}
+                {ups.servers.map((server, i) => (
+                  <line key={server.id} x1="500" y1="120" x2="548" y2={24 + i * 30} stroke={server.on ? flowColor : '#D1D5DB'} strokeWidth="1.5" />
+                ))}
+                {/* Mains box */}
+                <g>
+                  <rect x="18" y="95" width="100" height="50" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="68" y="115" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827">MAINS</text>
+                  <text x="68" y="133" textAnchor="middle" fontSize="10" fill={ups.mains ? '#16A34A' : '#DC2626'} fontWeight="700">{ups.mains ? 'live' : 'FAILED'}</text>
                 </g>
-              ))}
-            </svg>
-            <p className="mt-1 text-xs leading-snug text-ink-2">
-              The UPS cleans the power (sags and brownouts never reach the servers) and switches to battery
-              the instant the mains fails — in {transferTimeMs(topology)} ms on the {topologyById(topology).label.toLowerCase()} topology.
-              The PDU splits the protected output across 8 IEC C13 outlets.
+                {/* Generator box */}
+                <g>
+                  <rect x="18" y="160" width="100" height="50" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="68" y="180" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827">GENERATOR</text>
+                  <text x="68" y="198" textAnchor="middle" fontSize="10" fill={ups.generator ? '#7C3AED' : '#5B6472'} fontWeight="700">{ups.generator ? 'running' : 'standby'}</text>
+                </g>
+                {/* UPS box */}
+                <g>
+                  <rect x="240" y="70" width="160" height="100" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="320" y="92" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827">UPS · 2U</text>
+                  <text x="320" y="109" textAnchor="middle" fontSize="10" fill="#5B6472">{topologyById(topology).label} · {sineWave(topology)}</text>
+                  <rect x="258" y="120" width="124" height="12" rx="6" fill="rgba(0,0,0,0.08)" />
+                  <rect x="258" y="120" width={Math.max(0, (124 * ups.batteryPct) / 100)} height="12" rx="6" fill={batteryBarColor} />
+                  <text x="320" y="150" textAnchor="middle" fontSize="10" fill="#5B6472">
+                    battery {Math.round(ups.batteryPct)}% · {runtime === Infinity ? 'no load' : `${runtime} min left`}
+                  </text>
+                  <text x="320" y="163" textAnchor="middle" fontSize="10" fill="#5B6472">
+                    modules {activeMods.map((m) => m.id).join(' + ') || 'none'} up · N+1
+                  </text>
+                </g>
+                {/* PDU strip */}
+                <g>
+                  <rect x="452" y="88" width="48" height="64" rx="8" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="476" y="108" textAnchor="middle" fontSize="11" fontWeight="800" fill="#111827">PDU</text>
+                  <text x="476" y="124" textAnchor="middle" fontSize="9" fill="#5B6472">8 x C13</text>
+                  <text x="476" y="138" textAnchor="middle" fontSize="9" fill="#5B6472">{ups.servers.filter((s) => s.on).length}/7 on</text>
+                </g>
+                {/* Servers */}
+                {ups.servers.map((server, i) => (
+                  <g key={server.id}>
+                    <rect x="548" y={10 + i * 30} width="74" height="26" rx="6" fill={server.on ? '#FFFFFF' : '#F3F4F6'} stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                    <circle cx="560" cy={23 + i * 30} r="4" fill={server.on ? '#16A34A' : '#9CA3AF'} />
+                    <text x="570" y={27 + i * 30} fontSize="10" fontWeight="700" fill="#111827">{server.id}</text>
+                    <text x="612" y={27 + i * 30} textAnchor="end" fontSize="9" fill="#5B6472">{server.va} VA</text>
+                  </g>
+                ))}
+              </svg>
+              <p className="mt-1 text-xs leading-snug text-ink-2">
+                The UPS cleans the power (sags and brownouts never reach the servers) and switches to battery
+                the instant the mains fails — in {transferTimeMs(topology)} ms on the {topologyById(topology).label.toLowerCase()} topology.
+                The PDU splits the protected output across 8 IEC C13 outlets.
+              </p>
+            </div>
+          </div>
+
+          {/* Event log */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
+              <Activity size={13} /> Event log
             </p>
+            <div className="rounded-xl border border-black/10 glass-1 p-3 lg:flex-1">
+              {sim.events.length === 0 ? (
+                <p className="text-[13px] text-ink-3">No events yet. Simulate a blackout, fail a module, or push the load past the rating.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {sim.events.map((event) => (
+                    <li key={event.id} className="text-[13px] text-ink-2">
+                      <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-3">
 
-        {/* Right rail: the UPS front panel + the protected servers */}
-        <div className="flex flex-col gap-2.5 lg:col-start-3 lg:row-start-1">
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">UPS front panel</p>
-            <div className="mt-2 rounded-lg border border-black/10 bg-white p-2.5">
-              <div className="flex items-center justify-between">
-                <p className="text-[12px] font-bold text-ink-1">2U rack UPS · {RATED_VA.toLocaleString('en-US')} VA / {RATED_WATTS.toLocaleString('en-US')} W</p>
-                <BatteryCharging size={14} className="text-ink-3" />
-              </div>
-              {/* LCD, as in the lesson example: load + battery. */}
-              <div className="mt-2 rounded-lg bg-[#002B36] px-3 py-2 font-mono text-[#859900]">
-                <p className="text-[13px] font-bold">LOAD {pct}% · {va.toLocaleString('en-US')} VA</p>
-                <p className="text-[13px] font-bold">BATT {Math.round(ups.batteryPct)}% · {runtime === Infinity ? '—' : `${runtime} MIN`}</p>
-                <p className="mt-0.5 text-[11px]">{ups.epo ? 'EPO — OUTPUT OFF' : source.toUpperCase()} · {sineWave(topology).toUpperCase()}</p>
-              </div>
-              <div className="mt-2 space-y-1.5">
-                {ups.modules.map((module) => (
-                  <div key={module.id} className="rounded-lg border border-black/10 px-2 py-1.5">
-                    <div className="flex items-center gap-2 text-[12px]">
-                      <span className={`h-2 w-2 shrink-0 rounded-full ${module.up ? 'bg-emerald-600' : 'bg-red-500'}`} />
-                      <span className="whitespace-nowrap font-bold text-ink-1">Module {module.id}</span>
-                      <span className="text-ink-2">{MODULE_VA.toLocaleString('en-US')} VA</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          logEvent(sim, module.up ? failModule(ups, module.id) : restoreModule(ups, module.id));
-                          bump();
-                        }}
-                        className="ml-auto shrink-0 rounded-lg border border-black/10 px-2 py-0.5 text-[11px] font-semibold text-ink-1"
-                      >
-                        {module.up ? 'Fail module' : 'Restore module'}
-                      </button>
+          {/* Right rail: the UPS front panel + the protected servers */}
+          <div className="flex flex-col gap-2.5 lg:flex-1">
+            <div className="rounded-xl border border-black/10 glass-1 p-3">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">UPS front panel</p>
+              <div className="mt-2 rounded-lg border border-black/10 bg-white p-2.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-[12px] font-bold text-ink-1">2U rack UPS · {RATED_VA.toLocaleString('en-US')} VA / {RATED_WATTS.toLocaleString('en-US')} W</p>
+                  <BatteryCharging size={14} className="text-ink-3" />
+                </div>
+                {/* LCD, as in the lesson example: load + battery. */}
+                <div className="mt-2 rounded-lg bg-[#002B36] px-3 py-2 font-mono text-[#859900]">
+                  <p className="text-[13px] font-bold">LOAD {pct}% · {va.toLocaleString('en-US')} VA</p>
+                  <p className="text-[13px] font-bold">BATT {Math.round(ups.batteryPct)}% · {runtime === Infinity ? '—' : `${runtime} MIN`}</p>
+                  <p className="mt-0.5 text-[11px]">{ups.epo ? 'EPO — OUTPUT OFF' : source.toUpperCase()} · {sineWave(topology).toUpperCase()}</p>
+                </div>
+                <div className="mt-2 space-y-1.5">
+                  {ups.modules.map((module) => (
+                    <div key={module.id} className="rounded-lg border border-black/10 px-2 py-1.5">
+                      <div className="flex items-center gap-2 text-[12px]">
+                        <span className={`h-2 w-2 shrink-0 rounded-full ${module.up ? 'bg-emerald-600' : 'bg-red-500'}`} />
+                        <span className="whitespace-nowrap font-bold text-ink-1">Module {module.id}</span>
+                        <span className="text-ink-2">{MODULE_VA.toLocaleString('en-US')} VA</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            logEvent(sim, module.up ? failModule(ups, module.id) : restoreModule(ups, module.id));
+                            bump();
+                          }}
+                          className="ml-auto shrink-0 rounded-lg border border-black/10 px-2 py-0.5 text-[11px] font-semibold text-ink-1"
+                        >
+                          {module.up ? 'Fail module' : 'Restore module'}
+                        </button>
+                      </div>
+                      <p className="mt-0.5 pl-4 text-[11px] leading-snug text-ink-2">{module.up ? 'carrying load' : 'FAILED — the survivor carries everything'}</p>
                     </div>
-                    <p className="mt-0.5 pl-4 text-[11px] leading-snug text-ink-2">{module.up ? 'carrying load' : 'FAILED — the survivor carries everything'}</p>
+                  ))}
+                </div>
+                <p className="mt-2 border-t border-black/10 pt-2 text-[11px] leading-snug text-ink-3">
+                  Hot-swappable VRLA 12 V battery modules (LiFePO4 option). EPO port kills power to everything.
+                  Signals servers over SNMP / web / SSH to shut down cleanly.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-black/10 glass-1 p-3">
+              <div className="flex items-baseline justify-between">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Protected servers</p>
+                <p className="text-[11px] text-ink-3">{ups.servers.filter((s) => s.on).length} of 7 on</p>
+              </div>
+              <div className="mt-1.5 space-y-1">
+                {ups.servers.map((server) => (
+                  <div key={server.id} className="flex items-center gap-2 text-[12px]">
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${server.on ? 'bg-emerald-600' : 'bg-gray-400'}`} />
+                    <span className="font-bold text-ink-1">{server.id}</span>
+                    <span className="text-ink-2">{server.va} VA · {server.on ? 'on' : 'off'}</span>
+                    <button
+                      type="button"
+                      onClick={() => { logEvent(sim, toggleServer(ups, server.id)); bump(); }}
+                      aria-label={`${server.on ? 'Power off' : 'Power on'} ${server.id}`}
+                      className="ml-auto rounded-lg border border-black/10 px-2 py-0.5 text-[11px] font-semibold text-ink-1"
+                    >
+                      {server.on ? 'Power off' : 'Power on'}
+                    </button>
                   </div>
                 ))}
               </div>
-              <p className="mt-2 border-t border-black/10 pt-2 text-[11px] leading-snug text-ink-3">
-                Hot-swappable VRLA 12 V battery modules (LiFePO4 option). EPO port kills power to everything.
-                Signals servers over SNMP / web / SSH to shut down cleanly.
+              <p className="mt-2 text-[11px] leading-snug text-ink-3">
+                {RATED_VA.toLocaleString('en-US')} VA at PF {POWER_FACTOR} is {RATED_WATTS.toLocaleString('en-US')} W of real power —
+                watts, not VA, is what the servers actually draw.
               </p>
             </div>
-          </div>
-
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            <div className="flex items-baseline justify-between">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Protected servers</p>
-              <p className="text-[11px] text-ink-3">{ups.servers.filter((s) => s.on).length} of 7 on</p>
-            </div>
-            <div className="mt-1.5 space-y-1">
-              {ups.servers.map((server) => (
-                <div key={server.id} className="flex items-center gap-2 text-[12px]">
-                  <span className={`h-2 w-2 shrink-0 rounded-full ${server.on ? 'bg-emerald-600' : 'bg-gray-400'}`} />
-                  <span className="font-bold text-ink-1">{server.id}</span>
-                  <span className="text-ink-2">{server.va} VA · {server.on ? 'on' : 'off'}</span>
-                  <button
-                    type="button"
-                    onClick={() => { logEvent(sim, toggleServer(ups, server.id)); bump(); }}
-                    aria-label={`${server.on ? 'Power off' : 'Power on'} ${server.id}`}
-                    className="ml-auto rounded-lg border border-black/10 px-2 py-0.5 text-[11px] font-semibold text-ink-1"
-                  >
-                    {server.on ? 'Power off' : 'Power on'}
-                  </button>
-                </div>
-              ))}
-            </div>
-            <p className="mt-2 text-[11px] leading-snug text-ink-3">
-              {RATED_VA.toLocaleString('en-US')} VA at PF {POWER_FACTOR} is {RATED_WATTS.toLocaleString('en-US')} W of real power —
-              watts, not VA, is what the servers actually draw.
-            </p>
-          </div>
-        </div>
-
-        {/* UPS config, under the controls rail */}
-        <div className="lg:col-start-1 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">UPS config — updates live</p>
-          <pre className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{upsConf(ups)}</pre>
-        </div>
-
-        {/* Event log, under the front panel */}
-        <div className="lg:col-start-3 lg:row-start-2">
-          <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
-            <Activity size={13} /> Event log
-          </p>
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            {sim.events.length === 0 ? (
-              <p className="text-[13px] text-ink-3">No events yet. Simulate a blackout, fail a module, or push the load past the rating.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sim.events.map((event) => (
-                  <li key={event.id} className="text-[13px] text-ink-2">
-                    <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         </div>
       </div>

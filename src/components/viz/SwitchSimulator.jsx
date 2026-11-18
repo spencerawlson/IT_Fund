@@ -295,366 +295,372 @@ export default function SwitchSimulator() {
   // counters. On narrow screens the rails stack in reading order.
   return (
     <div>
-      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px] lg:grid-rows-[auto_auto]">
-        {/* Left rail: spanning tree + traffic controls */}
-        <div className="rounded-xl glass-1 p-3 lg:col-start-1 lg:row-start-1">
-          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Spanning tree</p>
-          <div className="mt-2 grid grid-cols-2 gap-1.5">
-            <button
-              type="button"
-              onClick={toggleStp}
-              aria-pressed={network.stpEnabled}
-              className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight transition ${network.stpEnabled ? 'glass-btn' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}
-            >
-              STP {network.stpEnabled ? 'on' : 'OFF'}
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleLink('A')}
-              aria-pressed={linkUp('A')}
-              title="The active trunk between SW1 P3 and SW2 P3."
-              className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1"
-            >
-              Link P3 {linkUp('A') ? 'up' : 'DOWN'}
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleLink('B')}
-              aria-pressed={linkUp('B')}
-              title="The redundant trunk between SW1 P4 and SW2 P4."
-              className="col-span-2 rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1"
-            >
-              Redundant link P4 {linkUp('B') ? 'up' : 'DOWN'}
-            </button>
-          </div>
-          <p className="mt-2 text-xs leading-snug text-ink-2">
-            Root: <strong className="text-ink-1">{root.id}</strong> — lowest priority wins, then lowest MAC.
-          </p>
-
-          <div className="mt-3 space-y-2">
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">SW1 STP priority</span>
-              <select
-                value={switchById(network, 'SW1').priority}
-                onChange={(e) => changePriority('SW1', e.target.value)}
-                aria-label="SW1 STP priority"
-                className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
-              >
-                <option value={4096}>4096 (root)</option>
-                <option value={32768}>32768 (default)</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">SW2 STP priority</span>
-              <select
-                value={switchById(network, 'SW2').priority}
-                onChange={(e) => changePriority('SW2', e.target.value)}
-                aria-label="SW2 STP priority"
-                className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
-              >
-                <option value={32768}>32768 (default)</option>
-                <option value={0}>0 (root — beats 4096)</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="mt-3 border-t border-black/10 pt-3">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Send a frame</p>
-            <div className="mt-2 space-y-2">
-              <label className="block">
-                <span className="text-[13px] font-semibold text-ink-1">From</span>
-                <select
-                  value={srcHost}
-                  onChange={(e) => setSrcHost(e.target.value)}
-                  aria-label="Source host"
-                  className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
-                >
-                  {HOSTS.map((h) => (
-                    <option key={h.id} value={h.id}>{h.id} — VLAN {h.vlan} ({h.switchId} {h.portId})</option>
-                  ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className="text-[13px] font-semibold text-ink-1">To</span>
-                <select
-                  value={dstChoice}
-                  onChange={(e) => setDstChoice(e.target.value)}
-                  aria-label="Destination MAC"
-                  className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
-                >
-                  {HOSTS.map((h) => (
-                    <option key={h.id} value={h.mac}>{h.id} — {h.mac}</option>
-                  ))}
-                  <option value={UNKNOWN_MAC}>Unknown MAC — {UNKNOWN_MAC}</option>
-                  <option value={BROADCAST_MAC}>Broadcast — {BROADCAST_MAC}</option>
-                </select>
-              </label>
+      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px]">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-1">
+          {/* Left rail: spanning tree + traffic controls */}
+          <div className="rounded-xl glass-1 p-3">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Spanning tree</p>
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
               <button
                 type="button"
-                onClick={() => { sendFrame(sim, srcHost, dstChoice); bump(); }}
-                className="glass-btn w-full rounded-lg px-2 py-1.5 text-[13px] font-semibold"
+                onClick={toggleStp}
+                aria-pressed={network.stpEnabled}
+                className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight transition ${network.stpEnabled ? 'glass-btn' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}
               >
-                Send frame
+                STP {network.stpEnabled ? 'on' : 'OFF'}
               </button>
+              <button
+                type="button"
+                onClick={() => toggleLink('A')}
+                aria-pressed={linkUp('A')}
+                title="The active trunk between SW1 P3 and SW2 P3."
+                className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1"
+              >
+                Link P3 {linkUp('A') ? 'up' : 'DOWN'}
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleLink('B')}
+                aria-pressed={linkUp('B')}
+                title="The redundant trunk between SW1 P4 and SW2 P4."
+                className="col-span-2 rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold leading-tight text-ink-1"
+              >
+                Redundant link P4 {linkUp('B') ? 'up' : 'DOWN'}
+              </button>
+            </div>
+            <p className="mt-2 text-xs leading-snug text-ink-2">
+              Root: <strong className="text-ink-1">{root.id}</strong> — lowest priority wins, then lowest MAC.
+            </p>
+
+            <div className="mt-3 space-y-2">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-ink-1">SW1 STP priority</span>
+                <select
+                  value={switchById(network, 'SW1').priority}
+                  onChange={(e) => changePriority('SW1', e.target.value)}
+                  aria-label="SW1 STP priority"
+                  className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
+                >
+                  <option value={4096}>4096 (root)</option>
+                  <option value={32768}>32768 (default)</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-[13px] font-semibold text-ink-1">SW2 STP priority</span>
+                <select
+                  value={switchById(network, 'SW2').priority}
+                  onChange={(e) => changePriority('SW2', e.target.value)}
+                  aria-label="SW2 STP priority"
+                  className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
+                >
+                  <option value={32768}>32768 (default)</option>
+                  <option value={0}>0 (root — beats 4096)</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-3 border-t border-black/10 pt-3">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Send a frame</p>
+              <div className="mt-2 space-y-2">
+                <label className="block">
+                  <span className="text-[13px] font-semibold text-ink-1">From</span>
+                  <select
+                    value={srcHost}
+                    onChange={(e) => setSrcHost(e.target.value)}
+                    aria-label="Source host"
+                    className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
+                  >
+                    {HOSTS.map((h) => (
+                      <option key={h.id} value={h.id}>{h.id} — VLAN {h.vlan} ({h.switchId} {h.portId})</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-[13px] font-semibold text-ink-1">To</span>
+                  <select
+                    value={dstChoice}
+                    onChange={(e) => setDstChoice(e.target.value)}
+                    aria-label="Destination MAC"
+                    className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
+                  >
+                    {HOSTS.map((h) => (
+                      <option key={h.id} value={h.mac}>{h.id} — {h.mac}</option>
+                    ))}
+                    <option value={UNKNOWN_MAC}>Unknown MAC — {UNKNOWN_MAC}</option>
+                    <option value={BROADCAST_MAC}>Broadcast — {BROADCAST_MAC}</option>
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => { sendFrame(sim, srcHost, dstChoice); bump(); }}
+                  className="glass-btn w-full rounded-lg px-2 py-1.5 text-[13px] font-semibold"
+                >
+                  Send frame
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-3 border-t border-black/10 pt-3">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-ink-1">Auto traffic — {traffic} frames/s</span>
+                <input type="range" min="0" max="20" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Auto traffic in frames per second" />
+              </label>
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
+                <button type="button" onClick={() => setPaused((p) => !p)} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                  {paused ? 'Resume' : 'Pause'}
+                </button>
+                <button type="button" onClick={reset} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="mt-3 border-t border-black/10 pt-3">
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">Auto traffic — {traffic} frames/s</span>
-              <input type="range" min="0" max="20" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Auto traffic in frames per second" />
-            </label>
-            <div className="mt-2 grid grid-cols-2 gap-1.5">
-              <button type="button" onClick={() => setPaused((p) => !p)} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-                {paused ? 'Resume' : 'Pause'}
-              </button>
-              <button type="button" onClick={reset} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-                Reset
-              </button>
-            </div>
+          {/* CLI panel */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Switch CLI — updates live</p>
+            <pre className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900] lg:min-h-32 lg:max-h-none lg:flex-1 lg:basis-0">{switchCli(network)}</pre>
           </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2">
 
-        {/* Middle: counters, topology, CAM table */}
-        <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          {loop && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-500/5 p-3" role="alert">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-700" />
-              <p className="text-[13px] leading-snug text-red-700">
-                <strong>Broadcast storm.</strong> Both trunks forward with STP off and Ethernet has no TTL —
-                re-enable STP or drop the redundant link to break the loop.
+          {/* Middle: counters, topology, CAM table */}
+          <div className="min-w-0">
+            {loop && (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-500/5 p-3" role="alert">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-700" />
+                <p className="text-[13px] leading-snug text-red-700">
+                  <strong>Broadcast storm.</strong> Both trunks forward with STP off and Ethernet has no TTL —
+                  re-enable STP or drop the redundant link to break the loop.
+                </p>
+              </div>
+            )}
+            <div className="grid grid-cols-3 gap-2">
+              {metric('forwarded', sim.forwarded)}
+              {metric('flooded', sim.flooded)}
+              {metric('CAM entries', camEntries)}
+            </div>
+            {/* Derived metrics, directly */}
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {metric('flood rate', `${floodRate.toLocaleString('en-US')} /s`, loop ? 'text-red-700' : 'text-ink-1')}
+              {metric('blocked ports', blocked)}
+              {metric('dropped', sim.dropped)}
+            </div>
+
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <div className="mb-1 flex items-baseline justify-between">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Two switches · two VLANs · one extra trunk</p>
+                <p className="text-[11px] text-ink-3">green = delivered · amber = flooded · red = dropped</p>
+              </div>
+              <svg viewBox="0 0 640 240" className="w-full" role="img" aria-label="Topology: PC-A and PC-B on SW1, PC-C and PC-D on SW2, joined by two trunk links">
+                {/* Host links */}
+                <line x1="70" y1="32" x2="170" y2="108" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
+                <line x1="70" y1="208" x2="170" y2="152" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
+                <line x1="570" y1="32" x2="470" y2="108" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
+                <line x1="570" y1="208" x2="470" y2="152" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
+                {/* Trunk links */}
+                {network.switches.map((sw) => sw.ports.filter((p) => p.mode === 'trunk').map((port) => {
+                  const y = port.id === 'P3' ? 112 : 148;
+                  const up = port.linkUp;
+                  const color = !up ? '#9CA3AF' : port.state === 'blocked' ? '#D97706' : '#16A34A';
+                  return (
+                    <g key={`${sw.id}-${port.id}`}>
+                      {sw.id === 'SW1' && (
+                        <line x1="300" y1={y} x2="340" y2={y} stroke={color} strokeWidth="3" strokeDasharray={up ? undefined : '5 4'} />
+                      )}
+                      {sw.id === 'SW1' && (
+                        <text x="320" y={y - 6} textAnchor="middle" fontSize="10" fill={color} fontWeight="700">
+                          {port.id} {port.state}
+                        </text>
+                      )}
+                    </g>
+                  );
+                }))}
+                {/* Switch boxes */}
+                {network.switches.map((sw) => {
+                  const x = sw.id === 'SW1' ? 170 : 340;
+                  const isRootBridge = sw.id === root.id;
+                  return (
+                    <g key={sw.id}>
+                      <rect x={x} y="95" width="130" height="70" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                      <text x={x + 65} y="120" textAnchor="middle" fontSize="14" fontWeight="800" fill="#111827">{sw.id}</text>
+                      <text x={x + 65} y="137" textAnchor="middle" fontSize="10" fill="#5B6472">
+                        {isRootBridge ? 'root bridge' : `priority ${sw.priority}`}
+                      </text>
+                      <text x={x + 65} y="152" textAnchor="middle" fontSize="10" fill="#5B6472">CAM {sw.cam.length.toLocaleString('en-US')} entries</text>
+                      {sw.ports.map((port) => {
+                        const cx = sw.id === 'SW1' ? (port.mode === 'access' ? 170 : 300) : (port.mode === 'access' ? 470 : 340);
+                        const cy = port.mode === 'access' ? (port.id === 'P1' ? 108 : 152) : (port.id === 'P3' ? 112 : 148);
+                        return <circle key={port.id} cx={cx} cy={cy} r="5" fill={ledColor(port.state)} stroke="#FFFFFF" strokeWidth="1.5" />;
+                      })}
+                    </g>
+                  );
+                })}
+                {/* Hosts */}
+                {HOSTS.map((host) => {
+                  const [x, y] = PC_POS[host.id];
+                  return (
+                    <g key={host.id}>
+                      <rect x={x - 24} y={y - 14} width="48" height="28" rx="7" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                      <text x={x} y={y + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#111827">{host.id}</text>
+                      <text x={x} y={y + 26} textAnchor="middle" fontSize="9" fill="#5B6472">VLAN {host.vlan}</text>
+                    </g>
+                  );
+                })}
+                {/* In-flight frames */}
+                {sim.dots.map((dot) => {
+                  const pos = pointAlong(dot.waypoints, dot.progress);
+                  return <circle key={dot.id} cx={pos.x} cy={pos.y} r="6" fill={DOT_FILL[dot.kind]} stroke="#FFFFFF" strokeWidth="1.5" />;
+                })}
+              </svg>
+              <p className="mt-1 text-xs leading-snug text-ink-2">
+                PC-A and PC-C share VLAN 10; PC-B and PC-D share VLAN 20. The P3 trunk carries both VLANs
+                (802.1Q); P4 is the redundant trunk STP holds blocked.
               </p>
             </div>
-          )}
-          <div className="grid grid-cols-3 gap-2">
-            {metric('forwarded', sim.forwarded)}
-            {metric('flooded', sim.flooded)}
-            {metric('CAM entries', camEntries)}
-          </div>
-          {/* Derived metrics, directly under the primary counters. */}
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {metric('flood rate', `${floodRate.toLocaleString('en-US')} /s`, loop ? 'text-red-700' : 'text-ink-1')}
-            {metric('blocked ports', blocked)}
-            {metric('dropped', sim.dropped)}
-          </div>
 
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <div className="mb-1 flex items-baseline justify-between">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Two switches · two VLANs · one extra trunk</p>
-              <p className="text-[11px] text-ink-3">green = delivered · amber = flooded · red = dropped</p>
-            </div>
-            <svg viewBox="0 0 640 240" className="w-full" role="img" aria-label="Topology: PC-A and PC-B on SW1, PC-C and PC-D on SW2, joined by two trunk links">
-              {/* Host links */}
-              <line x1="70" y1="32" x2="170" y2="108" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
-              <line x1="70" y1="208" x2="170" y2="152" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
-              <line x1="570" y1="32" x2="470" y2="108" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
-              <line x1="570" y1="208" x2="470" y2="152" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
-              {/* Trunk links */}
-              {network.switches.map((sw) => sw.ports.filter((p) => p.mode === 'trunk').map((port) => {
-                const y = port.id === 'P3' ? 112 : 148;
-                const up = port.linkUp;
-                const color = !up ? '#9CA3AF' : port.state === 'blocked' ? '#D97706' : '#16A34A';
-                return (
-                  <g key={`${sw.id}-${port.id}`}>
-                    {sw.id === 'SW1' && (
-                      <line x1="300" y1={y} x2="340" y2={y} stroke={color} strokeWidth="3" strokeDasharray={up ? undefined : '5 4'} />
-                    )}
-                    {sw.id === 'SW1' && (
-                      <text x="320" y={y - 6} textAnchor="middle" fontSize="10" fill={color} fontWeight="700">
-                        {port.id} {port.state}
-                      </text>
-                    )}
-                  </g>
-                );
-              }))}
-              {/* Switch boxes */}
-              {network.switches.map((sw) => {
-                const x = sw.id === 'SW1' ? 170 : 340;
-                const isRootBridge = sw.id === root.id;
-                return (
-                  <g key={sw.id}>
-                    <rect x={x} y="95" width="130" height="70" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                    <text x={x + 65} y="120" textAnchor="middle" fontSize="14" fontWeight="800" fill="#111827">{sw.id}</text>
-                    <text x={x + 65} y="137" textAnchor="middle" fontSize="10" fill="#5B6472">
-                      {isRootBridge ? 'root bridge' : `priority ${sw.priority}`}
-                    </text>
-                    <text x={x + 65} y="152" textAnchor="middle" fontSize="10" fill="#5B6472">CAM {sw.cam.length.toLocaleString('en-US')} entries</text>
-                    {sw.ports.map((port) => {
-                      const cx = sw.id === 'SW1' ? (port.mode === 'access' ? 170 : 300) : (port.mode === 'access' ? 470 : 340);
-                      const cy = port.mode === 'access' ? (port.id === 'P1' ? 108 : 152) : (port.id === 'P3' ? 112 : 148);
-                      return <circle key={port.id} cx={cx} cy={cy} r="5" fill={ledColor(port.state)} stroke="#FFFFFF" strokeWidth="1.5" />;
-                    })}
-                  </g>
-                );
-              })}
-              {/* Hosts */}
-              {HOSTS.map((host) => {
-                const [x, y] = PC_POS[host.id];
-                return (
-                  <g key={host.id}>
-                    <rect x={x - 24} y={y - 14} width="48" height="28" rx="7" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                    <text x={x} y={y + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#111827">{host.id}</text>
-                    <text x={x} y={y + 26} textAnchor="middle" fontSize="9" fill="#5B6472">VLAN {host.vlan}</text>
-                  </g>
-                );
-              })}
-              {/* In-flight frames */}
-              {sim.dots.map((dot) => {
-                const pos = pointAlong(dot.waypoints, dot.progress);
-                return <circle key={dot.id} cx={pos.x} cy={pos.y} r="6" fill={DOT_FILL[dot.kind]} stroke="#FFFFFF" strokeWidth="1.5" />;
-              })}
-            </svg>
-            <p className="mt-1 text-xs leading-snug text-ink-2">
-              PC-A and PC-C share VLAN 10; PC-B and PC-D share VLAN 20. The P3 trunk carries both VLANs
-              (802.1Q); P4 is the redundant trunk STP holds blocked.
-            </p>
-          </div>
-
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <div className="mb-1 flex items-baseline justify-between">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">CAM table — learned live</p>
-              <p className="text-[11px] text-ink-3">{camEntries.toLocaleString('en-US')} of {CAM_CAPACITY.toLocaleString('en-US')} entries</p>
-            </div>
-            {camRows.length === 0 ? (
-              <p className="text-[13px] text-ink-3">Nothing learned yet. Send a frame, or turn the auto traffic up.</p>
-            ) : (
-              <table className="w-full text-left text-[13px]">
-                <thead>
-                  <tr className="text-[11px] uppercase tracking-wider text-ink-3">
-                    <th className="py-1 pr-2 font-semibold">Switch</th>
-                    <th className="py-1 pr-2 font-semibold">VLAN</th>
-                    <th className="py-1 pr-2 font-semibold">MAC address</th>
-                    <th className="py-1 font-semibold">Port</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {camRows.slice(0, MAX_CAM_ROWS).map((row) => (
-                    <tr key={`${row.switchId}-${row.vlan}-${row.mac}`} className="border-t border-black/5">
-                      <td className="py-1 pr-2 font-semibold text-ink-1">{row.switchId}</td>
-                      <td className="py-1 pr-2 tabular-nums text-ink-2">{row.vlan}</td>
-                      <td className="py-1 pr-2 font-mono text-[12px] text-ink-2">{row.mac}</td>
-                      <td className="py-1 font-semibold text-ink-1">{row.portId}</td>
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <div className="mb-1 flex items-baseline justify-between">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">CAM table — learned live</p>
+                <p className="text-[11px] text-ink-3">{camEntries.toLocaleString('en-US')} of {CAM_CAPACITY.toLocaleString('en-US')} entries</p>
+              </div>
+              {camRows.length === 0 ? (
+                <p className="text-[13px] text-ink-3">Nothing learned yet. Send a frame, or turn the auto traffic up.</p>
+              ) : (
+                <table className="w-full text-left text-[13px]">
+                  <thead>
+                    <tr className="text-[11px] uppercase tracking-wider text-ink-3">
+                      <th className="py-1 pr-2 font-semibold">Switch</th>
+                      <th className="py-1 pr-2 font-semibold">VLAN</th>
+                      <th className="py-1 pr-2 font-semibold">MAC address</th>
+                      <th className="py-1 font-semibold">Port</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-            {camRows.length > MAX_CAM_ROWS && (
-              <p className="mt-1 text-[11px] text-ink-3">+ {camRows.length - MAX_CAM_ROWS} more — see the CLI panel for the full table.</p>
-            )}
+                  </thead>
+                  <tbody>
+                    {camRows.slice(0, MAX_CAM_ROWS).map((row) => (
+                      <tr key={`${row.switchId}-${row.vlan}-${row.mac}`} className="border-t border-black/5">
+                        <td className="py-1 pr-2 font-semibold text-ink-1">{row.switchId}</td>
+                        <td className="py-1 pr-2 tabular-nums text-ink-2">{row.vlan}</td>
+                        <td className="py-1 pr-2 font-mono text-[12px] text-ink-2">{row.mac}</td>
+                        <td className="py-1 font-semibold text-ink-1">{row.portId}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {camRows.length > MAX_CAM_ROWS && (
+                <p className="mt-1 text-[11px] text-ink-3">+ {camRows.length - MAX_CAM_ROWS} more — see the CLI panel for the full table.</p>
+              )}
+            </div>
           </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-3">
 
-        {/* Right rail: the front panel */}
-        <div className="flex flex-col gap-2.5 lg:col-start-3 lg:row-start-1">
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Front panel</p>
-              <div className="flex overflow-hidden rounded-lg border border-black/10" role="group" aria-label="Switch shown on the front panel">
-                {['SW1', 'SW2'].map((id) => (
+          {/* Right rail: the front panel */}
+          <div className="flex flex-col gap-2.5">
+            <div className="rounded-xl border border-black/10 glass-1 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Front panel</p>
+                <div className="flex overflow-hidden rounded-lg border border-black/10" role="group" aria-label="Switch shown on the front panel">
+                  {['SW1', 'SW2'].map((id) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setPanelSwitch(id)}
+                      aria-pressed={panelSwitch === id}
+                      className={`px-2 py-0.5 text-[12px] font-semibold ${panelSwitch === id ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
+                    >
+                      {id}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-2 rounded-lg border border-black/10 bg-white p-2.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-[12px] font-bold text-ink-1">{panelSw.id} · 48-port managed switch</p>
+                  <Network size={14} className="text-ink-3" />
+                </div>
+                <div className="mt-2 grid grid-cols-4 gap-1.5">
+                  {panelSw.ports.map((port) => (
+                    <div key={port.id} className="rounded-md border border-black/10 px-1 py-1.5 text-center">
+                      <span className="mx-auto mb-1 block h-2 w-2 rounded-full" style={{ backgroundColor: ledColor(port.state) }} title={`${port.id}: ${ledLabel(port.state)}`} />
+                      <p className="text-[11px] font-bold leading-none text-ink-1">{port.id}</p>
+                      <p className="mt-0.5 text-[9px] leading-none text-ink-3">{port.mode === 'access' ? `VLAN ${port.vlan}` : 'trunk'}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-ink-2">
+                  <span>SFP+ uplinks ×2 · 10 GbE</span>
+                  <span>Console port · USB backup</span>
+                </div>
+                <div className="mt-2 flex items-center gap-3 border-t border-black/10 pt-2">
+                  <span className="flex items-center gap-1 text-[11px] font-semibold text-ink-1">
+                    <span className="h-2 w-2 rounded-full bg-emerald-600" /> PWR
+                  </span>
+                  <span className="flex items-center gap-1 text-[11px] font-semibold text-ink-1">
+                    <span className="h-2 w-2 rounded-full bg-emerald-600" /> SYS
+                  </span>
+                  <span className="flex items-center gap-1 text-[11px] font-semibold text-ink-1">
+                    <span className={`h-2 w-2 rounded-full ${fanFault ? 'bg-amber-500' : 'bg-emerald-600'}`} /> FAN {fanFault ? '— fault' : ''}
+                  </span>
                   <button
-                    key={id}
                     type="button"
-                    onClick={() => setPanelSwitch(id)}
-                    aria-pressed={panelSwitch === id}
-                    className={`px-2 py-0.5 text-[12px] font-semibold ${panelSwitch === id ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
+                    onClick={() => {
+                      const next = !fanFault;
+                      setFanFault(next);
+                      logEvent(sim, next ? 'FAN LED amber — fan fault / overheating.' : 'Fan fault cleared — FAN LED green.');
+                      bump();
+                    }}
+                    aria-pressed={fanFault}
+                    className="ml-auto rounded-lg border border-black/10 px-2 py-0.5 text-[11px] font-semibold text-ink-1"
                   >
-                    {id}
+                    {fanFault ? 'Clear fan fault' : 'Simulate fan fault'}
                   </button>
-                ))}
+                </div>
+                <p className="mt-1.5 text-[11px] leading-snug text-ink-3">
+                  Switching ASIC forwards at line rate; the management CPU runs the CLI, web UI and SNMP.
+                </p>
               </div>
-            </div>
-            <div className="mt-2 rounded-lg border border-black/10 bg-white p-2.5">
-              <div className="flex items-center justify-between">
-                <p className="text-[12px] font-bold text-ink-1">{panelSw.id} · 48-port managed switch</p>
-                <Network size={14} className="text-ink-3" />
-              </div>
-              <div className="mt-2 grid grid-cols-4 gap-1.5">
+              <div className="mt-2 space-y-1">
                 {panelSw.ports.map((port) => (
-                  <div key={port.id} className="rounded-md border border-black/10 px-1 py-1.5 text-center">
-                    <span className="mx-auto mb-1 block h-2 w-2 rounded-full" style={{ backgroundColor: ledColor(port.state) }} title={`${port.id}: ${ledLabel(port.state)}`} />
-                    <p className="text-[11px] font-bold leading-none text-ink-1">{port.id}</p>
-                    <p className="mt-0.5 text-[9px] leading-none text-ink-3">{port.mode === 'access' ? `VLAN ${port.vlan}` : 'trunk'}</p>
+                  <div key={port.id} className="flex items-center gap-2 text-[12px]">
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: ledColor(port.state) }} />
+                    <span className="font-bold text-ink-1">{port.id}</span>
+                    <span className="text-ink-2">{port.mode === 'access' ? `access · VLAN ${port.vlan} · untagged` : `trunk · VLANs 10, 20 · native 1`}</span>
+                    <span className="ml-auto font-semibold text-ink-1">{port.role} · {port.state}</span>
                   </div>
                 ))}
               </div>
-              <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-ink-2">
-                <span>SFP+ uplinks ×2 · 10 GbE</span>
-                <span>Console port · USB backup</span>
-              </div>
-              <div className="mt-2 flex items-center gap-3 border-t border-black/10 pt-2">
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-ink-1">
-                  <span className="h-2 w-2 rounded-full bg-emerald-600" /> PWR
-                </span>
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-ink-1">
-                  <span className="h-2 w-2 rounded-full bg-emerald-600" /> SYS
-                </span>
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-ink-1">
-                  <span className={`h-2 w-2 rounded-full ${fanFault ? 'bg-amber-500' : 'bg-emerald-600'}`} /> FAN {fanFault ? '— fault' : ''}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = !fanFault;
-                    setFanFault(next);
-                    logEvent(sim, next ? 'FAN LED amber — fan fault / overheating.' : 'Fan fault cleared — FAN LED green.');
-                    bump();
-                  }}
-                  aria-pressed={fanFault}
-                  className="ml-auto rounded-lg border border-black/10 px-2 py-0.5 text-[11px] font-semibold text-ink-1"
-                >
-                  {fanFault ? 'Clear fan fault' : 'Simulate fan fault'}
-                </button>
-              </div>
-              <p className="mt-1.5 text-[11px] leading-snug text-ink-3">
-                Switching ASIC forwards at line rate; the management CPU runs the CLI, web UI and SNMP.
-              </p>
             </div>
-            <div className="mt-2 space-y-1">
-              {panelSw.ports.map((port) => (
-                <div key={port.id} className="flex items-center gap-2 text-[12px]">
-                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: ledColor(port.state) }} />
-                  <span className="font-bold text-ink-1">{port.id}</span>
-                  <span className="text-ink-2">{port.mode === 'access' ? `access · VLAN ${port.vlan} · untagged` : `trunk · VLANs 10, 20 · native 1`}</span>
-                  <span className="ml-auto font-semibold text-ink-1">{port.role} · {port.state}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">What the LEDs mean</p>
-            <ul className="mt-1.5 space-y-1 text-[12px] leading-snug text-ink-2">
-              <li><span className="font-semibold text-ink-1">Green port LED</span> — link up, forwarding.</li>
-              <li><span className="font-semibold text-ink-1">Amber port LED</span> — STP is holding the port blocked.</li>
-              <li><span className="font-semibold text-ink-1">Red port LED</span> — link down.</li>
-              <li><span className="font-semibold text-ink-1">Amber FAN LED</span> — fan fault or overheating.</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* CLI panel, under the controls rail */}
-        <div className="lg:col-start-1 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Switch CLI — updates live</p>
-          <pre className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{switchCli(network)}</pre>
-        </div>
-
-        {/* Event log, under the front panel */}
-        <div className="lg:col-start-3 lg:row-start-2">
-          <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
-            <Activity size={13} /> Event log
-          </p>
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            {sim.events.length === 0 ? (
-              <p className="text-[13px] text-ink-3">No events yet. Send a frame, turn STP off, or drop the redundant link.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sim.events.map((event) => (
-                  <li key={event.id} className="text-[13px] text-ink-2">
-                    <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
-                  </li>
-                ))}
+            <div className="rounded-xl border border-black/10 glass-1 p-3">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">What the LEDs mean</p>
+              <ul className="mt-1.5 space-y-1 text-[12px] leading-snug text-ink-2">
+                <li><span className="font-semibold text-ink-1">Green port LED</span> — link up, forwarding.</li>
+                <li><span className="font-semibold text-ink-1">Amber port LED</span> — STP is holding the port blocked.</li>
+                <li><span className="font-semibold text-ink-1">Red port LED</span> — link down.</li>
+                <li><span className="font-semibold text-ink-1">Amber FAN LED</span> — fan fault or overheating.</li>
               </ul>
-            )}
+            </div>
+          </div>
+
+          {/* Event log */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
+              <Activity size={13} /> Event log
+            </p>
+            <div className="rounded-xl border border-black/10 glass-1 p-3 lg:flex-1">
+              {sim.events.length === 0 ? (
+                <p className="text-[13px] text-ink-3">No events yet. Send a frame, turn STP off, or drop the redundant link.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {sim.events.map((event) => (
+                    <li key={event.id} className="text-[13px] text-ink-2">
+                      <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       </div>

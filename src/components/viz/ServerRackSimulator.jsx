@@ -197,201 +197,207 @@ export default function ServerRackSimulator() {
   // reading order.
   return (
     <div>
-      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px] lg:grid-rows-[auto_auto]">
-        {/* Left rail: power drill controls */}
-        <div className="rounded-xl glass-1 p-3 lg:col-start-1 lg:row-start-1">
-          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Power drill</p>
-          <div className="mt-2 space-y-1.5">
-            <button type="button" onClick={doRestore} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-left text-[13px] font-semibold text-ink-1">
-              Trip setup — all on feed A
-            </button>
-            <button type="button" onClick={doSplit} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-left text-[13px] font-semibold text-ink-1">
-              Split feeds A / B
-            </button>
-            <button type="button" onClick={doShed} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-left text-[13px] font-semibold text-ink-1">
-              Shed 1,000 W
-            </button>
-          </div>
-          <p className="mt-1.5 text-[11px] leading-snug text-ink-3">2,575 W on feed A’s 1,840 W breaker — split, shed, then reset.</p>
+      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px]">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-1">
+          {/* Left rail: power drill controls */}
+          <div className="rounded-xl glass-1 p-3">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Power drill</p>
+            <div className="mt-2 space-y-1.5">
+              <button type="button" onClick={doRestore} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-left text-[13px] font-semibold text-ink-1">
+                Trip setup — all on feed A
+              </button>
+              <button type="button" onClick={doSplit} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-left text-[13px] font-semibold text-ink-1">
+                Split feeds A / B
+              </button>
+              <button type="button" onClick={doShed} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-left text-[13px] font-semibold text-ink-1">
+                Shed 1,000 W
+              </button>
+            </div>
+            <p className="mt-1.5 text-[11px] leading-snug text-ink-3">2,575 W on feed A’s 1,840 W breaker — split, shed, then reset.</p>
 
-          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-            <button type="button" onClick={() => doMoveAll('A')} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">Move all → A</button>
-            <button type="button" onClick={() => doMoveAll('B')} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">Move all → B</button>
+            <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+              <button type="button" onClick={() => doMoveAll('A')} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">Move all → A</button>
+              <button type="button" onClick={() => doMoveAll('B')} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">Move all → B</button>
+            </div>
+
+            <div className="mt-2.5 space-y-1.5">
+              {breakerRow('A')}
+              {breakerRow('B')}
+            </div>
+
+            <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={toggleFans}
+                aria-pressed={!rack.fansOn}
+                className={`inline-flex items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-xs font-semibold ${rack.fansOn ? 'border border-black/10 glass-1 text-ink-1' : 'bg-amber-500/15 text-amber-700'}`}
+              >
+                <Fan size={13} /> {rack.fansOn ? 'Fans on' : 'Fans off'}
+              </button>
+              <button
+                type="button"
+                onClick={toggleCabling}
+                aria-pressed={rack.cablingMessy}
+                className={`rounded-lg px-1 py-1.5 text-xs font-semibold ${rack.cablingMessy ? 'bg-amber-500/15 text-amber-700' : 'border border-black/10 glass-1 text-ink-1'}`}
+              >
+                {rack.cablingMessy ? 'Messy cabling' : 'Tidy cabling'}
+              </button>
+            </div>
+            <p className="mt-1.5 text-[11px] leading-snug text-ink-3">Fans off +6 °C · messy cabling +3 °C to the settled temperature.</p>
+
+            <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+              <button type="button" onClick={() => setPaused((p) => !p)} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                {paused ? 'Resume' : 'Pause'}
+              </button>
+              <button type="button" onClick={reset} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                Reset
+              </button>
+            </div>
           </div>
 
-          <div className="mt-2.5 space-y-1.5">
-            {breakerRow('A')}
-            {breakerRow('B')}
-          </div>
-
-          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-            <button
-              type="button"
-              onClick={toggleFans}
-              aria-pressed={!rack.fansOn}
-              className={`inline-flex items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-xs font-semibold ${rack.fansOn ? 'border border-black/10 glass-1 text-ink-1' : 'bg-amber-500/15 text-amber-700'}`}
-            >
-              <Fan size={13} /> {rack.fansOn ? 'Fans on' : 'Fans off'}
-            </button>
-            <button
-              type="button"
-              onClick={toggleCabling}
-              aria-pressed={rack.cablingMessy}
-              className={`rounded-lg px-1 py-1.5 text-xs font-semibold ${rack.cablingMessy ? 'bg-amber-500/15 text-amber-700' : 'border border-black/10 glass-1 text-ink-1'}`}
-            >
-              {rack.cablingMessy ? 'Messy cabling' : 'Tidy cabling'}
-            </button>
-          </div>
-          <p className="mt-1.5 text-[11px] leading-snug text-ink-3">Fans off +6 °C · messy cabling +3 °C to the settled temperature.</p>
-
-          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-            <button type="button" onClick={() => setPaused((p) => !p)} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              {paused ? 'Resume' : 'Pause'}
-            </button>
-            <button type="button" onClick={reset} className="rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              Reset
-            </button>
+          {/* Event log */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Power event log</p>
+            <div className="max-h-36 overflow-y-auto rounded-xl border border-black/10 glass-1 p-3 lg:min-h-36 lg:max-h-none lg:flex-1 lg:basis-0">
+              {sim.events.length === 0 ? (
+                <p className="text-[13px] text-ink-3">No power events yet. Feed A trips as soon as the load passes its 1,840 W breaker.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {sim.events.map((event) => (
+                    <li key={event.id} className="text-[13px] text-ink-2">
+                      <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2">
 
-        {/* Middle: live metrics, breaker headroom, temperature, load by device */}
-        <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          <div className="grid grid-cols-4 gap-2">
-            {metric('Load', `${total} W`)}
-            {metric('Feed A', `${loadA} W`)}
-            {metric('Feed B', `${loadB} W`)}
-            {metric('Temp', `${rack.tempC.toFixed(1)} °C`)}
-          </div>
+          {/* Middle: live metrics, breaker headroom, temperature, load by device */}
+          <div className="min-w-0">
+            <div className="grid grid-cols-4 gap-2">
+              {metric('Load', `${total} W`)}
+              {metric('Feed A', `${loadA} W`)}
+              {metric('Feed B', `${loadB} W`)}
+              {metric('Temp', `${rack.tempC.toFixed(1)} °C`)}
+            </div>
 
-          {/* Derived metric, directly under the primary counters. */}
-          <div className="mt-2 rounded-xl border border-black/10 glass-1 p-2">
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="text-[13px] font-bold text-ink-1">
-                <Zap size={13} className="mr-1 inline" />
-                Breaker headroom — {anyTripped ? 'a feed is tripped' : `${binding.headroomW} W on feed ${binding.feed}`}
+            {/* Derived metric, directly */}
+            <div className="mt-2 rounded-xl border border-black/10 glass-1 p-2">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-[13px] font-bold text-ink-1">
+                  <Zap size={13} className="mr-1 inline" />
+                  Breaker headroom — {anyTripped ? 'a feed is tripped' : `${binding.headroomW} W on feed ${binding.feed}`}
+                </p>
+                <p className="text-[11px] tabular-nums text-ink-3">rating {BREAKER_RATING_W} W per feed</p>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-black/10" aria-hidden="true">
+                <div
+                  className={`h-full rounded-full ${anyTripped ? 'bg-red-500' : binding.headroomW < 0 ? 'bg-red-500' : binding.headroomW < 300 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                  style={{ width: `${anyTripped ? 100 : Math.min(100, Math.max(0, (feedDrawW(rack, binding.feed) / BREAKER_RATING_W) * 100))}%` }}
+                />
+              </div>
+              <p className="mt-1 text-[11px] leading-snug text-ink-2">
+                {anyTripped
+                  ? 'Move load off the tripped feed (or shed it), then press Reset breaker — a reset only holds under the rating.'
+                  : `Feed ${binding.feed} is closest to tripping at ${feedDrawW(rack, binding.feed)} W of ${BREAKER_RATING_W} W.`}
               </p>
-              <p className="text-[11px] tabular-nums text-ink-3">rating {BREAKER_RATING_W} W per feed</p>
             </div>
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-black/10" aria-hidden="true">
-              <div
-                className={`h-full rounded-full ${anyTripped ? 'bg-red-500' : binding.headroomW < 0 ? 'bg-red-500' : binding.headroomW < 300 ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                style={{ width: `${anyTripped ? 100 : Math.min(100, Math.max(0, (feedDrawW(rack, binding.feed) / BREAKER_RATING_W) * 100))}%` }}
-              />
+
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <TempChart history={sim.tempHistory} />
+              <p className="mt-1 flex items-center gap-1 text-[13px] font-semibold text-ink-1">
+                <Thermometer size={14} />
+                {rack.tempC.toFixed(1)} °C — {status}
+                <span className="font-normal text-ink-3">· settling toward {equilibrium.toFixed(1)} °C</span>
+              </p>
             </div>
-            <p className="mt-1 text-[11px] leading-snug text-ink-2">
-              {anyTripped
-                ? 'Move load off the tripped feed (or shed it), then press Reset breaker — a reset only holds under the rating.'
-                : `Feed ${binding.feed} is closest to tripping at ${feedDrawW(rack, binding.feed)} W of ${BREAKER_RATING_W} W.`}
-            </p>
-          </div>
 
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <TempChart history={sim.tempHistory} />
-            <p className="mt-1 flex items-center gap-1 text-[13px] font-semibold text-ink-1">
-              <Thermometer size={14} />
-              {rack.tempC.toFixed(1)} °C — {status}
-              <span className="font-normal text-ink-3">· settling toward {equilibrium.toFixed(1)} °C</span>
-            </p>
-          </div>
-
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Load by device</p>
-            <ul className="mt-2 space-y-1">
-              {rack.devices.map((device) => {
-                const dark = !device.powered || rack.tripped[device.feed];
-                const draw = device.powered && !rack.tripped[device.feed] ? device.watts : 0;
-                return (
-                  <li key={device.id} className="flex items-center gap-2 text-[12px]">
-                    <span className="w-20 shrink-0 font-semibold text-ink-1">{device.name}</span>
-                    <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-black/10" aria-hidden="true">
-                      <span className={`block h-full rounded-full ${dark ? 'bg-zinc-400' : 'bg-violet-500'}`} style={{ width: `${(draw / 600) * 100}%` }} />
-                    </span>
-                    <span className="w-14 shrink-0 text-right tabular-nums text-ink-2">{dark ? '0 W' : `${device.watts} W`}</span>
-                    <span className="w-12 shrink-0 text-right font-mono text-[11px] text-ink-3">feed {device.feed}</span>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-2 text-[11px] leading-snug text-ink-3">Drawing {poweredLoadW(rack)} W of {total} W assigned — a tripped feed’s devices stay dark until reset.</p>
-          </div>
-        </div>
-
-        {/* Right rail: the rack itself */}
-        <div className="lg:col-start-3 lg:row-start-1">
-          <div className="rounded-xl border border-black/10 glass-1 p-2.5">
-            <p className="mb-2 flex items-baseline justify-between px-0.5">
-              <span className="text-caption font-semibold uppercase tracking-wider text-ink-2">42U cabinet</span>
-              <span className="font-mono text-[11px] text-ink-3">U42 ↑ · U1 ↓</span>
-            </p>
-            <div className="space-y-1">
-              <div className="flex items-center justify-between rounded-md border border-black/10 bg-zinc-200/60 px-2 py-0.5">
-                <span className="font-mono text-[11px] text-ink-3">U41–42</span>
-                <span className="text-[12px] font-semibold text-ink-1">Fan tray · 2 × 140 mm</span>
-                <span className={`text-[11px] font-semibold ${rack.fansOn ? 'text-emerald-700' : 'text-amber-700'}`}>{rack.fansOn ? 'spinning' : 'OFF'}</span>
-              </div>
-              {[...rack.devices].reverse().map((device) => {
-                const dark = !device.powered || rack.tripped[device.feed];
-                const uLabel = device.units > 1 ? `U${device.startU}–${device.startU + device.units - 1}` : `U${device.startU}`;
-                return (
-                  <div
-                    key={device.id}
-                    className={`flex items-center justify-between gap-1 rounded-md border px-2 py-0.5 ${
-                      dark ? 'border-zinc-300 bg-zinc-200/60' : device.feed === 'A' ? 'border-violet-400/60 bg-violet-200/50' : 'border-amber-400/60 bg-amber-200/50'
-                    }`}
-                  >
-                    <span className="font-mono text-[11px] text-ink-3">{uLabel}</span>
-                    <span className={`text-[12px] font-semibold ${dark ? 'text-ink-3' : 'text-ink-1'}`}>{device.name}</span>
-                    <span className="text-[11px] tabular-nums text-ink-2">{device.powered ? `${device.watts} W` : 'off'}</span>
-                    <span className="flex overflow-hidden rounded-md border border-black/10" role="group" aria-label={`${device.name} feed`}>
-                      {['A', 'B'].map((feed) => (
-                        <button
-                          key={feed}
-                          type="button"
-                          onClick={() => { setDeviceFeed(rack, device.id, feed); bump(); }}
-                          aria-pressed={device.feed === feed}
-                          aria-label={`${device.name} on feed ${feed}`}
-                          className={`px-1.5 py-0.5 text-[11px] font-bold ${device.feed === feed ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
-                        >
-                          {feed}
-                        </button>
-                      ))}
-                    </span>
-                  </div>
-                );
-              })}
-              <div className="flex items-center justify-between rounded-md border border-dashed border-black/20 px-2 py-0.5">
-                <span className="font-mono text-[11px] text-ink-3">U14–40</span>
-                <span className="text-[12px] text-ink-2">27U free for growth</span>
-                <span className="text-[11px] text-ink-3">empty</span>
-              </div>
-            </div>
-            <p className="mt-2 px-0.5 text-[11px] leading-snug text-ink-3">
-              2,010 × 600 × 1,000 mm · 1,867 mm usable · 1,500 kg static · PDU 12 outlets, 0U vertical · {rack.devices.filter((d) => d.powered).length} of {DEVICES.length} devices powered
-            </p>
-          </div>
-        </div>
-
-        {/* PDU / feed config, under the power rail */}
-        <div className="lg:col-start-1 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Rack config — updates live</p>
-          <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-2.5 font-mono text-[11px] leading-snug text-[#859900]">{rackConfigText(rack)}</pre>
-        </div>
-
-        {/* Event log, under the rack */}
-        <div className="lg:col-start-3 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Power event log</p>
-          <div className="max-h-36 overflow-y-auto rounded-xl border border-black/10 glass-1 p-3">
-            {sim.events.length === 0 ? (
-              <p className="text-[13px] text-ink-3">No power events yet. Feed A trips as soon as the load passes its 1,840 W breaker.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sim.events.map((event) => (
-                  <li key={event.id} className="text-[13px] text-ink-2">
-                    <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
-                  </li>
-                ))}
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Load by device</p>
+              <ul className="mt-2 space-y-1">
+                {rack.devices.map((device) => {
+                  const dark = !device.powered || rack.tripped[device.feed];
+                  const draw = device.powered && !rack.tripped[device.feed] ? device.watts : 0;
+                  return (
+                    <li key={device.id} className="flex items-center gap-2 text-[12px]">
+                      <span className="w-20 shrink-0 font-semibold text-ink-1">{device.name}</span>
+                      <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-black/10" aria-hidden="true">
+                        <span className={`block h-full rounded-full ${dark ? 'bg-zinc-400' : 'bg-violet-500'}`} style={{ width: `${(draw / 600) * 100}%` }} />
+                      </span>
+                      <span className="w-14 shrink-0 text-right tabular-nums text-ink-2">{dark ? '0 W' : `${device.watts} W`}</span>
+                      <span className="w-12 shrink-0 text-right font-mono text-[11px] text-ink-3">feed {device.feed}</span>
+                    </li>
+                  );
+                })}
               </ul>
-            )}
+              <p className="mt-2 text-[11px] leading-snug text-ink-3">Drawing {poweredLoadW(rack)} W of {total} W assigned — a tripped feed’s devices stay dark until reset.</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-3">
+
+          {/* Right rail: the rack itself */}
+          <div>
+            <div className="rounded-xl border border-black/10 glass-1 p-2.5">
+              <p className="mb-2 flex items-baseline justify-between px-0.5">
+                <span className="text-caption font-semibold uppercase tracking-wider text-ink-2">42U cabinet</span>
+                <span className="font-mono text-[11px] text-ink-3">U42 ↑ · U1 ↓</span>
+              </p>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between rounded-md border border-black/10 bg-zinc-200/60 px-2 py-0.5">
+                  <span className="font-mono text-[11px] text-ink-3">U41–42</span>
+                  <span className="text-[12px] font-semibold text-ink-1">Fan tray · 2 × 140 mm</span>
+                  <span className={`text-[11px] font-semibold ${rack.fansOn ? 'text-emerald-700' : 'text-amber-700'}`}>{rack.fansOn ? 'spinning' : 'OFF'}</span>
+                </div>
+                {[...rack.devices].reverse().map((device) => {
+                  const dark = !device.powered || rack.tripped[device.feed];
+                  const uLabel = device.units > 1 ? `U${device.startU}–${device.startU + device.units - 1}` : `U${device.startU}`;
+                  return (
+                    <div
+                      key={device.id}
+                      className={`flex items-center justify-between gap-1 rounded-md border px-2 py-0.5 ${
+                        dark ? 'border-zinc-300 bg-zinc-200/60' : device.feed === 'A' ? 'border-violet-400/60 bg-violet-200/50' : 'border-amber-400/60 bg-amber-200/50'
+                      }`}
+                    >
+                      <span className="font-mono text-[11px] text-ink-3">{uLabel}</span>
+                      <span className={`text-[12px] font-semibold ${dark ? 'text-ink-3' : 'text-ink-1'}`}>{device.name}</span>
+                      <span className="text-[11px] tabular-nums text-ink-2">{device.powered ? `${device.watts} W` : 'off'}</span>
+                      <span className="flex overflow-hidden rounded-md border border-black/10" role="group" aria-label={`${device.name} feed`}>
+                        {['A', 'B'].map((feed) => (
+                          <button
+                            key={feed}
+                            type="button"
+                            onClick={() => { setDeviceFeed(rack, device.id, feed); bump(); }}
+                            aria-pressed={device.feed === feed}
+                            aria-label={`${device.name} on feed ${feed}`}
+                            className={`px-1.5 py-0.5 text-[11px] font-bold ${device.feed === feed ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
+                          >
+                            {feed}
+                          </button>
+                        ))}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div className="flex items-center justify-between rounded-md border border-dashed border-black/20 px-2 py-0.5">
+                  <span className="font-mono text-[11px] text-ink-3">U14–40</span>
+                  <span className="text-[12px] text-ink-2">27U free for growth</span>
+                  <span className="text-[11px] text-ink-3">empty</span>
+                </div>
+              </div>
+              <p className="mt-2 px-0.5 text-[11px] leading-snug text-ink-3">
+                2,010 × 600 × 1,000 mm · 1,867 mm usable · 1,500 kg static · PDU 12 outlets, 0U vertical · {rack.devices.filter((d) => d.powered).length} of {DEVICES.length} devices powered
+              </p>
+            </div>
+          </div>
+
+          {/* PDU / feed config */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Rack config — updates live</p>
+            <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-2.5 font-mono text-[11px] leading-snug text-[#859900] lg:flex-1">{rackConfigText(rack)}</pre>
           </div>
         </div>
       </div>

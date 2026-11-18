@@ -177,194 +177,200 @@ export default function RackServerSimulator() {
         Drive a live 2U rack server on one screen — hot-swap a drive, fail a PSU, manage it out-of-band while
         the OS is down. Same CPU, RAM and storage as a desktop, repackaged in a flat 19-inch chassis.
       </p>
-      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px] lg:grid-rows-[auto_auto]">
-        {/* Left rail: out-of-band management + workload */}
-        <div className="rounded-xl glass-1 p-3 lg:col-start-1 lg:row-start-1">
-          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Out-of-band management</p>
-          <p className="mt-1 text-xs leading-snug text-ink-2">
-            The BMC (iLO / iDRAC / IPMI) has power and console even with the OS down.
-          </p>
-          <div className="mt-2.5 grid grid-cols-1 gap-1.5">
-            <button
-              type="button"
-              onClick={() => act(bmcPowerOn)}
-              disabled={server.power === 'on'}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold disabled:opacity-40 glass-btn"
-            >
-              <Power size={14} /> Power on (BMC)
-            </button>
-            <button
-              type="button"
-              onClick={() => act(bmcPowerOff)}
-              disabled={server.power !== 'on'}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1 disabled:opacity-40"
-            >
-              <Power size={14} /> Power off (BMC)
-            </button>
-            <button
-              type="button"
-              onClick={() => act(restartOs)}
-              disabled={server.power !== 'on' || server.os === 'booting'}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1 disabled:opacity-40"
-            >
-              <RefreshCw size={14} /> Restart OS
-            </button>
+      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px]">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-1">
+          {/* Left rail: out-of-band management + workload */}
+          <div className="rounded-xl glass-1 p-3">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Out-of-band management</p>
+            <p className="mt-1 text-xs leading-snug text-ink-2">
+              The BMC (iLO / iDRAC / IPMI) has power and console even with the OS down.
+            </p>
+            <div className="mt-2.5 grid grid-cols-1 gap-1.5">
+              <button
+                type="button"
+                onClick={() => act(bmcPowerOn)}
+                disabled={server.power === 'on'}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold disabled:opacity-40 glass-btn"
+              >
+                <Power size={14} /> Power on (BMC)
+              </button>
+              <button
+                type="button"
+                onClick={() => act(bmcPowerOff)}
+                disabled={server.power !== 'on'}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1 disabled:opacity-40"
+              >
+                <Power size={14} /> Power off (BMC)
+              </button>
+              <button
+                type="button"
+                onClick={() => act(restartOs)}
+                disabled={server.power !== 'on' || server.os === 'booting'}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1 disabled:opacity-40"
+              >
+                <RefreshCw size={14} /> Restart OS
+              </button>
+            </div>
+
+            <label className="mt-3 block">
+              <span className="text-[13px] font-semibold text-ink-1">Workload — {load}%</span>
+              <input type="range" min="0" max="100" step="5" value={load} onChange={(e) => setLoad(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Workload percent" />
+              <span className="text-[11px] leading-snug text-ink-3">More load draws more power and makes more heat.</span>
+            </label>
+
+            <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+              <button type="button" onClick={() => setPaused((p) => !p)} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                {paused ? 'Resume' : 'Pause'}
+              </button>
+              <button type="button" onClick={reset} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                Reset
+              </button>
+            </div>
           </div>
 
-          <label className="mt-3 block">
-            <span className="text-[13px] font-semibold text-ink-1">Workload — {load}%</span>
-            <input type="range" min="0" max="100" step="5" value={load} onChange={(e) => setLoad(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Workload percent" />
-            <span className="text-[11px] leading-snug text-ink-3">More load draws more power and makes more heat.</span>
-          </label>
-
-          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-            <button type="button" onClick={() => setPaused((p) => !p)} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              {paused ? 'Resume' : 'Pause'}
-            </button>
-            <button type="button" onClick={reset} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              Reset
-            </button>
+          {/* Health / event log */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Health-check log</p>
+            <div className="rounded-xl border border-black/10 glass-1 p-3 lg:flex-1">
+              {sim.events.length === 0 ? (
+                <p className="text-[13px] text-ink-3">No health events yet. Fail a drive, a PSU or a fan — or power the server off from the BMC.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {sim.events.map((event) => (
+                    <li key={event.id} className="text-[13px] text-ink-2">
+                      <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2">
 
-        {/* Middle: counters, derived metrics, chassis front */}
-        <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          <div className="mb-2 flex flex-wrap justify-center gap-2">
-            {[
-              { label: 'power', value: server.power },
-              { label: 'OS', value: server.os },
-              { label: 'drives', value: `${onlineDrives(server)}/${DRIVE_BAYS}` },
-              { label: 'PSUs', value: `${workingPsus(server)}/${PSU_COUNT}` },
-              { label: 'fans', value: `${workingFans(server)}/${FAN_COUNT}` },
-            ].map(({ label, value }) => (
-              <span key={label} className="rounded-full border border-black/10 bg-white/80 px-2.5 py-0.5 text-[11px] font-semibold text-ink-1">
-                {label} <span className="text-ink-2">{value}</span>
-              </span>
-            ))}
-            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${HEALTH_STYLE[health]}`}>
-              {health === 'healthy' ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />} {health}
-            </span>
-          </div>
-
-          {/* Derived metrics directly under the primary counters. */}
-          <div className="grid grid-cols-3 gap-2">
-            {metric('power draw', `${draw} W`)}
-            {metric('thermal headroom', `${headroom} °C`)}
-            {metric('requests served', server.served)}
-          </div>
-
-          {/* Chassis front: 8 hot-swap bays, PSUs, fans. */}
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">2U chassis — front</p>
-              <p className="text-[11px] text-ink-3">88 × 482 × 710 mm · 1U = 44.45 mm</p>
-            </div>
-            <div className="mt-2 grid grid-cols-4 gap-1.5 sm:grid-cols-8">
-              {server.drives.map((drive) => (
-                <div key={drive.id} className={`rounded-lg border px-1 py-1.5 text-center ${DRIVE_STYLE[drive.status]}`}>
-                  <HardDrive size={14} className="mx-auto" />
-                  <p className="mt-0.5 text-[11px] font-bold leading-none">Bay {drive.bay}</p>
-                  <p className="mt-0.5 text-[10px] leading-none">
-                    {drive.status === 'rebuilding' ? `rebuilding ${Math.min(99, Math.round((drive.rebuildMs / REBUILD_MS) * 100))}%` : drive.status}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              {server.psus.map((psu) => (
-                <span key={psu.id} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${psu.status === 'ok' ? 'bg-emerald-500/10 text-emerald-700' : 'bg-red-500/10 text-red-700'}`}>
-                  <Zap size={11} /> {psu.label} {psu.status === 'ok' ? 'OK' : 'FAILED'}
+          {/* Middle: counters, derived metrics, chassis front */}
+          <div className="min-w-0">
+            <div className="mb-2 flex flex-wrap justify-center gap-2">
+              {[
+                { label: 'power', value: server.power },
+                { label: 'OS', value: server.os },
+                { label: 'drives', value: `${onlineDrives(server)}/${DRIVE_BAYS}` },
+                { label: 'PSUs', value: `${workingPsus(server)}/${PSU_COUNT}` },
+                { label: 'fans', value: `${workingFans(server)}/${FAN_COUNT}` },
+              ].map(({ label, value }) => (
+                <span key={label} className="rounded-full border border-black/10 bg-white/80 px-2.5 py-0.5 text-[11px] font-semibold text-ink-1">
+                  {label} <span className="text-ink-2">{value}</span>
                 </span>
               ))}
-              {server.fans.map((fan) => (
-                <span key={fan.id} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${fan.status === 'ok' ? 'bg-emerald-500/10 text-emerald-700' : 'bg-red-500/10 text-red-700'}`}>
-                  {fan.label} {fan.status === 'ok' ? 'OK' : 'FAILED'}
-                </span>
-              ))}
-              <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-semibold text-ink-2">
-                <Thermometer size={11} /> {server.tempC.toFixed(1)} °C / {THERMAL_LIMIT_C} °C limit
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${HEALTH_STYLE[health]}`}>
+                {health === 'healthy' ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />} {health}
               </span>
             </div>
-          </div>
-        </div>
 
-        {/* Right rail: the swappable parts */}
-        <div className="flex flex-col gap-2.5 lg:col-start-3 lg:row-start-1">
-          <div className="rounded-xl border border-black/10 glass-1 p-2.5">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Drives — 8 hot-swap bays</p>
-            <div className="mt-2 grid grid-cols-2 gap-1.5">
-              {server.drives.map((drive, i) => (
-                <div key={drive.id} className={`flex items-center justify-between gap-1 rounded-lg border px-2 py-0.5 ${DRIVE_STYLE[drive.status]}`}>
-                  <span className="text-[11px] font-bold">Bay {drive.bay}</span>
-                  {drive.status === 'online' && (
-                    <button type="button" onClick={() => act((s) => failDrive(s, i))} aria-label={`Fail drive in bay ${drive.bay}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold underline">Fail</button>
-                  )}
-                  {drive.status === 'failed' && (
-                    <button type="button" onClick={() => act((s) => pullDrive(s, i))} aria-label={`Pull drive in bay ${drive.bay}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold underline">Pull</button>
-                  )}
-                  {drive.status === 'empty' && (
-                    <button type="button" onClick={() => act((s) => insertDrive(s, i))} aria-label={`Insert drive in bay ${drive.bay}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold underline">Insert</button>
-                  )}
-                  {drive.status === 'rebuilding' && <span className="text-[11px]">rebuilding…</span>}
-                </div>
-              ))}
+            {/* Derived metrics directly */}
+            <div className="grid grid-cols-3 gap-2">
+              {metric('power draw', `${draw} W`)}
+              {metric('thermal headroom', `${headroom} °C`)}
+              {metric('requests served', server.served)}
             </div>
-          </div>
 
-          <div className="rounded-xl border border-black/10 glass-1 p-2.5">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Power supplies — redundant</p>
-            <div className="mt-2 space-y-1.5">
-              {server.psus.map((psu, i) => (
-                <div key={psu.id} className="flex items-center justify-between gap-2">
-                  <span className="text-[13px] font-semibold text-ink-1">{psu.label} <span className={psu.status === 'ok' ? 'text-emerald-700' : 'text-red-700'}>· {psu.status === 'ok' ? 'OK' : 'FAILED'}</span></span>
-                  {psu.status === 'ok' ? (
-                    <button type="button" onClick={() => act((s) => failPsu(s, i))} aria-label={`Fail ${psu.label}`} className="rounded-lg border border-red-500/40 px-2 py-1 text-xs font-semibold text-red-700">Fail {psu.label}</button>
-                  ) : (
-                    <button type="button" onClick={() => act((s) => replacePsu(s, i))} aria-label={`Replace ${psu.label}`} className="rounded-lg px-2 py-1 text-xs font-semibold glass-btn">Replace {psu.label}</button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-black/10 glass-1 p-2.5">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Fans — hot-swap</p>
-            <div className="mt-2 grid grid-cols-2 gap-1.5">
-              {server.fans.map((fan, i) => (
-                <div key={fan.id} className="flex items-center justify-between gap-1 rounded-lg border border-black/10 glass-1 px-2 py-1">
-                  <span className="text-[11px] font-bold text-ink-1">{fan.label}</span>
-                  {fan.status === 'ok' ? (
-                    <button type="button" onClick={() => act((s) => failFan(s, i))} aria-label={`Fail ${fan.label}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-red-700 underline">Fail</button>
-                  ) : (
-                    <button type="button" onClick={() => act((s) => replaceFan(s, i))} aria-label={`Replace ${fan.label}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700 underline">Replace</button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* BMC console, under the management rail */}
-        <div className="lg:col-start-1 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">BMC console — updates live</p>
-          <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{bmcConsole(server)}</pre>
-        </div>
-
-        {/* Health / event log, under the parts rail */}
-        <div className="lg:col-start-3 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Health-check log</p>
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            {sim.events.length === 0 ? (
-              <p className="text-[13px] text-ink-3">No health events yet. Fail a drive, a PSU or a fan — or power the server off from the BMC.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sim.events.map((event) => (
-                  <li key={event.id} className="text-[13px] text-ink-2">
-                    <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
-                  </li>
+            {/* Chassis front: 8 hot-swap bays, PSUs, fans. */}
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">2U chassis — front</p>
+                <p className="text-[11px] text-ink-3">88 × 482 × 710 mm · 1U = 44.45 mm</p>
+              </div>
+              <div className="mt-2 grid grid-cols-4 gap-1.5 sm:grid-cols-8">
+                {server.drives.map((drive) => (
+                  <div key={drive.id} className={`rounded-lg border px-1 py-1.5 text-center ${DRIVE_STYLE[drive.status]}`}>
+                    <HardDrive size={14} className="mx-auto" />
+                    <p className="mt-0.5 text-[11px] font-bold leading-none">Bay {drive.bay}</p>
+                    <p className="mt-0.5 text-[10px] leading-none">
+                      {drive.status === 'rebuilding' ? `rebuilding ${Math.min(99, Math.round((drive.rebuildMs / REBUILD_MS) * 100))}%` : drive.status}
+                    </p>
+                  </div>
                 ))}
-              </ul>
-            )}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {server.psus.map((psu) => (
+                  <span key={psu.id} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${psu.status === 'ok' ? 'bg-emerald-500/10 text-emerald-700' : 'bg-red-500/10 text-red-700'}`}>
+                    <Zap size={11} /> {psu.label} {psu.status === 'ok' ? 'OK' : 'FAILED'}
+                  </span>
+                ))}
+                {server.fans.map((fan) => (
+                  <span key={fan.id} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${fan.status === 'ok' ? 'bg-emerald-500/10 text-emerald-700' : 'bg-red-500/10 text-red-700'}`}>
+                    {fan.label} {fan.status === 'ok' ? 'OK' : 'FAILED'}
+                  </span>
+                ))}
+                <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-semibold text-ink-2">
+                  <Thermometer size={11} /> {server.tempC.toFixed(1)} °C / {THERMAL_LIMIT_C} °C limit
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* BMC console */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">BMC console — updates live</p>
+            <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900] lg:flex-1">{bmcConsole(server)}</pre>
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-3">
+
+          {/* Right rail: the swappable parts */}
+          <div className="flex flex-col gap-2.5 lg:flex-1">
+            <div className="rounded-xl border border-black/10 glass-1 p-2.5">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Drives — 8 hot-swap bays</p>
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
+                {server.drives.map((drive, i) => (
+                  <div key={drive.id} className={`flex items-center justify-between gap-1 rounded-lg border px-2 py-0.5 ${DRIVE_STYLE[drive.status]}`}>
+                    <span className="text-[11px] font-bold">Bay {drive.bay}</span>
+                    {drive.status === 'online' && (
+                      <button type="button" onClick={() => act((s) => failDrive(s, i))} aria-label={`Fail drive in bay ${drive.bay}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold underline">Fail</button>
+                    )}
+                    {drive.status === 'failed' && (
+                      <button type="button" onClick={() => act((s) => pullDrive(s, i))} aria-label={`Pull drive in bay ${drive.bay}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold underline">Pull</button>
+                    )}
+                    {drive.status === 'empty' && (
+                      <button type="button" onClick={() => act((s) => insertDrive(s, i))} aria-label={`Insert drive in bay ${drive.bay}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold underline">Insert</button>
+                    )}
+                    {drive.status === 'rebuilding' && <span className="text-[11px]">rebuilding…</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-black/10 glass-1 p-2.5">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Power supplies — redundant</p>
+              <div className="mt-2 space-y-1.5">
+                {server.psus.map((psu, i) => (
+                  <div key={psu.id} className="flex items-center justify-between gap-2">
+                    <span className="text-[13px] font-semibold text-ink-1">{psu.label} <span className={psu.status === 'ok' ? 'text-emerald-700' : 'text-red-700'}>· {psu.status === 'ok' ? 'OK' : 'FAILED'}</span></span>
+                    {psu.status === 'ok' ? (
+                      <button type="button" onClick={() => act((s) => failPsu(s, i))} aria-label={`Fail ${psu.label}`} className="rounded-lg border border-red-500/40 px-2 py-1 text-xs font-semibold text-red-700">Fail {psu.label}</button>
+                    ) : (
+                      <button type="button" onClick={() => act((s) => replacePsu(s, i))} aria-label={`Replace ${psu.label}`} className="rounded-lg px-2 py-1 text-xs font-semibold glass-btn">Replace {psu.label}</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-black/10 glass-1 p-2.5">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Fans — hot-swap</p>
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
+                {server.fans.map((fan, i) => (
+                  <div key={fan.id} className="flex items-center justify-between gap-1 rounded-lg border border-black/10 glass-1 px-2 py-1">
+                    <span className="text-[11px] font-bold text-ink-1">{fan.label}</span>
+                    {fan.status === 'ok' ? (
+                      <button type="button" onClick={() => act((s) => failFan(s, i))} aria-label={`Fail ${fan.label}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-red-700 underline">Fail</button>
+                    ) : (
+                      <button type="button" onClick={() => act((s) => replaceFan(s, i))} aria-label={`Replace ${fan.label}`} className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700 underline">Replace</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
