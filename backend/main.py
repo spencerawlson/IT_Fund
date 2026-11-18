@@ -152,6 +152,15 @@ from contextlib import asynccontextmanager  # noqa: E402
 async def lifespan(app):
     if IS_PRODUCTION:
         _run_migrations()
+    # Founding-membership places: re-derive them from the Stripe rows and
+    # manual grants (the first run gives every existing member their place;
+    # later runs repair anything a missed webhook left behind).
+    try:
+        import enrollment
+
+        enrollment.reconcile()
+    except Exception:
+        log.exception("enrollment reconcile failed on startup")
     # Sweep orphaned lab containers: _sessions is in-memory, so a restart leaves
     # containers no worker tracks. Labeled + age-gated, so this is safe to run
     # in every worker (idempotent).

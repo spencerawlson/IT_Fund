@@ -30,7 +30,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_
 
+import audit
 import db
+import enrollment
 from db_models import AiTutorCall, AuthSession, LabCompletion, ManualGrant, Progress, Subscription, User
 
 log = logging.getLogger("admin")
@@ -565,8 +567,23 @@ def _require_account(s, user_id: str) -> User:
     return user
 
 
+#: Shown when a paid manual enrollment would exceed the founding capacity.
+CAPACITY_FULL_DETAIL = (
+    "All founding membership places are taken. Raise the capacity in Enrollment, "
+    "or wait for a place to be released."
+)
+
+
+def _require_room(user_id: str | None = None) -> None:
+    """409 unless a paid place is free (or this account already holds one)."""
+    if user_id is not None and enrollment.holds_place(user_id):
+        return
+    if not enrollment.has_room(enrollment.PAID):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=CAPACITY_FULL_DETAIL)
+
+
 @router.post("/accounts", dependencies=[Depends(require_admin)], status_code=status.HTTP_201_CREATED)
-def admin_add_account(body: dict) -> dict:
+def admin_add_account(body: dict, request: Request) -> dict:
     """Add a customer who enrolled in person: create the account by email and
     grant paid access in the same call. The customer signs in later with
     Google/GitHub — the first provider-verified sign-in with this email
@@ -604,6 +621,7 @@ def admin_add_account(body: dict) -> dict:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="An account with this email already exists.",
             )
+        _require_room()
         user = User(display_name=display_name, email=email)
         s.add(user)
         s.flush()
@@ -612,12 +630,15 @@ def admin_add_account(body: dict) -> dict:
         s.commit()
         item = _account_item(user, None, None, None, 0, grant)
         result = {"user": item, "manual_grant": _grant_dict(grant)}
+    enrollment.sync_user(user.id)  # takes the place checked above
+    audit.record("account.add_with_grant", target_user_id=user.id,
+                 details={"email": email}, request=request)
     log.info("admin added customer %s (%s) with a manual grant", user.id, email)
     return result
 
 
 @router.patch("/accounts/{user_id}", dependencies=[Depends(require_admin)])
-def admin_update_account(user_id: str, body: dict) -> dict:
+def admin_update_account(user_id: str, body: dict, request: Request) -> dict:
     """Change an account's name and/or email. This is how a reserved seat
     becomes a real person: a dummy (1@road2cissp.local) takes the person's
     name and email. The manual grant follows the account id, so paid access
@@ -689,6 +710,8 @@ def admin_update_account(user_id: str, body: dict) -> dict:
             maps["labs"].get(user.id, 0),
             maps["grants"].get(user.id),
         )
+    changed = {k: v for k, v in (("display_name", display_name), ("email", email)) if v is not None}
+    audit.record("account.update", target_user_id=user_id, details=changed, request=request)
     log.info("admin updated account %s", user_id)
     return {"user": item}
 
@@ -701,7 +724,7 @@ DELETE_BLOCKED_STATUSES = {"active", "trialing", "past_due"}
 
 
 @router.delete("/accounts/{user_id}", dependencies=[Depends(require_admin)])
-def admin_delete_account(user_id: str) -> dict:
+def admin_delete_account(user_id: str, request: Request) -> dict:
     """Delete an account (soft delete — the codebase's existing pattern).
     Sets deleted_at, so the account leaves the board list, the total_users
     count, the public seats counter, and the seat-cap count, and its email
@@ -725,12 +748,14 @@ def admin_delete_account(user_id: str) -> dict:
             grant.revoked_note = "Account deleted."
         user.deleted_at = _now()
         s.commit()
+    enrollment.sync_user_safely(user_id)  # a deleted account frees its place
+    audit.record("account.delete", target_user_id=user_id, request=request)
     log.info("admin deleted account %s", user_id)
     return {"ok": True, "deleted_user_id": user_id}
 
 
 @router.post("/accounts/{user_id}/manual-grant", dependencies=[Depends(require_admin)], status_code=status.HTTP_201_CREATED)
-def admin_grant_access(user_id: str, body: dict | None = None) -> dict:
+def admin_grant_access(user_id: str, request: Request, body: dict | None = None) -> dict:
     """Grant paid access to an existing account (mark paid). A grant lasts
     until revoked from the board — it is not a Stripe subscription and it
     never writes the subscriptions table."""
@@ -747,6 +772,7 @@ def admin_grant_access(user_id: str, body: dict | None = None) -> dict:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="This account already has an active manual grant.",
             )
+        _require_room(user_id)
         if grant is None:
             grant = ManualGrant(user_id=user_id, note=note)
             s.add(grant)
@@ -757,12 +783,14 @@ def admin_grant_access(user_id: str, body: dict | None = None) -> dict:
             grant.revoked_note = None
         s.commit()
         result = {"manual_grant": _grant_dict(grant)}
+    enrollment.sync_user(user_id)
+    audit.record("grant.create", target_user_id=user_id, request=request)
     log.info("admin granted manual access to %s", user_id)
     return result
 
 
 @router.post("/accounts/{user_id}/manual-grant/revoke", dependencies=[Depends(require_admin)])
-def admin_revoke_access(user_id: str, body: dict | None = None) -> dict:
+def admin_revoke_access(user_id: str, request: Request, body: dict | None = None) -> dict:
     """Revoke a manual grant. Stamps revoked_at (and the reason) — the row is
     never deleted, so the record of the grant survives. Idempotent: a grant
     that is already revoked is returned unchanged."""
@@ -783,8 +811,45 @@ def admin_revoke_access(user_id: str, body: dict | None = None) -> dict:
             grant.revoked_note = note
             s.commit()
         result = {"manual_grant": _grant_dict(grant)}
+    enrollment.sync_user_safely(user_id)  # frees the place unless a Stripe subscription still holds it
+    audit.record("grant.revoke", target_user_id=user_id, request=request)
     log.info("admin revoked manual access for %s", user_id)
     return result
+
+
+# ---------- enrollment capacity ----------
+
+@router.get("/enrollment", dependencies=[Depends(require_admin)])
+def admin_enrollment() -> dict:
+    """Capacity, places taken (online / in person / reserved), complimentary
+    places, and the recent admin activity."""
+    return {"enrollment": enrollment.summary(), "recent_activity": audit.recent(20)}
+
+
+@router.put("/enrollment/settings", dependencies=[Depends(require_admin)])
+def admin_enrollment_settings(body: dict, request: Request) -> dict:
+    """Change the paid and/or complimentary capacity. Validated: whole
+    numbers, never below the places already taken. Audited."""
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid request body.")
+    paid = body.get("paid_capacity")
+    comp = body.get("comp_capacity")
+    if paid is None and comp is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nothing to update.")
+    try:
+        before, after = enrollment.update_settings(paid_capacity=paid, comp_capacity=comp)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    audit.record("enrollment.settings", details={"before": before, "after": after}, request=request)
+    return {"enrollment": enrollment.summary()}
+
+
+@router.post("/enrollment/reconcile", dependencies=[Depends(require_admin)])
+def admin_enrollment_reconcile(request: Request) -> dict:
+    """Re-derive every place from the Stripe rows and manual grants."""
+    report = enrollment.reconcile()
+    audit.record("enrollment.reconcile", details=report, request=request)
+    return {"report": report, "enrollment": enrollment.summary()}
 
 
 # ---------- report ----------

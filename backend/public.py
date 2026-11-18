@@ -36,3 +36,13 @@ def public_seats() -> dict:
         # the cap check in auth.identity (same filter there).
         total = s.query(func.count()).select_from(User).filter(User.deleted_at.is_(None)).scalar() or 0
     return {"total_accounts": total, "cap": SEAT_CAP}
+
+
+@router.get("/public/enrollment")
+def public_enrollment() -> dict:
+    """Founding-membership places left (paid memberships only; complimentary
+    ones never count). Public: no auth, no user data. When the numbers can't
+    be read they are null, and the site shows a neutral message instead."""
+    import enrollment
+
+    return enrollment.public_availability()

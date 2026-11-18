@@ -9,7 +9,7 @@ from __future__ import annotations
 import secrets
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, JSON, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Base
@@ -325,3 +325,78 @@ class CypherEvent(Base):
     lesson_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     meta: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+
+
+class EnrollmentSettings(Base):
+    """The founding-membership capacity settings: always exactly one row (id 1).
+
+    `paid_capacity` is the number of paying memberships (online + in person)
+    that can hold a place at once (10,000 at launch). Complimentary
+    memberships never use those places (Spencer, 2026-11-18): they have their
+    own `comp_capacity`. The row is also the lock that serializes place
+    allocation (SELECT ... FOR UPDATE on Postgres, see enrollment.py).
+    """
+    __tablename__ = "enrollment_settings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    paid_capacity: Mapped[int] = mapped_column(Integer, default=10000)
+    comp_capacity: Mapped[int] = mapped_column(Integer, default=100)
+    # How long a started Stripe checkout holds a place before it lapses.
+    reservation_minutes: Mapped[int] = mapped_column(Integer, default=60)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class MembershipAllocation(Base):
+    """One membership place held by one user (see enrollment.py).
+
+    `status`: "reserved" (a Stripe checkout in progress; lapses at
+    `reserved_until`), "active" (paid access, or a complimentary grant), or
+    "released" (access ended; the place went back to the pool). A user holds
+    at most ONE open (non-released) allocation — enforced by the partial
+    unique index below — so a renewal, a duplicate webhook, or a retried
+    checkout can never take a second place. Released rows are never deleted:
+    they are the history of who held a place and why it was freed.
+    """
+    __tablename__ = "membership_allocations"
+    __table_args__ = (
+        Index(
+            "uq_membership_allocation_open_per_user",
+            "user_id",
+            unique=True,
+            postgresql_where=text("status <> 'released'"),
+            sqlite_where=text("status <> 'released'"),
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(16))  # "paid" | "complimentary"
+    source: Mapped[str] = mapped_column(String(16))  # "stripe" | "manual"
+    status: Mapped[str] = mapped_column(String(16), index=True)  # "reserved" | "active" | "released"
+    reserved_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # True when the place was granted past the capacity because access was
+    # already paid for (a Stripe payment that completed after its checkout
+    # reservation lapsed, or a subscriber from before capacity existed).
+    over_capacity: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    release_reason: Mapped[str | None] = mapped_column(String(200), nullable=True)
+
+
+class AdminAuditLog(Base):
+    """Append-only record of every administrative change (who, what, when).
+
+    `actor` is "admin" while the panel uses the shared password; it becomes
+    the admin's own account id once per-admin sign-in ships. `details` holds
+    small structured before/after values — never secrets or payment data.
+    """
+    __tablename__ = "admin_audit_log"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+    actor: Mapped[str] = mapped_column(String(64))
+    action: Mapped[str] = mapped_column(String(64), index=True)
+    target_user_id: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
+    details: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
