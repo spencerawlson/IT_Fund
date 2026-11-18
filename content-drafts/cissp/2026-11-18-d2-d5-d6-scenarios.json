@@ -1,0 +1,729 @@
+{
+  "status": "draft — NOT published. Nothing in this folder is read by the app or the content exporter.",
+  "author": "Claude (AI), 2026-11-18 — unreviewed by a human subject-matter expert",
+  "purpose": "CISSP depth for the thinnest domains (audit R-0009): managerial / scenario items for Domain 2 (Asset Security), Domain 5 (IAM) and Domain 6 (Security Assessment & Testing). Original wording; no competitor question was used.",
+  "outline": "ISC2 CISSP Detailed Content Outline, effective 2024-04-15",
+  "howToPublish": "See README.md: approve or edit each item, then append approved cards to the END of the target deck's cards array (card ids are position-based — never insert or reorder).",
+  "items": [
+    {
+      "draftId": "d2-01",
+      "domain": 2,
+      "objective": "2.1 Identify and classify information and assets",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A sales manager wants to email a spreadsheet of customer records to an outside marketing agency. The data has never been classified. What should the security manager do FIRST?",
+        "Ask the data owner to classify the data and decide whether it may be shared",
+        "Classification and the decision to share belong to the data owner. Encryption, DLP and labels are controls applied after that decision, not substitutes for it.",
+        [
+          "Encrypt the spreadsheet with a strong password and let the email go out",
+          "Block the email until DLP rules are deployed across the whole company",
+          "Have the database custodian label it Confidential and approve the transfer"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-02",
+      "domain": 2,
+      "objective": "2.4 Manage data lifecycle (data remanence, destruction)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "Leased SSDs that held regulated health data must be returned to the leasing company at the end of the contract. Which sanitisation approach is MOST appropriate?",
+        "Purge them with cryptographic erase and verify the result",
+        "Media leaving the organisation's control needs Purge, not Clear (NIST SP 800-88). Degaussing does nothing to flash memory, and formatting or deleting partitions leaves the data recoverable.",
+        [
+          "Degauss each drive with a strong degausser before shipping it back",
+          "Quick-format the drives and reinstall a clean operating system on them",
+          "Delete every partition and overwrite the drive's file allocation table"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-03",
+      "domain": 2,
+      "objective": "2.5 Ensure appropriate asset retention",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "The retention schedule deletes project email after three years. Legal counsel warns of a lawsuit about a four-year-old project whose email is due for deletion next week. What is the BEST action?",
+        "Place the relevant records, backups included, under a legal hold",
+        "A legal hold overrides the retention schedule. Destroying relevant records once litigation is reasonably anticipated can be ruled spoliation of evidence, and a hold that misses backups is incomplete.",
+        [
+          "Follow the approved retention schedule, since the policy was signed off",
+          "Delete the records now, before any hold is formally served on the company",
+          "Ask each employee to keep any email they personally think might matter"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-04",
+      "domain": 2,
+      "objective": "2.2 Establish information and asset handling requirements (roles)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A database administrator notices that a salary table is readable by every employee. Who should decide what the correct access to that table is?",
+        "The data owner, such as the HR director accountable for the data",
+        "The owner is accountable for the data and decides who may access it. The DBA is a custodian who implements that decision; the CISO sets the security program, not access to each data set.",
+        [
+          "The database administrator, who manages the database day to day",
+          "The CISO, who is responsible for the overall security program",
+          "The help desk team, which processes the company's access requests"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-05",
+      "domain": 2,
+      "objective": "2.2 Establish information and asset handling requirements (privacy roles)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A company stores its EU customers' personal data in a cloud CRM. The CRM provider is breached. Under the GDPR, who remains accountable for the purposes and lawful basis of that processing?",
+        "The company, because it is the data controller",
+        "The controller decides why and how personal data is processed and stays accountable to regulators. The processor has its own duties, such as notifying the controller without undue delay, but a contract cannot transfer the controller's accountability.",
+        [
+          "The CRM provider, because it is the one physically holding the data",
+          "The CRM provider alone, because the contract shifts all liability to it",
+          "Nobody, because the breach happened outside the company's own systems"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-06",
+      "domain": 2,
+      "objective": "2.6 Determine data security controls (data states)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "Databases are encrypted at rest and every connection uses TLS, yet analysts routinely export sensitive query results to their own laptops. Which control BEST closes this gap?",
+        "Endpoint DLP that blocks copying classified data to unmanaged storage",
+        "Encryption at rest and in transit already cover those states. The gap is data in use on the endpoint, where endpoint DLP and handling rules apply.",
+        [
+          "Stronger TLS cipher suites on the links between clients and the database",
+          "Full-disk encryption on the database servers in the data centre",
+          "Longer retention for the database query logs, kept for later review"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-07",
+      "domain": 2,
+      "objective": "2.6 Determine data security controls and compliance requirements (scoping and tailoring)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A small firm adopts the NIST SP 800-53 moderate baseline. Several controls apply only to mainframes, which the firm does not have. What should it do with those controls?",
+        "Scope them out and document why they do not apply",
+        "Scoping removes controls that do not apply to the environment; tailoring adjusts the rest. Both must be justified in writing so the baseline remains defensible to auditors.",
+        [
+          "Implement every control anyway, so the baseline stays fully compliant",
+          "Abandon the baseline and write a custom control set from scratch",
+          "Mark them as implemented, since no mainframe exists that could fail them"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-08",
+      "domain": 2,
+      "objective": "2.6 Determine data security controls and compliance requirements (residency)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "An EU company must keep customer data in the EU. A SaaS vendor offers EU-only hosting, but its support engineers in another country can view customer records. What is the PRIMARY concern?",
+        "Remote access from abroad may count as a cross-border transfer",
+        "Under the GDPR, making data accessible from a third country is a transfer even when the servers stay in the EU, so it needs a lawful transfer mechanism and safeguards.",
+        [
+          "Network latency for EU users when engineers connect to troubleshoot",
+          "Engineers abroad may not be trained on the latest product features",
+          "The EU data centre may cost more than the vendor's other regions"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-09",
+      "domain": 2,
+      "objective": "2.1 Identify and classify information and assets (inventory)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "Attackers got in through a forgotten test server that nobody patched or monitored. Which control would MOST likely have prevented this?",
+        "An asset inventory with an accountable owner per asset",
+        "You cannot patch, monitor or retire what you do not know exists. The inventory and ownership come before every other control on the asset.",
+        [
+          "A more capable next-generation firewall at the network perimeter",
+          "More frequent penetration tests of the production environment",
+          "A stronger password policy for all of the company's user accounts"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-10",
+      "domain": 2,
+      "objective": "2.6 Determine data security controls (de-identification)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A research team needs patient data that can never be linked back to individuals, so that it falls outside data protection law. Which technique fits?",
+        "Irreversible anonymisation, with the re-identification risk assessed",
+        "Pseudonymised, encrypted or tokenised data can be re-linked by whoever holds the key or table, so it is still personal data. Only properly anonymised data leaves the scope of the GDPR.",
+        [
+          "Pseudonymisation, with the re-linking keys stored on a separate server",
+          "Encryption of the dataset, with the key held by the lead researcher",
+          "Tokenisation through the same vault the company uses for card numbers"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-11",
+      "domain": 2,
+      "objective": "2.2 Establish information and asset handling requirements (marking)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "Printed reports containing confidential data keep turning up in a shared printer tray. The staff involved say they did not realise the reports were sensitive. Which control addresses the ROOT cause?",
+        "Marking classified outputs, backed by handling training for staff",
+        "The staff did not know the data was sensitive, so the fix is making classification visible on the output and teaching what each label requires. Physical measures only treat the symptom.",
+        [
+          "Moving the printer into a locked room that only managers can enter",
+          "Disabling printing for every user in the organisation permanently",
+          "Having the cleaning staff shred everything left in the tray each night"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-12",
+      "domain": 2,
+      "objective": "2.5 Ensure appropriate asset retention (minimisation)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A company keeps all customer data indefinitely in case it becomes useful one day. Which risk does this MOST increase?",
+        "The impact of a breach and the cost of legal discovery",
+        "Data that is kept can be stolen and must be produced in litigation. Retaining only what law and business need limits both.",
+        [
+          "The chance of losing data in a natural disaster at the main site",
+          "The time it takes the operations team to patch the database servers",
+          "The number of help desk calls about forgotten customer passwords"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-13",
+      "domain": 2,
+      "objective": "2.6 Determine data security controls (cloud key management)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A data owner wants assurance that the cloud provider itself cannot read the company's stored data. Which control BEST provides it?",
+        "Encryption with customer-held keys kept outside the provider's control",
+        "If the provider manages the keys, it can decrypt the data. Holding the keys yourself (external key management or hold-your-own-key) is what removes the provider's ability to read it; reports and contracts only describe intent.",
+        [
+          "The provider's default encryption at rest, which is enabled for every bucket",
+          "A clause in the service agreement promising staff will never look at data",
+          "A recent SOC 2 Type II report on the provider's internal security controls"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-14",
+      "domain": 2,
+      "objective": "2.3 Provision information and assets securely (media handling)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "Backup tapes are sent offsite by courier every week. Which control BEST protects their confidentiality if a tape goes missing in transit?",
+        "Encrypt the backups, keeping the keys separate from the tapes",
+        "A bonded courier, tracking and chain-of-custody logs make loss less likely and easier to trace, but only encryption protects the contents once a tape is lost.",
+        [
+          "Use a bonded courier service with real-time tracking of every box",
+          "Label each tape clearly as Confidential before it leaves the site",
+          "Keep a signed chain-of-custody log for every tape that is shipped"
+        ]
+      ]
+    },
+    {
+      "draftId": "d2-15",
+      "domain": 2,
+      "objective": "2.4 Manage data lifecycle (collection and minimisation)",
+      "targetDeck": "cissp-d2b",
+      "card": [
+        "A sign-up form collects each customer's full date of birth, but the business only needs to confirm that the customer is 18 or older. What is the BEST change?",
+        "Collect only a confirmation that the customer is 18 or older",
+        "Data that is never collected cannot leak. Minimisation at the point of collection beats protecting an unnecessary field afterwards.",
+        [
+          "Encrypt the date-of-birth column in the customer database",
+          "Hash each date of birth before it is written to storage",
+          "Mask the date of birth everywhere it appears in the interface"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-01",
+      "domain": 5,
+      "objective": "5.5 Manage the identity and access provisioning lifecycle (movers)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "An employee moved from Finance to Sales six months ago and can still approve payments in the finance system. Which part of the identity lifecycle failed?",
+        "The mover process, which should remove old rights at a role change",
+        "When people change roles, access for the old role must be removed, not just new access added. Without that, privilege creep builds up; periodic access reviews are the safety net that catches it.",
+        [
+          "The leaver process, which handles staff who leave the company",
+          "Identity proofing, which verifies a person's identity at hire",
+          "Password policy, which sets the complexity of user passwords"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-02",
+      "domain": 5,
+      "objective": "5.5 Manage the identity and access provisioning lifecycle (termination)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "A system administrator is about to be dismissed for misconduct. When should the administrator's access be removed?",
+        "As the dismissal is being communicated, or just before",
+        "An unfriendly termination is the highest-risk moment: a privileged insider who has just been told could do serious damage. Coordinate HR and IT so access ends as the conversation starts.",
+        [
+          "At the end of the administrator's final scheduled working day",
+          "Once HR has completed all of the exit paperwork",
+          "Within the standard 24-hour deprovisioning window"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-03",
+      "domain": 5,
+      "objective": "5.3 Federated identity with a third-party service",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "Employees should sign in to a new SaaS application with their corporate credentials, and the vendor must never store their passwords. What is the BEST approach?",
+        "Federate through SAML or OIDC, with the corporate IdP as identity provider",
+        "With federation the user authenticates to the company's own identity provider, and the SaaS application receives a signed assertion or token instead of the password.",
+        [
+          "Synchronise corporate password hashes into the SaaS vendor's directory",
+          "Create local SaaS accounts that reuse each employee's corporate password",
+          "Share a single service account through the company's password vault"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-04",
+      "domain": 5,
+      "objective": "5.3 Federated identity with a third-party service (trust)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "A SaaS application accepts SAML assertions from a customer's identity provider. What MUST the application verify before trusting an assertion?",
+        "The IdP's signature, the audience and the time window",
+        "An unsigned or unchecked assertion can be forged or replayed. The service provider validates the signature against the IdP's certificate, that the assertion is meant for it, and that it is within its time window.",
+        [
+          "That the user's browser sent it over an HTTPS connection",
+          "That the user's email address domain matches the company's",
+          "That the assertion arrived within one second of the login"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-05",
+      "domain": 5,
+      "objective": "5.6 Implement authentication systems (phishing-resistant MFA)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "Attackers are phishing employees' one-time MFA codes and relaying them in real time. Which authenticator BEST resists this attack?",
+        "FIDO2 security keys or passkeys bound to the real site",
+        "FIDO2 authenticators sign a challenge tied to the genuine site's origin, so a look-alike phishing site gets nothing it can replay. Any code a user can read and type can be relayed.",
+        [
+          "SMS one-time codes sent to each employee's registered phone",
+          "Six-digit codes from a time-based authenticator app (TOTP)",
+          "One-time sign-in links sent to the employee's email address"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-06",
+      "domain": 5,
+      "objective": "5.4 Implement and manage authorization mechanisms (ABAC)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "A hospital wants access to patient records to depend on the user's role, whether they are treating that patient, the time of day and where they are working. Which access control model fits BEST?",
+        "Attribute-based access control (ABAC)",
+        "ABAC evaluates policies over attributes of the subject, the resource, the action and the environment, which is exactly this combination. Static roles alone cannot express \"treating this patient now\".",
+        [
+          "Discretionary access control (DAC)",
+          "Role-based access control with fixed roles",
+          "Mandatory access control (MAC) with labels"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-07",
+      "domain": 5,
+      "objective": "5.4 Implement and manage authorization mechanisms (MAC)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "In a defence system, users cannot change permissions on anything they create, and access depends only on their clearance and the data's classification label. Which model is in use?",
+        "Mandatory access control (MAC)",
+        "In MAC the system enforces access by comparing clearances with labels, and users, even owners, cannot grant access themselves.",
+        [
+          "Discretionary access control (DAC)",
+          "Rule-based access control on a firewall",
+          "Attribute-based access control (ABAC)"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-08",
+      "domain": 5,
+      "objective": "5.4 Implement and manage authorization mechanisms (DAC risk)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "On a file share, each file's creator decides who else may open it. What is the PRIMARY risk of this arrangement?",
+        "Owners can over-share with no central oversight",
+        "This is discretionary access control. It is flexible, but access spreads at each owner's discretion, and malware running as the user inherits the same power.",
+        [
+          "Users cannot share files with colleagues who need them",
+          "Every access decision has to be approved by a central team",
+          "File labels must be assigned by a security administrator"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-09",
+      "domain": 5,
+      "objective": "5.1 Control physical and logical access to assets (privileged access)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "Six administrators share one root password for the production servers. What is the BEST improvement?",
+        "Privileged access management with individual named accounts",
+        "A shared credential destroys accountability: nobody can tell which administrator did what. PAM gives each person their own access, with check-out, rotation and recorded sessions.",
+        [
+          "Rotate the shared root password every month and tell everyone",
+          "Write the root password down and keep it in the office safe",
+          "Allow the shared root account to log in only during business hours"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-10",
+      "domain": 5,
+      "objective": "5.5 Manage the identity and access provisioning lifecycle (reviews)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "An audit finds 40 active accounts belonging to contractors whose contracts ended months ago. What is the MOST effective long-term fix?",
+        "Automatic deprovisioning from contract end dates, plus recertification",
+        "Disabling the 40 accounts fixes today's finding only. Tying account lifecycle to an authoritative source of contract end dates, with managers recertifying access, stops it recurring.",
+        [
+          "Disable the 40 accounts by hand and close the audit finding",
+          "Shorten the password expiry period for all contractor accounts",
+          "Require multi-factor authentication on every contractor account"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-11",
+      "domain": 5,
+      "objective": "5.6 Implement authentication systems (Kerberos)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "After a virtualisation host's clock drifted by ten minutes, users of the domain controllers it runs suddenly cannot authenticate with Kerberos. What is the MOST likely cause?",
+        "The clock skew exceeds Kerberos' tolerance, five minutes by default",
+        "Kerberos tickets carry timestamps to prevent replay, so clients and the KDC must agree on the time. Synchronise the clocks to a reliable time source with NTP.",
+        [
+          "The ticket-granting tickets have all reached their maximum renewal age",
+          "The users' passwords expired at the same moment the clock drifted",
+          "The domain controllers lost their TLS certificates when time changed"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-12",
+      "domain": 5,
+      "objective": "5.2 Design identification and authentication strategy (identity proofing)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "A company hires staff fully remotely and must issue them credentials for sensitive systems. Which identity proofing step is STRONGEST?",
+        "Verify official ID authoritatively, with a supervised live check",
+        "Strong proofing checks that the evidence is genuine and that the person presenting it is its owner (as in NIST SP 800-63A at IAL2 or higher). Emailed scans and social profiles prove neither.",
+        [
+          "Ask each new hire to email a scanned copy of their passport to HR",
+          "Send the first password to the personal email on the application",
+          "Confirm the hire's identity from their public social media profiles"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-13",
+      "domain": 5,
+      "objective": "5.4 Implement and manage authorization mechanisms (least privilege for services)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "An application's service account was given domain administrator rights \"to avoid permission errors\". What should the security manager require?",
+        "Only the rights it needs, on a managed, auto-rotated account",
+        "A compromised service account inherits every right it holds. Grant only what the application needs, and use a managed service account so the credential rotates without a human knowing it.",
+        [
+          "Keep domain admin rights but give it a longer, stronger password",
+          "Keep domain admin rights but allow sign-in only from that server",
+          "Keep domain admin rights and review its activity logs once a year"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-14",
+      "domain": 5,
+      "objective": "5.6 Implement authentication systems (session management)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "Customers use an online banking site on shared public kiosks, and sessions stay signed in after they walk away. Which control BEST reduces the risk?",
+        "Session timeouts plus re-authentication for transfers",
+        "Short timeouts limit how long an abandoned session can be reused, and re-authentication protects the actions that matter most even inside a live session.",
+        [
+          "Longer, more complex passwords required for every customer",
+          "A CAPTCHA challenge shown on the bank's sign-in page",
+          "Encrypting the session cookie with a stronger algorithm"
+        ]
+      ]
+    },
+    {
+      "draftId": "d5-15",
+      "domain": 5,
+      "objective": "5.6 Implement authentication systems (lockout as denial of service)",
+      "targetDeck": "cissp-d5",
+      "card": [
+        "Attackers are deliberately locking out every user by submitting wrong passwords against all usernames. What is the BEST way to keep brute-force protection without enabling this?",
+        "Progressive delays and risk checks, not hard lockouts",
+        "Hard lockouts turn the defence into a denial-of-service tool. Throttling, IP and device reputation, and step-up challenges slow guessing without letting an attacker lock everyone out.",
+        [
+          "Turn off account lockout and failed-login throttling entirely",
+          "Lock each account permanently after three failed attempts",
+          "Force every user to change their password once a week"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-01",
+      "domain": 6,
+      "objective": "6.1 Design and validate assessment, test, and audit strategies (authorisation)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "An external penetration test is due to start on Monday. What MUST be in place before testing begins?",
+        "Signed authorisation with scope and rules of engagement",
+        "Without written permission from someone with authority over the systems, a penetration test is unauthorised access. The scope and rules of engagement also set what is out of bounds and who to call if something breaks.",
+        [
+          "Verbal approval from the IT manager who requested the test",
+          "A non-disclosure agreement signed by the testers alone",
+          "A full network diagram supplied by the testing company"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-02",
+      "domain": 6,
+      "objective": "6.2 Conduct security control testing (vulnerability assessment)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "Monthly vulnerability scans of the servers report very few issues, yet a breach later exploited missing local patches on those same servers. What is the BEST improvement to the scanning?",
+        "Credentialed scans that log in and read installed software",
+        "Unauthenticated scans only see what a host exposes on the network. Credentialed scans read installed packages and patch levels, finding local vulnerabilities the network view cannot.",
+        [
+          "Scan more often, moving from monthly to daily network scans",
+          "Replace the scanner with another vendor's network scanner",
+          "Scan only from outside the firewall, as an attacker would"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-03",
+      "domain": 6,
+      "objective": "6.4 Analyze test output and generate report (false positives)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "A scan report lists many findings that the server team insists are false positives. What is the BEST next step?",
+        "Verify them, then track real ones and document the rest",
+        "Findings should be verified, for example by checking versions and configuration, before they are dismissed or prioritised. Blanket suppression hides real issues; confirmed false positives are documented so they are not re-raised.",
+        [
+          "Suppress all of the disputed findings in future scan reports",
+          "Escalate every disputed finding to the external auditors",
+          "Rescan with the disputed vulnerability checks switched off"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-04",
+      "domain": 6,
+      "objective": "6.5 Conduct or facilitate security audits (independence)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "The board's audit committee wants assurance that key security controls are operating effectively. Who should perform the assessment?",
+        "An independent party, such as internal or external audit",
+        "Assurance depends on independence. The team that runs the controls has an interest in the result, so it cannot give the committee objective assurance.",
+        [
+          "The security operations team that runs the controls every day",
+          "The IT manager responsible for the systems being assessed",
+          "The vendor that supplied and configured the security tools"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-05",
+      "domain": 6,
+      "objective": "6.5 Conduct or facilitate security audits (SOC reports)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "A customer wants evidence that a SaaS vendor's security controls actually operated effectively over the past year, not just that they were designed well. Which report should it ask for?",
+        "A SOC 2 Type II report",
+        "Type I reports on control design at one point in time; Type II tests operating effectiveness over a period, usually six to twelve months. SOC 1 covers financial reporting controls.",
+        [
+          "A SOC 2 Type I report",
+          "A SOC 1 Type I report",
+          "A SOC 3 general-use seal"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-06",
+      "domain": 6,
+      "objective": "6.4 Analyze test output and generate report (remediation)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "The server team reports that every critical finding from last quarter's penetration test has been fixed. How should the security manager confirm this?",
+        "Have the fixes retested, by the testers or a targeted rescan",
+        "A report of a fix is not evidence of a fix. Retesting each finding confirms it is closed and that the fix did not introduce something new.",
+        [
+          "Accept the server team's signed statement that work is done",
+          "Close the findings once the change tickets are marked complete",
+          "Wait for next year's penetration test to see if they reappear"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-07",
+      "domain": 6,
+      "objective": "6.3 Collect security process data (metrics)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "Management wants to know whether security awareness training is actually reducing phishing risk. Which metric BEST answers that?",
+        "The trend in phishing-simulation click and report rates over time",
+        "Course completion measures activity, not outcome. A falling click rate and a rising report rate in realistic simulations show whether behaviour changed.",
+        [
+          "The percentage of staff who completed the annual training course",
+          "The number of training modules the company has published",
+          "The average quiz score at the end of each training module"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-08",
+      "domain": 6,
+      "objective": "6.2 Conduct security control testing (test knowledge levels)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "A company has a small budget for one week of application penetration testing and wants as many real weaknesses found as possible. Which approach gives the MOST coverage?",
+        "White-box testing, with source code and design documents",
+        "With full knowledge, testers spend the week finding flaws rather than mapping the target. Black-box testing better simulates an outsider but covers less in the same time.",
+        [
+          "Black-box testing, with no prior knowledge of the application",
+          "A vulnerability scan only, run once at the start of the week",
+          "Red-team testing, focused on avoiding detection by defenders"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-09",
+      "domain": 6,
+      "objective": "6.2 Conduct security control testing (code review timing)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "When is it MOST cost-effective to find security defects in a new application?",
+        "Early, through design reviews and static analysis during development",
+        "The cost of fixing a defect rises sharply the later it is found. Threat modelling and static analysis catch issues before they are built into production.",
+        [
+          "Just before go-live, in a final penetration test of the release",
+          "After release, through the bug bounty programme and user reports",
+          "At the yearly audit, when all applications are assessed together"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-10",
+      "domain": 6,
+      "objective": "6.4 Analyze test output and generate report (audience)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "A penetration test report will be presented to the executive team. What should its executive summary emphasise?",
+        "Business risk and prioritised remediation, in plain language",
+        "Executives decide on risk and funding. Exploit details and raw tool output belong in the technical sections for the teams fixing the issues.",
+        [
+          "Step-by-step exploit details for every vulnerability found",
+          "Full raw output from every scanning tool that was used",
+          "A list of each tester's certifications and experience"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-11",
+      "domain": 6,
+      "objective": "6.3 Collect security process data (log review)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "Database administrators are responsible for reviewing the audit logs of their own administrative activity. What is the main problem with this?",
+        "It breaks separation of duties: they review their own actions",
+        "People should not be the sole reviewers of their own activity. Send privileged-activity logs to a central system that an independent team monitors.",
+        [
+          "The logs will grow too large for the database to store",
+          "Administrators lack the technical skills to read the logs",
+          "Reviewing logs slows the database for everyone else"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-12",
+      "domain": 6,
+      "objective": "6.2 Conduct security control testing (synthetic transactions)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "An online store wants to find out when checkout breaks at 3 a.m., when almost no real customers are using the site. Which technique fits BEST?",
+        "Synthetic transactions running a scripted test purchase",
+        "Real user monitoring only sees problems when users are present. Scripted synthetic transactions exercise the checkout path continuously, whatever the traffic.",
+        [
+          "Real user monitoring of the customers who visit the site",
+          "A quarterly penetration test of the checkout application",
+          "A static code analysis scan of the checkout source code"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-13",
+      "domain": 6,
+      "objective": "6.1 Design and validate assessment, test, and audit strategies (rules of engagement)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "During an authorised penetration test, a tester finds a path into a business partner's network, which is outside the agreed scope. What should the tester do?",
+        "Stop, take no further action there, and tell the client contact",
+        "Authorisation covers only the agreed scope: the partner never consented. The finding is reported so the client can address it with the partner.",
+        [
+          "Exploit it briefly to prove the risk, then stop and report it",
+          "Continue testing, since the path started from in-scope systems",
+          "Contact the partner directly and offer to test their network"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-14",
+      "domain": 6,
+      "objective": "6.4 Analyze test output and generate report (exception handling)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "A critical vulnerability in a vendor appliance cannot be patched for three months, until the vendor releases a fix. What is the BEST course of action?",
+        "A time-limited risk exception with compensating controls",
+        "When a finding cannot be fixed yet, the risk owner formally accepts it for a limited time, with compensating controls such as isolation and monitoring and a date to revisit it.",
+        [
+          "Take no action until the vendor finally releases a fix",
+          "Mark the finding as a false positive so it stops reappearing",
+          "Remove the appliance from the vulnerability scanning scope"
+        ]
+      ]
+    },
+    {
+      "draftId": "d6-15",
+      "domain": 6,
+      "objective": "6.5 Conduct or facilitate security audits (sampling evidence)",
+      "targetDeck": "cissp-d6",
+      "card": [
+        "An auditor must verify that leavers lose system access promptly. Which evidence is MOST reliable?",
+        "A sample of HR terminations compared with account disable dates",
+        "Starting from an independent source (HR's list of leavers) and tracing each one to the system shows whether the control actually worked. A policy or an IT-chosen list only shows intent or a filtered view.",
+        [
+          "The written offboarding policy approved by senior management",
+          "A list of disabled accounts chosen and supplied by IT",
+          "Interviews with IT staff about how offboarding works"
+        ]
+      ]
+    }
+  ]
+}
