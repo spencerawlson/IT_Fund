@@ -110,11 +110,11 @@ describe('MissionSocScene', () => {
     expect(src).toContain("const cypherSpeaking = talking && speaker === 'cypher'");
     expect(src).toContain('seatRobot(controller)');
     expect(src).toContain('cypher.setTalking(cypherSpeaking)');
-    expect(src).toContain('cypher.setTalkLevel(cypherSpeaking ? (voice?.level || 0) : 0)');
+    expect(src).toContain('cypher.setTalkLevel(cypherSpeaking ? (voice?.level || 0) : 0, cypherSpeaking ? voice?.bands : null)');
     expect(src).toContain("const sentinelSpeaking = !!voiceRef?.current?.talking && speaker === 'sentinel' && t > sentinelGreetUntil");
     expect(src).toContain("const patchSpeaking = !!voiceRef?.current?.talking && speaker === 'patch' && t > patchGreetUntil");
-    expect(src).toContain('sentinel.setTalkLevel(voiceRef.current.level || 0)');
-    expect(src).toContain('patch.setTalkLevel(voiceRef.current.level || 0)');
+    expect(src).toContain('sentinel.setTalkLevel(voiceRef.current.level || 0, voiceRef.current.bands)');
+    expect(src).toContain('patch.setTalkLevel(voiceRef.current.level || 0, voiceRef.current.bands)');
     // The old behaviour — walk on any voice activity, or a walk clip on
     // Cypher at all — must be gone.
     expect(src).not.toContain('cypher.setTalkLevel(voice?.level || 0)');
