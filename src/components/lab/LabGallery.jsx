@@ -17,7 +17,7 @@ export const KINDS = {
 
 const FILTERS = [['all', 'All'], ['3d', '3D'], ['blueprint', 'Blueprints'], ['anim', 'Animated'], ['tool', 'Interactive'], ['flow', 'Walkthroughs']];
 
-function Tile({ subject, onSelect, isSimulator }) {
+function Tile({ subject, onSelect, isSimulator, displayLabel }) {
   const k = isSimulator(subject.id) ? KINDS.simulator : (KINDS[subject.kind] || KINDS.anim);
   const Icon = subject.icon;
   return (
@@ -35,7 +35,7 @@ function Tile({ subject, onSelect, isSimulator }) {
           <span className={`h-1.5 w-1.5 rounded-full ${k.dot}`} /> {k.label}
         </span>
       </div>
-      <h3 className="relative mt-3 text-heading text-ink-1">{subject.label}</h3>
+      <h3 className="relative mt-3 text-heading text-ink-1">{displayLabel(subject)}</h3>
       <p className="relative mt-1 text-small leading-relaxed text-ink-2">{subject.blurb}</p>
       <span className="relative mt-3 inline-flex items-center gap-1 text-caption font-semibold text-ink-2 transition group-hover:gap-2 group-hover:text-ink-1">
         Open <ArrowRight size={14} aria-hidden="true" />
@@ -44,7 +44,7 @@ function Tile({ subject, onSelect, isSimulator }) {
   );
 }
 
-export default function LabGallery({ subjects, categories, onSelect, isSimulator = () => false }) {
+export default function LabGallery({ subjects, categories, onSelect, isSimulator = () => false, displayLabel = (s) => s.label }) {
   const [filter, setFilter] = useState('all');
 
   // The Interactive filter shows the hands-on tools AND the simulators: a
@@ -90,7 +90,7 @@ export default function LabGallery({ subjects, categories, onSelect, isSimulator
               <span className="text-caption text-ink-3">{list.length}</span>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {list.map((s) => <Tile key={s.id} subject={s} onSelect={onSelect} isSimulator={isSimulator} />)}
+              {list.map((s) => <Tile key={s.id} subject={s} onSelect={onSelect} isSimulator={isSimulator} displayLabel={displayLabel} />)}
             </div>
           </section>
         ))}
