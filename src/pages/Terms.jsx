@@ -13,7 +13,7 @@ export default function Terms() {
     <div className="min-h-screen text-ink-1">
       <Seo
         title="Terms of Service · Road to CISSP"
-        description="The terms for using Road to CISSP: one $29 USD/month plan, cancel anytime, free tier limits, and what the practice exams do and do not promise."
+        description="The terms for using Road to CISSP: two ways to pay — $29 USD/month or $250 USD/year, cancel anytime, free tier limits, and what the practice exams do and do not promise."
         path="/terms"
       />
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
@@ -36,7 +36,7 @@ export default function Terms() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">The plan and the price</h2>
           <p className="mt-2 text-body text-ink-2">
-            There is one plan: $29 USD per month. It unlocks every track, every lesson, every hands-on lab, and every exam simulator, and it syncs your progress across devices. Payment is taken through Stripe Checkout.
+            There are two ways to pay for the same plan: $29 USD per month, or $250 USD per year (about $20.83 a month — $98 less than twelve monthly payments). Either way it unlocks every track, every lesson, every hands-on lab, and every exam simulator, and it syncs your progress across devices. Payment is taken through Stripe Checkout.
           </p>
         </section>
 

@@ -45,39 +45,92 @@ const FEATURES = [
   { icon: RefreshCw, title: 'Progress that syncs', text: 'Streaks, XP, badges, and Leitner review saved to your account across every device.' },
 ];
 
-// Fallback matches billing.PRICE_FALLBACK; replaced by the live Stripe price.
-const PRICE_FALLBACK = { display: '$29', interval: 'month', amount: '29.00', currency: 'USD' };
+// Fallbacks match billing.PRICE_FALLBACK / ANNUAL_PRICE_FALLBACK; replaced by
+// the live Stripe prices. `configured` gates the annual button only: monthly
+// checkout surfaces a 503 cleanly when billing is unconfigured, as before.
+const MONTHLY_FALLBACK = { display: '$29', interval: 'month', amount: '29.00', currency: 'USD', configured: false };
+const ANNUAL_FALLBACK = { display: '$250', interval: 'year', amount: '250.00', currency: 'USD', configured: false };
 const INTERVAL_LABEL = { month: 'month', year: 'year', week: 'week', day: 'day' };
 const INTERVAL_SHORT = { month: 'mo', year: 'yr', week: 'wk', day: 'day' };
+
+const INCLUDED = ['All learning tracks, zero to CISSP', `All ${COUNTS.labs} hands-on labs`, 'Security+ & CISSP exam simulators', 'Progress sync across devices', 'New content every month'];
+
+function PlanCard({ label, badge, price, perLine, buttonLabel, disabled, disabledNote, onSubscribe, busy, subscribed }) {
+  return (
+    <Card level={2} padding="lg" className="text-center">
+      {badge && (
+        <p className="mx-auto w-fit rounded-full bg-action/10 px-3 py-1 text-caption font-semibold uppercase tracking-[0.15em] text-action">{badge}</p>
+      )}
+      <p className="mt-3 text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">{label}</p>
+      <p className="mt-3">
+        <span className="text-[3rem] font-bold leading-none tracking-tight text-ink-1">{price.display}</span>
+        <span className="text-body text-ink-2"> / {INTERVAL_LABEL[price.interval] || price.interval}</span>
+      </p>
+      <p className="mx-auto mt-2 max-w-xs text-small text-ink-2">{perLine}</p>
+      <div className="mt-6">
+        {subscribed ? (
+          <p className="text-body font-semibold text-success">You have full access — enjoy the labs.</p>
+        ) : (
+          <Button size="lg" onClick={onSubscribe} disabled={disabled || busy} className="w-full sm:w-auto">
+            {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
+            {busy ? 'Starting checkout…' : buttonLabel}
+          </Button>
+        )}
+        {disabledNote && (
+          <p className="mt-3 text-small text-ink-2">{disabledNote}</p>
+        )}
+      </div>
+    </Card>
+  );
+}
 
 export default function Pricing() {
   const { isAuthenticated } = useAuth();
   const { subscribed } = useSubscription();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-  // Single source of truth: the live Stripe price, so the page, the structured
+  // Single source of truth: the live Stripe prices, so the page, the structured
   // data, and the actual charge never drift. Falls back if billing is unconfigured.
-  const [price, setPrice] = useState(PRICE_FALLBACK);
+  const [plans, setPlans] = useState({ monthly: MONTHLY_FALLBACK, annual: ANNUAL_FALLBACK });
 
   useEffect(() => {
     let live = true;
-    fetch(`${API_BASE}/billing/price`)
+    const toPlan = (p, fallback) => ({
+      display: p.display || fallback.display,
+      interval: p.interval || fallback.interval,
+      amount: p.unit_amount != null ? (p.unit_amount / 100).toFixed(2) : fallback.amount,
+      currency: (p.currency || 'usd').toUpperCase(),
+      configured: p.configured === true,
+    });
+    fetch(`${API_BASE}/billing/plans`)
       .then((r) => (r.ok ? r.json() : null))
       .then((p) => {
         if (!live || !p) return;
-        setPrice({
-          display: p.display || PRICE_FALLBACK.display,
-          interval: p.interval || PRICE_FALLBACK.interval,
-          amount: p.unit_amount != null ? (p.unit_amount / 100).toFixed(2) : PRICE_FALLBACK.amount,
-          currency: (p.currency || 'usd').toUpperCase(),
+        setPlans({
+          monthly: toPlan(p.monthly || {}, MONTHLY_FALLBACK),
+          annual: toPlan(p.annual || {}, ANNUAL_FALLBACK),
         });
       })
-      .catch(() => { /* keep fallback */ });
+      .catch(() => {
+        // Backend without /billing/plans: monthly from /billing/price,
+        // annual stays on the not-configured fallback.
+        fetch(`${API_BASE}/billing/price`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((p) => {
+            if (live && p) setPlans((prev) => ({ ...prev, monthly: toPlan(p, MONTHLY_FALLBACK) }));
+          })
+          .catch(() => { /* keep fallbacks */ });
+      });
     return () => { live = false; };
   }, []);
 
-  const intervalLabel = INTERVAL_LABEL[price.interval] || price.interval;
-  const intervalShort = INTERVAL_SHORT[price.interval] || price.interval;
+  const { monthly, annual } = plans;
+  const monthlyShort = INTERVAL_SHORT[monthly.interval] || monthly.interval;
+  const annualShort = INTERVAL_SHORT[annual.interval] || annual.interval;
+  // Savings vs twelve monthly payments, from the live prices so the line
+  // stays true if either price changes: $29 x 12 = $348, $348 - $250 = $98.
+  const yearlySaving = parseFloat(monthly.amount) * 12 - parseFloat(annual.amount);
+  const annualMonthlyEquivalent = (parseFloat(annual.amount) / 12).toFixed(2);
 
   const jsonLd = useMemo(() => ({
     '@context': 'https://schema.org',
@@ -86,18 +139,27 @@ export default function Pricing() {
         '@type': 'Product',
         name: 'Road to CISSP membership',
         description: `Full access: all learning tracks, ${COUNTS.labs} hands-on labs, Security+ & CISSP exam simulators, and progress sync.`,
-        offers: {
-          '@type': 'Offer',
-          price: price.amount,
-          priceCurrency: price.currency,
-          url: 'https://www.road2cissp.com/pricing',
-          availability: 'https://schema.org/InStock',
-        },
+        offers: [
+          {
+            '@type': 'Offer',
+            price: monthly.amount,
+            priceCurrency: monthly.currency,
+            url: 'https://www.road2cissp.com/pricing',
+            availability: 'https://schema.org/InStock',
+          },
+          {
+            '@type': 'Offer',
+            price: annual.amount,
+            priceCurrency: annual.currency,
+            url: 'https://www.road2cissp.com/pricing',
+            availability: annual.configured ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          },
+        ],
       },
     ],
-  }), [price.amount, price.currency]);
+  }), [monthly.amount, monthly.currency, annual.amount, annual.currency, annual.configured]);
 
-  const subscribe = async () => {
+  const subscribe = async (plan) => {
     if (!isAuthenticated) {
       window.location.href = '/signin';
       return;
@@ -109,10 +171,11 @@ export default function Pricing() {
       const res = await fetch(`${API_BASE}/billing/checkout`, {
         method: 'POST',
         credentials: 'include',
-        ...(attributionTag ? {
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ attribution_tag: attributionTag }),
-        } : {}),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan,
+          ...(attributionTag ? { attribution_tag: attributionTag } : {}),
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || data.message || 'Checkout failed. Please try again.');
@@ -126,8 +189,8 @@ export default function Pricing() {
   return (
     <div className="min-h-screen text-ink-1">
       <Seo
-        title={`Pricing — Road to CISSP membership, ${price.display}/${intervalShort}`}
-        description={`One subscription unlocks every track, ${COUNTS.labs} hands-on labs, and Security+ & CISSP exam simulators. ${price.display}/${intervalShort}, cancel anytime. Free tier with no account needed.`}
+        title={`Pricing — Road to CISSP membership, ${monthly.display}/${monthlyShort}`}
+        description={`One subscription unlocks every track, ${COUNTS.labs} hands-on labs, and Security+ & CISSP exam simulators. ${monthly.display}/${monthlyShort} or ${annual.display}/${annualShort}, cancel anytime. Free tier with no account needed.`}
         path="/pricing"
         jsonLd={jsonLd}
       />
@@ -149,51 +212,62 @@ export default function Pricing() {
             The only subscription you&apos;ll need, from first cert to CISSP.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-body text-ink-2">
-            Every track, every lab, every exam sim — one price, cancel anytime.
+            Every track, every lab, every exam sim — pick monthly or yearly, cancel anytime.
           </p>
         </section>
 
-        {/* Plan card */}
-        <section className="mx-auto max-w-xl pb-16">
-          <Card level={2} padding="lg" className="text-center">
-            <p className="text-caption font-semibold uppercase tracking-[0.2em] text-ink-3">Subscription</p>
-            <p className="mt-3">
-              <span className="text-[3rem] font-bold leading-none tracking-tight text-ink-1">{price.display}</span>
-              <span className="text-body text-ink-2"> / {intervalLabel}</span>
+        {/* Plan cards */}
+        <section className="mx-auto max-w-3xl pb-16">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PlanCard
+              label="Monthly"
+              price={monthly}
+              perLine="Billed every month. Cancel anytime."
+              buttonLabel={isAuthenticated ? `Subscribe — ${monthly.display}/${monthlyShort}` : 'Sign in to subscribe'}
+              onSubscribe={() => subscribe('monthly')}
+              busy={busy}
+              subscribed={subscribed}
+            />
+            <PlanCard
+              label="Annual"
+              badge="Best value"
+              price={annual}
+              perLine={`About $${annualMonthlyEquivalent} a month — save $${yearlySaving.toFixed(0)} a year vs paying monthly.`}
+              buttonLabel={annual.configured ? (isAuthenticated ? `Subscribe — ${annual.display}/${annualShort}` : 'Sign in to subscribe') : 'Annual billing coming soon'}
+              disabled={!annual.configured}
+              disabledNote={annual.configured ? null : 'The $250/yr price is being set up — monthly is available now.'}
+              onSubscribe={() => subscribe('annual')}
+              busy={busy}
+              subscribed={subscribed}
+            />
+          </div>
+          {error && (
+            <p className="mt-4 flex items-center justify-center gap-2 text-small text-danger">
+              <X size={15} aria-hidden="true" /> {error}
             </p>
+          )}
+          <p className="mt-4 text-center text-small text-ink-3">Cancel anytime. Secure checkout by Stripe.</p>
+          {/* B-29 (audit 2026-11-16): surface the refund + grace terms where the
+              buyer decides. Wording is the FAQ/Terms policy, shortened — the
+              FAQ and Terms stay the single source of truth. */}
+          <p className="mx-auto mt-3 max-w-xl text-center text-small text-ink-2">
+            <strong className="font-semibold text-ink-1">First subscription? Full refund if you ask within 14 days</strong>
+            {' '}— email{' '}
+            <a href="mailto:support@road2cissp.com" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">support@road2cissp.com</a>.
+            If a payment fails, you keep full access for 7 days while you fix it.{' '}
+            <Link to="/terms" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">Terms</Link>
+          </p>
+
+          {/* Everything included — same access on either plan */}
+          <Card level={1} padding="lg" className="mt-8">
+            <h2 className="text-center text-heading font-semibold text-ink-1">Everything included, either way you pay</h2>
             <ul className="mx-auto mt-6 max-w-sm space-y-3 text-left">
-              {['All learning tracks, zero to CISSP', `All ${COUNTS.labs} hands-on labs`, 'Security+ & CISSP exam simulators', 'Progress sync across devices', 'New content every month'].map((f) => (
+              {INCLUDED.map((f) => (
                 <li key={f} className="flex gap-3 text-body text-ink-1">
                   <Check size={18} className="mt-1 shrink-0 text-success" aria-hidden="true" /> {f}
                 </li>
               ))}
             </ul>
-            <div className="mt-8">
-              {subscribed ? (
-                <p className="text-body font-semibold text-success">You have full access — enjoy the labs.</p>
-              ) : (
-                <Button size="lg" onClick={subscribe} disabled={busy} className="w-full sm:w-auto">
-                  {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
-                  {busy ? 'Starting checkout…' : isAuthenticated ? `Subscribe — ${price.display}/${intervalShort}` : 'Sign in to subscribe'}
-                </Button>
-              )}
-              {error && (
-                <p className="mt-3 flex items-center justify-center gap-2 text-small text-danger">
-                  <X size={15} aria-hidden="true" /> {error}
-                </p>
-              )}
-              <p className="mt-3 text-small text-ink-3">Cancel anytime. Secure checkout by Stripe.</p>
-              {/* B-29 (audit 2026-11-16): surface the refund + grace terms where the
-                  buyer decides. Wording is the FAQ/Terms policy, shortened — the
-                  FAQ and Terms stay the single source of truth. */}
-              <p className="mt-3 text-small text-ink-2">
-                <strong className="font-semibold text-ink-1">First subscription? Full refund if you ask within 14 days</strong>
-                {' '}— email{' '}
-                <a href="mailto:support@road2cissp.com" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">support@road2cissp.com</a>.
-                If a payment fails, you keep full access for 7 days while you fix it.{' '}
-                <Link to="/terms" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">Terms</Link>
-              </p>
-            </div>
           </Card>
         </section>
 

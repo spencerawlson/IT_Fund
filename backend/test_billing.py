@@ -531,7 +531,7 @@ def test_checkout_passes_idempotency_key_and_subscription_data():
     cookies, uid = _signed_in()
     r = client.post("/api/billing/checkout", cookies=cookies)
     assert r.status_code == 200
-    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:price_fake"
+    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:monthly:price_fake"
     assert _calls["checkout_create"]["subscription_data"] == {
         "metadata": {"user_id": uid, "ventoryn_site_id": "418e926be25e251d95badb9e"}
     }
@@ -1056,6 +1056,80 @@ def test_price_reads_live_stripe_when_configured():
 def test_price_is_public_no_auth():
     client.cookies.clear()
     assert client.get("/api/billing/price").status_code == 200
+
+
+# ---------- GET /billing/plans (monthly + annual) ----------
+
+
+def test_plans_annual_unconfigured_without_price_id():
+    r = client.get("/api/billing/plans")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["monthly"]["configured"] is True
+    # The $250/yr price is decided but not created in Stripe yet:
+    # display shows the intended price, configured stays False.
+    assert body["annual"] == {"configured": False, "display": "$250", "interval": "year"}
+
+
+def test_plans_returns_annual_live_price_when_configured(monkeypatch):
+    monkeypatch.setenv("STRIPE_PRICE_ID_ANNUAL", "price_annual_fake")
+    orig_retrieve = _FakePrice.retrieve
+
+    def retrieve(price_id):
+        if price_id == "price_annual_fake":
+            return {"unit_amount": 25000, "currency": "usd", "recurring": {"interval": "year"}}
+        return orig_retrieve(price_id)
+
+    monkeypatch.setattr(_FakePrice, "retrieve", staticmethod(retrieve))
+    r = client.get("/api/billing/plans")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["annual"] == {
+        "configured": True,
+        "unit_amount": 25000,
+        "currency": "usd",
+        "interval": "year",
+        "display": "$250",
+    }
+    assert body["monthly"]["interval"] == "month"
+
+
+def test_plans_is_public_no_auth():
+    client.cookies.clear()
+    assert client.get("/api/billing/plans").status_code == 200
+
+
+# ---------- checkout plan selection ----------
+
+
+def test_checkout_annual_uses_annual_price_id(monkeypatch):
+    monkeypatch.setenv("STRIPE_PRICE_ID_ANNUAL", "price_annual_fake")
+    cookies, uid = _signed_in()
+    r = client.post("/api/billing/checkout", cookies=cookies, json={"plan": "annual"})
+    assert r.status_code == 200
+    assert r.json()["checkout_url"].startswith("https://checkout.stripe.test/")
+    assert _calls["checkout_create"]["line_items"] == [{"price": "price_annual_fake", "quantity": 1}]
+    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:annual:price_annual_fake"
+
+
+def test_checkout_annual_503_without_annual_price_id():
+    cookies, _ = _signed_in()
+    r = client.post("/api/billing/checkout", cookies=cookies, json={"plan": "annual"})
+    assert r.status_code == 503
+    assert "STRIPE_PRICE_ID_ANNUAL" in r.json()["detail"]
+
+
+def test_checkout_rejects_unknown_plan():
+    cookies, _ = _signed_in()
+    r = client.post("/api/billing/checkout", cookies=cookies, json={"plan": "weekly"})
+    assert r.status_code == 400
+
+
+def test_checkout_still_defaults_to_monthly_without_plan():
+    cookies, _ = _signed_in()
+    r = client.post("/api/billing/checkout", cookies=cookies)
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["line_items"] == [{"price": "price_fake", "quantity": 1}]
 
 
 # ---- stripe-python >= 15: API objects are NOT dicts ----

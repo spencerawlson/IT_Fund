@@ -39,7 +39,7 @@ describe('FAQ page', () => {
   it('carries one FAQPage JSON-LD with every consolidated entry', () => {
     expect(seo.jsonLd['@type']).toBe('FAQPage');
     expect(seo.jsonLd.mainEntity).toHaveLength(ALL_FAQS.length);
-    expect(ALL_FAQS.length).toBe(52);
+    expect(ALL_FAQS.length).toBe(53); // +1 for the annual-plan question (2026-11-18)
   });
 
   it('has no duplicate question+answer pairs in the consolidated data', () => {

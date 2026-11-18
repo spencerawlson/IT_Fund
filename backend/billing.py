@@ -7,6 +7,9 @@ Env vars (never hardcoded):
   STRIPE_SECRET_KEY     — Stripe secret key (sk_...). If unset, billing endpoints 503.
   STRIPE_WEBHOOK_SECRET — signing secret for /billing/webhook (whsec_...).
   STRIPE_PRICE_ID       — the $29 USD/mo recurring Price id (price_...).
+  STRIPE_PRICE_ID_ANNUAL — the $250 USD/yr recurring Price id (price_...).
+  Until it is set, the annual plan shows on /pricing as coming soon and
+  annual checkout refuses with a 503 — the monthly plan is unaffected.
   BILLING_APP_URL       — where to send users after checkout/cancel (default: https://www.road2cissp.com).
   BILLING_OWNER_EMAILS  — comma-separated emails with full access, never billed (the owner's accounts).
 
@@ -291,6 +294,11 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
 #: The frontend uses this so the page never renders a blank or wrong price.
 PRICE_FALLBACK = {"configured": False, "display": "$29", "interval": "month"}
 
+#: Annual equivalent: the decided $250/yr price, shown as coming soon until
+#: STRIPE_PRICE_ID_ANNUAL is set in the Stripe dashboard and the env file.
+#: `configured: False` is what the frontend uses to disable annual checkout.
+ANNUAL_PRICE_FALLBACK = {"configured": False, "display": "$250", "interval": "year"}
+
 #: Shape Ventoryn signs into a campaign link's utm_content param
 #: (ventoryn/signature.py: make_tag). Road to CISSP has no way to
 #: verify the signature itself (that key lives in Ventoryn) — it
@@ -384,20 +392,18 @@ def _format_price(unit_amount: int | None, currency: str) -> str:
     return f"{symbol}{body}"
 
 
-@router.get("/price")
-def plan_price() -> dict:
-    """Public: the live subscription price from Stripe, so the page, the structured
-    data, and the actual charge share one source. Falls back (never errors) when
-    Stripe isn't configured, so the pricing page always renders."""
+def _read_price(price_id: str | None, fallback: dict) -> dict:
+    """One Stripe Price as the public price shape, or `fallback` when Stripe
+    is unconfigured or the price can't be read — so the pricing page always
+    renders instead of erroring."""
     stripe = _stripe()
-    price_id = os.environ.get("STRIPE_PRICE_ID")
     if stripe is None or not price_id:
-        return dict(PRICE_FALLBACK)
+        return dict(fallback)
     try:
         price = _plain(stripe.Price.retrieve(price_id))
         unit = price.get("unit_amount")
         currency = price.get("currency", "usd")
-        interval = (price.get("recurring") or {}).get("interval", "month")
+        interval = (price.get("recurring") or {}).get("interval", fallback.get("interval", "month"))
         return {
             "configured": True,
             "unit_amount": unit,
@@ -406,8 +412,28 @@ def plan_price() -> dict:
             "display": _format_price(unit, currency),
         }
     except Exception:  # network/stripe error — fall back rather than break the page
-        log.exception("plan_price: could not read Stripe price %s", price_id)
-        return dict(PRICE_FALLBACK)
+        log.exception("read_price: could not read Stripe price %s", price_id)
+        return dict(fallback)
+
+
+@router.get("/price")
+def plan_price() -> dict:
+    """Public: the live subscription price from Stripe, so the page, the structured
+    data, and the actual charge share one source. Falls back (never errors) when
+    Stripe isn't configured, so the pricing page always renders."""
+    return _read_price(os.environ.get("STRIPE_PRICE_ID"), PRICE_FALLBACK)
+
+
+@router.get("/plans")
+def plan_prices() -> dict:
+    """Public: both subscription prices — monthly (live Stripe or fallback)
+    and annual (live Stripe when STRIPE_PRICE_ID_ANNUAL is set, else the
+    $250/yr not-configured fallback). The pricing page uses this so the two
+    options and the actual charges share one source."""
+    return {
+        "monthly": _read_price(os.environ.get("STRIPE_PRICE_ID"), PRICE_FALLBACK),
+        "annual": _read_price(os.environ.get("STRIPE_PRICE_ID_ANNUAL"), ANNUAL_PRICE_FALLBACK),
+    }
 
 
 @router.post("/checkout")
@@ -418,22 +444,42 @@ async def create_checkout(request: Request,
     Ventoryn campaign tag captured on the landing page; it is validated
     for shape and passed through to Stripe metadata (see
     _attribution_metadata) — never trusted as proof of attribution by
-    itself, and never required for checkout to work."""
+    itself, and never required for checkout to work.
+    An optional ``{"plan": "annual"}`` buys the yearly plan ($250/yr)
+    instead of the monthly one (default); annual checkout 503s until
+    STRIPE_PRICE_ID_ANNUAL is set."""
     stripe = _require_stripe()
-    price_id = os.environ.get("STRIPE_PRICE_ID")
-    if not price_id:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Billing is not configured yet. Set STRIPE_PRICE_ID to enable subscriptions.",
-        )
-    attribution_tag = None
+    body = {}
     try:
-        body = await request.json()
-        raw_tag = (body or {}).get("attribution_tag")
-        if isinstance(raw_tag, str) and _ATTRIBUTION_TAG_RE.match(raw_tag):
-            attribution_tag = raw_tag
+        parsed = await request.json()
+        if isinstance(parsed, dict):
+            body = parsed
     except Exception:
-        pass  # no body, or not JSON — attribution is optional
+        pass  # no body, or not JSON — plan defaults to monthly, attribution is optional
+    plan = body.get("plan") or "monthly"
+    if plan not in ("monthly", "annual"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Unknown plan. Use "monthly" or "annual".',
+        )
+    if plan == "annual":
+        price_id = os.environ.get("STRIPE_PRICE_ID_ANNUAL")
+        if not price_id:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Annual billing is not configured yet. Set STRIPE_PRICE_ID_ANNUAL to enable it.",
+            )
+    else:
+        price_id = os.environ.get("STRIPE_PRICE_ID")
+        if not price_id:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Billing is not configured yet. Set STRIPE_PRICE_ID to enable subscriptions.",
+            )
+    attribution_tag = None
+    raw_tag = body.get("attribution_tag")
+    if isinstance(raw_tag, str) and _ATTRIBUTION_TAG_RE.match(raw_tag):
+        attribution_tag = raw_tag
     # Stripe-row check only (not is_subscribed): a manual enrollee may still
     # convert to a real Stripe subscription — the grant is no reason to block
     # checkout, and the webhook then becomes the source of truth.
@@ -496,9 +542,9 @@ async def create_checkout(request: Request,
         # object itself, so subscription events are self-describing and do
         # not depend on the customer-ID fallback lookup.
         subscription_data={"metadata": {"user_id": user_id, **attribution_meta}},
-        # Double-submit safety: same user + price retries the same Session
+        # Double-submit safety: same user + plan + price retries the same Session
         # instead of creating a second one.
-        idempotency_key=f"checkout:{user_id}:{price_id}",
+        idempotency_key=f"checkout:{user_id}:{plan}:{price_id}",
     )
     return {"checkout_url": session.url}
 
