@@ -190,3 +190,30 @@ export function intelFrom(mission, findings) {
   }
   return out;
 }
+
+/**
+ * The closing scene in the SOC room once a mission is complete (Spencer,
+ * 2026-11-18): the robots explain what happened and what the learner did --
+ * automatically, nobody has to ask -- then congratulate them ("you passed,
+ * and you helped us with the problem we had") and send them off to the next
+ * mission. [{ speaker, text } | { speaker, explain: true }], in order; the
+ * explain turn is filled at play time with Cypher's explanation of this
+ * learner's result (SocClosing). The scripted lines never include the score
+ * (it is on the end card), so they are generated once and replayed from the
+ * voice cache for every learner.
+ */
+export function closingTurns(missionTitle, nextTitle) {
+  const name = missionTitle || 'this mission';
+  return [
+    { speaker: 'cypher', text: `Mission complete! Great work on ${name}. Let me walk you through what you did.` },
+    { speaker: 'cypher', explain: true },
+    { speaker: 'sentinel', text: 'Thanks to you, the network is secure and the logs are clean.' },
+    { speaker: 'patch', text: 'Everything is fixed and running smoothly. Thank you for the help.' },
+    {
+      speaker: 'cypher',
+      text: `Congratulations, you passed, and you helped us solve the problem we had. ${
+        nextTitle ? `Your next mission is ${nextTitle}.` : 'More missions are on the way.'
+      } We hope to see you on the next mission!`,
+    },
+  ];
+}

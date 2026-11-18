@@ -12,12 +12,7 @@ const Motherboard3D = React.lazy(() => import('@/components/three/Motherboard3D'
 const Vpc3D = React.lazy(() => import('@/components/three/Vpc3D'));
 const LoadBalancer3D = React.lazy(() => import('@/components/three/LoadBalancer3D'));
 const Osi3D = React.lazy(() => import('@/components/three/Osi3D'));
-const Router3D = React.lazy(() => import('@/components/three/Router3D'));
-const Firewall3D = React.lazy(() => import('@/components/three/Firewall3D'));
-const AccessPoint3D = React.lazy(() => import('@/components/three/AccessPoint3D'));
-const Ups3D = React.lazy(() => import('@/components/three/Ups3D'));
-const Cloud3D = React.lazy(() => import('@/components/three/Cloud3D'));
-const PatchPanel3D = React.lazy(() => import('@/components/three/PatchPanel3D'));
+import PatchPanelSimulator from '@/components/viz/PatchPanelSimulator';
 import TcpAnimation from '@/components/viz/TcpAnimation';
 import SwitchSimulator from '@/components/viz/SwitchSimulator';
 import UdpAnimation from '@/components/viz/UdpAnimation';
@@ -25,6 +20,11 @@ import LoadBalancerAnimation from '@/components/viz/LoadBalancerAnimation';
 import NasSimulator from '@/components/viz/NasSimulator';
 import RackServerSimulator from '@/components/viz/RackServerSimulator';
 import ServerRackSimulator from '@/components/viz/ServerRackSimulator';
+import UpsSimulator from '@/components/viz/UpsSimulator';
+import CloudSimulator from '@/components/viz/CloudSimulator';
+import RouterSimulator from '@/components/viz/RouterSimulator';
+import NgfwSimulator from '@/components/viz/NgfwSimulator';
+import AccessPointSimulator from '@/components/viz/AccessPointSimulator';
 import AutoScalingAnimation from '@/components/viz/AutoScalingAnimation';
 import CICDAnimation from '@/components/viz/CICDAnimation';
 import SubnetCalculator from '@/components/tools/SubnetCalculator';
@@ -70,12 +70,12 @@ export const SUBJECTS = [
   { id: 'switch', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Network Switch Blueprint', blurb: 'Drive a live 48-port switch on one screen — watch the CAM table learn, survive a broadcast storm, elect an STP root.' },
   { id: 'server-rack', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Server Rack Blueprint', blurb: 'Drive a live 42U rack on one screen — trip a breaker, move the load to feed B, shed load and watch the temperature fall.' },
   { id: 'rack-server', category: 'Hardware', kind: 'blueprint', icon: Server, label: 'Rack Server Blueprint', blurb: 'Drive a live 2U rack server on one screen — hot-swap a drive, fail a PSU, manage it out-of-band while the OS is down.' },
-  { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Rack-mounted battery backup — status display, protected outlets, battery module and internals.' },
-  { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'A 48-port Cat6 patch panel — numbered RJ45 ports, 110 punch-down termination, T568A/T568B wiring.' },
+  { id: 'ups', category: 'Hardware', kind: 'blueprint', icon: BatteryCharging, label: 'UPS Blueprint', blurb: 'Drive a live UPS on one screen — load it up, watch the runtime shrink, hand off to the generator before the battery dies.' },
+  { id: 'patch-panel', category: 'Hardware', kind: 'blueprint', icon: Network, label: 'Patch Panel Blueprint', blurb: 'Drive a live 48-port patch panel on one screen — terminate T568A/B, catch the mixed-standard crossover, check your run lengths.' },
   // Networking
   { id: 'osi', category: 'Networking', kind: 'blueprint', icon: Layers, label: 'OSI Model Blueprint', blurb: 'All seven layers — functions, protocols, encapsulation, and the PDU at each layer.' },
-  { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'An edge router — WAN and LAN ports, management and console access, internals and specs.' },
-  { id: 'access-point', category: 'Networking', kind: 'blueprint', icon: Wifi, label: 'Wireless Access Point Blueprint', blurb: 'Ceiling-mounted Wi-Fi — status ring, PoE uplink, MIMO antenna layout and internals.' },
+  { id: 'router', category: 'Networking', kind: 'blueprint', icon: Router, label: 'Enterprise Router Blueprint', blurb: 'Drive a live router on one screen — build the routing table, fail over to a floating static, watch NAT translate.' },
+  { id: 'access-point', category: 'Networking', kind: 'blueprint', icon: Wifi, label: 'Wireless Access Point Blueprint', blurb: 'Drive a live wireless access point on one screen — pick a clean channel, roam clients between APs, lock it down with WPA3.' },
   { id: 'tcp', category: 'Networking', kind: 'anim', icon: ArrowRightLeft, label: 'TCP Handshake', blurb: 'Watch the 3-way handshake, sequence numbers, ACKs, and teardown.' },
   { id: 'udp', category: 'Networking', kind: 'anim', icon: Radio, label: 'UDP Datagrams', blurb: 'See fire-and-forget delivery — fast, connectionless, and lossy.' },
   { id: 'dns', category: 'Networking', kind: 'anim', icon: Globe, label: 'DNS Resolution', blurb: 'Follow a name through root, TLD, and authoritative servers.' },
@@ -92,7 +92,7 @@ export const SUBJECTS = [
   { id: 'rt-link-failure', category: 'Routing', kind: 'anim', icon: Zap, label: 'Link Failure & Reconvergence', blurb: 'A link fails; watch the network recompute paths and reroute.' },
   // Cloud & Scale
   { id: 'vpc', category: 'Cloud & Scale', kind: '3d', icon: Cloud, label: 'Virtual Network', blurb: 'Fly through a VPC: subnets, gateways, load balancer, and instances.' },
-  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'The full cloud picture — virtual network, subnets, firewall, load balancer, and storage.' },
+  { id: 'cloud', category: 'Cloud & Scale', kind: 'blueprint', icon: Cloud, label: 'Cloud Architecture Blueprint', blurb: 'Drive a live cloud on one screen — scale out under traffic, fail over across availability zones, watch the bill move.' },
   { id: 'load-balancer', category: 'Cloud & Scale', kind: 'anim', icon: Shuffle, label: 'Load Balancer', blurb: 'Drive a live balancer on one screen — six strategies on the left, the flow in the middle, the server pool on the right.' },
   { id: 'auto-scaling', category: 'Cloud & Scale', kind: 'anim', icon: Gauge, label: 'Auto-Scaling', blurb: 'Watch instances scale out and back in with demand.' },
   { id: 'kubernetes', category: 'Cloud & Scale', kind: 'anim', icon: Container, label: 'Kubernetes', blurb: 'Deploy → pods → service → health → autoscale → config.' },
@@ -102,7 +102,7 @@ export const SUBJECTS = [
   { id: 'tls', category: 'Security', kind: 'anim', icon: Lock, label: 'TLS Handshake', blurb: 'Certificate validation, key exchange, and encrypted records.' },
   { id: 'encryption', category: 'Security', kind: 'anim', icon: KeyRound, label: 'Encryption', blurb: 'Watch plaintext become ciphertext, and back again.' },
   { id: 'firewall', category: 'Security', kind: 'anim', icon: Shield, label: 'Firewall Rules', blurb: 'See packets allowed or dropped as rule order is evaluated.' },
-  { id: 'firewall-3d', category: 'Security', kind: 'blueprint', icon: ShieldCheck, label: 'Next-Gen Firewall Blueprint', blurb: 'The full R2C NGFW technical blueprint — labeled WAN, LAN and SFP+ ports, rear panel, internal cutaway and specs.' },
+  { id: 'firewall-3d', category: 'Security', kind: 'blueprint', icon: ShieldCheck, label: 'Next-Gen Firewall Blueprint', blurb: 'Drive a live next-gen firewall on one screen — order the rules, watch stateful sessions open and close, let the IPS block the exploit.' },
   { id: 'security-incident', category: 'Security', kind: 'anim', icon: ShieldAlert, label: 'Security Incident', blurb: 'Trace a breach from phishing through detection and response.' },
   // Data & Systems
   { id: 'database', category: 'Data & Systems', kind: 'anim', icon: Database, label: 'Database Internals', blurb: 'Query → index → transaction → replication → sharding.' },
@@ -130,9 +130,9 @@ const ALIASES = {
 // curation. Flow subjects are data-driven via FlowDiagram.
 export const RENDERERS = {
   motherboard: Motherboard3D, switch: () => <SwitchSimulator />, 'server-rack': () => <ServerRackSimulator />,
-  'rack-server': () => <RackServerSimulator />, ups: Ups3D,
-  router: Router3D, 'access-point': AccessPoint3D,
-  cloud: Cloud3D, 'firewall-3d': Firewall3D, nas: () => <NasSimulator />, 'patch-panel': PatchPanel3D,
+  'rack-server': () => <RackServerSimulator />, ups: () => <UpsSimulator />,
+  router: () => <RouterSimulator />, 'access-point': () => <AccessPointSimulator />,
+  cloud: () => <CloudSimulator />, 'firewall-3d': () => <NgfwSimulator />, nas: () => <NasSimulator />, 'patch-panel': () => <PatchPanelSimulator />,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,

@@ -249,20 +249,18 @@ describe('MissionWorkspace', () => {
     expect(src).not.toContain('onPlayingChange');
   });
 
-  it('auto-plays the debrief explanation when it arrives — one tap gives text AND voice, no "Hear Cypher say it" button', () => {
-    // Spencer (2026-11-16): tapping "Ask Cypher to explain the outcome"
-    // only wrote the debrief — no voice — with a separate "Hear Cypher
-    // say it" button. The listen-first pattern (PR #78): when the
-    // explanation finishes arriving, Cypher reads the whole outcome
-    // aloud. The spoken text is the server debrief first (it opens with
-    // the congratulation) and then the explanation. Behaviour is covered
-    // by MissionWorkspace.debrief.test.jsx; this pins the wiring here.
+  it('explains the outcome in the SOC room automatically — no explain button on the terminal', () => {
+    // Spencer (2026-11-18): no "Ask Cypher to explain the outcome" button on
+    // a card. Completing the mission requests the explanation at once and
+    // the SOC closing scene speaks it, nobody has to ask. Behaviour is
+    // covered by MissionWorkspace.debrief.test.jsx; this pins the wiring.
     const src = readFileSync(join(ROOT, 'src/pages/MissionWorkspace.jsx'), 'utf8');
+    expect(src).not.toContain('Ask Cypher to explain the outcome');
     expect(src).not.toContain('Hear Cypher say it');
-    expect(src).toContain('explainAutoPlayedRef');
-    expect(src).toContain('cypherVoice.play(explainSpokenText)');
-    expect(src).toContain('[debrief?.debrief, explainText].filter(Boolean).join');
-    expect(src).toContain('He reads it aloud as soon as it arrives.');
+    expect(src).toContain('if (tutorEnabled) askOutcome(res, res.objectives || objectives);');
+    expect(src).toContain('<SocClosing');
+    // The console can finish the mission too.
+    expect(src).toContain("if (c === 'complete' || c === 'completed')");
   });
 
   it('shows no objectives checklist or progress count on the page — the terminal is the only place to check', () => {
