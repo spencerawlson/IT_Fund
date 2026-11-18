@@ -277,303 +277,309 @@ export default function RouterSimulator() {
   // ordered exercises, debrief and check-yourself questions.
   return (
     <div>
-      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px] lg:grid-rows-[auto_auto]">
-        {/* Left rail: send a packet, links, static routes, ACL */}
-        <div className="rounded-xl glass-1 p-3 lg:col-start-1 lg:row-start-1">
-          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Send a packet</p>
-          <div className="mt-2 grid grid-cols-2 gap-1.5" role="group" aria-label="Source host">
-            {HOSTS.map((host) => (
-              <button
-                key={host.ip}
-                type="button"
-                onClick={() => setSrcHost(host.ip)}
-                aria-pressed={srcHost === host.ip}
-                className={`rounded-lg px-2 py-1.5 font-mono text-[11px] font-semibold leading-tight transition ${
-                  srcHost === host.ip ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-2'
-                }`}
-              >
-                {host.ip}
-              </button>
-            ))}
-          </div>
-          <p className="mt-1 text-[11px] text-ink-3">{HOSTS.find((h) => h.ip === srcHost)?.label}</p>
-          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_72px] gap-2">
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">Destination IP</span>
-              <input
-                type="text"
-                value={destIp}
-                onChange={(e) => setDestIp(e.target.value)}
-                aria-label="Destination IP"
-                className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
-              />
-            </label>
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">Port</span>
-              <input
-                type="number"
-                min="1"
-                max="65535"
-                value={destPort}
-                onChange={(e) => setDestPort(Number(e.target.value))}
-                aria-label="Destination port"
-                className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
-              />
-            </label>
-          </div>
-          <button type="button" onClick={() => sendPacket(srcHost, destIp, destPort)} className="glass-btn mt-2 w-full rounded-lg px-2 py-1.5 text-[13px] font-semibold">
-            Send packet
-          </button>
-
-          <label className="mt-3 block">
-            <span className="text-[13px] font-semibold text-ink-1">Auto traffic — {traffic} pkt/s</span>
-            <input type="range" min="0" max="10" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Auto traffic in packets per second" />
-          </label>
-          <div className="mt-2 grid grid-cols-3 gap-1.5">
-            <button type="button" onClick={() => { for (let i = 0; i < 10; i += 1) sendPacket(srcHost, destIp, destPort); }} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              Burst ×10
-            </button>
-            <button type="button" onClick={() => setPaused((p) => !p)} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              {paused ? 'Resume' : 'Pause'}
-            </button>
-            <button type="button" onClick={reset} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-              Reset
-            </button>
-          </div>
-
-          <p className="mt-2 text-caption font-semibold uppercase tracking-wider text-ink-2">Links — kill to fail over</p>
-          <div className="mt-1.5 space-y-1.5">
-            <button type="button" onClick={() => toggleWanLink('wan-primary', 'Primary WAN Gi0/1')} className={`w-full rounded-lg px-2 py-1.5 text-left text-[13px] font-semibold ${linksUp['wan-primary'] ? 'border border-black/10 glass-1 text-ink-1' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}>
-              {linksUp['wan-primary'] ? 'Kill primary WAN (Gi0/1)' : 'Revive primary WAN (Gi0/1)'}
-            </button>
-            <button type="button" onClick={() => toggleWanLink('wan-backup', 'Backup WAN Gi0/2')} className={`w-full rounded-lg px-2 py-1.5 text-left text-[13px] font-semibold ${linksUp['wan-backup'] ? 'border border-black/10 glass-1 text-ink-1' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}>
-              {linksUp['wan-backup'] ? 'Kill backup WAN (Gi0/2)' : 'Revive backup WAN (Gi0/2)'}
-            </button>
-            <button type="button" onClick={() => toggleOspfLink('r1-r2')} className={`w-full rounded-lg px-2 py-1.5 text-left text-[13px] font-semibold ${linksUp['r1-r2'] ? 'border border-black/10 glass-1 text-ink-1' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}>
-              {linksUp['r1-r2'] ? 'Kill OSPF link R1–R2' : 'Revive OSPF link R1–R2'}
-            </button>
-          </div>
-
-          <p className="mt-2 text-caption font-semibold uppercase tracking-wider text-ink-2">Add a static route</p>
-          <div className="mt-1.5 space-y-2">
-            <div className="grid grid-cols-[minmax(0,1fr)_56px] gap-2">
+      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px]">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-1">
+          {/* Left rail: send a packet, links, static routes, ACL */}
+          <div className="rounded-xl glass-1 p-3 lg:flex-1">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Send a packet</p>
+            <div className="mt-2 grid grid-cols-2 gap-1.5" role="group" aria-label="Source host">
+              {HOSTS.map((host) => (
+                <button
+                  key={host.ip}
+                  type="button"
+                  onClick={() => setSrcHost(host.ip)}
+                  aria-pressed={srcHost === host.ip}
+                  className={`rounded-lg px-2 py-1.5 font-mono text-[11px] font-semibold leading-tight transition ${
+                    srcHost === host.ip ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-2'
+                  }`}
+                >
+                  {host.ip}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-[11px] text-ink-3">{HOSTS.find((h) => h.ip === srcHost)?.label}</p>
+            <div className="mt-2 grid grid-cols-[minmax(0,1fr)_72px] gap-2">
               <label className="block">
-                <span className="text-[13px] font-semibold text-ink-1">Destination</span>
+                <span className="text-[13px] font-semibold text-ink-1">Destination IP</span>
                 <input
                   type="text"
-                  value={routeForm.destination}
-                  onChange={(e) => setRouteForm({ ...routeForm, destination: e.target.value })}
-                  placeholder="192.0.2.0/24"
-                  aria-label="Static route destination"
+                  value={destIp}
+                  onChange={(e) => setDestIp(e.target.value)}
+                  aria-label="Destination IP"
                   className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
                 />
               </label>
               <label className="block">
-                <span className="text-[13px] font-semibold text-ink-1">AD</span>
+                <span className="text-[13px] font-semibold text-ink-1">Port</span>
                 <input
                   type="number"
-                  min="0"
-                  max="255"
-                  value={routeForm.ad}
-                  onChange={(e) => setRouteForm({ ...routeForm, ad: Number(e.target.value) })}
-                  aria-label="Static route AD"
+                  min="1"
+                  max="65535"
+                  value={destPort}
+                  onChange={(e) => setDestPort(Number(e.target.value))}
+                  aria-label="Destination port"
                   className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
                 />
               </label>
             </div>
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">Next hop</span>
-              <input
-                type="text"
-                value={routeForm.nextHop}
-                onChange={(e) => setRouteForm({ ...routeForm, nextHop: e.target.value })}
-                placeholder="203.0.113.1"
-                aria-label="Static route next hop"
-                className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
-              />
-            </label>
-            {formError && <p className="text-[12px] font-semibold text-red-700">{formError}</p>}
-            <button type="button" onClick={addRoute} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1">
-              Add static route
+            <button type="button" onClick={() => sendPacket(srcHost, destIp, destPort)} className="glass-btn mt-2 w-full rounded-lg px-2 py-1.5 text-[13px] font-semibold">
+              Send packet
             </button>
-            <p className="text-[11px] leading-snug text-ink-3">Tip: AD 200 makes a floating static.</p>
-          </div>
 
-          <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-black/10 glass-1 px-2 py-1.5">
-            <span className="flex items-center gap-1.5 text-[13px] font-semibold text-ink-1"><Shield size={14} /> Guest ACL</span>
-            <button
-              type="button"
-              onClick={() => setAclOn((v) => !v)}
-              aria-pressed={aclOn}
-              className={`rounded-lg px-2 py-1 text-xs font-semibold ${aclOn ? 'glass-btn' : 'border border-black/10 text-ink-2'}`}
-            >
-              {aclOn ? 'On — Telnet denied' : 'Off'}
-            </button>
+            <label className="mt-3 block">
+              <span className="text-[13px] font-semibold text-ink-1">Auto traffic — {traffic} pkt/s</span>
+              <input type="range" min="0" max="10" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Auto traffic in packets per second" />
+            </label>
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
+              <button type="button" onClick={() => { for (let i = 0; i < 10; i += 1) sendPacket(srcHost, destIp, destPort); }} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                Burst ×10
+              </button>
+              <button type="button" onClick={() => setPaused((p) => !p)} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                {paused ? 'Resume' : 'Pause'}
+              </button>
+              <button type="button" onClick={reset} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                Reset
+              </button>
+            </div>
+
+            <p className="mt-2 text-caption font-semibold uppercase tracking-wider text-ink-2">Links — kill to fail over</p>
+            <div className="mt-1.5 space-y-1.5">
+              <button type="button" onClick={() => toggleWanLink('wan-primary', 'Primary WAN Gi0/1')} className={`w-full rounded-lg px-2 py-1.5 text-left text-[13px] font-semibold ${linksUp['wan-primary'] ? 'border border-black/10 glass-1 text-ink-1' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}>
+                {linksUp['wan-primary'] ? 'Kill primary WAN (Gi0/1)' : 'Revive primary WAN (Gi0/1)'}
+              </button>
+              <button type="button" onClick={() => toggleWanLink('wan-backup', 'Backup WAN Gi0/2')} className={`w-full rounded-lg px-2 py-1.5 text-left text-[13px] font-semibold ${linksUp['wan-backup'] ? 'border border-black/10 glass-1 text-ink-1' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}>
+                {linksUp['wan-backup'] ? 'Kill backup WAN (Gi0/2)' : 'Revive backup WAN (Gi0/2)'}
+              </button>
+              <button type="button" onClick={() => toggleOspfLink('r1-r2')} className={`w-full rounded-lg px-2 py-1.5 text-left text-[13px] font-semibold ${linksUp['r1-r2'] ? 'border border-black/10 glass-1 text-ink-1' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}>
+                {linksUp['r1-r2'] ? 'Kill OSPF link R1–R2' : 'Revive OSPF link R1–R2'}
+              </button>
+            </div>
+
+            <p className="mt-2 text-caption font-semibold uppercase tracking-wider text-ink-2">Add a static route</p>
+            <div className="mt-1.5 space-y-2">
+              <div className="grid grid-cols-[minmax(0,1fr)_56px] gap-2">
+                <label className="block">
+                  <span className="text-[13px] font-semibold text-ink-1">Destination</span>
+                  <input
+                    type="text"
+                    value={routeForm.destination}
+                    onChange={(e) => setRouteForm({ ...routeForm, destination: e.target.value })}
+                    placeholder="192.0.2.0/24"
+                    aria-label="Static route destination"
+                    className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[13px] font-semibold text-ink-1">AD</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="255"
+                    value={routeForm.ad}
+                    onChange={(e) => setRouteForm({ ...routeForm, ad: Number(e.target.value) })}
+                    aria-label="Static route AD"
+                    className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
+                  />
+                </label>
+              </div>
+              <label className="block">
+                <span className="text-[13px] font-semibold text-ink-1">Next hop</span>
+                <input
+                  type="text"
+                  value={routeForm.nextHop}
+                  onChange={(e) => setRouteForm({ ...routeForm, nextHop: e.target.value })}
+                  placeholder="203.0.113.1"
+                  aria-label="Static route next hop"
+                  className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1 font-mono text-[13px] text-ink-1"
+                />
+              </label>
+              {formError && <p className="text-[12px] font-semibold text-red-700">{formError}</p>}
+              <button type="button" onClick={addRoute} className="w-full rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1">
+                Add static route
+              </button>
+              <p className="text-[11px] leading-snug text-ink-3">Tip: AD 200 makes a floating static.</p>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-black/10 glass-1 px-2 py-1.5">
+              <span className="flex items-center gap-1.5 text-[13px] font-semibold text-ink-1"><Shield size={14} /> Guest ACL</span>
+              <button
+                type="button"
+                onClick={() => setAclOn((v) => !v)}
+                aria-pressed={aclOn}
+                className={`rounded-lg px-2 py-1 text-xs font-semibold ${aclOn ? 'glass-btn' : 'border border-black/10 text-ink-2'}`}
+              >
+                {aclOn ? 'On — Telnet denied' : 'Off'}
+              </button>
+            </div>
           </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2">
 
-        {/* Middle: counters, derived metric, topology, packet walk, routing table */}
-        <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          <div className="grid grid-cols-3 gap-2">
-            {metric('packets sent', sim.sent)}
-            {metric('forwarded', sim.forwarded)}
-            {metric('dropped', sim.dropped)}
-          </div>
-          <p className="mt-2 rounded-xl border border-black/10 glass-1 px-3 py-1.5 text-center text-[13px] text-ink-2">
-            Routes in RIB: <strong className="text-ink-1">{activeRoutes.length}</strong> of {routes.length}
-            {' · '}NAT translations: <strong className="text-ink-1">{nat.entries.length}</strong>
-            {' · '}Active default: <strong className="text-ink-1">{defaultRoute ? `via ${defaultRoute.nextHop} (AD ${defaultRoute.ad})` : 'none — no WAN link up'}</strong>
-          </p>
-
-          <div className="relative mt-3 overflow-hidden rounded-xl border border-black/10 glass-1 p-3">
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-center">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">LAN · VLAN 10 / 20</p>
-                <p className="mt-1 font-mono text-[12px] font-bold text-ink-1">10.0.0.5</p>
-                <p className="font-mono text-[12px] font-bold text-ink-1">10.0.1.5</p>
-                <p className="mt-1 text-[11px] text-ink-3">default gateway 10.0.0.1 / 10.0.1.1</p>
-              </div>
-              <div className="flex flex-col items-center rounded-xl border border-black/10 bg-white px-3 py-2">
-                <Router size={26} className="text-[#6D28D9]" />
-                <p className="mt-0.5 text-[13px] font-bold text-ink-1">R1</p>
-                <p className="text-[11px] text-ink-3">edge router · 1U</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">WAN · Internet</p>
-                <p className="mt-1 flex items-center justify-center gap-1 font-mono text-[12px] font-bold text-ink-1"><Globe size={13} /> 8.8.8.8</p>
-                <p className="text-[11px] text-ink-3">ISP 1 · 203.0.113.1</p>
-                <p className="text-[11px] text-ink-3">ISP 2 · 198.51.100.1</p>
-              </div>
+          {/* Middle: counters, derived metric, topology, packet walk, routing table */}
+          <div className="min-w-0">
+            <div className="grid grid-cols-3 gap-2">
+              {metric('packets sent', sim.sent)}
+              {metric('forwarded', sim.forwarded)}
+              {metric('dropped', sim.dropped)}
             </div>
-            <div className="pointer-events-none absolute inset-0">{dots}</div>
-            <p className="mt-2 text-center text-[11px] text-ink-3">
-              OSPF: R1–R2 100 Mbps (cost 10) · R1–R3 10 Mbps (cost 100) — 172.16.1.0/24 and 172.16.2.0/24 via R2, metric 20 / 30.
+            <p className="mt-2 rounded-xl border border-black/10 glass-1 px-3 py-1.5 text-center text-[13px] text-ink-2">
+              Routes in RIB: <strong className="text-ink-1">{activeRoutes.length}</strong> of {routes.length}
+              {' · '}NAT translations: <strong className="text-ink-1">{nat.entries.length}</strong>
+              {' · '}Active default: <strong className="text-ink-1">{defaultRoute ? `via ${defaultRoute.nextHop} (AD ${defaultRoute.ad})` : 'none — no WAN link up'}</strong>
             </p>
+
+            <div className="relative mt-3 overflow-hidden rounded-xl border border-black/10 glass-1 p-3">
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-center">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">LAN · VLAN 10 / 20</p>
+                  <p className="mt-1 font-mono text-[12px] font-bold text-ink-1">10.0.0.5</p>
+                  <p className="font-mono text-[12px] font-bold text-ink-1">10.0.1.5</p>
+                  <p className="mt-1 text-[11px] text-ink-3">default gateway 10.0.0.1 / 10.0.1.1</p>
+                </div>
+                <div className="flex flex-col items-center rounded-xl border border-black/10 bg-white px-3 py-2">
+                  <Router size={26} className="text-[#6D28D9]" />
+                  <p className="mt-0.5 text-[13px] font-bold text-ink-1">R1</p>
+                  <p className="text-[11px] text-ink-3">edge router · 1U</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">WAN · Internet</p>
+                  <p className="mt-1 flex items-center justify-center gap-1 font-mono text-[12px] font-bold text-ink-1"><Globe size={13} /> 8.8.8.8</p>
+                  <p className="text-[11px] text-ink-3">ISP 1 · 203.0.113.1</p>
+                  <p className="text-[11px] text-ink-3">ISP 2 · 198.51.100.1</p>
+                </div>
+              </div>
+              <div className="pointer-events-none absolute inset-0">{dots}</div>
+              <p className="mt-2 text-center text-[11px] text-ink-3">
+                OSPF: R1–R2 100 Mbps (cost 10) · R1–R3 10 Mbps (cost 100) — 172.16.1.0/24 and 172.16.2.0/24 via R2, metric 20 / 30.
+              </p>
+            </div>
+
+            {lastWalk && (
+              <div className={`mt-3 rounded-xl border p-3 ${lastWalk.verdict === 'forwarded' ? 'border-black/10 glass-1' : 'border-red-500/40 bg-red-500/5'}`}>
+                <p className="flex items-start gap-1.5 text-[13px] font-semibold text-ink-1">
+                  {lastWalk.verdict === 'forwarded' ? <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-700" /> : <AlertTriangle size={15} className="mt-0.5 shrink-0 text-red-700" />}
+                  {lastWalk.srcIp} → {lastWalk.destIp}:{lastWalk.destPort} — {lastWalk.headline}
+                </p>
+                <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{lastWalk.detail}</p>
+              </div>
+            )}
+
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Routing table — live</p>
+              <div className="mt-2 max-h-44 overflow-y-auto">
+                <table className="w-full text-left font-mono text-[11px] leading-relaxed text-ink-1">
+                  <thead>
+                    <tr className="text-ink-3">
+                      <th className="pr-2 font-semibold">Destination</th>
+                      <th className="pr-2 font-semibold">Next hop</th>
+                      <th className="pr-2 font-semibold">Intf</th>
+                      <th className="pr-2 font-semibold">Source</th>
+                      <th className="pr-2 font-semibold">AD</th>
+                      <th className="pr-2 font-semibold">Metric</th>
+                      <th className="font-semibold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {routes.map((route, i) => {
+                      const up = !(route.linkId && linksUp[route.linkId] === false);
+                      const removable = route.source === 'static' && route.destination !== '0.0.0.0/0';
+                      return (
+                        <tr key={`${route.destination}-${route.nextHop}-${i}`} className={up ? '' : 'text-ink-3 line-through'}>
+                          <td className="pr-2">{route.destination}{route.floating ? ' *' : ''}</td>
+                          <td className="pr-2">{route.nextHop}</td>
+                          <td className="pr-2">{route.interface}</td>
+                          <td className="pr-2">{route.source}</td>
+                          <td className="pr-2">{route.ad}</td>
+                          <td className="pr-2">{route.metric}</td>
+                          <td>
+                            {up ? 'Active' : 'Inactive'}
+                            {removable && (
+                              <button type="button" onClick={() => removeRoute(route.destination)} aria-label={`Remove route ${route.destination}`} className="ml-2 rounded border border-black/10 px-1 text-[10px] font-semibold text-red-700 no-underline">
+                                Remove
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-1.5 text-[11px] text-ink-3">* floating static — AD 200, inactive while the primary default route is up. Longest prefix wins, then lowest AD, then lowest metric.</p>
+            </div>
           </div>
 
-          {lastWalk && (
-            <div className={`mt-3 rounded-xl border p-3 ${lastWalk.verdict === 'forwarded' ? 'border-black/10 glass-1' : 'border-red-500/40 bg-red-500/5'}`}>
-              <p className="flex items-start gap-1.5 text-[13px] font-semibold text-ink-1">
-                {lastWalk.verdict === 'forwarded' ? <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-700" /> : <AlertTriangle size={15} className="mt-0.5 shrink-0 text-red-700" />}
-                {lastWalk.srcIp} → {lastWalk.destIp}:{lastWalk.destPort} — {lastWalk.headline}
-              </p>
-              <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{lastWalk.detail}</p>
+          {/* Event log */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Event log</p>
+            <div className="rounded-xl border border-black/10 glass-1 p-3 lg:flex-1">
+              {sim.events.length === 0 ? (
+                <p className="text-[13px] text-ink-3">No events yet. Send a packet, kill a link, or add a route.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {sim.events.map((event) => (
+                    <li key={event.id} className="text-[13px] text-ink-2">
+                      <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          )}
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-3">
 
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Routing table — live</p>
-            <div className="mt-2 max-h-44 overflow-y-auto">
-              <table className="w-full text-left font-mono text-[11px] leading-relaxed text-ink-1">
-                <thead>
-                  <tr className="text-ink-3">
-                    <th className="pr-2 font-semibold">Destination</th>
-                    <th className="pr-2 font-semibold">Next hop</th>
-                    <th className="pr-2 font-semibold">Intf</th>
-                    <th className="pr-2 font-semibold">Source</th>
-                    <th className="pr-2 font-semibold">AD</th>
-                    <th className="pr-2 font-semibold">Metric</th>
-                    <th className="font-semibold">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {routes.map((route, i) => {
-                    const up = !(route.linkId && linksUp[route.linkId] === false);
-                    const removable = route.source === 'static' && route.destination !== '0.0.0.0/0';
+          {/* Right rail: the router box, sub-interfaces, NAT table */}
+          <div className="flex flex-col gap-2.5">
+            <div className="rounded-xl border border-black/10 glass-1 p-3">
+              <p className="flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2"><Router size={14} /> R1 — 1U edge router</p>
+              <div className="mt-2 rounded-lg border border-black/10 bg-white p-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {INTERFACES.map((iface) => {
+                    const down = iface.linkId && linksUp[iface.linkId] === false;
                     return (
-                      <tr key={`${route.destination}-${route.nextHop}-${i}`} className={up ? '' : 'text-ink-3 line-through'}>
-                        <td className="pr-2">{route.destination}{route.floating ? ' *' : ''}</td>
-                        <td className="pr-2">{route.nextHop}</td>
-                        <td className="pr-2">{route.interface}</td>
-                        <td className="pr-2">{route.source}</td>
-                        <td className="pr-2">{route.ad}</td>
-                        <td className="pr-2">{route.metric}</td>
-                        <td>
-                          {up ? 'Active' : 'Inactive'}
-                          {removable && (
-                            <button type="button" onClick={() => removeRoute(route.destination)} aria-label={`Remove route ${route.destination}`} className="ml-2 rounded border border-black/10 px-1 text-[10px] font-semibold text-red-700 no-underline">
-                              Remove
-                            </button>
-                          )}
-                        </td>
-                      </tr>
+                      <div key={iface.id} className={`flex-1 rounded-md border px-1.5 py-1 text-center ${down ? 'border-red-500/40 bg-red-500/5' : 'border-black/10 glass-1'}`}>
+                        <p className="font-mono text-[11px] font-bold text-ink-1">{iface.id}</p>
+                        <p className="text-[10px] text-ink-3">{iface.network}</p>
+                        <p className={`text-[10px] font-semibold ${down ? 'text-red-700' : 'text-emerald-700'}`}>{down ? 'DOWN' : 'UP'}</p>
+                      </div>
                     );
                   })}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-1.5 text-[11px] text-ink-3">* floating static — AD 200, inactive while the primary default route is up. Longest prefix wins, then lowest AD, then lowest metric.</p>
-          </div>
-        </div>
-
-        {/* Right rail: the router box, sub-interfaces, NAT table */}
-        <div className="flex flex-col gap-2.5 lg:col-start-3 lg:row-start-1">
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            <p className="flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2"><Router size={14} /> R1 — 1U edge router</p>
-            <div className="mt-2 rounded-lg border border-black/10 bg-white p-2">
-              <div className="flex flex-wrap gap-1.5">
-                {INTERFACES.map((iface) => {
-                  const down = iface.linkId && linksUp[iface.linkId] === false;
-                  return (
-                    <div key={iface.id} className={`flex-1 rounded-md border px-1.5 py-1 text-center ${down ? 'border-red-500/40 bg-red-500/5' : 'border-black/10 glass-1'}`}>
-                      <p className="font-mono text-[11px] font-bold text-ink-1">{iface.id}</p>
-                      <p className="text-[10px] text-ink-3">{iface.network}</p>
-                      <p className={`text-[10px] font-semibold ${down ? 'text-red-700' : 'text-emerald-700'}`}>{down ? 'DOWN' : 'UP'}</p>
-                    </div>
-                  );
-                })}
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[11px] text-ink-2">
+                  <span>Mgmt · Console</span>
+                  <span>PWR <span className="font-bold text-emerald-700">●</span> SYS <span className="font-bold text-emerald-700">●</span></span>
+                </div>
               </div>
-              <div className="mt-2 flex items-center justify-between text-[11px] text-ink-2">
-                <span>Mgmt · Console</span>
-                <span>PWR <span className="font-bold text-emerald-700">●</span> SYS <span className="font-bold text-emerald-700">●</span></span>
-              </div>
+              <p className="mt-2 text-[12px] leading-snug text-ink-2">
+                Router-on-a-stick: one physical trunk (Gi0/0) carries both VLANs as sub-interfaces — Gi0/0.10 for VLAN 10, Gi0/0.20 for VLAN 20 — so the router forwards between VLANs.
+              </p>
+              <p className="mt-1.5 text-[12px] leading-snug text-ink-2">
+                OSPF link R1–R2: <strong className="text-ink-1">{linksUp['r1-r2'] ? 'UP — 172.16.0.0/16 via R2' : 'DOWN — reconverged via R3'}</strong>
+              </p>
             </div>
-            <p className="mt-2 text-[12px] leading-snug text-ink-2">
-              Router-on-a-stick: one physical trunk (Gi0/0) carries both VLANs as sub-interfaces — Gi0/0.10 for VLAN 10, Gi0/0.20 for VLAN 20 — so the router forwards between VLANs.
-            </p>
-            <p className="mt-1.5 text-[12px] leading-snug text-ink-2">
-              OSPF link R1–R2: <strong className="text-ink-1">{linksUp['r1-r2'] ? 'UP — 172.16.0.0/16 via R2' : 'DOWN — reconverged via R3'}</strong>
-            </p>
+
+            <div className="rounded-xl border border-black/10 glass-1 p-3">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">NAT translations (PAT overload)</p>
+              {nat.entries.length === 0 ? (
+                <p className="mt-1.5 text-[13px] text-ink-3">None yet. Send a packet to the Internet and watch one public address ({PUBLIC_IP}) serve many private hosts, told apart by port.</p>
+              ) : (
+                <ul className="mt-1.5 space-y-1 font-mono text-[11px] text-ink-1">
+                  {nat.entries.slice(-4).map((entry) => (
+                    <li key={`${entry.insideLocal}:${entry.insidePort}`}>
+                      {entry.insideLocal}:{entry.insidePort} → {entry.insideGlobal}:{entry.globalPort}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="mt-1.5 text-[11px] text-ink-3">{nat.entries.length} active translation{nat.entries.length === 1 ? '' : 's'} — inside local → inside global.</p>
+            </div>
           </div>
 
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">NAT translations (PAT overload)</p>
-            {nat.entries.length === 0 ? (
-              <p className="mt-1.5 text-[13px] text-ink-3">None yet. Send a packet to the Internet and watch one public address ({PUBLIC_IP}) serve many private hosts, told apart by port.</p>
-            ) : (
-              <ul className="mt-1.5 space-y-1 font-mono text-[11px] text-ink-1">
-                {nat.entries.slice(-4).map((entry) => (
-                  <li key={`${entry.insideLocal}:${entry.insidePort}`}>
-                    {entry.insideLocal}:{entry.insidePort} → {entry.insideGlobal}:{entry.globalPort}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className="mt-1.5 text-[11px] text-ink-3">{nat.entries.length} active translation{nat.entries.length === 1 ? '' : 's'} — inside local → inside global.</p>
-          </div>
-        </div>
-
-        {/* running-config, under the controls rail */}
-        <div className="lg:col-start-1 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">running-config — updates live</p>
-          <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{routerConf(routes, nat.entries, createAcl(), linksUp)}</pre>
-        </div>
-
-        {/* Event log, under the router box */}
-        <div className="lg:col-start-3 lg:row-start-2">
-          <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">Event log</p>
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            {sim.events.length === 0 ? (
-              <p className="text-[13px] text-ink-3">No events yet. Send a packet, kill a link, or add a route.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sim.events.map((event) => (
-                  <li key={event.id} className="text-[13px] text-ink-2">
-                    <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
-                  </li>
-                ))}
-              </ul>
-            )}
+          {/* running-config */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 text-caption font-semibold uppercase tracking-wider text-ink-2">running-config — updates live</p>
+            <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900] lg:min-h-48 lg:max-h-none lg:flex-1 lg:basis-0">{routerConf(routes, nat.entries, createAcl(), linksUp)}</pre>
           </div>
         </div>
       </div>

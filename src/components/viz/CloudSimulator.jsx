@@ -207,279 +207,285 @@ export default function CloudSimulator() {
   // counters. On narrow screens the rails stack in reading order.
   return (
     <div>
-      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px] lg:grid-rows-[auto_auto]">
-        {/* Left rail: service model, drill, deployment, pricing, traffic */}
-        <div className="rounded-xl glass-1 p-3 lg:col-start-1 lg:row-start-1">
-          <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Service model</p>
-          <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="Service model">
-            {SERVICE_MODELS.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => { setModel(m.id); setDrillFeedback(null); }}
-                aria-pressed={model === m.id}
-                title={m.blurb}
-                className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight transition ${
-                  model === m.id ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-2'
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs leading-snug text-ink-2">{SERVICE_MODELS.find((m) => m.id === model)?.blurb}</p>
-
-          <div className="mt-2.5 border-t border-black/10 pt-2.5">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Shared responsibility drill</p>
-            <p className="mt-1 text-xs leading-snug text-ink-2">
-              On {SERVICE_MODELS.find((m) => m.id === model).label}, who runs this layer?
-              {drillScore.total > 0 && (
-                <span> Score: <strong className="text-ink-1">{`${drillScore.correct}/${drillScore.total}`}</strong></span>
-              )}
-            </p>
-            <label className="mt-2 block">
-              <span className="sr-only">Layer to assign</span>
-              <select
-                value={drillLayer}
-                onChange={(e) => { setDrillLayer(e.target.value); setDrillFeedback(null); }}
-                aria-label="Layer to assign"
-                className="w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
-              >
-                {LAYERS.map((layer) => (
-                  <option key={layer.id} value={layer.id}>{layer.label}</option>
-                ))}
-              </select>
-            </label>
-            <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-              <button type="button" onClick={() => answerDrill('provider')} className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1">
-                Provider
-              </button>
-              <button type="button" onClick={() => answerDrill('customer')} className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1">
-                Customer
-              </button>
-            </div>
-            {drillFeedback && (
-              <p className={`mt-1.5 text-xs leading-snug ${drillFeedback.correct ? 'text-emerald-700' : 'text-red-700'}`}>
-                {drillFeedback.text}
-              </p>
-            )}
-          </div>
-
-          <div className="mt-2.5 border-t border-black/10 pt-2.5">
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">Deployment model</span>
-              <select
-                value={deployment}
-                onChange={(e) => setDeployment(e.target.value)}
-                aria-label="Deployment model"
-                className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
-              >
-                {DEPLOYMENT_MODELS.map((d) => (
-                  <option key={d.id} value={d.id}>{d.label}</option>
-                ))}
-              </select>
-              <span className="mt-1 block text-[11px] leading-snug text-ink-3">{DEPLOYMENT_MODELS.find((d) => d.id === deployment)?.blurb}</span>
-            </label>
-          </div>
-
-          <div className="mt-2.5 border-t border-black/10 pt-2.5">
-            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Pricing</p>
-            <div className="mt-1.5 flex overflow-hidden rounded-lg border border-black/10" role="group" aria-label="Pricing model">
-              {['on-demand', 'reserved'].map((p) => (
+      <div className="grid gap-4 lg:grid-cols-[232px_minmax(0,1fr)_272px]">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-1">
+          {/* Left rail: service model, drill, deployment, pricing, traffic */}
+          <div className="rounded-xl glass-1 p-3 lg:flex-1">
+            <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Service model</p>
+            <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="Service model">
+              {SERVICE_MODELS.map((m) => (
                 <button
-                  key={p}
+                  key={m.id}
                   type="button"
-                  onClick={() => setPricing(p)}
-                  aria-pressed={pricing === p}
-                  className={`flex-1 px-2 py-1.5 text-[13px] font-semibold ${pricing === p ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
+                  onClick={() => { setModel(m.id); setDrillFeedback(null); }}
+                  aria-pressed={model === m.id}
+                  title={m.blurb}
+                  className={`rounded-lg px-2 py-1.5 text-[13px] font-semibold leading-tight transition ${
+                    model === m.id ? 'glass-btn' : 'border border-black/10 glass-1 text-ink-2'
+                  }`}
                 >
-                  {p === 'on-demand' ? 'Pay-as-you-go' : 'Reserved'}
+                  {m.label}
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => { sim.multiAz = !sim.multiAz; logEvent(sim, sim.multiAz ? 'Multi-AZ on — the fleet spreads across both AZs.' : 'Multi-AZ OFF — the whole fleet sits in AZ-A. One AZ failure is a total outage.'); bump(); }}
-              aria-pressed={sim.multiAz}
-              className={`mt-1.5 w-full rounded-lg px-2 py-1.5 text-[13px] font-semibold ${sim.multiAz ? 'glass-btn' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}
-            >
-              {`Multi-AZ ${sim.multiAz ? 'on' : 'OFF'}`}
-            </button>
-          </div>
+            <p className="mt-2 text-xs leading-snug text-ink-2">{SERVICE_MODELS.find((m) => m.id === model)?.blurb}</p>
 
-          <div className="mt-2.5 border-t border-black/10 pt-2.5">
-            <label className="block">
-              <span className="text-[13px] font-semibold text-ink-1">Traffic — {traffic} req/s</span>
-              <input type="range" min="10" max="400" step="10" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Traffic in requests per second" />
-              <span className="text-[11px] leading-snug text-ink-3">Fleet wants {wanted} instances at this traffic (1 per 45 req/s).</span>
-            </label>
-            <div className="mt-2 grid grid-cols-3 gap-1.5">
-              <button type="button" onClick={burst} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-                Burst +140
-              </button>
-              <button type="button" onClick={() => setPaused((p) => !p)} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-                {paused ? 'Resume' : 'Pause'}
-              </button>
-              <button type="button" onClick={reset} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Middle: counters, VPC diagram, queue */}
-        <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          <div className="grid grid-cols-3 gap-2">
-            {metric('traffic', `${traffic} req/s`)}
-            {metric('instances', `${running} / ${sim.instances}`)}
-            {metric('queue depth', Math.round(sim.queueDepth))}
-          </div>
-          {/* Derived metrics, directly under the primary counters. */}
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {metric('cost / hour', `$${costHr.toFixed(2)}`)}
-            {metric('p95', `${p95} ms`, p95 > 200 ? 'text-red-700' : 'text-ink-1')}
-            {metric('serverless invocations', Math.round(sim.invocations))}
-          </div>
-
-          <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
-            <div className="mb-1 flex items-baseline justify-between">
-              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">VPC 10.0.0.0/16 — two availability zones</p>
-              <p className="text-[11px] text-ink-3">purple = running instance · pink = lost to an AZ failure</p>
-            </div>
-            <svg viewBox="0 0 640 250" className="w-full" role="img" aria-label="VPC diagram: public subnet with load balancer, app subnet with instances in two AZs, data subnet with database, queue and object storage">
-              {/* Public subnet */}
-              <rect x="8" y="8" width="624" height="56" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-              <text x="18" y="26" fontSize="12" fontWeight="700" fill="#111827">Public subnet 10.0.1.0/24</text>
-              <text x="18" y="50" fontSize="12" fill="#111827">Internet → WAF → L7 load balancer (health checks)</text>
-              <text x="470" y="50" fontSize="12" fill="#5B6472">TLS 1.3 in transit</text>
-              {/* App subnet */}
-              <rect x="8" y="72" width="624" height="72" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-              <text x="18" y="88" fontSize="12" fontWeight="700" fill="#111827">App subnet 10.0.2.0/24 — auto-scaling group (stateless tiers)</text>
-              {instanceSquares('AZ-A')}
-              {instanceSquares('AZ-B')}
-              {/* Data subnet */}
-              <rect x="8" y="152" width="624" height="90" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-              <text x="18" y="168" fontSize="12" fontWeight="700" fill="#111827">Data subnet 10.0.3.0/24 — private, no public IPs · AES-256 at rest</text>
-              <g>
-                <rect x="18" y="176" width="150" height="54" rx="8" fill={sim.db.primaryAz === 'AZ-A' ? '#DCFCE7' : '#FEF3C7'} stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="28" y="194" fontSize="12" fontWeight="700" fill="#111827">{`DB primary · ${sim.db.primaryAz}`}</text>
-                <text x="28" y="210" fontSize="11" fill="#5B6472">multi-AZ, sync standby</text>
-                <text x="28" y="224" fontSize="11" fill="#5B6472">auto failover</text>
-              </g>
-              <g>
-                <rect x="180" y="176" width="150" height="54" rx="8" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="190" y="194" fontSize="12" fontWeight="700" fill="#111827">{`Sync standby · ${sim.db.standbyAz}`}</text>
-                <text x="190" y="210" fontSize="11" fill="#5B6472">{sim.azDown[sim.db.standbyAz] ? 'rebuilding after restore' : 'promotes on failure'}</text>
-                <text x="190" y="224" fontSize="11" fill="#5B6472">no data loss</text>
-              </g>
-              <g>
-                <rect x="342" y="176" width="130" height="54" rx="8" fill={sim.db.replicaUp ? '#FFFFFF' : '#FEE2E2'} stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="352" y="194" fontSize="12" fontWeight="700" fill="#111827">{`Read replica · ${sim.db.replicaAz}`}</text>
-                <text x="352" y="210" fontSize="11" fill="#5B6472">{sim.db.replicaUp ? 'async — reads only' : 'LOST — cannot fail over'}</text>
-                <text x="352" y="224" fontSize="11" fill="#5B6472">{sim.db.replicaUp ? 'never a standby' : 'reads → primary'}</text>
-              </g>
-              <g>
-                <rect x="484" y="176" width="140" height="54" rx="8" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
-                <text x="494" y="194" fontSize="12" fontWeight="700" fill="#111827">{`SQS queue · ${Math.round(sim.queueDepth)}`}</text>
-                <rect x="494" y="202" width="120" height="8" rx="4" fill="rgba(0,0,0,0.1)" />
-                <rect x="494" y="202" width={`${Math.max(0, Math.min(120, (queuePct / 100) * 120))}`} height="8" rx="4" fill="#7C3AED" />
-                <text x="494" y="224" fontSize="11" fill="#5B6472">drains {QUEUE_DRAIN_PER_S}/s</text>
-              </g>
-            </svg>
-            <p className="mt-1 text-xs leading-snug text-ink-2">
-              {Math.round(sim.served)} requests served · {Math.round(sim.dropped)} dropped past capacity ·
-              ${costMo.toFixed(2)}/mo at this fleet · ${costPerK.toFixed(4)} per 1,000 requests.
-            </p>
-          </div>
-        </div>
-
-        {/* Right rail: AZs, database, storage */}
-        <div className="flex flex-col gap-2.5 lg:col-start-3 lg:row-start-1">
-          {AZS.map((az) => (
-            <div key={az} className={`rounded-xl border p-2.5 ${sim.azDown[az] ? 'border-red-500/40 bg-red-500/5' : 'border-black/10 glass-1'}`}>
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-bold text-ink-1">{az} <span className="font-mono text-[11px] font-normal text-ink-3">region us-east-1</span></p>
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${sim.azDown[az] ? 'bg-red-500/10 text-red-700' : 'bg-emerald-500/10 text-emerald-700'}`}>
-                  {sim.azDown[az] ? <AlertTriangle size={12} /> : <CheckCircle2 size={12} />} {sim.azDown[az] ? 'DOWN' : 'UP'}
-                </span>
-              </div>
-              <p className="mt-1 flex items-center gap-1.5 text-[12px] text-ink-2">
-                <Server size={13} /> {dist[az]} instance(s) · {sim.azDown[az] ? '0 running' : `${dist[az]} running`}
+            <div className="mt-2.5 border-t border-black/10 pt-2.5">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Shared responsibility drill</p>
+              <p className="mt-1 text-xs leading-snug text-ink-2">
+                On {SERVICE_MODELS.find((m) => m.id === model).label}, who runs this layer?
+                {drillScore.total > 0 && (
+                  <span> Score: <strong className="text-ink-1">{`${drillScore.correct}/${drillScore.total}`}</strong></span>
+                )}
               </p>
+              <label className="mt-2 block">
+                <span className="sr-only">Layer to assign</span>
+                <select
+                  value={drillLayer}
+                  onChange={(e) => { setDrillLayer(e.target.value); setDrillFeedback(null); }}
+                  aria-label="Layer to assign"
+                  className="w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
+                >
+                  {LAYERS.map((layer) => (
+                    <option key={layer.id} value={layer.id}>{layer.label}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                <button type="button" onClick={() => answerDrill('provider')} className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1">
+                  Provider
+                </button>
+                <button type="button" onClick={() => answerDrill('customer')} className="rounded-lg border border-black/10 glass-1 px-2 py-1.5 text-[13px] font-semibold text-ink-1">
+                  Customer
+                </button>
+              </div>
+              {drillFeedback && (
+                <p className={`mt-1.5 text-xs leading-snug ${drillFeedback.correct ? 'text-emerald-700' : 'text-red-700'}`}>
+                  {drillFeedback.text}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-2.5 border-t border-black/10 pt-2.5">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-ink-1">Deployment model</span>
+                <select
+                  value={deployment}
+                  onChange={(e) => setDeployment(e.target.value)}
+                  aria-label="Deployment model"
+                  className="mt-0.5 w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-[13px] font-semibold text-ink-1"
+                >
+                  {DEPLOYMENT_MODELS.map((d) => (
+                    <option key={d.id} value={d.id}>{d.label}</option>
+                  ))}
+                </select>
+                <span className="mt-1 block text-[11px] leading-snug text-ink-3">{DEPLOYMENT_MODELS.find((d) => d.id === deployment)?.blurb}</span>
+              </label>
+            </div>
+
+            <div className="mt-2.5 border-t border-black/10 pt-2.5">
+              <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">Pricing</p>
+              <div className="mt-1.5 flex overflow-hidden rounded-lg border border-black/10" role="group" aria-label="Pricing model">
+                {['on-demand', 'reserved'].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPricing(p)}
+                    aria-pressed={pricing === p}
+                    className={`flex-1 px-2 py-1.5 text-[13px] font-semibold ${pricing === p ? 'glass-btn rounded-none' : 'glass-1 text-ink-2'}`}
+                  >
+                    {p === 'on-demand' ? 'Pay-as-you-go' : 'Reserved'}
+                  </button>
+                ))}
+              </div>
               <button
                 type="button"
-                onClick={() => (sim.azDown[az] ? restore(az) : kill(az))}
-                className={`mt-2 w-full rounded-lg px-2 py-1 text-xs font-semibold ${sim.azDown[az] ? 'glass-btn' : 'border border-red-500/40 text-red-700'}`}
+                onClick={() => { sim.multiAz = !sim.multiAz; logEvent(sim, sim.multiAz ? 'Multi-AZ on — the fleet spreads across both AZs.' : 'Multi-AZ OFF — the whole fleet sits in AZ-A. One AZ failure is a total outage.'); bump(); }}
+                aria-pressed={sim.multiAz}
+                className={`mt-1.5 w-full rounded-lg px-2 py-1.5 text-[13px] font-semibold ${sim.multiAz ? 'glass-btn' : 'border border-red-500/40 bg-red-500/5 text-red-700'}`}
               >
-                {sim.azDown[az] ? `Restore ${az}` : `Kill ${az}`}
+                {`Multi-AZ ${sim.multiAz ? 'on' : 'OFF'}`}
               </button>
             </div>
-          ))}
 
-          <div className="rounded-xl border border-black/10 glass-1 p-2.5">
-            <p className="flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
-              <Database size={13} /> Database — multi-AZ
-            </p>
-            <ul className="mt-1.5 space-y-1 text-[12px] leading-snug text-ink-2">
-              <li><strong className="text-ink-1">Primary:</strong> {sim.db.primaryAz}</li>
-              <li><strong className="text-ink-1">Sync standby:</strong> {sim.db.standbyAz} (auto failover)</li>
-              <li><strong className="text-ink-1">Read replica:</strong> {sim.db.replicaAz} {sim.db.replicaUp ? '(async, reads only)' : '(LOST — cannot fail over)'}</li>
-            </ul>
-            <button
-              type="button"
-              onClick={probe}
-              className="mt-2 w-full rounded-lg border border-black/10 glass-1 px-2 py-1 text-xs font-semibold text-ink-1"
-            >
-              Probe DB from the internet
-            </button>
-            {probeNote && (
-              <p className="mt-1.5 text-[11px] leading-snug text-red-700">{probeNote}</p>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-black/10 glass-1 p-2.5">
-            <p className="flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
-              <HardDrive size={13} /> Storage
-            </p>
-            <ul className="mt-1.5 space-y-1 text-[12px] leading-snug text-ink-2">
-              <li><strong className="text-ink-1">Object (S3-style):</strong> {`${objects} objects · unlimited, pay per GB, 11 9s durability.`}</li>
-              <li><strong className="text-ink-1">Block (EBS gp3):</strong> 100 GB attached to the DB — survives an instance loss.</li>
-            </ul>
-            <button
-              type="button"
-              onClick={() => { setObjects((n) => n + 1); logEvent(simRef.current, 'Snapshot stored in object storage — objects are for files and backups, not for a running OS.'); bump(); }}
-              className="mt-2 w-full rounded-lg border border-black/10 glass-1 px-2 py-1 text-xs font-semibold text-ink-1"
-            >
-              Store snapshot (object)
-            </button>
+            <div className="mt-2.5 border-t border-black/10 pt-2.5">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-ink-1">Traffic — {traffic} req/s</span>
+                <input type="range" min="10" max="400" step="10" value={traffic} onChange={(e) => setTraffic(Number(e.target.value))} className="mt-0.5 w-full accent-[#7C3AED]" aria-label="Traffic in requests per second" />
+                <span className="text-[11px] leading-snug text-ink-3">Fleet wants {wanted} instances at this traffic (1 per 45 req/s).</span>
+              </label>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                <button type="button" onClick={burst} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                  Burst +140
+                </button>
+                <button type="button" onClick={() => setPaused((p) => !p)} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                  {paused ? 'Resume' : 'Pause'}
+                </button>
+                <button type="button" onClick={reset} className="whitespace-nowrap rounded-lg border border-black/10 glass-1 px-1 py-1.5 text-xs font-semibold text-ink-1">
+                  Reset
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2">
 
-        {/* VPC config, under the controls rail */}
-        <div className="lg:col-start-1 lg:row-start-2">
-          <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
-            <Cloud size={13} /> VPC config — updates live
-          </p>
-          <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900]">{vpcConfig(sim, { model, deployment, pricing })}</pre>
+          {/* Middle: counters, VPC diagram, queue */}
+          <div className="min-w-0">
+            <div className="grid grid-cols-3 gap-2">
+              {metric('traffic', `${traffic} req/s`)}
+              {metric('instances', `${running} / ${sim.instances}`)}
+              {metric('queue depth', Math.round(sim.queueDepth))}
+            </div>
+            {/* Derived metrics, directly */}
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {metric('cost / hour', `$${costHr.toFixed(2)}`)}
+              {metric('p95', `${p95} ms`, p95 > 200 ? 'text-red-700' : 'text-ink-1')}
+              {metric('serverless invocations', Math.round(sim.invocations))}
+            </div>
+
+            <div className="mt-3 rounded-xl border border-black/10 glass-1 p-3">
+              <div className="mb-1 flex items-baseline justify-between">
+                <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">VPC 10.0.0.0/16 — two availability zones</p>
+                <p className="text-[11px] text-ink-3">purple = running instance · pink = lost to an AZ failure</p>
+              </div>
+              <svg viewBox="0 0 640 250" className="w-full" role="img" aria-label="VPC diagram: public subnet with load balancer, app subnet with instances in two AZs, data subnet with database, queue and object storage">
+                {/* Public subnet */}
+                <rect x="8" y="8" width="624" height="56" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                <text x="18" y="26" fontSize="12" fontWeight="700" fill="#111827">Public subnet 10.0.1.0/24</text>
+                <text x="18" y="50" fontSize="12" fill="#111827">Internet → WAF → L7 load balancer (health checks)</text>
+                <text x="470" y="50" fontSize="12" fill="#5B6472">TLS 1.3 in transit</text>
+                {/* App subnet */}
+                <rect x="8" y="72" width="624" height="72" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                <text x="18" y="88" fontSize="12" fontWeight="700" fill="#111827">App subnet 10.0.2.0/24 — auto-scaling group (stateless tiers)</text>
+                {instanceSquares('AZ-A')}
+                {instanceSquares('AZ-B')}
+                {/* Data subnet */}
+                <rect x="8" y="152" width="624" height="90" rx="10" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                <text x="18" y="168" fontSize="12" fontWeight="700" fill="#111827">Data subnet 10.0.3.0/24 — private, no public IPs · AES-256 at rest</text>
+                <g>
+                  <rect x="18" y="176" width="150" height="54" rx="8" fill={sim.db.primaryAz === 'AZ-A' ? '#DCFCE7' : '#FEF3C7'} stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="28" y="194" fontSize="12" fontWeight="700" fill="#111827">{`DB primary · ${sim.db.primaryAz}`}</text>
+                  <text x="28" y="210" fontSize="11" fill="#5B6472">multi-AZ, sync standby</text>
+                  <text x="28" y="224" fontSize="11" fill="#5B6472">auto failover</text>
+                </g>
+                <g>
+                  <rect x="180" y="176" width="150" height="54" rx="8" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="190" y="194" fontSize="12" fontWeight="700" fill="#111827">{`Sync standby · ${sim.db.standbyAz}`}</text>
+                  <text x="190" y="210" fontSize="11" fill="#5B6472">{sim.azDown[sim.db.standbyAz] ? 'rebuilding after restore' : 'promotes on failure'}</text>
+                  <text x="190" y="224" fontSize="11" fill="#5B6472">no data loss</text>
+                </g>
+                <g>
+                  <rect x="342" y="176" width="130" height="54" rx="8" fill={sim.db.replicaUp ? '#FFFFFF' : '#FEE2E2'} stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="352" y="194" fontSize="12" fontWeight="700" fill="#111827">{`Read replica · ${sim.db.replicaAz}`}</text>
+                  <text x="352" y="210" fontSize="11" fill="#5B6472">{sim.db.replicaUp ? 'async — reads only' : 'LOST — cannot fail over'}</text>
+                  <text x="352" y="224" fontSize="11" fill="#5B6472">{sim.db.replicaUp ? 'never a standby' : 'reads → primary'}</text>
+                </g>
+                <g>
+                  <rect x="484" y="176" width="140" height="54" rx="8" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+                  <text x="494" y="194" fontSize="12" fontWeight="700" fill="#111827">{`SQS queue · ${Math.round(sim.queueDepth)}`}</text>
+                  <rect x="494" y="202" width="120" height="8" rx="4" fill="rgba(0,0,0,0.1)" />
+                  <rect x="494" y="202" width={`${Math.max(0, Math.min(120, (queuePct / 100) * 120))}`} height="8" rx="4" fill="#7C3AED" />
+                  <text x="494" y="224" fontSize="11" fill="#5B6472">drains {QUEUE_DRAIN_PER_S}/s</text>
+                </g>
+              </svg>
+              <p className="mt-1 text-xs leading-snug text-ink-2">
+                {Math.round(sim.served)} requests served · {Math.round(sim.dropped)} dropped past capacity ·
+                ${costMo.toFixed(2)}/mo at this fleet · ${costPerK.toFixed(4)} per 1,000 requests.
+              </p>
+            </div>
+          </div>
+
+          {/* VPC config */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
+              <Cloud size={13} /> VPC config — updates live
+            </p>
+            <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-[#002B36] p-3 font-mono text-[11px] leading-relaxed text-[#859900] lg:min-h-40 lg:max-h-none lg:flex-1 lg:basis-0">{vpcConfig(sim, { model, deployment, pricing })}</pre>
+          </div>
         </div>
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-3">
 
-        {/* Event log, under the AZ rail */}
-        <div className="lg:col-start-3 lg:row-start-2">
-          <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
-            <Activity size={13} /> Event log
-          </p>
-          <div className="rounded-xl border border-black/10 glass-1 p-3">
-            {sim.events.length === 0 ? (
-              <p className="text-[13px] text-ink-3">No events yet. Raise the traffic, burst the queue, or kill an AZ.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sim.events.map((event) => (
-                  <li key={event.id} className="text-[13px] text-ink-2">
-                    <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
-                  </li>
-                ))}
+          {/* Right rail: AZs, database, storage */}
+          <div className="flex flex-col gap-2.5">
+            {AZS.map((az) => (
+              <div key={az} className={`rounded-xl border p-2.5 ${sim.azDown[az] ? 'border-red-500/40 bg-red-500/5' : 'border-black/10 glass-1'}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-bold text-ink-1">{az} <span className="font-mono text-[11px] font-normal text-ink-3">region us-east-1</span></p>
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${sim.azDown[az] ? 'bg-red-500/10 text-red-700' : 'bg-emerald-500/10 text-emerald-700'}`}>
+                    {sim.azDown[az] ? <AlertTriangle size={12} /> : <CheckCircle2 size={12} />} {sim.azDown[az] ? 'DOWN' : 'UP'}
+                  </span>
+                </div>
+                <p className="mt-1 flex items-center gap-1.5 text-[12px] text-ink-2">
+                  <Server size={13} /> {dist[az]} instance(s) · {sim.azDown[az] ? '0 running' : `${dist[az]} running`}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => (sim.azDown[az] ? restore(az) : kill(az))}
+                  className={`mt-2 w-full rounded-lg px-2 py-1 text-xs font-semibold ${sim.azDown[az] ? 'glass-btn' : 'border border-red-500/40 text-red-700'}`}
+                >
+                  {sim.azDown[az] ? `Restore ${az}` : `Kill ${az}`}
+                </button>
+              </div>
+            ))}
+
+            <div className="rounded-xl border border-black/10 glass-1 p-2.5">
+              <p className="flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
+                <Database size={13} /> Database — multi-AZ
+              </p>
+              <ul className="mt-1.5 space-y-1 text-[12px] leading-snug text-ink-2">
+                <li><strong className="text-ink-1">Primary:</strong> {sim.db.primaryAz}</li>
+                <li><strong className="text-ink-1">Sync standby:</strong> {sim.db.standbyAz} (auto failover)</li>
+                <li><strong className="text-ink-1">Read replica:</strong> {sim.db.replicaAz} {sim.db.replicaUp ? '(async, reads only)' : '(LOST — cannot fail over)'}</li>
               </ul>
-            )}
+              <button
+                type="button"
+                onClick={probe}
+                className="mt-2 w-full rounded-lg border border-black/10 glass-1 px-2 py-1 text-xs font-semibold text-ink-1"
+              >
+                Probe DB from the internet
+              </button>
+              {probeNote && (
+                <p className="mt-1.5 text-[11px] leading-snug text-red-700">{probeNote}</p>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-black/10 glass-1 p-2.5">
+              <p className="flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
+                <HardDrive size={13} /> Storage
+              </p>
+              <ul className="mt-1.5 space-y-1 text-[12px] leading-snug text-ink-2">
+                <li><strong className="text-ink-1">Object (S3-style):</strong> {`${objects} objects · unlimited, pay per GB, 11 9s durability.`}</li>
+                <li><strong className="text-ink-1">Block (EBS gp3):</strong> 100 GB attached to the DB — survives an instance loss.</li>
+              </ul>
+              <button
+                type="button"
+                onClick={() => { setObjects((n) => n + 1); logEvent(simRef.current, 'Snapshot stored in object storage — objects are for files and backups, not for a running OS.'); bump(); }}
+                className="mt-2 w-full rounded-lg border border-black/10 glass-1 px-2 py-1 text-xs font-semibold text-ink-1"
+              >
+                Store snapshot (object)
+              </button>
+            </div>
+          </div>
+
+          {/* Event log */}
+          <div className=" flex flex-col lg:flex-1">
+            <p className="mb-1 flex items-center gap-1.5 text-caption font-semibold uppercase tracking-wider text-ink-2">
+              <Activity size={13} /> Event log
+            </p>
+            <div className="rounded-xl border border-black/10 glass-1 p-3 lg:flex-1">
+              {sim.events.length === 0 ? (
+                <p className="text-[13px] text-ink-3">No events yet. Raise the traffic, burst the queue, or kill an AZ.</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {sim.events.map((event) => (
+                    <li key={event.id} className="text-[13px] text-ink-2">
+                      <span className="font-mono text-[11px] text-ink-3">{event.time}</span> — {event.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       </div>
