@@ -48,7 +48,7 @@ const CERT_ROAD = [
     exam: false,
   },
   {
-    code: 'CS0-003', name: 'CySA+', tag: null,
+    code: 'CS0-004', name: 'CySA+', tag: null,
     detail: '160 flashcards, 8 lessons, blue-team labs.',
     exam: true,
   },
@@ -58,7 +58,7 @@ const CERT_ROAD = [
     exam: true,
   },
   {
-    code: 'SCS-C02', name: 'AWS Security Specialty', tag: null,
+    code: 'SCS-C03', name: 'AWS Security Specialty', tag: null,
     detail: '161 flashcards, 10 lessons, cloud security labs.',
     exam: true,
   },

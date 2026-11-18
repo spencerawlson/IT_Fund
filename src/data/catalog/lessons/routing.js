@@ -90,7 +90,7 @@ export default {
       {
         heading: 'Floating static routes',
         body: [
-          'A floating static is a backup with a deliberately higher administrative distance than the preferred route. While the primary (lower-AD) path is up, the floating route stays out of the table; when the primary disappears, the backup installs automatically. For example, a static with AD 5 sits behind OSPF (AD 110)? No — you raise it ABOVE the dynamic protocol so it only wins when the dynamic route is gone.',
+          'A floating static is a backup with a deliberately higher administrative distance than the preferred route. While the primary (lower-AD) path is up, the floating route stays out of the table; when the primary disappears, the backup installs automatically. For example, to back up an OSPF route (AD 110), configure the static with AD 200: while OSPF is up, its AD 110 wins and the static stays out of the table, and if OSPF loses the route, the AD 200 static installs automatically. A static with a lower AD than the dynamic route — say AD 5 — would win immediately and is not a backup at all.',
         ],
       },
       {

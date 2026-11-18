@@ -106,7 +106,7 @@ describe('Landing simple structure (skillsbuild-style)', () => {
 
   it('keeps all 7 certs on the road', () => {
     const html = renderLanding();
-    for (const code of ['SY0-701', 'N10-009', 'Linux+', 'CS0-003', 'SAA-C03', 'SCS-C02', 'CISSP']) {
+    for (const code of ['SY0-701', 'N10-009', 'Linux+', 'CS0-004', 'SAA-C03', 'SCS-C03', 'CISSP']) {
       expect(html).toContain(code);
     }
     expect(html).toContain('Plus skills tracks:');

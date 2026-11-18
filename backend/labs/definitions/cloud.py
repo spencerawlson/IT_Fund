@@ -220,7 +220,7 @@ AWS_CLI_LAB = LabDefinition(
 )
 
 
-# ---- IAM policies & least privilege (SCS-C02: IAM is 16% of the exam) ----
+# ---- IAM policies & least privilege (SCS-C03: IAM is 20% of the exam) ----
 
 def _iam_state(findings):
     st = findings.get("_iam") or {}
@@ -381,7 +381,7 @@ AWS_IAM_LAB = LabDefinition(
         "Work the IAM policy workbench: read the account's users, roles and policies, prove what "
         "they allow with the policy simulator, find the over-privileged deploy role, rewrite its "
         "policy to least privilege, lock down its trust policy, cap a user with a permissions "
-        "boundary, and verify it all with the simulator. Maps to SCS-C02 (IAM is 16% of the exam)."
+        "boundary, and verify it all with the simulator. Maps to SCS-C03 (IAM is 20% of the exam)."
     ),
     category="cloud",
     difficulty="intermediate",
