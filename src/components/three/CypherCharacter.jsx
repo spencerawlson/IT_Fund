@@ -124,7 +124,7 @@ export default function CypherViewer({ voiceRef, className = '' }) {
       const dt = last === null ? 0 : Math.min(t - last, 0.1);
       const voice = voiceRef?.current;
       if (voice) {
-        controller.setTalkLevel(voice.level || 0);
+        controller.setTalkLevel(voice.level || 0, voice.bands);
         // Seated, setTalking only toggles the head bob — it starts no clip.
         controller.setTalking(!!voice.talking);
       }
