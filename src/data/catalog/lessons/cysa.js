@@ -33,6 +33,16 @@ export default {
         ],
       },
       {
+        heading: 'Security architecture concepts (1.1)',
+        body: [
+          'Logging starts before the SIEM: ingestion must capture the right events, configuration decides what is logged and at what verbosity, integrity and security protect logs from tampering — hashing, restricted access, forwarding to a separate store — time synchronization (NTP) keeps timestamps comparable across sources, and retention sets how long logs stay searchable, which is the forensic lookback window. An alert with a wrong clock is evidence you cannot use.',
+          'Access has moved past the perimeter. Zero Trust Network Architecture (ZTNA) grants access per user, device, and application after verification, instead of trusting anything inside the network. Secure access service edge (SASE) combines network and security functions — secure web gateway, cloud access security broker, ZTNA — delivered from the cloud, so a remote worker gets the same controls as an office worker. Hybrid cloud splits workloads between on-premises and cloud, and the SOC must see both sides with the same telemetry.',
+          'On the host, hardening removes what is not needed, the file structure defines where configuration and logs live, and a handful of critical files — /etc/passwd, /etc/shadow, the SAM database, scheduled-task stores — are the first things an attacker targets and the first things an analyst checks. System processes reveal compromise when they behave abnormally. Identity is the other control plane: authentication proves who you are, authorization decides what you may do, privileged access management (PAM) vaults and rotates administrator credentials, and secrets management keeps API keys and passwords out of code and configuration.',
+          'Encryption protects data at rest and in transit; data protection concepts — classification, handling, and loss prevention — decide what gets the strongest controls. The infrastructure underneath is increasingly cloud-native, virtualized, or containerized, and reached through APIs that are themselves an attack surface to monitor. Device management covers mobile and endpoint fleets: an unmanaged device is an unmanaged risk.',
+          'Finally, operational technology (OT) — industrial control systems (ICS) and supervisory control and data acquisition (SCADA) — runs factories, utilities, and pipelines, and it follows different rules: availability beats confidentiality, patching windows are measured in planned shutdowns, and a scan that would be routine on IT can halt a production line. The analyst\'s job is to monitor OT with the same discipline, using the same logging and detection, without treating it like another office network.',
+        ],
+      },
+      {
         heading: 'Measuring the SOC',
         body: [
           'Three metrics dominate SOC reporting. Mean time to detect (MTTD) is the average time from compromise to detection — lower MTTD limits how long an attacker operates unseen. Mean time to respond (MTTR) is the average time from detection to containment or remediation — the speed at which the SOC turns knowledge into action. Dwell time is how long an attacker remains undetected in the environment, and industry averages are measured in days to weeks, which is why threat hunting exists.',
@@ -59,6 +69,11 @@ export default {
       ['MTTD / MTTR / dwell time', 'Mean time to detect, mean time to respond, and how long an attacker stays undetected.'],
       ['Baseline', 'A profile of normal behavior used to spot anomalies.'],
       ['Enrichment', 'Automatically adding asset, threat intel, and related-alert context to a ticket.'],
+      ['ZTNA', 'Zero Trust Network Architecture: per-user, per-device, per-application access after verification.'],
+      ['SASE', 'Secure access service edge: network + security (SWG, CASB, ZTNA) delivered from the cloud.'],
+      ['Logging concepts', 'Ingestion, configuration, integrity and security, time synchronization (NTP), retention.'],
+      ['PAM / secrets management', 'Vault and rotate privileged credentials; keep API keys and secrets out of code.'],
+      ['OT / ICS / SCADA', 'Operational technology: availability first; patching and scanning follow production constraints.'],
     ],
   },
 
@@ -101,6 +116,14 @@ export default {
           'That drift is worth naming explicitly. Configuration drift is systems gradually diverging from their secure baselines over time — the firewall rule added for a project and never removed, the service re-enabled by an update. Continuous compliance scanning exists because drift is constant, and vulnerability management that only tracks CVEs misses the misconfigurations attackers actually exploit. And vulnerability chaining is why even low-severity findings matter: attackers combine multiple minor flaws into a serious exploit path, so the "low" you deferred can be the stepping stone to the "critical" you feared.',
         ],
       },
+      {
+        heading: 'Scanning methods and assessment tools (2.1 / 2.2)',
+        body: [
+          'Scanning starts with the asset inventory: you cannot scan what you do not know exists, and unmanaged assets are the ones attackers find first. Planning then weighs scheduling (when scans run), operations (which business functions are affected), performance (scan traffic can saturate links), sensitivity levels (how aggressively to probe), segmentation (which network zones are in scope), and regulatory requirements (PCI DSS scans have their own rules).',
+          'Scan types are chosen by question. Internal scans run from inside the network and see what a compromised host would see; external scans run from outside and see the attacker\'s view. Agent-based scans report continuously from the host; agentless scans probe over the network. Credentialed scans authenticate and see patch levels; non-credentialed scans see only what is exposed. Passive scans listen without sending probes — safe for fragile systems — while active scans send traffic and get fuller answers. Discovery and mapping scans enumerate hosts and services; device fingerprinting identifies operating systems and versions; security baseline scanning checks configuration against a standard — PCI DSS, CIS Benchmarks, or the ISO 27000 series.',
+          'The tools themselves fall into families. Network scanning and mapping: Angry IP Scanner and Masscan for fast host and port discovery. Multipurpose tools: Nmap for probing, the Metasploit Framework for validating exploitability, Maltego for link analysis, Recon-ng for OSINT-driven reconnaissance. Web application scanners: Burp Suite, Zed Attack Proxy (ZAP), and Nikto for finding flaws in web apps. Vulnerability scanners: Nessus, Nuclei, and OpenVAS for the systematic CVE hunt. Cloud infrastructure assessment: ScoutSuite, Prowler, Trivy, and Checkov for misconfigurations in cloud accounts and infrastructure as code. Breach attack simulation (BAS): Atomic Red Team and Caldera for safely running real adversary techniques against your own defenses to prove whether detections fire.',
+        ],
+      },
     ],
     examples: [
       {
@@ -120,6 +143,15 @@ export default {
       ['Compensating control', 'Segmentation, IPS signatures, or monitoring that make an unpatchable flaw survivable.'],
       ['Vulnerability assessment vs pen test', 'Assessment finds and reports; pen test exploits to prove impact.'],
       ['CIS Benchmarks', 'Consensus-based secure configuration guidance used for compliance scanning.'],
+      ['Asset inventory', 'You cannot scan what you do not know exists.'],
+      ['Internal vs external scan', 'Inside view (post-compromise) vs attacker view from outside.'],
+      ['Passive vs active scan', 'Listen without probing vs send traffic for fuller answers.'],
+      ['Baseline scanning', 'Check configuration against PCI DSS, CIS Benchmarks, or ISO 27000.'],
+      ['Nmap / Masscan / Angry IP Scanner', 'Network scanning and mapping tools.'],
+      ['Burp Suite / ZAP / Nikto', 'Web application scanners.'],
+      ['Nessus / Nuclei / OpenVAS', 'Vulnerability scanners.'],
+      ['ScoutSuite / Prowler / Trivy / Checkov', 'Cloud infrastructure assessment tools.'],
+      ['Atomic Red Team / Caldera', 'Breach attack simulation: run adversary techniques to test detections.'],
     ],
   },
 
@@ -151,6 +183,7 @@ export default {
           'SOAR — Security Orchestration, Automation, and Response — is what happens when playbooks become executable. Where a SIEM detects, SOAR acts: running automated playbooks that enrich tickets, create cases, block IPs, disable accounts, and isolate endpoints in response to alerts. The trigger is the alert condition that starts a sequence of automated actions; the playbook is the workflow itself.',
           'The realistic automation targets are the repetitive, low-judgment parts of triage: enrichment (pulling asset owner, threat intel, and related alerts into the ticket automatically), ticket creation, and reversible containment like blocking a known-malicious IP. These are the tasks that consume analyst hours without requiring analyst judgment, and automating them is how a SOC scales without hiring linearly.',
           'The main risk of fully automated response is getting it wrong at machine speed. Automated containment can disrupt legitimate business — isolating the CEO\'s laptop during a board meeting because of a false positive is a career event. Mature programs gate automation by confidence: fully automatic for high-confidence, reversible actions; human approval for destructive or business-impacting ones. Automation should multiply analyst judgment, not replace it.',
+          'Integration is what makes SOAR real: APIs connect the SIEM to the firewall, the EDR, and the ticketing system; webhooks push events between tools in real time; plug-ins extend the platform to new products. Standardizing processes — documented playbooks and runbooks, clear team coordination — and streamlining operations through automation, data enrichment, rule and alert tuning, and dashboards is how a SOC gets faster without getting bigger.',
         ],
       },
       {
@@ -159,6 +192,23 @@ export default {
           'Threat intelligence feed integration gives every alert its context automatically: the SIEM matches observed indicators — IPs, domains, hashes — against feeds of known-malicious artifacts and attaches the results to the alert. An alert for "workstation talked to 203.0.113.44" becomes "workstation talked to a known ransomware C2 server," and the analyst\'s first decision is half made.',
           'Two vocabularies matter here. An IOC — indicator of compromise — is an artifact of compromise such as a hash, IP, or domain; it is evidence that something already happened. An IOA — indicator of attack — describes behavior in progress, like a suspicious process pattern. IOCs are specific and expire quickly as attackers rotate infrastructure; IOAs describe behavior and stay relevant longer. Detections built on IOAs are more durable than those built on IOCs.',
           'STIX and TAXII are the standards that let this intelligence move between organizations and tools: STIX is the format for expressing threat intelligence, TAXII is the protocol for exchanging it. Together they are how a feed from a vendor, a government agency, or an industry sharing group arrives in your SIEM in a machine-readable form. And UEBA — user and entity behavior analytics — extends the same idea to behavior: baselining normal user and device activity to flag anomalies, which is how you catch the insider and the compromised account that no signature would recognize.',
+        ],
+      },
+      {
+        heading: 'The analyst\'s toolkit (1.3)',
+        body: [
+          'Packet analysis is the first stop when the network tells the story: Wireshark and tcpdump capture and dissect traffic, while Snort, Suricata, and Zeek watch it continuously — Snort and Suricata as signature-based intrusion detection, Zeek as a network security monitor that logs connections, DNS, and files in structured form. When a payload looks encoded, CyberChef decodes and parses it in the browser without touching the production network.',
+          'Log analysis is the SIEM\'s job, fed by threat-intelligence platforms — AlienVault OTX (Open Threat Exchange), MISP (Malware Information Sharing Platform), and OpenCTI (Open Cyber Threat Intelligence) — that aggregate indicators and context from the community. Endpoint security is EDR and its extension XDR, which correlate endpoint, network, and identity telemetry; mobile device management (MDM) covers the phones and tablets. Reputation checks start with WHOIS for domain ownership, AbuseIPDB for reported abuse, and GEO-IP for where an address claims to be.',
+          'File analysis answers "is this binary malicious": the strings command extracts readable text, VirusTotal checks a hash against dozens of engines, and YARA rules match patterns across files and memory. When a file or URL must be executed to be understood, sandboxing — Joe Sandbox, Cuckoo Sandbox — detonates it in isolation and records what it does. Pattern recognition ties it together: regular expressions carve indicators out of logs, and reading a suspicious command — a base64 PowerShell one-liner, a curl to a raw paste site — is a skill in itself. Email analysis has its own tool in MXToolbox, checking DNS, blacklists, and mail-server configuration. User and entity behavior analysis (UEBA), in open form OpenUBA, baselines normal user and device behavior to flag the anomalies signatures miss.',
+          'The data itself comes in formats the analyst must read: JSON and XML for APIs and logs, YAML for configuration, and EVTX — the Windows event log format — for host evidence. And when the tools run out, scripting fills the gap: Python for log parsing and API automation, PowerShell for Windows investigation, shell script for Linux.',
+        ],
+      },
+      {
+        heading: 'AI in security operations (1.6)',
+        body: [
+          'AI has entered the SOC as both a tool and a risk. On the tool side, analysts use it to compare artifacts — is this binary like a known sample? — to analyze log files at a volume no human can read, to draft documents and reports, to investigate incidents by correlating events across sources, and to drive automation and orchestration in SOAR playbooks.',
+          'The risks are specific and testable. Hallucinations are confident, plausible, wrong outputs — an AI that invents an indicator or a log line that never existed. Data exposure happens when sensitive logs or incident details are pasted into a model whose operator retains them. Model poisoning corrupts training data so the model misclassifies on demand. Malicious prompts — prompt injection — trick the model into ignoring its instructions, for example through text hidden in a log file or a ticket it is asked to summarize.',
+          'Governance is the answer: legal or regulatory compliance constrains what data may be sent to a model, and AI usage policies define which tools are approved, what may be pasted into them, and when a human must verify the output. The rule for the analyst is the same as for any automation: AI accelerates judgment, it does not replace it — every AI-assisted finding gets verified against the raw evidence before it becomes a decision.',
         ],
       },
     ],
@@ -180,6 +230,17 @@ export default {
       ['IOC vs IOA', 'An IOC is an artifact of compromise (hash, IP); an IOA describes attack behavior. IOAs are more durable.'],
       ['STIX / TAXII', 'STIX is the format for threat intelligence; TAXII is the protocol for exchanging it.'],
       ['UEBA', 'Baselines normal user and entity behavior to flag anomalies.'],
+      ['Wireshark / tcpdump', 'Packet capture and analysis; Zeek logs connections/DNS/files, Snort and Suricata are signature IDS.'],
+      ['CyberChef', 'Browser-based decoding and parsing of encoded payloads.'],
+      ['OTX / MISP / OpenCTI', 'Threat-intelligence platforms aggregating indicators and context.'],
+      ['EDR / XDR / MDM', 'Endpoint detection and response; XDR extends it across telemetry; MDM covers mobile devices.'],
+      ['WHOIS / AbuseIPDB / GEO-IP', 'Domain ownership, reported abuse, and IP geolocation reputation checks.'],
+      ['Strings / VirusTotal / YARA', 'File analysis: extract text, check hashes against engines, match patterns.'],
+      ['Joe Sandbox / Cuckoo Sandbox', 'Detonate suspicious files in isolation and record behavior.'],
+      ['EVTX / JSON / YAML', 'Windows event logs, API/log data, configuration — the formats analysts read.'],
+      ['AI risks', 'Hallucinations, data exposure, model poisoning, malicious prompts (prompt injection).'],
+      ['AI governance', 'Legal/regulatory compliance and AI usage policies bound what may go to a model.'],
+      ['APIs / webhooks / plug-ins', 'How SOAR integrates SIEM, firewall, EDR, and ticketing.'],
     ],
   },
 
@@ -198,6 +259,15 @@ export default {
         ],
       },
       {
+        heading: 'Threat intelligence concepts (1.4)',
+        body: [
+          'Threat intelligence starts with who is attacking. An advanced persistent threat (APT) is a well-resourced, patient actor — usually state-sponsored — that works a target for months. An insider threat is the employee, contractor, or partner who already has access and misuses it. Both are judged by their tactics, techniques, and procedures (TTPs): what they do, how they do it, and the specific tools and commands they use.',
+          'Not all intelligence is equally useful. The Pyramid of Pain ranks indicators by how much it costs the attacker to change them: hashes and IPs at the bottom (trivial to rotate), domain names and network artifacts in the middle, and TTPs at the top — changing how you operate is expensive. Confidence in an intelligence report comes from three factors: timeliness (how fresh is it), relevance (does it apply to your sector and systems), and accuracy (has it been corroborated). Low confidence does not mean discard it — it means verify before acting.',
+          'Collection methods split three ways: open-source intelligence (OSINT) from public material, closed-source intelligence from private or classified feeds, and threat intelligence sharing between organizations — ISACs, vendor feeds, government advisories. Indicators of compromise (IoCs) come in two types: atomic indicators (a hash, an IP, a domain — a single fact) and behavioral indicators (a pattern of activity). Atomic indicators expire fast; behavioral ones last.',
+          'Threat modeling makes the thinking explicit: STRIDE walks through spoofing, tampering, repudiation, information disclosure, denial of service, and elevation of privilege for each component. Threat mapping plots those threats against your systems, and heat maps — including ATT&CK Navigator coverage — show where detection is strong and where it is blind. Cyber deception completes the set: honeypots and decoy credentials that waste the attacker\'s time and reveal their methods. The point of all of it is the same: understand the adversary well enough to hunt them, not just react to them.',
+        ],
+      },
+      {
         heading: 'Reading network telemetry',
         body: [
           'The network remembers what endpoints try to forget. Command-and-control beaconing has a recognizable shape in logs: regular, low-volume callbacks at fixed intervals, often to rare or newly registered domains, with consistent small byte counts. Humans browse irregularly; malware phones home on a schedule. That regularity is the signal.',
@@ -211,6 +281,7 @@ export default {
           'On the endpoint, process relationships tell the story. Unexpected parent-child process relationships — Word spawning PowerShell, rundll32.exe running with no command line and making external connections — are classic signs of process injection and payload execution. Attackers increasingly practice living-off-the-land: using legitimate system tools like PowerShell, WMI, and PsExec instead of custom malware, because trusted tools bypass allowlists and leave less forensic residue. The defense is not blocking the tool but detecting its misuse.',
           'Email remains the most common initial access vector, and the headers are the evidence. Return-Path, the Received chain, and the SPF, DKIM, and DMARC results show where a message actually came from versus where it claims to be from. A "bank" email whose Received chain starts at a residential ISP and fails all three authentication checks is not a bank email. URL detonation — safely opening a suspicious link in a sandbox to observe its behavior — answers what the link does without risking a workstation.',
           'Persistence in email systems is subtler than malware: attackers create auto-forwarding rules or rules that hide their activity, silently copying incoming mail to external addresses or moving security notifications out of the inbox. Mailbox rule review belongs in every compromise investigation, because the attacker who keeps reading the victim\'s email keeps their access to password resets.',
+          'The social-engineering indicators deserve their own vocabulary. Business email compromise (BEC) is fraud by impersonation — a message that looks like it comes from an executive or a supplier, directing a payment or a credential reset. Typosquatting registers lookalike domains (rnicrosoft.com, your-bank-secure.com) to catch the careless click, and URL shorteners hide the real destination behind a trusted-looking link. Identity-based indicators complete the picture: an IAM account compromise, unauthorized access, and impossible travel — the same account logging in from two distant places faster than a person could travel.',
         ],
       },
       {
@@ -240,6 +311,16 @@ export default {
       ['Email headers', 'Return-Path, the Received chain, and SPF/DKIM/DMARC show a message\'s true origin.'],
       ['Order of volatility', 'Collect the most volatile evidence first: cache and RAM before disk and logs.'],
       ['Timeline analysis', 'Ordering artifacts by timestamp to reconstruct the attack.'],
+      ['APT / insider threat', 'Well-resourced patient actor vs a trusted person misusing access.'],
+      ['Pyramid of Pain', 'Hashes and IPs are cheap for attackers to change; TTPs are expensive.'],
+      ['Confidence: timeliness, relevance, accuracy', 'How fresh, how applicable, how corroborated an intelligence report is.'],
+      ['OSINT / closed-source / sharing', 'Public sources, private feeds, and intelligence shared between organizations.'],
+      ['Atomic vs behavioral IoC', 'A single fact (hash, IP) vs a pattern of activity; behavioral lasts longer.'],
+      ['STRIDE', 'Spoofing, tampering, repudiation, information disclosure, DoS, elevation of privilege.'],
+      ['Threat mapping / heat maps', 'Plot threats against systems; visualize detection coverage and blind spots.'],
+      ['Cyber deception', 'Honeypots and decoy credentials that waste attacker time and reveal methods.'],
+      ['BEC / typosquatting / URL shorteners', 'Impersonation fraud, lookalike domains, hidden link destinations.'],
+      ['Impossible travel', 'Same account in two distant places faster than a person could travel.'],
     ],
   },
 
@@ -281,6 +362,15 @@ export default {
           'Tie the metrics together and they tell a story. Rising MTTR with stable coverage means the remediation pipeline is the bottleneck. Falling coverage with stable MTTR means the asset inventory is decaying. Vulnerability aging climbing means exceptions are accumulating. The analyst who can read these trends can fix the program, not just the findings.',
         ],
       },
+      {
+        heading: 'Controls, risk, and the supply chain (2.4)',
+        body: [
+          'Controls come in types and functions. By type: administrative controls are policies, procedures, and training; technical controls are firewalls, encryption, and access controls; physical controls are locks, badges, and guards. By function: preventative controls stop an event, detective controls find it, responsive controls contain it, and corrective controls restore normal operation. A vulnerability program uses all of them — the patch is preventative, the scan is detective, the IPS signature is responsive, the rebuild is corrective.',
+          'Risk has its own vocabulary. Risk appetite is how much risk the organization is willing to accept; inherent risk is the risk before controls; residual risk is what remains after them. The four risk management strategies are accept (take the risk knowingly, with an owner and an expiry), transfer (insure it or contract it away), avoid (stop doing the risky thing), and mitigate (reduce it with controls). Every vulnerability disposition is one of these four in disguise.',
+          'Application security extends vulnerability management into code. Static application security testing (SAST) reads source code for flaws before it runs; dynamic application security testing (DAST) probes the running application. The Software Assurance Maturity Model (SAMM) gives organizations a way to measure how mature their secure-development practices are. Third-party risk is the other flank: the supply chain — vendors, libraries, and services you did not write — carries vulnerabilities you did not create. Software composition analysis (SCA) inventories the open-source components in your software, and a software bill of materials (SBOM) is the resulting list: every component and version, so that when the next Log4Shell lands, you can answer in minutes whether you are affected.',
+          'Attack surface management is the continuous discipline behind all of it: discovering and shrinking what is exposed — internet-facing services, forgotten subdomains, shadow IT — so there is less to scan, prioritize, and patch.',
+        ],
+      },
     ],
     examples: [
       {
@@ -300,6 +390,14 @@ export default {
       ['Configuration drift', 'Systems gradually diverging from secure baselines; caught by continuous compliance scanning.'],
       ['Vulnerability aging', 'How long vulnerabilities remain open past their remediation SLAs.'],
       ['Coordinated disclosure', 'Researcher reports privately, vendor remediates, public disclosure follows the fix.'],
+      ['Control types', 'Administrative (policies), technical (firewalls, encryption), physical (locks, badges).'],
+      ['Control functions', 'Preventative, detective, responsive, corrective.'],
+      ['Risk appetite / inherent / residual', 'Willingness to accept risk; risk before controls; risk after controls.'],
+      ['Accept / transfer / avoid / mitigate', 'The four risk management strategies.'],
+      ['SAST vs DAST', 'SAST reads source code; DAST probes the running application.'],
+      ['SAMM', 'Software Assurance Maturity Model: measures secure-development maturity.'],
+      ['SCA / SBOM', 'Software composition analysis inventories components; the SBOM lists them all.'],
+      ['Attack surface management', 'Continuously discover and shrink what is exposed.'],
     ],
   },
 
@@ -312,7 +410,7 @@ export default {
       {
         heading: 'The NIST SP 800-61 lifecycle',
         body: [
-          'NIST SP 800-61 defines four phases: Preparation; Detection and Analysis; Containment, Eradication, and Recovery; and Post-Incident Activity. The phases are a cycle, not a line — lessons learned feed back into preparation, and preparation determines how well every other phase performs.',
+          'NIST SP 800-61 defines four phases: Preparation; Detection and Analysis; Containment, Eradication, and Recovery; and Post-Incident Activity. The phases are a cycle, not a line — lessons learned feed back into preparation, and preparation determines how well every other phase performs. NIST SP 800-61 Rev. 3 (April 2025) superseded Rev. 2 and reorganizes incident response around the NIST Cybersecurity Framework 2.0 functions; the four-phase lifecycle above remains the model most IR plans and the exam follow.',
           'Preparation is everything built before the incident: the IR team with defined roles, the tooling and access they will need, the playbooks for likely scenarios, and the communication plans for stakeholders, legal, and the public. It also means relationships — an IR retainer, a pre-contracted external response firm for surge support, signed before you need it, because negotiating contracts during a breach is how you lose days you do not have.',
           'Detection and Analysis is the SOC\'s handoff to the IR process: confirming that an event is an incident, determining scope, and understanding what the attacker did. Analysis quality determines response quality — contain too early and you tip off the attacker before you understand their foothold; contain too late and the damage spreads. A war room — a centralized coordination space or channel with defined roles — keeps the analysis and the decisions in one place instead of scattered across chat threads.',
         ],
@@ -341,6 +439,14 @@ export default {
           'Post-Incident Activity closes the loop with the lessons-learned review: a blameless analysis of what happened, what worked, what failed, and what changes, with assigned action items and owners. Blameless is not optional — a review that punishes honesty guarantees the next review hears nothing. Document what went well alongside what did not; it reinforces the controls and decisions that worked and tells the team the review is about improvement, not punishment.',
         ],
       },
+      {
+        heading: 'Training, evidence, and closing out (3.3)',
+        body: [
+          'A plan nobody has practiced is a hope, not a plan. Training takes two forms: tabletop exercises, where the team talks through a scenario around a table and finds the gaps in the plan, and simulations, where the team actually works the incident in a controlled environment. Both test the same things — who decides, who communicates, and whether the playbooks hold up under pressure — and both feed their findings back into preparation.',
+          'Evidence handling has one addition the response team must not miss: a legal hold. When litigation or regulatory action is possible, relevant data must be preserved and not deleted, rotated, or overwritten — including backups and logs that would normally age out. Data integrity validation — hashing evidence at collection and re-checking it later — proves nothing changed in between.',
+          'Closing out an incident has its own steps. Release from isolation returns systems to normal operation only after verification that the threat is gone — a host released too early is a reinfection waiting to happen. Performing restoration brings services back in priority order with enhanced monitoring. Root cause analysis (RCA) then asks why the incident happened, not just what happened: the missing patch, the unmonitored log source, the process that failed. Corrective action development turns the answer into changes — new detections, new controls, updated playbooks — with owners and deadlines, so the next incident is a different one.',
+        ],
+      },
     ],
     examples: [
       {
@@ -360,6 +466,12 @@ export default {
       ['Write-blocking', 'Prevents any writes to evidence media during collection.'],
       ['Incident vs breach', 'A breach is confirmed unauthorized acquisition of data; breach laws trigger on breaches.'],
       ['GDPR 72-hour rule', 'Supervisory authorities must be notified within 72 hours of becoming aware of a breach.'],
+      ['Tabletop vs simulation', 'Talk through a scenario vs work it in a controlled environment.'],
+      ['Legal hold', 'Preserve relevant data when litigation or regulation is possible; stop normal deletion.'],
+      ['Release from isolation', 'Return systems to service only after eradication is verified.'],
+      ['Root cause analysis', 'Why the incident happened, not just what happened.'],
+      ['Corrective action development', 'Turn lessons learned into changes with owners and deadlines.'],
+      ['NIST SP 800-61 Rev. 3', 'April 2025 revision, organized around NIST CSF 2.0 functions.'],
     ],
   },
 
@@ -444,6 +556,14 @@ export default {
           'The lessons-learned report is the final reporting product of every incident: a blameless post-incident analysis with assigned action items and owners. It differs from a forensic report, which documents evidence and technical findings for potential legal use — the incident report covers timeline and business impact, the forensic report covers artifacts and analysis. Document what went well alongside what failed; it reinforces the controls that worked and keeps the review honest. And responsible disclosure communication — coordinated, factual public statements made after remediation — is how the organization talks about the incident to the outside world without creating new liability.',
         ],
       },
+      {
+        heading: 'What the reports contain (4.1 / 4.2)',
+        body: [
+          'Vulnerability scan reports are the working documents of Domain 2.0: compliance findings against the standard being audited, risk scorecards that rank business units or systems by their exposure, and action plans with owners and dates. The action plan names its dependencies — the patch that needs a maintenance window, the vendor fix that does not exist yet — and its inhibitors to remediation: contractual agreements that limit change, organizational governance, business process interruption, degrading functionality if the fix is applied, legacy or proprietary systems nobody can patch, and patch availability itself. Naming the inhibitor is what turns "not fixed" from an excuse into a managed risk.',
+          'Incident and security operations reporting has its own products. Incident declaration and escalation is the formal record that an incident exists and who owns it; the executive summary carries it upward. The communication plan names every audience — stakeholder identification, the legal team, public relations, regulatory reporting agencies, law enforcement, customers — and the channels each one gets. Shift and incident handover keeps the work continuous; the internal threat intelligence report turns what was learned about the adversary into guidance for the next shift and the next detection.',
+          'The metrics behind both reports are the same ones the SOC lives by: alert volume, false-positive and true-positive rates, mean time to close, mean time to detect, mean time to respond, and mean time to remediate — plus the phishing campaign click rate, which measures whether the human layer is improving. Post-incident reporting closes the loop: the after action report, the lessons learned, and the root cause analysis, each with its owners and dates. A report that nobody acts on is a filing exercise; a report that changes a decision is the job.',
+        ],
+      },
     ],
     examples: [
       {
@@ -463,6 +583,12 @@ export default {
       ['GDPR 72-hour rule', 'Supervisory authorities must be notified within 72 hours of becoming aware of a breach.'],
       ['Attorney-client privilege', 'Legal counsel directing the investigation protects its findings.'],
       ['Lessons-learned report', 'Blameless post-incident analysis with assigned action items; document what went well too.'],
+      ['Risk scorecard', 'Ranks business units or systems by vulnerability exposure.'],
+      ['Inhibitors to remediation', 'Contracts, governance, business interruption, legacy or proprietary systems, patch availability.'],
+      ['Incident declaration and escalation', 'The formal record that an incident exists and who owns it.'],
+      ['Internal threat intelligence report', 'What was learned about the adversary, shared for the next detection.'],
+      ['Mean time to close', 'How long incidents take from detection to closure.'],
+      ['Phishing campaign click rate', 'Whether the human layer is improving.'],
     ],
   },
 };

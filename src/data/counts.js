@@ -51,7 +51,7 @@ export const COUNTS = {
     },
     "cysa": {
       "decks": 8,
-      "cards": 160,
+      "cards": 199,
       "decksPlus": "8",
       "cardsPlus": "100+"
     },
@@ -134,7 +134,7 @@ export const COUNTS = {
       "cardsPlus": "70+"
     }
   },
-  "totalCards": 3190,
+  "totalCards": 3229,
   "totalCardsPlus": "3,000+",
   "totalDecks": 222,
   "totalDecksPlus": "200+",

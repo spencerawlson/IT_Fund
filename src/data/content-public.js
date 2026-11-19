@@ -12417,6 +12417,31 @@ export const tracks = [
                 "id": "cysa-soc-foundations-19",
                 "deckId": "cysa-soc-foundations",
                 "trackId": "cysa"
+              },
+              {
+                "id": "cysa-soc-foundations-20",
+                "deckId": "cysa-soc-foundations",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-soc-foundations-21",
+                "deckId": "cysa-soc-foundations",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-soc-foundations-22",
+                "deckId": "cysa-soc-foundations",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-soc-foundations-23",
+                "deckId": "cysa-soc-foundations",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-soc-foundations-24",
+                "deckId": "cysa-soc-foundations",
+                "trackId": "cysa"
               }
             ],
             "trackId": "cysa",
@@ -12542,6 +12567,36 @@ export const tracks = [
               },
               {
                 "id": "cysa-vuln-basics-19",
+                "deckId": "cysa-vuln-basics",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-basics-20",
+                "deckId": "cysa-vuln-basics",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-basics-21",
+                "deckId": "cysa-vuln-basics",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-basics-22",
+                "deckId": "cysa-vuln-basics",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-basics-23",
+                "deckId": "cysa-vuln-basics",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-basics-24",
+                "deckId": "cysa-vuln-basics",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-basics-25",
                 "deckId": "cysa-vuln-basics",
                 "trackId": "cysa"
               }
@@ -12677,6 +12732,41 @@ export const tracks = [
                 "id": "cysa-siem-soar-19",
                 "deckId": "cysa-siem-soar",
                 "trackId": "cysa"
+              },
+              {
+                "id": "cysa-siem-soar-20",
+                "deckId": "cysa-siem-soar",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-siem-soar-21",
+                "deckId": "cysa-siem-soar",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-siem-soar-22",
+                "deckId": "cysa-siem-soar",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-siem-soar-23",
+                "deckId": "cysa-siem-soar",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-siem-soar-24",
+                "deckId": "cysa-siem-soar",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-siem-soar-25",
+                "deckId": "cysa-siem-soar",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-siem-soar-26",
+                "deckId": "cysa-siem-soar",
+                "trackId": "cysa"
               }
             ],
             "trackId": "cysa",
@@ -12801,6 +12891,36 @@ export const tracks = [
               },
               {
                 "id": "cysa-threat-hunting-19",
+                "deckId": "cysa-threat-hunting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-threat-hunting-20",
+                "deckId": "cysa-threat-hunting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-threat-hunting-21",
+                "deckId": "cysa-threat-hunting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-threat-hunting-22",
+                "deckId": "cysa-threat-hunting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-threat-hunting-23",
+                "deckId": "cysa-threat-hunting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-threat-hunting-24",
+                "deckId": "cysa-threat-hunting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-threat-hunting-25",
                 "deckId": "cysa-threat-hunting",
                 "trackId": "cysa"
               }
@@ -12928,6 +13048,36 @@ export const tracks = [
               },
               {
                 "id": "cysa-vuln-management-19",
+                "deckId": "cysa-vuln-management",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-management-20",
+                "deckId": "cysa-vuln-management",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-management-21",
+                "deckId": "cysa-vuln-management",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-management-22",
+                "deckId": "cysa-vuln-management",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-management-23",
+                "deckId": "cysa-vuln-management",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-management-24",
+                "deckId": "cysa-vuln-management",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-vuln-management-25",
                 "deckId": "cysa-vuln-management",
                 "trackId": "cysa"
               }
@@ -13061,6 +13211,26 @@ export const tracks = [
               },
               {
                 "id": "cysa-incident-response-19",
+                "deckId": "cysa-incident-response",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-incident-response-20",
+                "deckId": "cysa-incident-response",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-incident-response-21",
+                "deckId": "cysa-incident-response",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-incident-response-22",
+                "deckId": "cysa-incident-response",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-incident-response-23",
                 "deckId": "cysa-incident-response",
                 "trackId": "cysa"
               }
@@ -13314,6 +13484,31 @@ export const tracks = [
               },
               {
                 "id": "cysa-reporting-19",
+                "deckId": "cysa-reporting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-reporting-20",
+                "deckId": "cysa-reporting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-reporting-21",
+                "deckId": "cysa-reporting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-reporting-22",
+                "deckId": "cysa-reporting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-reporting-23",
+                "deckId": "cysa-reporting",
+                "trackId": "cysa"
+              },
+              {
+                "id": "cysa-reporting-24",
                 "deckId": "cysa-reporting",
                 "trackId": "cysa"
               }
