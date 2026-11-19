@@ -52,6 +52,20 @@ export const LAB_TITLES = {
   'py-netauto-001': 'Python for Network Automation',
   'py-automation-001': 'Automate with Python',
   'linux-terminal-001': 'Linux Terminal Essentials',
+  'linux-permissions-001': 'Permissions & ACLs',
+  'linux-users-001': 'Linux Users, Groups & sudo',
+  'linux-cron-001': 'Cron & Automation',
+  'linux-audit-001': 'Audit Logs & fail2ban',
+  'linux-ssh-001': 'SSH Hardening',
+  'linux-services-001': 'Service Troubleshooting',
+  'linux-hardening-001': 'Hardening Capstone',
+  'sec-webapp-001': 'Web App Testing: SQLi & XSS',
+  'net-topology-001': 'Build the Office LAN',
+  'net-topology-003': 'Segment a DMZ',
+  'net-topology-004': 'Make the Core Fault-Tolerant',
+  'iac-policy-001': 'Terraform Policy as Code',
+  'sec-trivy-001': 'Container Image Scanning with Trivy',
+  'py-sqli-001': 'Fixing SQL Injection',
 };
 
 /** Deck-specific lab recommendations. */
