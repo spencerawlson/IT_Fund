@@ -8,7 +8,7 @@ person has reviewed them.
 
 | File | What | Items |
 |---|---|---|
-| `cissp/2026-11-18-d2-d5-d6-scenarios.json` | CISSP managerial scenario questions for the thinnest domains (audit R-0009) | 45: Domain 2 ×15, Domain 5 ×15, Domain 6 ×15 |
+| `cissp/2026-11-18-d2-d5-d6-scenarios.json` | CISSP managerial scenario questions for the thinnest domains (audit R-0009) — **published 2026-11-19** | 45 published (Domain 2 ×15, Domain 5 ×15, Domain 6 ×15); 0 remaining |
 
 Each item records its draft id, its CISSP domain, the 2024 outline objective it
 targets, the deck it would join, and the card itself:

@@ -69,9 +69,9 @@ export const COUNTS = {
     },
     "cissp": {
       "decks": 19,
-      "cards": 169,
+      "cards": 214,
       "decksPlus": "10+",
-      "cardsPlus": "100+"
+      "cardsPlus": "200+"
     },
     "linux": {
       "decks": 10,
@@ -134,7 +134,7 @@ export const COUNTS = {
       "cardsPlus": "70+"
     }
   },
-  "totalCards": 3145,
+  "totalCards": 3190,
   "totalCardsPlus": "3,000+",
   "totalDecks": 222,
   "totalDecksPlus": "200+",

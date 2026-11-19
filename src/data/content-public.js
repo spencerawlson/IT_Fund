@@ -15708,6 +15708,81 @@ export const tracks = [
                 "id": "cissp-d2b-14",
                 "deckId": "cissp-d2b",
                 "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-15",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-16",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-17",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-18",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-19",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-20",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-21",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-22",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-23",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-24",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-25",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-26",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-27",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-28",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d2b-29",
+                "deckId": "cissp-d2b",
+                "trackId": "cissp"
               }
             ],
             "trackId": "cissp",
@@ -15982,6 +16057,81 @@ export const tracks = [
                 "id": "cissp-d5-10",
                 "deckId": "cissp-d5",
                 "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-11",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-12",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-13",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-14",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-15",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-16",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-17",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-18",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-19",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-20",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-21",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-22",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-23",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-24",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d5-25",
+                "deckId": "cissp-d5",
+                "trackId": "cissp"
               }
             ],
             "trackId": "cissp",
@@ -16071,6 +16221,81 @@ export const tracks = [
               },
               {
                 "id": "cissp-d6-10",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-11",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-12",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-13",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-14",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-15",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-16",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-17",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-18",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-19",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-20",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-21",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-22",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-23",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-24",
+                "deckId": "cissp-d6",
+                "trackId": "cissp"
+              },
+              {
+                "id": "cissp-d6-25",
                 "deckId": "cissp-d6",
                 "trackId": "cissp"
               }
