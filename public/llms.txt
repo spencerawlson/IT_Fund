@@ -1,6 +1,6 @@
 # Road to CISSP
 
-> Learn IT by doing it — networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP. 800+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free; Pro is $29/month.
+> Learn IT by doing it — networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP. 3,000+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free; Pro is $29/month.
 
 ## Key pages
 
