@@ -746,7 +746,7 @@ export default {
       {
         heading: 'Data and databases',
         body: [
-          'pandas is the standard library for tabular analysis: `pd.read_csv("auth.csv")` then `groupby` and `value_counts` summarise thousands of log rows in a line or two.',
+          'pandas is the go-to library for tabular analysis: `pd.read_csv("auth.csv")` then `groupby` and `value_counts` summarise thousands of log rows in a line or two.',
           'Prevent SQL injection with parameterised queries: `cursor.execute("SELECT * FROM users WHERE name = ?", (name,))`. The driver sends the value separately from the SQL, so input can never change the query. Never build SQL with f-strings or concatenation.',
         ],
       },
