@@ -2027,6 +2027,15 @@ export default {
       ['Appetite vs tolerance', 'How much risk vs acceptable variance'],
       ['Avoidance', 'Retire what you cannot defend'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-30 Rev. 1: Guide for Conducting Risk Assessments', url: 'https://csrc.nist.gov/pubs/sp/800/30/r1/final' },
+      { title: 'NIST Risk Management Framework (RMF)', url: 'https://csrc.nist.gov/projects/risk-management' },
+      { title: 'FAIR Institute — Factor Analysis of Information Risk', url: 'https://www.fairinstitute.org/' },
+    ],
   },
   'secplus-governance-scenarios': {
     overview: [
@@ -2140,6 +2149,15 @@ export default {
       ['Shared responsibility', 'You own data, access, config'],
       ['Reassess on', 'Acquisition, renewal, breach'],
       ['Due diligence scale', 'Risk-based, not one-size-fits-all'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-161 Rev. 1: Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations', url: 'https://csrc.nist.gov/pubs/sp/800/161/r1/final' },
+      { title: 'Supply chain security — NCSC', url: 'https://www.ncsc.gov.uk/collection/supply-chain-security' },
+      { title: 'CIS Critical Security Controls', url: 'https://www.cisecurity.org/controls' },
     ],
   },
 };

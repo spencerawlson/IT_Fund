@@ -23840,6 +23840,20 @@ export const freeLessonContent = {
         "Honeypot",
         "Decoy: any interaction is suspicious"
       ]
+    ],
+    "further_reading": [
+      {
+        "title": "NIST Cybersecurity Framework",
+        "url": "https://www.nist.gov/cyberframework"
+      },
+      {
+        "title": "NIST SP 800-207: Zero Trust Architecture",
+        "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+      },
+      {
+        "title": "CompTIA Security+ Certification",
+        "url": "https://www.comptia.org/en-us/certifications/security/"
+      }
     ]
   },
   "py-basics": {

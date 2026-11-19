@@ -71,6 +71,15 @@ export default {
       ['Recall', 'Few missed threats'],
       ['Imbalanced data', 'Accuracy misleads; use precision/recall/F1'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Machine Learning Crash Course — Google Developers', url: 'https://developers.google.com/machine-learning/crash-course' },
+      { title: 'scikit-learn User Guide', url: 'https://scikit-learn.org/stable/user_guide.html' },
+      { title: 'Supervised learning — scikit-learn', url: 'https://scikit-learn.org/stable/supervised_learning.html' },
+    ],
   },
 
   'ai-dl-basics': {
@@ -122,6 +131,15 @@ export default {
       ['Self-attention', 'Every token weighs every other token'],
       ['Transfer learning', 'Adapt a pretrained model'],
       ['GPUs', 'Parallel matrix maths'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Introduction — PyTorch Tutorials', url: 'https://docs.pytorch.org/tutorials/beginner/basics/intro.html' },
+      { title: 'Training a Classifier — PyTorch Tutorials', url: 'https://docs.pytorch.org/tutorials/beginner/blitz/neural_networks_tutorial.html' },
+      { title: 'Basic classification with Keras — TensorFlow tutorials', url: 'https://www.tensorflow.org/tutorials/keras/classification' },
     ],
   },
 
@@ -186,6 +204,15 @@ export default {
       ['Embedding', 'Meaning as a vector'],
       ['Structured output', 'JSON that code can validate'],
       ['Open-weight vs closed', 'Self-host control vs API capability'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Text generation — OpenAI docs', url: 'https://developers.openai.com/api/docs/guides/text' },
+      { title: 'LLM tutorial — Hugging Face Transformers', url: 'https://huggingface.co/docs/transformers/en/llm_tutorial' },
+      { title: 'Attention Is All You Need (arXiv:1706.03762)', url: 'https://arxiv.org/abs/1706.03762' },
     ],
   },
 
@@ -262,6 +289,15 @@ export default {
       ['Access control', 'Enforce user permissions at retrieval'],
       ['Indirect injection', 'Retrieved text is data, not instructions'],
       ['Evaluation', 'Retrieval relevance + answer faithfulness'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (arXiv:2005.11401)', url: 'https://arxiv.org/abs/2005.11401' },
+      { title: 'Retrieval Augmented Generation (RAG) with Deep Agents — LangChain', url: 'https://docs.langchain.com/oss/python/deepagents/rag' },
+      { title: 'Use your data with Azure OpenAI Service', url: 'https://learn.microsoft.com/en-us/azure/foundry-classic/openai/concepts/use-your-data' },
     ],
   },
 
@@ -401,6 +437,15 @@ export default {
       ['LLM-as-a-judge', 'Model grades; calibrate vs humans'],
       ['Contamination', 'Leaked test data inflates scores'],
       ['Production logs', 'Debug, eval, audit; redact PII'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PEFT — Hugging Face', url: 'https://huggingface.co/docs/peft/en/index' },
+      { title: 'Fine-tuning — OpenAI docs', url: 'https://developers.openai.com/api/docs/guides/model-optimization' },
+      { title: 'openai/evals — GitHub', url: 'https://github.com/openai/evals' },
     ],
   },
 
@@ -578,6 +623,15 @@ export default {
       ['Public AI tools', 'Data may be retained; use approved tools'],
       ['Ownership', 'Leadership + cross-functional group'],
       ['AI red teaming', 'Before launch and after changes'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST AI Risk Management Framework (AI RMF)', url: 'https://www.nist.gov/itl/ai-risk-management-framework' },
+      { title: 'Regulatory framework on AI — European Commission', url: 'https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai' },
+      { title: 'OECD AI Principles', url: 'https://oecd.ai/en/ai-principles' },
     ],
   },
 };

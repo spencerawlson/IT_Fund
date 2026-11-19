@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-19T02:01:51.504Z",
+  "generatedAt": "2026-11-19T02:48:53.599Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -52031,6 +52031,20 @@
           "Verify",
           "show ip route / show ipv6 route; watch for S*"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 1812: Requirements for IP Version 4 Routers",
+          "url": "https://www.rfc-editor.org/info/rfc1812/"
+        },
+        {
+          "title": "ip-route(8) — Linux manual page",
+          "url": "https://man7.org/linux/man-pages/man8/ip-route.8.html"
+        },
+        {
+          "title": "Static Routes — FRRouting Documentation",
+          "url": "https://docs.frrouting.org/en/latest/static.html"
+        }
       ]
     },
     "rt-rip": {
@@ -52102,6 +52116,20 @@
           "RIPng",
           "RIP for IPv6 (UDP 521)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 2453: RIP Version 2",
+          "url": "https://www.rfc-editor.org/info/rfc2453/"
+        },
+        {
+          "title": "RFC 2080: RIPng for IPv6",
+          "url": "https://www.rfc-editor.org/info/rfc2080/"
+        },
+        {
+          "title": "RFC 2091: Triggered Extensions to RIP to Support Demand Circuits",
+          "url": "https://www.rfc-editor.org/info/rfc2091/"
+        }
       ]
     },
     "rt-ospf": {
@@ -52171,6 +52199,20 @@
           "IPv6",
           "OSPFv3"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 2328: OSPF Version 2",
+          "url": "https://www.rfc-editor.org/info/rfc2328/"
+        },
+        {
+          "title": "RFC 5340: OSPF for IPv6",
+          "url": "https://www.rfc-editor.org/info/rfc5340/"
+        },
+        {
+          "title": "RFC 5709: OSPFv2 HMAC-SHA Cryptographic Authentication",
+          "url": "https://www.rfc-editor.org/info/rfc5709/"
+        }
       ]
     },
     "rt-eigrp": {
@@ -52241,6 +52283,16 @@
           "Stub",
           "Limits advertised routes and query scope"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 7868: Cisco's Enhanced Interior Gateway Routing Protocol (EIGRP)",
+          "url": "https://www.rfc-editor.org/info/rfc7868/"
+        },
+        {
+          "title": "RFC 7868 — IETF Datatracker",
+          "url": "https://datatracker.ietf.org/doc/html/rfc7868"
+        }
       ]
     },
     "rt-isis": {
@@ -52312,6 +52364,20 @@
           "IPv6",
           "Added via TLVs — no new protocol version"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 1195: Use of OSI IS-IS for Routing in TCP/IP and Dual Environments",
+          "url": "https://www.rfc-editor.org/info/rfc1195/"
+        },
+        {
+          "title": "RFC 5308: Routing IPv6 with IS-IS",
+          "url": "https://www.rfc-editor.org/info/rfc5308/"
+        },
+        {
+          "title": "RFC 5304: IS-IS Cryptographic Authentication",
+          "url": "https://www.rfc-editor.org/info/rfc5304/"
+        }
       ]
     },
     "rt-bgp": {
@@ -52380,6 +52446,20 @@
           "Filtering",
           "Prefix-lists, AS_PATH filters, max-prefix, RPKI"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 4271: A Border Gateway Protocol 4 (BGP-4)",
+          "url": "https://www.rfc-editor.org/info/rfc4271/"
+        },
+        {
+          "title": "RFC 7454: BGP Operations and Security",
+          "url": "https://www.rfc-editor.org/info/rfc7454/"
+        },
+        {
+          "title": "RFC 8212: Default External BGP (EBGP) Route Propagation Behavior without Policies",
+          "url": "https://www.rfc-editor.org/info/rfc8212/"
+        }
       ]
     },
     "rt-redistribution": {
@@ -52450,6 +52530,16 @@
           "Verify",
           "show ip route + traceroute on both domains"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "OSPF — FRRouting Documentation",
+          "url": "https://docs.frrouting.org/en/latest/ospfd.html"
+        },
+        {
+          "title": "Zebra — FRRouting Documentation",
+          "url": "https://docs.frrouting.org/en/latest/zebra.html"
+        }
       ]
     },
     "rt-routing-security": {
@@ -52683,6 +52773,20 @@
           "Honeypot",
           "Decoy: any interaction is suspicious"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST Cybersecurity Framework",
+          "url": "https://www.nist.gov/cyberframework"
+        },
+        {
+          "title": "NIST SP 800-207: Zero Trust Architecture",
+          "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+        },
+        {
+          "title": "CompTIA Security+ Certification",
+          "url": "https://www.comptia.org/en-us/certifications/security/"
+        }
       ]
     },
     "sec-threats": {
@@ -52773,6 +52877,20 @@
           "Attack surface",
           "All entry points; shrink it"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK",
+          "url": "https://attack.mitre.org/"
+        },
+        {
+          "title": "CISA Cybersecurity Best Practices",
+          "url": "https://www.cisa.gov/topics/cybersecurity-best-practices"
+        },
+        {
+          "title": "Phishing scams — NCSC",
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams"
+        }
       ]
     },
     "sec-malware": {
@@ -52935,6 +53053,20 @@
           "Supply chain",
           "SolarWinds 2020, xz Utils 2024"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CISA Cybersecurity Advisories",
+          "url": "https://www.cisa.gov/news-events/cybersecurity-advisories"
+        },
+        {
+          "title": "Microsoft Defender Antivirus in Windows",
+          "url": "https://learn.microsoft.com/en-us/defender-endpoint/microsoft-defender-antivirus-windows"
+        },
+        {
+          "title": "MITRE ATT&CK Techniques — Enterprise",
+          "url": "https://attack.mitre.org/techniques/enterprise/"
+        }
       ]
     },
     "sec-crypto": {
@@ -53036,6 +53168,20 @@
           "PQC",
           "ML-KEM (FIPS 203), ML-DSA (FIPS 204)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3",
+          "url": "https://www.rfc-editor.org/info/rfc8446/"
+        },
+        {
+          "title": "NIST Cryptographic Standards and Guidelines",
+          "url": "https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines"
+        },
+        {
+          "title": "How It Works — Let's Encrypt",
+          "url": "https://letsencrypt.org/how-it-works/"
+        }
       ]
     },
     "sec-iam": {
@@ -53126,6 +53272,20 @@
           "Deprovisioning",
           "Remove access at exit; no orphans"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-63B: Digital Identity Guidelines — Authentication and Lifecycle Management",
+          "url": "https://pages.nist.gov/800-63-3/sp800-63b.html"
+        },
+        {
+          "title": "OWASP Authentication Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html"
+        },
+        {
+          "title": "Microsoft Entra authentication methods overview",
+          "url": "https://learn.microsoft.com/en-us/entra/identity/authentication/overview-authentication"
+        }
       ]
     },
     "sec-architecture": {
@@ -53211,6 +53371,20 @@
           "SASE / SSE",
           "Cloud-delivered network + security / security only"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy",
+          "url": "https://csrc.nist.gov/pubs/sp/800/41/r1/final"
+        },
+        {
+          "title": "AWS Well-Architected Framework — Security Pillar",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/security.html"
+        },
+        {
+          "title": "CISA Zero Trust Maturity Model",
+          "url": "https://www.cisa.gov/zero-trust-maturity-model"
+        }
       ]
     },
     "sec-ops": {
@@ -53333,6 +53507,20 @@
           "Chain of custody",
           "Who, when, how: admissibility"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-61 Rev. 3: Incident Response Recommendations and Considerations for Cybersecurity Risk Management",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final"
+        },
+        {
+          "title": "Common Vulnerability Scoring System (CVSS) — FIRST",
+          "url": "https://www.first.org/cvss/"
+        },
+        {
+          "title": "National Vulnerability Database (NVD)",
+          "url": "https://nvd.nist.gov/vuln"
+        }
       ]
     },
     "sec-governance": {
@@ -53427,6 +53615,20 @@
           "BIA",
           "Critical functions, impact, RTO/RPO"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST Risk Management Framework (RMF)",
+          "url": "https://csrc.nist.gov/projects/risk-management"
+        },
+        {
+          "title": "CIS Critical Security Controls",
+          "url": "https://www.cisecurity.org/controls"
+        },
+        {
+          "title": "NIST Privacy Framework",
+          "url": "https://www.nist.gov/privacy-framework"
+        }
       ]
     },
     "sec-ai-apps": {
@@ -53516,6 +53718,20 @@
           "Deepfakes",
           "Verify out of band"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "OWASP Top Ten",
+          "url": "https://owasp.org/projects/top-ten"
+        },
+        {
+          "title": "OWASP Top 10 for Large Language Model Applications",
+          "url": "https://owasp.org/projects/top-10-for-large-language-model-applications"
+        },
+        {
+          "title": "NIST AI Risk Management Framework (AI RMF)",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework"
+        }
       ]
     },
     "cy-linux": {
@@ -56907,6 +57123,20 @@
           "Avoidance",
           "Retire what you cannot defend"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-30 Rev. 1: Guide for Conducting Risk Assessments",
+          "url": "https://csrc.nist.gov/pubs/sp/800/30/r1/final"
+        },
+        {
+          "title": "NIST Risk Management Framework (RMF)",
+          "url": "https://csrc.nist.gov/projects/risk-management"
+        },
+        {
+          "title": "FAIR Institute — Factor Analysis of Information Risk",
+          "url": "https://www.fairinstitute.org/"
+        }
       ]
     },
     "secplus-governance-scenarios": {
@@ -57093,6 +57323,20 @@
           "Due diligence scale",
           "Risk-based, not one-size-fits-all"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-161 Rev. 1: Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations",
+          "url": "https://csrc.nist.gov/pubs/sp/800/161/r1/final"
+        },
+        {
+          "title": "Supply chain security — NCSC",
+          "url": "https://www.ncsc.gov.uk/collection/supply-chain-security"
+        },
+        {
+          "title": "CIS Critical Security Controls",
+          "url": "https://www.cisecurity.org/controls"
+        }
       ]
     },
     "cl-concepts": {
@@ -57350,6 +57594,20 @@
           "AWS Organizations",
           "Multi-account management with SCPs"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Products",
+          "url": "https://aws.amazon.com/products/"
+        },
+        {
+          "title": "Google Cloud products",
+          "url": "https://cloud.google.com/products"
+        },
+        {
+          "title": "AWS Well-Architected Framework",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/"
+        }
       ]
     },
     "cl-billing-support": {
@@ -58039,6 +58297,20 @@
           "Readiness / liveness",
           "Hold traffic / restart stuck"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Site Reliability Engineering — Google SRE Book",
+          "url": "https://sre.google/sre-book/table-of-contents/"
+        },
+        {
+          "title": "The Site Reliability Workbook",
+          "url": "https://sre.google/workbook/table-of-contents/"
+        },
+        {
+          "title": "AWS Well-Architected Framework — Reliability Pillar",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/reliability.html"
+        }
       ]
     },
     "ai-ml-basics": {
@@ -58127,6 +58399,20 @@
           "Imbalanced data",
           "Accuracy misleads; use precision/recall/F1"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Machine Learning Crash Course — Google Developers",
+          "url": "https://developers.google.com/machine-learning/crash-course"
+        },
+        {
+          "title": "scikit-learn User Guide",
+          "url": "https://scikit-learn.org/stable/user_guide.html"
+        },
+        {
+          "title": "Supervised learning — scikit-learn",
+          "url": "https://scikit-learn.org/stable/supervised_learning.html"
+        }
       ]
     },
     "ai-dl-basics": {
@@ -58211,6 +58497,20 @@
           "GPUs",
           "Parallel matrix maths"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Introduction — PyTorch Tutorials",
+          "url": "https://docs.pytorch.org/tutorials/beginner/basics/intro.html"
+        },
+        {
+          "title": "Training a Classifier — PyTorch Tutorials",
+          "url": "https://docs.pytorch.org/tutorials/beginner/blitz/neural_networks_tutorial.html"
+        },
+        {
+          "title": "Basic classification with Keras — TensorFlow tutorials",
+          "url": "https://www.tensorflow.org/tutorials/keras/classification"
+        }
       ]
     },
     "ai-llm-basics": {
@@ -58299,6 +58599,20 @@
           "Open-weight vs closed",
           "Self-host control vs API capability"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Text generation — OpenAI docs",
+          "url": "https://developers.openai.com/api/docs/guides/text"
+        },
+        {
+          "title": "LLM tutorial — Hugging Face Transformers",
+          "url": "https://huggingface.co/docs/transformers/en/llm_tutorial"
+        },
+        {
+          "title": "Attention Is All You Need (arXiv:1706.03762)",
+          "url": "https://arxiv.org/abs/1706.03762"
+        }
       ]
     },
     "ai-rag": {
@@ -58392,6 +58706,20 @@
           "Evaluation",
           "Retrieval relevance + answer faithfulness"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (arXiv:2005.11401)",
+          "url": "https://arxiv.org/abs/2005.11401"
+        },
+        {
+          "title": "Retrieval Augmented Generation (RAG) with Deep Agents — LangChain",
+          "url": "https://docs.langchain.com/oss/python/deepagents/rag"
+        },
+        {
+          "title": "Use your data with Azure OpenAI Service",
+          "url": "https://learn.microsoft.com/en-us/azure/foundry-classic/openai/concepts/use-your-data"
+        }
       ]
     },
     "ai-apis-tools": {
@@ -58559,6 +58887,20 @@
           "Production logs",
           "Debug, eval, audit; redact PII"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PEFT — Hugging Face",
+          "url": "https://huggingface.co/docs/peft/en/index"
+        },
+        {
+          "title": "Fine-tuning — OpenAI docs",
+          "url": "https://developers.openai.com/api/docs/guides/model-optimization"
+        },
+        {
+          "title": "openai/evals — GitHub",
+          "url": "https://github.com/openai/evals"
+        }
       ]
     },
     "ai-agents": {
@@ -58818,6 +59160,20 @@
           "AI red teaming",
           "Before launch and after changes"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST AI Risk Management Framework (AI RMF)",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework"
+        },
+        {
+          "title": "Regulatory framework on AI — European Commission",
+          "url": "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
+        },
+        {
+          "title": "OECD AI Principles",
+          "url": "https://oecd.ai/en/ai-principles"
+        }
       ]
     },
     "saa-iam": {
@@ -65044,6 +65400,20 @@
           "title": "The smallest Go program",
           "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"Hello, cloud.\")\n}"
         }
+      ],
+      "further_reading": [
+        {
+          "title": "A Tour of Go",
+          "url": "https://go.dev/tour/welcome/1"
+        },
+        {
+          "title": "How to Write Go Code",
+          "url": "https://go.dev/doc/code"
+        },
+        {
+          "title": "Effective Go",
+          "url": "https://go.dev/doc/effective_go"
+        }
       ]
     },
     "go-types": {
@@ -65116,6 +65486,20 @@
           "len(s)",
           "Byte count of a string, not rune count"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "A Tour of Go — Basics",
+          "url": "https://go.dev/tour/basics/1"
+        },
+        {
+          "title": "The Go Programming Language Specification",
+          "url": "https://go.dev/ref/spec"
+        },
+        {
+          "title": "builtin — Go package documentation",
+          "url": "https://pkg.go.dev/builtin"
+        }
       ]
     },
     "go-control-functions": {
@@ -65181,6 +65565,20 @@
         {
           "title": "Defer and multiple returns",
           "code": "func readFirst(path string) (string, error) {\n    f, err := os.Open(path)\n    if err != nil {\n        return \"\", err\n    }\n    defer f.Close()   // runs when readFirst returns, any path\n\n    buf := make([]byte, 64)\n    n, _ := f.Read(buf)   // _ discards the second return\n    return string(buf[:n]), nil\n}"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "A Tour of Go — Flow control statements",
+          "url": "https://go.dev/tour/flowcontrol/1"
+        },
+        {
+          "title": "Defer, Panic, and Recover — The Go Blog",
+          "url": "https://go.dev/blog/defer-panic-and-recover"
+        },
+        {
+          "title": "Effective Go — Functions",
+          "url": "https://go.dev/doc/effective_go"
         }
       ]
     },
@@ -65248,6 +65646,20 @@
         {
           "title": "Slices, maps, and the comma-ok idiom",
           "code": "s := make([]int, 0, 4)\ns = append(s, 1, 2)          // assign back: append may reallocate\n\ncounts := map[string]int{}\ncounts[\"go\"]++\nif v, ok := counts[\"rust\"]; ok {\n    fmt.Println(\"seen:\", v)  // ok is false: key absent\n}"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "A Tour of Go — More types: structs, slices, and maps",
+          "url": "https://go.dev/tour/moretypes/1"
+        },
+        {
+          "title": "Go Slices: usage and internals — The Go Blog",
+          "url": "https://go.dev/blog/slices-intro"
+        },
+        {
+          "title": "Go Maps in Action — The Go Blog",
+          "url": "https://go.dev/blog/maps"
         }
       ]
     },
@@ -65384,6 +65796,20 @@
           "title": "Wrap, then inspect",
           "code": "if _, err := os.Open(\"app.toml\"); err != nil {\n    return fmt.Errorf(\"load config: %w\", err)\n}\n// later, at the call site:\nif errors.Is(err, os.ErrNotExist) {\n    // handle the missing-file case specifically\n}"
         }
+      ],
+      "further_reading": [
+        {
+          "title": "Error handling and Go — The Go Blog",
+          "url": "https://go.dev/blog/error-handling-and-go"
+        },
+        {
+          "title": "Effective Go — Errors",
+          "url": "https://go.dev/doc/effective_go"
+        },
+        {
+          "title": "errors — Go package documentation",
+          "url": "https://pkg.go.dev/errors"
+        }
       ]
     },
     "go-concurrency": {
@@ -65450,6 +65876,20 @@
         {
           "title": "Fan out, wait, collect",
           "code": "var wg sync.WaitGroup\nresults := make(chan int, 3)\n\nfor i := 0; i < 3; i++ {\n    wg.Add(1)\n    go func(n int) {\n        defer wg.Done()\n        results <- n * n\n    }(i)\n}\nwg.Wait()          // all three goroutines finished\nclose(results)"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "A Tour of Go — Concurrency",
+          "url": "https://go.dev/tour/concurrency/1"
+        },
+        {
+          "title": "Effective Go — Concurrency",
+          "url": "https://go.dev/doc/effective_go"
+        },
+        {
+          "title": "Share Memory By Communicating — Go Codewalk",
+          "url": "https://go.dev/doc/codewalk/sharemem/"
         }
       ]
     },
@@ -65520,6 +65960,20 @@
         {
           "title": "A server and a table-driven test",
           "code": "http.HandleFunc(\"/hi\", func(w http.ResponseWriter, r *http.Request) {\n    fmt.Fprintln(w, \"hello\")\n})\nhttp.ListenAndServe(\":8080\", nil)\n\nfunc TestAdd(t *testing.T) {\n    cases := []struct{ a, b, want int }{{1, 2, 3}, {-1, 1, 0}}\n    for _, c := range cases {\n        if got := c.a + c.b; got != c.want {\n            t.Errorf(\"got %d, want %d\", got, c.want)\n        }\n    }\n}"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "Standard library — Go package documentation",
+          "url": "https://pkg.go.dev/std"
+        },
+        {
+          "title": "Add a test — Go tutorial",
+          "url": "https://go.dev/doc/tutorial/add-a-test"
+        },
+        {
+          "title": "net/http — Go package documentation",
+          "url": "https://pkg.go.dev/net/http"
         }
       ]
     },
@@ -66389,6 +66843,20 @@
           "awk -F: '{print $1}'",
           "Print first field ($0 = whole line)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "grep(1) — Linux manual page",
+          "url": "https://man7.org/linux/man-pages/man1/grep.1.html"
+        },
+        {
+          "title": "gawk(1) — Linux manual page",
+          "url": "https://man7.org/linux/man-pages/man1/gawk.1.html"
+        },
+        {
+          "title": "The GNU Awk User's Guide",
+          "url": "https://www.gnu.org/software/gawk/manual/html_node/index.html"
+        }
       ]
     },
     "lx-packages": {
@@ -66459,6 +66927,20 @@
           "Prefer the repo",
           "Signed, dependency-resolved, auto-updated"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Debian Reference — Package management",
+          "url": "https://www.debian.org/doc/manuals/debian-reference/ch02.en.html"
+        },
+        {
+          "title": "Package management — Ubuntu Server documentation",
+          "url": "https://ubuntu.com/server/docs/how-to/software/package-management/"
+        },
+        {
+          "title": "DNF Documentation",
+          "url": "https://dnf.readthedocs.io/en/latest/"
+        }
       ]
     },
     "lx-systemd": {
@@ -66529,6 +67011,20 @@
           "systemd timer",
           ".timer triggers .service — cron with logging"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "systemd — freedesktop.org manual",
+          "url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.html"
+        },
+        {
+          "title": "systemctl — freedesktop.org manual",
+          "url": "https://www.freedesktop.org/software/systemd/man/latest/systemctl.html"
+        },
+        {
+          "title": "journalctl — freedesktop.org manual",
+          "url": "https://www.freedesktop.org/software/systemd/man/latest/journalctl.html"
+        }
       ]
     },
     "lx-network": {
@@ -66744,6 +67240,20 @@
           "strace -p <pid>",
           "Trace system calls of a misbehaving process"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "journalctl(1) — Linux manual page",
+          "url": "https://man7.org/linux/man-pages/man1/journalctl.1.html"
+        },
+        {
+          "title": "rsyslogd(8) — Linux manual page",
+          "url": "https://man7.org/linux/man-pages/man8/rsyslogd.8.html"
+        },
+        {
+          "title": "Systemd/Journal — ArchWiki",
+          "url": "https://wiki.archlinux.org/title/Systemd/Journal"
+        }
       ]
     },
     "lx-secure": {
@@ -66814,6 +67324,20 @@
           "AIDE / Tripwire",
           "File integrity monitoring against tampering"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "sshd_config(5) — Linux manual page",
+          "url": "https://man7.org/linux/man-pages/man5/sshd_config.5.html"
+        },
+        {
+          "title": "CIS Benchmark for Ubuntu Linux",
+          "url": "https://www.cisecurity.org/benchmark/ubuntu_linux"
+        },
+        {
+          "title": "SSH Academy — SSH.COM",
+          "url": "https://www.ssh.com/academy/ssh"
+        }
       ]
     },
     "rust-basics": {
@@ -67292,6 +67816,20 @@
         {
           "title": "A trait with a default method",
           "code": "trait Greet {\n    fn name(&self) -> &str;\n    fn hello(&self) -> String {          // default implementation\n        format!(\"Hello, {}!\", self.name())\n    }\n}"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "Generic Types, Traits, and Lifetimes — The Rust Programming Language",
+          "url": "https://doc.rust-lang.org/book/ch10-00-generics.html"
+        },
+        {
+          "title": "Traits: Defining Shared Behavior — The Rust Programming Language",
+          "url": "https://doc.rust-lang.org/book/ch10-02-traits.html"
+        },
+        {
+          "title": "Generics — Rust by Example",
+          "url": "https://doc.rust-lang.org/rust-by-example/generics.html"
         }
       ]
     },
