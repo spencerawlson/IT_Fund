@@ -2,10 +2,10 @@
 
 ## Re-score (2026-11-19), current — 96/100
 
-Measured by hand against the rubric below on fully merged main
-`b5900dee` — PR #161 merged ("Fix awss cheat-sheet SCP/root error +
-scorecard to measured 94/100 (#161)"). Full evidence:
-`~/workspace/itfund-course-score/RESCORE-2026-11-19-FINAL.md`. Previous
+Measured by hand against the rubric below on main
+`a6f06fca` — the tree the 96/100 measurement was taken on (PR #162
+merged as `a6f06fca`). Full evidence:
+`~/workspace/itfund-course-score/RESCORE-2026-11-19-CONFIRMED.md`. Previous
 scores on the same rubric: 95/100 (Nov 19, 2026, main `b5900dee` with
 this scorecard at 94), 94/100 (Nov 19, 2026, main `9d05380c`),
 93/100 (Nov 19, 2026, assembled tree), 87/100 (Nov 18, 2026),
@@ -20,21 +20,21 @@ one point behind the measurement it produces.
 
 | Dimension | Weight | Score | Measure |
 |---|---|---|---|
-| Accuracy | 30 | 29 | All four previously-fixed errors verified fixed in context (floating static, SCP/root body, pandas, 802.11g). CS0-004: the four previously-missing objectives (1.3, 1.6, 2.2, 2.4) all have dedicated sections. 16 distinct lessons read end-to-end across the 94 and final rounds, all clean since the fix; the awss-iam-foundations cheat sheet now reads "Unlimited by IAM policies; an SCP can limit it in a member account (not the management account)" and agrees with the lesson body and academy cards. −1: not every lesson has been read end-to-end. |
+| Accuracy | 30 | 29 | All four previously-fixed errors verified fixed in context (floating static, SCP/root body, pandas, 802.11g). CS0-004: the four previously-missing objectives (1.3, 1.6, 2.2, 2.4) all have dedicated sections. 21 distinct lessons read end-to-end across the 94, final and confirmation rounds, all clean since the fix; the awss-iam-foundations cheat sheet now reads "Unlimited by IAM policies; an SCP can limit it in a member account (not the management account)" and agrees with the lesson body and academy cards. −1: not every lesson has been read end-to-end. |
 | Coverage | 20 | 18 | The 45 CISSP scenario questions are published (bank 3,190 → 3,229; cissp 169 → 214; cissp-d2b 30, cissp-d5 26, cissp-d6 26). CySA+ track fully objective-aligned; 0 duplicate groups. −2: no video layer, no study guide, no mind maps. |
 | Pedagogy | 25 | 24 | Further reading 222/222 lessons (652 links); lessons under 300 words 0 (`thin.mjs`); labs mapped on 105/222 lessons (47.3%); longest-answer-is-correct 25.3% by characters / 18.0% by words (cap 35%). −1: 117 lessons still have no mapped lab (needs new lab content). |
-| Writing | 15 | 15 | Total lesson words 111,892; 5 lessons read end-to-end this round (16 distinct across the 94 and final rounds); writing quality high throughout. No new writing defects found. |
+| Writing | 15 | 15 | Total lesson words 111,892; 5 lessons read end-to-end this round (21 distinct across the 94, final and confirmation rounds); writing quality high throughout. No new writing defects found. |
 | Consistency | 10 | 10 | `src/data/counts.js` matches the bank exactly (3,229 cards, 222 decks, 61 labs); `public/llms.txt` says "3,000+ flashcards" vs 3,229 actual; duplicates 0; longest-answer-is-correct 25.3% (cap 35%); the 45 CISSP scenarios are published. This scorecard states the measured total (96/100), so it agrees with the measurement. |
 | **Total** | 100 | **96** | |
 
 **Limits of this score.** Every item was reviewed by an AI reviewer against
 current official sources, but not by a human subject-matter expert. A human
 SME review of the CISSP and Security+ tracks is still the most valuable next
-step. This score is a hand measurement on main `b5900dee`; it is not
+step. This score is a hand measurement on main `a6f06fca`; it is not
 the output of `scripts/content-audit/scorecard.mjs` (see Pass 2 below).
 
 **What is still open.** Accuracy −1: a full end-to-end read of every lesson
-(222) — only 16 distinct lessons have been read in full. Coverage −2: the
+(222) — only 21 distinct lessons have been read in full. Coverage −2: the
 video / study-guide / mind-map layer (Spencer's call on scope and cost).
 Pedagogy −1: labs on the remaining 117 lessons, which needs new lab
 content, not more mapping. Writing −0: closed. Consistency −0: this
