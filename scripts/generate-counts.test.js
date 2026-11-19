@@ -27,7 +27,7 @@ describe('generate-counts', () => {
 
   it('pins the numbers the landing page claims', () => {
     // Totals across the catalogue.
-    expect(COUNTS.totalCards).toBe(3145);
+    expect(COUNTS.totalCards).toBe(3190);
     expect(COUNTS.totalDecks).toBe(222);
     // Labs: 31 mock + 30 docker (backend/labs/registry.list_labs()).
     expect(COUNTS.labs).toBe(61);

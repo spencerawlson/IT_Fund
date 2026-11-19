@@ -96,7 +96,7 @@ def test_catalog_anonymous_has_no_premium_bodies():
     for canary in CANARIES:
         assert canary not in body
     data = r.json()
-    assert data["counts"] == {"decks": 222, "cards": 3145, "lessons": 222, "notes": 426}
+    assert data["counts"] == {"decks": 222, "cards": 3190, "lessons": 222, "notes": 426}
     assert data["freeDecks"] == ["net-osi", "cy-linux", "py-basics", "lx-cli", "cl-concepts"]
     assert data["freeLessons"] == ["net-osi", "sec-concepts", "py-basics", "lx-cli", "cl-concepts"]
     # Structure is complete (ids + counts) but premium decks carry stubs only.
