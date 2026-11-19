@@ -62,6 +62,15 @@ export default {
       ['Gap analysis', 'Current posture vs a target standard'],
       ['Honeypot', 'Decoy: any interaction is suspicious'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
+      { title: 'NIST SP 800-207: Zero Trust Architecture', url: 'https://csrc.nist.gov/pubs/sp/800/207/final' },
+      { title: 'CompTIA Security+ Certification', url: 'https://www.comptia.org/en-us/certifications/security/' },
+    ],
   },
 
   'sec-threats': {
@@ -119,6 +128,15 @@ export default {
       ['BEC', 'Fake payment requests; verify out of band'],
       ['Tailgating', 'Following through a secure door'],
       ['Attack surface', 'All entry points; shrink it'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK', url: 'https://attack.mitre.org/' },
+      { title: 'CISA Cybersecurity Best Practices', url: 'https://www.cisa.gov/topics/cybersecurity-best-practices' },
+      { title: 'Phishing scams — NCSC', url: 'https://www.ncsc.gov.uk/collection/phishing-scams' },
     ],
   },
 
@@ -188,6 +206,15 @@ export default {
       ['Password spraying', 'Few passwords, many accounts'],
       ['Impossible travel', 'Logins too far apart too fast'],
       ['Supply chain', 'SolarWinds 2020, xz Utils 2024'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CISA Cybersecurity Advisories', url: 'https://www.cisa.gov/news-events/cybersecurity-advisories' },
+      { title: 'Microsoft Defender Antivirus in Windows', url: 'https://learn.microsoft.com/en-us/defender-endpoint/microsoft-defender-antivirus-windows' },
+      { title: 'MITRE ATT&CK Techniques — Enterprise', url: 'https://attack.mitre.org/techniques/enterprise/' },
     ],
   },
 
@@ -265,6 +292,15 @@ export default {
       ['PFS', 'Ephemeral DHE/ECDHE; mandatory in TLS 1.3'],
       ['PQC', 'ML-KEM (FIPS 203), ML-DSA (FIPS 204)'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3', url: 'https://www.rfc-editor.org/info/rfc8446/' },
+      { title: 'NIST Cryptographic Standards and Guidelines', url: 'https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines' },
+      { title: 'How It Works — Let\'s Encrypt', url: 'https://letsencrypt.org/how-it-works/' },
+    ],
   },
 
   'sec-iam': {
@@ -323,6 +359,15 @@ export default {
       ['PAM', 'Vaulting, just-in-time, session recording'],
       ['Deprovisioning', 'Remove access at exit; no orphans'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-63B: Digital Identity Guidelines — Authentication and Lifecycle Management', url: 'https://pages.nist.gov/800-63-3/sp800-63b.html' },
+      { title: 'OWASP Authentication Cheat Sheet', url: 'https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html' },
+      { title: 'Microsoft Entra authentication methods overview', url: 'https://learn.microsoft.com/en-us/entra/identity/authentication/overview-authentication' },
+    ],
   },
 
   'sec-architecture': {
@@ -378,6 +423,15 @@ export default {
       ['Fail closed / open', 'Security devices / life safety'],
       ['3-2-1 backups', '3 copies, 2 media, 1 offsite (+ offline copy)'],
       ['SASE / SSE', 'Cloud-delivered network + security / security only'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy', url: 'https://csrc.nist.gov/pubs/sp/800/41/r1/final' },
+      { title: 'AWS Well-Architected Framework — Security Pillar', url: 'https://docs.aws.amazon.com/wellarchitected/latest/framework/security.html' },
+      { title: 'CISA Zero Trust Maturity Model', url: 'https://www.cisa.gov/zero-trust-maturity-model' },
     ],
   },
 
@@ -451,6 +505,15 @@ export default {
       ['Order of volatility', 'RAM before disk; archives last'],
       ['Chain of custody', 'Who, when, how: admissibility'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-61 Rev. 3: Incident Response Recommendations and Considerations for Cybersecurity Risk Management', url: 'https://csrc.nist.gov/pubs/sp/800/61/r3/final' },
+      { title: 'Common Vulnerability Scoring System (CVSS) — FIRST', url: 'https://www.first.org/cvss/' },
+      { title: 'National Vulnerability Database (NVD)', url: 'https://nvd.nist.gov/vuln' },
+    ],
   },
 
   'sec-governance': {
@@ -520,6 +583,15 @@ export default {
       ['SOC 2 Type I / II', 'Design at a point / operation over time'],
       ['BIA', 'Critical functions, impact, RTO/RPO'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST Risk Management Framework (RMF)', url: 'https://csrc.nist.gov/projects/risk-management' },
+      { title: 'CIS Critical Security Controls', url: 'https://www.cisecurity.org/controls' },
+      { title: 'NIST Privacy Framework', url: 'https://www.nist.gov/privacy-framework' },
+    ],
   },
 
   'sec-ai-apps': {
@@ -580,6 +652,15 @@ export default {
       ['Data poisoning', 'Corrupted training data'],
       ['Excessive agency', 'Limit tools; human approval'],
       ['Deepfakes', 'Verify out of band'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'OWASP Top Ten', url: 'https://owasp.org/projects/top-ten' },
+      { title: 'OWASP Top 10 for Large Language Model Applications', url: 'https://owasp.org/projects/top-10-for-large-language-model-applications' },
+      { title: 'NIST AI Risk Management Framework (AI RMF)', url: 'https://www.nist.gov/itl/ai-risk-management-framework' },
     ],
   },
 };

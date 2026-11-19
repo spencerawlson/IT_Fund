@@ -55,6 +55,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'A Tour of Go', url: 'https://go.dev/tour/welcome/1' },
+      { title: 'How to Write Go Code', url: 'https://go.dev/doc/code' },
+      { title: 'Effective Go', url: 'https://go.dev/doc/effective_go' },
+    ],
   },
 
   'go-types': {
@@ -100,6 +109,15 @@ export default {
       ['const Pi = 3.14', 'Compile-time constant (no :=, not addressable)'],
       ['iota', 'Successive constants in a const block (0, 1, 2\u2026)'],
       ['len(s)', 'Byte count of a string, not rune count'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'A Tour of Go — Basics', url: 'https://go.dev/tour/basics/1' },
+      { title: 'The Go Programming Language Specification', url: 'https://go.dev/ref/spec' },
+      { title: 'builtin — Go package documentation', url: 'https://pkg.go.dev/builtin' },
     ],
   },
 
@@ -156,6 +174,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'A Tour of Go — Flow control statements', url: 'https://go.dev/tour/flowcontrol/1' },
+      { title: 'Defer, Panic, and Recover — The Go Blog', url: 'https://go.dev/blog/defer-panic-and-recover' },
+      { title: 'Effective Go — Functions', url: 'https://go.dev/doc/effective_go' },
+    ],
   },
 
   'go-collections': {
@@ -208,6 +235,15 @@ export default {
           '}',
         ),
       },
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'A Tour of Go — More types: structs, slices, and maps', url: 'https://go.dev/tour/moretypes/1' },
+      { title: 'Go Slices: usage and internals — The Go Blog', url: 'https://go.dev/blog/slices-intro' },
+      { title: 'Go Maps in Action — The Go Blog', url: 'https://go.dev/blog/maps' },
     ],
   },
 
@@ -314,6 +350,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Error handling and Go — The Go Blog', url: 'https://go.dev/blog/error-handling-and-go' },
+      { title: 'Effective Go — Errors', url: 'https://go.dev/doc/effective_go' },
+      { title: 'errors — Go package documentation', url: 'https://pkg.go.dev/errors' },
+    ],
   },
 
   'go-concurrency': {
@@ -370,6 +415,15 @@ export default {
           'close(results)',
         ),
       },
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'A Tour of Go — Concurrency', url: 'https://go.dev/tour/concurrency/1' },
+      { title: 'Effective Go — Concurrency', url: 'https://go.dev/doc/effective_go' },
+      { title: 'Share Memory By Communicating — Go Codewalk', url: 'https://go.dev/doc/codewalk/sharemem/' },
     ],
   },
 
@@ -428,6 +482,15 @@ export default {
           '}',
         ),
       },
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Standard library — Go package documentation', url: 'https://pkg.go.dev/std' },
+      { title: 'Add a test — Go tutorial', url: 'https://go.dev/doc/tutorial/add-a-test' },
+      { title: 'net/http — Go package documentation', url: 'https://pkg.go.dev/net/http' },
     ],
   },
 };

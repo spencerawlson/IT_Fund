@@ -240,6 +240,15 @@ export default {
       ['sed -i \'s/a/b/g\' f', 'In-place global replace'],
       ['awk -F: \'{print $1}\'', 'Print first field ($0 = whole line)'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'grep(1) — Linux manual page', url: 'https://man7.org/linux/man-pages/man1/grep.1.html' },
+      { title: 'gawk(1) — Linux manual page', url: 'https://man7.org/linux/man-pages/man1/gawk.1.html' },
+      { title: 'The GNU Awk User\'s Guide', url: 'https://www.gnu.org/software/gawk/manual/html_node/index.html' },
+    ],
   },
   'lx-packages': {
     overview: [
@@ -290,6 +299,15 @@ export default {
       ['/etc/apt/sources.list[.d]', 'Where apt repositories are defined'],
       ['Prefer the repo', 'Signed, dependency-resolved, auto-updated'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Debian Reference — Package management', url: 'https://www.debian.org/doc/manuals/debian-reference/ch02.en.html' },
+      { title: 'Package management — Ubuntu Server documentation', url: 'https://ubuntu.com/server/docs/how-to/software/package-management/' },
+      { title: 'DNF Documentation', url: 'https://dnf.readthedocs.io/en/latest/' },
+    ],
   },
   'lx-systemd': {
     overview: [
@@ -339,6 +357,15 @@ export default {
       ['/etc/systemd/system/', 'Your unit files (never edit /lib directly)'],
       ['systemctl daemon-reload', 'Re-read unit files after edits'],
       ['systemd timer', '.timer triggers .service — cron with logging'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'systemd — freedesktop.org manual', url: 'https://www.freedesktop.org/software/systemd/man/latest/systemd.html' },
+      { title: 'systemctl — freedesktop.org manual', url: 'https://www.freedesktop.org/software/systemd/man/latest/systemctl.html' },
+      { title: 'journalctl — freedesktop.org manual', url: 'https://www.freedesktop.org/software/systemd/man/latest/journalctl.html' },
     ],
   },
   'lx-network': {
@@ -509,6 +536,15 @@ export default {
       ['ss -tulpn', 'What actually listens on which port'],
       ['strace -p <pid>', 'Trace system calls of a misbehaving process'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'journalctl(1) — Linux manual page', url: 'https://man7.org/linux/man-pages/man1/journalctl.1.html' },
+      { title: 'rsyslogd(8) — Linux manual page', url: 'https://man7.org/linux/man-pages/man8/rsyslogd.8.html' },
+      { title: 'Systemd/Journal — ArchWiki', url: 'https://wiki.archlinux.org/title/Systemd/Journal' },
+    ],
   },
   'lx-secure': {
     overview: [
@@ -560,6 +596,15 @@ export default {
       ['unattended-upgrades', 'Security patches without human memory'],
       ['Least privilege', 'Service accounts, scoped sudo, no world-writable configs'],
       ['AIDE / Tripwire', 'File integrity monitoring against tampering'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'sshd_config(5) — Linux manual page', url: 'https://man7.org/linux/man-pages/man5/sshd_config.5.html' },
+      { title: 'CIS Benchmark for Ubuntu Linux', url: 'https://www.cisecurity.org/benchmark/ubuntu_linux' },
+      { title: 'SSH Academy — SSH.COM', url: 'https://www.ssh.com/academy/ssh' },
     ],
   },
 };

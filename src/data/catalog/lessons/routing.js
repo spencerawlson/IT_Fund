@@ -133,6 +133,15 @@ export default {
       ['Floating static', 'Backup with higher AD; installs only when the primary fails'],
       ['Verify', 'show ip route / show ipv6 route; watch for S*'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 1812: Requirements for IP Version 4 Routers', url: 'https://www.rfc-editor.org/info/rfc1812/' },
+      { title: 'ip-route(8) — Linux manual page', url: 'https://man7.org/linux/man-pages/man8/ip-route.8.html' },
+      { title: 'Static Routes — FRRouting Documentation', url: 'https://docs.frrouting.org/en/latest/static.html' },
+    ],
   },
 
   'rt-rip': {
@@ -191,6 +200,15 @@ export default {
       ['RIPv2 vs v1', 'Classless, multicast 224.0.0.9, authentication'],
       ['RIPng', 'RIP for IPv6 (UDP 521)'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 2453: RIP Version 2', url: 'https://www.rfc-editor.org/info/rfc2453/' },
+      { title: 'RFC 2080: RIPng for IPv6', url: 'https://www.rfc-editor.org/info/rfc2080/' },
+      { title: 'RFC 2091: Triggered Extensions to RIP to Support Demand Circuits', url: 'https://www.rfc-editor.org/info/rfc2091/' },
+    ],
   },
 
   'rt-ospf': {
@@ -243,6 +261,15 @@ export default {
       ['ABR / ASBR', 'Area↔backbone border / external-route injector'],
       ['DR/BDR', 'Cuts flooding on broadcast multi-access segments'],
       ['IPv6', 'OSPFv3'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 2328: OSPF Version 2', url: 'https://www.rfc-editor.org/info/rfc2328/' },
+      { title: 'RFC 5340: OSPF for IPv6', url: 'https://www.rfc-editor.org/info/rfc5340/' },
+      { title: 'RFC 5709: OSPFv2 HMAC-SHA Cryptographic Authentication', url: 'https://www.rfc-editor.org/info/rfc5709/' },
     ],
   },
 
@@ -300,6 +327,14 @@ export default {
       ['AD', '90 internal, 170 external'],
       ['Stub', 'Limits advertised routes and query scope'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 7868: Cisco\'s Enhanced Interior Gateway Routing Protocol (EIGRP)', url: 'https://www.rfc-editor.org/info/rfc7868/' },
+      { title: 'RFC 7868 — IETF Datatracker', url: 'https://datatracker.ietf.org/doc/html/rfc7868' },
+    ],
   },
 
   'rt-isis': {
@@ -350,6 +385,15 @@ export default {
       ['LSP', 'Link-State PDU flooded to build the LSDB'],
       ['DIS', 'Designated router on a LAN (no backup)'],
       ['IPv6', 'Added via TLVs — no new protocol version'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 1195: Use of OSI IS-IS for Routing in TCP/IP and Dual Environments', url: 'https://www.rfc-editor.org/info/rfc1195/' },
+      { title: 'RFC 5308: Routing IPv6 with IS-IS', url: 'https://www.rfc-editor.org/info/rfc5308/' },
+      { title: 'RFC 5304: IS-IS Cryptographic Authentication', url: 'https://www.rfc-editor.org/info/rfc5304/' },
     ],
   },
 
@@ -403,6 +447,15 @@ export default {
       ['MED', 'Hints a neighbour\'s inbound entry point (lower wins)'],
       ['Route reflector', 'Removes the iBGP full-mesh need'],
       ['Filtering', 'Prefix-lists, AS_PATH filters, max-prefix, RPKI'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 4271: A Border Gateway Protocol 4 (BGP-4)', url: 'https://www.rfc-editor.org/info/rfc4271/' },
+      { title: 'RFC 7454: BGP Operations and Security', url: 'https://www.rfc-editor.org/info/rfc7454/' },
+      { title: 'RFC 8212: Default External BGP (EBGP) Route Propagation Behavior without Policies', url: 'https://www.rfc-editor.org/info/rfc8212/' },
     ],
   },
 
@@ -461,6 +514,14 @@ export default {
       ['AD tuning', 'Keep native routes preferred over redistributed copies'],
       ['Single point', 'Fewer boundaries = fewer loops'],
       ['Verify', 'show ip route + traceroute on both domains'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'OSPF — FRRouting Documentation', url: 'https://docs.frrouting.org/en/latest/ospfd.html' },
+      { title: 'Zebra — FRRouting Documentation', url: 'https://docs.frrouting.org/en/latest/zebra.html' },
     ],
   },
 

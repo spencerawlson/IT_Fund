@@ -369,6 +369,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Generic Types, Traits, and Lifetimes — The Rust Programming Language', url: 'https://doc.rust-lang.org/book/ch10-00-generics.html' },
+      { title: 'Traits: Defining Shared Behavior — The Rust Programming Language', url: 'https://doc.rust-lang.org/book/ch10-02-traits.html' },
+      { title: 'Generics — Rust by Example', url: 'https://doc.rust-lang.org/rust-by-example/generics.html' },
+    ],
   },
 
   'rust-concurrency': {

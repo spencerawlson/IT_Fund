@@ -130,6 +130,15 @@ export default {
       ['Kubernetes', 'EKS · AKS · GKE'],
       ['AWS Organizations', 'Multi-account management with SCPs'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Products', url: 'https://aws.amazon.com/products/' },
+      { title: 'Google Cloud products', url: 'https://cloud.google.com/products' },
+      { title: 'AWS Well-Architected Framework', url: 'https://docs.aws.amazon.com/wellarchitected/latest/userguide/' },
+    ],
   },
 
   'cl-billing-support': {
@@ -617,6 +626,15 @@ export default {
       ['Blameless postmortem', 'Systems, not people'],
       ['Toil', 'Manual repetitive work; keep under 50%'],
       ['Readiness / liveness', 'Hold traffic / restart stuck'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Site Reliability Engineering — Google SRE Book', url: 'https://sre.google/sre-book/table-of-contents/' },
+      { title: 'The Site Reliability Workbook', url: 'https://sre.google/workbook/table-of-contents/' },
+      { title: 'AWS Well-Architected Framework — Reliability Pillar', url: 'https://docs.aws.amazon.com/wellarchitected/latest/framework/reliability.html' },
     ],
   },
 };
