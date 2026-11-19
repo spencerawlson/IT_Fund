@@ -18,7 +18,7 @@ export default {
         cards: [
           ['What does `type(3.0)` return?', "<class 'float'>", 'Any literal with a decimal point is a float.', ["<class 'int'>", "<class 'str'>", "<class 'decimal'>"]],
           ['What is the result of `7 // 2`?', '3', '`//` is floor division: it divides and rounds down to a whole number.', ['3.5', '4', '1']],
-          ['What is the result of `7 % 2`?', '1', '`%` is modulo: the remainder after division.', ['3', '3.5', '0']],
+          ['What does `7 % 2` evaluate to in Python?', '1', '`%` is modulo: the remainder after division.', ['3', '3.5', '0']],
           ['What is the result of `2 ** 3`?', '8', '`**` is exponentiation.', ['6', '9', '5']],
           ['Which built-in converts the string "42" to an integer?', 'int("42")', 'int() parses a string of digits; it raises ValueError on invalid input.', ['str(42)', 'float("42")', 'parse("42")']],
           ['How do you insert a variable into a string most idiomatically?', 'An f-string: f"Hi {name}"', 'f-strings (Python 3.6+) evaluate expressions inside braces.', ['"Hi " . name', '"Hi %name"', 'concat("Hi", name), joining the pieces together']],
