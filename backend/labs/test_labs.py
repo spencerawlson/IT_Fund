@@ -342,6 +342,68 @@ def test_client_notes_are_recorded_but_do_not_complete_mock_lab():
     assert _completion_count("u1") == 0
 
 
+def test_topology_board_state_completes_mock_lab():
+    """net-topology-005 has no shell: the TopologyBuilder board IS the
+    instrument, so the client POST of its state must reach the validators.
+    L-01 dropped it for every mock lab, which made all six topology labs
+    uncompletable — the 2-cable chain below failed live even though the
+    validators pass on it. The board state is accepted (sanitised) and the
+    lab completes; the session is NOT marked attested — the validators run
+    server-side on the submitted state."""
+    h = _user("u1")
+    sid = client.post("/api/labs/net-topology-005/start", cookies=h).json()["id"]
+    r = client.post(f"/api/labs/sessions/{sid}/findings",
+                    json={"findings": {"devices": ["sw1", "sw2", "sw3"],
+                                       "links": [["sw1", "sw2"], ["sw2", "sw3"]]}},
+                    cookies=h)
+    assert r.json()["findings"]["devices"] == ["sw1", "sw2", "sw3"]
+    assert r.json()["findings"]["links"] == [["sw1", "sw2"], ["sw2", "sw3"]]
+    r = client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
+    body = r.json()
+    assert body["status"] == "COMPLETED"
+    assert all(o["passed"] for o in body["validation_results"])
+    assert body["attested"] is False
+    assert _completion_count("u1") == 1
+
+
+def test_topology_ring_still_fails_no_loop():
+    """With the board state flowing again, the wiring matters: the 3-cable
+    ring passes placement + connectivity but fails the no-loop objective."""
+    h = _user("u1")
+    sid = client.post("/api/labs/net-topology-005/start", cookies=h).json()["id"]
+    client.post(f"/api/labs/sessions/{sid}/findings",
+                json={"findings": {"devices": ["sw1", "sw2", "sw3"],
+                                   "links": [["sw1", "sw2"], ["sw2", "sw3"], ["sw3", "sw1"]]}},
+                cookies=h)
+    r = client.post(f"/api/labs/sessions/{sid}/validate", cookies=h)
+    body = r.json()
+    assert body["status"] == "RUNNING"
+    results = {o["objective_id"]: o["passed"] for o in body["validation_results"]}
+    assert results == {"place-devices": True, "connected": True, "no-loop": False}
+    assert _completion_count("u1") == 0
+
+
+def test_topology_board_state_is_sanitized():
+    """Only the lab's own targets may be placed or cabled; anything else —
+    unknown hostnames, self-loops, duplicates, links to unplaced devices,
+    and unrelated validator keys like `config` — is dropped before storage,
+    so the L-01 boundary still holds for everything but the board."""
+    h = _user("u1")
+    sid = client.post("/api/labs/net-topology-005/start", cookies=h).json()["id"]
+    r = client.post(f"/api/labs/sessions/{sid}/findings",
+                    json={"findings": {"devices": ["sw1", "sw2", "sw3", "r1", "sw1"],
+                                       "links": [["sw1", "sw2"], ["sw2", "sw1"],
+                                                 ["sw1", "sw1"], ["sw1", "r1"],
+                                                 ["sw3", "sw3"], ["sw2", "sw3"],
+                                                 "not-a-link", ["sw1"]],
+                                       "config": {"vlans_created": True}}},
+                    cookies=h)
+    findings = r.json()["findings"]
+    assert findings["devices"] == ["sw1", "sw2", "sw3"]
+    assert findings["links"] == [["sw1", "sw2"], ["sw2", "sw3"]]
+    assert "config" not in findings
+
+
 def test_reset_clears_progress_and_findings():
     h = _user("u1")
     sid = client.post("/api/labs/cyber-nmap-001/start", cookies=h).json()["id"]
