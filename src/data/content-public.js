@@ -65,7 +65,7 @@ export const tracks = [
                 "id": "py-basics-2",
                 "deckId": "py-basics",
                 "trackId": "python",
-                "q": "What is the result of `7 % 2`?",
+                "q": "What does `7 % 2` evaluate to in Python?",
                 "a": "1",
                 "x": "`%` is modulo: the remainder after division.",
                 "wrong": [
@@ -3858,13 +3858,13 @@ export const tracks = [
                 "id": "cy-linux-7",
                 "deckId": "cy-linux",
                 "trackId": "cyber",
-                "q": "What does the pipe `|` do?",
-                "a": "Sends one command’s output into the next command’s input",
-                "x": "cat access.log | sort | uniq -c | sort -nr counts repeat lines.",
+                "q": "How would you count how many times each IP address appears in access.log, using a pipe?",
+                "a": "Chain commands with `|`: `cut -d\" \" -f1 access.log | sort | uniq -c | sort -nr` — each command’s output feeds the next command’s input",
+                "x": "`dmesg | grep -i usb` searches kernel messages for “usb”.",
                 "wrong": [
-                  "Writes a command's output to a file",
-                  "Runs the first command in the background",
-                  "Runs the second command only if the first one finishes successfully"
+                  "Write the output to a file, then read the file back — `cut access.log > ips.txt` saves the addresses, then `sort ips.txt | uniq -c` counts them",
+                  "Run the first command in the background",
+                  "Run the second command only if the first one finishes successfully"
                 ]
               },
               {

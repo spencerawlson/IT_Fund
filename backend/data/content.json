@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-19T02:48:53.599Z",
+  "generatedAt": "2026-11-19T03:12:32.472Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -243,7 +243,7 @@
                   "id": "py-basics-2",
                   "deckId": "py-basics",
                   "trackId": "python",
-                  "q": "What is the result of `7 % 2`?",
+                  "q": "What does `7 % 2` evaluate to in Python?",
                   "a": "1",
                   "x": "`%` is modulo: the remainder after division.",
                   "wrong": [
@@ -3444,13 +3444,13 @@
                   "id": "net-ops-5",
                   "deckId": "net-ops",
                   "trackId": "network",
-                  "q": "Hot site vs cold site?",
-                  "a": "Hot is fully equipped and ready now; cold is space and power only",
-                  "x": "Warm sits between: hardware but not current data.",
+                  "q": "Your DR plan needs failover in under an hour. Which site type must you pay for, and why not a cold site?",
+                  "a": "A hot site — fully equipped and ready now; a cold site is only space and power and takes days to build out",
+                  "x": "Warm sits between: hardware but not current data. Your RTO decides which you pay for.",
                   "wrong": [
-                    "They are the same",
-                    "Cold is faster, because there is no old data to clear",
-                    "Hot is cheaper"
+                    "A cold site — it fails over instantly because there is no old data to clear, so the empty space and power are ready to take the full workload at once",
+                    "A hot site is cheaper than a cold site, so it is the budget option",
+                    "Hot and cold sites are the same, only the climate differs"
                   ]
                 },
                 {
@@ -3630,13 +3630,13 @@
                   "id": "net-security-4",
                   "deckId": "net-security",
                   "trackId": "network",
-                  "q": "What is an evil twin?",
-                  "a": "A rogue AP impersonating a legitimate SSID",
-                  "x": "Use WPA3-Enterprise with certificate validation.",
+                  "q": "Your laptop auto-joins “CoffeeShop_WiFi” at the airport, but the real shop network is “CoffeeShop WiFi”. What attack is this?",
+                  "a": "An evil twin — a rogue AP impersonating a legitimate SSID to harvest credentials",
+                  "x": "Use WPA3-Enterprise with certificate validation, and turn off auto-join for open networks.",
                   "wrong": [
-                    "A duplicate IP address assigned to two hosts at once",
-                    "A cloned server",
-                    "A backup AP"
+                    "A duplicate IP address assigned to two hosts at once — your laptop joined the wrong network because two access points claimed the same address",
+                    "A cloned server answering on the same address",
+                    "A backup AP taking over during failover"
                   ]
                 },
                 {
@@ -5577,13 +5577,13 @@
                   "id": "sec-concepts-10",
                   "deckId": "sec-concepts",
                   "trackId": "security",
-                  "q": "What is a honeypot?",
-                  "a": "A decoy system that lures attackers",
+                  "q": "Why is an alert from a honeypot treated as high-fidelity, unlike an alert from a production IDS?",
+                  "a": "No legitimate user ever touches a honeypot, so any interaction is almost certainly malicious",
                   "x": "Honeynets, honeyfiles, and honeytokens are related deception tech.",
                   "wrong": [
-                    "A backup server holding copies for disaster recovery",
-                    "A load balancer spreading traffic across many servers",
-                    "An IDS signature, a pattern matching known attacks"
+                    "Because a honeypot blocks the attacker automatically",
+                    "Because honeypots only run on production servers with real data — a decoy needs real traffic to attract attackers, so alerts from it are as noisy as production IDS alerts",
+                    "Because a honeypot is an IDS signature, a pattern matching known attacks"
                   ]
                 },
                 {
@@ -5694,51 +5694,51 @@
                   "id": "sec-threats-4",
                   "deckId": "sec-threats",
                   "trackId": "security",
-                  "q": "What is vishing?",
-                  "a": "Voice phishing over the phone",
-                  "x": "Smishing is via SMS.",
+                  "q": "How does vishing differ from smishing?",
+                  "a": "Vishing uses voice calls; smishing uses SMS text messages — both are phishing by another channel",
+                  "x": "Smishing is via SMS; phishing is via email.",
                   "wrong": [
-                    "Video phishing, fake calls with a cloned face",
-                    "Virus phishing, malware spread through email",
-                    "VPN phishing, fake login pages for remote access"
+                    "Vishing uses video calls with a cloned face; smishing uses voice calls — the attacker deepfakes a video call for vishing and reads a script over the phone for smishing",
+                    "Vishing is malware spread through email; smishing is malware spread through SMS",
+                    "Vishing targets VPN logins; smishing targets voicemail boxes"
                   ]
                 },
                 {
                   "id": "sec-threats-5",
                   "deckId": "sec-threats",
                   "trackId": "security",
-                  "q": "What is pretexting?",
-                  "a": "Inventing a believable scenario to extract information",
+                  "q": "A caller claims to be from IT, says there is a security incident, and asks for your password to “verify your account”. Which technique is this?",
+                  "a": "Pretexting — inventing a believable scenario to extract information or access",
                   "x": "Example: posing as IT support needing your password.",
                   "wrong": [
-                    "Sending malware hidden inside an email attachment",
-                    "Following someone through a door, tailgating behind them",
-                    "Registering a lookalike domain for a fake website"
+                    "Tailgating, following someone through a door",
+                    "Typosquatting, registering a lookalike domain",
+                    "Watering hole, compromising a site the target visits — the attacker poisoned the IT support portal, so the caller already knows your name when they phone"
                   ]
                 },
                 {
                   "id": "sec-threats-6",
                   "deckId": "sec-threats",
                   "trackId": "security",
-                  "q": "What is a watering hole attack?",
-                  "a": "Compromising a site the target group frequently visits",
+                  "q": "How does a watering hole attack differ from a spear-phishing email?",
+                  "a": "A watering hole compromises a site the target group already visits instead of contacting the victim directly",
                   "x": "Targets a community rather than one person.",
                   "wrong": [
-                    "Flooding the group's main website with traffic",
-                    "Emailing the group a malicious attachment directly",
-                    "Registering a lookalike of the group's own domain"
+                    "A watering hole floods the group’s website with traffic",
+                    "A watering hole emails the group a malicious attachment directly — the attacker sends the payload to every member instead of waiting for them to visit the compromised site",
+                    "A watering hole registers a lookalike of the group’s own domain"
                   ]
                 },
                 {
                   "id": "sec-threats-7",
                   "deckId": "sec-threats",
                   "trackId": "security",
-                  "q": "What is typosquatting?",
-                  "a": "Registering lookalike domains such as examp1e.com",
+                  "q": "A user types “gooogle.com” and lands on a fake login page that steals their password. What is this attack called?",
+                  "a": "Typosquatting — registering lookalike domains to catch mistyped URLs",
                   "x": "Also called URL hijacking; used for phishing and malware.",
                   "wrong": [
+                    "DNS poisoning, corrupting the resolver cache entries — the resolver sends gooogle.com visitors to the attacker’s server, so the mistyped domain never matters",
                     "Fixing typos in documents before they are published",
-                    "DNS poisoning, corrupting the resolver cache entries",
                     "Brute-forcing URLs to find hidden pages"
                   ]
                 },
@@ -5746,12 +5746,12 @@
                   "id": "sec-threats-8",
                   "deckId": "sec-threats",
                   "trackId": "security",
-                  "q": "What is business email compromise (BEC)?",
-                  "a": "A hijacked or spoofed business email requesting payments",
+                  "q": "Finance gets an urgent email from the “CEO” asking for a wire transfer to a new supplier account. No malware is attached. What is this attack?",
+                  "a": "Business email compromise (BEC) — a hijacked or spoofed business email requesting fraudulent payments",
                   "x": "Verify payment changes out of band, by phone.",
                   "wrong": [
                     "Spam filtering, blocking junk mail before delivery",
-                    "Email encryption, scrambling invoices in transit",
+                    "Email encryption, scrambling invoices in transit — the CEO’s message was encrypted, so finance could not verify the new supplier account before wiring the money",
                     "A mail server outage that blocks all email"
                   ]
                 },
@@ -5759,13 +5759,13 @@
                   "id": "sec-threats-9",
                   "deckId": "sec-threats",
                   "trackId": "security",
-                  "q": "What is tailgating / piggybacking?",
-                  "a": "Following an authorised person through a door",
+                  "q": "An attacker waits by the office entrance and slips in behind an employee who just badged in. What is this called?",
+                  "a": "Tailgating (piggybacking) — following an authorised person through a secured door",
                   "x": "Mitigated by access control vestibules (mantraps) and training.",
                   "wrong": [
                     "Shoulder surfing, watching passwords over a shoulder",
                     "Dumpster diving, searching discarded papers for secrets",
-                    "Phishing, tricking staff through the front door"
+                    "Pretexting, inventing a scenario to extract information — the attacker claimed to be a delivery courier with a package, and the employee held the door open for them"
                   ]
                 },
                 {
@@ -5887,38 +5887,38 @@
                   "id": "sec-malware-4",
                   "deckId": "sec-malware",
                   "trackId": "security",
-                  "q": "What is a logic bomb?",
-                  "a": "Malicious code triggered by a condition or date",
+                  "q": "A disgruntled admin plants code that deletes the customer database the day their account is deactivated. What is this malware called?",
+                  "a": "A logic bomb — malicious code that triggers on a condition or date",
                   "x": "Often planted by insiders.",
                   "wrong": [
                     "A DDoS tool, flooding servers with junk traffic",
                     "A phishing kit, ready-made fake login pages",
-                    "A self-spreading worm, copying itself across networks"
+                    "A self-spreading worm, copying itself across networks — the code spreads to every machine it can reach and deletes the database on each one the day the admin leaves"
                   ]
                 },
                 {
                   "id": "sec-malware-5",
                   "deckId": "sec-malware",
                   "trackId": "security",
-                  "q": "What is fileless malware?",
-                  "a": "Malware running in memory using legitimate tools",
+                  "q": "Why does fileless malware evade traditional antivirus that scans files on disk?",
+                  "a": "It runs in memory using legitimate tools, leaving no binary on disk for the scanner to find",
                   "x": "Leaves few files on disk; EDR behaviour monitoring helps.",
                   "wrong": [
-                    "Malware without a payload, doing nothing harmful",
-                    "Malware on USB only, spreading through flash drives",
-                    "Adware in the browser, showing unwanted pop-up adverts"
+                    "Because it has no payload and does nothing harmful",
+                    "Because it only spreads through USB flash drives — the malware lives on removable media, so a disk scanner on the workstation never sees its files",
+                    "Because it hides inside browser adverts"
                   ]
                 },
                 {
                   "id": "sec-malware-6",
                   "deckId": "sec-malware",
                   "trackId": "security",
-                  "q": "What is a botnet?",
-                  "a": "A network of compromised machines under an attacker’s command",
+                  "q": "An attacker rents out thousands of compromised home routers to flood a target. What is that rented network called?",
+                  "a": "A botnet — a network of compromised machines under an attacker’s command, used for DDoS, spam, and credential stuffing",
                   "x": "Used for DDoS, spam, and credential stuffing. Controlled via C2.",
                   "wrong": [
                     "A cluster of firewalls sharing one policy",
-                    "A pool of servers behind a load balancer",
+                    "A pool of servers behind a load balancer — thousands of rented home routers share one public address, so the flood looks like legitimate load-balanced traffic",
                     "A distributed vulnerability scanning platform"
                   ]
                 },
@@ -5978,12 +5978,12 @@
                   "id": "sec-malware-11",
                   "deckId": "sec-malware",
                   "trackId": "security",
-                  "q": "What is a supply chain attack?",
-                  "a": "Compromising a vendor to reach its customers",
+                  "q": "A trusted software update is poisoned at the vendor, and every customer who installs it is compromised. What is this attack?",
+                  "a": "A supply chain attack — compromising a vendor or update channel to reach its customers",
                   "x": "Examples: SolarWinds (2020), the xz Utils backdoor (2024).",
                   "wrong": [
                     "Stealing delivery trucks full of hardware shipments",
-                    "Phishing suppliers only, never the customers directly",
+                    "Phishing suppliers only, never the customers directly — the attacker emails the vendor’s staff to steal passwords, but the customers are never touched by the attack",
                     "DDoS on a warehouse, flooding its ordering systems"
                   ]
                 }
@@ -6727,13 +6727,13 @@
                   "id": "sec-architecture-7",
                   "deckId": "sec-architecture",
                   "trackId": "security",
-                  "q": "IDS vs IPS?",
-                  "a": "IDS alerts; IPS sits inline and blocks",
+                  "q": "Why should a new IPS first run in IDS (monitor-only) mode before it starts blocking?",
+                  "a": "To tune out false positives — blocking inline on untuned rules can drop legitimate traffic and cause outages",
                   "x": "Signature, anomaly, and behavioural detection.",
                   "wrong": [
-                    "IDS and IPS are the same device",
-                    "IDS blocks; IPS alerts — the roles are reversed",
-                    "IPS is only for wireless, never for wired networks"
+                    "Because an IPS cannot block until it has an IDS licence",
+                    "Because IDS mode is only for wireless, never for wired networks",
+                    "Because IPS and IDS are the same device, so the mode does not matter — an IPS in monitor-only mode still blocks traffic inline, just without logging it first"
                   ]
                 },
                 {
@@ -6833,26 +6833,26 @@
                   "id": "sec-ops-0",
                   "deckId": "sec-ops",
                   "trackId": "security",
-                  "q": "What is CVSS?",
-                  "a": "A 0-10 score for vulnerability severity",
+                  "q": "Two vulnerabilities both score CVSS 9.8, but only one is on CISA’s Known Exploited list. Which do you patch first, and why?",
+                  "a": "The one on the KEV list — CVSS measures severity, not whether the flaw is actually being exploited",
                   "x": "Prioritise with context: exploitability (e.g. CISA KEV) and asset value.",
                   "wrong": [
-                    "A malware family, viruses sharing the same code",
-                    "A compliance law passed by a national government",
-                    "An encryption standard, how data is scrambled"
+                    "Patch neither — a 9.8 without exploitation is not a risk, because CVSS only measures severity and a flaw nobody exploits can wait for the next patch window",
+                    "Patch the one with the lower CVE number first",
+                    "Patch both at the same time, so the order does not matter"
                   ]
                 },
                 {
                   "id": "sec-ops-1",
                   "deckId": "sec-ops",
                   "trackId": "security",
-                  "q": "What is a CVE?",
-                  "a": "A unique public identifier for a vulnerability",
+                  "q": "How does a CVE differ from a CVSS score?",
+                  "a": "A CVE is the unique public identifier for a known vulnerability; a CVSS score rates that vulnerability’s severity from 0 to 10",
                   "x": "Format CVE-YYYY-NNNN, where the sequence number has four or more digits.",
                   "wrong": [
-                    "A vulnerability score, rating how severe each CVE is",
-                    "An exploit kit, ready-made tools for attackers",
-                    "A patch, an update fixing a known flaw"
+                    "A CVE is a severity score; a CVSS score is the identifier",
+                    "A CVE is an exploit kit; a CVSS score is a vendor patch",
+                    "A CVE and a CVSS score are the same thing with two names — every CVE entry carries its CVSS score, so the identifier and the score refer to the same record"
                   ]
                 },
                 {
@@ -6885,13 +6885,13 @@
                   "id": "sec-ops-4",
                   "deckId": "sec-ops",
                   "trackId": "security",
-                  "q": "What does a SIEM do?",
-                  "a": "Aggregates and correlates logs to detect incidents",
+                  "q": "A SIEM flags a suspicious login, but nothing blocks the attack. Why didn’t the SIEM stop it?",
+                  "a": "A SIEM aggregates and correlates logs to detect incidents — it does not block traffic inline; blocking is the job of an IPS or firewall",
                   "x": "SOAR adds automated response playbooks.",
                   "wrong": [
-                    "Blocks packets at the network edge",
-                    "Encrypts logs for long-term storage",
-                    "Replaces endpoint antivirus agents"
+                    "Because the SIEM encrypts logs instead of inspecting them",
+                    "Because the SIEM replaces endpoint antivirus agents",
+                    "Because a SIEM only stores logs for compliance and never analyses them — the suspicious login sits in cold storage until an auditor asks for it, months later"
                   ]
                 },
                 {
@@ -6937,11 +6937,11 @@
                   "id": "sec-ops-8",
                   "deckId": "sec-ops",
                   "trackId": "security",
-                  "q": "What is the order of volatility?",
-                  "a": "Most volatile evidence first: RAM before disk",
+                  "q": "You arrive at a running, compromised server. What evidence do you collect first, and what happens if you reboot it?",
+                  "a": "RAM and CPU cache first — the most volatile evidence; rebooting destroys it",
                   "x": "RFC 3227 order: CPU registers and cache, memory (RAM), temporary file systems, disk, remote logs, then archival media.",
                   "wrong": [
-                    "Disk first, then RAM, working from the slowest",
+                    "Disk first, then RAM, working from the slowest — the disk image holds the most evidence, so you capture it before the volatile memory disappears",
                     "Backups first, restoring systems before investigating",
                     "Any order, whatever is most convenient"
                   ]
@@ -6963,26 +6963,26 @@
                   "id": "sec-ops-10",
                   "deckId": "sec-ops",
                   "trackId": "security",
-                  "q": "What is threat hunting?",
-                  "a": "Proactively searching for threats that evaded detection",
+                  "q": "How does threat hunting differ from triaging SIEM alerts?",
+                  "a": "Threat hunting proactively searches for threats that evaded detection; alert triage only reacts to what the SIEM already flagged",
                   "x": "Hypothesis-driven, often mapped to MITRE ATT&CK.",
                   "wrong": [
-                    "Waiting for SIEM alerts and triaging them",
-                    "Running scheduled antivirus scans",
-                    "Penetration testing against production systems"
+                    "Threat hunting waits for SIEM alerts and triages them",
+                    "Threat hunting runs scheduled antivirus scans",
+                    "Threat hunting is penetration testing against production systems — the hunters attack the live environment to find the threats the SIEM missed, then report what they broke"
                   ]
                 },
                 {
                   "id": "sec-ops-11",
                   "deckId": "sec-ops",
                   "trackId": "security",
-                  "q": "What is a tabletop exercise?",
-                  "a": "A discussion-based walk-through of a scenario",
+                  "q": "How does a tabletop exercise differ from a live failover test?",
+                  "a": "A tabletop is a discussion-based walk-through of a scenario; a live failover test actually switches systems to the recovery site",
                   "x": "Cheap and effective for testing plans and roles.",
                   "wrong": [
-                    "A live failover to the recovery site",
-                    "A red team attack, adversaries testing defences live",
-                    "A code review, reading every line by eye"
+                    "A tabletop is a live failover to the recovery site",
+                    "A tabletop is a red team attack, adversaries testing defences live — the team attacks the recovery site while everyone watches, to see whether the failover plan holds",
+                    "A tabletop is a code review, reading every line by eye"
                   ]
                 }
               ],
@@ -7267,24 +7267,24 @@
                   "id": "sec-ai-apps-0",
                   "deckId": "sec-ai-apps",
                   "trackId": "security",
-                  "q": "What is SQL injection?",
-                  "a": "SQL inserted through input, run by the database",
-                  "x": "Fix with parameterised queries and least-privilege DB accounts.",
+                  "q": "A login form builds its query by pasting the username straight into the SQL string. An attacker logs in as admin without a password. Which flaw did they exploit?",
+                  "a": "SQL injection — malicious SQL smuggled in through unsanitised input and run by the database",
+                  "x": "Fix with parameterised queries — never concatenate user input into SQL.",
                   "wrong": [
-                    "Flooding a database with junk queries until it stalls",
-                    "Stealing DB backups, copying the files off-site",
-                    "A DNS attack, poisoning the resolver cache entries"
+                    "Cross-site scripting — the login page reflects the username back into the page, so a script in the username runs in the next visitor’s browser",
+                    "Cross-site request forgery, forging a request from a logged-in browser",
+                    "A buffer overflow, writing past a memory buffer’s bounds"
                   ]
                 },
                 {
                   "id": "sec-ai-apps-1",
                   "deckId": "sec-ai-apps",
                   "trackId": "security",
-                  "q": "What is cross-site scripting (XSS)?",
-                  "a": "Script injected to run in other users’ browsers",
+                  "q": "A comment field on a forum lets an attacker store a script that runs in every visitor’s browser. What vulnerability is this?",
+                  "a": "Cross-site scripting (XSS) — scripts injected to run in other users’ browsers; fix with output encoding and a Content Security Policy",
                   "x": "Fix with output encoding and a Content Security Policy.",
                   "wrong": [
-                    "Forging requests from a victim, using their logged-in session",
+                    "Forging requests from a victim, using their logged-in session — the comment field submits a transfer request as the victim, so the forum spends the victim’s money",
                     "Injecting SQL, smuggling code into database queries",
                     "Hijacking DNS, redirecting users to fake sites"
                   ]
@@ -7293,11 +7293,11 @@
                   "id": "sec-ai-apps-2",
                   "deckId": "sec-ai-apps",
                   "trackId": "security",
-                  "q": "What is CSRF?",
-                  "a": "Tricking a logged-in user’s browser into sending an unwanted request",
+                  "q": "A victim visits a malicious page while logged into their bank, and the page silently submits a transfer request. Which attack is this?",
+                  "a": "CSRF — tricking a logged-in user’s browser into sending an unwanted request; fix with anti-CSRF tokens and SameSite cookies",
                   "x": "Fix with anti-CSRF tokens and SameSite cookies.",
                   "wrong": [
-                    "Injecting script that runs in other users' browsers",
+                    "Injecting script that runs in other users’ browsers — the malicious page stores a script in the bank’s comment field, and it runs for every visitor afterwards",
                     "Stealing passwords with a phishing page",
                     "Overflowing a buffer to run injected code"
                   ]
@@ -7306,13 +7306,13 @@
                   "id": "sec-ai-apps-3",
                   "deckId": "sec-ai-apps",
                   "trackId": "security",
-                  "q": "What is a buffer overflow?",
-                  "a": "Writing past a memory buffer’s bounds",
+                  "q": "Why does writing in a memory-safe language like Rust or Python prevent most buffer overflows?",
+                  "a": "Memory-safe languages check bounds automatically, so code cannot write past a buffer’s bounds to corrupt memory or hijack execution",
                   "x": "Mitigated by memory-safe languages, ASLR, and DEP.",
                   "wrong": [
-                    "A full disk, no space left for anything",
-                    "Too many connections, the server refusing new ones",
-                    "An SQL error, the database rejecting a query"
+                    "Because memory-safe languages do not use buffers",
+                    "Because buffer overflows only happen on full disks — when the disk fills up, the program has nowhere to write, so it writes past the buffer’s bounds instead",
+                    "Because buffer overflows only happen in SQL databases"
                   ]
                 },
                 {
@@ -7564,13 +7564,13 @@
                   "id": "cy-linux-7",
                   "deckId": "cy-linux",
                   "trackId": "cyber",
-                  "q": "What does the pipe `|` do?",
-                  "a": "Sends one command’s output into the next command’s input",
-                  "x": "cat access.log | sort | uniq -c | sort -nr counts repeat lines.",
+                  "q": "How would you count how many times each IP address appears in access.log, using a pipe?",
+                  "a": "Chain commands with `|`: `cut -d\" \" -f1 access.log | sort | uniq -c | sort -nr` — each command’s output feeds the next command’s input",
+                  "x": "`dmesg | grep -i usb` searches kernel messages for “usb”.",
                   "wrong": [
-                    "Writes a command's output to a file",
-                    "Runs the first command in the background",
-                    "Runs the second command only if the first one finishes successfully"
+                    "Write the output to a file, then read the file back — `cut access.log > ips.txt` saves the addresses, then `sort ips.txt | uniq -c` counts them",
+                    "Run the first command in the background",
+                    "Run the second command only if the first one finishes successfully"
                   ]
                 },
                 {
@@ -7680,13 +7680,13 @@
                   "id": "cy-frameworks-0",
                   "deckId": "cy-frameworks",
                   "trackId": "cyber",
-                  "q": "What is MITRE ATT&CK?",
-                  "a": "A knowledge base of adversary tactics and techniques",
-                  "x": "Tactics are the \"why\" (goal); techniques are the \"how\".",
+                  "q": "An incident report says the attacker used T1059.001 (PowerShell). Which framework lets you look up what that technique means?",
+                  "a": "MITRE ATT&CK — a knowledge base of adversary tactics, techniques, and procedures, each with an ID",
+                  "x": "Tactics are the “why” (goal); techniques are the “how”.",
                   "wrong": [
-                    "A scoring system for vulnerability severity",
-                    "A compliance standard that mandates specific security controls",
-                    "A live feed of indicators for blocking"
+                    "A scoring system that rates vulnerability severity from 0 to 10 — each technique ID maps to a severity score, so T1059.001 tells you how bad the PowerShell abuse is",
+                    "A list of the most critical web app risks",
+                    "A catalogue of defensive countermeasures"
                   ]
                 },
                 {
@@ -8066,13 +8066,13 @@
                   "id": "cy-crypto-15",
                   "deckId": "cy-crypto",
                   "trackId": "cyber",
-                  "q": "What is certificate pinning?",
-                  "a": "An app accepts only a specific certificate or key, ignoring the system trust store",
+                  "q": "Your app pins its API server’s certificate, then the server rotates its certificate and the app breaks. What trade-off did pinning create?",
+                  "a": "Pinning defeats rogue-CA attacks by accepting only a specific certificate, but the app breaks when that certificate rotates",
                   "x": "Defeats rogue-CA attacks but breaks when the pinned cert rotates.",
                   "wrong": [
-                    "An app trusts any certificate the operating system's trust store accepts",
-                    "Turning off certificate validation for testing",
-                    "Caching the certificate to speed up handshakes"
+                    "Pinning trusts any certificate the operating system’s trust store accepts — the app pins the whole trust store instead of one certificate, so rotation never breaks it",
+                    "Pinning turns off certificate validation for testing",
+                    "Pinning caches the certificate to speed up handshakes"
                   ]
                 },
                 {
@@ -8801,11 +8801,11 @@
                   "id": "cy-soc-7",
                   "deckId": "cy-soc",
                   "trackId": "cyber",
-                  "q": "What is alert fatigue?",
-                  "a": "Analysts overwhelmed by noisy alerts, missing real ones",
+                  "q": "Your SOC gets 10,000 alerts a day and analysts start ignoring them. What is this called, and what is the fix?",
+                  "a": "Alert fatigue — analysts overwhelmed by noisy alerts miss real ones; fix by tuning detections, suppressing known-good, and automating enrichment",
                   "x": "Tune detections, suppress known-good, automate enrichment.",
                   "wrong": [
-                    "A SIEM silently dropping events once it passes its licence limit",
+                    "The SIEM silently dropping events once it passes its licence limit — when the queue fills up, the oldest alerts vanish before any analyst ever sees them",
                     "Analysts working too many overnight shifts",
                     "Log storage filling up and losing old alerts"
                   ]
@@ -14758,13 +14758,13 @@
                   "id": "cy-ir-forensics-26",
                   "deckId": "cy-ir-forensics",
                   "trackId": "cyber",
-                  "q": "RTO vs RPO?",
-                  "a": "RTO: how fast to restore; RPO: how much data loss is tolerable",
-                  "x": "RTO 4h / RPO 1h drives backup frequency and DR design.",
+                  "q": "After an outage, the business can afford to lose at most 1 hour of data but must be back online within 4 hours. Which value is the RPO?",
+                  "a": "The 1-hour data-loss limit is the RPO; the 4-hour restore deadline is the RTO",
+                  "x": "RPO sets the backup frequency; RTO sets the recovery speed.",
                   "wrong": [
-                    "RPO: how fast to restore; RTO: how much data loss is tolerable",
-                    "RTO measures cost",
-                    "RPO measures staff availability"
+                    "The 4-hour restore deadline is the RPO; the 1-hour limit is the RTO — the deadline measures data loss and the limit measures restore speed",
+                    "Both values are the RPO — RTO is a different metric entirely",
+                    "The 1-hour limit is the MTD; the 4-hour deadline is the RPO"
                   ]
                 },
                 {
@@ -15185,13 +15185,13 @@
                   "id": "cy-threat-intel-2",
                   "deckId": "cy-threat-intel",
                   "trackId": "cyber",
-                  "q": "What is a hunting hypothesis?",
-                  "a": "A testable statement about attacker behaviour in your environment",
-                  "x": "e.g. \"Attackers use scheduled tasks for persistence on servers.\"",
+                  "q": "Why must a hunting hypothesis be testable against telemetry, rather than a vague suspicion?",
+                  "a": "A hunting hypothesis is a testable statement about attacker behaviour in your environment — if it cannot be checked against logs or telemetry, the hunt has nothing to prove or disprove",
+                  "x": "e.g. “Attackers use scheduled tasks for persistence on servers.”",
                   "wrong": [
-                    "A detection signature written by the vendor that has not been tested yet",
-                    "A single vulnerability on a host",
-                    "An alert that has already fired"
+                    "Because a hypothesis is a detection signature written by the vendor — the vendor’s rule already states what to look for, so testing it against your own telemetry only confirms the vendor’s rule instead of testing your own idea about the environment",
+                    "Because a hypothesis must name a single vulnerability on a host",
+                    "Because a hypothesis is an alert that has already fired"
                   ]
                 },
                 {
@@ -22536,11 +22536,11 @@
                   "id": "cl-architecture-5",
                   "deckId": "cl-architecture",
                   "trackId": "cloud",
-                  "q": "What is pilot light DR?",
-                  "a": "Core data replicated, minimal services running",
+                  "q": "Your DR budget cannot afford a full duplicate environment, but backup and restore is too slow. Which DR strategy fits, and what stays running?",
+                  "a": "Pilot light — core data is replicated and minimal services run idle; you scale out on failover",
                   "x": "Faster than backup/restore, cheaper than warm standby.",
                   "wrong": [
-                    "Full duplicate running, everything live at once",
+                    "A full duplicate running, everything live at once — a multi-site active/active setup, which is the only strategy fast enough when backup and restore is too slow",
                     "Only offline backups, tapes stored in a vault",
                     "No DR, nothing prepared for a disaster"
                   ]
@@ -22588,13 +22588,13 @@
                   "id": "cl-architecture-9",
                   "deckId": "cl-architecture",
                   "trackId": "cloud",
-                  "q": "What is immutable infrastructure?",
-                  "a": "Replacing servers with new images",
+                  "q": "An attacker gains persistence on a server by modifying its binaries. Why does immutable infrastructure make that persistence fail?",
+                  "a": "Servers are never patched in place — they are replaced with new images, so attacker modifications are wiped on the next deploy",
                   "x": "Reduces configuration drift.",
                   "wrong": [
-                    "Servers that never change or update, frozen forever",
-                    "Read-only disks, impossible to write anything to",
-                    "Backup servers, standing by for disaster recovery"
+                    "Because the disks are mounted read-only so nothing can be written",
+                    "Because the servers never update, so the attacker’s changes stay frozen on the old image and never carry over when a new server is deployed",
+                    "Because immutable servers are locked so nobody can log in"
                   ]
                 },
                 {
@@ -22657,39 +22657,39 @@
                   "id": "cl-containers-iac-0",
                   "deckId": "cl-containers-iac",
                   "trackId": "cloud",
-                  "q": "Container vs virtual machine?",
-                  "a": "Containers share the kernel; VMs run a full OS",
+                  "q": "You need to run an untrusted workload with strong isolation from the host. Why choose a VM over a container?",
+                  "a": "VMs run a full guest OS with its own kernel, giving stronger isolation; containers share the host kernel, so a kernel escape affects the host",
                   "x": "Containers are lighter; VMs give stronger isolation.",
                   "wrong": [
-                    "Containers and virtual machines are the same thing",
-                    "VMs share a kernel, just like containers do",
-                    "Containers need a hypervisor, like virtual machines"
+                    "Because containers and virtual machines are the same thing",
+                    "Because VMs share a kernel, just like containers do — both run on the host operating system, so the isolation between a VM and a container is the same",
+                    "Because containers need a hypervisor, like virtual machines"
                   ]
                 },
                 {
                   "id": "cl-containers-iac-1",
                   "deckId": "cl-containers-iac",
                   "trackId": "cloud",
-                  "q": "What is a Dockerfile?",
-                  "a": "Instructions to build a container image",
+                  "q": "Each instruction in a Dockerfile creates a cached layer. How does that caching speed up rebuilds?",
+                  "a": "Unchanged layers are reused from cache — only the changed instruction and those after it rebuild, so rebuilds are fast",
                   "x": "Each instruction creates a cached layer.",
                   "wrong": [
-                    "A running container, executing the image right now",
-                    "A registry, storing images for download",
-                    "A compose file, defining several containers together"
+                    "It makes the running container start in milliseconds",
+                    "It replaces the need for a registry",
+                    "It lets one Dockerfile define several containers at once — each instruction starts a different container, so a rebuild only restarts the changed ones"
                   ]
                 },
                 {
                   "id": "cl-containers-iac-2",
                   "deckId": "cl-containers-iac",
                   "trackId": "cloud",
-                  "q": "What is the smallest deployable unit in Kubernetes?",
-                  "a": "Pod",
+                  "q": "Why can’t you deploy a single container directly in Kubernetes — what must wrap it?",
+                  "a": "A Pod — the smallest deployable unit in Kubernetes; Kubernetes schedules Pods, not bare containers, and a Pod wraps one or more containers sharing network and storage",
                   "x": "One or more containers sharing network and storage.",
                   "wrong": [
-                    "Node",
-                    "Deployment",
-                    "Container"
+                    "A Node",
+                    "A Deployment",
+                    "A Container — Kubernetes schedules containers directly onto nodes, so you deploy the container image itself and Kubernetes only adds a Pod wrapper for networking and storage"
                   ]
                 },
                 {
@@ -22735,26 +22735,26 @@
                   "id": "cl-containers-iac-6",
                   "deckId": "cl-containers-iac",
                   "trackId": "cloud",
-                  "q": "What does a NetworkPolicy do?",
-                  "a": "Restricts which pods can talk to which",
+                  "q": "By default, pods in a namespace can talk to each other freely. What changes once you apply a NetworkPolicy that selects a pod?",
+                  "a": "Only the traffic the policy allows reaches that pod — everything else is denied; until a policy selects a pod, the default is allow-all",
                   "x": "Pods can talk to each other freely until policies apply.",
                   "wrong": [
-                    "Configures DNS, resolving names to pod addresses",
-                    "Sets resource limits, capping CPU and memory use",
-                    "Builds images, compiling code into container layers"
+                    "It configures DNS, resolving names to pod addresses — once a policy selects a pod, its name resolves only to the pods the policy allows it to reach",
+                    "It sets resource limits, capping CPU and memory use",
+                    "It builds images, compiling code into container layers"
                   ]
                 },
                 {
                   "id": "cl-containers-iac-7",
                   "deckId": "cl-containers-iac",
                   "trackId": "cloud",
-                  "q": "What does `terraform plan` do?",
-                  "a": "Shows the changes Terraform would make",
+                  "q": "Why should `terraform plan` output be reviewed in a pull request before anyone runs `apply`?",
+                  "a": "Plan shows the changes Terraform would make without applying them — reviewing it catches destructive changes before they touch real infrastructure",
                   "x": "Review the plan in pull requests before apply.",
                   "wrong": [
-                    "Applies changes, creating and updating real resources",
-                    "Deletes state, wiping the record of everything",
-                    "Formats code, tidying indentation and spacing"
+                    "Because plan applies the changes, creating real resources in the cloud — reviewing the output in a pull request is too late once the resources already exist",
+                    "Because plan deletes the state, wiping the record of everything",
+                    "Because plan formats the code, tidying indentation and spacing"
                   ]
                 },
                 {
@@ -22787,13 +22787,13 @@
                   "id": "cl-containers-iac-10",
                   "deckId": "cl-containers-iac",
                   "trackId": "cloud",
-                  "q": "Why run containers as non-root?",
-                  "a": "Limits damage if the container is compromised",
+                  "q": "A container running as root escapes to the host. What is the worst-case impact, and which practice limits it?",
+                  "a": "A breakout as root owns the host — running containers as non-root, dropping capabilities, and using read-only file systems limits the damage",
                   "x": "Also drop capabilities and use read-only file systems.",
                   "wrong": [
-                    "It is faster, starting up in milliseconds",
-                    "Kubernetes requires it, refusing root containers",
-                    "Root cannot pull images, the registry blocks it"
+                    "The container simply restarts — a breakout cannot reach the host, because containers are isolated by default and root inside a container has no host privileges",
+                    "The worst case is a slower container start",
+                    "The practice that limits it is running the container with more CPU"
                   ]
                 }
               ],
@@ -22877,26 +22877,26 @@
                   "id": "cl-security-3",
                   "deckId": "cl-security",
                   "trackId": "cloud",
-                  "q": "What is envelope encryption?",
-                  "a": "Data encrypted with a data key, which is itself encrypted by a master key",
+                  "q": "Why encrypt the data key with a master key instead of encrypting all your data directly with the master key?",
+                  "a": "Envelope encryption — the data key does fast local bulk encryption, and the master key (held in KMS) only protects the data key, so the master key is rarely exposed",
                   "x": "KMS holds the master key; data keys are used locally.",
                   "wrong": [
-                    "Encrypting emails",
-                    "Encrypting the data twice with AES, using two different master keys",
-                    "Hashing twice"
+                    "Because encrypting emails requires two keys",
+                    "Because encrypting data twice with AES needs two different master keys — the first key encrypts the data and the second key encrypts the first key, which is envelope encryption",
+                    "Because hashing twice is more secure than hashing once"
                   ]
                 },
                 {
                   "id": "cl-security-4",
                   "deckId": "cl-security",
                   "trackId": "cloud",
-                  "q": "What is CSPM?",
-                  "a": "Continuous misconfiguration detection in the cloud",
+                  "q": "A CSPM scan flags a public S3 bucket. What class of problem did it find, and what does CSPM not do?",
+                  "a": "A cloud misconfiguration — CSPM continuously scans for misconfigurations against benchmarks; it does not block traffic inline like a firewall",
                   "x": "Checks against benchmarks such as CIS.",
                   "wrong": [
-                    "A pentest tool, actively attacking systems to find flaws",
-                    "A cost tool, tracking cloud spending by team",
-                    "A backup service that snapshots cloud resources"
+                    "A pentest finding, from actively attacking the system — a CSPM scan probes the cloud the way a penetration tester would, exploiting the public bucket to prove it",
+                    "A cost problem, tracking cloud spending by team",
+                    "A backup failure, missing snapshots of cloud resources"
                   ]
                 },
                 {
@@ -23037,13 +23037,13 @@
                   "id": "cl-ccsp-2",
                   "deckId": "cl-ccsp",
                   "trackId": "cloud",
-                  "q": "What is data sovereignty?",
-                  "a": "Data follows the laws where it is stored",
-                  "x": "Drives region selection and residency controls.",
+                  "q": "A European customer requires its data never leave the EU. Which requirement is this, and what must the cloud region satisfy?",
+                  "a": "Data sovereignty — data is subject to the laws of the country where it resides, so the region must keep it under EU law",
+                  "x": "Residency rules drive region selection for regulated data.",
                   "wrong": [
                     "Owning your own data centre, built on your land",
                     "Encrypting data, scrambling it before it is stored",
-                    "Self-hosting keys, keeping them on your own servers"
+                    "Self-hosting keys, keeping them on your own servers — if you hold the encryption keys locally, the data stays under your law wherever it is stored"
                   ]
                 },
                 {
@@ -27779,12 +27779,12 @@
                   "id": "cysa-incident-response-8",
                   "deckId": "cysa-incident-response",
                   "trackId": "cysa",
-                  "q": "What is chain of custody?",
-                  "a": "The documented record of who handled evidence, when, and how",
+                  "q": "Evidence changes hands three times during an investigation, but nobody logs the transfers. What breaks, and what is the consequence?",
+                  "a": "The chain of custody — the documented record of who handled evidence, when, and how; gaps can make evidence inadmissible in court",
                   "x": "An unbroken chain is required for evidence to be admissible.",
                   "wrong": [
                     "The path the attacker took through the network",
-                    "The order in which evidence must be collected",
+                    "The order in which evidence must be collected — the volatile RAM is gathered first and the disk last, so the transfer log matters less than the collection order",
                     "The list of systems in scope for the investigation and who owns each one"
                   ]
                 },
@@ -32654,12 +32654,12 @@
                   "id": "cissp-mindset-8",
                   "deckId": "cissp-mindset",
                   "trackId": "cissp",
-                  "q": "What is defence in depth?",
-                  "a": "Multiple layered controls",
+                  "q": "An attacker phishes past the firewall, but EDR blocks the payload and backups restore the data. Which principle saved the organisation?",
+                  "a": "Defence in depth — multiple layered controls so one failure is never fatal",
                   "x": "Administrative, technical, and physical layers.",
                   "wrong": [
                     "One strong perimeter firewall",
-                    "Encrypting data everywhere as the main control",
+                    "Encrypting data everywhere as the main control — if the data is encrypted at rest and in transit, one control is enough to stop any attack",
                     "Hiding systems so attackers cannot find them"
                   ]
                 },
@@ -32832,13 +32832,13 @@
                   "id": "cissp-d1-7",
                   "deckId": "cissp-d1",
                   "trackId": "cissp",
-                  "q": "What is separation of duties?",
-                  "a": "Splitting critical tasks between two people",
+                  "q": "In a finance team, one person approves payments and a different person issues them. Which control is this?",
+                  "a": "Separation of duties — splitting critical tasks so no single person can complete fraud alone",
                   "x": "Collusion is then required. Job rotation and mandatory vacations help detect fraud.",
                   "wrong": [
                     "Giving everyone admin rights from their first day",
                     "Rotating shifts only, with no task split",
-                    "Least privilege for one user at a time"
+                    "Least privilege — giving each user only the minimum access they need, which also stops one person completing fraud alone"
                   ]
                 },
                 {
@@ -33008,13 +33008,13 @@
                   "id": "cissp-d1b-4",
                   "deckId": "cissp-d1b",
                   "trackId": "cissp",
-                  "q": "RTO vs RPO?",
-                  "a": "RTO: restore speed; RPO: tolerable data loss",
-                  "x": "RTO must be within MTD; RPO sets the backup frequency.",
+                  "q": "If backups run every 6 hours, what is the worst-case RPO?",
+                  "a": "6 hours — the RPO is the maximum tolerable data loss, and it is set by the backup frequency",
+                  "x": "Shorten the backup interval to shrink the RPO; RTO is about restore speed, not data loss.",
                   "wrong": [
-                    "RTO and RPO both measure the same recovery target",
-                    "RTO measures data loss in hours or days",
-                    "RPO measures downtime until service returns"
+                    "0 hours — backups eliminate data loss entirely",
+                    "6 hours is the RTO, not the RPO — the backup interval sets how fast you restore, while the RPO is fixed by the SLA",
+                    "The RPO is always 24 hours, regardless of backup frequency"
                   ]
                 },
                 {
@@ -33125,13 +33125,13 @@
                   "id": "cissp-d1b-13",
                   "deckId": "cissp-d1b",
                   "trackId": "cissp",
-                  "q": "Why require mandatory vacations?",
-                  "a": "Cover duties so fraud may be spotted",
+                  "q": "An employee has refused to take leave for three years while handling all payments alone. Which fraud control is being evaded?",
+                  "a": "Mandatory vacations — fraud that needs constant cover unravels when the person is away and someone else covers their duties",
                   "x": "A classic detective control against employee fraud.",
                   "wrong": [
-                    "To save salary costs while they are away",
-                    "To rest the servers while nobody is working",
-                    "To rotate shifts and share the workload around"
+                    "Separation of duties — splitting the payment tasks between two people so no single employee can both approve and issue a payment",
+                    "Job rotation — moving staff through different roles",
+                    "Least privilege — giving each user only the access they need"
                   ]
                 },
                 {
@@ -33507,13 +33507,13 @@
                   "id": "cissp-d2b-11",
                   "deckId": "cissp-d2b",
                   "trackId": "cissp",
-                  "q": "What is data sovereignty?",
-                  "a": "Data follows the laws where it is stored",
-                  "x": "It drives cloud region selection for regulated data.",
+                  "q": "Why does data sovereignty force regulated workloads into specific cloud regions?",
+                  "a": "Because data follows the laws of the country where it is stored, so the region must satisfy the applicable legal regime",
+                  "x": "Storing EU data in a US region can put it under US law.",
                   "wrong": [
-                    "Data ownership by citizens of that country",
-                    "Encrypting all data wherever it travels",
-                    "Deleting old data once it is no longer needed"
+                    "Because data centres in other regions are slower",
+                    "Because encryption is illegal outside the home country",
+                    "Because cloud providers charge extra for cross-border traffic, so keeping data in one region is a cost control rather than a legal requirement"
                   ]
                 },
                 {
@@ -33899,13 +33899,13 @@
                   "id": "cissp-d3-8",
                   "deckId": "cissp-d3",
                   "trackId": "cissp",
-                  "q": "What is a side-channel attack?",
-                  "a": "Extracting secrets from timing, power, or emissions",
+                  "q": "Why must cryptographic code run in constant time, regardless of the secret value?",
+                  "a": "To stop timing side-channel attacks — if execution time varies with the secret, an attacker can extract it from timing measurements",
                   "x": "Spectre and Meltdown exploited CPU speculative execution.",
                   "wrong": [
-                    "Phishing, tricking users with fake emails",
-                    "SQL injection, smuggling code into database queries",
-                    "Brute force, guessing passwords again and again"
+                    "To stop phishing, tricking users with fake emails",
+                    "To stop SQL injection — constant-time code keeps database queries from leaking secrets through the time each query takes to run, to an attacker watching response times",
+                    "To stop brute force, guessing passwords again and again"
                   ]
                 },
                 {
@@ -34006,24 +34006,24 @@
                   "id": "cissp-d4-2",
                   "deckId": "cissp-d4",
                   "trackId": "cissp",
-                  "q": "IPsec transport vs tunnel mode?",
-                  "a": "Transport mode protects only the payload; tunnel encapsulates the whole packet",
+                  "q": "Two branch offices connect their gateways over the internet. Which IPsec mode do they use, and why not transport mode?",
+                  "a": "Tunnel mode — it encrypts the whole packet, headers included, between gateways; transport mode protects only the payload and is for end hosts",
                   "x": "Site-to-site VPNs use tunnel mode.",
                   "wrong": [
-                    "Transport and tunnel mode are identical",
-                    "Tunnel protects payload only, exactly like transport mode",
-                    "Transport is for gateways, never for end hosts"
+                    "Transport mode — it encrypts the whole packet between the two gateways, including the headers, so it is the right choice for site-to-site links",
+                    "Tunnel mode — it encrypts headers only, leaving the payload in cleartext",
+                    "Transport and tunnel mode are identical, so either works"
                   ]
                 },
                 {
                   "id": "cissp-d4-3",
                   "deckId": "cissp-d4",
                   "trackId": "cissp",
-                  "q": "What is micro-segmentation?",
-                  "a": "Fine-grained policies isolating individual workloads",
+                  "q": "A zero trust design isolates every workload with its own policy, so breaching one server opens nothing else. What is this called?",
+                  "a": "Micro-segmentation — fine-grained policies isolating individual workloads",
                   "x": "A zero trust building block, limits lateral movement.",
                   "wrong": [
-                    "VLANs only, separating traffic by switch port",
+                    "VLANs only — separating traffic by switch port, which isolates every workload with its own policy just like micro-segmentation does",
                     "One big flat network, everything able to reach everything",
                     "A DMZ, a buffer zone for public servers"
                   ]
@@ -36406,13 +36406,13 @@
                   "id": "lx-users-6",
                   "deckId": "lx-users",
                   "trackId": "linux",
-                  "q": "What does `sudo` do?",
-                  "a": "Runs a command with elevated privileges per the sudoers policy",
-                  "x": "It asks for YOUR password (not root's) and logs the command.",
+                  "q": "Why does `sudo` ask for YOUR password, not root’s?",
+                  "a": "sudo grants elevated privileges per the sudoers policy and logs the command under your account, so actions stay attributable to you",
+                  "x": "It asks for YOUR password (not root’s) and logs the command.",
                   "wrong": [
-                    "Switches you to root permanently for the rest of the whole session",
-                    "Changes file ownership",
-                    "Lists who can sudo"
+                    "Because sudo switches you to root permanently for the session — once you type your password, every command you run afterwards has root privileges until you log out",
+                    "Because sudo changes file ownership to root",
+                    "Because sudo lists who is allowed to sudo"
                   ]
                 },
                 {
@@ -36497,11 +36497,11 @@
                   "id": "lx-text-1",
                   "deckId": "lx-text",
                   "trackId": "linux",
-                  "q": "What is the difference between `>` and `>>`?",
+                  "q": "When redirecting output in a shell, how does `>` differ from `>>`?",
                   "a": "`>` overwrites the file; `>>` appends to it",
                   "x": "Both create the file if missing. `>` on the wrong file is how data loss happens.",
                   "wrong": [
-                    "`>` writes stdout; `>>` writes stderr",
+                    "`>` writes stdout; `>>` writes stderr — the single arrow sends normal output to the file and the double arrow sends error output there instead",
                     "`>>` overwrites, `>` appends",
                     "`>` only works with root"
                   ]
@@ -37168,7 +37168,7 @@
                   "id": "lx-bash-3",
                   "deckId": "lx-bash",
                   "trackId": "linux",
-                  "q": "What is the difference between `$@`, `$*`, and `$#`?",
+                  "q": "In a bash script, what do `$@`, `$*`, and `$#` each tell you?",
                   "a": "`$@`/`$*` are the arguments; `$#` is how many there are",
                   "x": "Always use `\"$@\"` (quoted): it keeps each argument intact even with spaces.",
                   "wrong": [
@@ -39396,7 +39396,7 @@
                   "id": "cpp-types-7",
                   "deckId": "cpp-types",
                   "trackId": "cpp",
-                  "q": "What is the difference between `=` and `==`?",
+                  "q": "In C++, how does the `=` operator differ from the `==` operator?",
                   "a": "= assigns; == compares for equality",
                   "x": "Using = inside an if is a classic bug.",
                   "wrong": [
@@ -44447,13 +44447,13 @@
                   "id": "sql-transactions-security-5",
                   "deckId": "sql-transactions-security",
                   "trackId": "sql",
-                  "q": "What is SQL injection?",
-                  "a": "Injecting malicious SQL through unsanitised input to run unintended queries",
-                  "x": "A top web vulnerability (OWASP).",
+                  "q": "How does SQL injection differ from cross-site scripting (XSS)?",
+                  "a": "SQL injection targets the database through input; XSS targets other users’ browsers through injected script",
+                  "x": "Both inject code, but into different victims — the database versus the browser.",
                   "wrong": [
-                    "A slow query that locks the table for other users",
-                    "A failed join",
-                    "A deadlock"
+                    "SQL injection runs scripts in browsers; XSS runs queries in databases — the injected code executes wherever it lands, so the two flaws are mirror images of each other",
+                    "They are the same flaw with two different names",
+                    "SQL injection needs a stolen password; XSS needs a stolen database backup"
                   ]
                 },
                 {
@@ -49446,13 +49446,13 @@
                   "id": "it-files-cli-4",
                   "deckId": "it-files-cli",
                   "trackId": "intro-it",
-                  "q": "What is the difference between an absolute and a relative path?",
-                  "a": "An absolute path starts at the root; a relative path starts at the current directory.",
-                  "x": "/home/sam/report.pdf is absolute — it works from anywhere. ../report.pdf is relative — it means \"one folder up from where I am now.\"",
+                  "q": "A script uses `../data/report.csv` and works when run from /home/sam/scripts but fails from /home/sam. Why?",
+                  "a": "It uses a relative path — `../data/report.csv` resolves from the current directory, so it only works from the right place; an absolute path starting at / works from anywhere",
+                  "x": "/home/sam/report.pdf is absolute — it works from anywhere. `../report.pdf` is relative — it means “one folder up from where I am now.”",
                   "wrong": [
-                    "Absolute paths only work on Windows",
-                    "Relative paths are always longer",
-                    "A relative path starts at the root; an absolute path starts at the current directory"
+                    "Because absolute paths only work on Windows",
+                    "Because relative paths are always longer",
+                    "Because a relative path starts at the root; an absolute path starts at the current directory — so `../data/report.csv` works from anywhere, and `/home/sam/scripts` only works from one place"
                   ]
                 },
                 {
