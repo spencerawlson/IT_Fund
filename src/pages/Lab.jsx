@@ -348,7 +348,11 @@ export default function Lab() {
         description="Explore networking, security, and systems concepts as interactive 3D models and animated diagrams — OSI, switches, routers, VPCs, routing protocols, and more."
         path="/lab"
       />
-      <div ref={topRef} className="relative mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
+      {/* Opening a subject scrolls this container into view; without the
+          scroll margin it lands under the sticky mobile header (68px) and
+          hides the "← Visual Lab" back link until the learner scrolls
+          (seen live 2026-11-19). scroll-mt-28 matches LessonView's sections. */}
+      <div ref={topRef} className="relative mx-auto max-w-6xl scroll-mt-28 px-5 py-8 sm:px-8 sm:py-10">
         {active ? (
           <button type="button" onClick={back} className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-2 transition hover:text-ink-1">
             <ArrowLeft size={15} /> Visual Lab
