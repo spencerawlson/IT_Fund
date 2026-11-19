@@ -50,6 +50,15 @@ export default {
       ['Network', 'Computers connected so they can share resources and communicate.'],
       ['Client–server', 'A client requests a service; a server provides it to many clients.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CompTIA A+', url: 'https://www.comptia.org/certifications/a-plus' },
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
+      { title: 'CISA — Cybersecurity Best Practices', url: 'https://www.cisa.gov/topics/cybersecurity-best-practices' },
+    ],
   },
   'it-binary-basics': {
     overview: [
@@ -126,6 +135,15 @@ export default {
       ['UTF-8', 'The web standard for text; ASCII-compatible, covers every writing system.'],
       ['1 KB', '1,024 bytes. 1 MB = 1,024 KB; 1 GB = 1,024 MB.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Khan Academy — Bits, bytes and binary', url: 'https://www.khanacademy.org/computing/computers-and-internet/xcae6f4a7ff015a7d:bits-bytes-and-binary' },
+      { title: 'BBC Bitesize — Binary', url: 'https://www.bbc.co.uk/bitesize/guides/z6qqmsg/revision/1' },
+      { title: 'Wikipedia — Byte', url: 'https://en.wikipedia.org/wiki/Byte' },
+    ],
   },
   'it-hardware': {
     overview: [
@@ -189,6 +207,15 @@ export default {
       ['Rack unit (U)', '44.45 mm of vertical rack space; a 2U server is 88 mm high.'],
       ['Hot-swap', 'Replace a drive, PSU or fan without powering the machine down.'],
       ['Management port', 'iLO / iDRAC / IPMI: remote power and console, even with the OS down.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CompTIA A+', url: 'https://www.comptia.org/certifications/a-plus' },
+      { title: 'Computer Hope — Hardware', url: 'https://www.computerhope.com/jargon/h/hardware.htm' },
+      { title: 'Computer Hope — CPU', url: 'https://www.computerhope.com/jargon/c/cpu.htm' },
     ],
   },
   'it-storage-memory': {
@@ -254,6 +281,15 @@ export default {
       ['RAID 5', 'Parity; survives one disk failure (min 3 disks).'],
       ['RAID 6', 'Dual parity; survives two failures (min 4 disks).'],
       ['RAID 10', 'Mirrored stripes; speed + redundancy (min 4 disks).'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Crucial — About SSDs', url: 'https://www.crucial.com/articles/about-ssd' },
+      { title: 'Computer Hope — SSD', url: 'https://www.computerhope.com/jargon/s/ssd.htm' },
+      { title: 'Computer Hope — RAM', url: 'https://www.computerhope.com/jargon/r/ram.htm' },
     ],
   },
   'it-os-boot': {
@@ -324,6 +360,15 @@ export default {
       ['UEFI', 'Modern firmware: graphical, fast, GPT, Secure Boot.'],
       ['Bootloader', 'Loads the kernel into memory — BOOTMGR or GRUB.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Microsoft — bcdedit command reference', url: 'https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/bcdedit' },
+      { title: 'Linux kernel — Administrator Guide', url: 'https://www.kernel.org/doc/html/latest/admin-guide/' },
+      { title: 'boot(7) — Linux man page', url: 'https://man7.org/linux/man-pages/man7/boot.7.html' },
+    ],
   },
   'it-files-cli': {
     overview: [
@@ -393,6 +438,15 @@ export default {
       ['Relative path', 'Starts at the current directory — depends on where you are.'],
       ['Shell', 'The program that reads CLI commands — Bash, CMD, PowerShell.'],
       ['CLI', 'Command-line interface: type commands, get answers, automate everything.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Microsoft — Windows commands', url: 'https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmd' },
+      { title: 'GNU Coreutils manual', url: 'https://www.gnu.org/software/coreutils/manual/html_node/index.html' },
+      { title: 'ls(1) — Linux man page', url: 'https://man7.org/linux/man-pages/man1/ls.1.html' },
     ],
   },
 };

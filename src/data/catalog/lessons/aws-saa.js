@@ -52,6 +52,15 @@ export default {
       ['OIDC federation', 'External identity providers (e.g. GitHub Actions) assume roles — no stored AWS keys.'],
       ['iam:PassRole', 'Controls who may hand a role to an AWS service; a quiet escalation path if over-granted.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'IAM User Guide — Introduction', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html' },
+      { title: 'IAM policies', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html' },
+      { title: 'IAM roles', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html' },
+    ],
   },
 
   'saa-network-security': {
@@ -104,6 +113,15 @@ export default {
       ['Shield Advanced', 'Paid: 24/7 response team, attack telemetry, DDoS cost protection.'],
       ['S3 Block Public Access', 'Account/bucket-level override blocking any public exposure.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'VPC security groups', url: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html' },
+      { title: 'VPC network ACLs', url: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html' },
+      { title: 'AWS WAF Developer Guide', url: 'https://docs.aws.amazon.com/waf/latest/developerguide/' },
+    ],
   },
 
   'saa-data-protection': {
@@ -154,6 +172,15 @@ export default {
       ['Parameter Store', 'Cheaper config/secret store; choose when rotation is manual.'],
       ['ACM', 'Free public TLS certificates with automatic renewal; terminate TLS at the edge.'],
       ['S3 Object Lock', 'WORM immutability; Compliance mode cannot be shortened by anyone.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS KMS concepts', url: 'https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html' },
+      { title: 'S3 data encryption', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html' },
+      { title: 'AWS Secrets Manager introduction', url: 'https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html' },
     ],
   },
 
@@ -207,6 +234,15 @@ export default {
       ['Read replica', 'Asynchronous readable copy for read scaling; promotable, not automatic.'],
       ['Route 53 ARC', 'Readiness checks plus routing controls for disciplined failover.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'EC2 Auto Scaling — What is it?', url: 'https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html' },
+      { title: 'Elastic Load Balancing — What is it?', url: 'https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html' },
+      { title: 'Regions and Availability Zones', url: 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html' },
+    ],
   },
 
   'saa-decoupling': {
@@ -258,6 +294,15 @@ export default {
       ['EventBridge', 'Event bus with content-based rules, schema registry, SaaS sources.'],
       ['Idempotency', 'Safe to process twice; required because queues deliver at-least-once.'],
       ['Kinesis Data Streams', 'Ordered, replayable streams; choose over SQS at streaming scale.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Amazon SQS Developer Guide', url: 'https://docs.aws.amazon.com/sqs/latest/dg/welcome.html' },
+      { title: 'Amazon SNS Developer Guide', url: 'https://docs.aws.amazon.com/sns/latest/dg/welcome.html' },
+      { title: 'Amazon EventBridge — What is it?', url: 'https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html' },
     ],
   },
 
@@ -311,6 +356,15 @@ export default {
       ['RDS automated backup', 'Point-in-time recovery; retained up to 35 days.'],
       ['Snapshot vs AMI', 'Snapshot = disk copy. AMI = launchable image (snapshots + boot metadata).'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Backup Developer Guide', url: 'https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html' },
+      { title: 'Disaster Recovery of Workloads on AWS', url: 'https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html' },
+      { title: 'S3 replication', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication.html' },
+    ],
   },
 
   'saa-storage': {
@@ -362,6 +416,15 @@ export default {
       ['EBS Multi-Attach', 'Share io1/io2 volumes across instances; for clustered file systems only.'],
       ['Multipart upload', 'Parallel, resumable uploads for large objects.'],
       ['AWS Snowball', 'Offline bulk-transfer appliance for tens of terabytes.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Amazon S3 User Guide', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html' },
+      { title: 'Amazon EBS volumes', url: 'https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volumes.html' },
+      { title: 'Amazon EFS — What is it?', url: 'https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html' },
     ],
   },
 
@@ -415,6 +478,15 @@ export default {
       ['RDS Proxy', 'Connection pooling that shields RDS from Lambda connection storms.'],
       ['AWS DMS', 'Minimal-downtime migration via full load plus continuous change capture.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Amazon RDS User Guide', url: 'https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html' },
+      { title: 'DynamoDB Developer Guide — Introduction', url: 'https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html' },
+      { title: 'ElastiCache for Redis — What is it?', url: 'https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/WhatIs.html' },
+    ],
   },
 
   'saa-caching-cdn': {
@@ -466,6 +538,15 @@ export default {
       ['ElastiCache Redis', 'Rich structures (sorted sets, pub/sub) with persistence options.'],
       ['ElastiCache Memcached', 'Simple multithreaded cache; no replication, no persistence.'],
       ['Price classes', 'Restrict CloudFront edge locations to cut cost for regional audiences.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CloudFront Developer Guide — Introduction', url: 'https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html' },
+      { title: 'ElastiCache for Redis — What is it?', url: 'https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/WhatIs.html' },
+      { title: 'API Gateway caching', url: 'https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-caching.html' },
     ],
   },
 
@@ -519,6 +600,15 @@ export default {
       ['Consolidated billing', 'One payer account aggregates volume discounts across accounts.'],
       ['Dedicated Hosts', 'Whole physical servers for socket-based BYOL licensing.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'EC2 instance lifecycle', url: 'https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html' },
+      { title: 'AWS Lambda Developer Guide', url: 'https://docs.aws.amazon.com/lambda/latest/dg/welcome.html' },
+      { title: 'Cost Optimization — Right sizing', url: 'https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-laying-the-foundation/right-size.html' },
+    ],
   },
 
   'saa-storage-cost': {
@@ -570,6 +660,15 @@ export default {
       ['Athena pricing', 'Per TB scanned; Parquet plus partitioning cuts the bill dramatically.'],
       ['Data transfer OUT', 'Internet egress is billed; same-region AWS-to-AWS is generally free.'],
       ['Cost-allocation tags', 'Activate in Billing to split spend by team or project in Cost Explorer.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'S3 storage classes', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html' },
+      { title: 'S3 lifecycle transition considerations', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-transition-general-considerations.html' },
+      { title: 'AWS Backup Developer Guide', url: 'https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html' },
     ],
   },
 };

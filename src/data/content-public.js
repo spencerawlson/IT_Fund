@@ -24243,6 +24243,20 @@ export const freeLessonContent = {
         "sudo !!",
         "Re-run the previous command with sudo"
       ]
+    ],
+    "further_reading": [
+      {
+        "title": "GNU Bash manual",
+        "url": "https://www.gnu.org/software/bash/manual/bash.html"
+      },
+      {
+        "title": "GNU Coreutils manual",
+        "url": "https://www.gnu.org/software/coreutils/manual/html_node/index.html"
+      },
+      {
+        "title": "Linux man-pages project",
+        "url": "https://man7.org/linux/man-pages/"
+      }
     ]
   },
   "cl-concepts": {

@@ -66,6 +66,15 @@ export default {
       ['Tab', 'Autocomplete commands, paths, options'],
       ['sudo !!', 'Re-run the previous command with sudo'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'GNU Bash manual', url: 'https://www.gnu.org/software/bash/manual/bash.html' },
+      { title: 'GNU Coreutils manual', url: 'https://www.gnu.org/software/coreutils/manual/html_node/index.html' },
+      { title: 'Linux man-pages project', url: 'https://man7.org/linux/man-pages/' },
+    ],
   },
   'lx-perms': {
     overview: [
@@ -124,6 +133,15 @@ export default {
       ['Sticky bit (1, t)', 'On dirs: only owners can delete their files'],
       ['find / -perm -4000', 'Hunt SUID binaries during an audit'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'GNU Coreutils — File permissions', url: 'https://www.gnu.org/software/coreutils/manual/html_node/File-permissions.html' },
+      { title: 'chmod(1) — Linux man page', url: 'https://man7.org/linux/man-pages/man1/chmod.1.html' },
+      { title: 'Arch Wiki — File permissions and attributes', url: 'https://wiki.archlinux.org/title/File_permissions_and_attributes' },
+    ],
   },
   'lx-users': {
     overview: [
@@ -181,6 +199,15 @@ export default {
       ['usermod -L user', 'Lock account without deleting'],
       ['visudo', 'Edit sudoers with syntax validation'],
       ['su - vs sudo -i', 'Needs root password vs your password + logging'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'useradd(8) — Linux man page', url: 'https://man7.org/linux/man-pages/man8/useradd.8.html' },
+      { title: 'passwd(5) — Linux man page', url: 'https://man7.org/linux/man-pages/man5/passwd.5.html' },
+      { title: 'sudo manual — sudo.ws', url: 'https://www.sudo.ws/docs/man/sudo.man/' },
     ],
   },
   'lx-text': {
@@ -418,6 +445,15 @@ export default {
       ['/etc/hosts → DNS', 'Resolution order (see nsswitch.conf)'],
       ['nc -vz host port', 'Test a TCP port (ping cannot do this)'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'ip(8) — Linux man page', url: 'https://man7.org/linux/man-pages/man8/ip.8.html' },
+      { title: 'ss(8) — Linux man page', url: 'https://man7.org/linux/man-pages/man8/ss.8.html' },
+      { title: 'Linux kernel networking documentation', url: 'https://www.kernel.org/doc/html/latest/networking/' },
+    ],
   },
   'lx-bash': {
     overview: [
@@ -484,6 +520,15 @@ export default {
       ['[ -f / -d / -z ]', 'Test file / directory / empty string'],
       ['while IFS= read -r line', 'Safe line-by-line file reading'],
       ['return N (0-255)', 'Function exit status; data goes on stdout'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Bash Reference Manual — Shell Scripts', url: 'https://www.gnu.org/software/bash/manual/html_node/Shell-Scripts.html' },
+      { title: 'Advanced Bash-Scripting Guide', url: 'https://tldp.org/LDP/abs/html/' },
+      { title: 'Bash Reference Manual — Introduction', url: 'https://www.gnu.org/software/bash/manual/html_node/Introduction.html' },
     ],
   },
   'lx-logs': {

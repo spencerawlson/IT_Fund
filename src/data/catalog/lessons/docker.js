@@ -47,6 +47,15 @@ export default {
       ['Docker Engine', 'The dockerd daemon plus the CLI that drives it'],
       ['Namespaces / cgroups', 'The Linux machinery behind isolation and resource limits'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Docker Get Started', url: 'https://docs.docker.com/get-started/' },
+      { title: 'Docker Engine overview', url: 'https://docs.docker.com/engine/' },
+      { title: 'Docker CLI reference', url: 'https://docs.docker.com/reference/cli/docker/' },
+    ],
   },
   'docker-images': {
     overview: [
@@ -92,6 +101,15 @@ export default {
       ['WORKDIR', 'Sets the working directory for later instructions and the container'],
       ['.dockerignore', 'Excludes files from the build context for faster, smaller builds'],
       ['Layer cache', 'Unchanged steps are skipped on rebuild \u2014 order slow-changing first'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Dockerfile reference', url: 'https://docs.docker.com/build/concepts/dockerfile/' },
+      { title: 'Image layers', url: 'https://docs.docker.com/build/concepts/layers/' },
+      { title: 'docker image — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/image/' },
     ],
   },
   'docker-run': {
@@ -140,6 +158,15 @@ export default {
       ['docker logs [-f]', 'Read (and follow) the container\u2019s logs'],
       ['docker stop / rm', 'Stop, then remove; docker rm -f does both'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'docker run — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/container/run/' },
+      { title: 'docker container — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/container/' },
+      { title: 'Docker CLI reference', url: 'https://docs.docker.com/reference/cli/docker/' },
+    ],
   },
   'docker-data-net': {
     overview: [
@@ -185,6 +212,15 @@ export default {
       ['--network none', 'No network access at all; maximum isolation'],
       ['Secrets rule', 'Never in images or Dockerfiles \u2014 inject at runtime via env, files, or a manager'],
       ['Built-in DNS', 'Containers on a user-defined bridge resolve each other by name'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Docker volumes', url: 'https://docs.docker.com/engine/storage/volumes/' },
+      { title: 'Docker networking overview', url: 'https://docs.docker.com/engine/network/' },
+      { title: 'docker volume — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/volume/' },
     ],
   },
   'docker-compose': {
@@ -232,6 +268,15 @@ export default {
       ['--build', 'Rebuild images before starting: up --build'],
       ['--scale web=3', 'Run three replicas of the web service'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Docker Compose overview', url: 'https://docs.docker.com/compose/' },
+      { title: 'Compose file reference', url: 'https://docs.docker.com/compose/compose-file/' },
+      { title: 'Multiple Compose files', url: 'https://docs.docker.com/compose/how-tos/multiple-compose-files/' },
+    ],
   },
   'docker-registry': {
     overview: [
@@ -277,6 +322,15 @@ export default {
       ['Private registry', 'Internal image distribution and control; standard in enterprises'],
       ['Image scanning', 'Trivy / Scout find known CVEs \u2014 gate it in CI'],
       ['docker login', 'Authenticates to a registry for push/pull'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Docker Hub', url: 'https://docs.docker.com/docker-hub/' },
+      { title: 'docker tag — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/image/tag/' },
+      { title: 'docker push — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/image/push/' },
     ],
   },
   'docker-optimization-security': {
@@ -324,6 +378,15 @@ export default {
       ['cosign', 'Image signing: proves authenticity, defeats tampering'],
       ['Layer ordering', 'Least- to most-changing first; maximizes cache reuse'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Build cache', url: 'https://docs.docker.com/build/concepts/cache/' },
+      { title: 'Docker Engine security', url: 'https://docs.docker.com/engine/security/' },
+      { title: 'Docker Scout', url: 'https://docs.docker.com/scout/' },
+    ],
   },
   'docker-ops': {
     overview: [
@@ -369,6 +432,15 @@ export default {
       ['docker inspect', 'Full JSON config and state: mounts, networks, env'],
       ['docker exec -it', 'Shell inside a running container for inspection'],
       ['docker system prune', 'Reclaims stopped containers, unused networks, dangling images'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'docker logs — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/logs/' },
+      { title: 'docker stats — CLI reference', url: 'https://docs.docker.com/reference/cli/docker/stats/' },
+      { title: 'Container resource constraints', url: 'https://docs.docker.com/config/containers/resource_constraints/' },
     ],
   },
 };

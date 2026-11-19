@@ -49,6 +49,15 @@ export default {
       [';', 'Every statement ends with a semicolon — missing ones are a classic compile error.'],
       ['g++ main.cpp -o app', 'Compiles to an executable named `app`; add `-std=c++20` for the language standard.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — Basic concepts', url: 'https://en.cppreference.com/w/cpp/language/basic_concepts.html' },
+      { title: 'isocpp.org — Get Started', url: 'https://isocpp.org/get-started' },
+      { title: 'cppreference — Statements', url: 'https://en.cppreference.com/w/cpp/language/statements.html' },
+    ],
   },
   'cpp-types': {
     overview: [
@@ -96,6 +105,15 @@ export default {
       ['= vs ==', 'Assignment vs comparison; `=` inside an `if` is a classic bug.'],
       ["'a' vs \"a\"", 'Single quotes: one char. Double quotes: null-terminated string.'],
       ['static_cast<T>(x)', 'Explicit compile-time conversion; prefer over C-style casts.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — Fundamental types', url: 'https://en.cppreference.com/w/cpp/language/types.html' },
+      { title: 'cppreference — Arithmetic operators', url: 'https://en.cppreference.com/w/cpp/language/operator_arithmetic.html' },
+      { title: 'cppreference — std::string', url: 'https://en.cppreference.com/w/cpp/string/basic_string.html' },
     ],
   },
   'cpp-control-functions': {
@@ -145,6 +163,15 @@ export default {
       ['Default argument', '`int f(int x, int y = 0)` — the caller may omit `y`.'],
       ['switch', 'Matches integral/enum values exactly; each `case` needs `break;`.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — Statements', url: 'https://en.cppreference.com/w/cpp/language/statements.html' },
+      { title: 'cppreference — Functions', url: 'https://en.cppreference.com/w/cpp/language/functions.html' },
+      { title: 'cppreference — Lambda expressions', url: 'https://en.cppreference.com/w/cpp/language/lambda.html' },
+    ],
   },
   'cpp-pointers': {
     overview: [
@@ -192,6 +219,15 @@ export default {
       ['Memory leak', 'Heap memory never freed — lost until the program exits.'],
       ['Dangling pointer', 'Points to freed or out-of-scope memory; using it is UB.'],
       ['new[] / delete[]', 'Array forms must match — mismatching is undefined behaviour.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — Pointers', url: 'https://en.cppreference.com/w/cpp/language/pointer.html' },
+      { title: 'cppreference — std::unique_ptr', url: 'https://en.cppreference.com/w/cpp/memory/unique_ptr.html' },
+      { title: 'cppreference — std::shared_ptr', url: 'https://en.cppreference.com/w/cpp/memory/shared_ptr.html' },
     ],
   },
   'cpp-oop': {
@@ -242,6 +278,15 @@ export default {
       ['Pure virtual (`= 0`)', 'No base body; makes the class abstract.'],
       ['this', 'Pointer to the current object inside a member function.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — Classes', url: 'https://en.cppreference.com/w/cpp/language/classes.html' },
+      { title: 'cppreference — Virtual functions', url: 'https://en.cppreference.com/w/cpp/language/virtual.html' },
+      { title: 'cppreference — Derived classes', url: 'https://en.cppreference.com/w/cpp/language/derived_class.html' },
+    ],
   },
   'cpp-stl': {
     overview: [
@@ -289,6 +334,15 @@ export default {
       ['for (const auto& x : c)', 'Range-based for; `&` avoids copies, `const` is read-only.'],
       ['std::sort / std::find', 'Sort a range; `find` returns `end()` when absent — always check.'],
       ['std::pair / std::tuple', 'Bundle two (or N) values together.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — Containers library', url: 'https://en.cppreference.com/w/cpp/container.html' },
+      { title: 'cppreference — Algorithms library', url: 'https://en.cppreference.com/w/cpp/algorithm.html' },
+      { title: 'cppreference — Iterators library', url: 'https://en.cppreference.com/w/cpp/iterator.html' },
     ],
   },
   'cpp-raii': {
@@ -338,6 +392,15 @@ export default {
       ['Rule of Zero', 'Let member types manage resources; define no special members yourself.'],
       ['Exceptions + RAII', 'Stack unwinding runs destructors, so resources release even on throw.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — RAII', url: 'https://en.cppreference.com/w/cpp/language/raii.html' },
+      { title: 'cppreference — Destructors', url: 'https://en.cppreference.com/w/cpp/language/destructor.html' },
+      { title: 'cppreference — Rule of three/five/zero', url: 'https://en.cppreference.com/w/cpp/language/rule_of_three.html' },
+    ],
   },
   'cpp-modern-templates': {
     overview: [
@@ -383,6 +446,15 @@ export default {
       ['Header (.hpp) / source (.cpp)', 'Declaration of the interface vs definition of the implementation.'],
       ['nullptr', 'True null-pointer type; unambiguous overload resolution vs `NULL`/0.'],
       ['std::optional<T>', 'A value that may be absent — type-safe, no sentinels.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'cppreference — Templates', url: 'https://en.cppreference.com/w/cpp/language/templates.html' },
+      { title: 'cppreference — Constraints and concepts', url: 'https://en.cppreference.com/w/cpp/language/constraints.html' },
+      { title: 'cppreference — std::move', url: 'https://en.cppreference.com/w/cpp/utility/move.html' },
     ],
   },
   'cpp-safety': {
@@ -431,6 +503,15 @@ export default {
       ['Valgrind', 'Detects leaks and invalid memory use without recompiling.'],
       ['Use-after-free', 'Accessing freed memory — UB and exploitable; prefer smart pointers.'],
       ['const T&', 'Default for large read-only parameters — avoids a copy.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'C++ Core Guidelines — GitHub', url: 'https://github.com/isocpp/CppCoreGuidelines' },
+      { title: 'cppreference — Undefined behavior', url: 'https://en.cppreference.com/w/cpp/language/ub.html' },
+      { title: 'AddressSanitizer — Clang documentation', url: 'https://clang.llvm.org/docs/AddressSanitizer.html' },
     ],
   },
 };

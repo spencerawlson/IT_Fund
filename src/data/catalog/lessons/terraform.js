@@ -48,6 +48,15 @@ export default {
       ['State file', 'terraform.tfstate — maps config blocks to real-world resource IDs.'],
       ['Terraform vs Ansible', 'Terraform provisions infrastructure declaratively; Ansible configures it procedurally.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform introduction', url: 'https://developer.hashicorp.com/terraform/intro' },
+      { title: 'Terraform language', url: 'https://developer.hashicorp.com/terraform/language' },
+      { title: 'Terraform AWS get started tutorial', url: 'https://developer.hashicorp.com/terraform/tutorials/aws-get-started' },
+    ],
   },
 
   'tf-core-workflow': {
@@ -99,6 +108,15 @@ export default {
       ['-auto-approve', 'Skips the confirmation prompt — for reviewed CI pipelines only.'],
       ['plan -out', 'Saves the plan so apply runs exactly what was reviewed.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'terraform init — CLI', url: 'https://developer.hashicorp.com/terraform/cli/commands/init' },
+      { title: 'terraform plan — CLI', url: 'https://developer.hashicorp.com/terraform/cli/commands/plan' },
+      { title: 'terraform apply — CLI', url: 'https://developer.hashicorp.com/terraform/cli/commands/apply' },
+    ],
   },
 
   'tf-resources': {
@@ -149,6 +167,15 @@ export default {
       ['required_providers', 'Pin provider versions (e.g. "~> 5.0") so releases cannot surprise you.'],
       ['~> 5.1', 'Pessimistic constraint: >= 5.1, < 6.0 (use ~> 5.1.0 for patch-only).'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform resources', url: 'https://developer.hashicorp.com/terraform/language/resources' },
+      { title: 'Terraform providers', url: 'https://developer.hashicorp.com/terraform/language/providers' },
+      { title: 'Terraform data sources', url: 'https://developer.hashicorp.com/terraform/language/data-sources' },
+    ],
   },
 
   'tf-variables': {
@@ -197,6 +224,15 @@ export default {
       ['output', 'Value exposed after apply; the configuration\'s API to callers.'],
       ['sensitive = true', 'Redacts from CLI output only — state still holds plaintext.'],
       ['nullable = false', 'Forbids null so the default is always used.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform input variables', url: 'https://developer.hashicorp.com/terraform/language/values/variables' },
+      { title: 'Terraform output values', url: 'https://developer.hashicorp.com/terraform/language/values/outputs' },
+      { title: 'Terraform local values', url: 'https://developer.hashicorp.com/terraform/language/values/locals' },
     ],
   },
 
@@ -248,6 +284,15 @@ export default {
       ['templatefile(path, vars)', 'Render a template file with variables injected.'],
       ['try()', 'First argument that evaluates without error.'],
       ['${ ... }', 'String interpolation; prefer bare references where they work.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform expressions', url: 'https://developer.hashicorp.com/terraform/language/expressions' },
+      { title: 'Terraform functions', url: 'https://developer.hashicorp.com/terraform/language/functions' },
+      { title: 'Terraform for_each meta-argument', url: 'https://developer.hashicorp.com/terraform/language/meta-arguments/for_each' },
     ],
   },
 
@@ -301,6 +346,15 @@ export default {
       ['terraform_remote_state', 'Read-only data source for sharing outputs between stacks.'],
       ['Never hand-edit state', 'Use state commands; never commit state to git.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform state', url: 'https://developer.hashicorp.com/terraform/language/state' },
+      { title: 'Terraform backends', url: 'https://developer.hashicorp.com/terraform/language/backend' },
+      { title: 'Terraform remote state', url: 'https://developer.hashicorp.com/terraform/language/state/remote' },
+    ],
   },
 
   'tf-modules': {
@@ -351,6 +405,15 @@ export default {
       ['Registry', 'registry.terraform.io — public catalog of providers and modules.'],
       ['Provider config', 'Lives in the root module; children receive providers explicitly.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform modules', url: 'https://developer.hashicorp.com/terraform/language/modules' },
+      { title: 'Terraform Registry', url: 'https://developer.hashicorp.com/terraform/registry' },
+      { title: 'Developing modules', url: 'https://developer.hashicorp.com/terraform/language/modules/develop' },
+    ],
   },
 
   'tf-meta-lifecycle': {
@@ -399,6 +462,15 @@ export default {
       ['dynamic block', 'Generate repeated nested blocks from a collection.'],
       ['Provisioners', 'Last resort: imperative, untracked in state; prefer cloud-init or config tools.'],
       ['terraform_data', 'Modern replacement for null_resource; clean home for trigger-based workarounds.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform lifecycle meta-argument', url: 'https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle' },
+      { title: 'Terraform depends_on meta-argument', url: 'https://developer.hashicorp.com/terraform/language/meta-arguments/depends_on' },
+      { title: 'Terraform count meta-argument', url: 'https://developer.hashicorp.com/terraform/language/meta-arguments/count' },
     ],
   },
 
@@ -449,6 +521,15 @@ export default {
       ['Pipeline order', 'fmt/validate → plan (save) → policy+security scan → gated apply of that plan.'],
       ['Rollback', 'Revert config in git and apply; there is no terraform rollback command.'],
       ['State protection', 'Encrypt, restrict access, version the bucket — state holds secrets and topology.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Terraform Cloud variables', url: 'https://developer.hashicorp.com/terraform/cloud-docs/workspaces/settings/variables' },
+      { title: 'S3 backend', url: 'https://developer.hashicorp.com/terraform/language/backend/s3' },
+      { title: 'HCP Terraform run tasks', url: 'https://developer.hashicorp.com/terraform/cloud-docs/workspaces/settings/run-tasks' },
     ],
   },
 };

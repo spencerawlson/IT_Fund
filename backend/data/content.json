@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-19T04:08:43.186Z",
+  "generatedAt": "2026-11-19T04:22:23.308Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -50208,6 +50208,14 @@
             "Define a function with `def name(parameters):` and an indented body. `return` sends a value back; a function without a `return` returns `None`.",
             "Parameters can have default values: `def greet(name=\"world\"):`. Never use a mutable default such as `[]` or `{}`: the default is created once, when the function is defined, and shared by every call. Use `None` and create the list inside the function instead."
           ]
+        },
+        {
+          "heading": "Common mistakes: loops and conditions",
+          "body": [
+            "The most common loop bug is the one that never ends. A `while` loop repeats as long as its condition stays true, so the body must make progress toward making it false: increment the counter, consume the next item, or `break` out. If a script seems stuck, the first thing to check is whether the loop variable actually changes.",
+            "Off-by-one errors are the second classic. `range(5)` produces `0, 1, 2, 3, 4` — five values, but the last is 4, not 5. When you need each item, loop over the list directly (`for line in lines:`) instead of indexing with `range(len(lines))`; it is shorter and there is no index to get wrong.",
+            "Do not change a list while you loop over it: removing items shifts the rest, so the loop skips the next element. Build a new list with the items you want to keep, or loop over a copy (`for item in items[:]:`). And remember `=` assigns while `==` compares — writing `if x = 5:` is a `SyntaxError` in Python, which at least fails loudly instead of silently doing the wrong thing."
+          ]
         }
       ],
       "examples": [
@@ -60103,6 +60111,20 @@
           "MCP",
           "Open protocol for tools; untrusted by default"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "OpenAI API reference",
+          "url": "https://platform.openai.com/docs/api-reference"
+        },
+        {
+          "title": "Anthropic API reference",
+          "url": "https://docs.anthropic.com/en/api"
+        },
+        {
+          "title": "JSON Schema — Getting started",
+          "url": "https://json-schema.org/learn/getting-started-step-by-step"
+        }
       ]
     },
     "ai-finetune-eval": {
@@ -60284,6 +60306,20 @@
           "Agent evals",
           "Success, cost, steps, safety; read transcripts"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Building effective agents — Anthropic",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        },
+        {
+          "title": "OpenAI function calling guide",
+          "url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "title": "LangChain Python documentation",
+          "url": "https://python.langchain.com/docs/introduction/"
+        }
       ]
     },
     "ai-security": {
@@ -60372,6 +60408,20 @@
           "Mindset",
           "Assume injection; limit the damage"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "OWASP Top 10 for LLM Applications",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        },
+        {
+          "title": "NIST AI Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework"
+        },
+        {
+          "title": "MITRE ATLAS — Adversarial Threat Landscape for AI",
+          "url": "https://atlas.mitre.org/"
+        }
       ]
     },
     "ai-governance": {
@@ -60550,6 +60600,20 @@
           "iam:PassRole",
           "Controls who may hand a role to an AWS service; a quiet escalation path if over-granted."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "IAM User Guide — Introduction",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html"
+        },
+        {
+          "title": "IAM policies",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html"
+        },
+        {
+          "title": "IAM roles",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html"
+        }
       ]
     },
     "saa-network-security": {
@@ -60631,6 +60695,20 @@
           "S3 Block Public Access",
           "Account/bucket-level override blocking any public exposure."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "VPC security groups",
+          "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html"
+        },
+        {
+          "title": "VPC network ACLs",
+          "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+        },
+        {
+          "title": "AWS WAF Developer Guide",
+          "url": "https://docs.aws.amazon.com/waf/latest/developerguide/"
+        }
       ]
     },
     "saa-data-protection": {
@@ -60711,6 +60789,20 @@
           "S3 Object Lock",
           "WORM immutability; Compliance mode cannot be shortened by anyone."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS KMS concepts",
+          "url": "https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html"
+        },
+        {
+          "title": "S3 data encryption",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html"
+        },
+        {
+          "title": "AWS Secrets Manager introduction",
+          "url": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html"
+        }
       ]
     },
     "saa-ha-compute": {
@@ -60792,6 +60884,20 @@
           "Route 53 ARC",
           "Readiness checks plus routing controls for disciplined failover."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "EC2 Auto Scaling — What is it?",
+          "url": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html"
+        },
+        {
+          "title": "Elastic Load Balancing — What is it?",
+          "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html"
+        },
+        {
+          "title": "Regions and Availability Zones",
+          "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html"
+        }
       ]
     },
     "saa-decoupling": {
@@ -60873,6 +60979,20 @@
           "Kinesis Data Streams",
           "Ordered, replayable streams; choose over SQS at streaming scale."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Amazon SQS Developer Guide",
+          "url": "https://docs.aws.amazon.com/sqs/latest/dg/welcome.html"
+        },
+        {
+          "title": "Amazon SNS Developer Guide",
+          "url": "https://docs.aws.amazon.com/sns/latest/dg/welcome.html"
+        },
+        {
+          "title": "Amazon EventBridge — What is it?",
+          "url": "https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html"
+        }
       ]
     },
     "saa-backup-dr": {
@@ -60954,6 +61074,20 @@
           "Snapshot vs AMI",
           "Snapshot = disk copy. AMI = launchable image (snapshots + boot metadata)."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Backup Developer Guide",
+          "url": "https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html"
+        },
+        {
+          "title": "Disaster Recovery of Workloads on AWS",
+          "url": "https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html"
+        },
+        {
+          "title": "S3 replication",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication.html"
+        }
       ]
     },
     "saa-storage": {
@@ -61035,6 +61169,20 @@
           "AWS Snowball",
           "Offline bulk-transfer appliance for tens of terabytes."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Amazon S3 User Guide",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html"
+        },
+        {
+          "title": "Amazon EBS volumes",
+          "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volumes.html"
+        },
+        {
+          "title": "Amazon EFS — What is it?",
+          "url": "https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html"
+        }
       ]
     },
     "saa-databases": {
@@ -61116,6 +61264,20 @@
           "AWS DMS",
           "Minimal-downtime migration via full load plus continuous change capture."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Amazon RDS User Guide",
+          "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html"
+        },
+        {
+          "title": "DynamoDB Developer Guide — Introduction",
+          "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html"
+        },
+        {
+          "title": "ElastiCache for Redis — What is it?",
+          "url": "https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/WhatIs.html"
+        }
       ]
     },
     "saa-caching-cdn": {
@@ -61197,6 +61359,20 @@
           "Price classes",
           "Restrict CloudFront edge locations to cut cost for regional audiences."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CloudFront Developer Guide — Introduction",
+          "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html"
+        },
+        {
+          "title": "ElastiCache for Redis — What is it?",
+          "url": "https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/WhatIs.html"
+        },
+        {
+          "title": "API Gateway caching",
+          "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-caching.html"
+        }
       ]
     },
     "saa-compute-cost": {
@@ -61278,6 +61454,20 @@
           "Dedicated Hosts",
           "Whole physical servers for socket-based BYOL licensing."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "EC2 instance lifecycle",
+          "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html"
+        },
+        {
+          "title": "AWS Lambda Developer Guide",
+          "url": "https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
+        },
+        {
+          "title": "Cost Optimization — Right sizing",
+          "url": "https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-laying-the-foundation/right-size.html"
+        }
       ]
     },
     "saa-storage-cost": {
@@ -61359,6 +61549,20 @@
           "Cost-allocation tags",
           "Activate in Billing to split spend by team or project in Cost Explorer."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "S3 storage classes",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+        },
+        {
+          "title": "S3 lifecycle transition considerations",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-transition-general-considerations.html"
+        },
+        {
+          "title": "AWS Backup Developer Guide",
+          "url": "https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html"
+        }
       ]
     },
     "awss-threat-detect": {
@@ -61441,6 +61645,20 @@
           "ASFF",
           "AWS Security Finding Format — normalised severity, resources, remediation across products."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "GuardDuty User Guide — What is it?",
+          "url": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+        },
+        {
+          "title": "Security Hub User Guide — What is it?",
+          "url": "https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html"
+        },
+        {
+          "title": "Macie User Guide — What is it?",
+          "url": "https://docs.aws.amazon.com/macie/latest/userguide/what-is-macie.html"
+        }
       ]
     },
     "awss-logging": {
@@ -61522,6 +61740,20 @@
           "Object Lock compliance mode",
           "WORM storage for logs: undeletable until retention expires, even by root."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CloudTrail User Guide",
+          "url": "https://docs.aws.amazon.com/cloudtrail/latest/userguide/cloudtrail-user-guide.html"
+        },
+        {
+          "title": "CloudWatch Logs — What is it?",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html"
+        },
+        {
+          "title": "CloudWatch — What is it?",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html"
+        }
       ]
     },
     "awss-iam-foundations": {
@@ -61602,6 +61834,20 @@
           "Action / Resource / Condition",
           "Policy elements: what API, where it applies, under what constraints."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "IAM User Guide — Introduction",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html"
+        },
+        {
+          "title": "IAM multi-factor authentication",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html"
+        },
+        {
+          "title": "IAM policies",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html"
+        }
       ]
     },
     "awss-incident-response": {
@@ -61683,6 +61929,20 @@
           "No managed forensics service",
           "The pattern is snapshots plus Inspector/Detective analysis in an isolated account."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Security Incident Response Guide",
+          "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/welcome.html"
+        },
+        {
+          "title": "GuardDuty findings",
+          "url": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html"
+        },
+        {
+          "title": "Security Hub security standards",
+          "url": "https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards.html"
+        }
       ]
     },
     "awss-monitor-analyze": {
@@ -61764,6 +62024,20 @@
           "Cheapest 7-year retention",
           "Organization trail to S3 with lifecycle policies to Glacier/Deep Archive."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CloudWatch — What is it?",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html"
+        },
+        {
+          "title": "AWS Config — What is it?",
+          "url": "https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+        },
+        {
+          "title": "CloudWatch Logs — What is it?",
+          "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html"
+        }
       ]
     },
     "awss-network-security": {
@@ -61845,6 +62119,20 @@
           "Account-level Block Public Access",
           "No bucket in the account can become public, regardless of bucket settings."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "VPC security groups",
+          "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html"
+        },
+        {
+          "title": "VPC flow logs",
+          "url": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html"
+        },
+        {
+          "title": "AWS WAF Developer Guide",
+          "url": "https://docs.aws.amazon.com/waf/latest/developerguide/"
+        }
       ]
     },
     "awss-iam-advanced": {
@@ -61926,6 +62214,20 @@
           "Service-linked vs service role",
           "Service-linked roles are AWS-predefined and uneditable; service roles are customer-created."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "IAM permissions boundaries",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+        },
+        {
+          "title": "Organizations service control policies",
+          "url": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+        },
+        {
+          "title": "IAM OIDC identity providers",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html"
+        }
       ]
     },
     "awss-data-protection": {
@@ -62007,6 +62309,20 @@
           "Secrets Manager",
           "Automatic rotation and cross-account sharing; beats Parameter Store for true secrets."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS KMS concepts",
+          "url": "https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html"
+        },
+        {
+          "title": "S3 data encryption",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html"
+        },
+        {
+          "title": "Macie User Guide — What is it?",
+          "url": "https://docs.aws.amazon.com/macie/latest/userguide/what-is-macie.html"
+        }
       ]
     },
     "awss-secure-compute": {
@@ -62088,6 +62404,20 @@
           "Nitro Enclaves",
           "Isolated attested compute for highly sensitive processing; no admin access."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Systems Manager — What is it?",
+          "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html"
+        },
+        {
+          "title": "Inspector User Guide — Introduction",
+          "url": "https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html"
+        },
+        {
+          "title": "Lambda security",
+          "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-security.html"
+        }
       ]
     },
     "awss-governance": {
@@ -62169,6 +62499,20 @@
           "Minimum audit trail",
           "Org-wide validated CloudTrail to a locked archive, Config everywhere, 1+ year retention."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Organizations — Introduction",
+          "url": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html"
+        },
+        {
+          "title": "AWS Config — What is it?",
+          "url": "https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+        },
+        {
+          "title": "Control Tower — What is it?",
+          "url": "https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html"
+        }
       ]
     },
     "cysa-soc-foundations": {
@@ -62288,6 +62632,20 @@
           "OT / ICS / SCADA",
           "Operational technology: availability first; patching and scanning follow production constraints."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CompTIA Cybersecurity Analyst (CySA+)",
+          "url": "https://www.comptia.org/certifications/cybersecurity-analyst"
+        },
+        {
+          "title": "NIST Cybersecurity Framework",
+          "url": "https://www.nist.gov/cyberframework"
+        },
+        {
+          "title": "NIST SP 800-61 Rev. 3 — Incident Response",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final"
+        }
       ]
     },
     "cysa-vuln-basics": {
@@ -62422,6 +62780,20 @@
           "Atomic Red Team / Caldera",
           "Breach attack simulation: run adversary techniques to test detections."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "National Vulnerability Database",
+          "url": "https://nvd.nist.gov/"
+        },
+        {
+          "title": "CVE Program",
+          "url": "https://www.cve.org/"
+        },
+        {
+          "title": "FIRST — CVSS",
+          "url": "https://www.first.org/cvss/"
+        }
       ]
     },
     "cysa-siem-soar": {
@@ -62573,6 +62945,20 @@
           "APIs / webhooks / plug-ins",
           "How SOAR integrates SIEM, firewall, EDR, and ticketing."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Splunk Search Tutorial",
+          "url": "https://docs.splunk.com/Documentation/Splunk/latest/SearchTutorial/Aboutthesearchapp"
+        },
+        {
+          "title": "Microsoft Sentinel overview",
+          "url": "https://learn.microsoft.com/en-us/azure/sentinel/overview"
+        },
+        {
+          "title": "Elastic Security — Detection engine",
+          "url": "https://www.elastic.co/guide/en/security/current/detection-engine-overview.html"
+        }
       ]
     },
     "cysa-threat-hunting": {
@@ -62712,6 +63098,20 @@
           "Impossible travel",
           "Same account in two distant places faster than a person could travel."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK",
+          "url": "https://attack.mitre.org/"
+        },
+        {
+          "title": "MITRE ATT&CK — Enterprise techniques",
+          "url": "https://attack.mitre.org/techniques/enterprise/"
+        },
+        {
+          "title": "CISA — Cyber Threats and Advisories",
+          "url": "https://www.cisa.gov/topics/cyber-threats-and-advisories"
+        }
       ]
     },
     "cysa-vuln-management": {
@@ -62842,6 +63242,20 @@
           "Attack surface management",
           "Continuously discover and shrink what is exposed."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CISA Known Exploited Vulnerabilities Catalog",
+          "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+        },
+        {
+          "title": "NIST SP 800-40 Rev. 4 — Patch Management",
+          "url": "https://csrc.nist.gov/pubs/sp/800/40/r4/final"
+        },
+        {
+          "title": "National Vulnerability Database",
+          "url": "https://nvd.nist.gov/"
+        }
       ]
     },
     "cysa-incident-response": {
@@ -62963,6 +63377,20 @@
           "NIST SP 800-61 Rev. 3",
           "April 2025 revision, organized around NIST CSF 2.0 functions."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-61 Rev. 3 — Incident Response",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final"
+        },
+        {
+          "title": "FIRST — Incident response guides",
+          "url": "https://www.first.org/resources/guides/"
+        },
+        {
+          "title": "CISA — Cyber Threats and Advisories",
+          "url": "https://www.cisa.gov/topics/cyber-threats-and-advisories"
+        }
       ]
     },
     "cysa-attack-frameworks": {
@@ -63040,6 +63468,20 @@
           "Adversary emulation",
           "Simulating a specific threat actor's TTPs to test your defenses."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK",
+          "url": "https://attack.mitre.org/"
+        },
+        {
+          "title": "MITRE ATT&CK — Enterprise mitigations",
+          "url": "https://attack.mitre.org/mitigations/enterprise/"
+        },
+        {
+          "title": "Lockheed Martin — Cyber Kill Chain",
+          "url": "https://www.lockheedmartin.com/en-us/capabilities/cyber/cyber-kill-chain.html"
+        }
       ]
     },
     "cysa-reporting": {
@@ -63153,6 +63595,20 @@
           "Phishing campaign click rate",
           "Whether the human layer is improving."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "FIRST — CVSS",
+          "url": "https://www.first.org/cvss/"
+        },
+        {
+          "title": "NIST SP 800-53 Rev. 5 — Security and Privacy Controls",
+          "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
+        },
+        {
+          "title": "NIST Cybersecurity Framework",
+          "url": "https://www.nist.gov/cyberframework"
+        }
       ]
     },
     "cissp-mindset": {
@@ -65196,6 +65652,20 @@
           "g++ main.cpp -o app",
           "Compiles to an executable named `app`; add `-std=c++20` for the language standard."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — Basic concepts",
+          "url": "https://en.cppreference.com/w/cpp/language/basic_concepts.html"
+        },
+        {
+          "title": "isocpp.org — Get Started",
+          "url": "https://isocpp.org/get-started"
+        },
+        {
+          "title": "cppreference — Statements",
+          "url": "https://en.cppreference.com/w/cpp/language/statements.html"
+        }
       ]
     },
     "cpp-types": {
@@ -65268,6 +65738,20 @@
           "static_cast<T>(x)",
           "Explicit compile-time conversion; prefer over C-style casts."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — Fundamental types",
+          "url": "https://en.cppreference.com/w/cpp/language/types.html"
+        },
+        {
+          "title": "cppreference — Arithmetic operators",
+          "url": "https://en.cppreference.com/w/cpp/language/operator_arithmetic.html"
+        },
+        {
+          "title": "cppreference — std::string",
+          "url": "https://en.cppreference.com/w/cpp/string/basic_string.html"
+        }
       ]
     },
     "cpp-control-functions": {
@@ -65343,6 +65827,20 @@
           "switch",
           "Matches integral/enum values exactly; each `case` needs `break;`."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — Statements",
+          "url": "https://en.cppreference.com/w/cpp/language/statements.html"
+        },
+        {
+          "title": "cppreference — Functions",
+          "url": "https://en.cppreference.com/w/cpp/language/functions.html"
+        },
+        {
+          "title": "cppreference — Lambda expressions",
+          "url": "https://en.cppreference.com/w/cpp/language/lambda.html"
+        }
       ]
     },
     "cpp-pointers": {
@@ -65421,6 +65919,20 @@
           "new[] / delete[]",
           "Array forms must match — mismatching is undefined behaviour."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — Pointers",
+          "url": "https://en.cppreference.com/w/cpp/language/pointer.html"
+        },
+        {
+          "title": "cppreference — std::unique_ptr",
+          "url": "https://en.cppreference.com/w/cpp/memory/unique_ptr.html"
+        },
+        {
+          "title": "cppreference — std::shared_ptr",
+          "url": "https://en.cppreference.com/w/cpp/memory/shared_ptr.html"
+        }
       ]
     },
     "cpp-oop": {
@@ -65500,6 +66012,20 @@
           "this",
           "Pointer to the current object inside a member function."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — Classes",
+          "url": "https://en.cppreference.com/w/cpp/language/classes.html"
+        },
+        {
+          "title": "cppreference — Virtual functions",
+          "url": "https://en.cppreference.com/w/cpp/language/virtual.html"
+        },
+        {
+          "title": "cppreference — Derived classes",
+          "url": "https://en.cppreference.com/w/cpp/language/derived_class.html"
+        }
       ]
     },
     "cpp-stl": {
@@ -65575,6 +66101,20 @@
           "std::pair / std::tuple",
           "Bundle two (or N) values together."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — Containers library",
+          "url": "https://en.cppreference.com/w/cpp/container.html"
+        },
+        {
+          "title": "cppreference — Algorithms library",
+          "url": "https://en.cppreference.com/w/cpp/algorithm.html"
+        },
+        {
+          "title": "cppreference — Iterators library",
+          "url": "https://en.cppreference.com/w/cpp/iterator.html"
+        }
       ]
     },
     "cpp-raii": {
@@ -65650,6 +66190,20 @@
           "Exceptions + RAII",
           "Stack unwinding runs destructors, so resources release even on throw."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — RAII",
+          "url": "https://en.cppreference.com/w/cpp/language/raii.html"
+        },
+        {
+          "title": "cppreference — Destructors",
+          "url": "https://en.cppreference.com/w/cpp/language/destructor.html"
+        },
+        {
+          "title": "cppreference — Rule of three/five/zero",
+          "url": "https://en.cppreference.com/w/cpp/language/rule_of_three.html"
+        }
       ]
     },
     "cpp-modern-templates": {
@@ -65720,6 +66274,20 @@
           "std::optional<T>",
           "A value that may be absent — type-safe, no sentinels."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "cppreference — Templates",
+          "url": "https://en.cppreference.com/w/cpp/language/templates.html"
+        },
+        {
+          "title": "cppreference — Constraints and concepts",
+          "url": "https://en.cppreference.com/w/cpp/language/constraints.html"
+        },
+        {
+          "title": "cppreference — std::move",
+          "url": "https://en.cppreference.com/w/cpp/utility/move.html"
+        }
       ]
     },
     "cpp-safety": {
@@ -65795,6 +66363,20 @@
           "const T&",
           "Default for large read-only parameters — avoids a copy."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "C++ Core Guidelines — GitHub",
+          "url": "https://github.com/isocpp/CppCoreGuidelines"
+        },
+        {
+          "title": "cppreference — Undefined behavior",
+          "url": "https://en.cppreference.com/w/cpp/language/ub.html"
+        },
+        {
+          "title": "AddressSanitizer — Clang documentation",
+          "url": "https://clang.llvm.org/docs/AddressSanitizer.html"
+        }
       ]
     },
     "docker-basics": {
@@ -65865,6 +66447,20 @@
           "Namespaces / cgroups",
           "The Linux machinery behind isolation and resource limits"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Docker Get Started",
+          "url": "https://docs.docker.com/get-started/"
+        },
+        {
+          "title": "Docker Engine overview",
+          "url": "https://docs.docker.com/engine/"
+        },
+        {
+          "title": "Docker CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/"
+        }
       ]
     },
     "docker-images": {
@@ -65935,6 +66531,20 @@
           "Layer cache",
           "Unchanged steps are skipped on rebuild — order slow-changing first"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Dockerfile reference",
+          "url": "https://docs.docker.com/build/concepts/dockerfile/"
+        },
+        {
+          "title": "Image layers",
+          "url": "https://docs.docker.com/build/concepts/layers/"
+        },
+        {
+          "title": "docker image — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/image/"
+        }
       ]
     },
     "docker-run": {
@@ -66009,6 +66619,20 @@
           "docker stop / rm",
           "Stop, then remove; docker rm -f does both"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "docker run — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/container/run/"
+        },
+        {
+          "title": "docker container — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/container/"
+        },
+        {
+          "title": "Docker CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/"
+        }
       ]
     },
     "docker-data-net": {
@@ -66079,6 +66703,20 @@
           "Built-in DNS",
           "Containers on a user-defined bridge resolve each other by name"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Docker volumes",
+          "url": "https://docs.docker.com/engine/storage/volumes/"
+        },
+        {
+          "title": "Docker networking overview",
+          "url": "https://docs.docker.com/engine/network/"
+        },
+        {
+          "title": "docker volume — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/volume/"
+        }
       ]
     },
     "docker-compose": {
@@ -66149,6 +66787,20 @@
           "--scale web=3",
           "Run three replicas of the web service"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Docker Compose overview",
+          "url": "https://docs.docker.com/compose/"
+        },
+        {
+          "title": "Compose file reference",
+          "url": "https://docs.docker.com/compose/compose-file/"
+        },
+        {
+          "title": "Multiple Compose files",
+          "url": "https://docs.docker.com/compose/how-tos/multiple-compose-files/"
+        }
       ]
     },
     "docker-registry": {
@@ -66219,6 +66871,20 @@
           "docker login",
           "Authenticates to a registry for push/pull"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Docker Hub",
+          "url": "https://docs.docker.com/docker-hub/"
+        },
+        {
+          "title": "docker tag — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/image/tag/"
+        },
+        {
+          "title": "docker push — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/image/push/"
+        }
       ]
     },
     "docker-optimization-security": {
@@ -66289,6 +66955,20 @@
           "Layer ordering",
           "Least- to most-changing first; maximizes cache reuse"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Build cache",
+          "url": "https://docs.docker.com/build/concepts/cache/"
+        },
+        {
+          "title": "Docker Engine security",
+          "url": "https://docs.docker.com/engine/security/"
+        },
+        {
+          "title": "Docker Scout",
+          "url": "https://docs.docker.com/scout/"
+        }
       ]
     },
     "docker-ops": {
@@ -66359,6 +67039,20 @@
           "docker system prune",
           "Reclaims stopped containers, unused networks, dangling images"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "docker logs — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/logs/"
+        },
+        {
+          "title": "docker stats — CLI reference",
+          "url": "https://docs.docker.com/reference/cli/docker/stats/"
+        },
+        {
+          "title": "Container resource constraints",
+          "url": "https://docs.docker.com/config/containers/resource_constraints/"
+        }
       ]
     },
     "git-basics": {
@@ -66429,6 +67123,20 @@
           "Snapshot, not diff",
           "A commit records the state of the project, not just line changes"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Git documentation",
+          "url": "https://git-scm.com/doc"
+        },
+        {
+          "title": "Pro Git — About Version Control",
+          "url": "https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control"
+        },
+        {
+          "title": "Pro Git — Installing Git",
+          "url": "https://git-scm.com/book/en/v2/Getting-Started-Installing-Git"
+        }
       ]
     },
     "git-staging-commits": {
@@ -66499,6 +67207,20 @@
           "Secrets rule",
           "History is forever — never commit secrets; rotate anything leaked"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Pro Git — Recording Changes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository"
+        },
+        {
+          "title": "git-add documentation",
+          "url": "https://git-scm.com/docs/git-add"
+        },
+        {
+          "title": "git-commit documentation",
+          "url": "https://git-scm.com/docs/git-commit"
+        }
       ]
     },
     "git-remotes": {
@@ -66569,6 +67291,20 @@
           "--force-with-lease",
           "Safer forced push; refuses to clobber unseen work"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Pro Git — Working with Remotes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes"
+        },
+        {
+          "title": "git-push documentation",
+          "url": "https://git-scm.com/docs/git-push"
+        },
+        {
+          "title": "git-fetch documentation",
+          "url": "https://git-scm.com/docs/git-fetch"
+        }
       ]
     },
     "git-branching": {
@@ -66639,6 +67375,20 @@
           "git branch -d <name>",
           "Delete a merged branch (-D force-deletes)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Pro Git — Branches in a Nutshell",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell"
+        },
+        {
+          "title": "git-branch documentation",
+          "url": "https://git-scm.com/docs/git-branch"
+        },
+        {
+          "title": "git-checkout documentation",
+          "url": "https://git-scm.com/docs/git-checkout"
+        }
       ]
     },
     "git-conflicts": {
@@ -66709,6 +67459,20 @@
           "git rebase --continue",
           "Proceed after resolving a conflict mid-rebase"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Pro Git — Basic Branching and Merging",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+        },
+        {
+          "title": "git-merge documentation",
+          "url": "https://git-scm.com/docs/git-merge"
+        },
+        {
+          "title": "Pro Git — Advanced Merging",
+          "url": "https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging"
+        }
       ]
     },
     "git-undo": {
@@ -66779,6 +67543,20 @@
           "revert vs reset",
           "Pushed? revert. Local only? reset is fine"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "git-reset documentation",
+          "url": "https://git-scm.com/docs/git-reset"
+        },
+        {
+          "title": "git-revert documentation",
+          "url": "https://git-scm.com/docs/git-revert"
+        },
+        {
+          "title": "Pro Git — Undoing Things",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Undoing-Things"
+        }
       ]
     },
     "git-workflows": {
@@ -66849,6 +67627,20 @@
           "Trunk-based vs GitFlow",
           "Frequent small merges to main vs long-lived release branches"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Pro Git — Branching Workflows",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows"
+        },
+        {
+          "title": "GitHub Flow",
+          "url": "https://docs.github.com/en/get-started/using-github/github-flow"
+        },
+        {
+          "title": "Comparing Git workflows — Atlassian",
+          "url": "https://www.atlassian.com/git/tutorials/comparing-workflows"
+        }
       ]
     },
     "git-internals-hygiene": {
@@ -66919,6 +67711,20 @@
           "Golden rule",
           "Never rewrite shared history; tidy local work only"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Pro Git — Plumbing and Porcelain",
+          "url": "https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain"
+        },
+        {
+          "title": "git-gc documentation",
+          "url": "https://git-scm.com/docs/git-gc"
+        },
+        {
+          "title": "Pro Git — Git Objects",
+          "url": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects"
+        }
       ]
     },
     "go-basics": {
@@ -67316,6 +68122,20 @@
           "title": "Implicit interfaces in action",
           "code": "type Speaker interface { Speak() string }\n\ntype Dog struct{ Name string }\nfunc (d Dog) Speak() string { return \"woof\" }\n// Dog satisfies Speaker implicitly — no declaration needed\n\nfunc announce(s Speaker) { fmt.Println(s.Speak()) }"
         }
+      ],
+      "further_reading": [
+        {
+          "title": "Effective Go — Structs",
+          "url": "https://go.dev/doc/effective_go#structs"
+        },
+        {
+          "title": "A Tour of Go — Methods and interfaces",
+          "url": "https://go.dev/tour/methods/1"
+        },
+        {
+          "title": "Go specification — Struct types",
+          "url": "https://go.dev/ref/spec#Struct_types"
+        }
       ]
     },
     "go-errors": {
@@ -67631,6 +68451,20 @@
           "Reconciliation",
           "Controllers continuously fix drift — crashed pods get recreated"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Kubernetes overview",
+          "url": "https://kubernetes.io/docs/concepts/overview/"
+        },
+        {
+          "title": "Kubernetes components",
+          "url": "https://kubernetes.io/docs/concepts/overview/components/"
+        },
+        {
+          "title": "Kubernetes basics tutorial",
+          "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/"
+        }
       ]
     },
     "k8s-workloads": {
@@ -67701,6 +68535,20 @@
           "Self-healing",
           "Dead pods are replaced automatically to restore the count"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Pods",
+          "url": "https://kubernetes.io/docs/concepts/workloads/pods/"
+        },
+        {
+          "title": "Deployments",
+          "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/"
+        },
+        {
+          "title": "DaemonSets",
+          "url": "https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/"
+        }
       ]
     },
     "k8s-config": {
@@ -67771,6 +68619,20 @@
           "Config/image boundary",
           "Same image everywhere; config injected per environment"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "ConfigMaps",
+          "url": "https://kubernetes.io/docs/concepts/configuration/configmap/"
+        },
+        {
+          "title": "Secrets",
+          "url": "https://kubernetes.io/docs/concepts/configuration/secret/"
+        },
+        {
+          "title": "Configuration overview",
+          "url": "https://kubernetes.io/docs/concepts/configuration/overview/"
+        }
       ]
     },
     "k8s-networking": {
@@ -67841,6 +68703,20 @@
           "Ingress controller",
           "Implements Ingress rules (nginx, Traefik); without it, nothing routes"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Services",
+          "url": "https://kubernetes.io/docs/concepts/services-networking/service/"
+        },
+        {
+          "title": "Ingress",
+          "url": "https://kubernetes.io/docs/concepts/services-networking/ingress/"
+        },
+        {
+          "title": "DNS for Services and Pods",
+          "url": "https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/"
+        }
       ]
     },
     "k8s-storage": {
@@ -67911,6 +68787,20 @@
           "Never in the image",
           "Database files need writable, durable PVCs — not image layers"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Persistent Volumes",
+          "url": "https://kubernetes.io/docs/concepts/storage/persistent-volumes/"
+        },
+        {
+          "title": "Storage Classes",
+          "url": "https://kubernetes.io/docs/concepts/storage/storage-classes/"
+        },
+        {
+          "title": "Volumes",
+          "url": "https://kubernetes.io/docs/concepts/storage/volumes/"
+        }
       ]
     },
     "k8s-deployments": {
@@ -67981,6 +68871,20 @@
           "Requests / limits",
           "Requests guide scheduling; limits cap use (OOM-kill on memory breach)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Deployments",
+          "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/"
+        },
+        {
+          "title": "ReplicaSets",
+          "url": "https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/"
+        },
+        {
+          "title": "StatefulSets",
+          "url": "https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/"
+        }
       ]
     },
     "k8s-operations": {
@@ -68051,6 +68955,20 @@
           "Controller loop",
           "Observe → compare → reconcile, forever; how K8s self-heals"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Debugging a cluster",
+          "url": "https://kubernetes.io/docs/tasks/debug/debug-cluster/"
+        },
+        {
+          "title": "Cluster administration",
+          "url": "https://kubernetes.io/docs/concepts/cluster-administration/"
+        },
+        {
+          "title": "kubectl reference",
+          "url": "https://kubernetes.io/docs/reference/kubectl/"
+        }
       ]
     },
     "k8s-security": {
@@ -68121,6 +69039,20 @@
           "Secrets",
           "Via Secret objects (etcd encryption + RBAC) or external managers; never in images"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RBAC good practices",
+          "url": "https://kubernetes.io/docs/concepts/security/rbac-good-practices/"
+        },
+        {
+          "title": "Pod Security Standards",
+          "url": "https://kubernetes.io/docs/concepts/security/pod-security-standards/"
+        },
+        {
+          "title": "ServiceAccounts",
+          "url": "https://kubernetes.io/docs/concepts/security/service-accounts/"
+        }
       ]
     },
     "lx-cli": {
@@ -68204,6 +69136,20 @@
           "sudo !!",
           "Re-run the previous command with sudo"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "GNU Bash manual",
+          "url": "https://www.gnu.org/software/bash/manual/bash.html"
+        },
+        {
+          "title": "GNU Coreutils manual",
+          "url": "https://www.gnu.org/software/coreutils/manual/html_node/index.html"
+        },
+        {
+          "title": "Linux man-pages project",
+          "url": "https://man7.org/linux/man-pages/"
+        }
       ]
     },
     "lx-perms": {
@@ -68279,6 +69225,20 @@
           "find / -perm -4000",
           "Hunt SUID binaries during an audit"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "GNU Coreutils — File permissions",
+          "url": "https://www.gnu.org/software/coreutils/manual/html_node/File-permissions.html"
+        },
+        {
+          "title": "chmod(1) — Linux man page",
+          "url": "https://man7.org/linux/man-pages/man1/chmod.1.html"
+        },
+        {
+          "title": "Arch Wiki — File permissions and attributes",
+          "url": "https://wiki.archlinux.org/title/File_permissions_and_attributes"
+        }
       ]
     },
     "lx-users": {
@@ -68354,6 +69314,20 @@
           "su - vs sudo -i",
           "Needs root password vs your password + logging"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "useradd(8) — Linux man page",
+          "url": "https://man7.org/linux/man-pages/man8/useradd.8.html"
+        },
+        {
+          "title": "passwd(5) — Linux man page",
+          "url": "https://man7.org/linux/man-pages/man5/passwd.5.html"
+        },
+        {
+          "title": "sudo manual — sudo.ws",
+          "url": "https://www.sudo.ws/docs/man/sudo.man/"
+        }
       ]
     },
     "lx-text": {
@@ -68681,6 +69655,20 @@
           "nc -vz host port",
           "Test a TCP port (ping cannot do this)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "ip(8) — Linux man page",
+          "url": "https://man7.org/linux/man-pages/man8/ip.8.html"
+        },
+        {
+          "title": "ss(8) — Linux man page",
+          "url": "https://man7.org/linux/man-pages/man8/ss.8.html"
+        },
+        {
+          "title": "Linux kernel networking documentation",
+          "url": "https://www.kernel.org/doc/html/latest/networking/"
+        }
       ]
     },
     "lx-bash": {
@@ -68756,6 +69744,20 @@
           "return N (0-255)",
           "Function exit status; data goes on stdout"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Bash Reference Manual — Shell Scripts",
+          "url": "https://www.gnu.org/software/bash/manual/html_node/Shell-Scripts.html"
+        },
+        {
+          "title": "Advanced Bash-Scripting Guide",
+          "url": "https://tldp.org/LDP/abs/html/"
+        },
+        {
+          "title": "Bash Reference Manual — Introduction",
+          "url": "https://www.gnu.org/software/bash/manual/html_node/Introduction.html"
+        }
       ]
     },
     "lx-logs": {
@@ -68989,6 +69991,20 @@
           "title": "Hello, Cargo",
           "code": "// src/main.rs — created by `cargo new hello`\nfn main() {\n    println!(\"Hello, world!\");\n}"
         }
+      ],
+      "further_reading": [
+        {
+          "title": "The Rust Programming Language (The Book)",
+          "url": "https://doc.rust-lang.org/book/"
+        },
+        {
+          "title": "Get started with Rust",
+          "url": "https://www.rust-lang.org/learn/get-started"
+        },
+        {
+          "title": "Rust by Example",
+          "url": "https://doc.rust-lang.org/rust-by-example/"
+        }
       ]
     },
     "rust-types": {
@@ -69062,6 +70078,20 @@
           "Debug overflow",
           "Panics; release wraps; prefer checked_/wrapping_/saturating_"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "The Book — Data Types",
+          "url": "https://doc.rust-lang.org/book/ch03-02-data-types.html"
+        },
+        {
+          "title": "Rust standard library — Primitive types",
+          "url": "https://doc.rust-lang.org/std/primitive.html"
+        },
+        {
+          "title": "Rust by Example — Primitives",
+          "url": "https://doc.rust-lang.org/rust-by-example/primitives.html"
+        }
       ]
     },
     "rust-control-functions": {
@@ -69130,6 +70160,20 @@
         {
           "title": "Expressions doing the work",
           "code": "let n = if ready { 1 } else { 2 };      // if returns a value\n\nlet r = loop {                        // loop returns a value too\n    break 10;\n};\n\nlet label = match code {              // exhaustive: every case handled\n    0 => \"zero\",\n    1..=9 => \"digit\",\n    _ => \"other\",\n};"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "The Book — Control Flow",
+          "url": "https://doc.rust-lang.org/book/ch03-05-control-flow.html"
+        },
+        {
+          "title": "The Book — Functions",
+          "url": "https://doc.rust-lang.org/book/ch03-03-how-functions-work.html"
+        },
+        {
+          "title": "Rust by Example — Flow of Control",
+          "url": "https://doc.rust-lang.org/rust-by-example/flow_control.html"
         }
       ]
     },
@@ -69204,6 +70248,20 @@
           "title": "Moves, borrows, and the one-mutable rule",
           "code": "let a = String::from(\"hi\");\nlet b = a;            // ownership MOVES; `a` is now invalid\n// println!(\"{}\", a); // compile error: use of moved value\n\nfn len(s: &String) -> usize { s.len() }  // borrows; owner keeps it\nlet n = 5;\nlet m = n;            // i32 is Copy: cheaply duplicated, no move"
         }
+      ],
+      "further_reading": [
+        {
+          "title": "The Book — What is Ownership?",
+          "url": "https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html"
+        },
+        {
+          "title": "The Book — References and Borrowing",
+          "url": "https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html"
+        },
+        {
+          "title": "The Rustonomicon",
+          "url": "https://doc.rust-lang.org/nomicon/"
+        }
       ]
     },
     "rust-structs-enums": {
@@ -69271,6 +70329,20 @@
         {
           "title": "Option instead of null",
           "code": "fn first(v: &Vec<i32>) -> Option<i32> {\n    v.get(0).copied()          // None if empty — no null, no panic\n}\n\nmatch first(&v) {\n    Some(x) => println!(\"got {x}\"),\n    None    => println!(\"empty\"),\n}                               // match is exhaustive: both arms required"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "The Book — Structs",
+          "url": "https://doc.rust-lang.org/book/ch05-00-structs.html"
+        },
+        {
+          "title": "The Book — Enums and Pattern Matching",
+          "url": "https://doc.rust-lang.org/book/ch06-00-enums.html"
+        },
+        {
+          "title": "The Book — Traits",
+          "url": "https://doc.rust-lang.org/book/ch10-02-traits.html"
         }
       ]
     },
@@ -69340,6 +70412,20 @@
         {
           "title": "The ? operator in action",
           "code": "use std::fs;\n\nfn read_config() -> Result<String, std::io::Error> {\n    let text = fs::read_to_string(\"app.toml\")?;  // Err returns early\n    Ok(text.trim().to_string())\n}"
+        }
+      ],
+      "further_reading": [
+        {
+          "title": "The Book — Error Handling",
+          "url": "https://doc.rust-lang.org/book/ch09-00-error-handling.html"
+        },
+        {
+          "title": "Rust standard library — Result",
+          "url": "https://doc.rust-lang.org/std/result/"
+        },
+        {
+          "title": "anyhow — crate documentation",
+          "url": "https://docs.rs/anyhow"
         }
       ]
     },
@@ -69484,6 +70570,20 @@
           "title": "Share state across threads",
           "code": "use std::sync::{Arc, Mutex};\nuse std::thread;\n\nlet counter = Arc::new(Mutex::new(0));\nlet c = Arc::clone(&counter);\nthread::spawn(move || {\n    *c.lock().unwrap() += 1;   // &mut access, guarded by the mutex\n}).join().unwrap();"
         }
+      ],
+      "further_reading": [
+        {
+          "title": "The Book — Fearless Concurrency",
+          "url": "https://doc.rust-lang.org/book/ch16-00-concurrency.html"
+        },
+        {
+          "title": "Rust standard library — sync",
+          "url": "https://doc.rust-lang.org/std/sync/"
+        },
+        {
+          "title": "Tokio tutorial",
+          "url": "https://tokio.rs/tokio/tutorial"
+        }
       ]
     },
     "sql-basics": {
@@ -69559,6 +70659,20 @@
           ";",
           "Statement terminator in most clients."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL tutorial",
+          "url": "https://www.postgresql.org/docs/current/tutorial.html"
+        },
+        {
+          "title": "SQLite language reference",
+          "url": "https://www.sqlite.org/lang.html"
+        },
+        {
+          "title": "MySQL tutorial",
+          "url": "https://dev.mysql.com/doc/refman/8.4/en/tutorial.html"
+        }
       ]
     },
     "sql-select": {
@@ -69638,6 +70752,20 @@
           "AND / OR / NOT",
           "Combine conditions; parentheses control precedence."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL — Queries",
+          "url": "https://www.postgresql.org/docs/current/queries.html"
+        },
+        {
+          "title": "PostgreSQL — SELECT",
+          "url": "https://www.postgresql.org/docs/current/sql-select.html"
+        },
+        {
+          "title": "MySQL — SELECT statement",
+          "url": "https://dev.mysql.com/doc/refman/8.4/en/select.html"
+        }
       ]
     },
     "sql-aggregates": {
@@ -69704,6 +70832,20 @@
           "Grouped SELECT rule",
           "Only grouping columns and aggregates allowed in the select list."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL tutorial — Aggregates",
+          "url": "https://www.postgresql.org/docs/current/tutorial-agg.html"
+        },
+        {
+          "title": "PostgreSQL — Aggregate functions",
+          "url": "https://www.postgresql.org/docs/current/functions-aggregate.html"
+        },
+        {
+          "title": "MySQL — Aggregate functions",
+          "url": "https://dev.mysql.com/doc/refman/8.4/en/group-by-functions.html"
+        }
       ]
     },
     "sql-joins": {
@@ -69779,6 +70921,20 @@
           "Chained joins",
           "Multiple `JOIN ... ON` clauses in one query."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL tutorial — Joins",
+          "url": "https://www.postgresql.org/docs/current/tutorial-join.html"
+        },
+        {
+          "title": "PostgreSQL — Table expressions",
+          "url": "https://www.postgresql.org/docs/current/queries-table-expressions.html"
+        },
+        {
+          "title": "MySQL — Joins",
+          "url": "https://dev.mysql.com/doc/refman/8.4/en/join.html"
+        }
       ]
     },
     "sql-ddl-dml": {
@@ -69845,6 +71001,20 @@
           "DELETE vs TRUNCATE",
           "`DELETE`: selective, logged, rollback-able. `TRUNCATE`: fast full-table wipe."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL — Data Definition",
+          "url": "https://www.postgresql.org/docs/current/ddl.html"
+        },
+        {
+          "title": "PostgreSQL — Data Manipulation",
+          "url": "https://www.postgresql.org/docs/current/dml.html"
+        },
+        {
+          "title": "PostgreSQL — CREATE TABLE",
+          "url": "https://www.postgresql.org/docs/current/sql-createtable.html"
+        }
       ]
     },
     "sql-subqueries": {
@@ -69919,6 +71089,20 @@
           "Scalar subquery",
           "One row, one column — usable anywhere a value goes."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL — Subqueries",
+          "url": "https://www.postgresql.org/docs/current/queries-subqueries.html"
+        },
+        {
+          "title": "PostgreSQL — Subquery expressions",
+          "url": "https://www.postgresql.org/docs/current/functions-subquery.html"
+        },
+        {
+          "title": "MySQL — Subqueries",
+          "url": "https://dev.mysql.com/doc/refman/8.4/en/subqueries.html"
+        }
       ]
     },
     "sql-indexes-norm": {
@@ -69997,6 +71181,20 @@
           "Primary vs foreign key",
           "PK uniquely identifies rows in its table; FK references another table's PK."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL — Indexes",
+          "url": "https://www.postgresql.org/docs/current/indexes.html"
+        },
+        {
+          "title": "PostgreSQL — Constraints",
+          "url": "https://www.postgresql.org/docs/current/ddl-constraints.html"
+        },
+        {
+          "title": "Use The Index, Luke",
+          "url": "https://use-the-index-luke.com/"
+        }
       ]
     },
     "sql-transactions-security": {
@@ -70075,6 +71273,20 @@
           "Password storage",
           "Salted hash (bcrypt/argon2) — never plaintext, never reversible encoding."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "PostgreSQL tutorial — Transactions",
+          "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html"
+        },
+        {
+          "title": "PostgreSQL — Transaction isolation",
+          "url": "https://www.postgresql.org/docs/current/transaction-iso.html"
+        },
+        {
+          "title": "PostgreSQL — GRANT",
+          "url": "https://www.postgresql.org/docs/current/sql-grant.html"
+        }
       ]
     },
     "tf-iac-basics": {
@@ -70146,6 +71358,20 @@
           "Terraform vs Ansible",
           "Terraform provisions infrastructure declaratively; Ansible configures it procedurally."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform introduction",
+          "url": "https://developer.hashicorp.com/terraform/intro"
+        },
+        {
+          "title": "Terraform language",
+          "url": "https://developer.hashicorp.com/terraform/language"
+        },
+        {
+          "title": "Terraform AWS get started tutorial",
+          "url": "https://developer.hashicorp.com/terraform/tutorials/aws-get-started"
+        }
       ]
     },
     "tf-core-workflow": {
@@ -70223,6 +71449,20 @@
           "plan -out",
           "Saves the plan so apply runs exactly what was reviewed."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "terraform init — CLI",
+          "url": "https://developer.hashicorp.com/terraform/cli/commands/init"
+        },
+        {
+          "title": "terraform plan — CLI",
+          "url": "https://developer.hashicorp.com/terraform/cli/commands/plan"
+        },
+        {
+          "title": "terraform apply — CLI",
+          "url": "https://developer.hashicorp.com/terraform/cli/commands/apply"
+        }
       ]
     },
     "tf-resources": {
@@ -70299,6 +71539,20 @@
           "~> 5.1",
           "Pessimistic constraint: >= 5.1, < 6.0 (use ~> 5.1.0 for patch-only)."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform resources",
+          "url": "https://developer.hashicorp.com/terraform/language/resources"
+        },
+        {
+          "title": "Terraform providers",
+          "url": "https://developer.hashicorp.com/terraform/language/providers"
+        },
+        {
+          "title": "Terraform data sources",
+          "url": "https://developer.hashicorp.com/terraform/language/data-sources"
+        }
       ]
     },
     "tf-variables": {
@@ -70371,6 +71625,20 @@
           "nullable = false",
           "Forbids null so the default is always used."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform input variables",
+          "url": "https://developer.hashicorp.com/terraform/language/values/variables"
+        },
+        {
+          "title": "Terraform output values",
+          "url": "https://developer.hashicorp.com/terraform/language/values/outputs"
+        },
+        {
+          "title": "Terraform local values",
+          "url": "https://developer.hashicorp.com/terraform/language/values/locals"
+        }
       ]
     },
     "tf-expressions": {
@@ -70451,6 +71719,20 @@
           "${ ... }",
           "String interpolation; prefer bare references where they work."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform expressions",
+          "url": "https://developer.hashicorp.com/terraform/language/expressions"
+        },
+        {
+          "title": "Terraform functions",
+          "url": "https://developer.hashicorp.com/terraform/language/functions"
+        },
+        {
+          "title": "Terraform for_each meta-argument",
+          "url": "https://developer.hashicorp.com/terraform/language/meta-arguments/for_each"
+        }
       ]
     },
     "tf-state-backends": {
@@ -70532,6 +71814,20 @@
           "Never hand-edit state",
           "Use state commands; never commit state to git."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform state",
+          "url": "https://developer.hashicorp.com/terraform/language/state"
+        },
+        {
+          "title": "Terraform backends",
+          "url": "https://developer.hashicorp.com/terraform/language/backend"
+        },
+        {
+          "title": "Terraform remote state",
+          "url": "https://developer.hashicorp.com/terraform/language/state/remote"
+        }
       ]
     },
     "tf-modules": {
@@ -70608,6 +71904,20 @@
           "Provider config",
           "Lives in the root module; children receive providers explicitly."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform modules",
+          "url": "https://developer.hashicorp.com/terraform/language/modules"
+        },
+        {
+          "title": "Terraform Registry",
+          "url": "https://developer.hashicorp.com/terraform/registry"
+        },
+        {
+          "title": "Developing modules",
+          "url": "https://developer.hashicorp.com/terraform/language/modules/develop"
+        }
       ]
     },
     "tf-meta-lifecycle": {
@@ -70683,6 +71993,20 @@
           "terraform_data",
           "Modern replacement for null_resource; clean home for trigger-based workarounds."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform lifecycle meta-argument",
+          "url": "https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle"
+        },
+        {
+          "title": "Terraform depends_on meta-argument",
+          "url": "https://developer.hashicorp.com/terraform/language/meta-arguments/depends_on"
+        },
+        {
+          "title": "Terraform count meta-argument",
+          "url": "https://developer.hashicorp.com/terraform/language/meta-arguments/count"
+        }
       ]
     },
     "tf-prod-security": {
@@ -70759,6 +72083,20 @@
           "State protection",
           "Encrypt, restrict access, version the bucket — state holds secrets and topology."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Terraform Cloud variables",
+          "url": "https://developer.hashicorp.com/terraform/cloud-docs/workspaces/settings/variables"
+        },
+        {
+          "title": "S3 backend",
+          "url": "https://developer.hashicorp.com/terraform/language/backend/s3"
+        },
+        {
+          "title": "HCP Terraform run tasks",
+          "url": "https://developer.hashicorp.com/terraform/cloud-docs/workspaces/settings/run-tasks"
+        }
       ]
     },
     "it-what-is-it": {
@@ -70829,6 +72167,20 @@
           "Client–server",
           "A client requests a service; a server provides it to many clients."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CompTIA A+",
+          "url": "https://www.comptia.org/certifications/a-plus"
+        },
+        {
+          "title": "NIST Cybersecurity Framework",
+          "url": "https://www.nist.gov/cyberframework"
+        },
+        {
+          "title": "CISA — Cybersecurity Best Practices",
+          "url": "https://www.cisa.gov/topics/cybersecurity-best-practices"
+        }
       ]
     },
     "it-binary-basics": {
@@ -70915,6 +72267,20 @@
           "1 KB",
           "1,024 bytes. 1 MB = 1,024 KB; 1 GB = 1,024 MB."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Khan Academy — Bits, bytes and binary",
+          "url": "https://www.khanacademy.org/computing/computers-and-internet/xcae6f4a7ff015a7d:bits-bytes-and-binary"
+        },
+        {
+          "title": "BBC Bitesize — Binary",
+          "url": "https://www.bbc.co.uk/bitesize/guides/z6qqmsg/revision/1"
+        },
+        {
+          "title": "Wikipedia — Byte",
+          "url": "https://en.wikipedia.org/wiki/Byte"
+        }
       ]
     },
     "it-hardware": {
@@ -71012,6 +72378,20 @@
           "Management port",
           "iLO / iDRAC / IPMI: remote power and console, even with the OS down."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CompTIA A+",
+          "url": "https://www.comptia.org/certifications/a-plus"
+        },
+        {
+          "title": "Computer Hope — Hardware",
+          "url": "https://www.computerhope.com/jargon/h/hardware.htm"
+        },
+        {
+          "title": "Computer Hope — CPU",
+          "url": "https://www.computerhope.com/jargon/c/cpu.htm"
+        }
       ]
     },
     "it-storage-memory": {
@@ -71113,6 +72493,20 @@
           "RAID 10",
           "Mirrored stripes; speed + redundancy (min 4 disks)."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Crucial — About SSDs",
+          "url": "https://www.crucial.com/articles/about-ssd"
+        },
+        {
+          "title": "Computer Hope — SSD",
+          "url": "https://www.computerhope.com/jargon/s/ssd.htm"
+        },
+        {
+          "title": "Computer Hope — RAM",
+          "url": "https://www.computerhope.com/jargon/r/ram.htm"
+        }
       ]
     },
     "it-os-boot": {
@@ -71194,6 +72588,20 @@
           "Bootloader",
           "Loads the kernel into memory — BOOTMGR or GRUB."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Microsoft — bcdedit command reference",
+          "url": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/bcdedit"
+        },
+        {
+          "title": "Linux kernel — Administrator Guide",
+          "url": "https://www.kernel.org/doc/html/latest/admin-guide/"
+        },
+        {
+          "title": "boot(7) — Linux man page",
+          "url": "https://man7.org/linux/man-pages/man7/boot.7.html"
+        }
       ]
     },
     "it-files-cli": {
@@ -71276,6 +72684,20 @@
           "CLI",
           "Command-line interface: type commands, get answers, automate everything."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Microsoft — Windows commands",
+          "url": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmd"
+        },
+        {
+          "title": "GNU Coreutils manual",
+          "url": "https://www.gnu.org/software/coreutils/manual/html_node/index.html"
+        },
+        {
+          "title": "ls(1) — Linux man page",
+          "url": "https://man7.org/linux/man-pages/man1/ls.1.html"
+        }
       ]
     }
   },

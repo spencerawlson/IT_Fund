@@ -47,6 +47,15 @@ export default {
       ['git status', 'Show untracked, modified and staged files — your first stop'],
       ['Snapshot, not diff', 'A commit records the state of the project, not just line changes'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Git documentation', url: 'https://git-scm.com/doc' },
+      { title: 'Pro Git — About Version Control', url: 'https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control' },
+      { title: 'Pro Git — Installing Git', url: 'https://git-scm.com/book/en/v2/Getting-Started-Installing-Git' },
+    ],
   },
   'git-staging-commits': {
     overview: [
@@ -92,6 +101,15 @@ export default {
       ['git restore --staged <f>', 'Unstage a file without losing your edits'],
       ['.gitignore', 'Patterns Git never tracks: build output, deps, secrets'],
       ['Secrets rule', 'History is forever — never commit secrets; rotate anything leaked'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Pro Git — Recording Changes', url: 'https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository' },
+      { title: 'git-add documentation', url: 'https://git-scm.com/docs/git-add' },
+      { title: 'git-commit documentation', url: 'https://git-scm.com/docs/git-commit' },
     ],
   },
   'git-remotes': {
@@ -139,6 +157,15 @@ export default {
       ['Pull before you work', 'Integrate others’ changes early to avoid big conflicts'],
       ['--force-with-lease', 'Safer forced push; refuses to clobber unseen work'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Pro Git — Working with Remotes', url: 'https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes' },
+      { title: 'git-push documentation', url: 'https://git-scm.com/docs/git-push' },
+      { title: 'git-fetch documentation', url: 'https://git-scm.com/docs/git-fetch' },
+    ],
   },
   'git-branching': {
     overview: [
@@ -184,6 +211,15 @@ export default {
       ['Fast-forward', 'Move the pointer forward when history is linear — no merge commit'],
       ['Merge commit', 'Created when both branches diverged; has two parents'],
       ['git branch -d <name>', 'Delete a merged branch (-D force-deletes)'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Pro Git — Branches in a Nutshell', url: 'https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell' },
+      { title: 'git-branch documentation', url: 'https://git-scm.com/docs/git-branch' },
+      { title: 'git-checkout documentation', url: 'https://git-scm.com/docs/git-checkout' },
     ],
   },
   'git-conflicts': {
@@ -231,6 +267,15 @@ export default {
       ['Golden rule', 'Never rebase commits that are already pushed/shared'],
       ['git rebase --continue', 'Proceed after resolving a conflict mid-rebase'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Pro Git — Basic Branching and Merging', url: 'https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging' },
+      { title: 'git-merge documentation', url: 'https://git-scm.com/docs/git-merge' },
+      { title: 'Pro Git — Advanced Merging', url: 'https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging' },
+    ],
   },
   'git-undo': {
     overview: [
@@ -276,6 +321,15 @@ export default {
       ['git stash / pop', 'Shelve uncommitted changes, then reapply them'],
       ['git reflog', 'Log of where HEAD has been — recover “lost” commits'],
       ['revert vs reset', 'Pushed? revert. Local only? reset is fine'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'git-reset documentation', url: 'https://git-scm.com/docs/git-reset' },
+      { title: 'git-revert documentation', url: 'https://git-scm.com/docs/git-revert' },
+      { title: 'Pro Git — Undoing Things', url: 'https://git-scm.com/book/en/v2/Git-Basics-Undoing-Things' },
     ],
   },
   'git-workflows': {
@@ -323,6 +377,15 @@ export default {
       ['git tag v1.2.0', 'Mark a commit as a release'],
       ['Trunk-based vs GitFlow', 'Frequent small merges to main vs long-lived release branches'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Pro Git — Branching Workflows', url: 'https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows' },
+      { title: 'GitHub Flow', url: 'https://docs.github.com/en/get-started/using-github/github-flow' },
+      { title: 'Comparing Git workflows — Atlassian', url: 'https://www.atlassian.com/git/tutorials/comparing-workflows' },
+    ],
   },
   'git-internals-hygiene': {
     overview: [
@@ -368,6 +431,15 @@ export default {
       ['Git LFS', 'Stores large binaries outside history via pointers'],
       ['Good messages', 'Explain WHY — invaluable when debugging history later'],
       ['Golden rule', 'Never rewrite shared history; tidy local work only'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Pro Git — Plumbing and Porcelain', url: 'https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain' },
+      { title: 'git-gc documentation', url: 'https://git-scm.com/docs/git-gc' },
+      { title: 'Pro Git — Git Objects', url: 'https://git-scm.com/book/en/v2/Git-Internals-Git-Objects' },
     ],
   },
 };

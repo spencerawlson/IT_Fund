@@ -47,6 +47,15 @@ export default {
       ['Declarative', 'Describe desired state; controllers reconcile reality to it'],
       ['Reconciliation', 'Controllers continuously fix drift \u2014 crashed pods get recreated'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Kubernetes overview', url: 'https://kubernetes.io/docs/concepts/overview/' },
+      { title: 'Kubernetes components', url: 'https://kubernetes.io/docs/concepts/overview/components/' },
+      { title: 'Kubernetes basics tutorial', url: 'https://kubernetes.io/docs/tutorials/kubernetes-basics/' },
+    ],
   },
   'k8s-workloads': {
     overview: [
@@ -92,6 +101,15 @@ export default {
       ['kubectl apply -f', 'Declarative create/update from a manifest'],
       ['kubectl scale', 'Change replica count: scale deploy/name --replicas=5'],
       ['Self-healing', 'Dead pods are replaced automatically to restore the count'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Pods', url: 'https://kubernetes.io/docs/concepts/workloads/pods/' },
+      { title: 'Deployments', url: 'https://kubernetes.io/docs/concepts/workloads/controllers/deployment/' },
+      { title: 'DaemonSets', url: 'https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/' },
     ],
   },
   'k8s-config': {
@@ -139,6 +157,15 @@ export default {
       ['kubectl apply -f ./dir/', 'Applies every manifest in a directory'],
       ['Config/image boundary', 'Same image everywhere; config injected per environment'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'ConfigMaps', url: 'https://kubernetes.io/docs/concepts/configuration/configmap/' },
+      { title: 'Secrets', url: 'https://kubernetes.io/docs/concepts/configuration/secret/' },
+      { title: 'Configuration overview', url: 'https://kubernetes.io/docs/concepts/configuration/overview/' },
+    ],
   },
   'k8s-networking': {
     overview: [
@@ -184,6 +211,15 @@ export default {
       ['Cluster DNS', 'db \u2192 db.ns.svc.cluster.local; CoreDNS serves it'],
       ['Ingress', 'HTTP(S) host/path routing into Services; needs a controller'],
       ['Ingress controller', 'Implements Ingress rules (nginx, Traefik); without it, nothing routes'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Services', url: 'https://kubernetes.io/docs/concepts/services-networking/service/' },
+      { title: 'Ingress', url: 'https://kubernetes.io/docs/concepts/services-networking/ingress/' },
+      { title: 'DNS for Services and Pods', url: 'https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/' },
     ],
   },
   'k8s-storage': {
@@ -231,6 +267,15 @@ export default {
       ['StatefulSet', 'Stable identity + per-pod storage for databases and queues'],
       ['Never in the image', 'Database files need writable, durable PVCs \u2014 not image layers'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Persistent Volumes', url: 'https://kubernetes.io/docs/concepts/storage/persistent-volumes/' },
+      { title: 'Storage Classes', url: 'https://kubernetes.io/docs/concepts/storage/storage-classes/' },
+      { title: 'Volumes', url: 'https://kubernetes.io/docs/concepts/storage/volumes/' },
+    ],
   },
   'k8s-deployments': {
     overview: [
@@ -276,6 +321,15 @@ export default {
       ['Startup probe', 'Delays liveness checks for slow-starting containers'],
       ['HPA', 'Autoscales replicas on metrics (needs metrics-server)'],
       ['Requests / limits', 'Requests guide scheduling; limits cap use (OOM-kill on memory breach)'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Deployments', url: 'https://kubernetes.io/docs/concepts/workloads/controllers/deployment/' },
+      { title: 'ReplicaSets', url: 'https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/' },
+      { title: 'StatefulSets', url: 'https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/' },
     ],
   },
   'k8s-operations': {
@@ -323,6 +377,15 @@ export default {
       ['cordon / drain', 'Mark unschedulable / evict pods; graceful node maintenance'],
       ['Controller loop', 'Observe \u2192 compare \u2192 reconcile, forever; how K8s self-heals'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Debugging a cluster', url: 'https://kubernetes.io/docs/tasks/debug/debug-cluster/' },
+      { title: 'Cluster administration', url: 'https://kubernetes.io/docs/concepts/cluster-administration/' },
+      { title: 'kubectl reference', url: 'https://kubernetes.io/docs/reference/kubectl/' },
+    ],
   },
   'k8s-security': {
     overview: [
@@ -368,6 +431,15 @@ export default {
       ['Pod Security Standards', 'Enforced admission defaults: non-root, no escalation, dropped caps'],
       ['Image scanning + digests', 'Block vulnerable/tampered images; admission policies enforce it'],
       ['Secrets', 'Via Secret objects (etcd encryption + RBAC) or external managers; never in images'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RBAC good practices', url: 'https://kubernetes.io/docs/concepts/security/rbac-good-practices/' },
+      { title: 'Pod Security Standards', url: 'https://kubernetes.io/docs/concepts/security/pod-security-standards/' },
+      { title: 'ServiceAccounts', url: 'https://kubernetes.io/docs/concepts/security/service-accounts/' },
     ],
   },
 };

@@ -299,6 +299,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Effective Go — Structs', url: 'https://go.dev/doc/effective_go#structs' },
+      { title: 'A Tour of Go — Methods and interfaces', url: 'https://go.dev/tour/methods/1' },
+      { title: 'Go specification — Struct types', url: 'https://go.dev/ref/spec#Struct_types' },
+    ],
   },
 
   'go-errors': {
