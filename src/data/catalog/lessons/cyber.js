@@ -68,6 +68,15 @@ export default {
       ['ps aux / ss -tulpn', 'Processes / listening sockets'],
       ['base64 -d', 'Decode: encoding, not encryption'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Linux manual: chmod(1)', url: 'https://man7.org/linux/man-pages/man1/chmod.1.html' },
+      { title: 'Linux manual: journalctl(1)', url: 'https://man7.org/linux/man-pages/man1/journalctl.1.html' },
+      { title: 'Introduction to Linux — The Linux Documentation Project', url: 'https://tldp.org/LDP/intro-linux/html/' },
+    ],
   },
 
   'cy-frameworks': {
@@ -160,6 +169,15 @@ export default {
       ['Purple team', 'Red + blue tuning together'],
       ['OSINT', 'Public-source intelligence'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK', url: 'https://attack.mitre.org/' },
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
+      { title: 'Cyber Kill Chain — Lockheed Martin', url: 'https://www.lockheedmartin.com/en-us/capabilities/cyber/cyber-kill-chain.html' },
+    ],
   },
 
   'cy-soc': {
@@ -210,6 +228,15 @@ export default {
       ['Sandbox', 'Run safely, observe behaviour'],
       ['Hash lookup', 'Known-bad exact file; absence proves little'],
       ['Alert fatigue', 'Tune, suppress known-good, automate'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide', url: 'https://csrc.nist.gov/pubs/sp/800/61/r2/final' },
+      { title: 'Windows security event IDs to monitor — Microsoft Learn', url: 'https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor' },
+      { title: 'SANS Internet Storm Center', url: 'https://isc.sans.edu/' },
     ],
   },
 
@@ -266,6 +293,15 @@ export default {
       ['Command injection', 'Input runs OS commands'],
       ['CSP', 'Restrict script sources; XSS defence in depth'],
       ['Burp Suite / ZAP', 'Intercepting proxies'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'OWASP Top 10', url: 'https://owasp.org/www-project-top-ten/' },
+      { title: 'OWASP Cheat Sheet Series', url: 'https://cheatsheetseries.owasp.org/' },
+      { title: 'PortSwigger Web Security Academy', url: 'https://portswigger.net/web-security' },
     ],
   },
 
@@ -327,6 +363,15 @@ export default {
       ['Hashcat / John', 'Offline GPU cracking'],
       ['Pivoting', 'Tunnel through a compromised host'],
       ['Report first page', 'Executive summary in business terms'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-115: Technical Guide to Information Security Testing and Assessment', url: 'https://csrc.nist.gov/pubs/sp/800/115/final' },
+      { title: 'OWASP Web Security Testing Guide', url: 'https://owasp.org/www-project-web-security-testing-guide/' },
+      { title: 'Kali Linux documentation', url: 'https://www.kali.org/docs/' },
     ],
   },
 
@@ -407,6 +452,15 @@ export default {
       ['DNS tunnelling', 'Long, high-entropy subdomains'],
       ['Atomic Red Team', 'Emulate a technique to test a detection'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Sigma — Generic Signature Format for SIEM Systems', url: 'https://github.com/SigmaHQ/sigma' },
+      { title: 'Elastic Detection Rules', url: 'https://github.com/elastic/detection-rules' },
+      { title: 'MITRE ATT&CK — Enterprise techniques', url: 'https://attack.mitre.org/techniques/enterprise/' },
+    ],
   },
 
   'cy-ir-forensics': {
@@ -459,6 +513,15 @@ export default {
       ['Out-of-band comms', 'Attacker may read email and chat'],
       ['Notification', 'Leadership + legal; GDPR 72 h, SEC 4 business days'],
       ['Lessons learned', 'Blameless; update playbooks and detections'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide', url: 'https://csrc.nist.gov/pubs/sp/800/61/r2/final' },
+      { title: 'NIST SP 800-86: Guide to Integrating Forensic Techniques into Incident Response', url: 'https://csrc.nist.gov/pubs/sp/800/86/final' },
+      { title: 'Volatility Foundation — memory forensics', url: 'https://www.volatilityfoundation.org/' },
     ],
   },
 
@@ -516,6 +579,15 @@ export default {
       ['Control plane', 'IAM/API layer controls everything'],
       ['Token theft', 'Short lifetimes, binding, conditional access'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'BloodHound documentation', url: 'https://bloodhound.readthedocs.io/' },
+      { title: 'HackTricks — Active Directory methodology', url: 'https://book.hacktricks.xyz/windows-hardening/active-directory-methodology' },
+      { title: 'Microsoft Entra Conditional Access overview', url: 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview' },
+    ],
   },
 
   'cy-threat-intel': {
@@ -571,6 +643,14 @@ export default {
           'Deception technology\'s key advantage is very high-fidelity alerts, because legitimate users never touch decoys. Honeytokens, such as fake credentials planted in memory or files, catch attackers during lateral movement.',
         ],
       },
+      {
+        heading: 'A worked hunt: from intel to detection',
+        body: [
+          'Start with a real report: threat intelligence says a ransomware affiliate is exploiting internet-facing VPN appliances, and lists the IP addresses and user-agents its scans use. The report alone changes nothing — the hunt is what turns it into defence.',
+          'Form a hypothesis you can test: "If the affiliate probed us, our VPN gateway logs will show authentication attempts from those addresses in the last 30 days." Search the logs, and check whether any attempt succeeded — a probe is noise, a successful login is an incident.',
+          'Whatever you find, close the loop. A hit becomes containment, a blocked address and a new detection for the scanning pattern. No hit still produces something: a detection that now watches for the pattern, and a note that the coverage exists. That is the difference between collecting intelligence and using it.',
+        ],
+      },
     ],
     examples: [
       {
@@ -590,6 +670,15 @@ export default {
       ['Stack counting', 'Rare values across the fleet'],
       ['Hunt output', 'A new or better detection'],
       ['Honeytokens', 'Decoy credentials: high-fidelity alerts'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CISA Known Exploited Vulnerabilities Catalog', url: 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
+      { title: 'FIRST — Exploit Prediction Scoring System (EPSS)', url: 'https://www.first.org/epss/' },
+      { title: 'FIRST — Traffic Light Protocol', url: 'https://www.first.org/tlp/' },
     ],
   },
 
@@ -650,6 +739,15 @@ export default {
       ['T1071 beacon', 'Periodicity, not volume'],
       ['events.jsonl', 'Ground truth to grade detections'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'DetectionLab — Chris Long', url: 'https://github.com/clong/DetectionLab' },
+      { title: 'Atomic Red Team', url: 'https://github.com/redcanaryco/atomic-red-team' },
+      { title: 'Splunk Attack Range', url: 'https://github.com/splunk/attack_range' },
+    ],
   },
   'cy-threat-actors': {
     overview: [
@@ -702,6 +800,15 @@ export default {
       ['Watering hole', 'Compromise sites the target visits'],
       ['Typosquatting', 'Lookalike domains for phishing'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK — Groups', url: 'https://attack.mitre.org/groups/' },
+      { title: 'The DFIR Report', url: 'https://thedfirreport.com/' },
+      { title: 'CISA — Nation-state cyber actors', url: 'https://www.cisa.gov/topics/cyber-threats-and-advisories/nation-state-cyber-actors' },
+    ],
   },
   'cy-malware': {
     overview: [
@@ -753,6 +860,15 @@ export default {
       ['Process hollowing', 'Malicious code in legit process memory'],
       ['Wiper', 'Destroys data, no ransom (NotPetya)'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK — Software', url: 'https://attack.mitre.org/software/' },
+      { title: 'MalwareBazaar — abuse.ch', url: 'https://bazaar.abuse.ch/' },
+      { title: 'NIST SP 800-83 Rev. 1: Guide to Malware Incident Prevention and Handling', url: 'https://csrc.nist.gov/pubs/sp/800/83/r1/final' },
+    ],
   },
   'cy-vulns': {
     overview: [
@@ -803,6 +919,15 @@ export default {
       ['Least privilege', 'Only the access needed'],
       ['Defence in depth', 'Layered; no single point of failure'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'National Vulnerability Database', url: 'https://nvd.nist.gov/' },
+      { title: 'CVE Program', url: 'https://www.cve.org/' },
+      { title: 'FIRST — Common Vulnerability Scoring System', url: 'https://www.first.org/cvss/' },
+    ],
   },
   'cy-cloud-arch': {
     overview: [
@@ -850,6 +975,15 @@ export default {
       ['Immutable infra', 'Replace, don\u2019t patch'],
       ['Secrets rule', 'Inject at runtime, never bake in'],
       ['Zero trust', 'Never trust, always verify'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Well-Architected Framework', url: 'https://docs.aws.amazon.com/wellarchitected/latest/userguide/' },
+      { title: 'Microsoft Cloud Adoption Framework', url: 'https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/' },
+      { title: 'Google Cloud Architecture Framework', url: 'https://cloud.google.com/architecture/framework' },
     ],
   },
   'cy-net-arch': {
@@ -899,6 +1033,15 @@ export default {
       ['WAF', 'Filters HTTP attacks'],
       ['IDS vs IPS', 'Alert only vs block inline'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy', url: 'https://csrc.nist.gov/pubs/sp/800/41/r1/final' },
+      { title: 'CISA Zero Trust Maturity Model', url: 'https://www.cisa.gov/zero-trust-maturity-model' },
+      { title: 'NIST SP 800-207: Zero Trust Architecture', url: 'https://csrc.nist.gov/pubs/sp/800/207/final' },
+    ],
   },
   'cy-secure-proto': {
     overview: [
@@ -947,6 +1090,15 @@ export default {
       ['Enterprise vs Personal', '802.1X per-user vs shared PSK'],
       ['Evil twin', 'Fake AP cloning a real SSID'],
       ['Deauth mitigation', '802.11w protected mgmt frames'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3', url: 'https://www.rfc-editor.org/info/rfc8446/' },
+      { title: 'RFC 4301: Security Architecture for the Internet Protocol', url: 'https://www.rfc-editor.org/info/rfc4301/' },
+      { title: 'Mozilla — Server Side TLS', url: 'https://wiki.mozilla.org/Security/Server_Side_TLS' },
     ],
   },
   'cy-crypto': {
@@ -1000,6 +1152,15 @@ export default {
       ['Chain validation', 'Leaf → intermediate → trusted root'],
       ['Pinning', 'App accepts only one specific key'],
       ['ECC P-256', '≈ RSA-3072 strength, far less computation'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-175B Rev. 1: Guideline for Using Cryptographic Standards', url: 'https://csrc.nist.gov/pubs/sp/800/175/b/r1/final' },
+      { title: 'RFC 5280: Internet X.509 Public Key Infrastructure Certificate and CRL Profile', url: 'https://www.rfc-editor.org/info/rfc5280/' },
+      { title: 'OWASP — Cryptographic Storage Cheat Sheet', url: 'https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html' },
     ],
   },
   'cy-concepts': {
@@ -1063,6 +1224,15 @@ export default {
       ['Separation of duties', 'No single person completes fraud alone'],
       ['Mandatory vacations', 'Fraud needing cover unravels'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
+      { title: 'CompTIA Security+ Certification', url: 'https://www.comptia.org/en-us/certifications/security/' },
+      { title: 'ISO/IEC 27001 — Information security management', url: 'https://www.iso.org/standard/27001' },
+    ],
   },
   'cy-risk': {
     overview: [
@@ -1115,6 +1285,15 @@ export default {
       ['Hot / warm / cold', 'Ready / hours / empty space'],
       ['Incremental vs differential', 'Since last backup vs since last full'],
       ['Test ladder', 'Tabletop → functional → full interruption'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-30 Rev. 1: Guide for Conducting Risk Assessments', url: 'https://csrc.nist.gov/pubs/sp/800/30/r1/final' },
+      { title: 'NIST SP 800-37 Rev. 2: Risk Management Framework', url: 'https://csrc.nist.gov/pubs/sp/800/37/r2/final' },
+      { title: 'FAIR Institute — Factor Analysis of Information Risk', url: 'https://www.fairinstitute.org/' },
     ],
   },
   'cy-governance': {
@@ -1206,6 +1385,15 @@ export default {
       ['Fourth-party risk', 'Your vendors’ vendors'],
       ['SLA needs', 'Levels, measurement, remedies'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'GDPR full text', url: 'https://gdpr-info.eu/' },
+      { title: 'NIST SP 800-53 Rev. 5: Security and Privacy Controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final' },
+      { title: 'PCI DSS standards', url: 'https://www.pcisecuritystandards.org/standards/pci-dss/' },
+    ],
   },
 
   'secplus-soc-scenarios': {
@@ -1259,6 +1447,15 @@ export default {
       ['Good handoff', 'Timeline, IoCs, open questions, next steps'],
       ['MTTD / MTTR', 'Measure to full recovery, not containment'],
       ['NTP', 'Clock sync is a security control for correlation'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK', url: 'https://attack.mitre.org/' },
+      { title: 'Sigma — Generic Signature Format for SIEM Systems', url: 'https://github.com/SigmaHQ/sigma' },
+      { title: 'SANS Internet Storm Center', url: 'https://isc.sans.edu/' },
     ],
   },
 
@@ -1314,6 +1511,15 @@ export default {
       ['Board metrics', 'MTTR on KEV/exposed, exception aging, repeats'],
       ['Public buckets', 'Block-public-access default + CI check'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CISA Known Exploited Vulnerabilities Catalog', url: 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
+      { title: 'CIS Benchmarks', url: 'https://www.cisecurity.org/cis-benchmarks' },
+      { title: 'NIST SP 800-40 Rev. 4: Guide to Enterprise Patch Management Planning', url: 'https://csrc.nist.gov/pubs/sp/800/40/r4/final' },
+    ],
   },
 
   'secplus-secops-tooling': {
@@ -1367,6 +1573,15 @@ export default {
       ['SOAR order', 'Alert-only → human-in-loop → autonomous'],
       ['Federation', 'One identity, one MFA policy, one kill switch'],
       ['USB control', 'Enforced GPO/MDM + monitoring + approved exceptions'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Microsoft Defender for Endpoint documentation', url: 'https://learn.microsoft.com/en-us/defender-endpoint/' },
+      { title: 'MITRE ATT&CK — Enterprise techniques', url: 'https://attack.mitre.org/techniques/enterprise/' },
+      { title: 'NIST SP 800-83 Rev. 1: Guide to Malware Incident Prevention and Handling', url: 'https://csrc.nist.gov/pubs/sp/800/83/r1/final' },
     ],
   },
 
@@ -1424,6 +1639,15 @@ export default {
       ['IR metrics', 'MTTD/MTTR to full recovery; repeat causes'],
       ['Forensic readiness', 'Centralized tested logging before you need it'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide', url: 'https://csrc.nist.gov/pubs/sp/800/61/r2/final' },
+      { title: 'NIST SP 800-86: Guide to Integrating Forensic Techniques into Incident Response', url: 'https://csrc.nist.gov/pubs/sp/800/86/final' },
+      { title: 'CISA — Cybersecurity Advisories', url: 'https://www.cisa.gov/news-events/cybersecurity-advisories' },
+    ],
   },
 
   'secplus-threat-scenarios': {
@@ -1477,6 +1701,15 @@ export default {
       ['Smishing target', 'The person; fleet-wide response'],
       ['Typosquat response', 'Takedown + resets + warn + watch variants'],
       ['M&A networks', 'Isolate until baselines are met'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK — Groups', url: 'https://attack.mitre.org/groups/' },
+      { title: 'MITRE ATT&CK — Campaigns', url: 'https://attack.mitre.org/campaigns/' },
+      { title: 'The DFIR Report', url: 'https://thedfirreport.com/' },
     ],
   },
 
@@ -1532,6 +1765,15 @@ export default {
       ['Public decryptor', 'Check No More Ransom before paying'],
       ['IoT compromise', 'Segment: dedicated VLAN, minimal traffic'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK — Software', url: 'https://attack.mitre.org/software/' },
+      { title: 'MalwareBazaar — abuse.ch', url: 'https://bazaar.abuse.ch/' },
+      { title: 'CISA — Stop Ransomware Guide', url: 'https://www.cisa.gov/stopransomware/ransomware-guide' },
+    ],
   },
 
   'secplus-social-web-scenarios': {
@@ -1585,6 +1827,15 @@ export default {
       ['Race condition', 'Server-side atomicity'],
       ['Uploads', 'Content validation, outside web root'],
       ['CSRF', 'POST + anti-CSRF tokens on mutations'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'OWASP Top 10', url: 'https://owasp.org/www-project-top-ten/' },
+      { title: 'OWASP Cheat Sheet Series', url: 'https://cheatsheetseries.owasp.org/' },
+      { title: 'Anti-Phishing Working Group', url: 'https://apwg.org/' },
     ],
   },
 
@@ -1640,6 +1891,15 @@ export default {
       ['Public bucket + GETs', 'Exposure + access = breach'],
       ['Vuln metrics', 'MTTR for exposed criticals, aging'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'National Vulnerability Database', url: 'https://nvd.nist.gov/' },
+      { title: 'FIRST — Common Vulnerability Scoring System', url: 'https://www.first.org/cvss/' },
+      { title: 'FIRST — Exploit Prediction Scoring System (EPSS)', url: 'https://www.first.org/epss/' },
+    ],
   },
 
   'secplus-cloud-scenarios': {
@@ -1693,6 +1953,15 @@ export default {
       ['Cross-account 3rd party', 'External ID stops confused deputy'],
       ['Backups', 'Separate account + Object Lock immutability'],
       ['Residency', 'Contracts decide region, not latency'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Well-Architected Framework', url: 'https://docs.aws.amazon.com/wellarchitected/latest/userguide/' },
+      { title: 'Microsoft Cloud Adoption Framework', url: 'https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/' },
+      { title: 'Cloud Security Alliance — Cloud Controls Matrix', url: 'https://cloudsecurityalliance.org/research/cloud-controls-matrix' },
     ],
   },
 
@@ -1748,6 +2017,15 @@ export default {
       ['DNS beaconing', 'Force resolvers, inspect'],
       ['East-west blind', 'Microsegmentation / host firewalls'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy', url: 'https://csrc.nist.gov/pubs/sp/800/41/r1/final' },
+      { title: 'CISA Zero Trust Maturity Model', url: 'https://www.cisa.gov/zero-trust-maturity-model' },
+      { title: 'NIST SP 800-207: Zero Trust Architecture', url: 'https://csrc.nist.gov/pubs/sp/800/207/final' },
+    ],
   },
 
   'secplus-dataprotect-scenarios': {
@@ -1802,6 +2080,15 @@ export default {
       ['Cert expiry', 'Automate with ACME'],
       ['MD5 passwords', 'Argon2/bcrypt/scrypt + salt'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-88 Rev. 1: Guidelines for Media Sanitization', url: 'https://csrc.nist.gov/pubs/sp/800/88/r1/final' },
+      { title: 'GDPR full text', url: 'https://gdpr-info.eu/' },
+      { title: 'Microsoft Purview data loss prevention', url: 'https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp' },
+    ],
   },
 
   'secplus-resilience-scenarios': {
@@ -1855,6 +2142,15 @@ export default {
       ['DNS failover', 'Lower TTLs before cutover'],
       ['Bus factor of one', 'Cross-train + runbooks'],
       ['Repeat root cause', 'Post-mortem process broken'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-34 Rev. 1: Contingency Planning Guide', url: 'https://csrc.nist.gov/pubs/sp/800/34/r1/final' },
+      { title: 'NIST SP 800-184: Guide for Cybersecurity Event Recovery', url: 'https://csrc.nist.gov/pubs/sp/800/184/final' },
+      { title: 'NIST SP 800-53 Rev. 5: Security and Privacy Controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final' },
     ],
   },
   'secplus-concepts-scenarios': {
@@ -1913,6 +2209,15 @@ export default {
       ['Deception', 'Honeytokens where no legitimate user goes'],
       ['Data owner', 'Business side classifies; IT implements'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
+      { title: 'CompTIA Security+ Certification', url: 'https://www.comptia.org/en-us/certifications/security/' },
+      { title: 'ISO/IEC 27001 — Information security management', url: 'https://www.iso.org/standard/27001' },
+    ],
   },
   'secplus-crypto-scenarios': {
     overview: [
@@ -1969,6 +2274,15 @@ export default {
       ['Unauthenticated DH', 'MITM-trivial; authenticate it'],
       ['Secrets', 'Vault + runtime injection, never in repos'],
       ['Quantum posture', 'Crypto agility + inventory'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3', url: 'https://www.rfc-editor.org/info/rfc8446/' },
+      { title: 'RFC 5280: Internet X.509 Public Key Infrastructure Certificate and CRL Profile', url: 'https://www.rfc-editor.org/info/rfc5280/' },
+      { title: 'OWASP — Cryptographic Storage Cheat Sheet', url: 'https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html' },
     ],
   },
   'secplus-risk-scenarios': {
@@ -2092,6 +2406,15 @@ export default {
       ['Purpose limitation', 'No silent repurposing'],
       ['Controller vs processor', 'Decides why vs handles how'],
       ['Compliance', 'Floor, not ceiling'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'GDPR full text', url: 'https://gdpr-info.eu/' },
+      { title: 'EU data protection law overview', url: 'https://commission.europa.eu/law/law-topic/data-protection_en' },
+      { title: 'NIST SP 800-53 Rev. 5: Security and Privacy Controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final' },
     ],
   },
   'secplus-thirdparty-scenarios': {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-19T03:47:48.819Z",
+  "generatedAt": "2026-11-19T04:08:43.186Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -51056,6 +51056,14 @@
             },
             "Every protocol you will ever configure lives in this model — yet engineers still speak OSI daily, because \"that’s a Layer 2 problem\" or \"it’s failing at Layer 7\" tells a colleague exactly where to look."
           ]
+        },
+        {
+          "heading": "Common mistakes: mixing up the models",
+          "body": [
+            "The classic exam trap is naming the wrong layer for a device or protocol. A switch forwards frames by MAC address, so it lives at Layer 2; a router forwards packets by IP address, so it lives at Layer 3. A \"Layer 3 switch\" is a switch with routing added — the name describes the extra function, not a promotion.",
+            "Protocols trip people up the same way. DNS resolves names for applications, so it is Layer 7, even though it usually rides on UDP at Layer 4. TLS encrypts the conversation, which puts it at Layer 6, the presentation layer — not Layer 7, and not Layer 4, even though it sits between them in the TCP/IP model.",
+            "When a question asks \"which layer?\", answer with the job being done, not the brand name on the box: addressing by MAC is Layer 2, addressing by IP is Layer 3, choosing the application by port is Layer 4. The model is a map of jobs, and the job tells you the layer."
+          ]
         }
       ],
       "architecture": {
@@ -51106,6 +51114,20 @@
           "TCP/IP model",
           "Link, Internet, Transport, Application"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 1122: Requirements for Internet Hosts — Communication Layers",
+          "url": "https://www.rfc-editor.org/info/rfc1122/"
+        },
+        {
+          "title": "CompTIA Network+ Certification",
+          "url": "https://www.comptia.org/en-us/certifications/network/"
+        },
+        {
+          "title": "Cloudflare Learning Center — What is the OSI model?",
+          "url": "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/"
+        }
       ]
     },
     "net-ports": {
@@ -51416,6 +51438,20 @@
           "DORA",
           "DHCP: Discover, Offer, Request, Acknowledge"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "IANA — Service Name and Transport Protocol Port Number Registry",
+          "url": "https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml"
+        },
+        {
+          "title": "RFC 6335: IANA Procedures for the Management of the Service Name and Port Number Registry",
+          "url": "https://www.rfc-editor.org/info/rfc6335/"
+        },
+        {
+          "title": "CompTIA Network+ Certification",
+          "url": "https://www.comptia.org/en-us/certifications/network/"
+        }
       ]
     },
     "net-devices-media": {
@@ -51523,6 +51559,20 @@
           "PDU",
           "Rack power distribution: 8, 12 or 24 outlets."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "IEEE 802.3 Ethernet Working Group",
+          "url": "https://www.ieee802.org/3/"
+        },
+        {
+          "title": "RFC 826: An Ethernet Address Resolution Protocol",
+          "url": "https://www.rfc-editor.org/info/rfc826/"
+        },
+        {
+          "title": "CompTIA Network+ Certification",
+          "url": "https://www.comptia.org/en-us/certifications/network/"
+        }
       ]
     },
     "net-ip-subnet": {
@@ -51618,6 +51668,20 @@
           "PAT",
           "Many private hosts share one public IP via ports"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 4632: Classless Inter-domain Routing (CIDR)",
+          "url": "https://www.rfc-editor.org/info/rfc4632/"
+        },
+        {
+          "title": "RFC 8200: Internet Protocol, Version 6 (IPv6) Specification",
+          "url": "https://www.rfc-editor.org/info/rfc8200/"
+        },
+        {
+          "title": "IANA — IPv4 Address Space Registry",
+          "url": "https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml"
+        }
       ]
     },
     "net-services-wireless": {
@@ -51866,6 +51930,20 @@
           "LED ring",
           "Blue booting, green up, yellow provisioning, red fault."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 1035: Domain Names — Implementation and Specification",
+          "url": "https://www.rfc-editor.org/info/rfc1035/"
+        },
+        {
+          "title": "RFC 2131: Dynamic Host Configuration Protocol",
+          "url": "https://www.rfc-editor.org/info/rfc2131/"
+        },
+        {
+          "title": "IEEE 802.11 Wireless LAN Working Group",
+          "url": "https://www.ieee802.org/11/"
+        }
       ]
     },
     "net-troubleshoot": {
@@ -52006,6 +52084,20 @@
           "IPs work, names do not",
           "DNS"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CompTIA Network+ Certification",
+          "url": "https://www.comptia.org/en-us/certifications/network/"
+        },
+        {
+          "title": "Wireshark documentation",
+          "url": "https://www.wireshark.org/docs/"
+        },
+        {
+          "title": "RFC 792: Internet Control Message Protocol",
+          "url": "https://www.rfc-editor.org/info/rfc792/"
+        }
       ]
     },
     "net-ops": {
@@ -52111,6 +52203,20 @@
           "SD-WAN",
           "Policy-based steering over mixed links"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-34 Rev. 1: Contingency Planning Guide",
+          "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/final"
+        },
+        {
+          "title": "RFC 3411: An Architecture for Describing SNMP Management Frameworks",
+          "url": "https://www.rfc-editor.org/info/rfc3411/"
+        },
+        {
+          "title": "Prometheus documentation",
+          "url": "https://prometheus.io/docs/introduction/overview/"
+        }
       ]
     },
     "net-security": {
@@ -52231,6 +52337,20 @@
           "IDS vs IPS",
           "Detects (alerts) vs prevents (blocks in line)."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy",
+          "url": "https://csrc.nist.gov/pubs/sp/800/41/r1/final"
+        },
+        {
+          "title": "RFC 4301: Security Architecture for the Internet Protocol",
+          "url": "https://www.rfc-editor.org/info/rfc4301/"
+        },
+        {
+          "title": "NIST SP 800-97: Establishing Wireless Robust Security Networks",
+          "url": "https://csrc.nist.gov/pubs/sp/800/97/final"
+        }
       ]
     },
     "net-switch-route": {
@@ -52347,6 +52467,20 @@
           "SFP+",
           "10 GbE uplink ports between switches."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "IEEE 802.1 Working Group",
+          "url": "https://www.ieee802.org/1/"
+        },
+        {
+          "title": "RFC 1812: Requirements for IP Version 4 Routers",
+          "url": "https://www.rfc-editor.org/info/rfc1812/"
+        },
+        {
+          "title": "FRRouting documentation",
+          "url": "https://docs.frrouting.org/en/latest/"
+        }
       ]
     },
     "rt-fundamentals": {
@@ -52472,6 +52606,20 @@
           "Summarization",
           "Advertise many prefixes as one to shrink tables and contain instability"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 1812: Requirements for IP Version 4 Routers",
+          "url": "https://www.rfc-editor.org/info/rfc1812/"
+        },
+        {
+          "title": "FRRouting documentation",
+          "url": "https://docs.frrouting.org/en/latest/"
+        },
+        {
+          "title": "Linux manual: ip-route(8)",
+          "url": "https://man7.org/linux/man-pages/man8/ip-route.8.html"
+        }
       ]
     },
     "rt-static": {
@@ -53122,6 +53270,20 @@
           "Monitoring",
           "Log routing changes to a SIEM; alert on anomalies"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 7454: BGP Operations and Security",
+          "url": "https://www.rfc-editor.org/info/rfc7454/"
+        },
+        {
+          "title": "RFC 6480: An Infrastructure to Support Secure Internet Routing",
+          "url": "https://www.rfc-editor.org/info/rfc6480/"
+        },
+        {
+          "title": "MANRS — Mutually Agreed Norms for Routing Security",
+          "url": "https://www.manrs.org/"
+        }
       ]
     },
     "rt-routing-troubleshooting": {
@@ -53192,6 +53354,20 @@
           "traceroute",
           "Per-hop path; finds loops and black holes"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Linux manual: ip-route(8)",
+          "url": "https://man7.org/linux/man-pages/man8/ip-route.8.html"
+        },
+        {
+          "title": "Wireshark documentation",
+          "url": "https://www.wireshark.org/docs/"
+        },
+        {
+          "title": "FRRouting documentation",
+          "url": "https://docs.frrouting.org/en/latest/"
+        }
       ]
     },
     "sec-concepts": {
@@ -53501,6 +53677,14 @@
           "heading": "Supply chain attacks",
           "body": [
             "A supply chain attack compromises a vendor or component to reach its customers. SolarWinds (2020) shipped a backdoored update to thousands of organisations; the xz Utils backdoor (2024) was slipped into a widely used open-source library by a patient contributor. Defences include vendor risk management, software bills of materials and verifying what you install."
+          ]
+        },
+        {
+          "heading": "Common mistakes: what analysts get wrong",
+          "body": [
+            "The most expensive mistake is paying a ransom before checking whether the backups work. Attackers know backups are the recovery path, so modern ransomware encrypts or deletes them first — a backup you have never test-restored is a hope, not a plan. Verify the restore, then decide.",
+            "A second mistake is cleaning a deeply compromised host instead of reimaging it. A kernel rootkit sits below the tools that would find it, so a \"clean\" scan proves nothing; rebuild from known-good media and reset the credentials that host touched.",
+            "A third is treating one antivirus verdict as the answer. A single clean result means that engine did not recognise the file, not that the file is safe — check the behaviour (a Word document spawning PowerShell, an unsigned DLL beaconing every minute) before you close the alert."
           ]
         }
       ],
@@ -54324,6 +54508,20 @@
           "base64 -d",
           "Decode: encoding, not encryption"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Linux manual: chmod(1)",
+          "url": "https://man7.org/linux/man-pages/man1/chmod.1.html"
+        },
+        {
+          "title": "Linux manual: journalctl(1)",
+          "url": "https://man7.org/linux/man-pages/man1/journalctl.1.html"
+        },
+        {
+          "title": "Introduction to Linux — The Linux Documentation Project",
+          "url": "https://tldp.org/LDP/intro-linux/html/"
+        }
       ]
     },
     "cy-frameworks": {
@@ -54537,6 +54735,20 @@
           "OSINT",
           "Public-source intelligence"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK",
+          "url": "https://attack.mitre.org/"
+        },
+        {
+          "title": "NIST Cybersecurity Framework",
+          "url": "https://www.nist.gov/cyberframework"
+        },
+        {
+          "title": "Cyber Kill Chain — Lockheed Martin",
+          "url": "https://www.lockheedmartin.com/en-us/capabilities/cyber/cyber-kill-chain.html"
+        }
       ]
     },
     "cy-soc": {
@@ -54620,6 +54832,20 @@
           "Alert fatigue",
           "Tune, suppress known-good, automate"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r2/final"
+        },
+        {
+          "title": "Windows security event IDs to monitor — Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor"
+        },
+        {
+          "title": "SANS Internet Storm Center",
+          "url": "https://isc.sans.edu/"
+        }
       ]
     },
     "cy-web": {
@@ -54708,6 +54934,20 @@
           "Burp Suite / ZAP",
           "Intercepting proxies"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "OWASP Top 10",
+          "url": "https://owasp.org/www-project-top-ten/"
+        },
+        {
+          "title": "OWASP Cheat Sheet Series",
+          "url": "https://cheatsheetseries.owasp.org/"
+        },
+        {
+          "title": "PortSwigger Web Security Academy",
+          "url": "https://portswigger.net/web-security"
+        }
       ]
     },
     "cy-pentest": {
@@ -54801,6 +55041,20 @@
           "Report first page",
           "Executive summary in business terms"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-115: Technical Guide to Information Security Testing and Assessment",
+          "url": "https://csrc.nist.gov/pubs/sp/800/115/final"
+        },
+        {
+          "title": "OWASP Web Security Testing Guide",
+          "url": "https://owasp.org/www-project-web-security-testing-guide/"
+        },
+        {
+          "title": "Kali Linux documentation",
+          "url": "https://www.kali.org/docs/"
+        }
       ]
     },
     "cy-detection": {
@@ -54888,6 +55142,20 @@
           "Atomic Red Team",
           "Emulate a technique to test a detection"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Sigma — Generic Signature Format for SIEM Systems",
+          "url": "https://github.com/SigmaHQ/sigma"
+        },
+        {
+          "title": "Elastic Detection Rules",
+          "url": "https://github.com/elastic/detection-rules"
+        },
+        {
+          "title": "MITRE ATT&CK — Enterprise techniques",
+          "url": "https://attack.mitre.org/techniques/enterprise/"
+        }
       ]
     },
     "cy-ir-forensics": {
@@ -54973,6 +55241,20 @@
           "Lessons learned",
           "Blameless; update playbooks and detections"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r2/final"
+        },
+        {
+          "title": "NIST SP 800-86: Guide to Integrating Forensic Techniques into Incident Response",
+          "url": "https://csrc.nist.gov/pubs/sp/800/86/final"
+        },
+        {
+          "title": "Volatility Foundation — memory forensics",
+          "url": "https://www.volatilityfoundation.org/"
+        }
       ]
     },
     "cy-ad-cloud-attacks": {
@@ -55061,6 +55343,20 @@
           "Token theft",
           "Short lifetimes, binding, conditional access"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "BloodHound documentation",
+          "url": "https://bloodhound.readthedocs.io/"
+        },
+        {
+          "title": "HackTricks — Active Directory methodology",
+          "url": "https://book.hacktricks.xyz/windows-hardening/active-directory-methodology"
+        },
+        {
+          "title": "Microsoft Entra Conditional Access overview",
+          "url": "https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview"
+        }
       ]
     },
     "cy-threat-intel": {
@@ -55158,6 +55454,14 @@
           "body": [
             "Deception technology's key advantage is very high-fidelity alerts, because legitimate users never touch decoys. Honeytokens, such as fake credentials planted in memory or files, catch attackers during lateral movement."
           ]
+        },
+        {
+          "heading": "A worked hunt: from intel to detection",
+          "body": [
+            "Start with a real report: threat intelligence says a ransomware affiliate is exploiting internet-facing VPN appliances, and lists the IP addresses and user-agents its scans use. The report alone changes nothing — the hunt is what turns it into defence.",
+            "Form a hypothesis you can test: \"If the affiliate probed us, our VPN gateway logs will show authentication attempts from those addresses in the last 30 days.\" Search the logs, and check whether any attempt succeeded — a probe is noise, a successful login is an incident.",
+            "Whatever you find, close the loop. A hit becomes containment, a blocked address and a new detection for the scanning pattern. No hit still produces something: a detection that now watches for the pattern, and a note that the coverage exists. That is the difference between collecting intelligence and using it."
+          ]
         }
       ],
       "examples": [
@@ -55208,6 +55512,20 @@
           "Honeytokens",
           "Decoy credentials: high-fidelity alerts"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CISA Known Exploited Vulnerabilities Catalog",
+          "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+        },
+        {
+          "title": "FIRST — Exploit Prediction Scoring System (EPSS)",
+          "url": "https://www.first.org/epss/"
+        },
+        {
+          "title": "FIRST — Traffic Light Protocol",
+          "url": "https://www.first.org/tlp/"
+        }
       ]
     },
     "cy-detection-labs": {
@@ -55305,6 +55623,20 @@
           "events.jsonl",
           "Ground truth to grade detections"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "DetectionLab — Chris Long",
+          "url": "https://github.com/clong/DetectionLab"
+        },
+        {
+          "title": "Atomic Red Team",
+          "url": "https://github.com/redcanaryco/atomic-red-team"
+        },
+        {
+          "title": "Splunk Attack Range",
+          "url": "https://github.com/splunk/attack_range"
+        }
       ]
     },
     "cy-threat-actors": {
@@ -55393,6 +55725,20 @@
           "Typosquatting",
           "Lookalike domains for phishing"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK — Groups",
+          "url": "https://attack.mitre.org/groups/"
+        },
+        {
+          "title": "The DFIR Report",
+          "url": "https://thedfirreport.com/"
+        },
+        {
+          "title": "CISA — Nation-state cyber actors",
+          "url": "https://www.cisa.gov/topics/cyber-threats-and-advisories/nation-state-cyber-actors"
+        }
       ]
     },
     "cy-malware": {
@@ -55480,6 +55826,20 @@
           "Wiper",
           "Destroys data, no ransom (NotPetya)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK — Software",
+          "url": "https://attack.mitre.org/software/"
+        },
+        {
+          "title": "MalwareBazaar — abuse.ch",
+          "url": "https://bazaar.abuse.ch/"
+        },
+        {
+          "title": "NIST SP 800-83 Rev. 1: Guide to Malware Incident Prevention and Handling",
+          "url": "https://csrc.nist.gov/pubs/sp/800/83/r1/final"
+        }
       ]
     },
     "cy-vulns": {
@@ -55563,6 +55923,20 @@
           "Defence in depth",
           "Layered; no single point of failure"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "National Vulnerability Database",
+          "url": "https://nvd.nist.gov/"
+        },
+        {
+          "title": "CVE Program",
+          "url": "https://www.cve.org/"
+        },
+        {
+          "title": "FIRST — Common Vulnerability Scoring System",
+          "url": "https://www.first.org/cvss/"
+        }
       ]
     },
     "cy-cloud-arch": {
@@ -55641,6 +56015,20 @@
           "Zero trust",
           "Never trust, always verify"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Well-Architected Framework",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/"
+        },
+        {
+          "title": "Microsoft Cloud Adoption Framework",
+          "url": "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/"
+        },
+        {
+          "title": "Google Cloud Architecture Framework",
+          "url": "https://cloud.google.com/architecture/framework"
+        }
       ]
     },
     "cy-net-arch": {
@@ -55719,6 +56107,20 @@
           "IDS vs IPS",
           "Alert only vs block inline"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy",
+          "url": "https://csrc.nist.gov/pubs/sp/800/41/r1/final"
+        },
+        {
+          "title": "CISA Zero Trust Maturity Model",
+          "url": "https://www.cisa.gov/zero-trust-maturity-model"
+        },
+        {
+          "title": "NIST SP 800-207: Zero Trust Architecture",
+          "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+        }
       ]
     },
     "cy-secure-proto": {
@@ -55801,6 +56203,20 @@
           "Deauth mitigation",
           "802.11w protected mgmt frames"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3",
+          "url": "https://www.rfc-editor.org/info/rfc8446/"
+        },
+        {
+          "title": "RFC 4301: Security Architecture for the Internet Protocol",
+          "url": "https://www.rfc-editor.org/info/rfc4301/"
+        },
+        {
+          "title": "Mozilla — Server Side TLS",
+          "url": "https://wiki.mozilla.org/Security/Server_Side_TLS"
+        }
       ]
     },
     "cy-crypto": {
@@ -55890,6 +56306,20 @@
           "ECC P-256",
           "≈ RSA-3072 strength, far less computation"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-175B Rev. 1: Guideline for Using Cryptographic Standards",
+          "url": "https://csrc.nist.gov/pubs/sp/800/175/b/r1/final"
+        },
+        {
+          "title": "RFC 5280: Internet X.509 Public Key Infrastructure Certificate and CRL Profile",
+          "url": "https://www.rfc-editor.org/info/rfc5280/"
+        },
+        {
+          "title": "OWASP — Cryptographic Storage Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html"
+        }
       ]
     },
     "cy-concepts": {
@@ -55991,6 +56421,20 @@
           "Mandatory vacations",
           "Fraud needing cover unravels"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST Cybersecurity Framework",
+          "url": "https://www.nist.gov/cyberframework"
+        },
+        {
+          "title": "CompTIA Security+ Certification",
+          "url": "https://www.comptia.org/en-us/certifications/security/"
+        },
+        {
+          "title": "ISO/IEC 27001 — Information security management",
+          "url": "https://www.iso.org/standard/27001"
+        }
       ]
     },
     "cy-risk": {
@@ -56080,6 +56524,20 @@
           "Test ladder",
           "Tabletop → functional → full interruption"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-30 Rev. 1: Guide for Conducting Risk Assessments",
+          "url": "https://csrc.nist.gov/pubs/sp/800/30/r1/final"
+        },
+        {
+          "title": "NIST SP 800-37 Rev. 2: Risk Management Framework",
+          "url": "https://csrc.nist.gov/pubs/sp/800/37/r2/final"
+        },
+        {
+          "title": "FAIR Institute — Factor Analysis of Information Risk",
+          "url": "https://www.fairinstitute.org/"
+        }
       ]
     },
     "cy-governance": {
@@ -56275,6 +56733,20 @@
           "SLA needs",
           "Levels, measurement, remedies"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "GDPR full text",
+          "url": "https://gdpr-info.eu/"
+        },
+        {
+          "title": "NIST SP 800-53 Rev. 5: Security and Privacy Controls",
+          "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
+        },
+        {
+          "title": "PCI DSS standards",
+          "url": "https://www.pcisecuritystandards.org/standards/pci-dss/"
+        }
       ]
     },
     "secplus-soc-scenarios": {
@@ -56364,6 +56836,20 @@
           "NTP",
           "Clock sync is a security control for correlation"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK",
+          "url": "https://attack.mitre.org/"
+        },
+        {
+          "title": "Sigma — Generic Signature Format for SIEM Systems",
+          "url": "https://github.com/SigmaHQ/sigma"
+        },
+        {
+          "title": "SANS Internet Storm Center",
+          "url": "https://isc.sans.edu/"
+        }
       ]
     },
     "secplus-hardening-vuln": {
@@ -56453,6 +56939,20 @@
           "Public buckets",
           "Block-public-access default + CI check"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "CISA Known Exploited Vulnerabilities Catalog",
+          "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+        },
+        {
+          "title": "CIS Benchmarks",
+          "url": "https://www.cisecurity.org/cis-benchmarks"
+        },
+        {
+          "title": "NIST SP 800-40 Rev. 4: Guide to Enterprise Patch Management Planning",
+          "url": "https://csrc.nist.gov/pubs/sp/800/40/r4/final"
+        }
       ]
     },
     "secplus-secops-tooling": {
@@ -56542,6 +57042,20 @@
           "USB control",
           "Enforced GPO/MDM + monitoring + approved exceptions"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Microsoft Defender for Endpoint documentation",
+          "url": "https://learn.microsoft.com/en-us/defender-endpoint/"
+        },
+        {
+          "title": "MITRE ATT&CK — Enterprise techniques",
+          "url": "https://attack.mitre.org/techniques/enterprise/"
+        },
+        {
+          "title": "NIST SP 800-83 Rev. 1: Guide to Malware Incident Prevention and Handling",
+          "url": "https://csrc.nist.gov/pubs/sp/800/83/r1/final"
+        }
       ]
     },
     "secplus-ir-scenarios": {
@@ -56639,6 +57153,20 @@
           "Forensic readiness",
           "Centralized tested logging before you need it"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r2/final"
+        },
+        {
+          "title": "NIST SP 800-86: Guide to Integrating Forensic Techniques into Incident Response",
+          "url": "https://csrc.nist.gov/pubs/sp/800/86/final"
+        },
+        {
+          "title": "CISA — Cybersecurity Advisories",
+          "url": "https://www.cisa.gov/news-events/cybersecurity-advisories"
+        }
       ]
     },
     "secplus-threat-scenarios": {
@@ -56728,6 +57256,20 @@
           "M&A networks",
           "Isolate until baselines are met"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK — Groups",
+          "url": "https://attack.mitre.org/groups/"
+        },
+        {
+          "title": "MITRE ATT&CK — Campaigns",
+          "url": "https://attack.mitre.org/campaigns/"
+        },
+        {
+          "title": "The DFIR Report",
+          "url": "https://thedfirreport.com/"
+        }
       ]
     },
     "secplus-malware-scenarios": {
@@ -56817,6 +57359,20 @@
           "IoT compromise",
           "Segment: dedicated VLAN, minimal traffic"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "MITRE ATT&CK — Software",
+          "url": "https://attack.mitre.org/software/"
+        },
+        {
+          "title": "MalwareBazaar — abuse.ch",
+          "url": "https://bazaar.abuse.ch/"
+        },
+        {
+          "title": "CISA — Stop Ransomware Guide",
+          "url": "https://www.cisa.gov/stopransomware/ransomware-guide"
+        }
       ]
     },
     "secplus-social-web-scenarios": {
@@ -56906,6 +57462,20 @@
           "CSRF",
           "POST + anti-CSRF tokens on mutations"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "OWASP Top 10",
+          "url": "https://owasp.org/www-project-top-ten/"
+        },
+        {
+          "title": "OWASP Cheat Sheet Series",
+          "url": "https://cheatsheetseries.owasp.org/"
+        },
+        {
+          "title": "Anti-Phishing Working Group",
+          "url": "https://apwg.org/"
+        }
       ]
     },
     "secplus-vuln-scenarios": {
@@ -56995,6 +57565,20 @@
           "Vuln metrics",
           "MTTR for exposed criticals, aging"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "National Vulnerability Database",
+          "url": "https://nvd.nist.gov/"
+        },
+        {
+          "title": "FIRST — Common Vulnerability Scoring System",
+          "url": "https://www.first.org/cvss/"
+        },
+        {
+          "title": "FIRST — Exploit Prediction Scoring System (EPSS)",
+          "url": "https://www.first.org/epss/"
+        }
       ]
     },
     "secplus-cloud-scenarios": {
@@ -57084,6 +57668,20 @@
           "Residency",
           "Contracts decide region, not latency"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Well-Architected Framework",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/"
+        },
+        {
+          "title": "Microsoft Cloud Adoption Framework",
+          "url": "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/"
+        },
+        {
+          "title": "Cloud Security Alliance — Cloud Controls Matrix",
+          "url": "https://cloudsecurityalliance.org/research/cloud-controls-matrix"
+        }
       ]
     },
     "secplus-netarch-scenarios": {
@@ -57173,6 +57771,20 @@
           "East-west blind",
           "Microsegmentation / host firewalls"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy",
+          "url": "https://csrc.nist.gov/pubs/sp/800/41/r1/final"
+        },
+        {
+          "title": "CISA Zero Trust Maturity Model",
+          "url": "https://www.cisa.gov/zero-trust-maturity-model"
+        },
+        {
+          "title": "NIST SP 800-207: Zero Trust Architecture",
+          "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+        }
       ]
     },
     "secplus-dataprotect-scenarios": {
@@ -57262,6 +57874,20 @@
           "MD5 passwords",
           "Argon2/bcrypt/scrypt + salt"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-88 Rev. 1: Guidelines for Media Sanitization",
+          "url": "https://csrc.nist.gov/pubs/sp/800/88/r1/final"
+        },
+        {
+          "title": "GDPR full text",
+          "url": "https://gdpr-info.eu/"
+        },
+        {
+          "title": "Microsoft Purview data loss prevention",
+          "url": "https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp"
+        }
       ]
     },
     "secplus-resilience-scenarios": {
@@ -57351,6 +57977,20 @@
           "Repeat root cause",
           "Post-mortem process broken"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-34 Rev. 1: Contingency Planning Guide",
+          "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/final"
+        },
+        {
+          "title": "NIST SP 800-184: Guide for Cybersecurity Event Recovery",
+          "url": "https://csrc.nist.gov/pubs/sp/800/184/final"
+        },
+        {
+          "title": "NIST SP 800-53 Rev. 5: Security and Privacy Controls",
+          "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
+        }
       ]
     },
     "secplus-concepts-scenarios": {
@@ -57444,6 +58084,20 @@
           "Data owner",
           "Business side classifies; IT implements"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST Cybersecurity Framework",
+          "url": "https://www.nist.gov/cyberframework"
+        },
+        {
+          "title": "CompTIA Security+ Certification",
+          "url": "https://www.comptia.org/en-us/certifications/security/"
+        },
+        {
+          "title": "ISO/IEC 27001 — Information security management",
+          "url": "https://www.iso.org/standard/27001"
+        }
       ]
     },
     "secplus-crypto-scenarios": {
@@ -57537,6 +58191,20 @@
           "Quantum posture",
           "Crypto agility + inventory"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3",
+          "url": "https://www.rfc-editor.org/info/rfc8446/"
+        },
+        {
+          "title": "RFC 5280: Internet X.509 Public Key Infrastructure Certificate and CRL Profile",
+          "url": "https://www.rfc-editor.org/info/rfc5280/"
+        },
+        {
+          "title": "OWASP — Cryptographic Storage Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html"
+        }
       ]
     },
     "secplus-risk-scenarios": {
@@ -57737,6 +58405,20 @@
           "Compliance",
           "Floor, not ceiling"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "GDPR full text",
+          "url": "https://gdpr-info.eu/"
+        },
+        {
+          "title": "EU data protection law overview",
+          "url": "https://commission.europa.eu/law/law-topic/data-protection_en"
+        },
+        {
+          "title": "NIST SP 800-53 Rev. 5: Security and Privacy Controls",
+          "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final"
+        }
       ]
     },
     "secplus-thirdparty-scenarios": {
@@ -58015,6 +58697,20 @@
           "Lock-in",
           "Mitigate: open standards, containers, IaC"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "NIST SP 800-145: The NIST Definition of Cloud Computing",
+          "url": "https://csrc.nist.gov/pubs/sp/800/145/final"
+        },
+        {
+          "title": "NIST SP 800-144: Guidelines on Security and Privacy in Public Cloud Computing",
+          "url": "https://csrc.nist.gov/pubs/sp/800/144/final"
+        },
+        {
+          "title": "Cloud Security Alliance — Security Guidance v4",
+          "url": "https://cloudsecurityalliance.org/artifacts/security-guidance-v4"
+        }
       ]
     },
     "cl-core-services": {
@@ -58042,6 +58738,14 @@
           "body": [
             "Identity is IAM on AWS (with IAM Identity Center for single sign-on), Microsoft Entra ID on Azure and Cloud IAM on GCP. Every API call can be recorded for auditing: CloudTrail on AWS, the Activity Log on Azure and Cloud Audit Logs on GCP. Metrics and logs go to CloudWatch, Azure Monitor, or Cloud Monitoring and Logging.",
             "AWS Organizations centrally manages many accounts with Service Control Policies. Separate accounts for production, development and security are the recommended isolation boundary, because a problem in one account cannot directly touch another."
+          ]
+        },
+        {
+          "heading": "A worked example: a small web application",
+          "body": [
+            "Take a simple three-tier application and place each part on the services above. The static frontend — HTML, CSS and images — sits in object storage, served directly over HTTPS with no server to patch. The application logic runs on virtual machines or in containers behind a load balancer, so one failed instance never takes the site down.",
+            "User data lives in a managed relational database, which handles backups and failover for you, while session state goes in a managed key-value store. DNS points the domain at the load balancer, and every API call is logged to the audit trail so you can answer \"who changed this?\" later.",
+            "The point is the pattern, not the provider: static content in object storage, stateless compute, managed data, and an audit trail. Learn to draw that picture once and you can rebuild it on any cloud by swapping the product names in the table above."
           ]
         }
       ],
@@ -58104,8 +58808,8 @@
       ],
       "further_reading": [
         {
-          "title": "AWS Products",
-          "url": "https://aws.amazon.com/products/"
+          "title": "AWS documentation",
+          "url": "https://docs.aws.amazon.com/"
         },
         {
           "title": "Google Cloud products",
@@ -58200,6 +58904,20 @@
           "Landing zone",
           "Secure multi-account baseline (Control Tower)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Cost Explorer documentation",
+          "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html"
+        },
+        {
+          "title": "Microsoft Learn — Azure Cost Management and Billing",
+          "url": "https://learn.microsoft.com/en-us/azure/cost-management-billing/"
+        },
+        {
+          "title": "FinOps Foundation",
+          "url": "https://www.finops.org/"
+        }
       ]
     },
     "cl-networking": {
@@ -58293,6 +59011,20 @@
           "Flow Logs",
           "Traffic metadata, no payloads"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Amazon VPC documentation",
+          "url": "https://docs.aws.amazon.com/vpc/"
+        },
+        {
+          "title": "Microsoft Learn — Azure Virtual Network",
+          "url": "https://learn.microsoft.com/en-us/azure/virtual-network/"
+        },
+        {
+          "title": "Google Cloud VPC documentation",
+          "url": "https://cloud.google.com/vpc/docs"
+        }
       ]
     },
     "cl-architecture": {
@@ -58404,6 +59136,20 @@
           "Object storage",
           "Backups, media, logs — scales without servers."
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Well-Architected Framework",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/"
+        },
+        {
+          "title": "Microsoft Cloud Adoption Framework",
+          "url": "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/"
+        },
+        {
+          "title": "Google Cloud Architecture Framework",
+          "url": "https://cloud.google.com/architecture/framework"
+        }
       ]
     },
     "cl-containers-iac": {
@@ -58501,6 +59247,20 @@
           "Non-root containers",
           "Limit blast radius"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "Kubernetes documentation",
+          "url": "https://kubernetes.io/docs/home/"
+        },
+        {
+          "title": "Docker documentation",
+          "url": "https://docs.docker.com/"
+        },
+        {
+          "title": "Terraform documentation",
+          "url": "https://developer.hashicorp.com/terraform/docs"
+        }
       ]
     },
     "cl-security": {
@@ -58599,6 +59359,20 @@
           "Break-glass account",
           "Emergency admin: MFA, monitored"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "AWS Identity and Access Management documentation",
+          "url": "https://docs.aws.amazon.com/iam/"
+        },
+        {
+          "title": "Microsoft Entra documentation",
+          "url": "https://learn.microsoft.com/en-us/entra/"
+        },
+        {
+          "title": "Cloud Security Alliance — Cloud Controls Matrix",
+          "url": "https://cloudsecurityalliance.org/research/cloud-controls-matrix"
+        }
       ]
     },
     "cl-ccsp": {
@@ -58721,6 +59495,20 @@
           "FedRAMP",
           "US gov: Low, Moderate, High (NIST 800-53)"
         ]
+      ],
+      "further_reading": [
+        {
+          "title": "ISC2 CCSP Certification",
+          "url": "https://www.isc2.org/certifications/ccsp"
+        },
+        {
+          "title": "Cloud Security Alliance — Security Guidance v4",
+          "url": "https://cloudsecurityalliance.org/artifacts/security-guidance-v4"
+        },
+        {
+          "title": "GDPR full text",
+          "url": "https://gdpr-info.eu/"
+        }
       ]
     },
     "cl-sre": {

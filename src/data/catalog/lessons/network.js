@@ -51,6 +51,14 @@ export default {
           'Every protocol you will ever configure lives in this model — yet engineers still speak OSI daily, because "that’s a Layer 2 problem" or "it’s failing at Layer 7" tells a colleague exactly where to look.',
         ],
       },
+      {
+        heading: 'Common mistakes: mixing up the models',
+        body: [
+          'The classic exam trap is naming the wrong layer for a device or protocol. A switch forwards frames by MAC address, so it lives at Layer 2; a router forwards packets by IP address, so it lives at Layer 3. A "Layer 3 switch" is a switch with routing added — the name describes the extra function, not a promotion.',
+          'Protocols trip people up the same way. DNS resolves names for applications, so it is Layer 7, even though it usually rides on UDP at Layer 4. TLS encrypts the conversation, which puts it at Layer 6, the presentation layer — not Layer 7, and not Layer 4, even though it sits between them in the TCP/IP model.',
+          'When a question asks "which layer?", answer with the job being done, not the brand name on the box: addressing by MAC is Layer 2, addressing by IP is Layer 3, choosing the application by port is Layer 4. The model is a map of jobs, and the job tells you the layer.',
+        ],
+      },
     ],
     architecture: {
       caption: 'Encapsulation as data moves down the stack. Each layer wraps the one above with its own header (Ethernet also adds an FCS trailer); the receiver removes them in reverse.',
@@ -79,6 +87,15 @@ export default {
       ['L7 Application', 'HTTP, DNS, SMTP'],
       ['Encapsulation', 'Each layer adds a header going down'],
       ['TCP/IP model', 'Link, Internet, Transport, Application'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 1122: Requirements for Internet Hosts — Communication Layers', url: 'https://www.rfc-editor.org/info/rfc1122/' },
+      { title: 'CompTIA Network+ Certification', url: 'https://www.comptia.org/en-us/certifications/network/' },
+      { title: 'Cloudflare Learning Center — What is the OSI model?', url: 'https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/' },
     ],
   },
 
@@ -215,6 +232,15 @@ export default {
       ['SYN, SYN-ACK, ACK', 'TCP three-way handshake'],
       ['DORA', 'DHCP: Discover, Offer, Request, Acknowledge'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'IANA — Service Name and Transport Protocol Port Number Registry', url: 'https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml' },
+      { title: 'RFC 6335: IANA Procedures for the Management of the Service Name and Port Number Registry', url: 'https://www.rfc-editor.org/info/rfc6335/' },
+      { title: 'CompTIA Network+ Certification', url: 'https://www.comptia.org/en-us/certifications/network/' },
+    ],
   },
 
   'net-devices-media': {
@@ -277,6 +303,15 @@ export default {
       ['Patch panel', 'Permanent end of copper runs: rear punch-down, front RJ45.'],
       ['T568A vs T568B', 'Two wiring orders; pick one and use it everywhere.'],
       ['PDU', 'Rack power distribution: 8, 12 or 24 outlets.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'IEEE 802.3 Ethernet Working Group', url: 'https://www.ieee802.org/3/' },
+      { title: 'RFC 826: An Ethernet Address Resolution Protocol', url: 'https://www.rfc-editor.org/info/rfc826/' },
+      { title: 'CompTIA Network+ Certification', url: 'https://www.comptia.org/en-us/certifications/network/' },
     ],
   },
 
@@ -353,6 +388,15 @@ export default {
       ['fe80::/10', 'IPv6 link-local'],
       ['SLAAC', 'IPv6 self-configuration from router advertisements'],
       ['PAT', 'Many private hosts share one public IP via ports'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 4632: Classless Inter-domain Routing (CIDR)', url: 'https://www.rfc-editor.org/info/rfc4632/' },
+      { title: 'RFC 8200: Internet Protocol, Version 6 (IPv6) Specification', url: 'https://www.rfc-editor.org/info/rfc8200/' },
+      { title: 'IANA — IPv4 Address Space Registry', url: 'https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xhtml' },
     ],
   },
 
@@ -459,6 +503,15 @@ export default {
       ['PoE', 'Power and data over one Ethernet cable.'],
       ['LED ring', 'Blue booting, green up, yellow provisioning, red fault.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 1035: Domain Names — Implementation and Specification', url: 'https://www.rfc-editor.org/info/rfc1035/' },
+      { title: 'RFC 2131: Dynamic Host Configuration Protocol', url: 'https://www.rfc-editor.org/info/rfc2131/' },
+      { title: 'IEEE 802.11 Wireless LAN Working Group', url: 'https://www.ieee802.org/11/' },
+    ],
   },
 
   'net-troubleshoot': {
@@ -545,6 +598,15 @@ export default {
       ['High CRC errors', 'Layer 1: cable, interference, duplex'],
       ['IPs work, names do not', 'DNS'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CompTIA Network+ Certification', url: 'https://www.comptia.org/en-us/certifications/network/' },
+      { title: 'Wireshark documentation', url: 'https://www.wireshark.org/docs/' },
+      { title: 'RFC 792: Internet Control Message Protocol', url: 'https://www.rfc-editor.org/info/rfc792/' },
+    ],
   },
 
   'net-ops': {
@@ -611,6 +673,15 @@ export default {
       ['EPO', 'Emergency power off: kills everything in one action.'],
       ['Change management', 'Review, schedule, rollback plan'],
       ['SD-WAN', 'Policy-based steering over mixed links'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-34 Rev. 1: Contingency Planning Guide', url: 'https://csrc.nist.gov/pubs/sp/800/34/r1/final' },
+      { title: 'RFC 3411: An Architecture for Describing SNMP Management Frameworks', url: 'https://www.rfc-editor.org/info/rfc3411/' },
+      { title: 'Prometheus documentation', url: 'https://prometheus.io/docs/introduction/overview/' },
     ],
   },
 
@@ -718,6 +789,15 @@ export default {
       ['SSL inspection', 'Decrypts, inspects and re-encrypts TLS traffic.'],
       ['IDS vs IPS', 'Detects (alerts) vs prevents (blocks in line).'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy', url: 'https://csrc.nist.gov/pubs/sp/800/41/r1/final' },
+      { title: 'RFC 4301: Security Architecture for the Internet Protocol', url: 'https://www.rfc-editor.org/info/rfc4301/' },
+      { title: 'NIST SP 800-97: Establishing Wireless Robust Security Networks', url: 'https://csrc.nist.gov/pubs/sp/800/97/final' },
+    ],
   },
 
   'net-switch-route': {
@@ -813,6 +893,15 @@ export default {
       ['Default route', '0.0.0.0/0, used when nothing more specific matches'],
       ['Console port', 'Out-of-band CLI access when the network is down.'],
       ['SFP+', '10 GbE uplink ports between switches.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'IEEE 802.1 Working Group', url: 'https://www.ieee802.org/1/' },
+      { title: 'RFC 1812: Requirements for IP Version 4 Routers', url: 'https://www.rfc-editor.org/info/rfc1812/' },
+      { title: 'FRRouting documentation', url: 'https://docs.frrouting.org/en/latest/' },
     ],
   },
 };

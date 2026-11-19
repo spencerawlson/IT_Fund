@@ -23897,6 +23897,14 @@ export const freeLessonContent = {
           },
           "Every protocol you will ever configure lives in this model — yet engineers still speak OSI daily, because \"that’s a Layer 2 problem\" or \"it’s failing at Layer 7\" tells a colleague exactly where to look."
         ]
+      },
+      {
+        "heading": "Common mistakes: mixing up the models",
+        "body": [
+          "The classic exam trap is naming the wrong layer for a device or protocol. A switch forwards frames by MAC address, so it lives at Layer 2; a router forwards packets by IP address, so it lives at Layer 3. A \"Layer 3 switch\" is a switch with routing added — the name describes the extra function, not a promotion.",
+          "Protocols trip people up the same way. DNS resolves names for applications, so it is Layer 7, even though it usually rides on UDP at Layer 4. TLS encrypts the conversation, which puts it at Layer 6, the presentation layer — not Layer 7, and not Layer 4, even though it sits between them in the TCP/IP model.",
+          "When a question asks \"which layer?\", answer with the job being done, not the brand name on the box: addressing by MAC is Layer 2, addressing by IP is Layer 3, choosing the application by port is Layer 4. The model is a map of jobs, and the job tells you the layer."
+        ]
       }
     ],
     "architecture": {
@@ -23947,6 +23955,20 @@ export const freeLessonContent = {
         "TCP/IP model",
         "Link, Internet, Transport, Application"
       ]
+    ],
+    "further_reading": [
+      {
+        "title": "RFC 1122: Requirements for Internet Hosts — Communication Layers",
+        "url": "https://www.rfc-editor.org/info/rfc1122/"
+      },
+      {
+        "title": "CompTIA Network+ Certification",
+        "url": "https://www.comptia.org/en-us/certifications/network/"
+      },
+      {
+        "title": "Cloudflare Learning Center — What is the OSI model?",
+        "url": "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/"
+      }
     ]
   },
   "sec-concepts": {
@@ -24392,6 +24414,20 @@ export const freeLessonContent = {
         "Lock-in",
         "Mitigate: open standards, containers, IaC"
       ]
+    ],
+    "further_reading": [
+      {
+        "title": "NIST SP 800-145: The NIST Definition of Cloud Computing",
+        "url": "https://csrc.nist.gov/pubs/sp/800/145/final"
+      },
+      {
+        "title": "NIST SP 800-144: Guidelines on Security and Privacy in Public Cloud Computing",
+        "url": "https://csrc.nist.gov/pubs/sp/800/144/final"
+      },
+      {
+        "title": "Cloud Security Alliance — Security Guidance v4",
+        "url": "https://cloudsecurityalliance.org/artifacts/security-guidance-v4"
+      }
     ]
   }
 };

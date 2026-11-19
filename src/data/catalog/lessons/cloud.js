@@ -79,6 +79,15 @@ export default {
       ['Edge location', 'CDN cache near users'],
       ['Lock-in', 'Mitigate: open standards, containers, IaC'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-145: The NIST Definition of Cloud Computing', url: 'https://csrc.nist.gov/pubs/sp/800/145/final' },
+      { title: 'NIST SP 800-144: Guidelines on Security and Privacy in Public Cloud Computing', url: 'https://csrc.nist.gov/pubs/sp/800/144/final' },
+      { title: 'Cloud Security Alliance — Security Guidance v4', url: 'https://cloudsecurityalliance.org/artifacts/security-guidance-v4' },
+    ],
   },
 
   'cl-core-services': {
@@ -108,6 +117,14 @@ export default {
           'AWS Organizations centrally manages many accounts with Service Control Policies. Separate accounts for production, development and security are the recommended isolation boundary, because a problem in one account cannot directly touch another.',
         ],
       },
+      {
+        heading: 'A worked example: a small web application',
+        body: [
+          'Take a simple three-tier application and place each part on the services above. The static frontend — HTML, CSS and images — sits in object storage, served directly over HTTPS with no server to patch. The application logic runs on virtual machines or in containers behind a load balancer, so one failed instance never takes the site down.',
+          'User data lives in a managed relational database, which handles backups and failover for you, while session state goes in a managed key-value store. DNS points the domain at the load balancer, and every API call is logged to the audit trail so you can answer "who changed this?" later.',
+          'The point is the pattern, not the provider: static content in object storage, stateless compute, managed data, and an audit trail. Learn to draw that picture once and you can rebuild it on any cloud by swapping the product names in the table above.',
+        ],
+      },
     ],
     examples: [
       {
@@ -135,7 +152,7 @@ export default {
     // never paywalled, never login-gated, never invented). Rendered
     // on the lesson page and named by the tutor, never read aloud.
     further_reading: [
-      { title: 'AWS Products', url: 'https://aws.amazon.com/products/' },
+      { title: 'AWS documentation', url: 'https://docs.aws.amazon.com/' },
       { title: 'Google Cloud products', url: 'https://cloud.google.com/products' },
       { title: 'AWS Well-Architected Framework', url: 'https://docs.aws.amazon.com/wellarchitected/latest/userguide/' },
     ],
@@ -194,6 +211,15 @@ export default {
       ['TCO', 'Include power, staff, hardware refresh'],
       ['Root account', 'MFA, lock away, never daily'],
       ['Landing zone', 'Secure multi-account baseline (Control Tower)'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Cost Explorer documentation', url: 'https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html' },
+      { title: 'Microsoft Learn — Azure Cost Management and Billing', url: 'https://learn.microsoft.com/en-us/azure/cost-management-billing/' },
+      { title: 'FinOps Foundation', url: 'https://www.finops.org/' },
     ],
   },
 
@@ -270,6 +296,15 @@ export default {
       ['Session Manager', 'Admin access with no inbound ports'],
       ['Flow Logs', 'Traffic metadata, no payloads'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Amazon VPC documentation', url: 'https://docs.aws.amazon.com/vpc/' },
+      { title: 'Microsoft Learn — Azure Virtual Network', url: 'https://learn.microsoft.com/en-us/azure/virtual-network/' },
+      { title: 'Google Cloud VPC documentation', url: 'https://cloud.google.com/vpc/docs' },
+    ],
   },
 
   'cl-architecture': {
@@ -336,6 +371,15 @@ export default {
       ['Security group', 'Per-tier virtual firewall.'],
       ['Load balancer', 'Spreads traffic; health checks drop dead instances.'],
       ['Object storage', 'Backups, media, logs — scales without servers.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Well-Architected Framework', url: 'https://docs.aws.amazon.com/wellarchitected/latest/userguide/' },
+      { title: 'Microsoft Cloud Adoption Framework', url: 'https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/' },
+      { title: 'Google Cloud Architecture Framework', url: 'https://cloud.google.com/architecture/framework' },
     ],
   },
 
@@ -423,6 +467,15 @@ export default {
       ['GitOps', 'Git is truth; Argo CD / Flux reconcile'],
       ['Non-root containers', 'Limit blast radius'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Kubernetes documentation', url: 'https://kubernetes.io/docs/home/' },
+      { title: 'Docker documentation', url: 'https://docs.docker.com/' },
+      { title: 'Terraform documentation', url: 'https://developer.hashicorp.com/terraform/docs' },
+    ],
   },
 
   'cl-security': {
@@ -503,6 +556,15 @@ export default {
       ['S3 Block Public Access', 'Overrides public ACLs/policies'],
       ['Break-glass account', 'Emergency admin: MFA, monitored'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Identity and Access Management documentation', url: 'https://docs.aws.amazon.com/iam/' },
+      { title: 'Microsoft Entra documentation', url: 'https://learn.microsoft.com/en-us/entra/' },
+      { title: 'Cloud Security Alliance — Cloud Controls Matrix', url: 'https://cloudsecurityalliance.org/research/cloud-controls-matrix' },
+    ],
   },
 
   'cl-ccsp': {
@@ -569,6 +631,15 @@ export default {
       ['Right to audit', 'Rely on SOC 2, ISO 27001, FedRAMP'],
       ['CSA CCM / STAR', 'Cloud control framework / assessment registry'],
       ['FedRAMP', 'US gov: Low, Moderate, High (NIST 800-53)'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'ISC2 CCSP Certification', url: 'https://www.isc2.org/certifications/ccsp' },
+      { title: 'Cloud Security Alliance — Security Guidance v4', url: 'https://cloudsecurityalliance.org/artifacts/security-guidance-v4' },
+      { title: 'GDPR full text', url: 'https://gdpr-info.eu/' },
     ],
   },
 
