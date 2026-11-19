@@ -227,6 +227,31 @@ describe('LessonView net-troubleshoot labs + Watch', () => {
     expect(links).toContain('/lab?item=proto-dns');
   });
 
+  it('renders the Launch Lab button on a newly-mapped lesson — CySA+ SOC foundations (lab coverage pass, 2026-11-18)', async () => {
+    const root = await renderLesson('cysa-soc-foundations');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).toContain('Launch Lab');
+    const links = root.root.findAllByType('a').map((n) => n.props.href);
+    expect(links).toContain('/labs/siem-hunting-001');
+  });
+
+  it('renders all three troubleshooting labs with real titles, never a raw lab id', async () => {
+    // rt-routing-troubleshooting gained the RIP + EIGRP troubleshooters as
+    // extras; the titles come from LAB_TITLES, so none may render as an id.
+    const root = await renderLesson('rt-routing-troubleshooting');
+    const json = JSON.stringify(root.toJSON());
+    expect(json).toContain('Launch Lab: OSPF Troubleshooting');
+    expect(json).toContain('Launch Lab: RIP Troubleshooting');
+    expect(json).toContain('Launch Lab: EIGRP Troubleshooting');
+    // The ids legitimately appear only in the button hrefs, never as labels.
+    const links = root.root.findAllByType('a').map((n) => n.props.href);
+    expect(links).toContain('/labs/net-ospf-tshoot-001');
+    expect(links).toContain('/labs/net-rip-tshoot-001');
+    expect(links).toContain('/labs/net-eigrp-tshoot-001');
+    expect(json).not.toContain('Launch Lab: net-rip-tshoot-001');
+    expect(json).not.toContain('Launch Lab: net-eigrp-tshoot-001');
+  });
+
   it('renders the Watch section as an honest coming-soon note — no fake video, no dead link', async () => {
     const root = await renderLesson('net-troubleshoot');
     const json = JSON.stringify(root.toJSON());

@@ -87,19 +87,84 @@ export const LAB_FOR_LESSON = {
   'docker-basics': 'docker-fundamentals-001',
   'docker-run': 'docker-fundamentals-001',
   'docker-compose': 'docker-fundamentals-001',
+  'docker-images': 'docker-fundamentals-001',
+  'docker-data-net': 'docker-fundamentals-001',
+  'docker-registry': 'docker-fundamentals-001',
+  'docker-ops': 'docker-fundamentals-001',
   'docker-optimization-security': 'sec-docker-siem-001',
   'k8s-basics': 'k8s-fundamentals-001',
   'k8s-security': 'k8s-fundamentals-001',
+  'k8s-workloads': 'k8s-fundamentals-001',
+  'k8s-config': 'k8s-fundamentals-001',
+  'k8s-networking': 'k8s-fundamentals-001',
+  'k8s-deployments': 'k8s-fundamentals-001',
+  'k8s-operations': 'k8s-fundamentals-001',
   'tf-iac-basics': 'terraform-fundamentals-001',
   'tf-core-workflow': 'terraform-fundamentals-001',
   'tf-resources': 'terraform-fundamentals-001',
   'tf-state-backends': 'terraform-fundamentals-001',
+  'tf-variables': 'terraform-fundamentals-001',
+  'tf-expressions': 'terraform-fundamentals-001',
+  'tf-modules': 'terraform-fundamentals-001',
+  'tf-meta-lifecycle': 'terraform-fundamentals-001',
   'tf-prod-security': 'cloud-terraform-001', // was duplicated with iac-policy-001: the
   // lesson's arc is the safe CI pipeline (fmt -> plan -> scan -> review -> gated apply),
   // which is what this lab runs; iac-policy-001 is the deeper policy-as-code dive.
 
   // IT Foundations
   'it-files-cli': 'linux-terminal-001',
+  'lx-packages': 'linux-terminal-001',
+
+  // Python — control flow is what py-basics-001 drills (loops, scripts);
+  // OOP, concurrency and testing have no matching backend lab yet.
+  'py-flow': 'py-basics-001',
+
+  // Networking — PortBlast starts from port enumeration; the topology
+  // builder labs are the hands-on half of devices/topologies (001),
+  // DMZ segmentation (003) and fault-tolerant cores (004).
+  'net-ports': 'cyber-portblast-001',
+  'net-devices-media': 'net-topology-001',
+  'net-ops': 'net-topology-004',
+
+  // Security+ — IAM policy writing is the aws-iam-001 lab, already the
+  // results-screen recommendation for this deck (deckLabs.js).
+  'sec-iam': 'aws-iam-001',
+
+  // Cybersecurity (blue team) — architecture lessons map to the lab that
+  // builds the thing: DMZ segmentation and cloud security audit.
+  'cy-net-arch': 'net-topology-003',
+  'cy-cloud-arch': 'cloud-aws-audit-001',
+
+  // CySA+ — every lesson maps to the analyst lab that runs the same skill:
+  // SIEM hunting for SOC/triage/hunting, vuln scanning for vuln work,
+  // ransomware containment for IR, pentest methodology for frameworks.
+  'cysa-soc-foundations': 'siem-hunting-001',
+  'cysa-vuln-basics': 'vuln-scanning-001',
+  'cysa-siem-soar': 'siem-hunting-001',
+  'cysa-threat-hunting': 'siem-hunting-001',
+  'cysa-vuln-management': 'vuln-scanning-001',
+  'cysa-incident-response': 'sec-ransomware-001',
+  'cysa-attack-frameworks': 'pentest-methodology-001',
+
+  // Security+ scenario lessons — same mapping, scenario by scenario:
+  // the lab runs the scenario the lesson examines. Theory-only scenario
+  // sets (data protection, resilience, concepts, crypto, risk,
+  // governance, third-party) have no matching backend lab and stay
+  // unmapped rather than pointing at a forced fit.
+  'secplus-soc-scenarios': 'siem-hunting-001',
+  'secplus-hardening-vuln': 'vuln-scanning-001',
+  'secplus-ir-scenarios': 'sec-ransomware-001',
+  'secplus-threat-scenarios': 'sec-c2beacon-001',
+  'secplus-malware-scenarios': 'sec-ransomware-001',
+  'secplus-social-web-scenarios': 'sec-webapp-001',
+  'secplus-vuln-scenarios': 'vuln-scanning-001',
+  'secplus-cloud-scenarios': 'cloud-aws-audit-001',
+  'secplus-netarch-scenarios': 'net-topology-001',
+
+  // AWS — the audit lab is the hands-on half of monitoring/analysis and
+  // of network security (it inspects security groups and posture).
+  'awss-monitor-analyze': 'cloud-aws-audit-001',
+  'saa-network-security': 'cloud-aws-audit-001',
 };
 
 /** Reverse index: lab ID → lesson IDs that point at it. Built once. */
@@ -122,6 +187,19 @@ export function labForLesson(lessonId) {
  */
 export const EXTRA_LABS_FOR_LESSON = {
   'net-troubleshoot': ['tools-wireshark-001'],
+  // Same skill, second angle — the primary's link never moves.
+  // tf-prod-security: policy-as-code is the deeper dive the primary's
+  // safe-CI-pipeline arc points at (see the primary's comment above).
+  'tf-prod-security': ['iac-policy-001'],
+  // cl-containers-iac: the same workloads as Terraform HCL.
+  'cl-containers-iac': ['terraform-k8s-docker-001'],
+  // docker-optimization-security: image scanning beside SIEM monitoring.
+  'docker-optimization-security': ['sec-trivy-001'],
+  // cy-web: fixing SQL injection beside testing for it.
+  'cy-web': ['py-sqli-001'],
+  // rt-routing-troubleshooting: the same troubleshooting skill on the
+  // other two protocols.
+  'rt-routing-troubleshooting': ['net-rip-tshoot-001', 'net-eigrp-tshoot-001'],
 };
 
 /** Every lab launchable from a lesson page: the primary first, then extras. */
