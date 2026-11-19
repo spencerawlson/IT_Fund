@@ -72,6 +72,15 @@ export default {
       ['Control vs data plane', 'Protocols build the table (RIB); the FIB forwards packets'],
       ['Summarization', 'Advertise many prefixes as one to shrink tables and contain instability'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 1812: Requirements for IP Version 4 Routers', url: 'https://www.rfc-editor.org/info/rfc1812/' },
+      { title: 'FRRouting documentation', url: 'https://docs.frrouting.org/en/latest/' },
+      { title: 'Linux manual: ip-route(8)', url: 'https://man7.org/linux/man-pages/man8/ip-route.8.html' },
+    ],
   },
 
   'rt-static': {
@@ -575,6 +584,15 @@ export default {
       ['CoPP', 'Rate-limits traffic to the control plane'],
       ['Monitoring', 'Log routing changes to a SIEM; alert on anomalies'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 7454: BGP Operations and Security', url: 'https://www.rfc-editor.org/info/rfc7454/' },
+      { title: 'RFC 6480: An Infrastructure to Support Secure Internet Routing', url: 'https://www.rfc-editor.org/info/rfc6480/' },
+      { title: 'MANRS — Mutually Agreed Norms for Routing Security', url: 'https://www.manrs.org/' },
+    ],
   },
 
   'rt-routing-troubleshooting': {
@@ -630,6 +648,15 @@ export default {
       ['show ip bgp summary', 'Peer state (Idle/Active = session problem)'],
       ['ping', 'Reachability test'],
       ['traceroute', 'Per-hop path; finds loops and black holes'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Linux manual: ip-route(8)', url: 'https://man7.org/linux/man-pages/man8/ip-route.8.html' },
+      { title: 'Wireshark documentation', url: 'https://www.wireshark.org/docs/' },
+      { title: 'FRRouting documentation', url: 'https://docs.frrouting.org/en/latest/' },
     ],
   },
 };

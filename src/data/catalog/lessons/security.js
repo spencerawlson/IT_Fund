@@ -185,6 +185,14 @@ export default {
           'A supply chain attack compromises a vendor or component to reach its customers. SolarWinds (2020) shipped a backdoored update to thousands of organisations; the xz Utils backdoor (2024) was slipped into a widely used open-source library by a patient contributor. Defences include vendor risk management, software bills of materials and verifying what you install.',
         ],
       },
+      {
+        heading: 'Common mistakes: what analysts get wrong',
+        body: [
+          'The most expensive mistake is paying a ransom before checking whether the backups work. Attackers know backups are the recovery path, so modern ransomware encrypts or deletes them first — a backup you have never test-restored is a hope, not a plan. Verify the restore, then decide.',
+          'A second mistake is cleaning a deeply compromised host instead of reimaging it. A kernel rootkit sits below the tools that would find it, so a "clean" scan proves nothing; rebuild from known-good media and reset the credentials that host touched.',
+          'A third is treating one antivirus verdict as the answer. A single clean result means that engine did not recognise the file, not that the file is safe — check the behaviour (a Word document spawning PowerShell, an unsigned DLL beaconing every minute) before you close the alert.',
+        ],
+      },
     ],
     examples: [
       {
