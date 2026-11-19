@@ -25,6 +25,7 @@ import CloudSimulator from '@/components/viz/CloudSimulator';
 import RouterSimulator from '@/components/viz/RouterSimulator';
 import NgfwSimulator from '@/components/viz/NgfwSimulator';
 import AccessPointSimulator from '@/components/viz/AccessPointSimulator';
+import GitWorkflowSimulator from '@/components/viz/GitWorkflowSimulator';
 import AutoScalingAnimation from '@/components/viz/AutoScalingAnimation';
 import CICDAnimation from '@/components/viz/CICDAnimation';
 import SubnetCalculator from '@/components/tools/SubnetCalculator';
@@ -112,6 +113,7 @@ export const SUBJECTS = [
   { id: 'capacity-planning', category: 'Data & Systems', kind: 'flow', icon: Gauge, label: 'Capacity Planning', blurb: 'From workload inputs to a validated, cost-aware plan.' },
   // DevOps
   { id: 'git-flow', category: 'DevOps', kind: 'anim', icon: GitBranch, label: 'Git Flow', blurb: 'Follow a change from commit through branch, PR, merge, and release.' },
+  { id: 'git-workflow', category: 'DevOps', kind: 'blueprint', icon: GitBranch, label: 'Git Workflow Blueprint', blurb: 'Drive a live Git repo on one screen — init, stage, commit, branch, merge, stash, pull and push across the four areas.' },
   { id: 'troubleshooting', category: 'DevOps', kind: 'anim', icon: Search, label: 'Troubleshooting', blurb: 'Structured incident handling: reproduce, isolate, mitigate, fix.' },
   { id: 'terminal', category: 'DevOps', kind: 'tool', icon: TerminalSquare, label: 'CLI Terminal', blurb: 'Practice Bash and PowerShell in a safe, simulated shell.' },
 ];
@@ -121,7 +123,6 @@ const SUBJECT_BY_ID = Object.fromEntries(SUBJECTS.map((s) => [s.id, s]));
 // Dropped-from-gallery subjects still resolve (older lessons deep-link to them): text-only ones
 // redirect to their animated equivalent; the rest just render via the registry below.
 const ALIASES = {
-  'git-workflow': 'git-flow',
   'network-troubleshooting': 'troubleshooting',
   'incident-response': 'security-incident',
 };
@@ -133,6 +134,7 @@ export const RENDERERS = {
   'rack-server': () => <RackServerSimulator />, ups: () => <UpsSimulator />,
   router: () => <RouterSimulator />, 'access-point': () => <AccessPointSimulator />,
   cloud: () => <CloudSimulator />, 'firewall-3d': () => <NgfwSimulator />, nas: () => <NasSimulator />, 'patch-panel': () => <PatchPanelSimulator />,
+  'git-workflow': () => <GitWorkflowSimulator />,
   vpc: Vpc3D, 'lb-3d': LoadBalancer3D, osi: Osi3D,
   tcp: () => <TcpAnimation />, udp: () => <UdpAnimation />, dns: () => <DnsAnimation />,
   routing: () => <RoutingAnimation />, 'load-balancer': () => <LoadBalancerAnimation />,
@@ -168,7 +170,7 @@ const resolveId = (id) => (RENDERERS[ALIASES[id]] ? ALIASES[id] : id);
 // and the *3D fallbacks still apply.
 export const SIMULATOR_IDS = new Set([
   'load-balancer', 'switch', 'nas', 'rack-server', 'server-rack', 'ups',
-  'patch-panel', 'router', 'access-point', 'cloud', 'firewall-3d',
+  'patch-panel', 'router', 'access-point', 'cloud', 'firewall-3d', 'git-workflow',
 ]);
 export const isSimulator = (id) => SIMULATOR_IDS.has(resolveId(id));
 
