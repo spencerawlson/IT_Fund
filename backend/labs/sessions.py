@@ -47,7 +47,17 @@ MAX_LIVE_DOCKER_SESSIONS_GLOBAL = 50
 #: carry other keys are handled in record_findings: dropped for mock labs,
 #: accepted as explicit attestation (and marked) for Docker labs, whose exec
 #: returns no findings.
+#:
+#: The one exception is a topology-workbench mock lab's board state
+#: (TOPOLOGY_BOARD_KEYS, below): those labs have no shell, so the
+#: TopologyBuilder board IS the instrument and the client POST of its state is
+#: the only way findings ever reach the session.
 CLIENT_FINDINGS_NAMESPACE = "notes"
+
+
+#: Board-state keys a client may post for a topology-workbench mock lab
+#: (record_findings sanitises them first — see _sanitize_topology_board).
+TOPOLOGY_BOARD_KEYS = frozenset({"devices", "links"})
 
 
 class LabError(Exception):
@@ -108,6 +118,46 @@ def _merge_notes(dst: dict[str, Any], notes: Any) -> None:
         existing.extend(notes)
     else:
         dst[CLIENT_FINDINGS_NAMESPACE] = notes
+
+
+def _sanitize_topology_board(lab: Any, keys: dict[str, Any]) -> dict[str, Any]:
+    """Keep only a well-shaped topology board state for `lab`.
+
+    devices: target hostnames, deduped. links: pairs of *placed* hostnames,
+    self-loops dropped, endpoints normalised (sorted) and deduped. Any other
+    key is ignored. Malformed values yield an empty board, never an exception
+    — the validators then fail honestly on the missing state."""
+    allowed = {t.hostname for t in (lab.targets or [])}
+    board: dict[str, Any] = {}
+    placed: list[str] = []
+    devices = keys.get("devices")
+    if isinstance(devices, list):
+        seen: set[str] = set()
+        for d in devices:
+            if isinstance(d, str) and d in allowed and d not in seen:
+                seen.add(d)
+                placed.append(d)
+    board["devices"] = placed
+    clean: list[list[str]] = []
+    links = keys.get("links")
+    if isinstance(links, list):
+        seen_links: set[tuple[str, str]] = set()
+        placed_set = set(placed)
+        for link in links:
+            if not isinstance(link, (list, tuple)) or len(link) != 2:
+                continue
+            a, b = link
+            if not (isinstance(a, str) and isinstance(b, str)):
+                continue
+            if a == b or a not in placed_set or b not in placed_set:
+                continue
+            key = (a, b) if a < b else (b, a)
+            if key in seen_links:
+                continue
+            seen_links.add(key)
+            clean.append([key[0], key[1]])
+    board["links"] = clean
+    return board
 
 
 @dataclass
@@ -277,6 +327,20 @@ class SessionService:
           as attested (see LabCompletion.attested), not as evidenced. Full
           server-side probes are a roadmap project; until they exist, Docker
           completions stay attestation-based BY DESIGN and are labelled so.
+
+        Exception: a topology-workbench mock lab's board state (`devices` /
+        `links`). Those labs have no shell — the TopologyBuilder board IS the
+        instrument — so the POST is the only way findings reach the session.
+        L-01 as written dropped the board state too, which silently made all
+        six topology labs uncompletable (validators ran against empty
+        findings no matter what the learner cabled; net-topology-005).
+        The board state is sanitised to the lab's own targets before it is
+        stored, and the validators still run server-side on it, so the
+        session is NOT marked attested: this is the lab's input, not an
+        "I did this" bypass. A direct POST can submit a solved board — the
+        same forgery surface as any client-side input — but there is no
+        server-side board to derive from, and dropping the state makes the
+        lab uncompletable.
         """
         session = self._owned(session_id, user_id)
         if session.status not in (READY, RUNNING):
@@ -289,7 +353,11 @@ class SessionService:
         validator_keys = {k: v for k, v in findings.items() if k != CLIENT_FINDINGS_NAMESPACE}
         if validator_keys:
             if lab is not None and lab.environment.provider == "mock":
-                # Forged validator findings for a mock lab: silently dropped.
+                if lab.workbench == "topology":
+                    board_keys = {k: v for k, v in validator_keys.items()
+                                if k in TOPOLOGY_BOARD_KEYS}
+                    session.findings.update(_sanitize_topology_board(lab, board_keys))
+                # else: forged validator findings for a mock lab: silently dropped.
                 # (The response still shows the session, with notes merged.)
                 pass
             else:
