@@ -53,6 +53,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Rust Programming Language (The Book)', url: 'https://doc.rust-lang.org/book/' },
+      { title: 'Get started with Rust', url: 'https://www.rust-lang.org/learn/get-started' },
+      { title: 'Rust by Example', url: 'https://doc.rust-lang.org/rust-by-example/' },
+    ],
   },
 
   'rust-types': {
@@ -99,6 +108,15 @@ export default {
       ['(i32, &str)', 'Tuple: fixed-size group of possibly different types'],
       ['x as f64 / .into()', 'Explicit conversion — Rust never converts implicitly'],
       ['Debug overflow', 'Panics; release wraps; prefer checked_/wrapping_/saturating_'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Book — Data Types', url: 'https://doc.rust-lang.org/book/ch03-02-data-types.html' },
+      { title: 'Rust standard library — Primitive types', url: 'https://doc.rust-lang.org/std/primitive.html' },
+      { title: 'Rust by Example — Primitives', url: 'https://doc.rust-lang.org/rust-by-example/primitives.html' },
     ],
   },
 
@@ -158,6 +176,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Book — Control Flow', url: 'https://doc.rust-lang.org/book/ch03-05-control-flow.html' },
+      { title: 'The Book — Functions', url: 'https://doc.rust-lang.org/book/ch03-03-how-functions-work.html' },
+      { title: 'Rust by Example — Flow of Control', url: 'https://doc.rust-lang.org/rust-by-example/flow_control.html' },
+    ],
   },
 
   'rust-ownership': {
@@ -213,6 +240,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Book — What is Ownership?', url: 'https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html' },
+      { title: 'The Book — References and Borrowing', url: 'https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html' },
+      { title: 'The Rustonomicon', url: 'https://doc.rust-lang.org/nomicon/' },
+    ],
   },
 
   'rust-structs-enums': {
@@ -267,6 +303,15 @@ export default {
         ),
       },
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Book — Structs', url: 'https://doc.rust-lang.org/book/ch05-00-structs.html' },
+      { title: 'The Book — Enums and Pattern Matching', url: 'https://doc.rust-lang.org/book/ch06-00-enums.html' },
+      { title: 'The Book — Traits', url: 'https://doc.rust-lang.org/book/ch10-02-traits.html' },
+    ],
   },
 
   'rust-errors': {
@@ -319,6 +364,15 @@ export default {
           '}',
         ),
       },
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Book — Error Handling', url: 'https://doc.rust-lang.org/book/ch09-00-error-handling.html' },
+      { title: 'Rust standard library — Result', url: 'https://doc.rust-lang.org/std/result/' },
+      { title: 'anyhow — crate documentation', url: 'https://docs.rs/anyhow' },
     ],
   },
 
@@ -430,6 +484,15 @@ export default {
           '}).join().unwrap();',
         ),
       },
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'The Book — Fearless Concurrency', url: 'https://doc.rust-lang.org/book/ch16-00-concurrency.html' },
+      { title: 'Rust standard library — sync', url: 'https://doc.rust-lang.org/std/sync/' },
+      { title: 'Tokio tutorial', url: 'https://tokio.rs/tokio/tutorial' },
     ],
   },
 };

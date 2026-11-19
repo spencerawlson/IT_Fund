@@ -378,6 +378,15 @@ export default {
       ['Grounding', 'Tie answers to sources or tool results'],
       ['MCP', 'Open protocol for tools; untrusted by default'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'OpenAI API reference', url: 'https://platform.openai.com/docs/api-reference' },
+      { title: 'Anthropic API reference', url: 'https://docs.anthropic.com/en/api' },
+      { title: 'JSON Schema — Getting started', url: 'https://json-schema.org/learn/getting-started-step-by-step' },
+    ],
   },
 
   'ai-finetune-eval': {
@@ -517,6 +526,15 @@ export default {
       ['Guardrails', 'Filters, validators, allow-lists, limits'],
       ['Agent evals', 'Success, cost, steps, safety; read transcripts'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Building effective agents — Anthropic', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
+      { title: 'OpenAI function calling guide', url: 'https://platform.openai.com/docs/guides/function-calling' },
+      { title: 'LangChain Python documentation', url: 'https://python.langchain.com/docs/introduction/' },
+    ],
   },
 
   'ai-security': {
@@ -572,6 +590,15 @@ export default {
       ['Extraction / inversion', 'Rate-limit, monitor, no secrets in training'],
       ['MITRE ATLAS', 'Attacks on AI knowledge base'],
       ['Mindset', 'Assume injection; limit the damage'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'OWASP Top 10 for LLM Applications', url: 'https://genai.owasp.org/llm-top-10/' },
+      { title: 'NIST AI Risk Management Framework', url: 'https://www.nist.gov/itl/ai-risk-management-framework' },
+      { title: 'MITRE ATLAS — Adversarial Threat Landscape for AI', url: 'https://atlas.mitre.org/' },
     ],
   },
 

@@ -50,6 +50,15 @@ export default {
       ['RDBMS', 'Relational Database Management System, e.g. PostgreSQL, MySQL.'],
       [';', 'Statement terminator in most clients.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL tutorial', url: 'https://www.postgresql.org/docs/current/tutorial.html' },
+      { title: 'SQLite language reference', url: 'https://www.sqlite.org/lang.html' },
+      { title: 'MySQL tutorial', url: 'https://dev.mysql.com/doc/refman/8.4/en/tutorial.html' },
+    ],
   },
   'sql-select': {
     overview: [
@@ -99,6 +108,15 @@ export default {
       ['AS', 'Column alias: `SELECT price AS cost`.'],
       ['AND / OR / NOT', 'Combine conditions; parentheses control precedence.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL — Queries', url: 'https://www.postgresql.org/docs/current/queries.html' },
+      { title: 'PostgreSQL — SELECT', url: 'https://www.postgresql.org/docs/current/sql-select.html' },
+      { title: 'MySQL — SELECT statement', url: 'https://dev.mysql.com/doc/refman/8.4/en/select.html' },
+    ],
   },
   'sql-aggregates': {
     overview: [
@@ -143,6 +161,15 @@ export default {
       ['WHERE', 'Filters rows BEFORE grouping.'],
       ['HAVING', 'Filters groups AFTER aggregation (this is where aggregates go).'],
       ['Grouped SELECT rule', 'Only grouping columns and aggregates allowed in the select list.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL tutorial — Aggregates', url: 'https://www.postgresql.org/docs/current/tutorial-agg.html' },
+      { title: 'PostgreSQL — Aggregate functions', url: 'https://www.postgresql.org/docs/current/functions-aggregate.html' },
+      { title: 'MySQL — Aggregate functions', url: 'https://dev.mysql.com/doc/refman/8.4/en/group-by-functions.html' },
     ],
   },
   'sql-joins': {
@@ -192,6 +219,15 @@ export default {
       ['Foreign key', 'References another table\'s primary key; enforces referential integrity.'],
       ['Chained joins', 'Multiple `JOIN ... ON` clauses in one query.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL tutorial — Joins', url: 'https://www.postgresql.org/docs/current/tutorial-join.html' },
+      { title: 'PostgreSQL — Table expressions', url: 'https://www.postgresql.org/docs/current/queries-table-expressions.html' },
+      { title: 'MySQL — Joins', url: 'https://dev.mysql.com/doc/refman/8.4/en/join.html' },
+    ],
   },
   'sql-ddl-dml': {
     overview: [
@@ -236,6 +272,15 @@ export default {
       ['CHECK (cond)', 'Rejects rows violating a boolean condition.'],
       ['UPDATE/DELETE + WHERE', 'Always scope with `WHERE` — bare statements hit every row.'],
       ['DELETE vs TRUNCATE', '`DELETE`: selective, logged, rollback-able. `TRUNCATE`: fast full-table wipe.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL — Data Definition', url: 'https://www.postgresql.org/docs/current/ddl.html' },
+      { title: 'PostgreSQL — Data Manipulation', url: 'https://www.postgresql.org/docs/current/dml.html' },
+      { title: 'PostgreSQL — CREATE TABLE', url: 'https://www.postgresql.org/docs/current/sql-createtable.html' },
     ],
   },
   'sql-subqueries': {
@@ -283,6 +328,15 @@ export default {
       ['INTERSECT / EXCEPT', 'Rows in both / rows in first but not second.'],
       ['Set operator rule', 'Same column count and compatible types; names from the first query.'],
       ['Scalar subquery', 'One row, one column — usable anywhere a value goes.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL — Subqueries', url: 'https://www.postgresql.org/docs/current/queries-subqueries.html' },
+      { title: 'PostgreSQL — Subquery expressions', url: 'https://www.postgresql.org/docs/current/functions-subquery.html' },
+      { title: 'MySQL — Subqueries', url: 'https://dev.mysql.com/doc/refman/8.4/en/subqueries.html' },
     ],
   },
   'sql-indexes-norm': {
@@ -332,6 +386,15 @@ export default {
       ['EXPLAIN', 'Shows the query plan — scans, joins, index usage, cost. First diagnostic tool.'],
       ['Primary vs foreign key', 'PK uniquely identifies rows in its table; FK references another table\'s PK.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL — Indexes', url: 'https://www.postgresql.org/docs/current/indexes.html' },
+      { title: 'PostgreSQL — Constraints', url: 'https://www.postgresql.org/docs/current/ddl-constraints.html' },
+      { title: 'Use The Index, Luke', url: 'https://use-the-index-luke.com/' },
+    ],
   },
   'sql-transactions-security': {
     overview: [
@@ -379,6 +442,15 @@ export default {
       ['Least privilege', 'Grant only needed rights; limits blast radius of compromise.'],
       ['Isolation levels', 'Prevent dirty/non-repeatable/phantom reads; higher = safer but slower.'],
       ['Password storage', 'Salted hash (bcrypt/argon2) — never plaintext, never reversible encoding.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'PostgreSQL tutorial — Transactions', url: 'https://www.postgresql.org/docs/current/tutorial-transactions.html' },
+      { title: 'PostgreSQL — Transaction isolation', url: 'https://www.postgresql.org/docs/current/transaction-iso.html' },
+      { title: 'PostgreSQL — GRANT', url: 'https://www.postgresql.org/docs/current/sql-grant.html' },
     ],
   },
 };

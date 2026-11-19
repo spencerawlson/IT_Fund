@@ -111,6 +111,14 @@ export default {
           'Parameters can have default values: `def greet(name="world"):`. Never use a mutable default such as `[]` or `{}`: the default is created once, when the function is defined, and shared by every call. Use `None` and create the list inside the function instead.',
         ],
       },
+      {
+        heading: 'Common mistakes: loops and conditions',
+        body: [
+          'The most common loop bug is the one that never ends. A `while` loop repeats as long as its condition stays true, so the body must make progress toward making it false: increment the counter, consume the next item, or `break` out. If a script seems stuck, the first thing to check is whether the loop variable actually changes.',
+          'Off-by-one errors are the second classic. `range(5)` produces `0, 1, 2, 3, 4` — five values, but the last is 4, not 5. When you need each item, loop over the list directly (`for line in lines:`) instead of indexing with `range(len(lines))`; it is shorter and there is no index to get wrong.',
+          'Do not change a list while you loop over it: removing items shifts the rest, so the loop skips the next element. Build a new list with the items you want to keep, or loop over a copy (`for item in items[:]:`). And remember `=` assigns while `==` compares — writing `if x = 5:` is a `SyntaxError` in Python, which at least fails loudly instead of silently doing the wrong thing.',
+        ],
+      },
     ],
     examples: [
       {

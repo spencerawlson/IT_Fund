@@ -53,6 +53,15 @@ export default {
       ['Delegated admin', 'Central management of GuardDuty/Security Hub/Macie without using the management account daily.'],
       ['ASFF', 'AWS Security Finding Format — normalised severity, resources, remediation across products.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'GuardDuty User Guide — What is it?', url: 'https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html' },
+      { title: 'Security Hub User Guide — What is it?', url: 'https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html' },
+      { title: 'Macie User Guide — What is it?', url: 'https://docs.aws.amazon.com/macie/latest/userguide/what-is-macie.html' },
+    ],
   },
 
   'awss-logging': {
@@ -105,6 +114,15 @@ export default {
       ['CloudTrail Insights', 'Statistical anomaly detection on API activity, not signature matching.'],
       ['Object Lock compliance mode', 'WORM storage for logs: undeletable until retention expires, even by root.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CloudTrail User Guide', url: 'https://docs.aws.amazon.com/cloudtrail/latest/userguide/cloudtrail-user-guide.html' },
+      { title: 'CloudWatch Logs — What is it?', url: 'https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html' },
+      { title: 'CloudWatch — What is it?', url: 'https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html' },
+    ],
   },
 
   'awss-iam-foundations': {
@@ -155,6 +173,15 @@ export default {
       ['Policy Simulator', 'Tests allow/deny outcomes before deploying policy changes.'],
       ['Access Analyzer', 'Finds unused permissions; generates policies from real CloudTrail activity.'],
       ['Action / Resource / Condition', 'Policy elements: what API, where it applies, under what constraints.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'IAM User Guide — Introduction', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html' },
+      { title: 'IAM multi-factor authentication', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html' },
+      { title: 'IAM policies', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html' },
     ],
   },
 
@@ -208,6 +235,15 @@ export default {
       ['AWS Artifact', 'On-demand compliance reports (SOC 2, ISO) for breach-notification evidence.'],
       ['No managed forensics service', 'The pattern is snapshots plus Inspector/Detective analysis in an isolated account.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS Security Incident Response Guide', url: 'https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/welcome.html' },
+      { title: 'GuardDuty findings', url: 'https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html' },
+      { title: 'Security Hub security standards', url: 'https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards.html' },
+    ],
   },
 
   'awss-monitor-analyze': {
@@ -259,6 +295,15 @@ export default {
       ['Detect-notify-remediate', 'Config rule plus EventBridge on compliance change routes to SNS/Lambda.'],
       ['Read vs write events', 'Log mutating calls always; log reads selectively to control volume.'],
       ['Cheapest 7-year retention', 'Organization trail to S3 with lifecycle policies to Glacier/Deep Archive.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CloudWatch — What is it?', url: 'https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html' },
+      { title: 'AWS Config — What is it?', url: 'https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html' },
+      { title: 'CloudWatch Logs — What is it?', url: 'https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html' },
     ],
   },
 
@@ -312,6 +357,15 @@ export default {
       ['Firewall Manager', 'Centrally deploy WAF, Shield Advanced, and SG policies across Organizations.'],
       ['Account-level Block Public Access', 'No bucket in the account can become public, regardless of bucket settings.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'VPC security groups', url: 'https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html' },
+      { title: 'VPC flow logs', url: 'https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html' },
+      { title: 'AWS WAF Developer Guide', url: 'https://docs.aws.amazon.com/waf/latest/developerguide/' },
+    ],
   },
 
   'awss-iam-advanced': {
@@ -363,6 +417,15 @@ export default {
       ['aws:PrincipalOrgID', 'Condition key restricting resource policies to callers inside your Organization.'],
       ['KMS key policy authority', 'Cross-account KMS use requires the key policy to allow it; IAM allow alone is insufficient.'],
       ['Service-linked vs service role', 'Service-linked roles are AWS-predefined and uneditable; service roles are customer-created.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'IAM permissions boundaries', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html' },
+      { title: 'Organizations service control policies', url: 'https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html' },
+      { title: 'IAM OIDC identity providers', url: 'https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html' },
     ],
   },
 
@@ -416,6 +479,15 @@ export default {
       ['ACM', 'DNS-validated public certs auto-renew; private keys never exportable.'],
       ['Secrets Manager', 'Automatic rotation and cross-account sharing; beats Parameter Store for true secrets.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'AWS KMS concepts', url: 'https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html' },
+      { title: 'S3 data encryption', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html' },
+      { title: 'Macie User Guide — What is it?', url: 'https://docs.aws.amazon.com/macie/latest/userguide/what-is-macie.html' },
+    ],
   },
 
   'awss-secure-compute': {
@@ -468,6 +540,15 @@ export default {
       ['Image Builder', 'Automated hardened, tested, versioned AMIs — golden images, no snowflakes.'],
       ['Nitro Enclaves', 'Isolated attested compute for highly sensitive processing; no admin access.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Systems Manager — What is it?', url: 'https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html' },
+      { title: 'Inspector User Guide — Introduction', url: 'https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html' },
+      { title: 'Lambda security', url: 'https://docs.aws.amazon.com/lambda/latest/dg/lambda-security.html' },
+    ],
   },
 
   'awss-governance': {
@@ -519,6 +600,15 @@ export default {
       ['Audit Manager', 'Continuous evidence collection mapped to CIS, PCI, HIPAA.'],
       ['Artifact', 'On-demand third-party reports (SOC 2, ISO 27001) for assurance.'],
       ['Minimum audit trail', 'Org-wide validated CloudTrail to a locked archive, Config everywhere, 1+ year retention.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Organizations — Introduction', url: 'https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html' },
+      { title: 'AWS Config — What is it?', url: 'https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html' },
+      { title: 'Control Tower — What is it?', url: 'https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html' },
     ],
   },
 };

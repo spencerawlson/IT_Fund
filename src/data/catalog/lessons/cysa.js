@@ -75,6 +75,15 @@ export default {
       ['PAM / secrets management', 'Vault and rotate privileged credentials; keep API keys and secrets out of code.'],
       ['OT / ICS / SCADA', 'Operational technology: availability first; patching and scanning follow production constraints.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CompTIA Cybersecurity Analyst (CySA+)', url: 'https://www.comptia.org/certifications/cybersecurity-analyst' },
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
+      { title: 'NIST SP 800-61 Rev. 3 — Incident Response', url: 'https://csrc.nist.gov/pubs/sp/800/61/r3/final' },
+    ],
   },
 
   'cysa-vuln-basics': {
@@ -152,6 +161,15 @@ export default {
       ['Nessus / Nuclei / OpenVAS', 'Vulnerability scanners.'],
       ['ScoutSuite / Prowler / Trivy / Checkov', 'Cloud infrastructure assessment tools.'],
       ['Atomic Red Team / Caldera', 'Breach attack simulation: run adversary techniques to test detections.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'National Vulnerability Database', url: 'https://nvd.nist.gov/' },
+      { title: 'CVE Program', url: 'https://www.cve.org/' },
+      { title: 'FIRST — CVSS', url: 'https://www.first.org/cvss/' },
     ],
   },
 
@@ -242,6 +260,15 @@ export default {
       ['AI governance', 'Legal/regulatory compliance and AI usage policies bound what may go to a model.'],
       ['APIs / webhooks / plug-ins', 'How SOAR integrates SIEM, firewall, EDR, and ticketing.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Splunk Search Tutorial', url: 'https://docs.splunk.com/Documentation/Splunk/latest/SearchTutorial/Aboutthesearchapp' },
+      { title: 'Microsoft Sentinel overview', url: 'https://learn.microsoft.com/en-us/azure/sentinel/overview' },
+      { title: 'Elastic Security — Detection engine', url: 'https://www.elastic.co/guide/en/security/current/detection-engine-overview.html' },
+    ],
   },
 
   'cysa-threat-hunting': {
@@ -322,6 +349,15 @@ export default {
       ['BEC / typosquatting / URL shorteners', 'Impersonation fraud, lookalike domains, hidden link destinations.'],
       ['Impossible travel', 'Same account in two distant places faster than a person could travel.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK', url: 'https://attack.mitre.org/' },
+      { title: 'MITRE ATT&CK — Enterprise techniques', url: 'https://attack.mitre.org/techniques/enterprise/' },
+      { title: 'CISA — Cyber Threats and Advisories', url: 'https://www.cisa.gov/topics/cyber-threats-and-advisories' },
+    ],
   },
 
   'cysa-vuln-management': {
@@ -399,6 +435,15 @@ export default {
       ['SCA / SBOM', 'Software composition analysis inventories components; the SBOM lists them all.'],
       ['Attack surface management', 'Continuously discover and shrink what is exposed.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CISA Known Exploited Vulnerabilities Catalog', url: 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
+      { title: 'NIST SP 800-40 Rev. 4 — Patch Management', url: 'https://csrc.nist.gov/pubs/sp/800/40/r4/final' },
+      { title: 'National Vulnerability Database', url: 'https://nvd.nist.gov/' },
+    ],
   },
 
   'cysa-incident-response': {
@@ -473,6 +518,15 @@ export default {
       ['Corrective action development', 'Turn lessons learned into changes with owners and deadlines.'],
       ['NIST SP 800-61 Rev. 3', 'April 2025 revision, organized around NIST CSF 2.0 functions.'],
     ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-61 Rev. 3 — Incident Response', url: 'https://csrc.nist.gov/pubs/sp/800/61/r3/final' },
+      { title: 'FIRST — Incident response guides', url: 'https://www.first.org/resources/guides/' },
+      { title: 'CISA — Cyber Threats and Advisories', url: 'https://www.cisa.gov/topics/cyber-threats-and-advisories' },
+    ],
   },
 
   'cysa-attack-frameworks': {
@@ -523,6 +577,15 @@ export default {
       ['TTP vs IOC detections', 'TTP-based detections describe behavior and are durable; IOC-based detections expire with infrastructure rotation.'],
       ['MITRE D3FEND', 'Knowledge base of defensive techniques mapped against ATT&CK.'],
       ['Adversary emulation', 'Simulating a specific threat actor\'s TTPs to test your defenses.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'MITRE ATT&CK', url: 'https://attack.mitre.org/' },
+      { title: 'MITRE ATT&CK — Enterprise mitigations', url: 'https://attack.mitre.org/mitigations/enterprise/' },
+      { title: 'Lockheed Martin — Cyber Kill Chain', url: 'https://www.lockheedmartin.com/en-us/capabilities/cyber/cyber-kill-chain.html' },
     ],
   },
 
@@ -589,6 +652,15 @@ export default {
       ['Internal threat intelligence report', 'What was learned about the adversary, shared for the next detection.'],
       ['Mean time to close', 'How long incidents take from detection to closure.'],
       ['Phishing campaign click rate', 'Whether the human layer is improving.'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'FIRST — CVSS', url: 'https://www.first.org/cvss/' },
+      { title: 'NIST SP 800-53 Rev. 5 — Security and Privacy Controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final' },
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
     ],
   },
 };
