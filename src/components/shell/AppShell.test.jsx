@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { TutorProvider } from '@/components/shell/TutorContext';
-import AppShell from './AppShell';
+import AppShell, { shouldHideTabBar } from './AppShell';
 
 const ANON_AUTH = { user: null, isLoadingAuth: false, authChecked: true };
 const SIGNED_IN_AUTH = {
@@ -59,5 +59,37 @@ describe('AppShell Learn nav (navigation fix, 2026-11-18)', () => {
     const html = renderShell(SIGNED_IN_AUTH);
     expect(html).toContain('href="/academy/courses"');
     expect(html).not.toContain('href="/academy/courses/network-engineering"');
+  });
+});
+
+describe('AppShell bottom tab bar auto-hide (floating-nav overlap, 2026-11-19)', () => {
+  const base = { scrollY: 500, lastScrollY: 300, viewportHeight: 900, scrollHeight: 5000 };
+
+  it('hides while scrolling down past the top of the page', () => {
+    expect(shouldHideTabBar(base)).toBe(true);
+  });
+
+  it('shows while scrolling up', () => {
+    expect(shouldHideTabBar({ ...base, lastScrollY: 700 })).toBe(false);
+  });
+
+  it('shows near the top of the page', () => {
+    expect(shouldHideTabBar({ ...base, scrollY: 100, lastScrollY: 0 })).toBe(false);
+  });
+
+  it('shows at the page bottom even when scrolling down', () => {
+    expect(shouldHideTabBar({ ...base, scrollY: 4100, lastScrollY: 4000 })).toBe(false);
+  });
+
+  it('shows when the scroll position does not change', () => {
+    expect(shouldHideTabBar({ ...base, lastScrollY: 500 })).toBe(false);
+  });
+
+  it('renders the tab bar visible by default (no hide transform in SSR)', () => {
+    const html = renderShell(SIGNED_IN_AUTH);
+    expect(html).toContain('transition-transform');
+    // The hide class is translate-y-[calc(100%+1rem)]; other translate-y
+    // utilities (e.g. the search icon's -translate-y-1/2) are unrelated.
+    expect(html).not.toContain('translate-y-[calc(100%+1rem)]');
   });
 });

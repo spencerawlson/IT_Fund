@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Repeat, FlaskConical, Crown, Tag, Search, Sparkles, X, LogIn, User } from 'lucide-react';
 import Logo from '@/components/Logo';
@@ -105,6 +105,19 @@ function AccountMenu({ compact = false }) {
 }
 
 /**
+ * Whether the mobile bottom tab bar should slide out of the way. It hides
+ * once the learner has scrolled a little way down the page and returns on
+ * scroll up, near the top, or at the page bottom — so it never covers the
+ * controls at the bottom edge of the viewport while the learner works
+ * through a long page. Pure, so it is unit-testable without a DOM.
+ */
+export function shouldHideTabBar({ scrollY, lastScrollY, viewportHeight, scrollHeight }) {
+  if (scrollY <= 120) return false;
+  if (scrollY + viewportHeight >= scrollHeight - 4) return false;
+  return scrollY > lastScrollY;
+}
+
+/**
  * The one navigation for the app: a sidebar from lg up, a top bar plus bottom tab bar below.
  * Lessons, quizzes and sign-in pages render outside it (full-screen focus mode).
  */
@@ -112,6 +125,30 @@ export default function AppShell() {
   const items = useNavItems();
   const { pathname } = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [tabBarHidden, setTabBarHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  // The mobile bottom tab bar hides while the learner scrolls down and returns
+  // on scroll up (or near the top / at the page bottom), so it never sits on
+  // top of the controls the learner is about to tap — seen live on the Git
+  // Workflow + load balancer simulators, 2026-11-19 (clicks on "git branch",
+  // "Edit file", "git add" refused as covered until the page was scrolled).
+  // The pill itself is unchanged when visible; it just gets out of the way
+  // while scrolling. Passive listener; setState bails out when unchanged.
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setTabBarHidden(shouldHideTabBar({
+        scrollY: y,
+        lastScrollY: lastScrollY.current,
+        viewportHeight: window.innerHeight,
+        scrollHeight: document.documentElement.scrollHeight,
+      }));
+      lastScrollY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <div className="min-h-screen text-ink-1">
@@ -189,8 +226,16 @@ export default function AppShell() {
         <Outlet />
       </main>
 
-      {/* Mobile bottom tab bar: opaque pill, same reason as the top bar. */}
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden">
+      {/* Mobile bottom tab bar: opaque pill, same reason as the top bar.
+          Slides out of the way while scrolling down (see shouldHideTabBar),
+          so it never covers the controls at the viewport's bottom edge. */}
+      <nav
+        aria-label="Main"
+        className={cn(
+          'fixed inset-x-0 bottom-0 z-40 px-3 pb-safe transition-transform duration-300 motion-reduce:transition-none lg:hidden',
+          tabBarHidden && 'translate-y-[calc(100%+1rem)]',
+        )}
+      >
         <div className="glass-3 nav-solid grid grid-cols-5 rounded-card p-1">
           {items.filter((item) => !item.sidebarOnly).map(({ to, label, short, icon: Icon, match }) => {
             const active = match(pathname);
