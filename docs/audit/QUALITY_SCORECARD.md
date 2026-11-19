@@ -1,42 +1,42 @@
 # Quality Scorecard
 
-## Re-score (2026-11-19), current — 93/100
+## Re-score (2026-11-19), current — 94/100
 
-Measured by hand against the rubric below on the combined tree: main
-`99b68ed1` (PR #149 merged) with PRs #150, #151 and #152 applied, plus the
-five scoring workstreams (CS0-004 alignment + accuracy read, further reading
-everywhere, scorecard/llms.txt correction, lab integration). Full evidence:
-`~/workspace/itfund-course-score/RESCORE-2026-11-19.md`. Previous scores on
-the same rubric: 87/100 (Nov 18, 2026, same tree minus the five
-workstreams), 76/100 on main `922b64c4` (Nov 18, 2026), 66/100
-(Nov 17, 2026). **Do not quote 95 or 96** — neither is borne out by this
-measurement. (96 is reachable only if Spencer publishes the 45 CISSP
-scenario drafts — his decision, not yet made.)
+Measured by hand against the rubric below on fully merged main
+`9d05380c` — the whole scoring batch #149–#160 landed (#157 merged
+last, 23:31 EST Nov 18). Full evidence:
+`~/workspace/itfund-course-score/RESCORE-2026-11-19-MAIN.md`. Previous
+scores on the same rubric: 93/100 (Nov 19, 2026, assembled tree),
+87/100 (Nov 18, 2026), 76/100 on main `922b64c4` (Nov 18, 2026),
+66/100 (Nov 17, 2026). **Do not quote 95 or 96** — neither is borne
+out by this measurement. (96 is the expected re-score once the two
+one-line fixes in this change land — the awss-iam-foundations
+cheat-sheet correction and this scorecard update — and the course is
+re-scored; it is not the score today.)
 
 | Dimension | Weight | Score | Measure |
 |---|---|---|---|
-| Accuracy | 30 | 29 | All 15 CS0-004 objectives verified covered against the official CS0-004 V4 objectives (Document Version 2.0); 14 more lessons read end-to-end (12 clean, 2 errors fixed: pandas is not stdlib, 802.11g mixed-network slowdown). No known errors remain. −1: not every lesson has been read end-to-end. |
-| Coverage | 20 | 16 | CySA+ track fully objective-aligned (4 objectives were partial or missing); 39 cards appended (3,145 → 3,184, 0 duplicate groups); labs mapped on 105/222 lessons (was 66). No video layer, no study guide, no mind maps; the 45 CISSP scenario questions are still unpublished drafts. |
-| Pedagogy | 25 | 23 | Further reading 67/222 → 222/222 lessons; lessons under 300 words 5 → 0 (`thin.mjs`); labs mapped on 105/222 lessons (47%, was 30%). Scenario questions still drafts; 117 lessons still have no mapped lab (needs new lab content). |
-| Writing | 15 | 15 | Total lesson words 108,075 → 111,985; the 5 thin lessons deepened (cy-threat-intel, cl-core-services, py-flow, sec-malware, net-osi) plus py-flow's new "Common mistakes" section and 8 new CySA+ sections; new sections spot-checked and read well. |
-| Consistency | 10 | 10 | This scorecard now states the honest measured number (93, not 95/96); `public/llms.txt` says "3,000+ flashcards" vs 3,184 actual; duplicates 0; longest-answer-is-correct 29.7% (cap 35%). |
-| **Total** | 100 | **93** | |
+| Accuracy | 30 | 28 | All four previously-fixed errors verified fixed in context (floating static, SCP/root body, pandas, 802.11g). CS0-004: the four previously-missing objectives (1.3, 1.6, 2.2, 2.4) all have dedicated sections. 12 lessons read end-to-end, 11 clean; 1 error found — the awss-iam-foundations cheat sheet said "Root user: Unlimited by any policy" (false; SCPs can limit root in member accounts), corrected by this change. −1: not every lesson has been read end-to-end. |
+| Coverage | 20 | 18 | The 45 CISSP scenario questions are published (bank 3,190 → 3,229; cissp 169 → 214; cissp-d2b 30, cissp-d5 26, cissp-d6 26). CySA+ track fully objective-aligned; 0 duplicate groups. −2: no video layer, no study guide, no mind maps. |
+| Pedagogy | 25 | 24 | Further reading 222/222 lessons (652 links); lessons under 300 words 0 (`thin.mjs`); labs mapped on 105/222 lessons (47.3%); longest-answer-is-correct 25.3% by characters / 18.0% by words (cap 35%). −1: 117 lessons still have no mapped lab (needs new lab content). |
+| Writing | 15 | 15 | Total lesson words 111,892; 12 lessons read end-to-end; writing quality high throughout. No new writing defects found. |
+| Consistency | 10 | 9 | `src/data/counts.js` matches the bank exactly (3,229 cards, 222 decks, 61 labs); `public/llms.txt` says "3,000+ flashcards" vs 3,229 actual; duplicates 0; longest-answer-is-correct 25.3% (cap 35%). −1: this scorecard was stale — it said 93/100, called the 45 scenarios "still unpublished drafts", and cited 3,184 cards / 29.7% longest-answer. Corrected by this change. |
+| **Total** | 100 | **94** | |
 
 **Limits of this score.** Every item was reviewed by an AI reviewer against
 current official sources, but not by a human subject-matter expert. A human
 SME review of the CISSP and Security+ tracks is still the most valuable next
-step. This score is a hand measurement on the combined tree above; it is not
+step. This score is a hand measurement on main `9d05380c`; it is not
 the output of `scripts/content-audit/scorecard.mjs` (see Pass 2 below).
 
 **What is still open.** Accuracy −1: a full end-to-end read of every lesson
-(222) — only sampled lessons have been read in full. Coverage −4: the 45
-scenario questions still unpublished (worth ~+2 if published — Spencer's
-decision); the rest is the video / study-guide / mind-map layer (Spencer's
-call on scope and cost). Pedagogy −2: publishing the scenarios (~+1) and
-labs on the remaining 117 lessons, which needs new lab content, not more
-mapping. Writing −0: closed. Consistency −0: closed by this change
-(scorecard + llms.txt corrected). Path to 96: publish the scenarios (~96)
-— Spencer's decision; without it, the honest ceiling of this round is 93.
+(222) — only sampled lessons have been read in full. Coverage −2: the
+video / study-guide / mind-map layer (Spencer's call on scope and cost).
+Pedagogy −1: labs on the remaining 117 lessons, which needs new lab
+content, not more mapping. Writing −0: closed. Consistency −0 after this
+change (scorecard + cheat sheet corrected). Path to 96: this change (the
+two one-line fixes) plus a re-score — the honest ceiling without the
+bigger pieces above is 96.
 
 ## Pass 2 (2026-11-17) — superseded
 
@@ -45,8 +45,8 @@ The table below is the old script-computed score
 not the course rubric above, and its numbers are not borne out: it awarded
 full Accuracy marks for "0 open accuracy findings" while the Nov 18 audit
 found the CS0-004 alignment unverified and only sampled lessons read in full.
-On the current tree the script now computes **96.7**, not 95 — neither figure
-is the honest course score. Do not quote either.
+The script's figure has moved since Nov 17 — whatever it computes, it is
+not the honest course score. Do not quote it.
 
 | Component | Weight | Score | Measure |
 |---|---|---|---|

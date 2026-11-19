@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-19T04:22:23.308Z",
+  "generatedAt": "2026-11-19T04:47:41.435Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -61816,7 +61816,7 @@
         ],
         [
           "Root user",
-          "Unlimited by any policy; lock with MFA, never use daily, alarm on any use."
+          "Unlimited by IAM policies; an SCP can limit it in a member account (not the management account). Lock with MFA, never use daily, alarm on any use."
         ],
         [
           "Credential report",

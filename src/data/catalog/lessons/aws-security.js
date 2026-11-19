@@ -168,7 +168,7 @@ export default {
       ['Roles over keys', 'Temporary, auto-rotating credentials via metadata service — no long-lived secrets to steal.'],
       ['Instance profile', 'Passes an IAM role to an EC2 instance.'],
       ['MFA condition', 'aws:MultiFactorAuthPresent in a trust policy gates privileged role assumption.'],
-      ['Root user', 'Unlimited by any policy; lock with MFA, never use daily, alarm on any use.'],
+      ['Root user', 'Unlimited by IAM policies; an SCP can limit it in a member account (not the management account). Lock with MFA, never use daily, alarm on any use.'],
       ['Credential report', 'Key/password age, MFA status, last-used — finds stale credentials fast.'],
       ['Policy Simulator', 'Tests allow/deny outcomes before deploying policy changes.'],
       ['Access Analyzer', 'Finds unused permissions; generates policies from real CloudTrail activity.'],
