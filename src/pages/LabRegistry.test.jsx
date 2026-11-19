@@ -17,6 +17,7 @@ const BLUEPRINT_SUBJECTS = [
   ['cloud', 'Cloud & Scale'],
   ['firewall-3d', 'Security'],
   ['nas', 'Data & Systems'],
+  ['git-workflow', 'DevOps'],
 ];
 
 describe('Lab subject registry', () => {

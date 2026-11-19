@@ -130,10 +130,10 @@ describe('displayLabel (src/pages/Lab.jsx)', () => {
 });
 
 describe('SIMULATOR_IDS (src/pages/Lab.jsx)', () => {
-  it('covers the load balancer and all ten equipment subjects', () => {
+  it('covers the load balancer, all ten equipment subjects, and the Git Workflow simulator', () => {
     const expected = [
       'load-balancer', 'switch', 'nas', 'rack-server', 'server-rack', 'ups',
-      'patch-panel', 'router', 'access-point', 'cloud', 'firewall-3d',
+      'patch-panel', 'router', 'access-point', 'cloud', 'firewall-3d', 'git-workflow',
     ];
     for (const id of expected) expect(SIMULATOR_IDS.has(id), `SIMULATOR_IDS has ${id}`).toBe(true);
     expect(SIMULATOR_IDS.size).toBe(expected.length);
