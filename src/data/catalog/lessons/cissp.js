@@ -34,6 +34,14 @@ export default {
           'The English CISSP exam uses computerised adaptive testing (CAT): 100 to 150 items in 3 hours, with a passing score of 700 out of 1000. Full certification needs 5 years of paid work in 2 or more of the 8 domains; a relevant degree or approved certification can waive 1 year. Pass without the experience and you become an Associate of ISC2 while you earn it.',
         ],
       },
+      {
+        heading: 'Thinking in risk, not in tools',
+        body: [
+          'When two answers both look technically right, the exam wants the one that reduces risk the most for the least cost and follows the established process. A technically elegant fix that skips the risk assessment, ignores policy, or acts without the owner’s authority is usually the distractor. Ask yourself: what would a prudent manager responsible for people, legal obligations and the business choose — not what would an engineer reach for first?',
+          'The same instinct answers the “what first” questions. The first step is almost always to gather facts, verify what happened, and consult policy and stakeholders — not to reconfigure a system, notify a regulator, or discipline someone on a suspicion. Acting before understanding turns a manageable incident into a second incident, and the exam punishes it consistently.',
+          'The credential itself rewards the same long view. Certification must be maintained with continuing professional education — 120 CPE credits over each three-year cycle — plus an annual maintenance fee, and every CISSP attests to the Code of Ethics as a condition of holding the credential. Treat the exam as the start of the professional obligation, not the end of it.',
+        ],
+      },
     ],
     examples: [
       {
@@ -54,6 +62,15 @@ export default {
       ['Defence in depth', 'Administrative, technical, physical layers'],
       ['Exam', 'CAT, 100–150 items, 3 h, 700/1000'],
       ['Experience', '5 years in 2+ domains (1-year waiver possible)'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'CISSP Certification', url: 'https://www.isc2.org/certifications/cissp' },
+      { title: 'ISC2 Code of Ethics', url: 'https://www.isc2.org/ethics' },
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
     ],
   },
 
@@ -102,6 +119,13 @@ export default {
           'Supply chain risk management assesses and monitors vendors, including their own suppliers, using SBOMs, contract security requirements and right-to-audit clauses. ISO/IEC 27001 specifies the requirements for an information security management system (ISMS); ISO/IEC 27002 provides the control guidance.',
         ],
       },
+      {
+        heading: 'Risk treatments and the governance stack',
+        body: [
+          'Once a risk is assessed it gets one of four treatments: avoid it by removing the activity, transfer it through insurance or outsourcing, mitigate it with controls, or accept it formally with an owner and a review date. Transfer never transfers accountability: if a vendor fails, the organisation still owns the risk, which is why contracts, service levels and right-to-audit clauses matter. Risk appetite is how much risk leadership is willing to take in pursuit of objectives; risk tolerance is the acceptable variation around that appetite.',
+          'Governance turns these decisions into structure. Senior management approves policy and accepts risk; a security steering committee aligns security with business priorities across departments; the CISO advises and implements but does not own the business risk. Policies state mandatory intent, standards give the specifics, procedures give the steps, and guidelines recommend. When a scenario asks who decides, the answer is almost always the business owner, not the security team.',
+        ],
+      },
     ],
     examples: [
       {
@@ -122,6 +146,15 @@ export default {
       ['Separation of duties', 'Fraud needs collusion'],
       ['ISO 27001 / 27002', 'ISMS requirements / control guidance'],
       ['STRIDE', 'Spoofing, Tampering, Repudiation, Info disclosure, DoS, EoP'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-37, Risk Management Framework', url: 'https://csrc.nist.gov/pubs/sp/800/37/r2/final' },
+      { title: 'NIST SP 800-30, Guide for Conducting Risk Assessments', url: 'https://csrc.nist.gov/pubs/sp/800/30/r1/final' },
+      { title: 'NIST SP 800-39, Managing Information Security Risk', url: 'https://csrc.nist.gov/pubs/sp/800/39/final' },
     ],
   },
 
@@ -162,6 +195,13 @@ export default {
           'These controls work as a set: separation of duties prevents unilateral fraud, mandatory vacations detect ongoing fraud, and job rotation limits how long any one person holds a sensitive position unobserved.',
         ],
       },
+      {
+        heading: 'Alternate sites and control assessment',
+        body: [
+          'Recovery sites trade cost against speed. A hot site is ready to take over immediately, with live data and systems; a warm site has hardware and connectivity but needs data restored; a cold site is empty space and power. Reciprocal agreements, where two organisations host each other’s recovery, are cheap but fragile — the partner may be hit by the same disaster. The choice follows from the BIA numbers, not from budget alone.',
+          'The maximum tolerable downtime is the whole recovery budget: it equals the recovery time objective plus the work recovery time, the time needed after systems return before people can actually work again. Controls themselves must be assessed, not just installed: test whether a control is designed correctly and whether it operates effectively over time, because a control that exists on paper and fails in practice is worse than no control — it creates false confidence.',
+        ],
+      },
     ],
     examples: [
       {
@@ -182,6 +222,15 @@ export default {
       ['Hierarchy', 'Policy (intent) > standard (specifics) > procedure (steps) > guideline (recommended)'],
       ['Mandatory vacations', 'Detective control against fraud'],
       ['Job rotation', 'Less fraud opportunity, no single points of knowledge'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-34, Contingency Planning Guide', url: 'https://csrc.nist.gov/pubs/sp/800/34/r1/final' },
+      { title: 'NIST SP 800-53, Security and Privacy Controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final' },
+      { title: 'NIST Cybersecurity Framework', url: 'https://www.nist.gov/cyberframework' },
     ],
   },
 
@@ -219,6 +268,13 @@ export default {
           'Scoping selects the controls from a standard baseline (such as NIST SP 800-53) that are relevant to a system; tailoring then adjusts them to the environment. Digital rights management (DRM) protects how content is used after distribution, controlling copying, printing and forwarding.',
         ],
       },
+      {
+        heading: 'Handling, labelling and the states of data',
+        body: [
+          'Classification is only useful when it drives handling. Labelling and marking make the class visible on documents, media and screens, and handling rules follow: restricted data is encrypted, access-controlled and never emailed outside the organisation; internal data stays inside it; public data mainly needs integrity so nobody can alter it unnoticed. The rules must be written, trained and enforced — a classification scheme nobody follows is decoration.',
+          'Protection changes with the state of the data. Data at rest is protected with encryption and access control; data in transit with TLS and VPNs; data in use is the hardest, because it must be decrypted to be processed — which is why access control, memory protections and trusted execution matter there. Tokenisation replaces sensitive values with tokens held in a vault, so a stolen database yields nothing usable; masking hides part of a value, such as showing only the last four digits of a card number, for display and test use.',
+        ],
+      },
     ],
     examples: [
       {
@@ -239,6 +295,15 @@ export default {
       ['Pseudonymised', 'Still personal data (anonymised is not)'],
       ['Scoping / tailoring', 'Select relevant controls / adjust them'],
       ['DRM', 'Controls use after distribution'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-88, Media Sanitization', url: 'https://csrc.nist.gov/pubs/sp/800/88/r1/final' },
+      { title: 'GDPR full text', url: 'https://gdpr-info.eu/' },
+      { title: 'EU data protection law overview', url: 'https://commission.europa.eu/law/law-topic/data-protection_en' },
     ],
   },
 
@@ -289,6 +354,13 @@ export default {
           'Data discovery and classification tools automatically scan data stores to find and label sensitive data such as PII or card numbers. You cannot apply handling rules to data you have not found, which is why discovery precedes enforcement.',
         ],
       },
+      {
+        heading: 'Minimisation and the rights of the data subject',
+        body: [
+          'Collect only the data you need, keep it only as long as you need it, and give access only to those who need it. Data minimisation is both a privacy principle and a security control: data you never collected cannot leak, and data you deleted on schedule cannot be stolen. Every extra field, copy and retention year is risk carried for no benefit.',
+          'Privacy law gives individuals rights over their data, and the exam expects you to know the shape of them. Under GDPR, a data subject can request access to their data, correction of errors, erasure, and portability to another provider. Erasure must reach backups and archives as far as feasible — “we deleted the live record” is not a complete answer when the same data sits in last month’s backup. When a request arrives, the first step is to verify the requester’s identity before disclosing anything.',
+        ],
+      },
     ],
     examples: [
       {
@@ -311,6 +383,15 @@ export default {
       ['Sovereignty / residency', 'Whose laws apply / where stored'],
       ['IaaS data controls', 'BYOK, storage encryption, private endpoints'],
       ['Discovery first', 'Find and label before enforcing rules'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Microsoft Purview data loss prevention', url: 'https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp' },
+      { title: 'NIST SP 800-60, Mapping Information Types to Security Categories', url: 'https://csrc.nist.gov/pubs/sp/800/60/v1/r1/final' },
+      { title: 'PCI DSS standards', url: 'https://www.pcisecuritystandards.org/standards/pci-dss/' },
     ],
   },
 
@@ -350,6 +431,13 @@ export default {
           'CPTED (Crime Prevention Through Environmental Design) uses lighting, sightlines and landscaping to deter crime before any lock or guard is needed.',
         ],
       },
+      {
+        heading: 'Key management and the hardware root of trust',
+        body: [
+          'Cryptography fails far more often in key management than in mathematics. A key’s lifecycle runs generation, distribution, storage, rotation, backup and destruction: generate with a proper random source and sufficient length, distribute without exposing the key, store it separately from the data it protects, rotate it on schedule and immediately on compromise, and destroy it securely when retired. Never hard-code a key in source code, and never let one person hold both the data and its key.',
+          'Hardware gives keys a home that software cannot copy. A hardware security module is dedicated hardware that generates and stores keys and performs operations without the key ever leaving the device; a key management service provides the same discipline as a managed cloud service. Validated modules carry a FIPS 140-3 validation, which is the assurance the exam looks for. Secure boot and measured boot extend the same idea to the machine itself: each stage verifies the next before handing over control, and the TPM records the measurements so a changed system can be detected and refused.',
+        ],
+      },
     ],
     examples: [
       {
@@ -371,6 +459,15 @@ export default {
       ['ECC vs RSA', '256-bit ECC ≈ 3072-bit RSA'],
       ['Data centre fire', 'Clean agent (FM-200) or pre-action'],
       ['CPTED', 'Environmental design deters crime'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'Common Criteria Portal', url: 'https://www.commoncriteriaportal.org/' },
+      { title: 'Trusted Platform Module summary (TCG)', url: 'https://trustedcomputinggroup.org/resource/trusted-platform-module-tpm-summary/' },
+      { title: 'FIPS 140-3, Cryptographic Module Validation', url: 'https://csrc.nist.gov/pubs/fips/140-3/final' },
     ],
   },
 
@@ -408,6 +505,13 @@ export default {
           'A CDN absorbs DDoS attacks and shields origin servers, and is often combined with a WAF at the edge.',
         ],
       },
+      {
+        heading: 'Wireless, VPNs and the protocols to retire',
+        body: [
+          'Wireless security has moved on from shared passwords. WPA3 replaces WPA2’s pre-shared key handshake with Simultaneous Authentication of Equals, giving each session forward secrecy so capturing one session does not expose the others; enterprise deployments still use WPA2 or WPA3 with 802.1X and EAP-TLS for per-user certificates. WEP and WPA are broken and open networks offer no protection at all — the exam treats any answer relying on them as wrong.',
+          'Remote access is a trust decision, not just a tunnel. A VPN extends the network to the remote user, which is why split tunnelling is risky: traffic that bypasses the tunnel bypasses inspection too. Zero trust access checks identity and device posture for every application instead of trusting the network. And some protocols should simply be retired rather than protected: Telnet, FTP and SNMPv1 send credentials in clear text, so replace them with SSH, SFTP and SNMPv3 instead of monitoring a weakness you could have removed.',
+        ],
+      },
     ],
     examples: [
       {
@@ -429,6 +533,15 @@ export default {
       ['Micro-segmentation', 'Per-workload policy'],
       ['IoT', 'Isolate, strict egress'],
       ['CDN', 'Absorbs DDoS, shields origin'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'RFC 4301, Security Architecture for the Internet Protocol', url: 'https://www.rfc-editor.org/rfc/rfc4301' },
+      { title: 'RFC 8446, The Transport Layer Security Protocol', url: 'https://www.rfc-editor.org/rfc/rfc8446' },
+      { title: 'NIST SP 800-77, Guide to IPsec VPNs', url: 'https://csrc.nist.gov/pubs/sp/800/77/r1/final' },
     ],
   },
 
@@ -465,6 +578,14 @@ export default {
           'Session management needs timeouts, secure unpredictable tokens, re-authentication for sensitive actions, and invalidation on logout and password change. Risk-based (conditional) access adjusts requirements by context such as device, location and risk score, for example requiring MFA from unknown devices and blocking impossible travel.',
         ],
       },
+      {
+        heading: 'Provisioning, roles and the modern authenticator',
+        body: [
+          'Identity is a lifecycle, and most failures happen in the middle of it. Provisioning should follow HR events automatically: a new hire gets the access their role needs, a transfer triggers a review of old permissions, and a departure triggers immediate removal. The gaps have names the exam uses: privilege creep is access accumulated across role changes, and orphaned accounts are accounts whose owner has left but whose access remains.',
+          'Authorisation models answer the same question differently. Role-based access control grants permissions to roles built from job functions; attribute-based access control decides from attributes of the subject, the resource and the environment, such as department, clearance and time of day; rule-based access control applies rules set by an authority, such as mandatory access control labels. The exam contrasts them directly, so know which one fits a scenario rather than which sounds most modern.',
+          'Authentication strength is about the factor, not the count. A password plus an SMS code is two factors, but SMS codes can be intercepted and SIM-swapped, so they are the weakest second factor. Phishing-resistant authentication uses FIDO2 security keys and passkeys, where the private key never leaves the device and the signed challenge cannot be replayed on a fake site. Prefer the factor that survives the attack described in the scenario.',
+        ],
+      },
     ],
     examples: [
       {
@@ -485,6 +606,15 @@ export default {
       ['Access reviews', 'Remove creep and orphans'],
       ['NIST 800-63B', 'Length, breach screening, no forced rotation'],
       ['Conditional access', 'Device, location, risk decide requirements'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-63B, Digital Identity Guidelines: Authentication', url: 'https://pages.nist.gov/800-63-3/sp800-63b.html' },
+      { title: 'Passkeys (Google Identity)', url: 'https://developers.google.com/identity/passkeys' },
+      { title: 'Kerberos authentication overview (Microsoft)', url: 'https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview' },
     ],
   },
 
@@ -517,6 +647,13 @@ export default {
           'Protect audit logs, because attackers alter or delete them to hide activity. Centralise them, restrict access, and use write-once storage or integrity checks.',
         ],
       },
+      {
+        heading: 'Vulnerability management and the audit trail',
+        body: [
+          'Scanning is a programme, not an event. The vulnerability management lifecycle runs discovery, assessment, prioritisation, remediation and verification: find the weaknesses, rank them by risk rather than raw severity, fix them in that order, and re-test to confirm the fix. A critical finding on an internet-facing system outranks a critical finding on an isolated lab box, because risk is exploitability times business impact — and a scanner cannot know your business impact.',
+          'How you scan changes what you see. Credentialed scans authenticate to the target and report missing patches and misconfigurations with far fewer false positives; non-credentialed scans see only what an outsider sees. A false positive wastes a fix; a false negative is worse, because it certifies a hole as safe. For assurance reports, remember the difference between Type I and Type II: Type I describes the design of controls at a point in time, while Type II tests whether they operated effectively over a period — and only Type II gives evidence the controls actually worked.',
+        ],
+      },
     ],
     examples: [
       {
@@ -537,6 +674,15 @@ export default {
       ['KPI vs KRI', 'Past performance vs early risk warning'],
       ['Audit logs', 'Centralise, restrict, write-once'],
       ['Regression test', 'Change broke nothing; automate in CI'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-115, Technical Guide to Information Security Testing', url: 'https://csrc.nist.gov/pubs/sp/800/115/final' },
+      { title: 'NIST SP 800-53A, Assessing Security and Privacy Controls', url: 'https://csrc.nist.gov/pubs/sp/800/53/a/r5/final' },
+      { title: 'AICPA SOC 2 reports', url: 'https://www.aicpa-cima.com/topic/audit-and-assurance/audit-and-assurance-greater-than-soc-2' },
     ],
   },
 
@@ -574,6 +720,13 @@ export default {
           'In an emergency, evacuate people first; systems and data are secondary. Doors on escape routes fail safe (unlocked) for life safety.',
         ],
       },
+      {
+        heading: 'Order of volatility and the people side of operations',
+        body: [
+          'Digital evidence disappears in a known order, so collect from the most volatile first: processor registers and cache, then memory, then network state and running processes, then disk, then remote logs and archives. A live memory capture can hold encryption keys and running malware that vanish the moment the machine powers off — which is why the exam penalises powering down a suspect system before imaging its memory.',
+          'Operations is also change discipline. Every change, including an emergency patch, goes through a documented change process with approval, testing proportionate to the risk, a backout plan, and verification afterwards; an emergency change is expedited, never skipped. And the human side never leaves the picture: security awareness training and phishing simulations reduce the clicks that start most incidents, duress alarms and safe rooms protect people in a physical emergency, and the first priority in any emergency is always getting people out safely.',
+        ],
+      },
     ],
     examples: [
       {
@@ -594,6 +747,15 @@ export default {
       ['Patch process', 'Evaluate, test, approve, deploy, verify'],
       ['SIEM correlation', 'Related events → one alert'],
       ['Emergency', 'People first; doors fail safe'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-61, Computer Security Incident Handling Guide', url: 'https://csrc.nist.gov/pubs/sp/800/61/r2/final' },
+      { title: 'MITRE ATT&CK', url: 'https://attack.mitre.org/' },
+      { title: 'Microsoft Sentinel overview', url: 'https://learn.microsoft.com/en-us/azure/sentinel/overview' },
     ],
   },
 
@@ -640,6 +802,13 @@ export default {
           'Assess third-party software against your security requirements, the vendor\'s development practices and contractual obligations. For SaaS, review SOC 2 reports and data-handling terms. Code escrow has a third party hold the source code in case the vendor fails, protecting buyers of critical commercial software.',
         ],
       },
+      {
+        heading: 'Threat modelling and the OWASP landscape',
+        body: [
+          'The cheapest security decision happens in design, before a line of code exists. Threat modelling walks through what the system does, what can go wrong, and what to do about it; STRIDE gives the categories of threat, and DREAD scores each one by damage, reproducibility, exploitability, affected users and discoverability. The output is not a document — it is design changes: a control added, a trust boundary moved, a feature rethought.',
+          'The OWASP Top 10 is the exam’s shorthand for what goes wrong in web applications, and broken access control sits at number one: functions that fail to check whether the caller may do what they ask. Code review catches what scanners miss, but it has its own limits: automated analysis (SAST) produces false positives that must be triaged by a person, and manual review is slow, so mature teams use both — automation for coverage, humans for judgement on the findings that matter.',
+        ],
+      },
     ],
     examples: [
       {
@@ -667,6 +836,15 @@ export default {
       ['Code escrow', 'Third party holds source if vendor fails'],
       ['AI coding assistants', 'Review, SAST, SCA on generated code'],
       ['Acquired software', 'Requirements, vendor practices, SOC 2'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'OWASP Top Ten', url: 'https://owasp.org/www-project-top-ten/' },
+      { title: 'OWASP Application Security Verification Standard', url: 'https://owasp.org/www-project-application-security-verification-standard/' },
+      { title: 'NIST SP 800-218, Secure Software Development Framework', url: 'https://csrc.nist.gov/pubs/sp/800/218/final' },
     ],
   },
   'cissp-cap-d1': {
@@ -697,6 +875,13 @@ export default {
           'Finally, remember the order of priorities that runs through the whole exam: people\'s safety first, then legal and regulatory obligations, then business objectives, then technology preferences.',
         ],
       },
+      {
+        heading: 'The risk register and third-party risk',
+        body: [
+          'Risk lives in a register, not in people’s heads. Each entry records the risk, its likelihood and impact, the treatment chosen, the residual risk after controls, the owner, and the review date. The register is what lets management see the whole risk picture at once and what makes risk acceptance a real decision instead of a shrug. When a scenario describes a risk nobody documented and nobody owns, the correct answer is usually to record it and escalate it to the owner.',
+          'Third parties carry your risk without carrying your accountability. Due diligence happens before the contract: the vendor’s security practices, financial stability, and the sensitivity of the data they will hold. The contract then carries the controls: security requirements, service levels, audit rights, breach notification duties, and return or destruction of data at the end. And diligence does not end at signing — ongoing monitoring, from questionnaires to independent audit reports, is what catches a vendor whose controls decayed after the sale.',
+        ],
+      },
     ],
     examples: [
       {
@@ -711,6 +896,15 @@ export default {
       ['New regulation', 'Gap analysis first, then roadmap'],
       ['Policy exception', 'Formal process: justification, risk sign-off, expiry'],
       ['Risk treatment', 'Avoid, transfer, mitigate, accept — in that thinking order'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-39, Managing Information Security Risk', url: 'https://csrc.nist.gov/pubs/sp/800/39/final' },
+      { title: 'NIST SP 800-37, Risk Management Framework', url: 'https://csrc.nist.gov/pubs/sp/800/37/r2/final' },
+      { title: 'CISSP Certification', url: 'https://www.isc2.org/certifications/cissp' },
     ],
   },
   'cissp-cap-d2': {
@@ -741,6 +935,13 @@ export default {
           'When in doubt, choose the answer that reduces the amount of sensitive data held, because data you do not keep cannot leak.',
         ],
       },
+      {
+        heading: 'When classification meets the real world',
+        body: [
+          'Scenarios test classification at the awkward edges. A document that mixes restricted and public content takes the higher classification; a copy inherits the classification of the original; and declassification needs the owner’s decision, not a user’s judgement that the data “seems old”. When two rules conflict, the stricter handling wins — the exam never rewards the convenient reading.',
+          'Shared services make the lifecycle harder. In multi-tenant cloud storage, isolation between tenants is the provider’s job and verifying it is yours, through audit reports and contract terms. Disposal needs the same rigour as collection: media leaving the organisation gets a sanitisation method matched to its classification, a witnessed destruction where required, and a certificate of destruction filed as evidence. An undocumented disposal is an unproven disposal, and an auditor will treat it as no disposal at all.',
+        ],
+      },
     ],
     examples: [
       {
@@ -755,6 +956,15 @@ export default {
       ['Production data in test', 'Never — use masked or synthetic data'],
       ['Litigation hold', 'Suspends retention/destruction; preserve'],
       ['Spoliation', 'Destroying held data — serious legal exposure'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-88, Media Sanitization', url: 'https://csrc.nist.gov/pubs/sp/800/88/r1/final' },
+      { title: 'Microsoft Purview data loss prevention', url: 'https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp' },
+      { title: 'PCI DSS standards', url: 'https://www.pcisecuritystandards.org/standards/pci-dss/' },
     ],
   },
   'cissp-cap-d3': {
@@ -785,6 +995,13 @@ export default {
           'For physical design questions, life safety outranks asset protection: doors on an escape route fail safe (unlock) on power loss even when that is less secure.',
         ],
       },
+      {
+        heading: 'Design traps: the principles behind the distractors',
+        body: [
+          'The exam hides the violated principle inside a plausible design. Least privilege means a subject gets only the access its task needs; need-to-know is the same idea applied to information. Economy of mechanism says simpler designs are easier to verify and harder to break — a design with three overlapping controls doing one job is a smell, not a strength. And open design, Kerckhoffs’s principle, says security must rest in the key, not in the secrecy of the algorithm: a system that is only secure while nobody understands it is not secure.',
+          'Complete mediation is the principle most scenarios violate quietly: every access, by every subject, to every object, must be checked every time. Caching an authorisation decision, trusting a check done earlier in the session, or skipping the check for “internal” callers all break it. When a scenario shows a shortcut around a check, the fix is to restore the check at the point of access — not to add logging that records the unauthorised access after the fact.',
+        ],
+      },
     ],
     examples: [
       {
@@ -799,6 +1016,15 @@ export default {
       ['Keys + data together', 'One breach yields both — separate security domains'],
       ['KMS / HSM', 'Dedicated key storage with split duties'],
       ['Deny by default', 'The quiet version of fail-secure'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'FIPS 140-3, Cryptographic Module Validation', url: 'https://csrc.nist.gov/pubs/fips/140-3/final' },
+      { title: 'Common Criteria Portal', url: 'https://www.commoncriteriaportal.org/' },
+      { title: 'Trusted Platform Module summary (TCG)', url: 'https://trustedcomputinggroup.org/resource/trusted-platform-module-tpm-summary/' },
     ],
   },
   'cissp-cap-d4': {
@@ -829,6 +1055,13 @@ export default {
           'Know the protocols\' weaknesses too: Telnet, FTP and SNMPv1 send credentials in clear text, so the best answer replaces them with SSH, SFTP and SNMPv3 rather than merely monitoring them.',
         ],
       },
+      {
+        heading: 'When encryption is not the answer',
+        body: [
+          'Encryption protects data in transit; it does not fix a flat network, a trusted insider, or a compromised endpoint. A scenario that offers TLS as the answer to lateral movement is a trap: the attacker is already inside, and encrypted traffic to the next host is still an attack. Segmentation, least privilege and endpoint controls are what stop movement; encryption is what stops eavesdropping, and the two problems need different answers.',
+          'Inspection has the same boundary. TLS interception lets a proxy decrypt and inspect traffic, but it breaks end-to-end trust, needs the private keys or a trusted root on every client, and creates a high-value target in the proxy itself. Use it where the risk justifies it and the law allows it, with the trade-off stated openly. Network access control adds the missing piece at the edge: check device posture and identity before the device joins the network, rather than discovering an unpatched laptop after it has already connected.',
+        ],
+      },
     ],
     examples: [
       {
@@ -843,6 +1076,15 @@ export default {
       ['Guest / untrusted networks', 'Segment first (VLANs + firewall zones)'],
       ['Lateral movement', 'Contained by segmentation'],
       ['ping and ports', 'ICMP has no ports — use a port test, not ping'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-77, Guide to IPsec VPNs', url: 'https://csrc.nist.gov/pubs/sp/800/77/r1/final' },
+      { title: 'RFC 4301, Security Architecture for the Internet Protocol', url: 'https://www.rfc-editor.org/rfc/rfc4301' },
+      { title: 'ICANN: What is DNSSEC?', url: 'https://www.icann.org/resources/pages/dnssec-what-is-it-why-important-2019-03-05-en' },
     ],
   },
   'cissp-cap-d5': {
@@ -873,6 +1115,13 @@ export default {
           'Accountability needs unique IDs. A shared administrator account cannot show who made a change, so replacing it with named accounts and privileged access management is almost always better than adding logging to the shared account.',
         ],
       },
+      {
+        heading: 'The lifecycle traps',
+        body: [
+          'Most identity scenarios fail on a lifecycle transition. Joining is usually well handled; moving is where privilege creep grows, because the new role’s access is added and the old role’s access is forgotten; leaving is where orphaned accounts persist, because deprovisioning is a manual ticket nobody owns. The exam’s fix is always the same shape: tie provisioning to HR events, review access on every role change, and remove access automatically when the HR record closes.',
+          'Privileged access deserves its own discipline. Privileged access management vaults administrative credentials, issues them just in time, records the session, and rotates the password after use — so a stolen administrator password is useless an hour later and every privileged action is attributable to a named person. Remember the distinction underneath it all: identity proofing establishes who someone is at enrolment, with documents and checks; authentication verifies that identity later, at each sign-in. A strong authenticator cannot fix weak proofing.',
+        ],
+      },
     ],
     examples: [
       {
@@ -887,6 +1136,15 @@ export default {
       ['Session hijack despite MFA', 'Short timeouts + step-up re-auth'],
       ['Exposed API key', 'Revoke and rotate FIRST, then investigate'],
       ['MFA scope', 'Proves identity at login; sessions need their own controls'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-63B, Digital Identity Guidelines: Authentication', url: 'https://pages.nist.gov/800-63-3/sp800-63b.html' },
+      { title: 'Passkeys (Google Identity)', url: 'https://developers.google.com/identity/passkeys' },
+      { title: 'Kerberos authentication overview (Microsoft)', url: 'https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview' },
     ],
   },
   'cissp-cap-d6': {
@@ -917,6 +1175,13 @@ export default {
           'Results only matter when they reach decision-makers. Findings should be ranked by risk to the business, assigned owners and dates, reported in management terms, and re-tested after remediation.',
         ],
       },
+      {
+        heading: 'What good evidence looks like',
+        body: [
+          'An assessment is only as good as its evidence. Good evidence is sufficient, meaning enough of it to support the conclusion; appropriate, meaning relevant and reliable for the question asked; and collected independently where it matters. A vendor’s marketing page is none of these; a signed audit report with a defined scope and period is all three. When a scenario offers a claim without evidence, the correct answer is to ask for the evidence, not to accept the claim or to reject it outright.',
+          'Sampling and follow-up decide whether findings mean anything. Testing every transaction is rarely possible, so auditors sample — and the sample must represent the population, or the conclusion does not hold. After remediation, the finding is not closed because a ticket says so: re-test the control and confirm the weakness is gone. A finding closed without verification is the most common way a fixed problem quietly returns.',
+        ],
+      },
     ],
     examples: [
       {
@@ -931,6 +1196,15 @@ export default {
       ['500 scan findings', 'Prioritise by risk, not count'],
       ['Vendor "compliant"', 'Read the actual report: scope, period, qualifications'],
       ['Test layering', 'SAST + DAST + pentest + scans, each in its place'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-115, Technical Guide to Information Security Testing', url: 'https://csrc.nist.gov/pubs/sp/800/115/final' },
+      { title: 'AICPA SOC 2 reports', url: 'https://www.aicpa-cima.com/topic/audit-and-assurance/audit-and-assurance-greater-than-soc-2' },
+      { title: 'OWASP Fuzzing', url: 'https://owasp.org/www-community/Fuzzing' },
     ],
   },
   'cissp-cap-d7': {
@@ -961,6 +1235,13 @@ export default {
           'For continuity questions, the priority is people\'s safety, then restoring the most critical business functions in the order set by the business impact analysis, not the order in which IT happens to find them.',
         ],
       },
+      {
+        heading: 'Communication and the legal clock',
+        body: [
+          'An incident is a communications problem as much as a technical one, and the exam tests who decides what. Legal counsel and senior management decide on external notification — to regulators, customers and law enforcement — not the analyst on shift. Notification duties are set by law and contract, and they carry clocks: under GDPR, a personal data breach must be reported to the supervisory authority within 72 hours of becoming aware of it. Miss the clock and the incident becomes a compliance failure on top of a security failure.',
+          'Keep the response itself off the compromised network: use out-of-band channels for coordination, because an attacker in the mail system reads the incident bridge. After the incident, the lessons-learned review is the step that prevents the next one — update the playbook, fix the control that failed, and test the fix. Tabletop exercises do the same work before an incident: walk the team through a scenario on paper so the first real test is not the first time anyone has opened the plan.',
+        ],
+      },
     ],
     examples: [
       {
@@ -975,6 +1256,15 @@ export default {
       ['Before closing an incident', 'Lessons-learned review; update playbooks'],
       ['Eradication before recovery', 'Or you restore the attacker too'],
       ['MTTR gaming', 'Speed of closure < quality of learning'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-61, Computer Security Incident Handling Guide', url: 'https://csrc.nist.gov/pubs/sp/800/61/r2/final' },
+      { title: 'MITRE ATT&CK', url: 'https://attack.mitre.org/' },
+      { title: 'Microsoft Sentinel overview', url: 'https://learn.microsoft.com/en-us/azure/sentinel/overview' },
     ],
   },
   'cissp-cap-d8': {
@@ -1005,6 +1295,13 @@ export default {
           'When something goes wrong, contain first: a leaked secret is revoked and rotated before the history is cleaned, and a vulnerable release is patched or rolled back before the root cause analysis is written.',
         ],
       },
+      {
+        heading: 'The dependency decision, step by step',
+        body: [
+          'Adopting a dependency is adopting someone else’s code, maintainers and vulnerabilities. Before it enters the build, check the licence for compatibility with your product, the maintenance health — recent commits, responsive maintainers, a path for security fixes — and the known vulnerabilities in it and everything it pulls in. Pin versions and keep a lockfile so the build you tested is the build you ship; an unpinned dependency can change under you between test and release.',
+          'Integrity does not stop at the source. Sign release artefacts so consumers can verify what they received, and prefer reproducible builds, where the same source always produces the same binary. Runtime protections such as a web application firewall or runtime application self-protection can compensate for a known weakness, but they are compensating controls, not fixes: the vulnerability is still in the code, and the correct long-term answer is still to patch it.',
+        ],
+      },
     ],
     examples: [
       {
@@ -1019,6 +1316,15 @@ export default {
       ['Cheapest bug fix', 'Requirements/design — shift-left'],
       ['SBOM', 'Know your exposure when the next Log4Shell lands'],
       ['Popularity', 'Not a security control'],
+    ],
+    // Further reading: free public pages that go deeper than this
+    // lesson (official docs and open-source project docs only —
+    // never paywalled, never login-gated, never invented). Rendered
+    // on the lesson page and named by the tutor, never read aloud.
+    further_reading: [
+      { title: 'NIST SP 800-218, Secure Software Development Framework', url: 'https://csrc.nist.gov/pubs/sp/800/218/final' },
+      { title: 'CISA Software Bill of Materials', url: 'https://www.cisa.gov/sbom' },
+      { title: 'OWASP API Security Top 10 (2023)', url: 'https://owasp.org/API-Security/editions/2023/en/0x11-t10/' },
     ],
   },
 };
