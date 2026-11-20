@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import {
   buildContentJson,
   buildPublicData,
+  normaliseTrack,
   FREE_LESSON_IDS as LIB_FREE_LESSONS,
   FREE_DECK_IDS as LIB_FREE_DECKS,
   allDecks,
@@ -73,14 +74,17 @@ describe('content export', () => {
     const publicCards = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks)).flatMap((d) => d.cards);
     expect(publicCards.filter((c) => c.q).length).toBe(57);
     expect(Object.keys(freeLessonContent).sort()).toEqual([...LIB_FREE_LESSONS].sort());
-    // Premium decks keep structure (ids + counts) but no bodies or puzzles.
+    // Premium decks keep structure (ids + counts) but no bodies; puzzles are
+    // stubs ({id, legacyId, deckId}), never bodies.
     const premium = tracks
       .flatMap((t) => t.tiers.flatMap((tier) => tier.decks))
       .filter((d) => !LIB_FREE_DECKS.includes(d.id));
     expect(premium.length).toBeGreaterThan(200);
     for (const deck of premium) {
       expect(deck.cards.every((c) => c.q === undefined && c.a === undefined)).toBe(true);
-      expect(deck.puzzles).toEqual([]);
+      for (const puzzle of deck.puzzles) {
+        expect(Object.keys(puzzle).sort()).toEqual(['deckId', 'id', 'legacyId']);
+      }
       expect(deck.cards.length).toBeGreaterThan(0); // ids + count still present
     }
   });
@@ -180,5 +184,237 @@ describe('content export', () => {
     }
     expect(quiz).toBeGreaterThan(3000);
     expect(longest / quiz).toBeLessThanOrEqual(0.35);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PR 2 — Permanent Identity Foundation (UUID migration, plan v2.2 §4).
+// Cards and puzzles carry stable UUID v4 ids; the frozen legacy map pairs
+// each pre-migration positional id with its UUID. Written BEFORE the
+// implementation and observed failing on the pre-migration code.
+// ---------------------------------------------------------------------------
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const FREE_DECK_SET = new Set(LIB_FREE_DECKS);
+
+function loadLegacyMap() {
+  return JSON.parse(readFileSync(join(ROOT, 'scripts', 'legacy-card-ids.json'), 'utf8'));
+}
+
+function allExportedCards(content) {
+  return content.tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks)).flatMap((d) => d.cards);
+}
+
+function allExportedPuzzles(content) {
+  return content.tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks)).flatMap((d) => d.puzzles || []);
+}
+
+describe('PR 2: frozen legacy map (test areas #1, #2)', () => {
+  it('scripts/legacy-card-ids.json exists with exactly 3,229 card + 76 puzzle entries', () => {
+    const map = loadLegacyMap();
+    expect(map.cards).toHaveLength(3229);
+    expect(map.puzzles).toHaveLength(76);
+  });
+
+  it('every map entry is {legacyId, id, deckId, rev} with a unique UUID v4 and rev 1', () => {
+    const map = loadLegacyMap();
+    const seenUuids = new Set();
+    const seenLegacy = new Set();
+    for (const entries of [map.cards, map.puzzles]) {
+      for (const e of entries) {
+        expect(Object.keys(e).sort()).toEqual(['deckId', 'id', 'legacyId', 'rev']);
+        expect(e.id).toMatch(UUID_V4);
+        expect(seenUuids.has(e.id)).toBe(false);
+        seenUuids.add(e.id);
+        expect(seenLegacy.has(e.legacyId)).toBe(false);
+        seenLegacy.add(e.legacyId);
+        expect(e.rev).toBe(1);
+        expect(typeof e.legacyId).toBe('string');
+        expect(typeof e.deckId).toBe('string');
+      }
+    }
+  });
+
+  it('map pairs match the export exactly, both directions (cards and puzzles)', () => {
+    const map = loadLegacyMap();
+    const content = buildContentJson();
+    const cards = allExportedCards(content);
+    const puzzles = allExportedPuzzles(content);
+    expect(cards).toHaveLength(3229);
+    expect(puzzles).toHaveLength(76);
+
+    const cardByUuid = new Map(cards.map((c) => [c.id, c]));
+    const puzzleByUuid = new Map(puzzles.map((p) => [p.id, p]));
+    for (const e of map.cards) {
+      const c = cardByUuid.get(e.id);
+      expect(c).toBeDefined();
+      expect(c.legacyId).toBe(e.legacyId);
+      expect(c.deckId).toBe(e.deckId);
+    }
+    for (const e of map.puzzles) {
+      const p = puzzleByUuid.get(e.id);
+      expect(p).toBeDefined();
+      expect(p.legacyId).toBe(e.legacyId);
+      expect(p.deckId).toBe(e.deckId);
+    }
+    const mapCardByUuid = new Map(map.cards.map((e) => [e.id, e]));
+    const mapPuzzleByUuid = new Map(map.puzzles.map((e) => [e.id, e]));
+    for (const c of cards) {
+      if (c.legacyId === undefined) continue;
+      const e = mapCardByUuid.get(c.id);
+      expect(e).toBeDefined();
+      expect(e.legacyId).toBe(c.legacyId);
+    }
+    for (const p of puzzles) {
+      if (p.legacyId === undefined) continue;
+      const e = mapPuzzleByUuid.get(p.id);
+      expect(e).toBeDefined();
+      expect(e.legacyId).toBe(p.legacyId);
+    }
+  });
+
+  it('every card id and every puzzle id in the full dataset is a UUID v4', () => {
+    const content = buildContentJson();
+    for (const c of allExportedCards(content)) expect(c.id).toMatch(UUID_V4);
+    for (const p of allExportedPuzzles(content)) expect(p.id).toMatch(UUID_V4);
+  });
+
+  it('every exported card carries rev (int >= 1) and a 6-element tuple shape survives the export', () => {
+    const content = buildContentJson();
+    for (const c of allExportedCards(content)) {
+      expect(Number.isInteger(c.rev) && c.rev >= 1).toBe(true);
+      expect(typeof c.q).toBe('string');
+      expect(typeof c.a).toBe('string');
+      expect(typeof c.x).toBe('string');
+      expect(Array.isArray(c.wrong) && c.wrong.length === 3).toBe(true);
+    }
+  });
+});
+
+describe('PR 2: stable ids under reorder and insert (fixture tracks)', () => {
+  // Fixture UUIDs are NOT in the frozen map: they simulate new cards, which
+  // export with a UUID and no legacyId (never an invented positional id).
+  const U1 = '11111111-1111-4111-8111-111111111111';
+  const U2 = '22222222-2222-4222-8222-222222222222';
+  const U3 = '33333333-3333-4333-8333-333333333333';
+  const U_NEW = '44444444-4444-4444-8444-444444444444';
+  const card = (uuid, q) => [uuid, q, `Answer to ${q}`, `Why ${q}`, [`wrong ${q} a`, `wrong ${q} b`, `wrong ${q} c`], 1];
+  const fixtureTrack = (cardsA) => ({
+    id: 'fixture-track',
+    title: 'Fixture track',
+    tiers: {
+      beginner: [{ id: 'fixture-a', title: 'Fixture A', sources: [], cards: cardsA }],
+    },
+  });
+  const deckCards = (normalised) => normalised.tiers[0].decks[0].cards;
+
+  it('reordering cards does not re-number or re-assign any existing card', () => {
+    const before = deckCards(normaliseTrack(fixtureTrack([card(U1, 'Q one'), card(U2, 'Q two'), card(U3, 'Q three')])));
+    const after = deckCards(normaliseTrack(fixtureTrack([card(U3, 'Q three'), card(U1, 'Q one'), card(U2, 'Q two')])));
+    const byQuestion = (rows) => new Map(rows.map((c) => [c.q, c.id]));
+    expect(byQuestion(after)).toEqual(byQuestion(before));
+  });
+
+  it('inserting a new card keeps every existing id; the new card gets a UUID with no legacyId', () => {
+    const before = deckCards(normaliseTrack(fixtureTrack([card(U1, 'Q one'), card(U2, 'Q two')])));
+    const after = deckCards(normaliseTrack(fixtureTrack([card(U1, 'Q one'), card(U_NEW, 'Q new'), card(U2, 'Q two')])));
+    expect(after.map((c) => c.id)).toEqual([U1, U_NEW, U2]);
+    expect(after[0].id).toBe(before[0].id);
+    expect(after[2].id).toBe(before[1].id);
+    expect(after[1].legacyId).toBeUndefined();
+    expect(after[1].rev).toBe(1);
+  });
+
+  it('a duplicated card gets a new UUID and starts unstudied (no legacyId carried over)', () => {
+    const rows = deckCards(normaliseTrack(fixtureTrack([card(U1, 'Q one'), card(U_NEW, 'Q one')])));
+    expect(rows[0].id).toBe(U1);
+    expect(rows[1].id).toBe(U_NEW);
+    expect(rows[1].legacyId).toBeUndefined();
+  });
+});
+
+describe('PR 2: premium/free consistency (test area #12)', () => {
+  it('premium puzzle stubs contain exactly {id, legacyId, deckId}', () => {
+    const pub = buildPublicData();
+    const premiumDecks = pub.tracks
+      .flatMap((t) => t.tiers.flatMap((tier) => tier.decks))
+      .filter((d) => !FREE_DECK_SET.has(d.id));
+    const stubs = premiumDecks.flatMap((d) => d.puzzles);
+    const expected = allExportedPuzzles(buildContentJson()).filter((p) => !FREE_DECK_SET.has(p.deckId)).length;
+    expect(stubs.length).toBe(expected);
+    expect(stubs.length).toBeGreaterThan(0);
+    for (const s of stubs) expect(Object.keys(s).sort()).toEqual(['deckId', 'id', 'legacyId']);
+  });
+
+  it('premium card stubs carry rev + legacyId and no bodies', () => {
+    const pub = buildPublicData();
+    const premiumDecks = pub.tracks
+      .flatMap((t) => t.tiers.flatMap((tier) => tier.decks))
+      .filter((d) => !FREE_DECK_SET.has(d.id));
+    expect(premiumDecks.length).toBeGreaterThan(0);
+    for (const d of premiumDecks) {
+      expect(d.cards.length).toBeGreaterThan(0);
+      for (const c of d.cards) {
+        expect(c.q).toBeUndefined();
+        expect(c.a).toBeUndefined();
+        expect(c.x).toBeUndefined();
+        expect(c.wrong).toBeUndefined();
+        expect(c.id).toMatch(UUID_V4);
+        expect(Number.isInteger(c.rev) && c.rev >= 1).toBe(true);
+        // All current premium cards are pre-migration, so each has a legacyId.
+        expect(typeof c.legacyId).toBe('string');
+      }
+    }
+  });
+
+  it('no premium puzzle content appears in the public module (data-driven restricted-field scan)', () => {
+    const content = buildContentJson();
+    const pubText = JSON.stringify(buildPublicData());
+    const committedText = readFileSync(join(ROOT, 'src', 'data', 'content-public.js'), 'utf8');
+    // Content-bearing fields only: type/widget/tolerance/unit are not content
+    // (a widget name or a number can legitimately appear elsewhere), and the
+    // exact-key allowlist test above covers the stub shape by name.
+    const CONTENT_FIELDS = ['prompt', 'items', 'answer', 'goal', 'x'];
+    const allPuzzles = allExportedPuzzles(content);
+    const premiumPuzzles = allPuzzles.filter((p) => !FREE_DECK_SET.has(p.deckId));
+    const freePuzzles = allPuzzles.filter((p) => FREE_DECK_SET.has(p.deckId));
+    // A goal JSON shared verbatim with a free puzzle is that free puzzle's
+    // own content, not a leak (e.g. {"value":42}).
+    const freeGoalJson = new Set(
+      freePuzzles.filter((p) => p.goal && typeof p.goal === 'object').map((p) => JSON.stringify(p.goal)),
+    );
+    // A single plain word — or a generic short keyword phrase such as
+    // "GROUP BY" / "ORDER BY", which legitimately appears in lesson
+    // summaries — is not identifying content. Phrases of 20+ chars and
+    // code-like items (punctuation, operators) are identifying and are
+    // still checked; the prompt and explanation tripwires below always run.
+    const isIdentifying = (s) => s.length >= 20 || /[`'"`;:(){}[\]<>\\/=+*@#$%^&|~]/.test(s);
+    expect(premiumPuzzles.length).toBeGreaterThan(0);
+    for (const p of premiumPuzzles) {
+      for (const field of CONTENT_FIELDS) {
+        const value = p[field];
+        if (value === undefined || value === null) continue;
+        const strings = Array.isArray(value)
+          ? value.filter((v) => typeof v === 'string')
+          : typeof value === 'string'
+            ? [value]
+            : typeof value === 'object'
+              ? [JSON.stringify(value)]
+              : [];
+        for (const s of strings) {
+          if (!s) continue;
+          if (field === 'items' && !isIdentifying(s)) continue;
+          if (field === 'goal' && freeGoalJson.has(s)) continue;
+          expect(pubText, `premium puzzle ${p.deckId} ${field} leaked into the public build: ${s}`).not.toContain(s);
+          expect(committedText, `premium puzzle ${p.deckId} ${field} leaked into content-public.js: ${s}`).not.toContain(s);
+        }
+      }
+    }
+  });
+});
+
+describe('PR 2: content artifacts are version 2 (test area #17)', () => {
+  it('buildContentJson and buildPublicData both report version 2', () => {
+    expect(buildContentJson().version).toBe(2);
+    expect(buildPublicData().version).toBe(2);
   });
 });

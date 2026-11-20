@@ -54,8 +54,10 @@ Phase 3) certification tracks will reference existing modules and lessons.
   `examples`, `cheatSheet`. Strings support `` `inline code` `` only; everything renders as React
   text, never raw HTML, so content cannot inject markup.
 
-> **Card ids are positional** (`<deckId>-<index>`). Append new cards; never reorder or delete, or
-> learners lose progress on them. The same applies to deck ids.
+> **Card ids are stable UUIDs** (PR 2, plan v2.2 §4). A card keeps its id — and its progress —
+> when cards are reordered or new cards are inserted; reorder freely once §12 Gate 2 passes.
+> The frozen legacy map (`scripts/legacy-card-ids.json`) pairs each pre-migration positional id
+> (`<deckId>-<index>`) with its UUID. The same applies to deck ids.
 
 ## Progress and prerequisites
 

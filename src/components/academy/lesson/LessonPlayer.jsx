@@ -121,7 +121,7 @@ export default function LessonPlayer({ track, deck }) {
   const onComplete = (firstTry) => {
     if (step.type === 'choice') {
       const xp = step.warmup ? (firstTry ? XP.flashKnown : XP.flashAgain) : step.review ? (firstTry ? 5 : 0) : firstTry ? XP.quizCorrect : 0;
-      gradeCard(step.card.id, firstTry, xp);
+      gradeCard(step.card.id, firstTry, xp, step.card.rev);
     } else {
       awardXp(firstTry ? XP.puzzleSolved : 5);
     }

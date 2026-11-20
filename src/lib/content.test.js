@@ -44,9 +44,18 @@ describe('bundled premium stubs carry no bodies', () => {
     for (const card of deck.cards) {
       expect(card.q).toBeUndefined();
       expect(card.a).toBeUndefined();
-      expect(card.id).toMatch(/^cissp-d3-\d+$/);
+      expect(card.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(Number.isInteger(card.rev) && card.rev >= 1).toBe(true);
+      expect(typeof card.legacyId).toBe('string');
     }
-    expect(deck.puzzles).toEqual([]);
+    // cissp-d3 has no puzzles; cissp-d1 does — its stubs carry exactly
+    // {id, legacyId, deckId} and no puzzle bodies.
+    const withPuzzles = getDeck('cissp-d1');
+    expect(withPuzzles.puzzles.length).toBeGreaterThan(0);
+    for (const puzzle of withPuzzles.puzzles) {
+      expect(Object.keys(puzzle).sort()).toEqual(['deckId', 'id', 'legacyId']);
+      expect(puzzle.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    }
   });
 });
 

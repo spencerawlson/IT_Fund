@@ -93,3 +93,21 @@ describe('mission completions (XP keyed to the mission, not the lab)', () => {
     expect(store.load()).toBeNull();
   });
 });
+
+describe('revSeen at grade time (PR 2, plan v2.2 §10 — confirmed by Spencer)', () => {
+  it('records the card revision seen when grading', () => {
+    gradeCard('py-basics-0', true, undefined, 3);
+    expect(store.load().cards['py-basics-0'].revSeen).toBe(3);
+  });
+
+  it('updates revSeen when the card is re-graded at a newer revision', () => {
+    gradeCard('py-basics-0', true, undefined, 1);
+    gradeCard('py-basics-0', true, undefined, 2);
+    expect(store.load().cards['py-basics-0'].revSeen).toBe(2);
+  });
+
+  it('grading without a revision leaves revSeen unset (back-compat for old callers)', () => {
+    gradeCard('py-basics-0', true);
+    expect(store.load().cards['py-basics-0'].revSeen).toBeUndefined();
+  });
+});

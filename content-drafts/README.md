@@ -12,8 +12,8 @@ person has reviewed them.
 
 Each item records its draft id, its CISSP domain, the 2024 outline objective it
 targets, the deck it would join, and the card itself:
-`[question, answer, explanation, [three wrong options]]`, the same shape as
-`src/data/academy/*.js`.
+`[uuid, question, answer, explanation, [three wrong options], revision]`, the same shape as
+`src/data/academy/*.js` (PR 2 — the checker rejects the old 4-element shape).
 
 ## How to review
 
@@ -34,8 +34,10 @@ Mark an item approved, edit it, or delete it.
 ## How to publish approved items
 
 1. Append approved cards to the **end** of the target deck's `cards` array in
-   `src/data/academy/cissp.js`. Card ids are position-based (`<deckId>-<index>`),
-   so inserting or reordering would move learners' progress onto other cards.
+   `src/data/academy/cissp.js` (appending is still the convention; card ids are
+   stable UUIDs, so an insert would not move progress — but keep appends until
+   §12 Gate 2 passes). Give each new card a fresh UUID with revision 1, then
+   run `node scripts/assign-card-ids.mjs` to verify the assignment.
 2. Run the checks:
    - `node scripts/content-audit/check-drafts.mjs <drafts file>`: the same
      structural checks the published bank passes (it should report no issues).

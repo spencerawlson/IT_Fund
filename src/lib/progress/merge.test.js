@@ -29,6 +29,17 @@ describe('mergeProgress', () => {
     expect(mergeProgress(a, b).cards.c1.due).toBe(20);
   });
 
+  it('keeps revSeen from the picked card record (PR 2)', () => {
+    const a = { cards: { c1: { box: 3, due: 10, right: 5, wrong: 2, revSeen: 2 } } };
+    const b = { cards: { c1: { box: 1, due: 99, right: 1, wrong: 4, revSeen: 5 } } };
+    // Higher box wins (a), so a's revSeen rides along with the picked record.
+    expect(mergeProgress(a, b).cards.c1.revSeen).toBe(2);
+    const c = { cards: { c1: { box: 1, due: 10, right: 1, wrong: 1, revSeen: 1 } } };
+    const d = { cards: { c1: { box: 4, due: 5, right: 2, wrong: 0, revSeen: 4 } } };
+    // Higher box wins (d) — d's revSeen rides along.
+    expect(mergeProgress(c, d).cards.c1.revSeen).toBe(4);
+  });
+
   it('maxes xp/combo/days/bosses and unions badges/mastered', () => {
     const a = { xp: 100, bestCombo: 4, days: { '2026-01-01': 30 }, bosses: { 'net:beginner': 80 }, badges: ['x'], mastered: { d1: true } };
     const b = { xp: 250, bestCombo: 2, days: { '2026-01-01': 10, '2026-01-02': 5 }, bosses: { 'net:beginner': 90 }, badges: ['x', 'y'], mastered: { d2: true } };
