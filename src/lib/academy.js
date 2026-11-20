@@ -125,17 +125,23 @@ function withBadges(state, extra = []) {
   return earned.size === state.badges.length ? state : { ...state, badges: [...earned] };
 }
 
-/** Record a flashcard or quiz answer against the spaced-repetition schedule. */
-export function gradeCard(cardId, correct, xpAmount) {
+/** Record a flashcard or quiz answer against the spaced-repetition schedule.
+ * `rev` is the card revision seen at grade time (PR 2): recorded as
+ * `revSeen` so a later revision bump can be told apart from a stale grade.
+ * When the caller does not pass a revision, a previously recorded revSeen
+ * is kept rather than erased. */
+export function gradeCard(cardId, correct, xpAmount, rev) {
   const state = read();
   const prev = state.cards[cardId] || { box: 0, right: 0, wrong: 0 };
   // Known on first sight skips straight to box 2; a miss always drops back to box 1.
   const box = !correct ? 1 : prev.box === 0 ? 2 : Math.min(MAX_BOX, prev.box + 1);
+  const revSeen = rev !== undefined ? rev : prev.revSeen;
   const card = {
     box,
     due: Date.now() + BOX_INTERVAL_DAYS[box] * DAY,
     right: prev.right + (correct ? 1 : 0),
     wrong: prev.wrong + (correct ? 0 : 1),
+    ...(revSeen !== undefined ? { revSeen } : {}),
   };
   const amount = xpAmount ?? (correct ? XP.flashKnown : XP.flashAgain);
   write(withBadges(withXp({ ...state, cards: { ...state.cards, [cardId]: card } }, amount)));

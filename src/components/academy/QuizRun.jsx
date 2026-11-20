@@ -28,7 +28,7 @@ export default function QuizRun({ questions, lives = null, color = '#3B82F6', on
       setPicked(i);
       const right = i === q.correct;
       const nextCombo = right ? combo + 1 : 0;
-      gradeCard(q.card.id, right, right ? Math.round(XP.quizCorrect * multiplier(nextCombo)) : 0);
+      gradeCard(q.card.id, right, right ? Math.round(XP.quizCorrect * multiplier(nextCombo)) : 0, q.card.rev);
       setCombo(nextCombo);
       if (right) setCorrect((c) => c + 1);
       else missed.current.push(q.card);

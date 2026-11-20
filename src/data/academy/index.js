@@ -3,7 +3,8 @@
 // `tracks` comes from the generated src/data/content-public.js (written by
 // `node scripts/export-content.mjs` from the authoring sources in
 // src/data/academy/*.js). Premium decks carry card STUBS here — { id, deckId,
-// trackId } with no question, answer, or distractors — and empty puzzles.
+// trackId, rev, legacyId } with no question, answer, or distractors — and
+// puzzle STUBS — { id, legacyId, deckId } with no prompt, items, or answers.
 // Their bodies live behind the entitled content API; read them through
 // src/lib/content.js (getDeckContent / resolveCards), never by importing the
 // authoring sources. Importing a track file directly would bundle every

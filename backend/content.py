@@ -96,7 +96,12 @@ def _all_cards(data: dict) -> list[dict]:
 
 
 def _public_tracks(data: dict) -> list[dict]:
-    """Structure without premium bodies: premium decks keep ids/counts only."""
+    """Structure without premium bodies: premium decks keep stubs only.
+
+    Mirrors buildPublicData (scripts/export-content-lib.mjs) so the two
+    public-track builders never disagree: card stubs carry id, rev and
+    legacyId; puzzle stubs carry exactly {id, legacyId, deckId}.
+    """
     free = set(data["freeDecks"])
     out = []
     for track in data["tracks"]:
@@ -110,9 +115,22 @@ def _public_tracks(data: dict) -> list[dict]:
                     decks.append(
                         {
                             **deck,
-                            "puzzles": [],
+                            "puzzles": [
+                                {
+                                    "id": p["id"],
+                                    **({"legacyId": p["legacyId"]} if "legacyId" in p else {}),
+                                    "deckId": deck["id"],
+                                }
+                                for p in deck.get("puzzles", [])
+                            ],
                             "cards": [
-                                {"id": c["id"], "deckId": c["deckId"], "trackId": c["trackId"]}
+                                {
+                                    "id": c["id"],
+                                    "deckId": c["deckId"],
+                                    "trackId": c["trackId"],
+                                    "rev": c["rev"],
+                                    **({"legacyId": c["legacyId"]} if "legacyId" in c else {}),
+                                }
                                 for c in deck["cards"]
                             ],
                         }

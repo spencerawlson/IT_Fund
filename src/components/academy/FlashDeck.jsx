@@ -18,7 +18,7 @@ export default function FlashDeck({ cards, color = '#3B82F6', onGrade, onDone, m
   const answer = useCallback(
     (known) => {
       if (!current || !flipped) return;
-      gradeCard(current.id, known);
+      gradeCard(current.id, known, undefined, current.rev);
       onGrade?.(current, known);
       const tries = { ...firstTry };
       if (!(current.id in tries)) tries[current.id] = known;

@@ -21,8 +21,17 @@ const drafts = JSON.parse(readFileSync(file, 'utf8'));
 const content = loadContent();
 const catalog = await loadCatalog();
 
+// Draft cards are 6-element tuples, the same shape as the published bank
+// (PR 2): [uuid, question, answer, explanation, wrongOptions, revision].
+// The old 4-element shape is rejected loudly instead of mis-parsed.
+for (const it of drafts.items) {
+  if (!Array.isArray(it.card) || it.card.length !== 6) {
+    console.error(`draft ${it.draftId}: card must be a 6-element tuple [uuid, question, answer, explanation, wrongOptions, revision] — got ${Array.isArray(it.card) ? `${it.card.length} elements` : typeof it.card}`);
+    process.exit(1);
+  }
+}
 const cards = drafts.items.map((it) => {
-  const [q, a, x, wrong] = it.card;
+  const [uuid, q, a, x, wrong, rev] = it.card;
   return { id: `draft-${it.draftId}`, q, a, x, wrong };
 });
 const cissp = content.tracks.find((t) => t.id === 'cissp');
