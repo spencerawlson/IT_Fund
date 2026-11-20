@@ -8,6 +8,7 @@ can't silently overwrite each other, and are bounded in size and rate.
 from __future__ import annotations
 
 import json
+import logging
 import time
 from collections import defaultdict, deque
 
@@ -16,6 +17,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 import db
 from auth.deps import require_user_id
 from db_models import Progress
+from progress_ids import build_id_map, dual_key_state, translate_state
+
+log = logging.getLogger("progress")
 
 router = APIRouter(prefix="/academy", tags=["progress"])
 
@@ -24,6 +28,25 @@ RATE_MAX = 30                   # writes
 RATE_WINDOW = 60                # seconds, per user
 
 _writes: dict[str, deque] = defaultdict(deque)
+
+# Frozen-map pairs (legacyId -> {id, deckId}) built once from content.json.
+# If content.json cannot be read, normalisation degrades to a no-op (the
+# server stores state opaquely, exactly as before PR 3) rather than taking
+# progress down with content: progress must never 500 for a content problem.
+_ID_MAP: dict | None = None
+
+
+def _get_id_map() -> dict:
+    global _ID_MAP
+    if _ID_MAP is None:
+        try:
+            import content as content_module
+
+            _ID_MAP = build_id_map(content_module.load_data())
+        except Exception:
+            log.warning("progress normalisation disabled: content.json could not be read", exc_info=True)
+            _ID_MAP = {}
+    return _ID_MAP
 
 
 def _rate_limit(user_id: str) -> None:
@@ -43,9 +66,15 @@ def _read(user_id: str) -> tuple[dict, int]:
 
 
 @router.get("/progress")
-def get_progress(user_id: str = Depends(require_user_id)) -> dict:
+def get_progress(request: Request, user_id: str = Depends(require_user_id)) -> dict:
     state, version = _read(user_id)
-    return {"state": state, "version": version}
+    # PR 3 (compatibility contract §2-§3): a marked (new) client gets the
+    # stored state as-is (UUID); an unmarked (old) client gets the dual-keyed
+    # shape, so its positional lookups hit immediately. The stored row is
+    # never dual-keyed.
+    if request.headers.get("x-card-id-version") == "2":
+        return {"state": state, "version": version}
+    return {"state": dual_key_state(state, _get_id_map()), "version": version}
 
 
 @router.put("/progress")
@@ -70,6 +99,12 @@ async def put_progress(request: Request, response: Response, user_id: str = Depe
     state = body.get("state") if isinstance(body, dict) else None
     if not isinstance(state, dict):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="`state` must be an object.")
+
+    # PR 3 (compatibility contract §2, §4): translate any legacy card keys
+    # through the frozen map before storing (both clients), applying the
+    # §4.2 collision rules — the stored row is always UUID-only. If-Match /
+    # 409 / 428 / 413 / rate-limit behaviour is untouched.
+    state = translate_state(state, _get_id_map())["state"]
 
     _rate_limit(user_id)
 

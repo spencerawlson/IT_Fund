@@ -11,14 +11,18 @@
 // never discarded on sync failure.
 import { progressApi } from '@/api/progress';
 import { localStorageAdapter } from './storage';
+import { migratingAdapter } from './migratingAdapter';
 import { mergeProgress } from './merge';
 
 const MAX_RETRIES = 3;
 // Backoff ladder for a failed push/sync (5 s, 15 s, 30 s, then 60 s, with jitter).
 const RETRY_DELAYS = [5000, 15000, 30000, 60000];
 
-export function serverAdapter({ key = 'itfund-academy-v1', base, client = progressApi, debounceMs = 2000 } = {}) {
-  const local = base || localStorageAdapter(key);
+export function serverAdapter({ key = 'itfund-academy-v1', base, client = progressApi, debounceMs = 2000, idMap } = {}) {
+  // PR 3: the local base goes through the migrating adapter, so the 409 path,
+  // sync() and flush() — which call local.load() directly and bypass
+  // academy.js read() — always see translated (UUID-only) state.
+  const local = migratingAdapter(base || localStorageAdapter(key), idMap);
   const listeners = new Set();
   let version = 0;
   let timer = null;
@@ -112,7 +116,10 @@ export function serverAdapter({ key = 'itfund-academy-v1', base, client = progre
         const merged = mergeProgress(local.load() || {}, server.state || {});
         local.save(merged);
         notify();
-        return push(merged, attempt + 1);
+        // Push the stored (translated) state, not the in-memory merge: the
+        // merge may have combined a legacy server copy with a UUID local
+        // copy, and only the stored copy is guaranteed UUID-only.
+        return push(local.load(), attempt + 1);
       }
       // Network error or retries exhausted: keep the local copy and the
       // pending flag; the retry ladder re-attempts the latest local state.
@@ -140,7 +147,7 @@ export function serverAdapter({ key = 'itfund-academy-v1', base, client = progre
       const merged = mergeProgress(localState, serverState || {});
       local.save(merged);
       notify();
-      const ok = await push(merged); // upload the merged result, advancing the version
+      const ok = await push(local.load()); // upload the stored, translated result, advancing the version
       // push() already scheduled a retry if the upload failed; the pending
       // work is now a plain push of the latest local state, not a re-sync.
       if (!ok) pendingSync = false;

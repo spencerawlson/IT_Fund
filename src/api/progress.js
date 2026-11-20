@@ -3,6 +3,9 @@
 // dev (Vite proxy). credentials:include is required in production because the
 // session cookie lives on the API origin (api.road2cissp.com), not the app origin.
 // A 409 carries the server's current copy so the caller can merge without a second request.
+// PR 3: the new client sends X-Card-Id-Version: 2 on progress GET and PUT, so the
+// server can tell it from an old client (no header) and shape the GET response
+// accordingly (UUID-only for marked clients, dual-keyed for unmarked ones).
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 async function req(method, body, version) {
@@ -10,6 +13,7 @@ async function req(method, body, version) {
     method,
     headers: {
       'Content-Type': 'application/json',
+      'X-Card-Id-Version': '2',
       ...(version != null ? { 'If-Match': String(version) } : {}),
     },
     credentials: 'include',
