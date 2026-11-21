@@ -31,10 +31,21 @@ function mergeCards(a = {}, b = {}) {
       continue;
     }
     const pick = num(ca.box) > num(cb.box) ? ca : num(cb.box) > num(ca.box) ? cb : num(ca.due) >= num(cb.due) ? ca : cb;
-    out[id] = { ...pick, right: Math.max(num(ca.right), num(cb.right)), wrong: Math.max(num(ca.wrong), num(cb.wrong)) };
+    // revSeen is a high-water mark (PR 3, §4.2 collision rule): the merged
+    // record keeps the MAXIMUM revision seen on either side, whichever side
+    // held the higher box. It is only present when at least one side had it.
+    const merged = { ...pick, right: Math.max(num(ca.right), num(cb.right)), wrong: Math.max(num(ca.wrong), num(cb.wrong)) };
+    if (ca.revSeen !== undefined || cb.revSeen !== undefined) {
+      merged.revSeen = Math.max(num(ca.revSeen), num(cb.revSeen));
+    }
+    out[id] = merged;
   }
   return out;
 }
+
+// Exported for the card-id translator (src/lib/progress/migrateCardIds.js):
+// combining a legacy entry with its UUID entry is exactly this rule.
+export { mergeCards };
 
 function mergeLessons(a = {}, b = {}) {
   const out = { ...a };

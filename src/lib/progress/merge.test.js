@@ -29,15 +29,26 @@ describe('mergeProgress', () => {
     expect(mergeProgress(a, b).cards.c1.due).toBe(20);
   });
 
-  it('keeps revSeen from the picked card record (PR 2)', () => {
+  it('maxes revSeen across a merge (PR 3, §4.2 collision rule)', () => {
+    // The §4.2 rule: revSeen is a high-water mark — the merged record keeps
+    // the MAXIMUM revision seen, whichever side held the higher box. The PR 2
+    // behaviour (revSeen rides with the picked record) lost the newer
+    // revision whenever the lower-rev side had the higher box.
     const a = { cards: { c1: { box: 3, due: 10, right: 5, wrong: 2, revSeen: 2 } } };
     const b = { cards: { c1: { box: 1, due: 99, right: 1, wrong: 4, revSeen: 5 } } };
-    // Higher box wins (a), so a's revSeen rides along with the picked record.
-    expect(mergeProgress(a, b).cards.c1.revSeen).toBe(2);
+    expect(mergeProgress(a, b).cards.c1.revSeen).toBe(5);
+    expect(mergeProgress(b, a).cards.c1.revSeen).toBe(5); // order-independent
     const c = { cards: { c1: { box: 1, due: 10, right: 1, wrong: 1, revSeen: 1 } } };
     const d = { cards: { c1: { box: 4, due: 5, right: 2, wrong: 0, revSeen: 4 } } };
-    // Higher box wins (d) — d's revSeen rides along.
     expect(mergeProgress(c, d).cards.c1.revSeen).toBe(4);
+    // No revSeen on either side: none is invented.
+    expect(mergeProgress(
+      { cards: { c1: { box: 2, due: 10, right: 1, wrong: 0 } } },
+      { cards: { c1: { box: 3, due: 20, right: 2, wrong: 1 } } },
+    ).cards.c1.revSeen).toBeUndefined();
+    // Idempotent: merging the result with itself keeps the max.
+    const m = mergeProgress(a, b);
+    expect(mergeProgress(m, m).cards.c1.revSeen).toBe(5);
   });
 
   it('maxes xp/combo/days/bosses and unions badges/mastered', () => {

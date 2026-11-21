@@ -27,9 +27,11 @@ const WARMUP_COUNT = 4;
 // A lesson bundle: the deck's full cards + puzzles plus every card the plan can
 // reference (this lesson's warm-ups and any card ids a saved plan still points
 // at), with per-deck distractor pools. Built once per deck in the component.
-function planLesson(state, fullDeck, warmupCards) {
-  const warmup = warmupCards.map((c) => ({ k: 'w', id: c.id }));
-  const questions = buildQuestions(fullDeck.cards, fullDeck.cards, fullDeck.cards.length).map((q) => ({ k: 'c', id: q.card.id }));
+// Plan steps carry deckId (PR 3): card ids are stable UUIDs now, so the deck
+// can no longer be parsed out of the id — the step must say where it came from.
+export function planLesson(state, fullDeck, warmupCards) {
+  const warmup = warmupCards.map((c) => ({ k: 'w', id: c.id, deckId: c.deckId }));
+  const questions = buildQuestions(fullDeck.cards, fullDeck.cards, fullDeck.cards.length).map((q) => ({ k: 'c', id: q.card.id, deckId: q.card.deckId }));
   const puzzles = (fullDeck.puzzles || []).map((p) => ({ k: 'p', id: p.id }));
   // The deck's hands-on puzzles are spread through its questions (the first one opens as a hook).
   const plan = [...warmup];
@@ -43,7 +45,7 @@ function planLesson(state, fullDeck, warmupCards) {
   return plan;
 }
 
-function toStep(item, bundle) {
+export function toStep(item, bundle) {
   const { fullDeck, cardsById, cardsByDeck } = bundle;
   if (item.k === 'p') return fullDeck.puzzles.find((p) => p.id === item.id) || null;
   const card = cardsById.get(item.id);
@@ -89,11 +91,11 @@ export default function LessonPlayer({ track, deck }) {
         const { cards, puzzles } = await getDeckContent(deck.id);
         const fullDeck = { ...deck, cards, puzzles };
         // Warm-ups for a fresh plan, plus every card id a saved plan still
-        // points at (card ids are `<deckId>-<index>`, so the deck is the id
-        // minus its trailing `-<index>`).
+        // points at (plan steps carry deckId since PR 3 — the deck is never
+        // parsed out of the id any more).
         const warmupStubs = pastLessonCards(state, deck.id, WARMUP_COUNT);
         const saved = state.resume?.deckId === deck.id ? state.resume.plan || [] : [];
-        const savedStubs = saved.filter((i) => i.k !== 'p').map((i) => ({ id: i.id, deckId: i.id.replace(/-\d+$/, '') }));
+        const savedStubs = saved.filter((i) => i.k !== 'p').map((i) => ({ id: i.id, deckId: i.deckId }));
         const extra = await resolveCards([...warmupStubs, ...savedStubs]);
         const cardsById = new Map(cards.map((c) => [c.id, c]));
         const cardsByDeck = new Map([[deck.id, cards]]);
@@ -132,7 +134,7 @@ export default function LessonPlayer({ track, deck }) {
       // A missed question comes back once at the end, Brilliant/Duolingo style.
       if (!firstTry && step.type === 'choice' && !retried.includes(step.id)) {
         retried = [...retried, step.id];
-        plan = [...plan, { k: 'r', id: step.card.id }];
+        plan = [...plan, { k: 'r', id: step.card.id, deckId: step.card.deckId }];
         nextSteps = [...nextSteps, { ...step, review: true, id: `${step.id}-review` }];
       }
     }
