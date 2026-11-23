@@ -30,25 +30,25 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_
 
+import admin_auth
 import audit
 import db
 import enrollment
-from db_models import AiTutorCall, AuthSession, LabCompletion, ManualGrant, Progress, Subscription, User
+from auth.deps import resolve_user_id
+from db_models import AdminMfa, AiTutorCall, AuthSession, LabCompletion, ManualGrant, Progress, Subscription, User
 
 log = logging.getLogger("admin")
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-ADMIN_COOKIE = "rtc_admin"
-ADMIN_SESSION_HOURS = 24
+ADMIN_COOKIE = admin_auth.ADMIN_COOKIE
 #: Lessons count as passed at the same bar as the learner UI (src/lib/progress/engine.js).
 PASS_PCT = 70
 
-#: Admin-login brute-force limit: failed attempts per client IP in a window,
-#: then 429 with Retry-After. Module-level so tests can patch the window.
-#: In-memory, per process — prod runs `--workers 2`, so each worker has its
-#: own buckets and the effective limit is ~2x; a shared/DB-backed store is
-#: the follow-up (see P2-3). Successful login clears the caller's bucket.
+#: Admin sign-in brute-force limit: failed MFA codes per client IP in a
+#: window, then 429 with Retry-After. Module-level so tests can patch the
+#: window. In-memory, per process (prod runs one worker). A wrong code is
+#: also never accepted twice (admin_auth.verify_totp replay guard).
 ADMIN_LOGIN_MAX_ATTEMPTS = 5
 ADMIN_LOGIN_WINDOW_SECONDS = 15 * 60
 
@@ -66,90 +66,24 @@ def _aware(dt: datetime | None) -> datetime | None:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
-def _hash(raw: str) -> str:
-    return hashlib.sha256(raw.encode()).hexdigest()
+def require_admin(request: Request) -> str:
+    """Dependency: the admin's user id, or 401/403.
 
-
-def _admin_password() -> str | None:
-    return os.environ.get("ADMIN_PASSWORD") or None
-
-
-def _password_ok(provided: str | None) -> bool:
-    expected = _admin_password()
-    if not expected or not provided:
-        return False
-    return hmac.compare_digest(provided, expected)
-
-
-def _create_admin_session() -> str:
-    from db_models import AdminSession
-
-    raw = secrets.token_urlsafe(32)
-    with db.SessionLocal() as s:
-        s.add(
-            AdminSession(
-                id_hash=_hash(raw),
-                expires_at=_now() + timedelta(hours=ADMIN_SESSION_HOURS),
-            )
-        )
-        s.commit()
-    return raw
-
-
-def _admin_session_valid(raw: str | None) -> bool:
-    """True when the cookie holds a live admin session; slides the expiry."""
-    if not raw:
-        return False
-    from db_models import AdminSession
-
-    try:
-        with db.SessionLocal() as s:
-            row = s.get(AdminSession, _hash(raw))
-            if row is None:
-                return False
-            if _aware(row.expires_at) <= _now():
-                s.delete(row)
-                s.commit()
-                return False
-            row.last_seen_at = _now()
-            row.expires_at = _now() + timedelta(hours=ADMIN_SESSION_HOURS)
-            s.commit()
-            return True
-    except Exception:
-        log.exception("admin session check failed")
-        return False
-
-
-def _delete_admin_session(raw: str | None) -> None:
-    if not raw:
-        return
-    from db_models import AdminSession
-
-    try:
-        with db.SessionLocal() as s:
-            row = s.get(AdminSession, _hash(raw))
-            if row is not None:
-                s.delete(row)
-                s.commit()
-    except Exception:
-        log.exception("admin session delete failed")
-
-
-def _admin_cookie_kwargs() -> dict:
-    """Set-cookie options. Secure is on unless COOKIE_INSECURE=1 (local http dev)."""
-    return {
-        "httponly": True,
-        "secure": os.environ.get("COOKIE_INSECURE") != "1",
-        "samesite": "lax",
-        "max_age": ADMIN_SESSION_HOURS * 3600,
-        "path": "/",
-    }
-
-
-def require_admin(request: Request) -> None:
-    """Dependency: 401 unless the request carries a live admin session cookie."""
-    if not _admin_session_valid(request.cookies.get(ADMIN_COOKIE)):
+    401 unless this browser holds a live admin session for the same account
+    that is signed in to the site, still allow-listed and MFA-enrolled (see
+    admin_auth.session_user). 403 for a state-changing request without the
+    session's CSRF token in X-CSRF-Token. Never trusts a frontend role flag.
+    """
+    raw = request.cookies.get(ADMIN_COOKIE)
+    admin_id = admin_auth.session_user(raw, resolve_user_id(request))
+    if admin_id is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    if request.method not in admin_auth.SAFE_METHODS:
+        sent = request.headers.get(admin_auth.CSRF_HEADER, "")
+        if not sent or not hmac.compare_digest(sent, admin_auth.csrf_token(raw)):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Missing or invalid CSRF token.")
+    request.state.admin_user_id = admin_id  # audit.record reads it as the actor
+    return admin_id
 
 
 # ---------- auth ----------
@@ -173,46 +107,135 @@ def _admin_login_retry_after(ip: str, now: float | None = None) -> int | None:
 
 
 def _record_admin_login_failure(ip: str) -> None:
-    # Log IP + timestamp only — never the attempted password.
-    log.warning("admin login failed from %s at %s", ip, _now().isoformat())
+    # Log IP + timestamp only — never the attempted code.
+    log.warning("admin sign-in failed from %s at %s", ip, _now().isoformat())
     _admin_login_attempts[ip].append(time.time())
 
 
-@router.post("/login")
-def admin_login(body: dict, response: Response, request: Request) -> dict:
-    """Password gate. Generic failure either way: never reveal whether the
-    password is unset or merely wrong. Failed attempts are rate-limited per
-    IP (see ADMIN_LOGIN_MAX_ATTEMPTS): past the limit every attempt — right
-    password included — gets 429 until the window passes."""
+def _guard_rate(request: Request) -> str:
     ip = _client_ip(request)
     retry_after = _admin_login_retry_after(ip)
     if retry_after is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many failed login attempts. Try again later.",
+            detail="Too many failed attempts. Try again later.",
             headers={"Retry-After": str(retry_after)},
         )
-    if not _password_ok(body.get("password") if isinstance(body, dict) else None):
-        _record_admin_login_failure(ip)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
-        )
-    _admin_login_attempts.pop(ip, None)
-    raw = _create_admin_session()
-    response.set_cookie(ADMIN_COOKIE, raw, **_admin_cookie_kwargs())
-    return {"ok": True}
+    return ip
 
 
-@router.post("/logout")
-def admin_logout(request: Request, response: Response) -> dict:
-    _delete_admin_session(request.cookies.get(ADMIN_COOKIE))
-    response.delete_cookie(ADMIN_COOKIE, path="/")
-    return {"ok": True}
+def _eligible_admin(request: Request) -> tuple[str, str]:
+    """(user_id, verified email) of the signed-in, allow-listed caller, else 401/403."""
+    user_id = resolve_user_id(request)
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sign in first.")
+    with db.SessionLocal() as s:
+        email = admin_auth.eligible_email(s, user_id)
+    if email is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account is not an admin.")
+    return user_id, email
+
+
+def _start_session(response: Response, user_id: str) -> dict:
+    raw = admin_auth.create_session(user_id)
+    response.set_cookie(ADMIN_COOKIE, raw, **admin_auth.cookie_kwargs())
+    return {"ok": True, "csrf_token": admin_auth.csrf_token(raw)}
 
 
 @router.get("/status")
 def admin_status(request: Request) -> dict:
-    return {"authenticated": _admin_session_valid(request.cookies.get(ADMIN_COOKIE))}
+    """Where the caller stands: signed in to the site? allow-listed? MFA set up?
+    admin session live? The page uses it to show the right step. The CSRF
+    token is returned only to a live admin session."""
+    user_id = resolve_user_id(request)
+    raw = request.cookies.get(ADMIN_COOKIE)
+    out = {"authenticated": False, "signed_in": bool(user_id), "eligible": False, "mfa_enrolled": False}
+    if not user_id:
+        return out
+    with db.SessionLocal() as s:
+        email = admin_auth.eligible_email(s, user_id)
+        mfa = admin_auth.mfa_state(s, user_id) if email else None
+    if email is None:
+        return out
+    out.update(eligible=True, email=email, mfa_enrolled=bool(mfa and mfa.enabled_at))
+    if admin_auth.session_user(raw, user_id):
+        out.update(authenticated=True, csrf_token=admin_auth.csrf_token(raw))
+    return out
+
+
+@router.post("/mfa/setup")
+def admin_mfa_setup(request: Request) -> dict:
+    """First-time setup: a new authenticator secret for the signed-in admin.
+    Refused once MFA is enabled (resetting is a server-side command only)."""
+    user_id, email = _eligible_admin(request)
+    secret = admin_auth.new_totp_secret()
+    with db.SessionLocal() as s:
+        mfa = admin_auth.mfa_state(s, user_id)
+        if mfa is not None and mfa.enabled_at is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Two-step sign-in is already set up.")
+        if mfa is None:
+            mfa = AdminMfa(user_id=user_id, last_step=0)
+            s.add(mfa)
+        mfa.pending_secret_enc = admin_auth.encrypt_secret(secret)
+        s.commit()
+    return {"secret": secret, "otpauth_uri": admin_auth.otpauth_uri(secret, email)}
+
+
+@router.post("/mfa/activate")
+def admin_mfa_activate(body: dict, request: Request, response: Response) -> dict:
+    """Confirm the first code from the new authenticator: MFA is now on, and
+    the admin is signed in."""
+    ip = _guard_rate(request)
+    user_id, _email = _eligible_admin(request)
+    code = body.get("code") if isinstance(body, dict) else None
+    with db.SessionLocal() as s:
+        mfa = admin_auth.mfa_state(s, user_id)
+        if mfa is None or not mfa.pending_secret_enc or mfa.enabled_at is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Start the setup first.")
+        secret = admin_auth.decrypt_secret(mfa.pending_secret_enc)
+        step = admin_auth.verify_totp(secret, code, mfa.last_step)
+        if step is None:
+            _record_admin_login_failure(ip)
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="That code didn't match. Try the next one.")
+        mfa.secret_enc = mfa.pending_secret_enc
+        mfa.pending_secret_enc = None
+        mfa.enabled_at = _now()
+        mfa.last_step = step
+        s.commit()
+    _admin_login_attempts.pop(ip, None)
+    result = _start_session(response, user_id)
+    audit.record("admin.mfa_enrolled", actor=user_id, target_user_id=user_id, request=request)
+    return result
+
+
+@router.post("/login")
+def admin_login(body: dict, request: Request, response: Response) -> dict:
+    """Admin sign-in: the signed-in, allow-listed account + a current code
+    from its authenticator. Generic failure; rate-limited per IP."""
+    ip = _guard_rate(request)
+    user_id, _email = _eligible_admin(request)
+    code = body.get("code") if isinstance(body, dict) else None
+    with db.SessionLocal() as s:
+        mfa = admin_auth.mfa_state(s, user_id)
+        if mfa is None or mfa.enabled_at is None or not mfa.secret_enc:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Set up two-step sign-in first.")
+        step = admin_auth.verify_totp(admin_auth.decrypt_secret(mfa.secret_enc), code, mfa.last_step)
+        if step is None:
+            _record_admin_login_failure(ip)
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid code.")
+        mfa.last_step = step
+        s.commit()
+    _admin_login_attempts.pop(ip, None)
+    result = _start_session(response, user_id)
+    audit.record("admin.login", actor=user_id, target_user_id=user_id, request=request)
+    return result
+
+
+@router.post("/logout")
+def admin_logout(request: Request, response: Response) -> dict:
+    admin_auth.delete_session(request.cookies.get(ADMIN_COOKIE))
+    response.delete_cookie(ADMIN_COOKIE, path="/")
+    return {"ok": True}
 
 
 # ---------- helpers ----------

@@ -1,7 +1,8 @@
 # Admin panel — Road to CISSP
 
-Spencer-only, password-gated, browser-only. No link to it exists anywhere in
-the normal navigation, and the AppShell never renders it.
+Spencer-only, browser-only: his own verified Google/GitHub account plus a
+code from an authenticator app. No link to it exists anywhere in the normal
+navigation, and the AppShell never renders it.
 
 ## URL
 
@@ -9,21 +10,39 @@ the normal navigation, and the AppShell never renders it.
 workspace). It is client-rendered and is NOT in `public/sitemap.xml`, so it is
 never prerendered or linked from any prerendered page.
 
-## Auth
+## Sign-in (since 2026-11-23 — the shared password is gone)
 
-- Env var: `ADMIN_PASSWORD` (name only — never commit a value).
-- `POST /admin/login` with `{"password": "..."}` sets a short-lived HttpOnly
-  session cookie (`rtc_admin`, 24h, sliding). Wrong password — or an unset
-  `ADMIN_PASSWORD` — returns a generic 401 `Invalid password` with no hint.
-- No admin accounts, no sign-up, no password reset. To change the password,
-  change the env var and restart the backend.
-- Brute-force protection: 5 failed logins per IP in 15 minutes, then every
-  further attempt (correct password included) gets 429 with `Retry-After`
-  until the window passes. Failed attempts are logged with IP + timestamp,
-  never the password.
-- Every `/admin/*` endpoint except login/status requires the session, including
-  when called directly (curl, another origin). A normal learner session is NOT
-  an admin session.
+Code: `backend/admin_auth.py` (rules), `backend/admin.py` (endpoints),
+`src/pages/admin/AdminGate.jsx` (screens).
+
+1. **Site account.** Sign in to the site with Google or GitHub (the admin page
+   offers the buttons and returns to `/admin` afterwards). Only an account
+   whose **provider-verified** email is on the allow-list is eligible:
+   `ADMIN_EMAILS` (comma-separated), or `BILLING_OWNER_EMAILS` when that is
+   unset. `User.email` alone never counts — the admin panel itself writes it
+   for manual enrollments.
+2. **Authenticator (TOTP).** First visit: scan the QR code (drawn in the
+   browser; also shown as a setup key) and confirm one code. Every later
+   sign-in asks for the current 6-digit code. Codes are single-use and
+   accepted one 30 s step either side of the clock. The secret is stored
+   encrypted (key from `ADMIN_MFA_KEY`, else `SESSION_SECRET` — rotating
+   `SESSION_SECRET` therefore requires a re-enrollment).
+3. **Admin session.** HttpOnly cookie `rtc_admin`: 30 min idle, 8 h at most;
+   ends when the site session ends, when another account signs in to the
+   site in that browser, or the moment the account leaves the allow-list.
+4. **CSRF.** Every state-changing `/admin/*` request must send
+   `X-CSRF-Token` (an HMAC of the admin session, handed to the page in the
+   JSON of `/admin/status`, `/admin/login` and `/admin/mfa/activate`).
+   Missing or wrong → 403.
+5. **Brute force.** 5 wrong codes per IP in 15 minutes → 429 with
+   `Retry-After`. Failures are logged with IP + time, never the code.
+6. **Audit.** Every admin change is recorded in `admin_audit_log` with the
+   admin's own account id as the actor (sign-ins and MFA enrollment too).
+
+**Lost phone / new phone:** on the server,
+`cd backend && .venv/bin/python -m admin_auth reset-mfa <your email>`, then
+open `/admin` and set the authenticator up again. There is deliberately no web
+reset.
 
 ## What it shows
 
@@ -67,7 +86,7 @@ never prerendered or linked from any prerendered page.
 
 ## Setup after a push
 
-1. Set `ADMIN_PASSWORD` in the backend environment (host env vars, or
+1. Set `ADMIN_EMAILS` (or rely on `BILLING_OWNER_EMAILS`) in the backend environment (host env vars, or
    `backend/.env` for local dev — never commit the file).
 2. Restart the backend (uvicorn). In production the new migration
    (`f7a3c9d21e84`, admin_sessions + ai_tutor_calls tables) applies at startup.

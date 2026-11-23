@@ -14,9 +14,9 @@ from db_models import AdminAuditLog
 
 log = logging.getLogger(__name__)
 
-#: The actor recorded while the admin panel uses the shared password.
-#: Per-admin sign-in (the admin-security step) replaces it with the admin's
-#: own account id.
+#: Fallback actor when no admin account is known (e.g. a server console).
+#: Admin requests record the signed-in admin's own account id: require_admin
+#: puts it on request.state.admin_user_id, and record() reads it from there.
 SHARED_ADMIN = "admin"
 
 
@@ -27,8 +27,10 @@ def client_ip(request) -> str | None:
         return None
 
 
-def record(action: str, *, actor: str = SHARED_ADMIN, target_user_id: str | None = None,
+def record(action: str, *, actor: str | None = None, target_user_id: str | None = None,
            details: dict | None = None, request=None) -> None:
+    if actor is None:
+        actor = getattr(getattr(request, "state", None), "admin_user_id", None) or SHARED_ADMIN
     try:
         with db.SessionLocal() as s:
             s.add(AdminAuditLog(

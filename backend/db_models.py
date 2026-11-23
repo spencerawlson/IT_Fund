@@ -256,12 +256,15 @@ class LabSession(Base):
 
 
 class AdminSession(Base):
-    """One admin-panel login session (Kay Ayiti model: password gate, no admin
-    accounts). Only the hash of the session token is stored, like auth_sessions.
+    """One admin-panel session (see admin_auth.py). Only the hash of the
+    session token is stored, like auth_sessions. `user_id` is the admin's own
+    account (per-admin sign-in + MFA since 2026-11-23); rows from the old
+    shared-password gate have none and are no longer accepted.
     """
     __tablename__ = "admin_sessions"
 
     id_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -437,3 +440,20 @@ class AdminAuditLog(Base):
     target_user_id: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
     details: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+
+class AdminMfa(Base):
+    """An admin's TOTP authenticator enrollment (see admin_auth.py).
+
+    The shared secret is stored encrypted (`secret_enc`); `pending_secret_enc`
+    holds a secret being set up until its first code is confirmed. `last_step`
+    is the last accepted TOTP time step, so a code is never accepted twice.
+    """
+    __tablename__ = "admin_mfa"
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    secret_enc: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    pending_secret_enc: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    enabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_step: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

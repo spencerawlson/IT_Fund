@@ -35,22 +35,20 @@ import main
 from db_models import AdminAuditLog, ManualGrant, MembershipAllocation, Subscription, User
 
 client = TestClient(main.app)
-ADMIN_PASSWORD = "test-admin-password-only"
+import admin_testkit
 FUTURE = int(datetime(2030, 1, 1, tzinfo=timezone.utc).timestamp())
 
 
 def setup_function():
     db.configure("sqlite+pysqlite:///:memory:")
     db.init_db()
-    os.environ["ADMIN_PASSWORD"] = ADMIN_PASSWORD
     os.environ.pop("BILLING_OWNER_EMAILS", None)
     admin_mod._admin_login_attempts.clear()
 
 
 def teardown_function():
-    os.environ.pop("ADMIN_PASSWORD", None)
     os.environ.pop("BILLING_OWNER_EMAILS", None)
-    client.cookies.clear()
+    admin_testkit.clear(client)
 
 
 def _user(uid, email=None):
@@ -91,8 +89,7 @@ def _capacity(paid=None, comp=None):
 
 
 def _login():
-    r = client.post("/api/admin/login", json={"password": ADMIN_PASSWORD})
-    assert r.status_code == 200
+    admin_testkit.admin_login(client)
 
 
 # ---------- online subscriptions (Stripe webhook) ----------
@@ -239,8 +236,12 @@ def test_manual_enrollment_takes_a_place_and_revoking_frees_it():
     assert r.status_code == 200
     assert _open(uid) is None
     with db.SessionLocal() as s:
-        actions = [a.action for a in s.query(AdminAuditLog).order_by(AdminAuditLog.created_at).all()]
-    assert actions == ["account.add_with_grant", "grant.revoke"]
+        rows = s.query(AdminAuditLog).order_by(AdminAuditLog.created_at).all()
+    changes = [a for a in rows if not a.action.startswith("admin.")]  # skip the sign-in itself
+    assert [a.action for a in changes] == ["account.add_with_grant", "grant.revoke"]
+    admin_id = rows[0].actor
+    assert admin_id not in ("admin", None)  # the admin's own account, not a shared actor
+    assert all(a.actor == admin_id for a in changes)
 
 
 def test_manual_enrollment_is_refused_when_full():
@@ -353,7 +354,7 @@ def test_admin_enrollment_endpoints_require_admin_and_are_audited():
     data = client.get("/api/admin/enrollment").json()
     assert data["enrollment"]["comp_capacity"] == 50
     actions = [a["action"] for a in data["recent_activity"]]
-    assert actions[:2] == ["enrollment.reconcile", "enrollment.settings"]
+    assert actions[:3] == ["enrollment.reconcile", "enrollment.settings", "admin.mfa_enrolled"]
     settings_entry = data["recent_activity"][1]
     assert settings_entry["details"] == {
         "before": {"paid_capacity": 10000, "comp_capacity": 100},

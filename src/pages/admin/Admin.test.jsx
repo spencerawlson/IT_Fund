@@ -2,7 +2,6 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import {
-  AdminLoginForm,
   AccountsTable,
   AddCustomerForm,
   DeleteAccountConfirm,
@@ -13,19 +12,41 @@ import {
   AiCallsView,
   isReservedSeat,
 } from './Admin';
+import AdminGate, { CodeForm } from './AdminGate';
 
-describe('Admin login form', () => {
-  it('renders a password field and a sign-in button', () => {
-    const html = renderToString(<AdminLoginForm onSubmit={() => {}} error="" loading={false} />);
-    expect(html).toContain('Admin password');
-    expect(html).toContain('type="password"');
-    expect(html).toContain('Sign in');
+describe('Admin sign-in (AdminGate)', () => {
+  // No shared password any more: the step comes from GET /admin/status.
+  it('not signed in: sign in with Google/GitHub, returning to /admin — no password field', () => {
+    const html = renderToString(<AdminGate status={{ signed_in: false }} onAuthed={() => {}} />);
+    expect(html).toContain('Continue with Google');
+    expect(html).toContain('Continue with GitHub');
+    expect(html).toContain('next=%2Fadmin');
+    expect(html).not.toContain('type="password"');
   });
 
-  it('shows a generic error without hinting at the cause', () => {
-    const html = renderToString(<AdminLoginForm onSubmit={() => {}} error="Invalid password." loading={false} />);
-    expect(html).toContain('Invalid password.');
-    expect(html).not.toContain('not set');
+  it('signed in but not on the allow-list: says so and offers nothing else', () => {
+    const html = renderToString(<AdminGate status={{ signed_in: true, eligible: false }} onAuthed={() => {}} />);
+    expect(html).toContain('This account isn');
+    expect(html).not.toContain('admin-code');
+  });
+
+  it('admin without MFA: the one-time authenticator setup', () => {
+    const html = renderToString(<AdminGate status={{ signed_in: true, eligible: true, mfa_enrolled: false, email: 'owner@example.com' }} onAuthed={() => {}} />);
+    expect(html).toContain('Set up two-step sign-in');
+    expect(html).toContain('owner@example.com');
+    expect(html).toContain('Set up my authenticator');
+  });
+
+  it('admin with MFA: asks for the 6-digit code', () => {
+    const html = renderToString(<AdminGate status={{ signed_in: true, eligible: true, mfa_enrolled: true, email: 'owner@example.com' }} onAuthed={() => {}} />);
+    expect(html).toContain('Enter your code');
+    expect(html).toContain('autoComplete="one-time-code"');
+    expect(html).toContain('inputMode="numeric"');
+  });
+
+  it('the code form shows the error it is given', () => {
+    const html = renderToString(<CodeForm label="Code" submitLabel="Go" onSubmit={() => {}} error="That code didn’t match." loading={false} />);
+    expect(html).toContain('That code didn’t match.');
   });
 });
 

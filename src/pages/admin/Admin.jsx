@@ -9,6 +9,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Shield, LogOut, Search } from 'lucide-react';
 import { adminApi } from '@/api/admin';
+import AdminGate from './AdminGate';
 import { Button } from '@/components/ui-glass/Button';
 import { Card, CardHeader } from '@/components/ui-glass/Card';
 
@@ -51,49 +52,6 @@ function Shell({ action, children }) {
         {action}
       </header>
       {children}
-    </div>
-  );
-}
-
-export function AdminLoginForm({ onSubmit, error, loading }) {
-  const [password, setPassword] = useState('');
-  return (
-    <div className="mx-auto min-h-screen w-full max-w-md px-4 py-16">
-      <Card level={1}>
-        <CardHeader
-          eyebrow="Admin only"
-          title="Sign in to admin"
-          description="Enter the admin password. This area is not linked from anywhere in the app."
-        />
-        <form
-          className="mt-5 space-y-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmit(password);
-          }}
-        >
-          <label className="block text-small font-semibold text-ink-1" htmlFor="admin-password">
-            Admin password
-          </label>
-          <input
-            id="admin-password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-11 w-full rounded-control border border-black/10 bg-white px-3 text-body text-ink-1 outline-none placeholder:text-ink-2 focus:border-violet-700/40"
-            placeholder="Admin password"
-          />
-          {error && (
-            <p role="alert" className="text-small font-semibold text-red-700">
-              {error}
-            </p>
-          )}
-          <Button type="submit" loading={loading} className="w-full">
-            Sign in
-          </Button>
-        </form>
-      </Card>
     </div>
   );
 }
@@ -723,9 +681,8 @@ const TABS = [
 
 export default function Admin() {
   const [authed, setAuthed] = useState(null);
+  const [gate, setGate] = useState(null);
   const [tab, setTab] = useState('overview');
-  const [loginError, setLoginError] = useState('');
-  const [loginLoading, setLoginLoading] = useState(false);
   const [overview, setOverview] = useState(null);
   const [accounts, setAccounts] = useState(null);
   const [accountsQ, setAccountsQ] = useState('');
@@ -741,12 +698,16 @@ export default function Admin() {
   const [rowBusy, setRowBusy] = useState(null);
   const [loadError, setLoadError] = useState('');
 
+  // The server decides the sign-in step (site account -> allow-list -> MFA);
+  // /admin/status also hands over the CSRF token for a live admin session.
+  const refreshStatus = useCallback(() => adminApi.status().then(
+    (s) => { setGate(s); setAuthed(s.authenticated); },
+    () => { setGate(null); setAuthed(false); },
+  ), []);
+
   useEffect(() => {
-    adminApi.status().then(
-      (s) => setAuthed(s.authenticated),
-      () => setAuthed(false),
-    );
-  }, []);
+    refreshStatus();
+  }, [refreshStatus]);
 
   const load = useCallback(
     async (which) => {
@@ -768,19 +729,6 @@ export default function Admin() {
     if (authed) load(tab);
   }, [authed, tab, load]);
 
-  const handleLogin = async (password) => {
-    setLoginError('');
-    setLoginLoading(true);
-    try {
-      await adminApi.login(password);
-      setAuthed(true);
-    } catch {
-      setLoginError('Invalid password.');
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
   const handleLogout = async () => {
     try {
       await adminApi.logout();
@@ -788,6 +736,7 @@ export default function Admin() {
       // already logged out server-side; still drop the local state
     }
     setAuthed(false);
+    refreshStatus();
     setOverview(null);
     setAccounts(null);
     setSubscriptions(null);
@@ -886,7 +835,7 @@ export default function Admin() {
     );
   }
   if (!authed) {
-    return <AdminLoginForm onSubmit={handleLogin} error={loginError} loading={loginLoading} />;
+    return <AdminGate status={gate} onAuthed={refreshStatus} />;
   }
 
   return (
