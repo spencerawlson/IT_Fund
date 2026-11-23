@@ -258,10 +258,14 @@ def has_room(kind: str = PAID) -> bool:
 def _entitlement(s, user_id: str) -> tuple[str, str] | None:
     """(kind, source) of the place this user should hold, or None.
 
-    Authoritative records only: the Stripe subscriptions row (written by the
-    webhook) and the manual grants table. The owner and deleted accounts
-    hold no place. Every manual grant is a paid in-person membership today;
-    complimentary grants arrive with the manual-enrollment step."""
+    Authoritative records only: the subscriptions row (written by the
+    Stripe webhook or by the Apple transaction verifier) and the manual
+    grants table. The owner and deleted accounts hold no place. Every
+    manual grant is a paid in-person membership today; complimentary
+    grants arrive with the manual-enrollment step. The source is the
+    row's provider ("stripe" | "apple") so the allocation says where the
+    paid access actually came from.
+    """
     import billing  # local import: billing imports this module lazily too
 
     if billing.is_owner(user_id):
@@ -269,8 +273,9 @@ def _entitlement(s, user_id: str) -> tuple[str, str] | None:
     user = s.get(User, user_id)
     if user is None or user.deleted_at is not None:
         return None
-    if billing._row_is_subscribed(s.get(Subscription, user_id)):
-        return (PAID, "stripe")
+    row = s.get(Subscription, user_id)
+    if billing._row_is_subscribed(row):
+        return (PAID, row.provider or "stripe")
     grant = s.get(ManualGrant, user_id)
     if grant is not None and grant.revoked_at is None:
         if is_placeholder_email(user.email):

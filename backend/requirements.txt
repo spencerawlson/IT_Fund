@@ -12,6 +12,10 @@ authlib>=1.6
 # joserfc: Sign in with Apple only — the ES256 client_secret JWT and id_token
 # verification (auth/apple.py). Pinned below 2.x: 1.x is the stable API.
 joserfc>=1.0,<2
+# cryptography: App Store signed-transaction (JWS) verification — the x5c
+# certificate chain against the bundled Apple Root CA - G3 (backend/iap.py).
+# Was a transitive dependency before; it is a direct one now.
+cryptography>=42.0
 httpx>=0.27
 itsdangerous>=2.2
 docker>=7.0

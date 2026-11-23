@@ -1,0 +1,1 @@
+{"capacitor":{"ios":{"src":"ios"}},"description":"Road to CISSP StoreKit 2 plugin (hand-written, no SDK): App Store subscription products, purchase, restore, manage-subscriptions.","license":"UNLICENSED","main":"src/index.js","name":"r2c-storekit","private":true,"version":"1.0.0"}

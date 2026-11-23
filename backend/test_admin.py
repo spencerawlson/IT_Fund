@@ -358,7 +358,7 @@ def test_added_customer_status_is_manual():
     uid = r.json()["user"]["id"]
     client.cookies.clear()
     r = client.get("/api/billing/status", cookies=_learner_cookies(uid))
-    assert r.json() == {"subscribed": True, "status": "manual", "current_period_end": None}
+    assert r.json() == {"subscribed": True, "status": "manual", "provider": "manual", "plan": None, "current_period_end": None}
 
 
 def test_add_account_rejects_duplicate_email_case_insensitive():

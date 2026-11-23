@@ -30,20 +30,20 @@ export default function Terms() {
           Terms of Service
         </h1>
         <p className="mt-4 text-body text-ink-2">
-          Last updated 11 November 2026. By using Road to CISSP you agree to these terms. They describe the subscription, the free tier, and the limits of what this site promises.
+          Last updated 23 November 2026. By using Road to CISSP you agree to these terms. They describe the subscription, the free tier, and the limits of what this site promises.
         </p>
 
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">The plan and the price</h2>
           <p className="mt-2 text-body text-ink-2">
-            There are two ways to pay for the same plan: $29 USD per month, or $250 USD per year (about $20.83 a month — $98 less than twelve monthly payments). Either way it unlocks every track, every lesson, every hands-on lab, and every exam simulator, and it syncs your progress across devices. Payment is taken through Stripe Checkout.
+            There are two ways to pay for the same plan: $29 USD per month, or $250 USD per year (about $20.83 a month — $98 less than twelve monthly payments). Either way it unlocks every track, every lesson, every hands-on lab, and every exam simulator, and it syncs your progress across devices. Payment is taken through Stripe Checkout on the website, or through the App Store in the iOS app (in-app purchase, billed by Apple).
           </p>
         </section>
 
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">Cancelling</h2>
           <p className="mt-2 text-body text-ink-2">
-            You can cancel anytime from the Stripe Customer Portal, reached from your account on the sign-in page. You keep full access until the end of the billing period you have paid for. Your progress — streaks, XP, badges, and history — is not deleted when you cancel: you drop back to the free tier until you resubscribe.
+            You can cancel anytime from the Stripe Customer Portal, reached from your account on the sign-in page. If you subscribed through the App Store, cancel in iOS Settings instead (your name → Subscriptions) — the Stripe portal cannot cancel an App Store subscription. You keep full access until the end of the billing period you have paid for. Your progress — streaks, XP, badges, and history — is not deleted when you cancel: you drop back to the free tier until you resubscribe.
           </p>
         </section>
 
@@ -58,10 +58,19 @@ export default function Terms() {
             the subscription is cancelled, so you are not charged again.
           </p>
           <p className="mt-2 text-body text-ink-2">
+            App Store purchases are the exception: Apple handles their refunds, not us. Request
+            one at{' '}
+            <a href="https://reportaproblem.apple.com" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-4 hover:text-ink-1">reportaproblem.apple.com</a>
+            {' '}(sign in with the Apple ID you subscribed with) — we cannot refund an App Store
+            purchase from support.
+          </p>
+          <p className="mt-2 text-body text-ink-2">
             If a renewal payment fails, your subscription goes past due and you keep full access
             for 7 days while you fix the payment — update your card in the Stripe Customer Portal,
             reached from your account on the sign-in page. After 7 days without a successful
-            payment, access is revoked until you resubscribe.
+            payment, access is revoked until you resubscribe. If you subscribed through the App
+            Store, Apple retries the payment and manages the grace period — update your payment
+            method in iOS Settings (your name → Payment &amp; Shipping).
           </p>
         </section>
 
