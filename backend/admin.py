@@ -368,11 +368,27 @@ def admin_overview() -> dict:
             .scalar()
             or 0
         )
+        # Spencer's placeholder accounts (Reserved badge) hold places but are
+        # not in-person members: counted apart, never as enrollments.
+        reserved_seats = (
+            s.query(func.count())
+            .select_from(ManualGrant)
+            .join(User, User.id == ManualGrant.user_id)
+            .filter(
+                ManualGrant.revoked_at.is_(None),
+                User.deleted_at.is_(None),
+                func.lower(User.email).like(f"%{enrollment.RESERVED_EMAIL_SUFFIX}"),
+            )
+            .scalar()
+            or 0
+        )
     return {
         "total_users": total_users,
         "paying_subscribers": paying,
         "subscriptions_by_status": subs,
         "manual_grants_active": manual_grants_active,
+        "manual_members": max(0, manual_grants_active - reserved_seats),
+        "reserved_seats": reserved_seats,
         "mrr": _mrr(),
         "ai_calls_30d": calls_30d,
         "ai_cost_30d_usd": round(float(cost_30d), 6),
@@ -711,6 +727,9 @@ def admin_update_account(user_id: str, body: dict, request: Request) -> dict:
             maps["grants"].get(user.id),
         )
     changed = {k: v for k, v in (("display_name", display_name), ("email", email)) if v is not None}
+    # A placeholder given a real email becomes a paid in-person member (and
+    # back): re-derive the place's source.
+    enrollment.sync_user_safely(user_id)
     audit.record("account.update", target_user_id=user_id, details=changed, request=request)
     log.info("admin updated account %s", user_id)
     return {"user": item}

@@ -127,9 +127,16 @@ export function OverviewView({ data }) {
       />
       <StatCard
         label="Manual enrollments"
-        value={data.manual_grants_active ?? 0}
+        value={data.manual_members ?? data.manual_grants_active ?? 0}
         sub="Granted in person — access until revoked, never billed through Stripe."
       />
+      {data.reserved_seats > 0 && (
+        <StatCard
+          label="Reserved seats"
+          value={data.reserved_seats}
+          sub="Placeholder accounts holding places for in-person sales — not members, never revenue. Edit one to a real name and email to enroll that person."
+        />
+      )}
     </div>
   );
 }
