@@ -431,15 +431,7 @@ describe('PR 2: content artifacts are version 2 (test area #17)', () => {
 // only for the free lessons. Written BEFORE the implementation and observed
 // failing on pristine code (no `slides` field anywhere).
 // ---------------------------------------------------------------------------
-const SLIDE_TEMPLATES = new Set([
-  'layers',
-  'flow',
-  'comparison',
-  'cycle',
-  'client-server',
-  'topology',
-  'concept',
-]);
+const SLIDE_TEMPLATES = new Set(['roadmap', 'layers', 'compare', 'terms', 'keywords', 'text']);
 
 describe('lesson slide decks (carousel)', () => {
   it('every lesson has a derived deck: 1 overview slide + one per learn section (cap 5)', () => {
@@ -502,6 +494,40 @@ describe('lesson slide decks (carousel)', () => {
     }
   });
 
+  it('every word a slide visual draws is lesson text (headings, stack names, cheat-sheet rows, inline code)', () => {
+    const full = buildContentJson();
+    let terms = 0;
+    for (const [id, lesson] of Object.entries(full.lessons)) {
+      const [overview, ...rest] = lesson.slides;
+      // The Overview is a roadmap of the deck's own section slides, in order.
+      expect(overview.diagram.template, `${id}: overview template`).toBe('roadmap');
+      expect(overview.diagram.labels, `${id}: roadmap = the deck's headings`).toEqual(rest.map((s) => s.title));
+      const rows = new Set((lesson.cheatSheet || []).map(([t, d]) => JSON.stringify([t, d])));
+      const usedRows = new Set();
+      for (const slide of rest) {
+        const section = lesson.learn.find((s) => s.heading === slide.title);
+        const body = (section.body || []).filter((p) => typeof p === 'string').join('\n');
+        const d = slide.diagram;
+        if (d.template === 'terms') {
+          expect(d.items.length, `${id}: 1-3 terms`).toBeGreaterThan(0);
+          expect(d.items.length).toBeLessThanOrEqual(3);
+          for (const it of d.items) {
+            const key = JSON.stringify([it.term, it.def]);
+            expect(rows.has(key), `${id}: "${it.term}" is a cheat-sheet row`).toBe(true);
+            expect(usedRows.has(key), `${id}: "${it.term}" appears on one slide only`).toBe(false);
+            usedRows.add(key);
+            terms += 1;
+          }
+        } else if (d.template === 'keywords') {
+          for (const k of d.labels) expect(body, `${id}: keyword ${k} is inline code in the section`).toContain(`\`${k}\``);
+        } else if (d.template === 'compare') {
+          for (const side of d.labels) expect(slide.title, `${id}: compare side from the heading`).toContain(side);
+        }
+      }
+    }
+    expect(terms, 'most slides teach real cheat-sheet terms').toBeGreaterThan(500);
+  });
+
   it('the public build carries slides only for the 5 free lessons — no premium slide text leaks', () => {
     const pub = buildPublicData();
     expect(Object.keys(pub.freeLessonContent).sort()).toEqual([...LIB_FREE_LESSONS].sort());
@@ -520,11 +546,25 @@ describe('lesson slide decks (carousel)', () => {
         ...(lesson.learn || []).flatMap((s) => (s.body || []).filter((p) => typeof p === 'string')),
       ]),
     );
+    const freeDefs = new Set(
+      Object.values(pub.freeLessonContent).flatMap((lesson) => (lesson.cheatSheet || []).map((r) => r[1])),
+    );
     for (const [id, lesson] of Object.entries(full.lessons)) {
       if (LIB_FREE_LESSONS.includes(id)) continue;
       for (const slide of lesson.slides || []) {
         if (freeParagraphs.has(slide.caption)) continue;
         expect(committedText, `${id}: premium slide caption leaked into the public module`).not.toContain(slide.caption);
+      }
+      // Premium cheat-sheet rows drawn on slides must not leak either: no
+      // premium slide item may appear in the public module. (Matched on the
+      // serialised slide item, not loose wording — a public deck summary may
+      // share a phrase with a cheat-sheet definition by design.) A row a free
+      // lesson also carries is that free lesson's own text, so skipped.
+      for (const slide of lesson.slides || []) {
+        for (const it of slide.diagram.items || []) {
+          if (freeDefs.has(it.def)) continue;
+          expect(committedText, `${id}: premium slide term "${it.term}" leaked`).not.toContain(`"def": ${JSON.stringify(it.def)}`);
+        }
       }
     }
   });

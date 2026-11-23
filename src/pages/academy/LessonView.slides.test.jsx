@@ -109,7 +109,9 @@ describe('LessonView slide carousel', () => {
     expect(out).toContain('The OSI model has seven layers.');
     // Order: Overview paragraph, then the slide caption, then the Learn heading.
     expect(out.indexOf('OSI overview.')).toBeLessThan(out.indexOf('The OSI model has seven layers.'));
-    expect(out.indexOf('The OSI model has seven layers.')).toBeLessThan(out.indexOf('Layers'));
+    // (The deck's Overview roadmap names the section headings too, so the
+    // Learn heading is the LAST "Layers" on the page.)
+    expect(out.indexOf('The OSI model has seven layers.')).toBeLessThan(out.lastIndexOf('Layers'));
   });
 
   it('shows the deck on a premium lesson for a subscriber', async () => {

@@ -30847,8 +30847,13 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Every network conversation, from loading a web page to a switch forwarding a frame, can be described in layers. Models give you a shared vocabulary (\"that is a Layer 2 problem\") and a systematic way to troubleshoot from the cable up.",
         "diagram": {
-          "template": "layers",
-          "labels": []
+          "template": "roadmap",
+          "labels": [
+            "The seven OSI layers",
+            "PDUs and encapsulation",
+            "The TCP/IP model",
+            "Common mistakes: mixing up the models"
+          ]
         }
       },
       {
@@ -30871,8 +30876,21 @@ export const freeLessonContent = {
         "title": "PDUs and encapsulation",
         "caption": "Each layer names its unit of data — its protocol data unit — differently: bits at Layer 1, frames at Layer 2, packets at Layer 3, and segments at Layer 4 when TCP delivers them reliably, datagrams when UDP sends them best-effort.",
         "diagram": {
-          "template": "layers",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "L2 Data Link",
+            "Encapsulation"
+          ],
+          "items": [
+            {
+              "term": "L2 Data Link",
+              "def": "Frames, MAC addresses, switches"
+            },
+            {
+              "term": "Encapsulation",
+              "def": "Each layer adds a header going down"
+            }
+          ]
         }
       },
       {
@@ -30892,8 +30910,21 @@ export const freeLessonContent = {
         "title": "Common mistakes: mixing up the models",
         "caption": "The classic exam trap is naming the wrong layer for a device or protocol. A switch forwards frames by MAC address, so it lives at Layer 2; a router forwards packets by IP address, so it lives at Layer 3. A \"Layer 3 switch\" is a switch with routing added — the name describes the extra function, not a promotion.",
         "diagram": {
-          "template": "layers",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "L6 Presentation",
+            "L7 Application"
+          ],
+          "items": [
+            {
+              "term": "L6 Presentation",
+              "def": "Encoding, compression, encryption (TLS)"
+            },
+            {
+              "term": "L7 Application",
+              "def": "HTTP, DNS, SMTP"
+            }
+          ]
         }
       }
     ]
@@ -31004,40 +31035,102 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Every security decision, from buying a firewall to writing a password policy, traces back to a handful of core ideas. Learn them precisely and the rest of Security+ becomes a matter of applying them.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "roadmap",
+          "labels": [
+            "CIA, non-repudiation and AAA",
+            "Control categories and types",
+            "Zero trust",
+            "Gap analysis, deception and change management"
+          ]
         }
       },
       {
         "title": "CIA, non-repudiation and AAA",
         "caption": "Confidentiality keeps data from unauthorised eyes; encryption is its main tool. Integrity ensures data has not been altered; hashing detects change, because a modified file produces a different hash. Availability keeps systems and data usable when needed, through redundancy, backups and resilience.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "Confidentiality / Integrity / Availability",
+            "Non-repudiation",
+            "AAA"
+          ],
+          "items": [
+            {
+              "term": "Confidentiality / Integrity / Availability",
+              "def": "Encryption / hashing / redundancy"
+            },
+            {
+              "term": "Non-repudiation",
+              "def": "Cannot deny sending: digital signatures"
+            },
+            {
+              "term": "AAA",
+              "def": "Authentication, Authorization, Accounting"
+            }
+          ]
         }
       },
       {
         "title": "Control categories and types",
         "caption": "SY0-701 groups controls into four categories by how they are implemented: technical (firewalls, encryption), managerial (policies, risk assessments), operational (guard rotations, awareness training, carried out by people) and physical (locks, fences).",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "Categories",
+            "Camera",
+            "Compensating control"
+          ],
+          "items": [
+            {
+              "term": "Categories",
+              "def": "Technical, managerial, operational, physical"
+            },
+            {
+              "term": "Camera",
+              "def": "Detective (also deterrent)"
+            },
+            {
+              "term": "Compensating control",
+              "def": "Alternative when the primary is not feasible"
+            }
+          ]
         }
       },
       {
         "title": "Zero trust",
         "caption": "Zero trust drops the idea of a trusted internal network: never trust, always verify, for every request, based on identity, device posture and context. Being on the corporate LAN grants nothing by itself.",
         "diagram": {
-          "template": "client-server",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "Zero trust"
+          ],
+          "items": [
+            {
+              "term": "Zero trust",
+              "def": "Never trust, always verify; policy engine + enforcement point"
+            }
+          ]
         }
       },
       {
         "title": "Gap analysis, deception and change management",
         "caption": "A gap analysis compares your current security posture with a desired standard, often a framework such as NIST CSF or ISO 27001, and turns the differences into a roadmap.",
         "diagram": {
-          "template": "comparison",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "Gap analysis",
+            "Honeypot"
+          ],
+          "items": [
+            {
+              "term": "Gap analysis",
+              "def": "Current posture vs a target standard"
+            },
+            {
+              "term": "Honeypot",
+              "def": "Decoy: any interaction is suspicious"
+            }
+          ]
         }
       }
     ]
@@ -31135,40 +31228,81 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Python is the glue language of IT and security work: short scripts rename a thousand files, parse a firewall log, or call a cloud API. Everything starts with values, the variables that name them, and the operators that combine them.",
         "diagram": {
-          "template": "client-server",
-          "labels": []
+          "template": "roadmap",
+          "labels": [
+            "Values, types and variables",
+            "Operators you will use constantly",
+            "Converting types and reading input",
+            "Strings: indexing, immutability and f-strings"
+          ]
         }
       },
       {
         "title": "Values, types and variables",
         "caption": "Every value has a type, and `type(value)` tells you which. `42` is an `int`, `3.0` is a `float` (any literal with a decimal point), `\"hi\"` is a `str`, `True` and `False` are `bool`, and `None` is the single value that means \"nothing here\". Functions that do not return anything give back `None`.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "int / float / str / bool",
+            "None",
+            "int(\"42\")"
+          ],
+          "items": [
+            {
+              "term": "int / float / str / bool",
+              "def": "Whole numbers, decimals, text, True/False"
+            },
+            {
+              "term": "None",
+              "def": "The \"no value\" object; default return value of functions"
+            },
+            {
+              "term": "int(\"42\")",
+              "def": "Parse text to a number (ValueError if invalid)"
+            }
+          ]
         }
       },
       {
         "title": "Operators you will use constantly",
         "caption": "`+ - * /` work as expected, and `/` always returns a `float` (`7 / 2` is `3.5`). Floor division `//` divides and rounds down (`7 // 2` is `3`), modulo `%` gives the remainder (`7 % 2` is `1`), and `**` raises to a power (`2 ** 3` is `8`).",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "keywords",
+          "labels": [
+            "float",
+            "7 / 2",
+            "3.5",
+            "7 // 2"
+          ]
         }
       },
       {
         "title": "Converting types and reading input",
         "caption": "`input()` always returns a `str`, even if the user types digits. Convert with `int(\"42\")` or `float(\"3.5\")`. If the text is not a valid number, `int()` raises `ValueError`, which you will learn to handle in the Files & Errors lesson.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "keywords",
+          "labels": [
+            "input()",
+            "str",
+            "int(\"42\")",
+            "float(\"3.5\")"
+          ]
         }
       },
       {
         "title": "Strings: indexing, immutability and f-strings",
         "caption": "Strings are sequences of characters, indexed from zero: `\"abc\"[1]` is `\"b\"`. Negative indices count from the end, so `\"hello\"[-1]` is `\"o\"`. `len(\"hello\")` is `5`.",
         "diagram": {
-          "template": "flow",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "Immutable strings"
+          ],
+          "items": [
+            {
+              "term": "Immutable strings",
+              "def": "Methods return a new string; reassign the result"
+            }
+          ]
         }
       }
     ]
@@ -31274,32 +31408,75 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "The command line is the native interface of every Linux server, container, and cloud VM you will ever touch. Graphical tools come and go; the shell is always there, scriptable and identical everywhere. This lesson builds the muscle memory: knowing where you are, moving around, creating and destroying files, finding things, and getting help.",
         "diagram": {
-          "template": "client-server",
-          "labels": []
+          "template": "roadmap",
+          "labels": [
+            "Where you are and what is around you",
+            "Creating, moving, and destroying",
+            "Finding files and getting help"
+          ]
         }
       },
       {
         "title": "Where you are and what is around you",
         "caption": "`pwd` prints your working directory as an absolute path, starting at `/` (the root). An absolute path like `/etc/ssh/sshd_config` works from anywhere; a relative path like `../logs` or `docs/report.txt` is interpreted from where you currently stand.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "pwd",
+            "rm -rf dir/"
+          ],
+          "items": [
+            {
+              "term": "pwd",
+              "def": "Print working directory (absolute path)"
+            },
+            {
+              "term": "rm -rf dir/",
+              "def": "Delete recursively, no prompt, no undo"
+            }
+          ]
         }
       },
       {
         "title": "Creating, moving, and destroying",
         "caption": "`mkdir -p projects/2026/q1` creates the whole chain at once, `touch file` creates an empty file or updates timestamps, `cp -r` copies trees, and `mv` both moves and renames. `rm -rf` deletes recursively without asking and without a trash can — the most feared command for a reason: double-check the path before pressing enter.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "mkdir -p a/b/c",
+            "find /var -name \"x\"",
+            "man <cmd> / tldr <cmd>"
+          ],
+          "items": [
+            {
+              "term": "mkdir -p a/b/c",
+              "def": "Create nested directories in one step"
+            },
+            {
+              "term": "find /var -name \"x\"",
+              "def": "Search the filesystem by name"
+            },
+            {
+              "term": "man <cmd> / tldr <cmd>",
+              "def": "Full manual / quick examples"
+            }
+          ]
         }
       },
       {
         "title": "Finding files and getting help",
         "caption": "Two commands answer most 'where is it?' questions. `find /var/log -name '*.log' -mtime -1` searches a directory tree by name, type, size or modification time and can act on what it finds (`-exec`, or `-delete` with care). `locate` searches a prebuilt index and is much faster, but only knows about files that existed at the last `updatedb` run. `which python3` shows which executable your shell will actually run.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "Tab"
+          ],
+          "items": [
+            {
+              "term": "Tab",
+              "def": "Autocomplete commands, paths, options"
+            }
+          ]
         }
       }
     ]
@@ -31493,16 +31670,39 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Cloud computing changed how organisations buy and run IT: capacity on demand, paid for as it is used, managed through APIs. It also changed who is responsible for what, and misunderstanding that split is behind many cloud breaches.",
         "diagram": {
-          "template": "concept",
-          "labels": []
+          "template": "roadmap",
+          "labels": [
+            "What makes something \"cloud\"",
+            "Service and deployment models",
+            "Shared responsibility",
+            "Where cloud runs"
+          ]
         }
       },
       {
         "title": "What makes something \"cloud\"",
         "caption": "NIST SP 800-145 defines five essential characteristics: on-demand self-service, broad network access, resource pooling, rapid elasticity and measured service. If you cannot provision it yourself in minutes and pay by use, it is hosting, not cloud.",
         "diagram": {
-          "template": "topology",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "NIST 800-145",
+            "CapEx → OpEx",
+            "Elasticity"
+          ],
+          "items": [
+            {
+              "term": "NIST 800-145",
+              "def": "5 characteristics: self-service, network access, pooling, elasticity, measured"
+            },
+            {
+              "term": "CapEx → OpEx",
+              "def": "Pay as you go"
+            },
+            {
+              "term": "Elasticity",
+              "def": "Automatic scaling both ways"
+            }
+          ]
         }
       },
       {
@@ -31522,16 +31722,42 @@ export const freeLessonContent = {
         "title": "Shared responsibility",
         "caption": "The provider secures the cloud itself (data centres, hardware, the virtualisation layer); the customer secures what they put in the cloud. The split shifts with the model: in IaaS you patch the OS; in SaaS you do not.",
         "diagram": {
-          "template": "layers",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "Shared responsibility"
+          ],
+          "items": [
+            {
+              "term": "Shared responsibility",
+              "def": "Provider: of the cloud; customer: in the cloud"
+            }
+          ]
         }
       },
       {
         "title": "Where cloud runs",
         "caption": "A region is a geographic area; an availability zone (AZ) is one or more isolated data centres within a region, with independent power and networking. Spread workloads across AZs for high availability, and across regions for disaster recovery. Edge locations cache content close to users as part of a CDN, such as CloudFront, Azure Front Door or Cloud CDN.",
         "diagram": {
-          "template": "topology",
-          "labels": []
+          "template": "terms",
+          "labels": [
+            "IaaS — Infrastructure as a Service",
+            "Region vs AZ",
+            "Edge location"
+          ],
+          "items": [
+            {
+              "term": "IaaS — Infrastructure as a Service",
+              "def": "Customer manages the OS and up"
+            },
+            {
+              "term": "Region vs AZ",
+              "def": "Geography vs isolated data centres"
+            },
+            {
+              "term": "Edge location",
+              "def": "CDN cache near users"
+            }
+          ]
         }
       }
     ]
