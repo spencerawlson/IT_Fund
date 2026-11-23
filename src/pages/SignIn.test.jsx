@@ -324,7 +324,7 @@ describe('SignIn lab usage meter (mounted, Phase 0)', () => {
   const SUBSCRIBED = {
     subscribed: true,
     status: 'active',
-    currentPeriodEnd: '2026-12-11T00:00:00Z',
+    currentPeriodEnd: '2026-12-11T12:00:00Z', // midday UTC: the same calendar date in every time zone the suite runs in
     loading: false,
     refresh: () => {},
   };

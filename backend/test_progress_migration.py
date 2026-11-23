@@ -324,9 +324,14 @@ def test_kill_mid_migration_rolls_back(request, db_fixture, id_map):
         "migration finished before the kill — increase KILL_ROWS so the "
         "run takes seconds; otherwise this test proves nothing"
     )
-    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    if hasattr(os, "killpg"):
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    else:  # Windows has no process groups/SIGKILL: TerminateProcess is the hard kill
+        proc.kill()
     _, stderr = proc.communicate()
-    assert proc.returncode == -signal.SIGKILL
+    # POSIX reports death by signal as -SIGKILL; Windows' TerminateProcess
+    # exits with code 1. Either way the run must not have finished cleanly.
+    assert proc.returncode == (-signal.SIGKILL if hasattr(signal, "SIGKILL") else 1)
 
     assert _alembic_version(url) == OLD_HEAD, "killed run advanced the version"
     assert _row_hashes(url) == before, "killed run left partially translated rows"
