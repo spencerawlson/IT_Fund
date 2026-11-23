@@ -13,6 +13,10 @@
 //   (jwsRepresentation). It does NOT finish the transaction: the web layer
 //   posts the JWS to POST /iap/verify first, and only calls
 //   finishTransaction after the backend confirms the entitlement. That
+//   NOTE: the signed JWS lives on VerificationResult, not on Transaction
+//   (Transaction only has the unsigned jsonRepresentation). Always read it
+//   from the VerificationResult that delivered the transaction —
+//   transaction.jwsRepresentation does not exist and fails the build.
 //   order is what makes a purchase survive an app kill mid-flight — an
 //   unfinished transaction is re-delivered by StoreKit on next launch.
 // - Listens to Transaction.updates and forwards verified transactions to
@@ -60,7 +64,7 @@ public class R2CStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                         "transactionId": String(transaction.id),
                         "originalTransactionId": String(transaction.originalID),
                         "productId": transaction.productID,
-                        "signedTransaction": transaction.jwsRepresentation
+                        "signedTransaction": result.jwsRepresentation
                     ])
                 case .unverified:
                     // Local verification failed (jailbroken device or a
@@ -145,7 +149,7 @@ public class R2CStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                             "transactionId": String(transaction.id),
                             "originalTransactionId": String(transaction.originalID),
                             "productId": transaction.productID,
-                            "signedTransaction": transaction.jwsRepresentation
+                            "signedTransaction": verification.jwsRepresentation
                         ])
                     case .unverified:
                         call.reject("The App Store transaction could not be verified on this device.")
@@ -178,7 +182,7 @@ public class R2CStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                         "transactionId": String(transaction.id),
                         "originalTransactionId": String(transaction.originalID),
                         "productId": transaction.productID,
-                        "signedTransaction": transaction.jwsRepresentation
+                        "signedTransaction": result.jwsRepresentation
                     ])
                 case .unverified:
                     break
@@ -197,9 +201,16 @@ public class R2CStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
             // Idempotent: a transaction that is already finished (or was
             // finished on another device) simply is not in the unfinished
             // list, and resolving anyway keeps the web layer from retrying.
-            for await transaction in Transaction.unfinished {
-                if String(transaction.id) == transactionId {
-                    await transaction.finish()
+            // Transaction.unfinished yields VerificationResult values, not
+            // bare Transactions — unwrap before touching .id / .finish().
+            unfinishedLoop: for await result in Transaction.unfinished {
+                switch result {
+                case .verified(let transaction):
+                    if String(transaction.id) == transactionId {
+                        await transaction.finish()
+                        break unfinishedLoop
+                    }
+                case .unverified:
                     break
                 }
             }
