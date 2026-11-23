@@ -90,8 +90,18 @@ function AccountMenu({ compact = false }) {
   const { isAuthenticated, user } = useAuth();
   const avatar = isAuthenticated && user?.avatar_url;
   if (compact) {
+    if (!isAuthenticated) {
+      // Mobile top bar, signed out: a labeled pill, not an icon alone — the
+      // icon-only version gave no visible "Sign in" anywhere on phones.
+      return (
+        <Link to="/signin" className="flex h-10 items-center gap-2 rounded-control px-3 text-small font-semibold text-ink-1 hover:bg-black/[0.04]">
+          <LogIn size={18} aria-hidden="true" />
+          <span>Sign in</span>
+        </Link>
+      );
+    }
     return (
-      <Link to="/signin" aria-label={isAuthenticated ? 'Your account' : 'Sign in'} className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-black/[0.04]">
+      <Link to="/signin" aria-label="Your account" className="flex h-10 w-10 items-center justify-center rounded-control text-ink-1 hover:bg-black/[0.04]">
         {avatar ? <img src={user.avatar_url} alt="" className="h-7 w-7 rounded-full border border-black/10" /> : <LogIn size={20} aria-hidden="true" />}
       </Link>
     );

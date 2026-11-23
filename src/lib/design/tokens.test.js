@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { ACTION, ACTION_SURFACE, BASE, DARK_ACTION, DARK_ACTION_SURFACE, DARK_BASE, DARK_INK, DARK_SEMANTIC, DARK_SURFACES, INK, SEMANTIC, SURFACES, TERMINAL, contrast, hexToRgb, worstContrast, worstDarkContrast } from './tokens';
+import { ACTION, ACTION_SURFACE, BASE, CONTINUE_SURFACE, DARK_ACTION, DARK_ACTION_SURFACE, DARK_BASE, DARK_CONTINUE_SURFACE, DARK_INK, DARK_SEMANTIC, DARK_SURFACES, INK, SEMANTIC, SURFACES, TERMINAL, contrast, hexToRgb, over, worstContrast, worstDarkContrast } from './tokens';
 
 const css = readFileSync(new URL('../../index.css', import.meta.url), 'utf8');
 const cssVar = (name) => css.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1].trim();
@@ -44,6 +44,28 @@ describe('design tokens', () => {
   it('primary button text passes AA on the accent', () => {
     expect(contrast(hexToRgb(ACTION.actionInk), hexToRgb(ACTION.action))).toBeGreaterThanOrEqual(4.5);
     expect(contrast(hexToRgb(ACTION.actionInk), hexToRgb(ACTION.actionHover))).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('"Up next" hero surface (mobile, 2026-11-23)', () => {
+  // The dashboard hero must read as different from every other card, in both
+  // themes. The surface is a token (not a hand-rolled tint): light is a dull
+  // lavender wash over white, dark is a grey lift over black.
+  it('matches tokens.js in both themes and keeps text readable', () => {
+    expect(cssVar('surface-continue')).toBe(`rgba(${CONTINUE_SURFACE.join(', ')})`);
+    expect(darkCssVar('surface-continue')).toBe(`rgba(${DARK_CONTINUE_SURFACE.join(', ')})`);
+    for (const [key, hex] of Object.entries(INK)) {
+      expect(
+        contrast(hexToRgb(hex), over(CONTINUE_SURFACE, hexToRgb(BASE))),
+        `${key} on continue`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+    for (const [key, hex] of Object.entries(DARK_INK)) {
+      expect(
+        contrast(hexToRgb(hex), over(DARK_CONTINUE_SURFACE, hexToRgb(DARK_BASE))),
+        `${key} on dark continue`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });
 

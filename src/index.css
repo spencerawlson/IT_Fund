@@ -69,6 +69,8 @@
     --surface-1: rgba(255, 255, 255, 0.68);
     --surface-2: rgba(255, 255, 255, 0.88);
     --surface-3: rgba(255, 255, 255, 0.96);
+    /* "Up next" hero surface: a dull lavender wash over the white page. */
+    --surface-continue: rgba(124, 58, 237, 0.07);
     /* Solarized terminal: the one intentionally dark surface in the product. */
     --terminal-bg: #002B36;
     --terminal-border: #073642;
@@ -146,6 +148,8 @@
     --surface-1: rgba(18, 18, 18, 0.68);
     --surface-2: rgba(28, 28, 30, 0.88);
     --surface-3: rgba(28, 28, 30, 0.96);
+    /* "Up next" hero surface: a grey lift over black. */
+    --surface-continue: rgba(255, 255, 255, 0.09);
   }
 }
 
@@ -510,6 +514,21 @@ html[data-theme="dark"] .glass-3 {
   background: var(--surface-3);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.65);
+}
+
+/* ---- The dashboard "Up next" hero: the one card that must read as different
+   from every other card, in both themes. Light: a dull lavender wash over the
+   white page. Dark: a grey lift with a violet ring and a soft glow.
+   Unlayered on purpose (see the note above): it beats .glass-1 without
+   !important, in both themes and in the no-backdrop-filter fallback. ---- */
+.continue-card {
+  background: var(--surface-continue);
+}
+html[data-theme="dark"] .continue-card {
+  border-color: rgba(196, 181, 253, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 24px -4px rgba(196, 181, 253, 0.35);
 }
 
 /* ---- Borders and dividers: black tints become white tints at the same alpha.
