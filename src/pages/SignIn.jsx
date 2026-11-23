@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
+import { DeleteAccountSection } from '@/components/DeleteAccountSection';
 import Seo from '@/components/Seo';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription, useLabUsage } from '@/lib/subscription';
@@ -207,6 +208,13 @@ export default function SignIn() {
   useDocumentTitle('Sign in · Road to CISSP');
   const { isAuthenticated, isLoadingAuth, user, signInWith, signOut } = useAuth();
   const [params] = useSearchParams();
+  const navigate = useNavigate();
+  // After a self-service delete the session is already revoked server-side;
+  // signOut clears the local state (native token, sync) and we go home.
+  const handleAccountDeleted = async () => {
+    await signOut();
+    navigate('/');
+  };
   const oauthFailed = params.get('error') === 'oauth';
   // Seats full: the OAuth callback refused to create a new account because
   // the platform hit the 10,000-seat cap (see backend/auth/identity.py).
@@ -261,6 +269,7 @@ export default function SignIn() {
           </div>
         </Card>
         <SubscriptionSection />
+        <DeleteAccountSection onDeleted={handleAccountDeleted} />
       </PageContainer>
     );
   }

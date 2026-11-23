@@ -319,6 +319,13 @@ from analytics import router as analytics_router  # noqa: E402
 app.include_router(voice_router)
 app.include_router(voice_router, prefix="/api")
 app.include_router(analytics_router)
+
+# Self-service account deletion (Guideline 5.1.1(v)). Both prefixes like
+# the other routers, so DELETE /api/account works behind the /api rewrite.
+from account import router as account_router  # noqa: E402
+
+app.include_router(account_router)
+app.include_router(account_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
 
 # ---- routes ----

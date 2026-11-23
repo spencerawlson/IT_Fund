@@ -32,7 +32,7 @@ export default function Privacy() {
           Privacy Policy
         </h1>
         <p className="mt-4 text-body text-ink-2">
-          Last updated 16 November 2026. This page describes what Road to CISSP collects, what it stores, and what it does not do with your data.
+          Last updated 23 November 2026. This page describes what Road to CISSP collects, what it stores, and what it does not do with your data.
         </p>
 
         <section className="mt-10">
@@ -77,7 +77,11 @@ export default function Privacy() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">Deleting your account</h2>
           <p className="mt-2 text-body text-ink-2">
-            There is currently no self-serve way to delete your account from inside the app. That is a gap we know about: until a self-serve option exists, this page will say so plainly rather than pretend otherwise.
+            You can delete your account yourself from the account page: sign in, then choose Delete
+            account. Deleting cancels your subscription so you are not charged again, and permanently
+            removes your progress, lab history, and sign-in sessions. If you subscribed through the
+            App Store, cancel that subscription in iOS Settings first — deleting your account here
+            does not cancel an Apple subscription.
           </p>
         </section>
 

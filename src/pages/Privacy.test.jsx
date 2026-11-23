@@ -47,7 +47,15 @@ describe('Privacy page (audit F-06)', () => {
     expect(html).toContain('never touch this site');
     expect(html).toContain('Plausible Analytics');
     expect(html).toContain('do not sell your personal data');
-    expect(html).toContain('no self-serve way to delete your account');
+    // Self-service delete (Guideline 5.1.1(v), 2026-11-23): the account
+    // page has the control; the policy says what it does and is honest
+    // about Apple subscriptions (managed by Apple, not by the site).
+    expect(html).toContain('delete your account yourself');
+    expect(html).toContain('account page');
+    expect(html).toContain('cancels your subscription');
+    expect(html).toContain('iOS Settings');
+    expect(html).toContain('does not cancel an Apple subscription');
+    expect(html).not.toContain('no self-serve way to delete your account');
   });
 
   it('invents no support email or contact channel', () => {

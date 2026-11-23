@@ -34,6 +34,18 @@ class SeatsFullError(Exception):
     """
 
 
+class AccountDeletedError(Exception):
+    """Raised when a sign-in resolves to a soft-deleted account.
+
+    A deleted account can never get a working session again — not via a
+    returning identity, not via a verified-email auto-merge, and not via a
+    one-time native code minted before the delete. The identity rows and
+    email are purged/scrubbed by the delete itself, so in the normal flow
+    this only fires for a sign-in that was already in flight while the
+    delete ran; signing in again afterwards creates a fresh account.
+    """
+
+
 @dataclass
 class OAuthIdentity:
     provider: str          # "google" | "github"
@@ -71,6 +83,11 @@ def upsert_identity(db, info: OAuthIdentity) -> User:
     ).scalars().first()
 
     if existing is not None:
+        if existing.user.deleted_at is not None:
+            # A sign-in already in flight while the account was deleted:
+            # refuse it rather than restoring the email/name on the deleted
+            # row. Signing in again afterwards creates a fresh account.
+            raise AccountDeletedError("This account was deleted.")
         existing.email = info.email
         existing.email_verified = info.email_verified
         _apply_profile(existing.user, info)
@@ -80,6 +97,8 @@ def upsert_identity(db, info: OAuthIdentity) -> User:
     user = None
     if info.email_verified and info.norm_email:
         user = _find_user_by_verified_email(db, info.norm_email)  # auto-merge
+    if user is not None and user.deleted_at is not None:
+        raise AccountDeletedError("This account was deleted.")
     if user is None:
         # Seat cap: no new public accounts once the platform is full. The
         # count runs in this transaction, so two signups racing at the
