@@ -65,10 +65,15 @@ describe('vercel frontend rewrites cover every client route (R-05)', () => {
     expect(sitemapPaths.filter((p) => !isCovered(p))).toEqual([]);
   });
 
-  it('keeps /api routed to the backend service', () => {
+  it('routes no /api path to a backend service (removed 2026-11-23)', () => {
+    // The Vercel backend service was removed: it could never boot without
+    // SESSION_SECRET (backend/main.py fail-fast guard, added Nov 11) and no
+    // production client ever called it — the bundle calls
+    // api.road2cissp.com directly. /api/* on www now falls through to the
+    // edge 404 instead of a 500 FUNCTION_INVOCATION_FAILED.
     const api = (vercel.rewrites || []).find((r) => r.source.includes('/api'));
-    expect(api).toBeDefined();
-    expect(api.destination).toEqual({ type: 'service', service: 'backend' });
+    expect(api).toBeUndefined();
+    expect(vercel.services?.backend).toBeUndefined();
   });
 
   it('ships a static branded 404 page for the edge to serve', () => {
