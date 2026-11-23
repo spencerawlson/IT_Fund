@@ -46,7 +46,7 @@ const meta = (...parts) => parts.filter(Boolean).join(' · ');
 export function ContinueLearning({ state, next }) {
   if (!next) {
     return (
-      <Card level={2} padding="lg">
+      <Card level={2} padding="lg" className="continue-card">
         <h2 className="text-heading text-ink-1">Every lesson is complete.</h2>
         <p className="mt-2 text-body text-ink-2">Keep your reviews going, or take a module’s knowledge assessment.</p>
       </Card>
@@ -60,7 +60,7 @@ export function ContinueLearning({ state, next }) {
   const label = resume ? `Resume${total ? ` · step ${resume.index + 1} of ${total}` : ''}` : started ? 'Continue lesson' : 'Start lesson';
 
   return (
-    <Card as="section" padding="lg" aria-labelledby="continue-heading">
+    <Card as="section" padding="lg" className="continue-card" aria-labelledby="continue-heading">
       <p className="text-caption font-semibold uppercase tracking-wider text-ink-2">
         {resume ? 'Pick up where you left off' : 'Up next'}
       </p>

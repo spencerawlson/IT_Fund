@@ -177,4 +177,28 @@ describe('dashboard card layouts (2026-11-08, phone screenshot)', () => {
       expect(src(f)).toContain('glass-1 nav-solid');
     }
   });
+
+  it('landing header shows Sign in on phones and shortens the signup label (2026-11-23)', () => {
+    const s = src('src/pages/Landing.jsx');
+    expect(s).not.toContain('hidden sm:inline-flex');
+    expect(s).toContain('>Sign up<');
+    expect(s).toContain('sm:hidden');
+    expect(s).toContain('hidden sm:inline');
+  });
+
+  it('mobile top bar shows a labeled Sign in pill for signed-out visitors (2026-11-23)', () => {
+    const s = src('src/components/shell/AppShell.jsx');
+    expect(s).toContain('<span>Sign in</span>');
+  });
+
+  it('the "Up next" hero card carries its own surface class and token (2026-11-23)', () => {
+    expect(src('src/components/academy/ui/cards.jsx')).toContain('continue-card');
+    const css = src('src/index.css');
+    expect(css).toContain('--surface-continue: rgba(124, 58, 237, 0.07);');
+    expect(css).toContain('--surface-continue: rgba(255, 255, 255, 0.09);');
+    expect(css).toContain('.continue-card');
+    const tokens = src('src/lib/design/tokens.js');
+    expect(tokens).toContain('CONTINUE_SURFACE');
+    expect(tokens).toContain('DARK_CONTINUE_SURFACE');
+  });
 });

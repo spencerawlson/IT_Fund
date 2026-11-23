@@ -14,6 +14,11 @@ const SIGNED_IN_AUTH = {
   isLoadingAuth: false,
   authChecked: true,
 };
+const SIGNED_IN_AVATAR_AUTH = {
+  user: { display_name: 'Test User', avatar_url: 'https://example.com/avatar.png', providers: ['google'] },
+  isLoadingAuth: false,
+  authChecked: true,
+};
 
 function renderShell(auth) {
   const queryClient = new QueryClient();
@@ -91,5 +96,21 @@ describe('AppShell bottom tab bar auto-hide (floating-nav overlap, 2026-11-19)',
     // The hide class is translate-y-[calc(100%+1rem)]; other translate-y
     // utilities (e.g. the search icon's -translate-y-1/2) are unrelated.
     expect(html).not.toContain('translate-y-[calc(100%+1rem)]');
+  });
+});
+
+describe('AppShell mobile top bar sign-in (2026-11-23)', () => {
+  // The compact AccountMenu was icon-only when signed out (a LogIn icon with
+  // an aria-label and no visible text), so phones showed no "Sign in" in the
+  // app header at all.
+  it('shows a visible "Sign in" label in the mobile top bar for signed-out visitors', () => {
+    const html = renderShell(ANON_AUTH);
+    expect(html).toContain('>Sign in<');
+  });
+
+  it('keeps the signed-in avatar icon-only in the mobile top bar', () => {
+    const html = renderShell(SIGNED_IN_AVATAR_AUTH);
+    expect(html).toContain('avatar.png');
+    expect(html).not.toContain('>Sign in<');
   });
 });

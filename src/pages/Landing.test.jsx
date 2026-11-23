@@ -196,3 +196,30 @@ describe('Landing social profiles', () => {
     expect(graph.some((node) => node['@type'] === 'FAQPage')).toBe(false);
   });
 });
+
+describe('Landing header sign-in (mobile, 2026-11-23)', () => {
+  // The header Sign in was `hidden sm:inline-flex` unless seats were full,
+  // so phones saw no Sign in anywhere in the header.
+  const headerHtml = () => {
+    const html = renderLanding();
+    return (html.match(/<header[\s\S]*?<\/header>/) || [])[0] || '';
+  };
+  const anchorsOf = (html) => [...html.matchAll(/<a([^>]*)>([\s\S]*?)<\/a>/g)];
+  const classTokens = (attrs) => ((attrs.match(/class="([^"]*)"/) || [])[1] || '').split(/\s+/);
+
+  it('shows "Sign in" on all sizes — never hidden on phones', () => {
+    const header = headerHtml();
+    const signIn = anchorsOf(header).find(([, , inner]) => inner.trim() === 'Sign in');
+    expect(signIn).toBeDefined();
+    expect(classTokens(signIn[1])).not.toContain('hidden');
+    expect(classTokens(signIn[1])).toContain('inline-flex');
+  });
+
+  it('shortens the signup label to "Sign up" on phones, full label from sm up', () => {
+    const header = headerHtml();
+    expect(header).toContain('>Sign up<');
+    expect(header).toContain('Create free account');
+    expect(header).toContain('sm:hidden');
+    expect(header).toContain('hidden sm:inline');
+  });
+});

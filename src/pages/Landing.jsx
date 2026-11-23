@@ -136,12 +136,15 @@ export default function Landing() {
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5 sm:px-6">
         <span className="whitespace-nowrap text-body font-bold tracking-tight">Road to CISSP</span>
-        {/* Phones get one primary "Sign in" (both buttons open /signin); wider screens show both. */}
+        {/* "Sign in" is always visible, on every size; the signup label shortens to "Sign up" on phones. */}
         <div className="flex items-center gap-1 whitespace-nowrap sm:gap-2">
           <ThemeToggle />
-          <Button variant="ghost" size="sm" to="/signin" className={seatsFull ? 'inline-flex' : 'hidden sm:inline-flex'}>Sign in</Button>
+          <Button variant="ghost" size="sm" to="/signin">Sign in</Button>
           {!seatsFull && (
-            <Button variant="secondary" size="sm" to="/signin?signup=1">Create free account</Button>
+            <Button variant="secondary" size="sm" to="/signin?signup=1">
+              <span className="sm:hidden">Sign up</span>
+              <span className="hidden sm:inline">Create free account</span>
+            </Button>
           )}
         </div>
       </header>

@@ -45,6 +45,15 @@ export const SURFACES = {
   'glass-3': [255, 255, 255, 0.96],
 };
 
+/**
+ * The dashboard "Up next" hero surface ([r, g, b, alpha]): a translucent
+ * lavender wash, duller than the white page. The Card renders it via
+ * .continue-card in src/index.css; tokens.test.js checks the match and the
+ * text contrast. NOT part of SURFACES: the tokens.test.js loops derive CSS
+ * var names from name.slice(-1), which only works for glass-1/2/3.
+ */
+export const CONTINUE_SURFACE = [124, 58, 237, 0.07];
+
 /** Solarized terminal palette: deep blue-green base, Solarized green text. */
 export const TERMINAL = {
   background: '#002B36',
@@ -107,6 +116,9 @@ export const DARK_SURFACES = {
   'glass-2': [28, 28, 30, 0.88],
   'glass-3': [28, 28, 30, 0.96],
 };
+
+/** Dark "Up next" hero surface: a grey lift over black (see CONTINUE_SURFACE). */
+export const DARK_CONTINUE_SURFACE = [255, 255, 255, 0.09];
 
 // ---- contrast maths (WCAG 2.x) ----
 
