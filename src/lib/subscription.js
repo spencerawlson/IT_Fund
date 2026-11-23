@@ -65,7 +65,15 @@ export function clearSubscriptionCache() {
 
 export function useSubscription() {
   const { isAuthenticated } = useAuth();
-  const [state, setState] = useState({ subscribed: false, status: 'loading', currentPeriodEnd: null, loading: true });
+  // Anonymous visitors resolve synchronously: they never get a network call
+  // (the effect below sets exactly this state on mount), and during SSR
+  // effects never run — without this, every prerendered page that gates on
+  // subscription would render its loading branch instead of the free-tier
+  // content. Signed-in users still start loading:true (status unknown until
+  // the fetch resolves).
+  const [state, setState] = useState(() => (isAuthenticated
+    ? { subscribed: false, status: 'loading', currentPeriodEnd: null, loading: true }
+    : { subscribed: false, status: 'anonymous', currentPeriodEnd: null, loading: false }));
 
   const refresh = useCallback(async () => {
     clearSubscriptionCache();

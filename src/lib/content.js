@@ -79,6 +79,26 @@ export function getLessonContent(lessonId) {
 }
 
 /**
+ * Synchronous free-lesson reading body, for server-side rendering only.
+ * The free tier is already in the public bundle, so a free lesson's body can
+ * be read during render — this is what lets prerender emit the full article
+ * instead of the "Loading lesson…" branch (effects never run during SSR).
+ * Returns the same shape the async path sets ({ content, cipherNote,
+ * puzzles, deckCards }), or null for premium lessons. Never reads the API
+ * and never touches premium content: a premium lesson id returns null.
+ */
+export function getFreeLessonContentSync(lessonId) {
+  if (!isLessonFree(lessonId)) return null;
+  const deck = getDeck(lessonId);
+  return {
+    content: freeLessonContent[lessonId] || null,
+    cipherNote: freeCipherNotes[lessonId] || null,
+    puzzles: deck?.puzzles || [],
+    deckCards: deck?.cards || [],
+  };
+}
+
+/**
  * Flatten one lesson's reading body into plain text for the AI tutor, so
  * Cypher explains ONLY what that lesson covers: Overview + Learn sections
  * (headings, paragraphs, and LayerStack rows) + architecture caption +

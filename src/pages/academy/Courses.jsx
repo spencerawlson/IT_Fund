@@ -15,19 +15,9 @@ import {
   courseProgress, courseStatus, courseMinutesLeft, nextLessonInCourse, moduleProgress, moduleStatus, isModuleComplete,
   pathPrerequisites, lessonStatus,
 } from '@/lib/progress/engine';
-import Seo from '@/components/Seo';
+import Seo, { breadcrumbLd } from '@/components/Seo';
 
 const SITE = 'https://www.road2cissp.com';
-// schema.org BreadcrumbList from [{name, path?}]; the last crumb usually has no path.
-const breadcrumbLd = (items) => ({
-  '@type': 'BreadcrumbList',
-  itemListElement: items.map((it, i) => ({
-    '@type': 'ListItem',
-    position: i + 1,
-    name: it.name,
-    ...(it.path ? { item: `${SITE}${it.path}` } : {}),
-  })),
-});
 
 // Courses you're working on come first, then ones you haven't opened, then the ones you finished.
 const ORDER = { 'in-progress': 0, 'not-started': 1, completed: 2 };
@@ -268,6 +258,15 @@ export function ModuleDetail() {
   if (!course || !module) {
     return (
       <PageContainer>
+        {/* Unknown course/module slugs serve HTTP 200 from the SPA shell
+            (soft 404), so this state must at least tell crawlers not to
+            index it. */}
+        <Seo
+          title="Module not found · Road to CISSP"
+          description="This module does not exist on Road to CISSP. Browse all courses to find the module you were looking for."
+          path={`/academy/courses/${courseSlug}`}
+          robots="noindex"
+        />
         <EmptyState icon={SearchX} title="Module not found" to={course ? courseHref(course) : '/academy/courses'} action="Back to the course" />
       </PageContainer>
     );
@@ -279,7 +278,10 @@ export function ModuleDetail() {
   return (
     <PageContainer>
       <Seo
-        title={`${module.title} · Road to CISSP`}
+        // The course name disambiguates: two tracks can share a module
+        // title (e.g. both beginners are "Foundations"), and duplicate
+        // <title>s read as one page to crawlers.
+        title={`${module.title} · ${course.title} · Road to CISSP`}
         description={module.summary}
         path={`/academy/courses/${courseSlug}/${moduleSlug}`}
         jsonLd={moduleLd}

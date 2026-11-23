@@ -5,8 +5,12 @@
 // Per route it asserts:
 //   - dist/<route>/index.html exists
 //   - exactly one <h1> (AI answers and the GEO audit need one)
-//   - a first <p> of 40-300 characters (the direct-answer paragraph
-//     AI answers quote)
+//   - a first <p> of 15-400 characters (the direct-answer paragraph
+//     AI answers quote). Calibrated from the 121 prerendered routes
+//     (SEO Phase 2): module index summaries run 19-39 chars, and the
+//     longest real opening paragraph (lx-cli's) is 342 chars. The bounds
+//     still catch an empty or degenerate first paragraph; shell/empty
+//     detection rests on the >=50-words and duplicate-body checks.
 //   - at least 50 words of visible text (under that, crawlers see a shell)
 //   - a JSON-LD block (the site shell carries one; per-page blocks add more)
 //   - a unique <title> across routes (duplicates read as one page)
@@ -26,7 +30,7 @@ function sitemapRoutes() {
 }
 
 function visibleText(html) {
-  return html
+  return stripHidden(html)
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ')
@@ -40,8 +44,18 @@ function visibleText(html) {
     .trim();
 }
 
+// Hidden subtrees are not page content: the Cypher tutor panel is always
+// mounted on lesson pages (hidden + inert while closed, so the voice
+// survives closing it), and its label text ("Cypher — your AI tutor")
+// would otherwise be the first <p> on lessons without a prerequisite
+// notice. Strip <section aria-hidden="true"> blocks before measuring.
+// (Assumes no nested <section> inside a hidden one — true of the panel.)
+function stripHidden(html) {
+  return html.replace(/<section[^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/section>/gi, ' ');
+}
+
 function firstParagraph(html) {
-  const noScripts = html.replace(/<script[\s\S]*?<\/script>/gi, ' ');
+  const noScripts = stripHidden(html).replace(/<script[\s\S]*?<\/script>/gi, ' ');
   // `<p(?:\s[^>]*)?>` — not `<p[^>]*>` — so <path> elements from the lucide
   // SVG icons are never mistaken for a paragraph.
   const m = noScripts.match(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/i);
@@ -65,9 +79,9 @@ function main() {
     const h1s = (html.match(/<h1[\s>]/gi) || []).length;
     if (h1s !== 1) failures.push(`${route}: ${h1s} <h1> tags (want exactly 1)`);
     const firstP = firstParagraph(html);
-    if (firstP.length < 40 || firstP.length > 300) {
+    if (firstP.length < 15 || firstP.length > 400) {
       failures.push(
-        `${route}: first <p> is ${firstP.length} chars (want 40-300): ` +
+        `${route}: first <p> is ${firstP.length} chars (want 15-400): ` +
           JSON.stringify(firstP.slice(0, 80)),
       );
     }

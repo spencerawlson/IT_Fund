@@ -23,8 +23,8 @@ import { useSubscription, isLessonFree, isLabFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
 import CypherNote from '@/components/academy/lesson/CypherNote';
-import { getLessonContent, getDeckContent, lessonTextFromContent } from '@/lib/content';
-import Seo from '@/components/Seo';
+import { getLessonContent, getDeckContent, getFreeLessonContentSync, lessonTextFromContent } from '@/lib/content';
+import Seo, { breadcrumbLd } from '@/components/Seo';
 
 const SAMPLE_QUESTIONS = 4;
 
@@ -76,13 +76,20 @@ export default function LessonView() {
   // Reading body + cypher note + deck puzzles. Free lessons are bundled;
   // premium lessons come from the entitled content API. The paywall gate
   // below returns before this renders, so a non-subscriber never fetches.
-  const [content, setContent] = useState(null);
+  // Free lessons are seeded synchronously from the bundle at render time:
+  // effects never run during SSR, so without this the prerendered page
+  // would be the "Loading lesson…" branch instead of the article.
+  const [content, setContent] = useState(() => getFreeLessonContentSync(lessonId));
   const [loadFailed, setLoadFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [lessonView, setLessonView] = useLessonView();
   useEffect(() => {
     if (!lesson) return;
     if (!subLoading && !subscribed && !isLessonFree(lessonId)) return;
+    // Free lesson: already seeded from the bundle (above). Re-seed on
+    // navigation so the state follows the new lesson; no fetch, no flash.
+    const seeded = getFreeLessonContentSync(lessonId);
+    if (seeded) { setContent(seeded); return; }
     let live = true;
     setContent(null);
     setLoadFailed(false);
@@ -112,31 +119,10 @@ export default function LessonView() {
     );
   }
 
-  if (!subLoading && !subscribed && !isLessonFree(lessonId)) {
-    return (
-      <PageContainer>
-        {/* Paywall branch: same tags as the main render (canonical lesson URL,
-            real title/summary). Premium lessons are NOT noindexed here — that
-            would pre-empt the pending Phase 2 lesson decision (audit §2.3). */}
-        <Seo
-          title={`${lesson.title} · Road to CISSP`}
-          description={lesson.summary}
-          path={lessonHref(lesson)}
-        />
-        <PageHeader breadcrumbs={[{ label: 'Home', to: '/' }]} title={lesson.title} />
-        <UpgradePrompt what={`The “${lesson.title}” lesson`} />
-      </PageContainer>
-    );
-  }
-
+  // Breadcrumb trail (visible) and its JSON-LD (crawlers): computed once,
+  // used by the paywall branch as well as the main render — the trail is
+  // public catalogue navigation, not lesson content, so the paywall shows it.
   const module = getModule(lesson.moduleKey);
-  const status = lessonStatus(state, lesson);
-  const missionId = MISSION_FOR_LESSON[lesson.id];
-  // Every lab for this lesson: the primary first, then any extras
-  // (net-troubleshoot adds the Wireshark lab beside the DNS lab — the
-  // primary's link never moves). One Launch Lab button per lab.
-  const lessonLabs = labsForLesson(lesson.id);
-  const walkthrough = WALKTHROUGH_VIDEO_FOR[lesson.id];
   const crumbs = [
     { label: 'Home', to: '/' },
     { label: 'Courses', to: '/academy/courses' },
@@ -144,8 +130,39 @@ export default function LessonView() {
     { label: `Module ${module.number}`, to: moduleHref(module) },
     { label: `Lesson ${lesson.number}` },
   ];
-  const title = <>Lesson {lesson.number}: <RichText text={lesson.title} /></>;
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [breadcrumbLd(crumbs.map((c) => ({ name: c.label, ...(c.to ? { path: c.to } : {}) })))],
+  };
 
+  if (!subLoading && !subscribed && !isLessonFree(lessonId)) {
+    return (
+      <PageContainer>
+        {/* Paywall branch: same tags as the main render (canonical lesson URL,
+            real title/summary, breadcrumb JSON-LD). Premium lessons are NOT
+            noindexed here — that would pre-empt the pending Phase 2 lesson
+            decision (audit §2.3): until a public excerpt model exists they
+            stay out of the sitemap and keep serving the shell. */}
+        <Seo
+          title={`${lesson.title} · Road to CISSP`}
+          description={lesson.summary}
+          path={lessonHref(lesson)}
+          jsonLd={breadcrumbJsonLd}
+        />
+        <PageHeader breadcrumbs={crumbs} title={lesson.title} />
+        <UpgradePrompt what={`The “${lesson.title}” lesson`} />
+      </PageContainer>
+    );
+  }
+
+  const status = lessonStatus(state, lesson);
+  const missionId = MISSION_FOR_LESSON[lesson.id];
+  // Every lab for this lesson: the primary first, then any extras
+  // (net-troubleshoot adds the Wireshark lab beside the DNS lab — the
+  // primary's link never moves). One Launch Lab button per lab.
+  const lessonLabs = labsForLesson(lesson.id);
+  const walkthrough = WALKTHROUGH_VIDEO_FOR[lesson.id];
+  const title = <>Lesson {lesson.number}: <RichText text={lesson.title} /></>;
   const c = content?.content || {};
   const resume = state.resume?.deckId === lesson.id ? state.resume : null;
   const best = state.lessons?.[lesson.id]?.best;
@@ -213,6 +230,7 @@ export default function LessonView() {
         title={`${lesson.title} · Road to CISSP`}
         description={lesson.summary}
         path={lessonHref(lesson)}
+        jsonLd={breadcrumbJsonLd}
       />
       <PageHeader breadcrumbs={crumbs} eyebrow={`${course.title} · Module ${module.number}: ${module.title}`} title={title} />
       <div className="-mt-4 mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-2">

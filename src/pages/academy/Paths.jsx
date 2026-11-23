@@ -8,7 +8,7 @@ import { PATHS, getPath, getCourse, formatMinutes, pathMinutes } from '@/data/ca
 import { useAcademy } from '@/lib/academy';
 import { pathProgress, pathStatus } from '@/lib/progress/engine';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
-import Seo from '@/components/Seo';
+import Seo, { breadcrumbLd } from '@/components/Seo';
 
 // Paths you're on come first, then untouched ones, then finished ones. Paths without courses yet
 // are not listed.
@@ -52,11 +52,18 @@ export function PathDetail() {
   const { slug } = useParams();
   const state = useAcademy();
   const path = getPath(slug);
-  useDocumentTitle(path ? `${path.title} · Road to CISSP` : 'Career Path · Road to CISSP');
 
   if (!path) {
     return (
       <PageContainer>
+        {/* Unknown path slugs serve HTTP 200 from the SPA shell (soft 404),
+            so this state must at least tell crawlers not to index it. */}
+        <Seo
+          title="Career path not found · Road to CISSP"
+          description="This career path does not exist on Road to CISSP. Browse all career paths to find the route you were looking for."
+          path={`/academy/paths/${slug}`}
+          robots="noindex"
+        />
         <EmptyState icon={SearchX} title="Path not found" text="It may have been renamed." to="/academy/paths" action="See all career paths" />
       </PageContainer>
     );
@@ -66,10 +73,20 @@ export function PathDetail() {
   const prereqs = pathPrereqItems(state, path);
   const someUnmet = ['required', 'recommended'].some((kind) => prereqs[kind].some((p) => !p.met));
   const crumbs = [{ label: 'Home', to: '/' }, { label: 'Career paths', to: '/academy/paths' }, { label: path.title }];
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [breadcrumbLd(crumbs.map((c) => ({ name: c.label, ...(c.to ? { path: c.to } : {}) })))],
+  };
 
   if (!courses.length) {
     return (
       <PageContainer>
+        <Seo
+          title={`${path.title} · Career path · Road to CISSP`}
+          description={path.summary}
+          path={`/academy/paths/${slug}`}
+          jsonLd={breadcrumbJsonLd}
+        />
         <PageHeader breadcrumbs={crumbs} eyebrow={`${path.difficulty} path`} title={path.title} description={path.summary} />
         <EmptyState icon={Clock} title="Courses coming soon" text="This path’s courses are in development." to="/academy/paths" action="See the other paths" />
       </PageContainer>
@@ -78,6 +95,12 @@ export function PathDetail() {
 
   return (
     <PageContainer>
+      <Seo
+        title={`${path.title} · Career path · Road to CISSP`}
+        description={path.summary}
+        path={`/academy/paths/${slug}`}
+        jsonLd={breadcrumbJsonLd}
+      />
       <PageHeader breadcrumbs={crumbs} eyebrow={`${path.difficulty} path`} title={path.title} description={path.summary} />
 
       <Card>
