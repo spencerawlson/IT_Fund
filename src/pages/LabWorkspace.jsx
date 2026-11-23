@@ -9,9 +9,10 @@ import { getMission, MISSION_ONLY_LABS } from '@/data/missions';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
 import { recordVerifiedLabCompletion } from '@/lib/academy';
-import { useSubscription, isLabFree } from '@/lib/subscription';
+import { useSubscription, isLabFree, useLabUsage } from '@/lib/subscription';
 import { LESSONS_FOR_LAB } from '@/data/labLessons';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import LabUsageMeter from '@/components/LabUsageMeter';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
@@ -108,6 +109,9 @@ export default function LabWorkspace() {
   const { labId } = useParams();
   const navigate = useNavigate();
   const { subscribed, loading: subLoading } = useSubscription();
+  // Phase 0 lab-hours meter: renders only when metered (subscribers); a
+  // failed fetch shows "Lab usage unavailable" and never blocks the page.
+  const { usage: labUsage } = useLabUsage();
   const [lab, setLab] = useState(null);
   const [session, setSession] = useState(null);
   const [draft, setDraft] = useState({});
@@ -411,6 +415,13 @@ export default function LabWorkspace() {
           <Button size="sm" variant="secondary" to="/practice">Exit</Button>
         </div>
       </header>
+
+      {/* Phase 0 lab-hours meter + warning banner, right under the session
+          header. The meter itself renders nothing when unmetered or still
+          loading, and a muted "unavailable" line when its fetch failed. */}
+      <div className="mx-auto max-w-6xl px-3 pt-4 sm:px-6">
+        <LabUsageMeter usage={labUsage} compact />
+      </div>
 
       <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[20rem_1fr]">
         <div className="space-y-4">

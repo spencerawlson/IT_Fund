@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
+import asyncio
 import logging
 
 log = logging.getLogger(__name__)
@@ -147,6 +148,65 @@ def _run_migrations() -> None:
 
 from contextlib import asynccontextmanager  # noqa: E402
 
+#: How often the periodic lab reaper sweeps (Phase 0 lab-hours launch
+#: gate). Five minutes bounds the lazy-expiry cost leak — a container
+#: past its expiry lives at most one interval past it — while keeping
+#: the sweep cheap (it only touches expired sessions and stale rows).
+LAB_REAPER_INTERVAL_SECONDS = 300
+
+
+async def _reap_lab_containers_once() -> int:
+    """One periodic lab reaper sweep. Returns in-memory sessions destroyed.
+
+    Three idempotent steps, each guarded so one failure never blocks the
+    others: (1) destroy expired in-memory sessions (which finalizes their
+    usage rows via labs.sessions), (2) close stale usage rows whose
+    session already expired while this process was down, (3) reap
+    orphaned Docker containers the process no longer tracks (labeled +
+    age-gated, same call the lifespan already makes at startup).
+    """
+    reaped = 0
+    try:
+        from labs.sessions import service as _lab_service
+
+        reaped = await _lab_service.cleanup_expired()
+    except Exception:
+        log.exception("periodic lab expiry sweep failed")
+    try:
+        from labs import usage as _lab_usage
+
+        stale = _lab_usage.finalize_stale_rows()
+        if stale:
+            log.info("finalized %d stale lab usage rows", stale)
+    except Exception:
+        log.exception("stale lab usage sweep failed")
+    try:
+        from labs.sessions import service as _lab_service
+
+        _docker = _lab_service._providers.get("docker")
+        if _docker is not None and hasattr(_docker, "reap_orphans"):
+            orphans = await _docker.reap_orphans()
+            if orphans:
+                log.warning("reaped %d orphaned lab containers", orphans)
+    except Exception:
+        log.exception("periodic lab orphan reaper failed")
+    return reaped
+
+
+async def _lab_reaper_loop(interval_seconds: float = LAB_REAPER_INTERVAL_SECONDS) -> None:
+    """Run the lab reaper forever, until the lifespan cancels it.
+
+    An in-process interval task, not an external cron: no scheduler
+    exists today, and the sweep only needs this process's own memory
+    (in-memory sessions) plus the provider it already holds. With
+    --workers 1 (the standing config) exactly one task runs; every step
+    is idempotent, so a future multi-worker setup would only double-sweep
+    harmlessly.
+    """
+    while True:
+        await asyncio.sleep(interval_seconds)
+        await _reap_lab_containers_once()
+
 
 @asynccontextmanager
 async def lifespan(app):
@@ -174,7 +234,15 @@ async def lifespan(app):
                 log.warning("reaped %d orphaned lab containers on startup", _reaped)
     except Exception:
         log.exception("lab orphan reaper failed on startup")
+    # Periodic lab reaper (Phase 0 launch gate): destroy containers past
+    # their expiry and finalize their usage rows every few minutes.
+    reaper_task = asyncio.create_task(_lab_reaper_loop())
     yield
+    reaper_task.cancel()
+    try:
+        await reaper_task
+    except asyncio.CancelledError:
+        pass
 
 
 app.router.lifespan_context = lifespan

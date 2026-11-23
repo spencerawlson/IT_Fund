@@ -110,6 +110,22 @@ def _period_end(sub: dict) -> int | None:
     return max(ends) if ends else None
 
 
+def _period_start(sub: dict) -> int | None:
+    """The subscription's current period start (unix seconds).
+
+    Mirrors _period_end exactly: top level first, then the earliest item
+    period start. The lab-hours meter needs the start anchor to compute
+    the current window (monthly slices for annual plans); the webhook
+    stores it in subscriptions.current_period_start (Phase 0 lab-hours).
+    """
+    top = sub.get("current_period_start")
+    if top:
+        return top
+    items = ((sub.get("items") or {}).get("data")) or []
+    starts = [it.get("current_period_start") for it in items if isinstance(it, dict) and it.get("current_period_start")]
+    return min(starts) if starts else None
+
+
 def _require_stripe():
     stripe = _stripe()
     if stripe is None:
@@ -248,6 +264,7 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
     """
     sub = _plain(sub)
     period_end = _period_end(sub)
+    period_start = _period_start(sub)
     with db.SessionLocal() as s:
         row = s.get(Subscription, user_id)
         if row is None:
@@ -257,6 +274,12 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
         row.stripe_customer_id = sub["customer"]
         row.stripe_subscription_id = sub["id"]
         row.status = sub["status"]
+        # Phase 0 lab-hours: store the period start anchor alongside the
+        # end so the meter can compute the current window. A payload with
+        # no start (old Stripe API shape) leaves the existing value alone
+        # rather than clearing it.
+        if period_start:
+            row.current_period_start = datetime.fromtimestamp(period_start, tz=timezone.utc)
         row.current_period_end = (
             datetime.fromtimestamp(period_end, tz=timezone.utc) if period_end else None
         )

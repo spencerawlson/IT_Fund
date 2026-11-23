@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   getOrderedCategories, buildTrackList, buildTrackLabs, resolveTrack, buildSearchResults, standaloneLabs, freeLabel,
+  buildLabInfo,
 } from './useLabConsole';
 
 const labs = [
@@ -102,5 +103,44 @@ describe('lab console track navigation', () => {
     expect(standaloneLabs(mixed)).toHaveLength(labs.length);
     expect(standaloneLabs([])).toEqual([]);
     expect(standaloneLabs(null)).toEqual([]);
+  });
+});
+
+describe('lab info: Phase 0 lab-hours note', () => {
+  const base = {
+    slug: 'lab', title: 'Some Lab', difficulty: 'Beginner',
+    estimated_minutes: 30, objectives: [{ id: 'o1' }], description: 'Do the thing.',
+  };
+  const dockerLab = { ...base, id: 'lx-docker-001', environment: { live: true } };
+  const mockLab = { ...base, id: 'net-subnetting-001', environment: { live: false } };
+  const noEnvLab = { ...base, id: 'net-subnetting-001' };
+
+  it('a Docker lab notes it counts toward the 20 included lab-hours', () => {
+    const out = buildLabInfo(dockerLab);
+    expect(out).toContain('Counts toward your 20 included Docker lab-hours.');
+    expect(out).not.toContain("doesn't use your Docker hours");
+  });
+
+  it('a mock lab notes it is free and uses no Docker hours', () => {
+    expect(buildLabInfo(mockLab)).toContain("Free — doesn't use your Docker hours.");
+    expect(buildLabInfo(noEnvLab)).toContain("Free — doesn't use your Docker hours.");
+    expect(buildLabInfo(mockLab)).not.toContain('Counts toward');
+  });
+
+  it('a free lab keeps only "Free — no plan needed" (the showcase Docker lab is unmetered)', () => {
+    // py-basics-001 is Docker AND free: it never counts toward usage, so
+    // the counts line must not appear next to the free line.
+    const showcase = { ...base, id: 'py-basics-001', environment: { live: true } };
+    const out = buildLabInfo(showcase);
+    expect(out).toContain('Free — no plan needed.');
+    expect(out).not.toContain('Counts toward');
+    expect(out).not.toContain("doesn't use your Docker hours");
+    const freeMock = { ...base, id: 'net-vlan-001', environment: { live: false } };
+    expect(buildLabInfo(freeMock)).toContain('Free — no plan needed.');
+    expect(buildLabInfo(freeMock)).not.toContain("doesn't use your Docker hours");
+  });
+
+  it('a missing lab still reports "No such lab"', () => {
+    expect(buildLabInfo(null)).toContain('No such lab');
   });
 });

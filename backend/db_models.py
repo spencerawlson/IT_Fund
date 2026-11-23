@@ -143,6 +143,13 @@ class Subscription(Base):
     stripe_customer_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     stripe_subscription_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="incomplete")
+    # Stripe billing-period anchors, in UTC. current_period_end is what the
+    # billing sync already stored; current_period_start is the matching
+    # start anchor the lab-hours meter needs to compute the current window
+    # (added by the Phase 0 lab-hours migration). Legacy rows written
+    # before it existed have NULL here; the meter falls back to a 31-day
+    # window ending at current_period_end.
+    current_period_start: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     current_period_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # When the subscription went past_due (webhook-set, see billing.py).
     # The 7-day past_due grace is anchored here — never at
@@ -190,6 +197,36 @@ class ProcessedWebhookEvent(Base):
     event_type: Mapped[str] = mapped_column(String(64))
     event_created: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class LabUsageEvent(Base):
+    """Phase 0 lab-hours ledger (shadow mode: measure, don't charge).
+
+    One row per Docker lab session for a signed-in subscriber. The row is
+    written at session start and finalized at termination (destroy / expire
+    / complete). billed_seconds = ceil(min(ended_at, expires_at) - started_at
+    to the started minute), computed by labs.usage.billed_seconds. Guests
+    and the showcase lab (py-basics-001) write no rows. No backfill: usage
+    starts at launch. Restart-orphaned rows are never finalized and stay
+    unbilled — labs.usage.finalize_stale_rows closes rows whose session
+    expired while the process was down, at the reaper's sweep.
+    """
+    __tablename__ = "lab_usage_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    session_id: Mapped[str] = mapped_column(String(64), unique=True)
+    lab_id: Mapped[str] = mapped_column(String(64), index=True)
+    provider: Mapped[str] = mapped_column(String(16), default="docker")
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    billed_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Billing-period window fixed at session start; the meter sums rows whose
+    # period window matches the current window.
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
 class LabSession(Base):

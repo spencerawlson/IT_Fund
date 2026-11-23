@@ -17,6 +17,7 @@ from labs.models import LabError
 from labs.providers.base import CommandResult, LabProvider
 from labs.providers.mock import MockLabProvider
 from labs.registry import get_lab
+from labs import usage as _usage
 
 # Session states (see the brief). A session moves READY -> RUNNING -> COMPLETED, or to EXPIRED /
 # DESTROYED. VALIDATING/FAILED/CREATING/DESTROYING exist for providers that need them later.
@@ -435,6 +436,9 @@ class SessionService:
         session.status = DESTROYED
         self._sessions.pop(session_id, None)
         self._exec_locks.pop(session_id, None)
+        # Phase 0 lab-hours: finalize the usage row at termination. A
+        # no-op for guests, mock labs, and the showcase lab (no row exists).
+        _usage.finalize_session(session_id)
 
     async def cleanup_expired(self) -> int:
         """Destroy the environments of expired/finished sessions and forget them.
@@ -454,6 +458,8 @@ class SessionService:
                 self._sessions.pop(session.id, None)
                 self._exec_locks.pop(session.id, None)
                 removed += 1
+                # Phase 0 lab-hours: finalize the usage row at expiry.
+                _usage.finalize_session(session.id)
         return removed
 
 
