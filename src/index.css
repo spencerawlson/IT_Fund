@@ -694,6 +694,14 @@ html[data-theme="dark"] .hover\:bg-rose-400:hover { background-color: #BE123C; }
   background: var(--sd-bg);
 }
 .slide-deck .sd-stage { background: linear-gradient(145deg, var(--sd-stage-from), var(--sd-stage-to)); }
+/* Adaptive stage: the slide on screen fades in as it mounts (the deck only
+   keeps the active slide in the layout flow, so the stage fits it). Opacity
+   only — no colours here, so both themes are unaffected; the fade is off
+   under prefers-reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .slide-deck .sd-slide-active { animation: sd-fade-in 300ms ease; }
+}
+@keyframes sd-fade-in { from { opacity: 0; } to { opacity: 1; } }
 /* Inline code in slide captions/terms: the deck's code chip (site colours,
    both themes; the html[data-theme] prefix out-ranks the dark remaps). */
 html .slide-deck code,

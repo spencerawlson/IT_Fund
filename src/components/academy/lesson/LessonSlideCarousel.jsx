@@ -11,10 +11,13 @@
 // here is demo copy.
 //
 // Layout: a presentation stage plus a lesson outline (beside it on wide
-// screens, below it on phones). Every slide is rendered into the SAME grid
-// cell and only the current one is visible, so the stage is always as tall
-// as the tallest slide — the controls never jump. Hidden slides are
-// aria-hidden + inert. Keyboard arrows, touch swipe (50px), labelled
+// screens, below it on phones). The stage is ADAPTIVE: only the slide on
+// screen is in the layout flow (the rest are display:none), so the stage
+// fits the current slide instead of the tallest slide in the deck — a short
+// slide no longer shows the tallest slide's empty space underneath. The
+// outline column is top-aligned for the same reason. The slide on screen
+// fades in (300ms, disabled under prefers-reduced-motion). Hidden slides
+// stay in the DOM, aria-hidden + inert. Keyboard arrows, touch swipe (50px), labelled
 // Previous/Next (44px targets), a segmented progress bar, and a short fade
 // that respects prefers-reduced-motion. Colours: .slide-deck (index.css)
 // maps onto the site's own tokens, so light and dark themes both apply.
@@ -39,9 +42,7 @@ function Slide({ slide, index, count, active }) {
       aria-label={`Slide ${index + 1} of ${count}: ${slide.title}`}
       aria-hidden={active ? undefined : true}
       inert={active ? undefined : ''}
-      className={`col-start-1 row-start-1 flex flex-col transition-opacity duration-300 motion-reduce:transition-none ${
-        active ? 'opacity-100' : 'invisible opacity-0'
-      }`}
+      className={`col-start-1 row-start-1 ${active ? 'sd-slide-active flex flex-col' : 'hidden'}`}
     >
       <h3 className="text-[1.5rem] font-bold leading-tight tracking-[-0.02em] text-[var(--sd-text)] sm:text-[2rem]">
         {slide.title}
@@ -143,7 +144,7 @@ export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slid
       style={{ touchAction: 'pan-y' }}
       className="slide-deck scroll-mt-28 overflow-hidden rounded-card p-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-action sm:p-3"
     >
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
         <div className="sd-stage flex min-w-0 flex-col rounded-2xl border border-[var(--sd-border)] p-4 shadow-sm sm:p-7">
           <header className="flex items-center justify-between gap-3 text-caption">
             <p className="truncate font-bold uppercase tracking-[0.14em] text-[var(--sd-accent)]">{eyebrow}</p>
