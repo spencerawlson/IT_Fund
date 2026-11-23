@@ -160,6 +160,63 @@ export const tracks = RAW_TRACKS.map(normaliseTrack);
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);
 
+// ---- Lesson slide decks (carousel, 2026-11-23) ----
+// Derived per lesson from its own body text: one Overview slide plus one
+// slide per learn section (cap 5). Captions are verbatim paragraphs — an
+// overview paragraph or a learn section's first paragraph — never invented
+// copy. Diagram templates come from the small SVG kit in
+// src/components/academy/lesson/SlideDiagram.jsx; a section whose body
+// carries a LayerStack renders as a layers diagram labelled with the stack's
+// real item names. Pure + deterministic, so the export test can pin it and
+// the committed artifacts must match a fresh build. The deck rides inside
+// the lesson object: the entitled API serves it with exactly the lesson's
+// own gating, and the public build carries it only for the free lessons.
+const SLIDE_MAX = 5;
+
+function templateForSlide(text) {
+  const t = String(text || '').toLowerCase();
+  if (/layer|stack|osi|hierarchy|\blevel\b/.test(t)) return 'layers';
+  if (/client|server|request|response|\bapi\b|http|browser/.test(t)) return 'client-server';
+  if (/\bvs\b|versus|compar|difference|instead of|rather than/.test(t)) return 'comparison';
+  if (/cycle|loop|repeat|feedback|iterat|round.?trip/.test(t)) return 'cycle';
+  if (/topolog|network|node|mesh|\bstar\b|hub|subnet|rout/.test(t)) return 'topology';
+  if (/step|process|flow|stage|phase|pipeline|order|sequence/.test(t)) return 'flow';
+  return 'concept';
+}
+
+const slideCache = new Map();
+
+export function deriveLessonSlides(lessonId, lesson) {
+  if (slideCache.has(lessonId)) return slideCache.get(lessonId);
+  const slides = [];
+  if (lesson && typeof lesson === 'object') {
+    const deckTitle = allDecks.find((d) => d.id === lessonId)?.title || '';
+    const overview = (lesson.overview || []).filter((p) => typeof p === 'string' && p.trim());
+    if (overview.length) {
+      slides.push({
+        title: 'Overview',
+        caption: overview[0],
+        diagram: { template: templateForSlide(`${deckTitle} ${overview[0]}`), labels: [] },
+      });
+    }
+    for (const section of (lesson.learn || []).slice(0, SLIDE_MAX - slides.length)) {
+      const caption = (section.body || []).find((p) => typeof p === 'string' && p.trim());
+      if (!caption) continue;
+      const stack = (section.body || []).find((p) => p && typeof p === 'object' && p.stack)?.stack;
+      slides.push({
+        title: section.heading,
+        caption,
+        diagram: stack
+          ? { template: 'layers', labels: stack.items.map((it) => it.name) }
+          : { template: templateForSlide(`${section.heading} ${caption}`), labels: [] },
+      });
+      if (slides.length >= SLIDE_MAX) break;
+    }
+  }
+  slideCache.set(lessonId, slides);
+  return slides;
+}
+
 /** Full dataset for the backend (backend/data/content.json). */
 export function buildContentJson() {
   return {
@@ -176,7 +233,9 @@ export function buildContentJson() {
       awss: AWS_SECURITY_DOMAINS,
     },
     tracks,
-    lessons: LESSON_CONTENT,
+    lessons: Object.fromEntries(
+      Object.entries(LESSON_CONTENT).map(([id, lesson]) => [id, { ...lesson, slides: deriveLessonSlides(id, lesson) }]),
+    ),
     notes: MODULE_NOTES,
     cipherNotes: CYPHER_NOTES,
   };
@@ -217,7 +276,10 @@ export function buildPublicData() {
     })),
   }));
   const freeLessons = Object.fromEntries(
-    FREE_LESSON_IDS.filter((id) => LESSON_CONTENT[id]).map((id) => [id, LESSON_CONTENT[id]]),
+    FREE_LESSON_IDS.filter((id) => LESSON_CONTENT[id]).map((id) => [
+      id,
+      { ...LESSON_CONTENT[id], slides: deriveLessonSlides(id, LESSON_CONTENT[id]) },
+    ]),
   );
   const freeCypherNotes = Object.fromEntries(
     FREE_LESSON_IDS.filter((id) => CYPHER_NOTES[id]).map((id) => [id, CYPHER_NOTES[id]]),
@@ -233,12 +295,20 @@ export function buildPublicData() {
 /** Census of the full dataset (for the test + the CLI report). */
 export function census() {
   const lessonCount = Object.keys(LESSON_CONTENT).length;
+  const slideCount = Object.entries(LESSON_CONTENT).reduce(
+    (sum, [id, lesson]) => sum + deriveLessonSlides(id, lesson).length,
+    0,
+  );
   return {
     tracks: tracks.length,
     decks: allDecks.length,
     cards: allCards.length,
     lessons: lessonCount,
     lessonsWithContent: Object.keys(LESSON_CONTENT).length,
+    lessonsWithSlides: Object.entries(LESSON_CONTENT).filter(
+      ([id, lesson]) => deriveLessonSlides(id, lesson).length > 0,
+    ).length,
+    slides: slideCount,
     notes: Object.keys(MODULE_NOTES).length,
     puzzles: allDecks.reduce((s, d) => s + (d.puzzles?.length || 0), 0),
     freeDecks: FREE_DECK_IDS.length,

@@ -12,6 +12,7 @@ import { labsForLesson } from '@/data/labLessons';
 import { labTitle } from '@/data/deckLabs';
 import { BLUEPRINTS_FOR_LESSON, BLUEPRINT_POSTER } from '@/data/blueprints';
 import LessonBlueprint from '@/components/academy/lesson/LessonBlueprint';
+import LessonSlideCarousel from '@/components/academy/lesson/LessonSlideCarousel';
 import { MISSION_FOR_LESSON } from '@/data/missions';
 import CypherLessonPanel from '@/components/academy/tutor/CypherLessonPanel';
 import { useAcademy } from '@/lib/academy';
@@ -184,6 +185,7 @@ export default function LessonView() {
   }
 
   const sections = [
+    c.slides?.length && { id: 'slides', label: 'Slides' },
     c.learn?.length && { id: 'learn', label: 'Learn' },
     // A lesson with blueprint sheets gets an Architecture section even
     // without an ASCII diagram — the sheet is the architecture reference.
@@ -265,6 +267,8 @@ export default function LessonView() {
             </div>
           )}
         </Section>
+
+        {c.slides?.length > 0 && <LessonSlideCarousel id="slides" slides={c.slides} />}
 
         {c.learn?.length > 0 && (
           <Section id="learn" title="Learn">

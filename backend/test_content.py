@@ -188,6 +188,57 @@ def test_unknown_lesson_404():
     assert client.get("/api/content/lesson/no-such-lesson").status_code == 404
 
 
+# ---------- lesson slide decks (carousel, 2026-11-23) ----------
+# The derived deck rides inside the lesson object, so the entitled lesson
+# endpoint serves it with exactly the lesson's own gating. Written BEFORE
+# the derivation and observed failing on the pristine dataset (no `slides`).
+
+SLIDE_TEMPLATES = {"layers", "flow", "comparison", "cycle", "client-server", "topology", "concept"}
+
+
+def _lesson_paragraphs(content):
+    paragraphs = list(content.get("overview") or [])
+    for section in content.get("learn") or []:
+        paragraphs += [p for p in section.get("body") or [] if isinstance(p, str)]
+    return paragraphs
+
+
+def test_free_lesson_response_includes_slides():
+    r = client.get("/api/content/lesson/net-osi")
+    assert r.status_code == 200
+    content = r.json()["content"]
+    slides = content["slides"]
+    assert 3 <= len(slides) <= 5
+    assert slides[0]["title"] == "Overview"
+    assert slides[0]["caption"] in content["overview"]
+    paragraphs = _lesson_paragraphs(content)
+    for slide in slides:
+        assert slide["caption"] in paragraphs
+        assert slide["diagram"]["template"] in SLIDE_TEMPLATES
+
+
+def test_premium_lesson_slides_are_gated():
+    r = client.get("/api/content/lesson/cissp-d3")
+    assert r.status_code == 401
+    cookies, _ = _signed_in()
+    r = client.get("/api/content/lesson/cissp-d3", cookies=cookies)
+    assert r.status_code == 402
+    cookies, _ = _subscriber()
+    r = client.get("/api/content/lesson/cissp-d3", cookies=cookies)
+    assert r.status_code == 200
+    content = r.json()["content"]
+    slides = content["slides"]
+    assert 3 <= len(slides) <= 5
+    paragraphs = _lesson_paragraphs(content)
+    assert all(s["caption"] in paragraphs for s in slides)
+
+
+def test_catalog_counts_still_report_222_lessons():
+    r = client.get("/api/content/catalog")
+    assert r.status_code == 200
+    assert r.json()["counts"]["lessons"] == 222
+
+
 # ---------- notes ----------
 
 

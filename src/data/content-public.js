@@ -30841,6 +30841,61 @@ export const freeLessonContent = {
         "title": "Cloudflare Learning Center — What is the OSI model?",
         "url": "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/"
       }
+    ],
+    "slides": [
+      {
+        "title": "Overview",
+        "caption": "Every network conversation, from loading a web page to a switch forwarding a frame, can be described in layers. Models give you a shared vocabulary (\"that is a Layer 2 problem\") and a systematic way to troubleshoot from the cable up.",
+        "diagram": {
+          "template": "layers",
+          "labels": []
+        }
+      },
+      {
+        "title": "The seven OSI layers",
+        "caption": "Every network conversation — a page loading, a file crossing an ocean — descends through seven layers, each with a single job done well. The upper three serve software directly; the lower four move the data.",
+        "diagram": {
+          "template": "layers",
+          "labels": [
+            "Application",
+            "Presentation",
+            "Session",
+            "Transport",
+            "Network",
+            "Data Link",
+            "Physical"
+          ]
+        }
+      },
+      {
+        "title": "PDUs and encapsulation",
+        "caption": "Each layer names its unit of data — its protocol data unit — differently: bits at Layer 1, frames at Layer 2, packets at Layer 3, and segments at Layer 4 when TCP delivers them reliably, datagrams when UDP sends them best-effort.",
+        "diagram": {
+          "template": "layers",
+          "labels": []
+        }
+      },
+      {
+        "title": "The TCP/IP model",
+        "caption": "The internet itself runs on a leaner blueprint: four layers, each absorbing one or more OSI layers. The colours match the OSI layers above.",
+        "diagram": {
+          "template": "layers",
+          "labels": [
+            "Application",
+            "Transport",
+            "Internet",
+            "Link"
+          ]
+        }
+      },
+      {
+        "title": "Common mistakes: mixing up the models",
+        "caption": "The classic exam trap is naming the wrong layer for a device or protocol. A switch forwards frames by MAC address, so it lives at Layer 2; a router forwards packets by IP address, so it lives at Layer 3. A \"Layer 3 switch\" is a switch with routing added — the name describes the extra function, not a promotion.",
+        "diagram": {
+          "template": "layers",
+          "labels": []
+        }
+      }
     ]
   },
   "sec-concepts": {
@@ -30943,6 +30998,48 @@ export const freeLessonContent = {
         "title": "CompTIA Security+ Certification",
         "url": "https://www.comptia.org/en-us/certifications/security/"
       }
+    ],
+    "slides": [
+      {
+        "title": "Overview",
+        "caption": "Every security decision, from buying a firewall to writing a password policy, traces back to a handful of core ideas. Learn them precisely and the rest of Security+ becomes a matter of applying them.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "CIA, non-repudiation and AAA",
+        "caption": "Confidentiality keeps data from unauthorised eyes; encryption is its main tool. Integrity ensures data has not been altered; hashing detects change, because a modified file produces a different hash. Availability keeps systems and data usable when needed, through redundancy, backups and resilience.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "Control categories and types",
+        "caption": "SY0-701 groups controls into four categories by how they are implemented: technical (firewalls, encryption), managerial (policies, risk assessments), operational (guard rotations, awareness training, carried out by people) and physical (locks, fences).",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "Zero trust",
+        "caption": "Zero trust drops the idea of a trusted internal network: never trust, always verify, for every request, based on identity, device posture and context. Being on the corporate LAN grants nothing by itself.",
+        "diagram": {
+          "template": "client-server",
+          "labels": []
+        }
+      },
+      {
+        "title": "Gap analysis, deception and change management",
+        "caption": "A gap analysis compares your current security posture with a desired standard, often a framework such as NIST CSF or ISO 27001, and turns the differences into a roadmap.",
+        "diagram": {
+          "template": "comparison",
+          "labels": []
+        }
+      }
     ]
   },
   "py-basics": {
@@ -31031,6 +31128,48 @@ export const freeLessonContent = {
       {
         "title": "The Python Tutorial",
         "url": "https://docs.python.org/3/tutorial/"
+      }
+    ],
+    "slides": [
+      {
+        "title": "Overview",
+        "caption": "Python is the glue language of IT and security work: short scripts rename a thousand files, parse a firewall log, or call a cloud API. Everything starts with values, the variables that name them, and the operators that combine them.",
+        "diagram": {
+          "template": "client-server",
+          "labels": []
+        }
+      },
+      {
+        "title": "Values, types and variables",
+        "caption": "Every value has a type, and `type(value)` tells you which. `42` is an `int`, `3.0` is a `float` (any literal with a decimal point), `\"hi\"` is a `str`, `True` and `False` are `bool`, and `None` is the single value that means \"nothing here\". Functions that do not return anything give back `None`.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "Operators you will use constantly",
+        "caption": "`+ - * /` work as expected, and `/` always returns a `float` (`7 / 2` is `3.5`). Floor division `//` divides and rounds down (`7 // 2` is `3`), modulo `%` gives the remainder (`7 % 2` is `1`), and `**` raises to a power (`2 ** 3` is `8`).",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "Converting types and reading input",
+        "caption": "`input()` always returns a `str`, even if the user types digits. Convert with `int(\"42\")` or `float(\"3.5\")`. If the text is not a valid number, `int()` raises `ValueError`, which you will learn to handle in the Files & Errors lesson.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "Strings: indexing, immutability and f-strings",
+        "caption": "Strings are sequences of characters, indexed from zero: `\"abc\"[1]` is `\"b\"`. Negative indices count from the end, so `\"hello\"[-1]` is `\"o\"`. `len(\"hello\")` is `5`.",
+        "diagram": {
+          "template": "flow",
+          "labels": []
+        }
       }
     ]
   },
@@ -31128,6 +31267,40 @@ export const freeLessonContent = {
       {
         "title": "Linux man-pages project",
         "url": "https://man7.org/linux/man-pages/"
+      }
+    ],
+    "slides": [
+      {
+        "title": "Overview",
+        "caption": "The command line is the native interface of every Linux server, container, and cloud VM you will ever touch. Graphical tools come and go; the shell is always there, scriptable and identical everywhere. This lesson builds the muscle memory: knowing where you are, moving around, creating and destroying files, finding things, and getting help.",
+        "diagram": {
+          "template": "client-server",
+          "labels": []
+        }
+      },
+      {
+        "title": "Where you are and what is around you",
+        "caption": "`pwd` prints your working directory as an absolute path, starting at `/` (the root). An absolute path like `/etc/ssh/sshd_config` works from anywhere; a relative path like `../logs` or `docs/report.txt` is interpreted from where you currently stand.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "Creating, moving, and destroying",
+        "caption": "`mkdir -p projects/2026/q1` creates the whole chain at once, `touch file` creates an empty file or updates timestamps, `cp -r` copies trees, and `mv` both moves and renames. `rm -rf` deletes recursively without asking and without a trash can — the most feared command for a reason: double-check the path before pressing enter.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "Finding files and getting help",
+        "caption": "Two commands answer most 'where is it?' questions. `find /var/log -name '*.log' -mtime -1` searches a directory tree by name, type, size or modification time and can act on what it finds (`-exec`, or `-delete` with care). `locate` searches a prebuilt index and is much faster, but only knows about files that existed at the last `updatedb` run. `which python3` shows which executable your shell will actually run.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
       }
     ]
   },
@@ -31313,6 +31486,53 @@ export const freeLessonContent = {
       {
         "title": "Cloud Security Alliance — Security Guidance v4",
         "url": "https://cloudsecurityalliance.org/artifacts/security-guidance-v4"
+      }
+    ],
+    "slides": [
+      {
+        "title": "Overview",
+        "caption": "Cloud computing changed how organisations buy and run IT: capacity on demand, paid for as it is used, managed through APIs. It also changed who is responsible for what, and misunderstanding that split is behind many cloud breaches.",
+        "diagram": {
+          "template": "concept",
+          "labels": []
+        }
+      },
+      {
+        "title": "What makes something \"cloud\"",
+        "caption": "NIST SP 800-145 defines five essential characteristics: on-demand self-service, broad network access, resource pooling, rapid elasticity and measured service. If you cannot provision it yourself in minutes and pay by use, it is hosting, not cloud.",
+        "diagram": {
+          "template": "topology",
+          "labels": []
+        }
+      },
+      {
+        "title": "Service and deployment models",
+        "caption": "The three service models are a sliding scale of who manages what: the further up the stack you rent, the less you operate — and the less you control.",
+        "diagram": {
+          "template": "layers",
+          "labels": [
+            "IaaS — Infrastructure as a Service",
+            "PaaS — Platform as a Service",
+            "FaaS — Function as a Service",
+            "SaaS — Software as a Service"
+          ]
+        }
+      },
+      {
+        "title": "Shared responsibility",
+        "caption": "The provider secures the cloud itself (data centres, hardware, the virtualisation layer); the customer secures what they put in the cloud. The split shifts with the model: in IaaS you patch the OS; in SaaS you do not.",
+        "diagram": {
+          "template": "layers",
+          "labels": []
+        }
+      },
+      {
+        "title": "Where cloud runs",
+        "caption": "A region is a geographic area; an availability zone (AZ) is one or more isolated data centres within a region, with independent power and networking. Spread workloads across AZs for high availability, and across regions for disaster recovery. Edge locations cache content close to users as part of a CDN, such as CloudFront, Azure Front Door or Cloud CDN.",
+        "diagram": {
+          "template": "topology",
+          "labels": []
+        }
       }
     ]
   }
