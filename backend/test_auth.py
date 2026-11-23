@@ -386,3 +386,42 @@ def test_admin_created_account_not_merged_on_unverified_claim():
         other = upsert_identity(s, _google("g-9", "carol@example.com", verified=False, name="Carol"))
         s.commit()
         assert other.id != uid
+
+
+def test_post_login_next_accepts_only_a_plain_path_on_this_site():
+    from auth.router import safe_next
+
+    for ok in ("/admin", "/academy/lessons/net-osi", "/"):
+        assert safe_next(ok) == ok
+    for bad in (None, "", "admin", "//evil.example", "https://evil.example", "/\evil.example",
+                "/admin?x=https://evil", "/%2F%2Fevil", "javascript:alert(1)", "/a" * 80):
+        assert safe_next(bad) is None, bad
+
+
+def test_sign_in_started_from_admin_returns_to_admin(monkeypatch):
+    """The admin page sends the visitor to /auth/{provider}/login?next=/admin;
+    after the provider round-trip the callback lands back on /admin. A
+    hostile next is ignored and the landing stays the home page."""
+    import auth.router as auth_router
+    from fastapi.responses import RedirectResponse
+
+    class FakeClient:
+        async def authorize_redirect(self, request, redirect_uri):
+            return RedirectResponse("https://provider.example/authorize", status_code=302)
+
+    monkeypatch.setattr(oauth_mod, "provider_configured", lambda p: True)
+    monkeypatch.setattr(oauth_mod, "client", lambda p: FakeClient())
+    monkeypatch.setattr(oauth_mod, "fetch_identity", _fake_fetch)
+    monkeypatch.setattr(auth_router, "FRONTEND_URL", "https://app.example.test")
+    # Over HTTPS, as in production: the destination rides in the session
+    # cookie, which is Secure unless COOKIE_INSECURE was set before main was
+    # first imported (other test files import it earlier).
+    https = TestClient(main.app, base_url="https://testserver")
+
+    https.get("/api/auth/google/login?next=/admin", follow_redirects=False)
+    r = https.get("/api/auth/google/callback", follow_redirects=False)
+    assert r.headers["location"] == "https://app.example.test/admin"
+
+    https.get("/api/auth/google/login?next=//evil.example", follow_redirects=False)
+    r = https.get("/api/auth/google/callback", follow_redirects=False)
+    assert r.headers["location"] == "https://app.example.test/"

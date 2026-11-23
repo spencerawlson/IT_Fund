@@ -1,7 +1,8 @@
 """Tests for the admin panel (backend/admin.py) and AI tutor call logging.
 
-Admin is Spencer-only, password-gated (ADMIN_PASSWORD env var), browser-only
-via /admin. Tests use throwaway passwords only — no real secrets anywhere.
+Admin is Spencer-only: his own verified OAuth account + an authenticator code
+(admin_auth.py). These tests sign in through that real flow (admin_testkit);
+the sign-in rules themselves are covered in test_admin_auth.py.
 """
 import json
 import os
@@ -29,21 +30,19 @@ from db_models import AiTutorCall, LabCompletion, ManualGrant, Progress, Subscri
 
 client = TestClient(main.app)
 
-ADMIN_PASSWORD = "test-admin-password-only"
+import admin_testkit
 
 
 def setup_function():
     db.configure("sqlite+pysqlite:///:memory:")
     db.init_db()
-    os.environ["ADMIN_PASSWORD"] = ADMIN_PASSWORD
     ai_tutor._hits.clear()
     ai_tutor._cache.clear()
     admin_mod._admin_login_attempts.clear()
 
 
 def teardown_function():
-    os.environ.pop("ADMIN_PASSWORD", None)
-    client.cookies.clear()
+    admin_testkit.clear(client)
 
 
 @pytest.fixture(autouse=True)
@@ -55,9 +54,8 @@ def _tutor_disk_cache(tmp_path, monkeypatch):
     monkeypatch.setattr(ai_tutor, "TUTOR_CACHE_DIR", tmp_path / "tutor-cache")
 
 
-def _admin_login(password=ADMIN_PASSWORD):
-    r = client.post("/api/admin/login", json={"password": password})
-    return r
+def _admin_login():
+    return admin_testkit.admin_login(client).response
 
 
 def _signed_in_user(email="u1@example.com", name="U One"):
@@ -85,61 +83,10 @@ def test_admin_endpoints_reject_without_admin_session():
         assert client.get(path).status_code == 401
 
 
-def test_admin_login_wrong_password_rejected_with_generic_error():
-    r = _admin_login("wrong-password")
-    assert r.status_code == 401
-    assert r.json()["detail"] == "Invalid password"
-    assert client.get("/api/admin/overview").status_code == 401
-
-
-def test_admin_login_fails_when_password_unset(monkeypatch):
-    monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
-    r = _admin_login("anything")
-    assert r.status_code == 401
-    assert r.json()["detail"] == "Invalid password"
-
-
-def test_admin_login_correct_password_admits_and_status_reflects():
-    r = _admin_login()
-    assert r.status_code == 200
-    assert r.json() == {"ok": True}
-    assert client.get("/api/admin/status").json() == {"authenticated": True}
-    assert client.get("/api/admin/overview").status_code == 200
-
-
-def test_admin_login_rate_limited(monkeypatch):
-    # Shrink the window so the test can observe expiry (limit constants are
-    # module-level in admin.py and read at call time).
-    monkeypatch.setattr(admin_mod, "ADMIN_LOGIN_WINDOW_SECONDS", 2)
-    for _ in range(admin_mod.ADMIN_LOGIN_MAX_ATTEMPTS):
-        assert _admin_login("wrong-password").status_code == 401
-    r = _admin_login("wrong-password")
-    assert r.status_code == 429
-    assert "retry-after" in r.headers
-    assert int(r.headers["retry-after"]) > 0
-    # A correct password during the window is also refused.
-    assert _admin_login().status_code == 429
-    assert client.get("/api/admin/overview").status_code == 401
-    # After the window passes, login works again.
-    import time
-
-    time.sleep(2.2)
-    assert _admin_login().status_code == 200
-    assert client.get("/api/admin/overview").status_code == 200
-
-
-def test_admin_logout_clears_session():
-    _admin_login()
-    assert client.get("/api/admin/status").json() == {"authenticated": True}
-    assert client.post("/api/admin/logout", json={}).status_code == 200
-    assert client.get("/api/admin/status").json() == {"authenticated": False}
-    assert client.get("/api/admin/overview").status_code == 401
-
-
 def test_user_session_is_not_an_admin_session():
     _, raw = _signed_in_user()
     client.cookies.set(COOKIE_NAME, raw)
-    assert client.get("/api/admin/status").json() == {"authenticated": False}
+    assert client.get("/api/admin/status").json()["authenticated"] is False
     assert client.get("/api/admin/overview").status_code == 401
 
 
@@ -164,7 +111,7 @@ def test_accounts_lists_users_with_progress_and_subscription():
     r = client.get("/api/admin/accounts")
     assert r.status_code == 200
     body = r.json()
-    assert body["total"] == 2
+    assert body["total"] == 3  # 2 learners + the signed-in admin's own account
     by_email = {a["email"]: a for a in body["items"]}
     alice = by_email["a@example.com"]
     assert alice["lessons_passed"] == 2  # best >= 70 only
@@ -186,7 +133,7 @@ def test_accounts_search_and_pagination():
     assert r.json()["items"][0]["email"] == "user3@example.com"
     r = client.get("/api/admin/accounts?page=2&page_size=2")
     body = r.json()
-    assert body["total"] == 5 and body["page"] == 2 and len(body["items"]) == 2
+    assert body["total"] == 6 and body["page"] == 2 and len(body["items"]) == 2  # 5 seeded + the admin
 
 
 def test_accounts_search_escapes_wildcards():
@@ -575,13 +522,14 @@ def test_delete_account_soft_deletes_revokes_grant_and_frees_seat():
     _admin_login()
     dummy = _add_dummy()
     uid = dummy["id"]
-    assert client.get("/api/public/seats").json()["total_accounts"] == 1
+    # Counts include the signed-in admin's own account (1).
+    assert client.get("/api/public/seats").json()["total_accounts"] == 2
     r = client.delete(f"/api/admin/accounts/{uid}")
     assert r.status_code == 200
     assert r.json() == {"ok": True, "deleted_user_id": uid}
-    assert client.get("/api/admin/accounts").json()["total"] == 0
-    assert client.get("/api/admin/overview").json()["total_users"] == 0
-    assert client.get("/api/public/seats").json()["total_accounts"] == 0
+    assert client.get("/api/admin/accounts").json()["total"] == 1
+    assert client.get("/api/admin/overview").json()["total_users"] == 1
+    assert client.get("/api/public/seats").json()["total_accounts"] == 1
     with db.SessionLocal() as s:
         user = s.get(User, uid)
         assert user is not None  # the row stays
@@ -610,7 +558,7 @@ def test_delete_then_recreate_same_email_works():
     assert r.status_code == 201, r.text
     assert r.json()["user"]["email"] == "1@road2cissp.local"
     assert r.json()["user"]["id"] != dummy["id"]  # a fresh account, not a resurrection
-    assert client.get("/api/public/seats").json()["total_accounts"] == 1
+    assert client.get("/api/public/seats").json()["total_accounts"] == 2  # + the admin's own account
 
 
 def _seed_subscription(uid, status):
@@ -664,8 +612,9 @@ def test_report_json_and_csv_match():
     data = r.json()
     assert data["days"] == 30 and "generated_at" in data
     assert data["overview"]["manual_grants_active"] == 1
-    assert data["accounts"]["total"] == 1
-    assert data["accounts"]["items"][0]["manual_grant"]["active"] is True
+    assert data["accounts"]["total"] == 2  # Alice + the signed-in admin's own account
+    alice = next(a for a in data["accounts"]["items"] if a["email"] == "a@example.com")
+    assert alice["manual_grant"]["active"] is True
     assert data["subscriptions"]["items"] == []
     assert data["ai_costs"]["totals"]["calls"] == 0
     r = client.get("/api/admin/report.csv")

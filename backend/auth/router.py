@@ -6,6 +6,7 @@ Mounted at both /auth and /api/auth by main.py, so the browser-facing paths are
 from __future__ import annotations
 
 import os
+import re
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -64,9 +65,23 @@ def available_providers() -> dict:
     return {"providers": sorted(p for p in PROVIDERS if oauth_mod.provider_configured(p))}
 
 
+#: Where a website sign-in may return to (`?next=`): a plain path on this
+#: site only — no scheme, no host, no "//" — so it can never be used as an
+#: open redirect to another origin. Anything else is ignored (home page).
+_SAFE_NEXT = re.compile(r"\A/(?!/)[A-Za-z0-9/_-]{0,100}\Z")
+
+
+def safe_next(value: str | None) -> str | None:
+    return value if isinstance(value, str) and _SAFE_NEXT.match(value) else None
+
+
 @router.get("/{provider}/login")
-async def login(provider: str, request: Request, client: str | None = None, code_challenge: str | None = None):
+async def login(provider: str, request: Request, client: str | None = None, code_challenge: str | None = None,
+                next: str | None = None):
     _check_provider(provider)
+    request.session.pop("post_login_next", None)
+    if safe_next(next):
+        request.session["post_login_next"] = next
     # Native apps run OAuth in the system browser and get the result back via a deep link (see
     # auth/native.py). Remember the PKCE challenge across the provider round-trip; clear any stale one
     # so a later website login never redirects into the app.
@@ -111,7 +126,8 @@ async def callback(provider: str, request: Request):
         # Seats full: no account was created (the refusal happens before the
         # insert), so send the visitor back to sign-in with the reason.
         return RedirectResponse(f"{FRONTEND_URL}/signin?error=seats_full", status_code=status.HTTP_302_FOUND)
-    resp = RedirectResponse(f"{FRONTEND_URL}/", status_code=status.HTTP_302_FOUND)
+    target = safe_next(request.session.pop("post_login_next", None)) or "/"
+    resp = RedirectResponse(f"{FRONTEND_URL}{target}", status_code=status.HTTP_302_FOUND)
     resp.set_cookie(COOKIE_NAME, raw, **cookie_kwargs())
     return resp
 
