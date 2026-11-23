@@ -10,11 +10,61 @@ import useDocumentTitle from '@/hooks/useDocumentTitle';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// Fallbacks match billing.PRICE_FALLBACK / ANNUAL_PRICE_FALLBACK; replaced by
+// the live Stripe prices. `configured` gates the annual option only: monthly
+// checkout surfaces a 503 cleanly when billing is unconfigured, as before.
+const MONTHLY_FALLBACK = { display: '$29', interval: 'month', amount: '29.00', currency: 'USD', configured: false };
+const ANNUAL_FALLBACK = { display: '$250', interval: 'year', amount: '250.00', currency: 'USD', configured: false };
+
 // Subscription status for signed-in users: current plan, renewal date, manage/cancel.
-function SubscriptionSection() {
+// Exported for tests: the mounted interaction tests render this section
+// directly (the page itself adds AuthProvider/ThemeProvider/router).
+export function SubscriptionSection() {
   const { subscribed, status, currentPeriodEnd, loading, refresh } = useSubscription();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  // Billing period: monthly is the default. Prices come from the live
+  // /billing/plans endpoint (same source as /pricing); the fallbacks are
+  // the decided prices, so the toggle is never empty while loading.
+  const [plan, setPlan] = useState('monthly');
+  const [plans, setPlans] = useState({ monthly: MONTHLY_FALLBACK, annual: ANNUAL_FALLBACK });
+
+  useEffect(() => {
+    let live = true;
+    const toPlan = (p, fallback) => ({
+      display: p.display || fallback.display,
+      interval: p.interval || fallback.interval,
+      amount: p.unit_amount != null ? (p.unit_amount / 100).toFixed(2) : fallback.amount,
+      currency: (p.currency || 'usd').toUpperCase(),
+      configured: p.configured === true,
+    });
+    fetch(`${API_BASE}/billing/plans`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => {
+        if (!live || !p) return;
+        setPlans({
+          monthly: toPlan(p.monthly || {}, MONTHLY_FALLBACK),
+          annual: toPlan(p.annual || {}, ANNUAL_FALLBACK),
+        });
+      })
+      .catch(() => {
+        // Backend without /billing/plans: monthly from /billing/price,
+        // annual stays on the not-configured fallback.
+        fetch(`${API_BASE}/billing/price`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((p) => {
+            if (live && p) setPlans((prev) => ({ ...prev, monthly: toPlan(p, MONTHLY_FALLBACK) }));
+          })
+          .catch(() => { /* keep fallbacks */ });
+      });
+    return () => { live = false; };
+  }, []);
+
+  const { monthly, annual } = plans;
+  // Savings vs twelve monthly payments, from the live prices so the line
+  // stays true if either price changes: $29 x 12 = $348, $348 - $250 = $98.
+  const yearlySaving = parseFloat(monthly.amount) * 12 - parseFloat(annual.amount);
+  const annualMonthlyEquivalent = (parseFloat(annual.amount) / 12).toFixed(2);
 
   const manage = async () => {
     setBusy(true);
@@ -33,7 +83,7 @@ function SubscriptionSection() {
   // Free-tier subscribe: same Stripe checkout the pricing page uses. The
   // account page is the subscription home for signed-in users, so the
   // subscribe action lives here instead of a link to /pricing.
-  const subscribe = async () => {
+  const subscribe = async (selectedPlan) => {
     setBusy(true);
     setError(null);
     try {
@@ -41,10 +91,11 @@ function SubscriptionSection() {
       const res = await fetch(`${API_BASE}/billing/checkout`, {
         method: 'POST',
         credentials: 'include',
-        ...(attributionTag ? {
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ attribution_tag: attributionTag }),
-        } : {}),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: selectedPlan,
+          ...(attributionTag ? { attribution_tag: attributionTag } : {}),
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || data.message || 'Checkout failed. Please try again.');
@@ -93,10 +144,45 @@ function SubscriptionSection() {
             {status !== 'none' && status !== 'anonymous' && ` (status: ${status})`}.
             Premium unlocks every track, all labs, and the exam simulators.
           </p>
+          {/* Billing period: same monthly/annual choice as /pricing, with the
+              live prices. Annual stays disabled until its price is
+              configured, so an unconfigured annual plan can never break
+              checkout. */}
           <div className="mt-4">
-            <Button onClick={subscribe} disabled={busy}>
+            <div role="radiogroup" aria-label="Billing period" className="inline-flex rounded-xl border border-black/10 bg-slate-100 p-1">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={plan === 'monthly'}
+                data-plan="monthly"
+                onClick={() => setPlan('monthly')}
+                disabled={busy}
+                className={`rounded-lg px-3 py-1.5 text-caption font-semibold transition ${plan === 'monthly' ? 'bg-white text-ink-1 shadow-sm ring-1 ring-black/10' : 'text-ink-2 hover:text-ink-1'}`}
+              >
+                Monthly — {monthly.display}/mo
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={plan === 'annual'}
+                data-plan="annual"
+                onClick={() => setPlan('annual')}
+                disabled={busy || !annual.configured}
+                className={`rounded-lg px-3 py-1.5 text-caption font-semibold transition ${plan === 'annual' ? 'bg-white text-ink-1 shadow-sm ring-1 ring-black/10' : 'text-ink-2 hover:text-ink-1'} disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                Annual — {annual.display}/yr
+              </button>
+            </div>
+            <p className="mt-2 text-small text-ink-2">
+              {annual.configured
+                ? `About $${annualMonthlyEquivalent} a month — save $${yearlySaving.toFixed(0)} a year vs paying monthly.`
+                : `The ${annual.display}/yr price is being set up — monthly is available now.`}
+            </p>
+          </div>
+          <div className="mt-4">
+            <Button onClick={() => subscribe(plan)} disabled={busy || (plan === 'annual' && !annual.configured)}>
               {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
-              {busy ? 'Starting checkout…' : 'Subscribe'}
+              {busy ? 'Starting checkout…' : `Subscribe — ${plan === 'annual' ? `${annual.display}/yr` : `${monthly.display}/mo`}`}
             </Button>
           </div>
           {error && <p className="mt-3 text-small text-danger">{error}</p>}
