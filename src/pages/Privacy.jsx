@@ -38,7 +38,7 @@ export default function Privacy() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">Signing in</h2>
           <p className="mt-2 text-body text-ink-2">
-            You sign in with Google or GitHub — the site has no passwords of its own. Your sign-in provider shares your email address, your name, and your profile picture with us, and we store those three things on your account so we can show who is signed in. Your session is kept in a HttpOnly session cookie, which your browser does not expose to page scripts.
+            You sign in with Google, GitHub, or Apple — the site has no passwords of its own. Your sign-in provider shares your email address, your name, and your profile picture with us, and we store those three things on your account so we can show who is signed in. If you sign in with Apple and choose Hide My Email, Apple gives us a private relay address instead of your real email address — we store that relay address as your account email, and it works the same way. Your session is kept in a HttpOnly session cookie, which your browser does not expose to page scripts.
           </p>
         </section>
 
@@ -70,7 +70,7 @@ export default function Privacy() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">What we do not do</h2>
           <p className="mt-2 text-body text-ink-2">
-            We do not sell your personal data to anyone, and we do not share it with third parties except the providers above (Google or GitHub for sign-in, Stripe for payments, Plausible and Ventoryn for analytics), each of which receives only what it needs to do its job.
+            We do not sell your personal data to anyone, and we do not share it with third parties except the providers above (Google, GitHub, or Apple for sign-in, Stripe for payments, Plausible and Ventoryn for analytics), each of which receives only what it needs to do its job.
           </p>
         </section>
 

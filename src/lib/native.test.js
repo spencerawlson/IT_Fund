@@ -80,6 +80,40 @@ describe('handleNativeAuthUrl', () => {
   });
 });
 
+describe('nativeSignIn (2026-11-23)', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const signInWith = async (provider) => {
+    const open = vi.fn().mockResolvedValue();
+    vi.doMock('@capacitor/browser', () => ({ Browser: { open } }));
+    const mod = await import('./native');
+    await mod.nativeSignIn(provider);
+    return open;
+  };
+
+  it('opens the Google login in the system browser with a PKCE challenge', async () => {
+    const open = await signInWith('google');
+    expect(open).toHaveBeenCalledWith(expect.objectContaining({
+      url: expect.stringContaining('/api/auth/google/login?client=native&code_challenge='),
+      presentationStyle: 'popover',
+    }));
+  });
+
+  it('opens the Apple login the same way (Guideline 4.8)', async () => {
+    const open = await signInWith('apple');
+    expect(open).toHaveBeenCalledWith(expect.objectContaining({
+      url: expect.stringContaining('/api/auth/apple/login?client=native&code_challenge='),
+      presentationStyle: 'popover',
+    }));
+  });
+});
+
 describe('installNativeFetch', () => {
   const api = 'https://api.example.test/api';
   let realFetch;
