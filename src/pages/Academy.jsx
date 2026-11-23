@@ -90,7 +90,7 @@ const HOME_MISSIONS = [
     to: '/labs/sec-pentest-web-001',
     icon: Crosshair,
     title: 'Operation Glasshouse',
-    text: 'Get into the ACME intranet web app and prove how deep it goes — recon, auth bypass, SQL injection, XSS, and seizing the shell.',
+    text: 'Get into the ACME intranet web app and prove how deep it goes.',
     meta: null, // no duration/difficulty recorded for this mission
   },
   {
