@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generatedAt": "2026-11-23T12:13:53.835Z",
+  "generatedAt": "2026-11-23T15:35:08.163Z",
   "source": "scripts/export-content.mjs",
   "freeDecks": [
     "net-osi",
@@ -56871,13 +56871,8 @@
           "title": "Overview",
           "caption": "Python is the glue language of IT and security work: short scripts rename a thousand files, parse a firewall log, or call a cloud API. Everything starts with values, the variables that name them, and the operators that combine them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Values, types and variables",
-              "Operators you will use constantly",
-              "Converting types and reading input",
-              "Strings: indexing, immutability and f-strings"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -57044,13 +57039,8 @@
           "title": "Overview",
           "caption": "Programs become useful when they make decisions and repeat work. Control flow is how a script decides what to do with each log line, retries a failed request, or stops when it finds what it was looking for.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Decisions: if, elif, else and truthiness",
-              "Loops",
-              "Functions",
-              "Common mistakes: loops and conditions"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -57217,12 +57207,8 @@
           "title": "Overview",
           "caption": "Real data comes in groups: a list of IP addresses, a mapping of usernames to roles, a set of blocked domains. Choosing the right collection makes code simpler and often dramatically faster.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Four collections, four jobs",
-              "Working with lists and dicts",
-              "Comprehensions and idiomatic loops"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -57376,13 +57362,8 @@
           "title": "Overview",
           "caption": "Automation lives on files: logs to parse, reports to write, configs to read. It also has to survive the real world, where files go missing and input is malformed. A script that crashes halfway through a batch job is worse than no script.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Files and context managers",
-              "Exceptions",
-              "Modules, __main__ and virtual environments",
-              "Safe data formats"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -57564,13 +57545,8 @@
           "title": "Overview",
           "caption": "As scripts grow into tools, you need ways to model things (a host, a finding, a user) and to reuse behaviour without copying code. Object-oriented programming and a few Pythonic features make larger code readable and testable.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Classes, self and dunder methods",
-              "Inheritance and method types",
-              "Generators, decorators and lambdas",
-              "Type hints and style"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -57764,13 +57740,8 @@
           "title": "Overview",
           "caption": "This is where Python pays for itself: talking to web APIs, running system commands, pulling indicators out of logs, and turning a one-off script into a tool colleagues can use.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Calling APIs",
-              "Running commands safely",
-              "Parsing text: regex and CSV",
-              "From script to tool"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -57959,13 +57930,8 @@
           "title": "Overview",
           "caption": "Scanning a /16, pulling data from 500 APIs or hashing a disk image all hit the same wall: doing things one at a time is slow. Concurrency helps, but only if you pick the right tool for the kind of work.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The GIL and the two kinds of work",
-              "Threads, processes and asyncio in practice",
-              "Race conditions",
-              "Measure, then optimise"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -58153,13 +58119,8 @@
           "title": "Overview",
           "caption": "A tool other people rely on needs tests that prove it works, a clean way to install it, and dependencies you can trust. Supply-chain attacks against PyPI are real, and untested security tooling fails exactly when it matters.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Testing with pytest",
-              "Coverage",
-              "Packaging and reproducible installs",
-              "Security checks"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -58349,13 +58310,8 @@
           "title": "Overview",
           "caption": "Security teams build small tools constantly: a port checker, a hash verifier, a log summariser. Python's standard library covers most of it, and a few well-known libraries fill the gaps, but only if you use the security-sensitive parts correctly.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Networking and integrity",
-              "Passwords, tokens and encryption",
-              "Data and databases",
-              "Authorisation first"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -58650,13 +58606,8 @@
           "title": "Overview",
           "caption": "Every network conversation, from loading a web page to a switch forwarding a frame, can be described in layers. Models give you a shared vocabulary (\"that is a Layer 2 problem\") and a systematic way to troubleshoot from the cable up.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The seven OSI layers",
-              "PDUs and encapsulation",
-              "The TCP/IP model",
-              "Common mistakes: mixing up the models"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -59060,13 +59011,8 @@
           "title": "Overview",
           "caption": "A port number tells the receiving host which service a segment is for. Knowing the common ports lets you read firewall rules, spot suspicious traffic and answer a large share of Network+ and Security+ questions.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "TCP and UDP",
-              "Remote access",
-              "File transfer",
-              "Web traffic"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -59257,13 +59203,8 @@
           "title": "Overview",
           "caption": "Before any protocol matters, traffic needs something to travel over and devices to move it. Choosing the right cable, knowing its limits, and understanding what each device does with traffic are the foundations of every network design and many troubleshooting calls.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Devices and domains",
-              "Copper and fibre",
-              "Topologies",
-              "The physical plant: racks, patch panels and power"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -59475,13 +59416,8 @@
           "title": "Overview",
           "caption": "Subnetting is the maths behind every IP plan, firewall rule and routing table. It looks intimidating until you see it is just counting in powers of two, and then it becomes one of the fastest points to win on an exam.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "CIDR, masks and host counts",
-              "Network and broadcast addresses: the block-size method",
-              "Private, special and translated addresses",
-              "IPv6 essentials"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -59841,13 +59777,8 @@
           "title": "Overview",
           "caption": "Users never see DNS or DHCP until they break, and then nothing works. Wireless is now the default way most devices connect. Together these services decide whether people can get on the network and find anything once they are there.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "DNS records",
-              "DHCP",
-              "Wi-Fi standards and channels",
-              "The access point"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -60088,13 +60019,8 @@
           "title": "Overview",
           "caption": "Troubleshooting is the skill employers actually pay for, and it is a quarter of the Network+ exam. A consistent method stops you from changing three things at once and never learning which one fixed it.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The seven-step method",
-              "Tools, layer by layer",
-              "Reading symptoms",
-              "Documenting as you go"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -60296,13 +60222,8 @@
           "title": "Overview",
           "caption": "A network that works today still has to be watched, documented, changed safely and recovered when something fails. Operations is what keeps it that way, and it is where most real-world outages are either prevented or caused.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Monitoring",
-              "High availability and power",
-              "Power: the UPS and the generator",
-              "Disaster recovery targets and sites"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -60544,13 +60465,8 @@
           "title": "Overview",
           "caption": "Attackers who get onto a network, even as a guest, often start at Layer 2, where many switches trust by default. Good network security removes that trust, segments what remains, and only allows the traffic that is needed.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Layer 2 attacks and defences",
-              "VLAN hopping and wireless attacks",
-              "Segmentation and filtering",
-              "The next-generation firewall"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -60793,13 +60709,8 @@
           "title": "Overview",
           "caption": "Switches move frames inside a network; routers move packets between networks. Almost every connectivity problem you will ever troubleshoot comes down to one of those two decisions going wrong.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "How a switch forwards frames",
-              "VLANs and trunks",
-              "Spanning Tree Protocol",
-              "How a router chooses a path"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -61031,13 +60942,8 @@
           "title": "Overview",
           "caption": "Routing is how a router decides where to send a packet it did not originate. It compares the packet's destination IP against its routing table and forwards out the best matching path — hop by hop, each router making its own independent decision.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The forwarding decision",
-              "Where routes come from, and who to trust",
-              "Control plane vs data plane, and convergence",
-              "The box that routes"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -61187,13 +61093,8 @@
           "title": "Overview",
           "caption": "Static routes are paths you configure by hand. They add no protocol overhead, are completely predictable, and cannot be manipulated by a neighbour — but they do not adapt when the topology changes, so they do not scale.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Static and default routes",
-              "Floating static routes",
-              "Security implications",
-              "When static routing is the right choice"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -61353,13 +61254,8 @@
           "title": "Overview",
           "caption": "RIP is the classic distance-vector protocol: routers advertise their whole table to directly-connected neighbours and choose paths by hop count. It is simple and easy to configure, which is exactly why it is useful for learning how dynamic routing — and routing loops — actually behave.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Distance-vector by rumour",
-              "Stopping loops",
-              "Versions and hardening",
-              "Why RIP survives, and where you will meet it"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -61527,12 +61423,8 @@
           "title": "Overview",
           "caption": "OSPF is the most common interior gateway protocol in enterprises. It is link-state: every router floods a description of its own links, so all routers in an area build an identical database and independently compute shortest paths with Dijkstra's algorithm. The result converges fast and avoids the loops that haunt distance-vector protocols.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Neighbours, adjacencies and the database",
-              "SPF, cost and areas",
-              "DR/BDR and hardening"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -61689,13 +61581,8 @@
           "title": "Overview",
           "caption": "EIGRP is Cisco's advanced distance-vector protocol. It keeps the simplicity of distance-vector but adds DUAL, which precomputes loop-free backup paths so failover can be almost instantaneous — often faster than OSPF reconvergence.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The composite metric and neighbours",
-              "DUAL: successors and feasible successors",
-              "Scaling with stubs",
-              "Watching DUAL work"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -61855,13 +61742,8 @@
           "title": "Overview",
           "caption": "IS-IS is a link-state protocol, like OSPF, but it runs directly over Layer 2 (CLNS) rather than over IP. That design, plus its extensibility through TLVs, makes it a favourite in large service-provider backbones.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Levels and the backbone",
-              "LSPs, SPF and the DIS",
-              "Why providers like it",
-              "Operating IS-IS day to day"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -62022,12 +61904,8 @@
           "title": "Overview",
           "caption": "BGP is the routing protocol of the internet. It is a path-vector protocol that exchanges reachability between autonomous systems and chooses paths by policy and attributes, not by interior cost. If an organisation multihomes to several providers, BGP is how it does it.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Autonomous systems and sessions",
-              "Attributes and best-path selection",
-              "Scaling and safety"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -62184,13 +62062,8 @@
           "title": "Overview",
           "caption": "Redistribution injects routes learned by one routing protocol into another — for example, advertising OSPF routes into EIGRP so two domains can reach each other. It is powerful and often necessary during migrations or at the edge of different administrative domains, but it is also one of the easiest ways to create routing loops.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Why metrics do not translate",
-              "The loop problem and how to break it",
-              "Verify, always",
-              "A worked mutual-redistribution design"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -62359,13 +62232,8 @@
           "title": "Overview",
           "caption": "Routing protocols were designed for trusted environments, so their default posture is dangerously open. An attacker who can peer, inject or impersonate can blackhole, reroute or intercept traffic across a whole network — and the internet has seen this repeatedly in BGP hijacks and leaks.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The threats",
-              "The defences",
-              "Detection and the SIEM",
-              "A hardening checklist for routers"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -62534,13 +62402,8 @@
           "title": "Overview",
           "caption": "Routing problems are usually one of a few things: no matching route, the wrong best path, or an adjacency that never formed. A methodical approach — check the table, check the protocol, check the neighbour, test the path — finds the fault far faster than guessing.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Start with the table",
-              "Check the adjacency",
-              "Test the path",
-              "A worked fault: the missing route"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -62731,13 +62594,8 @@
           "title": "Overview",
           "caption": "Every security decision, from buying a firewall to writing a password policy, traces back to a handful of core ideas. Learn them precisely and the rest of Security+ becomes a matter of applying them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "CIA, non-repudiation and AAA",
-              "Control categories and types",
-              "Zero trust",
-              "Gap analysis, deception and change management"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -62939,13 +62797,8 @@
           "title": "Overview",
           "caption": "Defences only make sense against a real adversary. Knowing who attacks, why, and how they usually get in (overwhelmingly through people) tells you where to spend effort.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Threat actors",
-              "Phishing and its variants",
-              "Pretexting and physical social engineering",
-              "Attack surface"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -63227,13 +63080,8 @@
           "title": "Overview",
           "caption": "Malware is how most attacks turn access into damage. Recognising the families and the signs they leave, and knowing how credentials get abused at scale, is the daily work of a security analyst.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Malware families",
-              "Attacks on credentials",
-              "Indicators of compromise",
-              "Supply chain attacks"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -63432,13 +63280,8 @@
           "title": "Overview",
           "caption": "Cryptography underpins nearly every other control: HTTPS, VPNs, disk encryption, password storage, code signing. You do not need the maths, but you must know which tool does which job and which keys go where.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Symmetric and asymmetric encryption",
-              "Which key for which job",
-              "Hashing and password storage",
-              "Certificates and PKI"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -63640,13 +63483,8 @@
           "title": "Overview",
           "caption": "Identity is the new perimeter. Most breaches involve stolen or misused credentials, so strong authentication, sensible authorisation models and disciplined account lifecycles are among the highest-value controls you can implement.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Multi-factor authentication",
-              "SSO and federation",
-              "Access control models",
-              "Privilege and the account lifecycle"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -63848,13 +63686,8 @@
           "title": "Overview",
           "caption": "Good architecture makes the secure path the default. Instead of bolting on controls later, you decide up front how data is protected in each state, where systems are separated, and how the whole thing keeps running when parts fail.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Protecting data",
-              "Special environments and infrastructure as code",
-              "Inspection devices and failure modes",
-              "Resilience and modern access"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -64088,13 +63921,8 @@
           "title": "Overview",
           "caption": "Security operations is where controls meet reality: finding and prioritising vulnerabilities, watching for attacks, and responding when one succeeds. It is the largest Security+ domain, at 28% of the exam.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Vulnerability management",
-              "Monitoring tools",
-              "Incident response",
-              "Evidence handling"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -64292,13 +64120,8 @@
           "title": "Overview",
           "caption": "Governance, risk and compliance turn security from a technical hobby into a business function: deciding which risks matter, writing down the rules, meeting legal obligations and proving it to auditors.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Quantitative risk",
-              "Managing risk",
-              "Policies and third parties",
-              "Regulations, roles and assurance"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -64504,12 +64327,8 @@
           "title": "Overview",
           "caption": "Applications are where attackers meet your data directly, and AI features add a new class of input that can talk back. Secure coding basics still stop most attacks, while AI systems need a few new habits of their own.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Classic application attacks",
-              "Building securely",
-              "AI threats"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -64695,12 +64514,8 @@
           "title": "Overview",
           "caption": "Most servers, security tools and attacker infrastructure run Linux. Analysts read its logs, testers live in its shell, and both need to spot a dangerous permission or a suspicious process at a glance.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Moving around and finding things",
-              "Permissions, accounts and privilege",
-              "Logs, processes and network state"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -65004,13 +64819,8 @@
           "title": "Overview",
           "caption": "Frameworks give defenders a shared map of how attacks unfold and what a security programme should cover. They let a SOC say \"we have no coverage for lateral movement\" instead of \"we feel exposed\".",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "MITRE ATT&CK",
-              "Kill Chain, CSF and the Diamond Model",
-              "Pyramid of Pain and sharing intel",
-              "Purple teams and OSINT"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -65194,12 +65004,8 @@
           "title": "Overview",
           "caption": "A security operations centre turns a flood of alerts into a few confident decisions. Analysts who know the key log events, can read an email header and understand what a hash lookup does and does not prove are the ones who escalate the right things.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "How a SOC is organised",
-              "Windows events to know by number",
-              "Phishing analysis"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -65383,13 +65189,8 @@
           "title": "Overview",
           "caption": "Web applications are the front door of most organisations and the most common way in for attackers. The OWASP Top 10 is the shared reference for what goes wrong, and most of it comes down to trusting input or skipping an authorisation check.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Access control and IDOR",
-              "Making the server do things: SSRF, traversal, command injection",
-              "Attacking other users: XSS and sessions",
-              "Misconfiguration, deserialization and tooling"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -65594,13 +65395,8 @@
           "title": "Overview",
           "caption": "A penetration test is an authorised, scoped simulation of a real attack, finishing with a report that helps the organisation fix what was found. The method matters as much as the exploits: without authorisation it is a crime, and without a clear report it is wasted money.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Before the first packet",
-              "Reconnaissance and scanning",
-              "Exploitation and escalation",
-              "Reporting"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -65794,12 +65590,8 @@
           "title": "Overview",
           "caption": "Detection engineering is writing, testing and maintaining the rules that turn logs into alerts. Done well, it is software engineering applied to the SOC: version-controlled, tested and measured against real attacker techniques.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Rule languages",
-              "Coverage and discipline",
-              "Behaviours worth detecting"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -65980,12 +65772,8 @@
           "title": "Overview",
           "caption": "When prevention fails, the quality of the response decides the size of the damage. Good incident response stops the spread, preserves the evidence needed to understand what happened, and communicates without tipping off the attacker.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Preserving evidence",
-              "Analysis",
-              "Running the response"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -66164,13 +65952,8 @@
           "title": "Overview",
           "caption": "Active Directory and cloud identity providers are where one compromised account can become control of everything. Attackers rarely need exotic exploits: they follow permission paths and steal tokens.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Active Directory attack paths",
-              "Hardening AD",
-              "Beating MFA",
-              "Cloud identity attacks"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -66442,13 +66225,8 @@
           "title": "Overview",
           "caption": "Threat intelligence is only useful when it changes what defenders do: which vulnerability to patch first, which behaviour to hunt for, which detection to write. Hunting closes the loop by testing intel against your own environment.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Intelligence levels and lifecycle",
-              "Prioritising what to fix",
-              "Sharing and hunting",
-              "Deception"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -66648,13 +66426,8 @@
           "title": "Overview",
           "caption": "Reading about detections only goes so far. The CyberSecurity_Lab simulations generate real attack traces safely, so you can run a drill, capture it with your own tools, and check what you actually caught.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Web attack traces",
-              "DDoS and amplification",
-              "The gift-card lure chain",
-              "Grade yourself with the answer key"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -66859,12 +66632,8 @@
           "title": "Overview",
           "caption": "Every defence starts with knowing who might attack and why. A bank faces organized crime chasing money; a defence contractor faces nation-states chasing secrets; everyone faces phishing. Threat actors differ in resources, patience, and goals — and those differences dictate which controls matter most.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Who attacks and why",
-              "Social engineering attack vectors",
-              "Turning actor knowledge into defence"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -67034,12 +66803,8 @@
           "title": "Overview",
           "caption": "Malware is not one thing: a worm that spreads itself, a Trojan the user installs willingly, and fileless code living only in memory demand completely different defences. Security+ expects you to tell them apart and know what each one implies for detection and response.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The malware zoo",
-              "Evasion and analysis",
-              "Defending against malware in layers"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -67205,12 +66970,8 @@
           "title": "Overview",
           "caption": "Vulnerabilities are the raw material of every attack, and Security+ tests whether you can name the flaw class, explain how it is exploited, and state the fix. Memorizing individual CVEs is pointless; recognizing that unsanitized input plus string-built SQL equals injection is the skill.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Flaw classes to recognize",
-              "Mitigations that work",
-              "Finding vulnerabilities before attackers do"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -67371,12 +67132,8 @@
           "title": "Overview",
           "caption": "Cloud security starts with one uncomfortable truth: most cloud breaches are the customer’s misconfiguration, not the provider’s failure. The shared responsibility model draws the line, and Security+ expects you to draw it differently for IaaS, PaaS, and SaaS.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Models and the shared line",
-              "Virtualization, containers, and zero trust",
-              "Common cloud misconfigurations"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -67540,12 +67297,8 @@
           "title": "Overview",
           "caption": "Network architecture is where security policy becomes geography: what sits in the DMZ, which VLANs can reach each other, and where the single guarded entry point is. Get the topology right and most attacks run out of road.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Zones and segmentation",
-              "Deception, isolation, and enforcement",
-              "Verifying that segmentation works"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -67710,12 +67463,8 @@
           "title": "Overview",
           "caption": "Protocols are promises about how data moves, and the secure versions of familiar protocols are where most day-to-day security lives: the S that turns HTTP into HTTPS, the 3 that turns SNMPv2c into SNMPv3, the tunnel that turns remote access from exposure into a non-event.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "TLS, certificates, and secure services",
-              "VPN designs and wireless",
-              "Checking a TLS configuration"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -67887,12 +67636,8 @@
           "title": "Overview",
           "caption": "Cryptography is the quiet machinery underneath nearly every security control: the TLS that protects a login, the hash that proves a file is intact, the signature that makes a software update trustworthy. Security+ expects you to know not just the names but when each tool fits.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Agreeing on secrets and mixing ciphers",
-              "Certificates and the PKI that backs them",
-              "Keys, signatures, and where they live"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -68094,13 +67839,8 @@
           "title": "Overview",
           "caption": "Before any tool or protocol, security rests on a handful of ideas that show up on every exam and in every real design review: what you are protecting (the CIA triad), who gets in (AAA), and how you arrange trust (zero trust, defense in depth, least privilege).",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "CIA and AAA in practice",
-              "Zero trust and layered defense",
-              "Physical security and biometrics",
-              "Design principles that prevent fraud"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -68306,12 +68046,8 @@
           "title": "Overview",
           "caption": "Security exists to manage risk, not to eliminate it — and risk is a business language, not a technical one. Leaders decide how much risk to accept; your job is to measure it honestly, price it in dollars or clear ratings, and drive it down to the line they drew.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Measuring and answering risk",
-              "Business impact analysis and continuity",
-              "Backups, testing, and communication"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -68602,13 +68338,8 @@
           "title": "Overview",
           "caption": "Someone has to decide what \"secure enough\" means, prove it to outsiders, and keep vendors honest. That is governance: the laws that constrain you, the frameworks that organise you, the audits that verify you, and the contracts that bind your third parties.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The compliance landscape",
-              "Frameworks that organise security",
-              "Privacy principles and data rights",
-              "Policies, audits, and third-party risk"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -68814,12 +68545,8 @@
           "title": "Overview",
           "caption": "Security operations is the discipline of turning signals into decisions under pressure. Every scenario in this lesson is a judgement call an analyst actually faces: an alert that could be nothing or everything, a noisy rule everyone has learned to ignore, a user who swears they were “just browsing”. The right move is rarely the technical one first — it is the operational one: contain, verify, escalate, communicate.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Triage: contain first, investigate second",
-              "Tuning, pipelines, and honest metrics",
-              "Hunting, handoffs, and the human layer"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -69009,12 +68736,8 @@
           "title": "Overview",
           "caption": "Hardening and vulnerability management are where security meets the calendar: every patch competes with uptime, every baseline competes with convenience, and every exception competes with memory. The scenarios in this lesson are the calls a security engineer actually makes — which finding gets the emergency window, what to do about the system that can never be patched, how to answer “are we getting safer?”",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Prioritize by exposure, not by severity alone",
-              "Baselines, drift, and the unpatchable",
-              "Exceptions, assets, and honest measurement"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -69204,12 +68927,8 @@
           "title": "Overview",
           "caption": "Tools don’t secure anything — operated tools do. EDR that nobody tunes, NAC that quarantines the wrong laptops, DLP that blocks the legal team into demanding its removal: every control in this lesson is powerful and every one fails when it is misconfigured, unscoped, or trusted blindly. The scenarios are about operating the stack, not buying it.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "EDR: trust the telemetry, isolate on tradecraft",
-              "NAC and DLP: enforce, but keep the business working",
-              "Identity operations and automation discipline"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -69397,12 +69116,8 @@
           "title": "Overview",
           "caption": "Incident response is the exam’s hardest domain because it is the job’s hardest phase: decisions with incomplete information, a clock running, and stakeholders pulling in opposite directions. The scenarios in this lesson run the full NIST lifecycle — preparation through lessons learned — the way it actually unfolds, including the parts nobody puts in the playbook: the CEO who wants to chat with the attackers, the 40-person bridge where nothing gets decided, the scribe who stops taking notes.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Scope first, preserve as you go",
-              "Contain by the environment you are in",
-              "Command, communicate, and actually learn"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -69592,12 +69307,8 @@
           "title": "Overview",
           "caption": "Threats don’t arrive labeled. The scenarios in this lesson are the calls a defender actually makes when the evidence is partial: two incidents land the same week — are they one actor or two? Credentials are used from a foreign IP with no malware in sight — what vector do you chase? A trusted vendor’s update turns malicious overnight. The wrong attribution sends the response down the wrong road, and the wrong vector keeps the real door open.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Attribution: dwell, tooling, and objectives",
-              "Initial access: find the real door",
-              "Ecosystems, not lone wolves"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -69787,12 +69498,8 @@
           "title": "Overview",
           "caption": "Malware announces itself by behavior, not by name. The scenarios in this lesson are the identifications an analyst actually makes: a worm that needs no user, a RAT with a human behind it, a rootkit that makes every tool lie, ransomware that already stole the data before it encrypted. The right identification drives the right response — and the wrong one wastes the response on the wrong layer.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Identify from behavior, not signatures",
-              "Ransomware: the extortion reality",
-              "Containment by malware type"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -69977,12 +69684,8 @@
           "title": "Overview",
           "caption": "The human and the application are the two softest targets, and attackers work both. The scenarios in this lesson are the judgments defenders actually make: a perfectly personalized email to the CFO, a helpdesk call armed with LinkedIn facts, a login form that answers “user not found” a little too helpfully, a coupon that applies twice when double-clicked. Each one pairs the social technique with the technical control that defeats it.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Engineered trust: verify out-of-band",
-              "Credential attacks: beyond lockouts",
-              "Application flaws as incidents"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -70162,12 +69865,8 @@
           "title": "Overview",
           "caption": "Vulnerability management is where security meets the calendar: every patch competes with uptime, every scan lies a little, and every “critical” needs context. The scenarios in this lesson are the calls a security engineer actually makes — which of 4,000 findings is real, what to do when there is no patch, how to answer a researcher, and how to tell whether the program is actually working.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Scans lie: verify before you patch",
-              "Risk, not just severity",
-              "Disclosure, bounties, and honest measurement"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -70347,12 +70046,8 @@
           "title": "Overview",
           "caption": "Cloud security is the discipline of controlling what you no longer own: the provider owns the hypervisor and the building, you own everything you configure — and misconfiguration is the number one breach cause. The scenarios in this lesson are the calls cloud engineers actually make — the public bucket with anonymous downloads, the drifted Terraform state, the serverless function with an admin role, the single region that is not a DR plan.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Your half of the shared model",
-              "IaC, containers, and ephemeral discipline",
-              "Identity, visibility, and residency"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -70532,12 +70227,8 @@
           "title": "Overview",
           "caption": "Network architecture is the discipline of deciding what can reach what — and proving it. Every scenario in this lesson is a design call with real stakes: the flat /16 that let an attacker cross to the domain controllers in 40 minutes, the vendor who got a full-tunnel VPN for one database, the OT network reachable from the helpdesk for convenience.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Segmentation is the blast-radius control",
-              "Zero trust and the death of the trusted network",
-              "Design choices with price tags"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -70717,12 +70408,8 @@
           "title": "Overview",
           "caption": "Data protection is the discipline of treating data according to what it is worth: classification first, then encryption, keys, and DLP that follow the classification instead of fighting the business. The scenarios in this lesson are the calls that decide whether a lost laptop is a hardware expense or a breach notification.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Classify first, then protect",
-              "Encryption is key management",
-              "DLP, tokens, and the human layer"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -70907,12 +70594,8 @@
           "title": "Overview",
           "caption": "Resilience is the discipline of assuming failure and being boring about recovery: backups that survive the compromise, sites that match the RTO, and plans that have been tested instead of admired. Every scenario in this lesson is a recovery call — the night the ransomware found the online backups, the generator that had never been load-tested, the DR plan written for a datacenter that no longer exists.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Backups must survive the disaster",
-              "RTO and RPO are architecture requirements",
-              "Test everything, document the order"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -71106,13 +70789,8 @@
           "title": "Overview",
           "caption": "General security concepts are the vocabulary of every security decision: zero trust, control categories, AAA, defense in depth. The exam tests whether you can apply them to messy real situations, not just recite them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Zero trust in practice",
-              "Control categories and functions",
-              "People and physical controls",
-              "Reading a concepts scenario"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -71299,13 +70977,8 @@
           "title": "Overview",
           "caption": "Cryptography decisions show up everywhere: how data moves, how passwords are stored, how identities are proven. The exam tests judgment — choosing the right mechanism for the situation — more than math.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Choosing the right mechanism",
-              "PKI that survives reality",
-              "Keys, recovery, and agility",
-              "Common cryptography traps in scenarios"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -71505,13 +71178,8 @@
           "title": "Overview",
           "caption": "Risk management turns security into business language: dollars, probabilities, and decisions. The exam tests whether you can do the math and then make the call — accept, mitigate, transfer, or avoid.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The math that decides",
-              "Owning and treating risk",
-              "Keeping risk alive",
-              "A worked risk decision"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -71706,13 +71374,8 @@
           "title": "Overview",
           "caption": "Governance is how security gets authority: policies with teeth, audits with scope, and compliance that maps to real obligations. The exam tests whether you can navigate the machinery — and know its limits.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Policies, audits, evidence",
-              "Regulations in context",
-              "Privacy and the ceiling",
-              "Evidence that satisfies an auditor"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -71922,13 +71585,8 @@
           "title": "Overview",
           "caption": "Your security now depends on other companies: their breaches become your breach notifications. The exam tests whether you can govern the supply chain — assess, contract, and exit.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Assess before you sign",
-              "Contract the protections",
-              "Plan the exit",
-              "Monitoring a vendor after onboarding"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -72211,13 +71869,8 @@
           "title": "Overview",
           "caption": "Cloud computing changed how organisations buy and run IT: capacity on demand, paid for as it is used, managed through APIs. It also changed who is responsible for what, and misunderstanding that split is behind many cloud breaches.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "What makes something \"cloud\"",
-              "Service and deployment models",
-              "Shared responsibility",
-              "Where cloud runs"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -72415,13 +72068,8 @@
           "title": "Overview",
           "caption": "Every cloud offers the same building blocks under different names: virtual machines, storage, databases, networks, identity and logging. Once you know the categories and one provider's names, the others map quickly.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Compute and storage",
-              "Databases and networking",
-              "Identity, audit and monitoring",
-              "A worked example: a small web application"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -72615,13 +72263,8 @@
           "title": "Overview",
           "caption": "Cloud bills surprise people because everything is metered and nothing stops you from spending. Cost control and basic account governance belong on day one, not after the first shocking invoice.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Pricing models",
-              "Keeping costs visible",
-              "Account governance",
-              "Support plans and when to use them"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -72818,13 +72461,8 @@
           "title": "Overview",
           "caption": "Cloud networking looks like on-premises networking with the cables replaced by API calls. The same concepts (subnets, routes, firewalls, DNS) apply, but a single route table entry can make a database internet-facing.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Subnets and routing",
-              "Filtering traffic",
-              "Connecting networks and services",
-              "Admin access"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -73052,13 +72690,8 @@
           "title": "Overview",
           "caption": "Cloud makes it cheap to build systems that survive failure, but only if you design for it. The Well-Architected Framework and a handful of patterns (statelessness, loose coupling, multi-AZ, immutable deployments) cover most of what good cloud architecture means.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The Well-Architected Framework",
-              "Scaling and resilience patterns",
-              "The anatomy of a cloud architecture",
-              "Disaster recovery strategies"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -73259,12 +72892,8 @@
           "title": "Overview",
           "caption": "Containers package an application with everything it needs; Kubernetes runs them at scale; infrastructure as code defines the environment they run in. Together they make deployments repeatable, and they introduce their own security defaults you must fix.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Containers",
-              "Kubernetes objects",
-              "Infrastructure as code and GitOps"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -73463,13 +73092,8 @@
           "title": "Overview",
           "caption": "In the cloud, identity and configuration are the perimeter. Most cloud breaches come from over-permissive IAM, leaked keys and public resources, not from exotic exploits, which means they are preventable with the right defaults.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "How IAM decides",
-              "Encryption and keys",
-              "Posture and entitlements",
-              "Defaults that prevent breaches"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -73708,13 +73332,8 @@
           "title": "Overview",
           "caption": "Moving data to the cloud does not move legal accountability. Governance questions (where data lives, who can audit, how it is destroyed) are what the CCSP certification focuses on, and what regulators and customers ask about.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The data lifecycle and destruction",
-              "Sovereignty and key control",
-              "Shared infrastructure and legal process",
-              "Assurance"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -73903,12 +73522,8 @@
           "title": "Overview",
           "caption": "Site reliability engineering treats reliability as an engineering problem with numbers attached. Instead of \"never go down\", teams agree how reliable a service must be, measure it, and spend the remaining margin on shipping changes.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "SLIs, SLOs, SLAs and error budgets",
-              "Observability",
-              "Culture and practice"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -74092,13 +73707,8 @@
           "title": "Overview",
           "caption": "Machine learning builds programs from examples instead of hand-written rules. Spam filters, fraud scores and malware classifiers all work this way, and understanding how they are trained and measured tells you when to trust them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Three ways to learn",
-              "How training works",
-              "Generalisation",
-              "Measuring what matters"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -74299,12 +73909,8 @@
           "title": "Overview",
           "caption": "Deep learning stacks many simple units into networks that learn their own features: edges and shapes in images, grammar and meaning in text. It is what made modern vision, speech and language models possible.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Neurons and learning",
-              "Training vocabulary",
-              "Architectures"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -74493,13 +74099,8 @@
           "title": "Overview",
           "caption": "Large language models predict text one token at a time, and that simple mechanism explains most of their strengths and failure modes. Knowing how tokens, context and sampling work makes you far better at using them and at building on them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Tokens, context and training",
-              "Controlling output",
-              "Hallucinations and embeddings",
-              "Choosing a model"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -74704,13 +74305,8 @@
           "title": "Overview",
           "caption": "Retrieval-augmented generation lets a model answer from your documents instead of its training data. It is the most common way to build a useful internal assistant, and the most common way to accidentally build a data leak.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "How RAG works",
-              "Better retrieval",
-              "RAG or fine-tuning?",
-              "Securing and evaluating RAG"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -74897,12 +74493,8 @@
           "title": "Overview",
           "caption": "Most AI features are built by calling a model API from your own code. The interesting part is everything around the call: letting the model use tools, streaming answers, controlling cost, handling rate limits and keeping keys safe.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Tool use",
-              "Latency and cost",
-              "Reliability and safety"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -75077,12 +74669,8 @@
           "title": "Overview",
           "caption": "Changing a model's behaviour is expensive and easy to get wrong; knowing whether a change helped is harder still. Evals are to AI engineering what unit tests are to software: without them, every prompt tweak is a guess.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "When and how to fine-tune",
-              "Evals",
-              "Production logging"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -75261,13 +74849,8 @@
           "title": "Overview",
           "caption": "An agent is a model in a loop, choosing tools and actions until a goal is met. That autonomy is powerful, and it is also what makes agents risky: an agent that can act can be tricked into acting.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Agents and workflows",
-              "Memory and context",
-              "Limiting the blast radius",
-              "Evaluating agents"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -75459,13 +75042,8 @@
           "title": "Overview",
           "caption": "LLM applications add a new attack surface: anything the model reads can try to instruct it. The OWASP Top 10 for LLM Applications catalogues the main risks, and the defensive mindset is to assume the model can be manipulated and limit what that achieves.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Injection and output handling",
-              "Leaking what should stay private",
-              "Supply chain and cost abuse",
-              "The defensive mindset"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -75660,12 +75238,8 @@
           "title": "Overview",
           "caption": "AI governance is how an organisation decides which AI uses are acceptable, proves they are safe and fair, and meets new regulation. It is quickly becoming a standard part of security and risk roles.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Frameworks and regulation",
-              "Fairness and transparency",
-              "Running AI governance"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -75847,12 +75421,8 @@
           "title": "Overview",
           "caption": "Every AWS architecture stands on identity. Before a single packet routes or a single byte is stored, someone — a person, an application, a deployment pipeline — must prove who they are and what they are allowed to do. IAM is that gatekeeper, and the exam treats it as the foundation of the entire security domain: roughly a third of your score rests on designing secure architectures, and most of those questions begin with an identity decision.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Roles, not keys: the credential model",
-              "How permissions are actually evaluated",
-              "Least privilege as a practice, not a slogan"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -76029,12 +75599,8 @@
           "title": "Overview",
           "caption": "A VPC is a private network you fully control, and network security on AWS is the discipline of deciding, packet by packet, what may cross its boundaries. The exam tests this as layered defense: no single control is trusted alone, and every tier of the architecture — edge, subnet, instance — gets its own filtering.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Two filters, two temperaments",
-              "Keeping traffic off the internet",
-              "Protecting what must face the public"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -76215,12 +75781,8 @@
           "title": "Overview",
           "caption": "Data protection on AWS is encryption plus key management plus the operational discipline around both. The exam does not ask you to implement cryptography; it asks you to choose correctly between the managed options — which SSE mode, which key store, which secret store — and to know who holds the keys and who can prove they were used properly.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Envelope encryption and KMS",
-              "Choosing server-side encryption for S3",
-              "Secrets, certificates, and surviving ransomware"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -76402,12 +75964,8 @@
           "title": "Overview",
           "caption": "Resilient architectures assume failure. An Availability Zone will eventually have a bad day, and the exam expects your designs to survive it without a human being paged: traffic reroutes, unhealthy instances are replaced, and the database fails over on its own. Roughly a quarter of the exam tests this domain, and nearly every question is a variation on one theme — no single point of failure.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Designing for the zone that fails",
-              "Balancing and scaling the fleet",
-              "DNS as a control plane"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -76579,12 +76137,8 @@
           "title": "Overview",
           "caption": "Tightly coupled architectures fail together: one slow component backs up into the next until the whole system stalls. Decoupled architectures fail separately — a queue absorbs the surge, a failed message is isolated and retried, and each tier scales on its own schedule. This is the heart of the resilience domain, and the exam returns to it constantly.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Queues absorb, topics broadcast",
-              "Poison pills and idempotency",
-              "Orchestration and events"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -76766,12 +76320,8 @@
           "title": "Overview",
           "caption": "Every disaster-recovery decision is a negotiation between two numbers: how long you can be down, and how much data you can afford to lose. The exam frames the entire backup and DR landscape through RTO and RPO, and the winning design is the cheapest one that still meets both — not the most elaborate one you can draw.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "RTO, RPO, and the strategy spectrum",
-              "Backups that survive the worst day",
-              "Failover mechanics and rehearsal"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -76943,12 +76493,8 @@
           "title": "Overview",
           "caption": "Storage questions reward a simple mental model: block, file, and object storage solve different problems, and the exam tests whether you can match the workload to the shape. A database wants block. A hundred web servers sharing uploads want file. A data lake queried by Athena wants object. Get the shape right and the service choice usually follows.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Three shapes of storage",
-              "Sharing disks and copying them",
-              "Moving data at speed and at scale"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -77115,12 +76661,8 @@
           "title": "Overview",
           "caption": "Database selection is the exam's purest test of architectural judgment: a dozen managed engines, each with a workload it dominates and several it merely survives. The questions describe access patterns — millisecond key lookups at planetary scale, petabyte joins, graph traversals — and the correct answer is the engine built for that pattern.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Relational: RDS and Aurora",
-              "Purpose-built engines",
-              "Migration with minimal downtime"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -77284,12 +76826,8 @@
           "title": "Overview",
           "caption": "Performance on AWS is rarely about bigger instances; it is about putting data closer to the request. Edge caches absorb global traffic, in-memory caches absorb database load, and each layer you add multiplies the capacity of the layers beneath it. The exam tests caching as architecture: where the cache sits, what it holds, and what happens when it misses.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "CloudFront as the front door",
-              "When the CDN is not enough",
-              "Caching inside the architecture"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -77466,12 +77004,8 @@
           "title": "Overview",
           "caption": "Compute is usually the largest line on an AWS bill, and the exam treats cost optimization as a design discipline, not an accounting afterthought. The same workload can cost triple or a third depending on three decisions: which pricing model matches its shape, whether it is sized correctly, and whether it runs only when needed.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The pricing ladder",
-              "Rightsizing and scheduling",
-              "Structure and visibility"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -77648,12 +77182,8 @@
           "title": "Overview",
           "caption": "Storage bills hide in the details: the tier an object sits in, the requests made against it, the transfers that move it, and the queries that scan it. S3 is cheap per gigabyte and expensive per mistake — the exam's cost questions probe exactly the mistakes: objects in the wrong tier, chatty request patterns, forgotten multipart uploads, and Athena queries scanning terabytes of CSV.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Tiering as a strategy",
-              "The hidden meters: requests and transfer",
-              "Data-format and query economics"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -77831,12 +77361,8 @@
           "title": "Overview",
           "caption": "Threat detection in AWS is not one service but a layered system: something that finds the threats, something that collects the findings, something that protects the data those threats target, and something that reconstructs the story after the fact. On SCS-C03, those roles are played by GuardDuty, Security Hub, Macie, and Detective, and the exam expects you to know exactly which one answers which question.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "GuardDuty: detection without agents",
-              "Security Hub: one console, one format",
-              "Macie and Detective: data and investigation"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -78008,12 +77534,8 @@
           "title": "Overview",
           "caption": "You cannot secure what you cannot see, and in AWS, visibility is a design decision. CloudTrail, CloudWatch Logs, and VPC Flow Logs each record a different slice of reality — API activity, application and system logs, network metadata — and the security architect's job is to make sure every slice is collected, tamper-evident, centralised, and queryable when an incident demands it.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "CloudTrail: the control plane on record",
-              "CloudWatch: from log text to alarms",
-              "Network visibility and the immutable archive"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -78184,12 +77706,8 @@
           "title": "Overview",
           "caption": "Identity is the primary security boundary in AWS. There is no corporate firewall that matters more than the question of who — or what — is allowed to call which API on which resource. Every breach story in the cloud eventually resolves to an identity question: a key that should not have existed, a policy broader than the job required, a role assumed from somewhere it should never have been.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "How authorization is decided",
-              "Roles, not keys; MFA, not hope",
-              "Finding and removing excess permissions"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -78353,12 +77871,8 @@
           "title": "Overview",
           "caption": "Incident response in AWS rewards preparation and punishes improvisation. The platform gives you extraordinary leverage — snapshots in seconds, automation that isolates hosts faster than any human, logs centralised by architecture — but only if the runbooks, roles, and forensic accounts exist before the alert fires. The exam tests whether you would reach for the right building blocks in the right order.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The order of operations",
-              "Automate the response, rehearse the team",
-              "Preparing before an incident"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -78522,12 +78036,8 @@
           "title": "Overview",
           "caption": "Logging collects the evidence; monitoring turns it into judgement. This is the detective-control layer of the security program: continuously evaluating whether resources are configured the way policy demands, analysing network and API data at a scale no human can read raw, and surfacing the drift between \"approved\" and \"actual\" before an attacker exploits it.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Config: the compliance sensor",
-              "Analysis at scale, and closing the loop",
-              "Querying logs with Athena and CloudWatch Logs Insights"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -78696,12 +78206,8 @@
           "title": "Overview",
           "caption": "Network security in AWS is a stack of overlapping controls, and the exam tests whether you know which layer answers which threat. Security groups guard instances, NACLs guard subnets, WAF guards web applications, Shield guards against DDoS, and account boundaries guard everything. Misplace a control — expecting WAF to stop a volumetric flood, or a NACL to behave like a security group — and the architecture fails where it matters.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Filtering: security groups and NACLs",
-              "WAF, Shield, and the account boundary",
-              "Inspecting and logging traffic"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -78865,12 +78371,8 @@
           "title": "Overview",
           "caption": "Foundational IAM answers \"who can do what.\" Advanced IAM answers the harder questions: how do you bound what an entire account may do, delegate administration without delegating the keys to the kingdom, trust identities from outside your organization, and eliminate long-lived credentials from machines that were never meant to hold them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Guardrails: SCPs and permission boundaries",
-              "Trusting outsiders: cross-account roles and federation",
-              "Attribute-based access control with tags"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -79038,12 +78540,8 @@
           "title": "Overview",
           "caption": "Data protection is the domain where the exam is most unforgiving, because the distinctions are precise and the wrong choice fails silently. SSE-S3 versus SSE-KMS is not a trivia question — it determines whether every decryption is logged with an identity attached. A key policy is not just another policy — for KMS it is the primary gate, and misunderstanding that breaks cross-account architectures.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "KMS: keys, policies, and envelope encryption",
-              "Encryption in practice: S3, EBS, TLS, and secrets",
-              "Protecting data from deletion and ransomware"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -79207,12 +78705,8 @@
           "title": "Overview",
           "caption": "Compute is where vulnerabilities become breaches. An unpatched library, an instance reachable over SSH from the internet, a metadata service that hands out credentials too freely — each is a small misconfiguration until an attacker assembles them into a path. The specialty exam treats workload hardening as a discipline with specific AWS tools, not general advice.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Find and fix: Inspector and Systems Manager",
-              "Harden the runtime: IMDSv2, EKS, and Lambda",
-              "Hardening container and serverless workloads"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -79376,12 +78870,8 @@
           "title": "Overview",
           "caption": "Security at the scale of one account is a checklist. Security at the scale of a hundred accounts is a system of government: who may create accounts, what guardrails apply automatically, where the audit trail lives, and how you prove any of it to a regulator. The specialty exam treats governance as architecture, not paperwork.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The multi-account foundation",
-              "Continuous compliance and audit evidence",
-              "Proving compliance continuously"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -79583,13 +79073,8 @@
           "title": "Overview",
           "caption": "A Security Operations Center is where detection becomes action. Every alert that a firewall, endpoint agent, or identity system produces lands in the SOC, and analysts decide — usually in minutes — whether it is noise, a misconfiguration, or the first sign of an intruder. The difference between a contained event and a breach is often decided in that triage queue.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "How the SOC is organized",
-              "Alerts, events, and the anatomy of triage",
-              "The SIEM at the center",
-              "Security architecture concepts (1.1)"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -79840,13 +79325,8 @@
           "title": "Overview",
           "caption": "You cannot defend what you have not inventoried, and you cannot fix what you have not found. Vulnerability scanning is the automated, systematic discovery of known weaknesses across systems — the flashlight that turns an unknown attack surface into a prioritized list of problems.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "How vulnerability scanning works",
-              "CVSS, CVE, and the NVD",
-              "Remediation, mitigation, and acceptance",
-              "Scanning in context"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -80119,13 +79599,8 @@
           "title": "Overview",
           "caption": "A SIEM that fires ten thousand alerts a day is not a detection capability — it is a noise generator. The difference between a SIEM that works and one that analysts ignore is correlation, the logic that turns scattered events into coherent incidents, and tuning, the discipline that keeps that logic honest.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Correlation: turning events into incidents",
-              "Tuning: the never-ending job",
-              "SOAR: automation with judgment",
-              "Threat intelligence in the pipeline"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -80381,13 +79856,8 @@
           "title": "Overview",
           "caption": "Automated detection catches the known. Threat hunting exists for everything else — the novel malware, the misused legitimate tool, the slow exfiltration that no signature describes. It is proactive, hypothesis-driven searching through telemetry for threats that evaded the automated defenses.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The hunting loop",
-              "Threat intelligence concepts (1.4)",
-              "Reading network telemetry",
-              "Endpoint and email evidence"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -80644,13 +80114,8 @@
           "title": "Overview",
           "caption": "Scanning finds vulnerabilities; management decides what to do about them. A scanner will happily report ten thousand findings, and the organization that tries to fix them all in CVSS order will spend its year patching the wrong things while the exploited ones wait.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Beyond CVSS: prioritizing by risk",
-              "The remediation workflow",
-              "SLAs, exceptions, and drift",
-              "Disclosure and program health"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -80888,13 +80353,8 @@
           "title": "Overview",
           "caption": "Every organization will have incidents. The ones that survive them well are not the ones with the best tools — they are the ones that decided, before the crisis, who does what, in what order, with whose authority. Incident response is that decision, written down and rehearsed.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The NIST SP 800-61 lifecycle",
-              "Containment, eradication, recovery",
-              "Forensics: evidence that holds up",
-              "The legal and business layer"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -81070,12 +80530,8 @@
           "title": "Overview",
           "caption": "Defenders who think in isolated alerts lose to attackers who think in campaigns. Frameworks like MITRE ATT&CK, the cyber kill chain, and the diamond model give analysts a shared language for describing what an attacker is doing — not just which alert fired, but which step of the intrusion it represents.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "MITRE ATT&CK: the adversary playbook",
-              "The kill chain and the diamond model",
-              "Threat-informed defense"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -81279,13 +80735,8 @@
           "title": "Overview",
           "caption": "The best analysis in the world is worthless if it never changes a decision. Reporting is how security work becomes business action — how an incident becomes funding, a vulnerability trend becomes a policy change, and a SOC's daily grind becomes a board-level conversation about risk.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Metrics that mean something",
-              "Communicating with stakeholders",
-              "Compliance, legal, and the post-incident record",
-              "What the reports contain (4.1 / 4.2)"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -81498,13 +80949,8 @@
           "title": "Overview",
           "caption": "The CISSP is not a technical exam dressed up as a management one; it genuinely asks you to think like a security leader advising the business. Many candidates with deep technical skills fail because they choose the answer an engineer would, not the one a risk advisor would.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The priorities behind every answer",
-              "Due care, ethics and cost",
-              "The exam and the credential",
-              "Thinking in risk, not in tools"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -81745,13 +81191,8 @@
           "title": "Overview",
           "caption": "Domain 1 is the largest at 16% of the exam, and it frames everything else: how organisations govern security, analyse and accept risk, meet legal obligations, stay in business through disruption, and manage people.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Risk",
-              "Continuity",
-              "Law and intellectual property",
-              "People, suppliers and standards"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -81952,13 +81393,8 @@
           "title": "Overview",
           "caption": "This deep dive takes Domain 1 further into the governance machinery the exam loves: what business continuity and disaster recovery plans actually contain, how recovery is tested, how controls are classified, how policies are layered, and how people themselves are controlled.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Continuity: plans and analysis",
-              "Testing recovery",
-              "Controls: types and categories",
-              "Personnel security"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -82166,13 +81602,8 @@
           "title": "Overview",
           "caption": "Domain 2 (10%) is about knowing what information you hold, who is responsible for it, how it is classified, how long you keep it and how you destroy it. It sounds administrative, but data that was never inventoried or never destroyed is behind many breaches.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Know it, own it, classify it",
-              "Sanitisation",
-              "Privacy roles and techniques",
-              "Baselines and DRM"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -82432,13 +81863,8 @@
           "title": "Overview",
           "caption": "This deep dive extends Domain 2 beyond classification and sanitisation into the full life of data: the lifecycle phases protection must follow, the roles that govern data, how long data is kept and when destruction must stop, how data loss prevention works across network, endpoint and cloud, and the controls that protect data in cloud environments.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The data lifecycle and its roles",
-              "Retention and legal holds",
-              "Data loss prevention",
-              "Data in the cloud"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -82651,13 +82077,8 @@
           "title": "Overview",
           "caption": "Domain 3 (13%) covers how secure systems are designed and built, from formal security models to hardware roots of trust, cryptography choices and the physical protection of facilities.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Security models",
-              "Trusted systems",
-              "Design principles and attacks",
-              "Physical security"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -82879,13 +82300,8 @@
           "title": "Overview",
           "caption": "Domain 4 (13%) is secure network architecture: protecting data as it moves, isolating what should not talk, and giving users access to exactly what they need without trusting the network itself.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Protecting data in transit",
-              "Controlling access to the network",
-              "Limiting the blast radius",
-              "Converged networks and CDNs"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -83098,13 +82514,8 @@
           "title": "Overview",
           "caption": "Domain 5 (13%) is identity and access management: making sure the right people, and only they, reach the right resources, and that everything they do is attributable to them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The access control sequence",
-              "Biometrics",
-              "Kerberos and federation",
-              "Keeping access right-sized"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -83317,13 +82728,8 @@
           "title": "Overview",
           "caption": "Domain 6 (12%) asks how you know your controls actually work. Assessment and testing range from automated scans to independent audits, and their results must reach leadership in terms the business understands.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Assessments and audits",
-              "Testing techniques",
-              "Metrics and evidence",
-              "Vulnerability management and the audit trail"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -83523,13 +82929,8 @@
           "title": "Overview",
           "caption": "Domain 7 (13%) is security operations: running investigations, handling incidents, patching, backing up and recovering, and keeping people safe. It is where policy meets the 3 a.m. phone call.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Incident management",
-              "Evidence and investigations",
-              "Backups, DR tests and patching",
-              "People first"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -83760,13 +83161,8 @@
           "title": "Overview",
           "caption": "Domain 8 (10%) is software development security. Most vulnerabilities are written, not installed, so the cheapest place to fix them is in requirements and design, long before code reaches production.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Security in the SDLC",
-              "Measuring maturity",
-              "Concepts the exam loves",
-              "Acquired software"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -83942,13 +83338,8 @@
           "title": "Overview",
           "caption": "Domain 1 scenarios test whether you think like a risk advisor, not a technician. The exam rewards the answer that follows the risk process: assess, choose a treatment, document, and get the right owner to accept what remains.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "When you cannot fix it, compensate",
-              "Assess first, exceptions through process",
-              "How to approach a D1 scenario",
-              "The risk register and third-party risk"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -84098,13 +83489,8 @@
           "title": "Overview",
           "caption": "Domain 2 scenarios revolve around one truth: data outlives every other asset in the story. The exam tests whether you protect the data through its whole lifecycle — including the awkward moments of departure, testing, and litigation.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Departures and remanence",
-              "Test data and legal holds",
-              "How to approach a D2 scenario",
-              "When classification meets the real world"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -84256,13 +83642,8 @@
           "title": "Overview",
           "caption": "Domain 3 scenarios test architectural principles under pressure: what the system does when it fails, how controls layer, and where the keys live. The exam loves designs that look reasonable until one principle is violated.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Fail secure, layer defences",
-              "Keys live apart from data",
-              "How to approach a D3 scenario",
-              "Design traps: the principles behind the distractors"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -84414,13 +83795,8 @@
           "title": "Overview",
           "caption": "Domain 4 scenarios are about moving bits safely across untrusted space and keeping hostile traffic away from trusted assets. The exam tests whether you reach for the right tool: encryption in transit, inspection that cannot be evaded, and segmentation before anything else.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Encrypt the path, inspect honestly",
-              "Segment the untrusted first",
-              "How to approach a D4 scenario",
-              "When encryption is not the answer"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -84562,13 +83938,8 @@
           "title": "Overview",
           "caption": "Domain 5 scenarios test the identity lifecycle under stress: proving who someone is without sharing secrets, bounding the damage when a session is stolen, and treating an exposed credential as compromised the instant it leaks.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Federate, do not share",
-              "Sessions are the second half of authentication",
-              "How to approach a D5 scenario",
-              "The lifecycle traps"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -84723,13 +84094,8 @@
           "title": "Overview",
           "caption": "Domain 6 scenarios test whether you choose the right assessment for the question asked — and whether you can tell a finding from a risk. The exam punishes both testing the wrong thing and treating scanner output as a to-do list.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Right test, right target",
-              "Findings are not risks",
-              "How to approach a D6 scenario",
-              "What good evidence looks like"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -84881,13 +84247,8 @@
           "title": "Overview",
           "caption": "Domain 7 scenarios happen at the worst possible time — and the exam checks whether your instincts follow the incident-response order instead of panic. Contain first, think second, learn always.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Contain before you cure",
-              "Triage by fidelity, close with learning",
-              "How to approach a D7 scenario",
-              "Communication and the legal clock"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -85034,13 +84395,8 @@
           "title": "Overview",
           "caption": "Domain 8 scenarios test whether security is built in or bolted on: what happens before a dependency is adopted, what happens the instant a secret leaks, and where in the lifecycle a bug is cheapest to kill.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Trust, but verify the supply chain",
-              "Secrets spill: revoke first, shift left always",
-              "How to approach a D8 scenario",
-              "The dependency decision, step by step"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -85197,12 +84553,8 @@
           "title": "Overview",
           "caption": "C++ is a compiled language: your source code is translated to native machine code before it ever runs, which is why it powers game engines, operating systems, and high-frequency trading — anywhere speed is non-negotiable.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Compiled, not interpreted",
-              "Hello, world — anatomy of a program",
-              "Building real projects with CMake"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -85357,12 +84709,8 @@
           "title": "Overview",
           "caption": "C++ is statically typed: every variable has a fixed type decided at compile time, which lets the compiler catch a whole class of bugs before your program ever runs.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The fundamental types",
-              "Operators, division, and the traps",
-              "Initialisation and conversions"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -85520,12 +84868,8 @@
           "title": "Overview",
           "caption": "Programs are decisions and repetition. C++ gives you the classic control structures — `if`, `switch`, `for`, `while` — and functions to package logic into reusable, testable units.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Decisions and loops",
-              "Functions: the unit of reuse",
-              "Overloading, default arguments and returning results"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -85691,12 +85035,8 @@
           "title": "Overview",
           "caption": "Pointers are C++'s superpower and its most notorious footgun: direct access to memory addresses, with no safety net. Understanding them is understanding how C++ actually works.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Addresses, pointers, and references",
-              "Stack, heap, and the ways memory dies",
-              "Choosing between references, pointers and smart pointers"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -85863,12 +85203,8 @@
           "title": "Overview",
           "caption": "C++ invented much of what the world now calls object-oriented programming — and then kept the escape hatches. Classes bundle data with the functions that operate on it, and the access system decides who may touch what.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Classes, construction, destruction",
-              "Inheritance and polymorphism",
-              "The rule of zero, three and five"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -86031,12 +85367,8 @@
           "title": "Overview",
           "caption": "The Standard Template Library is the part of C++ you will use every day: containers that manage their own memory, iterators that traverse them, and algorithms that operate on ranges.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Containers: vector first, the rest on demand",
-              "Iterators and algorithms",
-              "Choosing a container and watching iterator invalidation"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -86199,12 +85531,8 @@
           "title": "Overview",
           "caption": "RAII — Resource Acquisition Is Initialization — is the single most important idiom in C++: tie a resource's lifetime to an object's scope, and the destructor releases it automatically, even when exceptions fly.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Ownership, expressed in types",
-              "Move semantics and the rules",
-              "Exception safety and custom deleters"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -86362,12 +85690,8 @@
           "title": "Overview",
           "caption": "Modern C++ — roughly C++11 onward — is almost a different language from the C++ of the 1990s: type-safe generics, lambdas, compile-time computation, and a standard library that finally feels complete.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Templates and lambdas",
-              "The modern toolkit",
-              "Ranges and compile-time programming"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -86525,12 +85849,8 @@
           "title": "Overview",
           "caption": "C++ gives you no guardrails: out-of-bounds access, use-after-free, and signed overflow are not errors the language catches — they are undefined behaviour, meaning the compiler is allowed to do literally anything.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Undefined behaviour: the contract you cannot break",
-              "The tooling safety net",
-              "Writing safer C++ day to day"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -86683,12 +86003,8 @@
           "title": "Overview",
           "caption": "Before containers, shipping software meant shipping hope: it worked on the developer’s laptop, and everyone crossed their fingers it would work in production. A container ends that gamble by bundling the application with everything it needs — code, runtime, libraries — into a single portable unit that behaves identically everywhere it runs.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Containers, not virtual machines",
-              "Images and containers: template and instance",
-              "How containers are isolated"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -86841,12 +86157,8 @@
           "title": "Overview",
           "caption": "Every Docker image begins life as a text file. The Dockerfile is a recipe — a short list of instructions that Docker executes top to bottom, each one adding a layer to the image. Learn to write a good Dockerfile and you control everything about how your application is built, cached, and shipped.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The Dockerfile: a recipe in layers",
-              "Layer caching: build fast by building smart",
-              "Writing a good Dockerfile"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -86998,12 +86310,8 @@
           "title": "Overview",
           "caption": "Building the image is half the craft; running it well is the other half. The `docker run` command looks simple, but its flags are the steering wheel for everything a container does: where it runs, how it is reached, what it can see, and what happens when it stops.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The flags that matter",
-              "Inside, around, and after",
-              "Container lifecycle and cleanup"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -87161,12 +86469,8 @@
           "title": "Overview",
           "caption": "Two problems appear the moment containers get serious: data must outlive the container that created it, and containers must talk to each other. Docker answers the first with volumes and the second with networks — and both have one more subtlety than beginners expect.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Volumes: data that survives",
-              "Networks: containers that talk",
-              "Backing up volumes and publishing ports safely"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -87324,12 +86628,8 @@
           "title": "Overview",
           "caption": "Real applications are rarely one container. A web app needs its database, its cache, maybe a queue — and starting them by hand, in order, with the right flags, is toil that begs to be automated. Docker Compose replaces a folder of shell scripts with a single declarative YAML file.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "One file for the whole stack",
-              "Day-to-day Compose",
-              "Environments, overrides and secrets in Compose"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -87477,12 +86777,8 @@
           "title": "Overview",
           "caption": "An image sitting on your laptop helps no one. Registries — Docker Hub, GitHub Container Registry, Amazon ECR — are the distribution layer: the place images live so any host, CI runner, or cluster can pull exactly the artifact you built.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Tags, digests, and the lie of `latest`",
-              "Push, pull, and trust",
-              "Signing, scanning and retention"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -87643,12 +86939,8 @@
           "title": "Overview",
           "caption": "A container image is a shipping manifest for your attack surface: every package in it is something to patch, every layer a place for secrets to hide, every root process a prize for an attacker. Small, least-privilege, scanned images are not aesthetic preferences — they are security controls.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Build small",
-              "Run least-privilege, prove integrity",
-              "Hardening at run time"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -87809,12 +87101,8 @@
           "title": "Overview",
           "caption": "Development ends at `docker run`; production begins the moment something needs to stay up, stay bounded, and tell you when it is sick. Operations is the discipline of running containers as a professional: health signals, resource limits, logs, and a calm debugging routine.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Health, limits, and staying up",
-              "Seeing inside and debugging",
-              "Logging and monitoring containers"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -87967,12 +87255,8 @@
           "title": "Overview",
           "caption": "Every serious project is a long argument with its own past: what changed, when, why, and by whom. Git is the tool that keeps that argument honest. It records the history of your files as a chain of snapshots so you can move through time — compare, revert, branch, and reconstruct exactly what the code looked like on any day it mattered.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Distributed by design",
-              "The three areas",
-              "Configuring Git and ignoring files"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -88130,12 +87414,8 @@
           "title": "Overview",
           "caption": "A commit is the atom of Git history: a labelled snapshot you can return to, compare against, or undo. Making good commits is a skill, not a formality — a tidy history of small, well-described changes is a gift to every future reader of the project, starting with you in six months.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Stage, then commit",
-              "History, hygiene, and secrets",
-              "Writing good commit messages"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -88283,12 +87563,8 @@
           "title": "Overview",
           "caption": "A commit lives on your machine until you deliberately share it. Remotes are Git’s model for other copies of the repository — on GitHub, GitLab, a colleague’s server — and the push/pull/fetch commands are how your local history and the shared history stay in sync.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Remotes, push, and pull",
-              "Fetch vs pull, and collaborating cleanly",
-              "Authentication, forks and keeping in sync"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -88431,12 +87707,8 @@
           "title": "Overview",
           "caption": "Branching is where Git stops being a backup tool and becomes a way of working. A branch is a cheap, throwaway line of development — try an idea, build a feature, fix a bug — all without disturbing the stable mainline until you are ready to merge it in.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Branches and HEAD",
-              "Merging branches back",
-              "Inspecting and tidying branches"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -88594,12 +87866,8 @@
           "title": "Overview",
           "caption": "Sooner or later two branches change the same lines, and Git stops to ask you which version wins. A merge conflict is not an error — it is Git refusing to guess. Resolving one is a routine, learnable skill, and understanding it dissolves most of the fear beginners attach to merging.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Reading and resolving a conflict",
-              "Merge vs rebase",
-              "Tools that make conflicts easier"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -88737,12 +88005,8 @@
           "title": "Overview",
           "caption": "Git’s greatest gift is that almost nothing is truly lost — if you know the right command. Undoing changes is a whole toolkit, not a single button, and choosing the wrong tool is how people actually lose work. The distinction that matters most: whether a change is still private, or already shared.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Restore, reset, and revert",
-              "Stash and the reflog safety net",
-              "Choosing the safest undo"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -88903,12 +88167,8 @@
           "title": "Overview",
           "caption": "Commands are only half of Git; the other half is how a team agrees to use them. A workflow is the shared choreography — where work happens, how it gets reviewed, and how it lands on the mainline — that lets many people change the same codebase without chaos.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Feature branches and pull requests",
-              "Shaping history and releases",
-              "Protecting the main branch"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -89051,12 +88311,8 @@
           "title": "Overview",
           "caption": "Git can feel like magic until you see the handful of simple ideas underneath — and those ideas explain why some operations are safe, why others are dangerous, and why the history is so hard to tamper with. Understanding the object model turns Git from a set of memorized incantations into a system you can reason about.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The object model",
-              "Keeping a repository healthy",
-              "Large files, secrets and repository maintenance"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -89211,12 +88467,8 @@
           "title": "Overview",
           "caption": "Go is a compiled language built around a radical idea: simplicity is a feature. Born at Google out of frustration with the complexity of large C++ codebases and slow build times, it compiles to a single, statically-linked native binary — no runtime, no interpreter, no dependency hell on the target machine. Drop the binary on a server or into a container and it runs.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "One binary, no runtime",
-              "Modules and the go command",
-              "The Go way: simplicity, enforced"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -89379,12 +88631,8 @@
           "title": "Overview",
           "caption": "Go’s type system is deliberately boring — and that is a compliment. Declarations come in two flavors, every type has a zero value so nothing is ever “uninitialized,” and the compiler refuses to silently convert between numeric types. Boring, here, means predictable: code does what it says, on every machine, every time.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Declaration in two flavors",
-              "Every type starts somewhere: zero values",
-              "Text, bytes, and constants"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -89541,12 +88789,8 @@
           "title": "Overview",
           "caption": "Go takes minimalism seriously in control flow: there is exactly one loop keyword, `switch` does not fall through, and functions can return multiple values — a small feature with enormous consequences, because it underpins the entire error-handling model. Less syntax to learn, fewer ways to be surprised.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "One loop, many shapes",
-              "Functions that say more",
-              "Defer: cleanup you cannot forget"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -89694,12 +88938,8 @@
           "title": "Overview",
           "caption": "Go’s data structures are few and opinionated: arrays are fixed-size values, slices are the dynamic views you actually use, and maps are the built-in hash tables. The `range` loop ties them together — with semantics precise enough that misunderstanding them is a rite of passage worth skipping.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Arrays are fixed; slices are the workhorse",
-              "Maps and the comma-ok idiom",
-              "Range: know what you are holding"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -89854,12 +89094,8 @@
           "title": "Overview",
           "caption": "Go has no classes and no inheritance — a deliberate omission, not a missing feature. Structs bundle named fields, methods attach via receivers, and reuse comes from composition: embedding one type inside another. Polymorphism arrives through interfaces, satisfied implicitly — if your type has the methods, it qualifies, no declaration required.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Structs plus methods",
-              "Interfaces, satisfied by structure",
-              "Designing with small interfaces"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -90013,12 +89249,8 @@
           "title": "Overview",
           "caption": "Go famously has no exceptions. Instead, fallible functions return their error as an ordinary value — conventionally the last return — and callers check it, explicitly, every time. It is verbose by design: the language would rather make error handling visible than let failures hide behind invisible control flow.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Errors are values, not exceptions",
-              "Wrapping and inspecting error chains",
-              "Panic is not error handling"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -90176,12 +89408,8 @@
           "title": "Overview",
           "caption": "Concurrency is Go’s superpower and its calling card. Goroutines — lightweight threads managed by the runtime — make spawning thousands of concurrent tasks cheap, and channels give those tasks a disciplined way to talk. The guiding motto inverts the usual instinct: don’t communicate by sharing memory; share memory by communicating.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Goroutines: threads, minus the weight",
-              "Share memory by communicating",
-              "Coordination primitives"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -90337,12 +89565,8 @@
           "title": "Overview",
           "caption": "Go ships with a standard library that other ecosystems would call a framework: HTTP servers and clients, JSON, cryptography, templating, and a testing toolchain — all in the box, all documented, all stable. It is a deliberate strategy: fewer third-party dependencies means fewer supply-chain surprises and code that still builds in five years.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The standard library does the heavy lifting",
-              "Testing the Go way",
-              "Why Go won cloud-native"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -90495,12 +89719,8 @@
           "title": "Overview",
           "caption": "Docker taught the world to package applications as containers; Kubernetes answers the next question — who runs them when there are hundreds, across dozens of machines, and they must never go down? It is a platform that schedules containers, heals them when they fail, scales them with demand, and networks them together, all driven by declarations of what you want rather than commands describing how.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Two halves: brains and muscle",
-              "Declare the desired state; let controllers reconcile",
-              "Working with kubectl and contexts"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -90653,12 +89873,8 @@
           "title": "Overview",
           "caption": "Pods are the atoms of Kubernetes, but atoms alone do not make a system. In production you never manage pods one by one — you declare a Deployment, and it keeps the right number of identical pods alive, updates them gracefully, and rolls back when an update goes wrong.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The pod: small, shared, ephemeral",
-              "Deployments: pods with a future",
-              "Multi-container pods and pod lifecycle"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -90816,12 +90032,8 @@
           "title": "Overview",
           "caption": "Everything in Kubernetes is an object described in YAML — and the shape of that YAML is the same everywhere, from a two-line namespace to a hundred-line Deployment. Learn the shape once and you can read any manifest ever written.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The manifest: apiVersion, kind, metadata, spec",
-              "ConfigMaps, Secrets, and the config/image boundary",
-              "Labels, selectors and managing manifests"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -90979,12 +90191,8 @@
           "title": "Overview",
           "caption": "Pods are born with IP addresses and die without ceremony — so nothing inside a cluster should ever hardcode a pod IP. Services solve this by standing in front of pods with a stable virtual IP and name, load-balancing across whatever pods currently match. Networking in Kubernetes is the art of stable endpoints over an ephemeral substrate.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Services: the stable front door",
-              "DNS, Ingress, and the outside world",
-              "Controlling traffic with NetworkPolicy"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -91140,12 +90348,8 @@
           "title": "Overview",
           "caption": "Containers are ephemeral and pods are mortal — a combination that is fatal to data unless you plan for it. Kubernetes answers with a storage model built on the same declarative philosophy as everything else: describe the storage you want, and let the cluster provision and bind it.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "PVs, PVCs, and the claim model",
-              "Choosing the right volume",
-              "StatefulSets, snapshots and data safety"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -91303,12 +90507,8 @@
           "title": "Overview",
           "caption": "Shipping software used to mean downtime windows and crossed fingers. Kubernetes turns deployment into a routine: new pods roll out gradually while old ones keep serving, health probes decide what is really ready, and a bad release rolls back with a single command.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Rolling updates: ship without stopping",
-              "Probes, autoscaling, and fair shares",
-              "Tuning rollouts and protecting availability"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -91466,12 +90666,8 @@
           "title": "Overview",
           "caption": "Deployments cover the common case, but real clusters run stranger workloads: databases that need stable names, agents that must run on every node, batch jobs that should run once and stop. Operating Kubernetes well means knowing the full workload zoo — and having a calm debugging routine for when things go wrong, because they will.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Beyond Deployments: the workload zoo",
-              "Debugging like an operator",
-              "Observability for clusters"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -91628,12 +90824,8 @@
           "title": "Overview",
           "caption": "A default Kubernetes cluster is permissive: any pod can talk to any pod, the default service account often has more rights than it needs, and Secrets are merely encoded, not encrypted. Production security is not a feature you enable — it is a series of deliberate choices, each closing a door the defaults left open.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "RBAC: who can do what",
-              "Hardening pods, networks, and the supply chain",
-              "Securing the cluster itself"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -91794,12 +90986,8 @@
           "title": "Overview",
           "caption": "The command line is the native interface of every Linux server, container, and cloud VM you will ever touch. Graphical tools come and go; the shell is always there, scriptable and identical everywhere. This lesson builds the muscle memory: knowing where you are, moving around, creating and destroying files, finding things, and getting help.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Where you are and what is around you",
-              "Creating, moving, and destroying",
-              "Finding files and getting help"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -91960,12 +91148,8 @@
           "title": "Overview",
           "caption": "Linux security starts with three letters: r, w, x. Every file and directory carries nine permission bits — read, write, execute for the owner, the group, and everyone else — and most \"permission denied\" mysteries (and most privilege-escalation findings) trace back to them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Reading and setting the nine bits",
-              "The special bits: SUID, SGID, sticky",
-              "Access control lists and troubleshooting"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -92128,12 +91312,8 @@
           "title": "Overview",
           "caption": "Every process on a Linux box runs as some user, and every user is a line in /etc/passwd. Identity is the foundation that permissions, sudo, and SSH all build on — and misconfigured accounts are among the most common findings in real audits.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The account files",
-              "sudo: privilege with a paper trail",
-              "Managing accounts safely"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -92291,12 +91471,8 @@
           "title": "Overview",
           "caption": "On Linux, everything interesting is text: logs, configs, command output. The operators who find answers fastest are the ones fluent in pipelines — chaining small single-purpose tools with pipes and redirection until the data confesses.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Pipes and redirection",
-              "The text toolkit",
-              "A worked pipeline: top talkers in a web log"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -92452,12 +91628,8 @@
           "title": "Overview",
           "caption": "Software on Linux comes from repositories — signed, versioned collections that resolve dependencies for you. The package manager is the difference between a system you can patch in one command and a snowflake server nobody dares touch.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The two families",
-              "Query, clean, and stay safe",
-              "Repositories, signing keys and pinning"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -92615,12 +91787,8 @@
           "title": "Overview",
           "caption": "systemd is PID 1 on virtually every modern Linux distribution: it boots the system, supervises services, and collects their logs. Whether you are deploying an app or debugging why one will not start, systemctl and journalctl are the two commands that matter most.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Services: now vs at boot",
-              "Logs and scheduling",
-              "Writing your own service unit"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -92763,12 +91931,8 @@
           "title": "Overview",
           "caption": "When the app cannot reach the database, the network tools tell you whether it is DNS, routing, the firewall, or the service itself. Linux replaced the old net-tools long ago — this lesson teaches the modern iproute2 toolkit and the SSH skills every remote admin uses daily.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The modern toolkit: ip and ss",
-              "SSH, copying, and name resolution",
-              "Troubleshooting a connection step by step"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -92931,12 +92095,8 @@
           "title": "Overview",
           "caption": "If you do it twice, script it. Bash turns your hard-won command-line knowledge into repeatable automation: backups, log analysis, provisioning, health checks. It is also the first language of incident response — the one you will reach for at 3am.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Anatomy of a trustworthy script",
-              "Logic: conditionals, loops, functions",
-              "Inputs, quoting and checking your scripts"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -93089,12 +92249,8 @@
           "title": "Overview",
           "caption": "When something breaks, the system already wrote down why — your job is knowing where to look. Logs are the flight recorders of Linux: boot messages, auth events, service output, and kernel warnings, all timestamped and waiting.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Where the evidence lives",
-              "The first sixty seconds",
-              "Searching logs effectively"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -93247,12 +92403,8 @@
           "title": "Overview",
           "caption": "A default Linux install is not a hardened server. This lesson is the minimum viable checklist before any box touches the internet: SSH done right, a default-deny firewall, brute-force protection, prompt patching, and the principle of least privilege applied to accounts and services.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "SSH and the front door",
-              "Firewall, patching, least privilege",
-              "Watching for intrusion"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -93405,12 +92557,8 @@
           "title": "Overview",
           "caption": "Rust is a systems programming language with one headline promise: memory safety without a garbage collector, enforced at compile time. Where C hands you raw power and trusts you not to misuse it, and where Go and Java pay a runtime tax for safety, Rust moves the checks into the compiler — so whole classes of bugs become build errors instead of production incidents.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Memory safety, enforced before the program ever runs",
-              "Cargo: the front door",
-              "Macros, expressions, and the humble semicolon"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -93556,12 +92704,8 @@
           "title": "Overview",
           "caption": "Rust’s type system is strict, static, and precise — and it starts with a philosophical choice most languages get backwards: variables are immutable unless you explicitly opt out. That single default removes an entire category of “who changed my variable?” bugs before you write a line of logic.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Immutable until you say otherwise",
-              "A precise type system",
-              "Arithmetic with guardrails"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -93721,12 +92865,8 @@
           "title": "Overview",
           "caption": "In most languages, control flow is plumbing: statements that steer execution and return nothing. In Rust, control flow is made of expressions — `if`, `loop`, and `match` all evaluate to values you can assign, return, and compose. Once that clicks, Rust code reads less like a list of instructions and more like a description of values.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Everything is an expression",
-              "Loops, and matching that cannot miss a case",
-              "Patterns beyond match"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -93887,12 +93027,8 @@
           "title": "Overview",
           "caption": "Ownership is Rust’s central idea — the mechanism behind the headline promise. Three short rules about who owns each value replace the garbage collector entirely: memory is freed deterministically, the moment its owner goes out of scope, with no runtime pausing your program to clean up.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Three rules that replace the garbage collector",
-              "Borrowing: use it without owning it",
-              "Lifetimes in practice"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -94051,12 +93187,8 @@
           "title": "Overview",
           "caption": "Rust has no classes and no null — two omissions that turn out to be features. Data is modelled with structs (named fields, behavior attached via `impl` blocks) and enums that are far richer than their C namesakes: each variant can carry its own data. Absence and failure, the jobs null used to do badly, are handled by the `Option` and `Result` enums, with the compiler forcing you to confront both.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Structs: data with behavior attached",
-              "Enums that carry data — and the end of null",
-              "Traits: shared behaviour"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -94213,12 +93345,8 @@
           "title": "Overview",
           "caption": "Day-to-day Rust runs on a small set of collections — `Vec`, `String`, `HashMap` — and an error-handling philosophy with no exceptions: failures are values, returned and handled explicitly. The `?` operator makes that explicitness cheap instead of noisy.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The working collections",
-              "Errors as values, propagated with `?`",
-              "Designing error types"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -94358,12 +93486,8 @@
           "title": "Overview",
           "caption": "Rust has no inheritance and no base classes, yet it achieves some of the most powerful abstraction in any systems language. The trick is two mechanisms working together: traits, which define shared behavior a type can implement, and generics, which are monomorphised at compile time — so the abstraction costs nothing at runtime.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Traits: Rust’s interfaces",
-              "Generics without runtime cost",
-              "Two kinds of polymorphism"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -94521,12 +93645,8 @@
           "title": "Overview",
           "caption": "Concurrency is where Rust’s ownership model pays its biggest dividend. The same borrowing rules that prevent use-after-free also prevent data races — so an entire class of threading bugs that other languages discover in production becomes a compile error. The Rust community calls this fearless concurrency, and it is not marketing: the compiler genuinely rejects racy programs.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Threads without data races",
-              "Shared state, when you truly need it",
-              "Escape hatches and guarantees"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -94692,12 +93812,8 @@
           "title": "Overview",
           "caption": "Nearly every application you have ever used stores its data in a relational database, and SQL — the Structured Query Language — is how you talk to it. It is one of the highest-leverage skills in technology: the same few dozen keywords query bank ledgers, hospital records, and social networks alike.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Tables, rows, and the declarative mindset",
-              "Keys, NULL, and identity",
-              "Data types and constraints"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -94859,12 +93975,8 @@
           "title": "Overview",
           "caption": "Reading data is the first 90% of SQL. The `SELECT` statement plus a handful of clauses — `WHERE`, `ORDER BY`, `LIMIT`, `DISTINCT` — answers an enormous range of real questions, from \"which users signed up today\" to \"what are our top ten products.\"",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Filtering and shaping the result",
-              "Ordering, deduplicating, and presenting",
-              "Pattern matching, ranges and NULL-safe filters"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -95013,12 +94125,8 @@
           "title": "Overview",
           "caption": "Individual rows answer \"what happened\"; aggregates answer \"what does it mean.\" `COUNT`, `SUM`, and `AVG` collapse thousands of rows into the single numbers that drive dashboards, reports, and decisions.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The aggregate functions",
-              "Grouping, and the WHERE/HAVING divide",
-              "Common grouping mistakes"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -95181,12 +94289,8 @@
           "title": "Overview",
           "caption": "Real databases spread data across many tables — customers in one, orders in another — and joins are how you reassemble it. If `SELECT` is the first 90% of SQL, joins are most of the remaining 10%.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The join family",
-              "What makes joins trustworthy",
-              "Other join types and set thinking"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -95322,12 +94426,8 @@
           "title": "Overview",
           "caption": "So far you have been reading data. Now you change it: creating tables, inserting rows, updating values, and — carefully — deleting them. This is where SQL gets the power to destroy, so the discipline matters as much as the syntax.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Defining structure: DDL",
-              "Changing data: DML, and the WHERE that saves you",
-              "Changing schemas safely"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -95489,12 +94589,8 @@
           "title": "Overview",
           "caption": "Some questions cannot be answered in a single flat query: \"customers whose orders exceed the average,\" \"products never purchased.\" Subqueries — queries nested inside queries — and CTEs let you build the answer in composable layers.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Queries inside queries",
-              "CTEs and set operators",
-              "Recursive CTEs and choosing the right tool"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -95658,12 +94754,8 @@
           "title": "Overview",
           "caption": "A query that returns in milliseconds on a thousand rows can take minutes on ten million. The difference is almost always indexing — and behind indexing stands schema design: normalization, the discipline of storing each fact exactly once.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Indexes: the book-index analogy, made real",
-              "Normalization: one fact, one place",
-              "Composite indexes and when to denormalise"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -95822,12 +94914,8 @@
           "title": "Overview",
           "caption": "Databases do not just store data — they guarantee it. Transactions make multi-step changes atomic, views shape what different users may see, and a disciplined security posture keeps attackers from turning your database into their playground.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Transactions: all or nothing",
-              "Views, windows, and the security posture",
-              "Isolation levels and preventing SQL injection"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -95994,12 +95082,8 @@
           "title": "Overview",
           "caption": "Terraform turns infrastructure from something you click into something you write. Instead of provisioning servers, networks, and databases by hand through a console, you describe the infrastructure you want in configuration files — and Terraform builds it, keeps it, and changes it for you.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "From clicks to code",
-              "Declarative: describe the destination, not the drive",
-              "Providers, resources, and the state file"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -96162,12 +95246,8 @@
           "title": "Overview",
           "caption": "Terraform's daily rhythm is three commands: init, plan, apply. They form a loop — prepare, preview, execute — that makes infrastructure changes reviewable before they touch anything real.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "init, plan, apply: the three beats",
-              "Reading the plan",
-              "Hygiene: fmt, validate, destroy"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -96321,12 +95401,8 @@
           "title": "Overview",
           "caption": "Resources are the nouns of Terraform: the servers, buckets, and records you manage. Data sources are the read-only counterparts — windows into infrastructure that exists outside your configuration.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Blocks, addresses, and references",
-              "When the graph needs help: depends_on",
-              "Data sources: reading what you do not manage"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -96484,12 +95560,8 @@
           "title": "Overview",
           "caption": "Hard-coded values make configurations brittle; every environment ends up a fork. Variables, locals, and outputs are how Terraform configurations become reusable — the same code, parameterized for dev, staging, and production.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Inputs: variables and where values come from",
-              "Locals and outputs: the internal wiring",
-              "Handling secrets and sensitive values"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -96656,12 +95728,8 @@
           "title": "Overview",
           "caption": "Terraform configurations are not static documents — they compute. Expressions let you branch on environment, transform collections, and build strings from variables, all inside HCL.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Branching and transforming",
-              "Functions worth memorizing",
-              "Dynamic blocks and testing expressions"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -96830,12 +95898,8 @@
           "title": "Overview",
           "caption": "State is Terraform's memory: the mapping between your configuration and the real infrastructure it manages. Everything Terraform does — planning, applying, destroying — is a conversation with state.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Why remote state, and why locked",
-              "Reading, repairing, and respecting state",
-              "Moving and importing resources safely"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -96999,12 +96063,8 @@
           "title": "Overview",
           "caption": "A module is Terraform's unit of reuse: a folder of configuration files with a clear contract of inputs and outputs. Every configuration you have ever written is already a module — the root module. Named modules just let you use the pattern deliberately.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Calling and composing",
-              "Designing modules worth reusing",
-              "Testing and publishing modules"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -97162,12 +96222,8 @@
           "title": "Overview",
           "caption": "Most resources are declared once and exist once. Meta-arguments are how you break that rule with intent: create many copies, control replacement behavior, and generate repetitive blocks — all without copy-paste.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Many from one: count and for_each",
-              "Lifecycle: guardrails for the dangerous moments",
-              "Dynamic blocks and the provisioner warning"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -97344,12 +96400,8 @@
           "title": "Overview",
           "caption": "Writing Terraform is the easy half. Running it in production — safely, repeatedly, with other humans — is the discipline this lesson is about: isolation, importing the past, automated guardrails, and pipelines that make the safe path the easy path.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Environments: workspaces and their limits",
-              "Guardrails before apply: policy and scanning",
-              "The pipeline you can trust"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -97510,12 +96562,8 @@
           "title": "Overview",
           "caption": "Information technology is the discipline of making computers, networks, and software work for people. It covers everything from the laptop on your desk to the servers that answer your search queries — and the people who keep all of it running.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "What \"information technology\" actually means",
-              "Hardware, software, and the cycle that connects them",
-              "Clients, servers, and the people who keep it running"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -97682,13 +96730,8 @@
           "title": "Overview",
           "caption": "A computer is built from switches. Each switch has two reliable states — off and on — and the whole machine is made by combining billions of them. Binary is simply the number system that matches that hardware: two digits, 0 and 1, instead of the ten we use.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "Bits, bytes, and why two states are enough",
-              "Reading binary like a number line",
-              "Hexadecimal: the shorthand",
-              "Characters: ASCII and UTF-8"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -97879,13 +96922,8 @@
           "title": "Overview",
           "caption": "A computer is a team of parts, and each part has one job. The CPU does the thinking, memory holds what is being worked on, storage keeps what must survive a shutdown, and the motherboard connects them all so data can flow between them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The CPU: fetch, decode, execute",
-              "Cores, clocks, and cache",
-              "The motherboard and the chipset",
-              "Memory, storage, and the ports between them"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -98103,13 +97141,8 @@
           "title": "Overview",
           "caption": "Computers keep two kinds of memory, and confusing them is the most common beginner mistake. Storage keeps data after the power goes off — your files live there. Memory (RAM) holds what is being worked on right now, and forgets it the moment the machine shuts down.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "The memory hierarchy",
-              "Hard drives: spinning rust",
-              "SSDs: flash, wear, and TRIM",
-              "Partitions and formatting"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -98297,13 +97330,8 @@
           "title": "Overview",
           "caption": "The operating system is the middleman between applications and hardware. It decides who gets CPU time, keeps files organised, and stops one program from breaking another. Without it, every application would have to manage the hardware itself.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "What the operating system actually does",
-              "Kernel space and user space",
-              "Processes, threads, and virtual memory",
-              "From power button to desktop"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {
@@ -98492,13 +97520,8 @@
           "title": "Overview",
           "caption": "Files are the unit of work in IT. Everything you do — writing a report, fixing a server, shipping code — is creating, moving, reading, or deleting files. The file system is the map that organises them, and the command line is the fastest way to work with them.",
           "diagram": {
-            "template": "roadmap",
-            "labels": [
-              "File systems: NTFS, ext4, FAT32, exFAT",
-              "Paths, names, and the extension trap",
-              "The command line",
-              "Buffers and caches"
-            ]
+            "template": "text",
+            "labels": []
           }
         },
         {

@@ -267,10 +267,13 @@ export function deriveLessonSlides(lessonId, lesson) {
       .slice(0, SLIDE_MAX - (overview.length ? 1 : 0));
     const cheat = assignCheatRows(sections, lesson.cheatSheet);
     if (overview.length) {
+      // No diagram: the lesson outline lives only in the deck's outline
+      // panel, never inside a slide card — the Overview slide is title +
+      // caption, and the carousel gives the caption the stage.
       slides.push({
         title: 'Overview',
         caption: overview[0],
-        diagram: { template: 'roadmap', labels: sections.map((s) => s.heading) },
+        diagram: { template: 'text', labels: [] },
       });
     }
     sections.forEach((section, i) => {
