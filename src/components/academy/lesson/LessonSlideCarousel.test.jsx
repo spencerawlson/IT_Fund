@@ -18,12 +18,12 @@ const SLIDES = [
   {
     title: 'Layers',
     caption: 'Each layer adds its own header.',
-    diagram: { template: 'flow', labels: [] },
+    diagram: { template: 'terms', labels: ['Header'], items: [{ term: 'Header', def: 'Added by each layer' }] },
   },
   {
     title: 'Compare',
     caption: 'TCP is reliable; UDP is fast.',
-    diagram: { template: 'comparison', labels: [] },
+    diagram: { template: 'compare', labels: ['TCP', 'UDP'] },
   },
 ];
 
@@ -62,6 +62,24 @@ function swipe(root, fromX, toX) {
 }
 
 describe('LessonSlideCarousel', () => {
+  it('draws each visual from the slide data: cheat-sheet terms and a comparison', () => {
+    const root = renderCarousel();
+    const out = text(root);
+    expect(out).toContain('Added by each layer');
+    expect(out).toContain('TCP');
+    expect(out).toContain('UDP');
+  });
+
+  it('renders a text-only slide with no visual at all, never a placeholder shape', () => {
+    const root = renderCarousel([
+      { title: 'Overview', caption: 'Only words here.', diagram: { template: 'text', labels: [] } },
+    ]);
+    const slide = root.root.findByProps({ 'aria-roledescription': 'slide' });
+    expect(slide.findAllByType('svg')).toHaveLength(0);
+    expect(slide.findAllByType('ol')).toHaveLength(0);
+    expect(text(root)).toContain('Only words here.');
+  });
+
   it('renders the first slide: title, caption, diagram, and a slide counter', () => {
     const root = renderCarousel();
     const out = text(root);
@@ -70,7 +88,8 @@ describe('LessonSlideCarousel', () => {
     expect(out).toContain('model has seven layers.');
     expect(out).toContain('Slide 1 of 3');
     // The diagram is a real inline SVG, not an <img> placeholder.
-    expect(root.root.findAllByType('svg').length).toBeGreaterThan(0);
+    // The visual is lesson text: the layer names are drawn as a list.
+    expect(text(root)).toContain('Data Link');
     // Inline `code` in a caption renders as a <code> element (RichText).
     expect(root.root.findAllByType('code').map((n) => n.children.join(''))).toContain('OSI');
   });
@@ -132,7 +151,15 @@ describe('LessonSlideCarousel', () => {
     const root = renderCarousel();
     const region = root.root.findByProps({ 'aria-roledescription': 'carousel' });
     expect(region.props['aria-label']).toBe('Lesson slides');
-    const group = root.root.findByProps({ 'aria-roledescription': 'slide' });
-    expect(group.props['aria-label']).toBe('Slide 1 of 3: Overview');
+    // Every slide is in the DOM (one grid cell, so the box never resizes);
+    // only the current one is exposed to assistive tech.
+    const groups = root.root.findAllByProps({ 'aria-roledescription': 'slide' });
+    expect(groups.map((g) => g.props['aria-label'])).toEqual([
+      'Slide 1 of 3: Overview', 'Slide 2 of 3: Layers', 'Slide 3 of 3: Compare',
+    ]);
+    expect(groups.map((g) => g.props['aria-hidden'])).toEqual([undefined, true, true]);
+    click(root, 'Next slide');
+    const after = root.root.findAllByProps({ 'aria-roledescription': 'slide' });
+    expect(after.map((g) => g.props['aria-hidden'])).toEqual([true, undefined, true]);
   });
 });

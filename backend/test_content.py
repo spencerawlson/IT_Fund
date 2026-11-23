@@ -193,7 +193,7 @@ def test_unknown_lesson_404():
 # endpoint serves it with exactly the lesson's own gating. Written BEFORE
 # the derivation and observed failing on the pristine dataset (no `slides`).
 
-SLIDE_TEMPLATES = {"layers", "flow", "comparison", "cycle", "client-server", "topology", "concept"}
+SLIDE_TEMPLATES = {"roadmap", "layers", "compare", "terms", "keywords", "text"}
 
 
 def _lesson_paragraphs(content):

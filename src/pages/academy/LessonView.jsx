@@ -13,6 +13,7 @@ import { labTitle } from '@/data/deckLabs';
 import { BLUEPRINTS_FOR_LESSON, BLUEPRINT_POSTER } from '@/data/blueprints';
 import LessonBlueprint from '@/components/academy/lesson/LessonBlueprint';
 import LessonSlideCarousel from '@/components/academy/lesson/LessonSlideCarousel';
+import LessonViewSwitch, { useLessonView } from '@/components/academy/lesson/LessonViewSwitch';
 import { MISSION_FOR_LESSON } from '@/data/missions';
 import CypherLessonPanel from '@/components/academy/tutor/CypherLessonPanel';
 import { useAcademy } from '@/lib/academy';
@@ -77,6 +78,7 @@ export default function LessonView() {
   const [content, setContent] = useState(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [lessonView, setLessonView] = useLessonView();
   useEffect(() => {
     if (!lesson) return;
     if (!subLoading && !subscribed && !isLessonFree(lessonId)) return;
@@ -184,9 +186,15 @@ export default function LessonView() {
     );
   }
 
+  // One view at a time (Spencer, 2026-11-23): the full text OR the slide
+  // deck, never both stacked — the slide captions are the sections' own
+  // paragraphs, so showing both made learners read them twice. Lessons
+  // without a deck simply read as before.
+  const hasSlides = c.slides?.length > 0;
+  const showSlides = hasSlides && lessonView === 'slides';
   const sections = [
-    c.slides?.length && { id: 'slides', label: 'Slides' },
-    c.learn?.length && { id: 'learn', label: 'Learn' },
+    showSlides && { id: 'slides', label: 'Slides' },
+    !showSlides && c.learn?.length && { id: 'learn', label: 'Learn' },
     // A lesson with blueprint sheets gets an Architecture section even
     // without an ASCII diagram — the sheet is the architecture reference.
     (c.architecture || (BLUEPRINTS_FOR_LESSON[lesson.id]?.length ?? 0) > 0) && { id: 'architecture', label: 'Architecture' },
@@ -251,6 +259,29 @@ export default function LessonView() {
       )}
 
       <Card level={2} padding="lg" as="article" className="space-y-12">
+        {hasSlides && (
+          <div className="-mb-6">
+            <LessonViewSwitch view={lessonView} onChange={setLessonView} />
+          </div>
+        )}
+
+        {showSlides && (
+          <div className="space-y-3">
+            <LessonSlideCarousel id="slides" slides={c.slides} />
+            <p className="text-small text-ink-2">
+              The slides summarise each section.{' '}
+              <button
+                type="button"
+                onClick={() => setLessonView('read')}
+                className="font-semibold text-action underline-offset-2 hover:underline"
+              >
+                Read the full lesson
+              </button>
+            </p>
+          </div>
+        )}
+
+        {!showSlides && (
         <Section id="overview" title="Overview">
           {(c.overview || [lesson.summary]).map((p) => <Para key={p} text={p} />)}
           {!content.content && (
@@ -267,10 +298,9 @@ export default function LessonView() {
             </div>
           )}
         </Section>
+        )}
 
-        {c.slides?.length > 0 && <LessonSlideCarousel id="slides" slides={c.slides} />}
-
-        {c.learn?.length > 0 && (
+        {!showSlides && c.learn?.length > 0 && (
           <Section id="learn" title="Learn">
             {c.learn.map((part) => (
               <div key={part.heading} className="space-y-3">

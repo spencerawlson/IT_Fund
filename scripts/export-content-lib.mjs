@@ -164,24 +164,95 @@ export const allCards = allDecks.flatMap((d) => d.cards);
 // Derived per lesson from its own body text: one Overview slide plus one
 // slide per learn section (cap 5). Captions are verbatim paragraphs — an
 // overview paragraph or a learn section's first paragraph — never invented
-// copy. Diagram templates come from the small SVG kit in
-// src/components/academy/lesson/SlideDiagram.jsx; a section whose body
-// carries a LayerStack renders as a layers diagram labelled with the stack's
-// real item names. Pure + deterministic, so the export test can pin it and
+// copy. Each slide's visual (SlideDiagram.jsx) is drawn from lesson text too:
+// the Overview shows the deck's section headings as a roadmap; a section shows
+// its LayerStack, its "X vs Y" sides, the cheat-sheet rows it teaches, or its
+// inline code terms (2026-11-23 redesign: no more generic placeholder shapes). Pure + deterministic, so the export test can pin it and
 // the committed artifacts must match a fresh build. The deck rides inside
 // the lesson object: the entitled API serves it with exactly the lesson's
 // own gating, and the public build carries it only for the free lessons.
 const SLIDE_MAX = 5;
+// The kit the carousel can draw (src/components/academy/lesson/SlideDiagram.jsx).
+// Every label/item below is lesson text — headings, stack names, cheat-sheet
+// rows or inline code from the section itself — never invented copy.
+//   roadmap   the Overview slide: the deck's own section headings, in order
+//   layers    a section carrying a LayerStack: the stack's real item names
+//   compare   a "X vs Y" heading: the two sides as the heading names them
+//   terms     the lesson cheat-sheet rows this section teaches (term + meaning)
+//   keywords  no cheat-sheet match: the section's own inline `code` terms
+//   text      nothing to draw: the caption carries the slide on its own
+export const SLIDE_TEMPLATES = ['roadmap', 'layers', 'compare', 'terms', 'keywords', 'text'];
+const TERMS_PER_SLIDE = 3;
+const KEYWORDS_PER_SLIDE = 4;
+const KEYWORD_MAX_CHARS = 28;
 
-function templateForSlide(text) {
-  const t = String(text || '').toLowerCase();
-  if (/layer|stack|osi|hierarchy|\blevel\b/.test(t)) return 'layers';
-  if (/client|server|request|response|\bapi\b|http|browser/.test(t)) return 'client-server';
-  if (/\bvs\b|versus|compar|difference|instead of|rather than/.test(t)) return 'comparison';
-  if (/cycle|loop|repeat|feedback|iterat|round.?trip/.test(t)) return 'cycle';
-  if (/topolog|network|node|mesh|\bstar\b|hub|subnet|rout/.test(t)) return 'topology';
-  if (/step|process|flow|stage|phase|pipeline|order|sequence/.test(t)) return 'flow';
-  return 'concept';
+// Words too common to tie a cheat-sheet row to one section.
+const STOP = new Set(
+  ('the and for with from that this into your you are can not only its when then than what which how why '
+  + 'use used uses using all any one two each per via vs versus also more most less like just does did '
+  + 'has have had was were will would should could must may might get gets set sets new old run runs '
+  + 'out off over under after before about between other others same different instead always never '
+  + 'every some many much very too own make makes made way ways time times data value values thing things '
+  + 'first last next code file files type types name names list lists').split(' '),
+);
+
+const normText = (s) => ` ${String(s || '').toLowerCase().replace(/[`*_]/g, '').replace(/[^a-z0-9.+#/-]+/g, ' ').trim()} `;
+const tokensOf = (s) => [...new Set(normText(s).trim().split(/\s+/).map((w) => w.replace(/^[.\-/]+|[.\-/]+$/g, '')))]
+  .filter((w) => w.length >= 3 && !STOP.has(w));
+
+function sectionText(section) {
+  return normText([section.heading, ...(section.body || []).filter((p) => typeof p === 'string')].join(' '));
+}
+
+/** Cheat-sheet rows assigned to the slide sections: each row goes to the ONE
+ *  section that mentions most of its distinctive words (at least half), ties
+ *  to the earliest, at most TERMS_PER_SLIDE rows per section, in sheet order. */
+function assignCheatRows(sections, cheatSheet) {
+  const texts = sections.map(sectionText);
+  const out = sections.map(() => []);
+  for (const row of cheatSheet || []) {
+    if (!Array.isArray(row) || row.length < 2) continue;
+    const [term, meaning] = row;
+    const toks = tokensOf(term);
+    if (!toks.length) continue;
+    let best = -1;
+    let bestScore = 0;
+    texts.forEach((t, i) => {
+      const hit = toks.filter((w) => t.includes(` ${w} `) || t.includes(` ${w}`)).length;
+      const score = hit / toks.length;
+      if (score >= 0.5 && score > bestScore) {
+        best = i;
+        bestScore = score;
+      }
+    });
+    if (best >= 0 && out[best].length < TERMS_PER_SLIDE) out[best].push({ term: String(term), def: String(meaning) });
+  }
+  return out;
+}
+
+function inlineCodeTerms(section) {
+  const seen = new Set();
+  const out = [];
+  for (const p of section.body || []) {
+    if (typeof p !== 'string') continue;
+    for (const m of p.matchAll(/`([^`]+)`/g)) {
+      const term = m[1].trim();
+      // A keyword must name something: skip bare symbols such as `/` or `+ - * /`.
+      if (!term || term.length > KEYWORD_MAX_CHARS || !/[A-Za-z0-9]/.test(term) || seen.has(term)) continue;
+      seen.add(term);
+      out.push(term);
+      if (out.length >= KEYWORDS_PER_SLIDE) return out;
+    }
+  }
+  return out;
+}
+
+/** "Merge vs rebase" -> ["Merge", "rebase"]; "Services: now vs at boot" ->
+ *  ["now", "at boot"]; ", and convergence" tails are dropped. Else null. */
+function compareSides(heading) {
+  const core = String(heading || '').replace(/^[^:]*:\s*/, '').split(/,\s*(?:and|or)\b/)[0];
+  const m = /^(.+?)\s+(?:vs\.?|versus)\s+(.+)$/i.exec(core.trim());
+  return m ? [m[1].trim(), m[2].trim()] : null;
 }
 
 const slideCache = new Map();
@@ -190,28 +261,32 @@ export function deriveLessonSlides(lessonId, lesson) {
   if (slideCache.has(lessonId)) return slideCache.get(lessonId);
   const slides = [];
   if (lesson && typeof lesson === 'object') {
-    const deckTitle = allDecks.find((d) => d.id === lessonId)?.title || '';
     const overview = (lesson.overview || []).filter((p) => typeof p === 'string' && p.trim());
+    const sections = (lesson.learn || [])
+      .filter((s) => (s.body || []).some((p) => typeof p === 'string' && p.trim()))
+      .slice(0, SLIDE_MAX - (overview.length ? 1 : 0));
+    const cheat = assignCheatRows(sections, lesson.cheatSheet);
     if (overview.length) {
       slides.push({
         title: 'Overview',
         caption: overview[0],
-        diagram: { template: templateForSlide(`${deckTitle} ${overview[0]}`), labels: [] },
+        diagram: { template: 'roadmap', labels: sections.map((s) => s.heading) },
       });
     }
-    for (const section of (lesson.learn || []).slice(0, SLIDE_MAX - slides.length)) {
-      const caption = (section.body || []).find((p) => typeof p === 'string' && p.trim());
-      if (!caption) continue;
+    sections.forEach((section, i) => {
+      const caption = section.body.find((p) => typeof p === 'string' && p.trim());
       const stack = (section.body || []).find((p) => p && typeof p === 'object' && p.stack)?.stack;
-      slides.push({
-        title: section.heading,
-        caption,
-        diagram: stack
-          ? { template: 'layers', labels: stack.items.map((it) => it.name) }
-          : { template: templateForSlide(`${section.heading} ${caption}`), labels: [] },
-      });
-      if (slides.length >= SLIDE_MAX) break;
-    }
+      const sides = compareSides(section.heading);
+      const rows = cheat[i];
+      const keywords = inlineCodeTerms(section);
+      let diagram;
+      if (stack) diagram = { template: 'layers', labels: stack.items.map((it) => it.name) };
+      else if (sides) diagram = { template: 'compare', labels: sides };
+      else if (rows.length) diagram = { template: 'terms', labels: rows.map((r) => r.term), items: rows };
+      else if (keywords.length >= 2) diagram = { template: 'keywords', labels: keywords };
+      else diagram = { template: 'text', labels: [] };
+      slides.push({ title: section.heading, caption, diagram });
+    });
   }
   slideCache.set(lessonId, slides);
   return slides;
