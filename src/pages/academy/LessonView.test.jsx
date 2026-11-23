@@ -78,6 +78,9 @@ vi.mock('@/lib/content', () => ({
   }),
   getDeckContent: async () => ({ deck: {}, cards: [], puzzles: [] }),
   lessonTextFromContent: () => '',
+  // No sync seeding in the stubbed world (isLessonFree is false here): the
+  // async mock above provides the stub bodies, as before.
+  getFreeLessonContentSync: () => null,
 }));
 vi.mock('@/hooks/useDocumentTitle', () => ({ default: () => {} }));
 vi.mock('@/components/academy/tutor/CypherLessonPanel', () => ({ default: () => null }));

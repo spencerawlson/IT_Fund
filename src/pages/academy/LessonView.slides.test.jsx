@@ -66,6 +66,10 @@ vi.mock('@/lib/content', () => ({
   }),
   getDeckContent: async () => ({ deck: {}, cards: [], puzzles: [] }),
   lessonTextFromContent: () => '',
+  // No sync seeding in the stubbed world: the async mock above provides
+  // the stub bodies (the real bundle content would break the stub
+  // assertions), as before.
+  getFreeLessonContentSync: () => null,
 }));
 vi.mock('@/hooks/useDocumentTitle', () => ({ default: () => {} }));
 vi.mock('@/components/academy/tutor/CypherLessonPanel', () => ({ default: () => null }));

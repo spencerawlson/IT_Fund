@@ -56,7 +56,14 @@ export default function PracticeExam() {
           path="/academy/exam"
         />
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
-          <UpgradePrompt what="The CISSP practice exam" />
+          {/* Same heading as the start screen: the page needs its <h1> in
+              the paywalled state too (prerender renders this branch for
+              anonymous visitors). */}
+          <div className="text-small font-semibold text-ink-2">Test-day simulator</div>
+          <h1 className="mt-1 text-title text-ink-1">CISSP practice exam</h1>
+          <div className="mt-6">
+            <UpgradePrompt what="The CISSP practice exam" />
+          </div>
         </div>
       </main>
     );

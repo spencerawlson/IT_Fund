@@ -17,6 +17,19 @@ export const SeoCollectorContext = createContext(null);
 
 const SITE = 'https://www.road2cissp.com';
 
+// schema.org BreadcrumbList from [{name, path?}]; the last crumb usually has no path.
+// Shared by every detail page that renders breadcrumbs (courses, modules,
+// paths, lessons) so the JSON-LD always matches the visible trail.
+export const breadcrumbLd = (items) => ({
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((it, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: it.name,
+    ...(it.path ? { item: `${SITE}${it.path}` } : {}),
+  })),
+});
+
 // The site-wide default, matching the <meta name="robots"> in index.html.
 // Pages that pass no `robots` prop get this, so navigating away from a
 // noindex page (e.g. a 404) never leaves "noindex" behind in <head>.
