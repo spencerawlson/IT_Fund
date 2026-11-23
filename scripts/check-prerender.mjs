@@ -5,12 +5,14 @@
 // Per route it asserts:
 //   - dist/<route>/index.html exists
 //   - exactly one <h1> (AI answers and the GEO audit need one)
-//   - a first <p> of 15-400 characters (the direct-answer paragraph
-//     AI answers quote). Calibrated from the 121 prerendered routes
-//     (SEO Phase 2): module index summaries run 19-39 chars, and the
-//     longest real opening paragraph (lx-cli's) is 342 chars. The bounds
-//     still catch an empty or degenerate first paragraph; shell/empty
-//     detection rests on the >=50-words and duplicate-body checks.
+//   - a first <p> of 15-500 characters (the direct-answer paragraph
+//     AI answers quote). Calibrated from the 338 prerendered routes
+//     (SEO Phase 2 + lesson excerpts): module index summaries run 19-39
+//     chars, the longest real opening paragraph (lx-cli's) is 342 chars,
+//     and lesson excerpts measure 164–495 chars across 222 lessons (mean
+//     269; 12 exceed 400, max 495). The bounds still catch an empty or
+//     degenerate first paragraph; shell/empty detection rests on the
+//     >=50-words and duplicate-body checks.
 //   - at least 50 words of visible text (under that, crawlers see a shell)
 //   - a JSON-LD block (the site shell carries one; per-page blocks add more)
 //   - a unique <title> across routes (duplicates read as one page)
@@ -79,9 +81,9 @@ function main() {
     const h1s = (html.match(/<h1[\s>]/gi) || []).length;
     if (h1s !== 1) failures.push(`${route}: ${h1s} <h1> tags (want exactly 1)`);
     const firstP = firstParagraph(html);
-    if (firstP.length < 15 || firstP.length > 400) {
+    if (firstP.length < 15 || firstP.length > 500) {
       failures.push(
-        `${route}: first <p> is ${firstP.length} chars (want 15-400): ` +
+        `${route}: first <p> is ${firstP.length} chars (want 15-500): ` +
           JSON.stringify(firstP.slice(0, 80)),
       );
     }

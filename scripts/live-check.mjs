@@ -3,13 +3,13 @@
 // vercel.json sent every extensionless path to /index.html, so all 16
 // sitemap URLs returned byte-identical home HTML.)
 //
-// SEO Phase 2 (1.5): the dynamic routes that are now prerendered — a course,
-// a module, a free lesson — are IN the sitemap, so they run through the
-// distinct-body / unique-title / self-canonical checks below with everything
-// else. The one dynamic route still serving the shell is the premium lesson:
-// it has no public excerpt yet (audit §2.3), so it stays out of the sitemap
-// and keeps the Phase 1 shell assertions (body hash equals the shell's,
-// differs from the home page's, title is the shell default, no canonical).
+// SEO Phase 2 (1.5) + lesson excerpts (decision (b)): every dynamic route
+// is IN the sitemap now — courses, modules, paths, and all 222 lessons
+// (premium lessons prerender as real pages with their public excerpt) — so
+// they all run through the distinct-body / unique-title / self-canonical
+// checks below with everything else. No dynamic route serves the shell
+// anymore; DYNAMIC_SHELL_ROUTES is empty and kept only so the check can
+// grow a shell route again without restructuring if one ever returns.
 //
 // Usage: node scripts/live-check.mjs [base-url]
 //   base defaults to https://www.road2cissp.com; a preview deployment URL
@@ -24,10 +24,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = (process.argv[2] || process.env.LIVE_CHECK_BASE || 'https://www.road2cissp.com').replace(/\/$/, '');
 
 // Dynamic routes that still serve the generic shell (not in the sitemap):
-// premium lessons, until a public excerpt model exists for them.
-export const DYNAMIC_SHELL_ROUTES = [
-  '/academy/lessons/net-ports', // premium lesson (no excerpt yet)
-];
+// none — every lesson has a public excerpt now (decision (b)).
+export const DYNAMIC_SHELL_ROUTES = [];
 
 export function sitemapRoutes() {
   const xml = readFileSync(join(ROOT, 'public', 'sitemap.xml'), 'utf8');
@@ -92,9 +90,10 @@ async function main() {
     console.log(`${route} -> ${res.status} hash=${hash} title="${title}"`);
   }
 
-  // Premium lesson: still the shell (see the header comment). Assert
-  // shell-ness: same body as dist/shell.html (not the home page), the
-  // shell's default title, and no canonical.
+  // The shell itself still exists (the Phase 1 shell assertions above):
+  // it must differ from the home page and carry no canonical. No dynamic
+  // route is expected to serve it anymore (DYNAMIC_SHELL_ROUTES is empty),
+  // but the loop below stays so a future shell route is checked the same way.
   const shellRes = await fetchText(`${BASE}/shell.html`);
   let shellHash = null;
   let shellTitle = null;
@@ -139,7 +138,7 @@ async function main() {
     for (const f of failures) console.error(`  - ${f}`);
     process.exit(1);
   }
-  console.log(`\nLive check OK: ${routes.length} sitemap routes, all distinct; ${DYNAMIC_SHELL_ROUTES.length} dynamic route(s) still serving the shell (premium lesson, no excerpt yet).`);
+  console.log(`\nLive check OK: ${routes.length} sitemap routes, all distinct; ${DYNAMIC_SHELL_ROUTES.length} dynamic route(s) still serving the shell.`);
 }
 
 if (process.argv[1]?.endsWith('live-check.mjs')) main();

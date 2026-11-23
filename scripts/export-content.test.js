@@ -10,13 +10,14 @@ import { fileURLToPath } from 'node:url';
 import {
   buildContentJson,
   buildPublicData,
+  deriveLessonExcerpt,
   normaliseTrack,
   FREE_LESSON_IDS as LIB_FREE_LESSONS,
   FREE_DECK_IDS as LIB_FREE_DECKS,
   allDecks,
 } from './export-content-lib.mjs';
 import { FREE_LESSON_IDS, FREE_DECKS } from '@/lib/subscription';
-import { tracks, freeLessonContent, freeCipherNotes } from '@/data/content-public';
+import { tracks, freeLessonContent, freeCipherNotes, lessonExcerpts } from '@/data/content-public';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -51,10 +52,11 @@ describe('content export', () => {
 
   it('committed src/data/content-public.js matches a fresh build', () => {
     const fresh = buildPublicData();
-    expect({ tracks, freeLessonContent, freeCipherNotes }).toEqual({
+    expect({ tracks, freeLessonContent, freeCipherNotes, lessonExcerpts }).toEqual({
       tracks: fresh.tracks,
       freeLessonContent: fresh.freeLessonContent,
       freeCipherNotes: fresh.freeCipherNotes,
+      lessonExcerpts: fresh.lessonExcerpts,
     });
   });
 
@@ -69,6 +71,81 @@ describe('content export', () => {
       expect(full, `canary missing from full dataset: ${canary}`).toContain(canary);
     }
   });
+
+  // Lesson excerpts (SEO Phase 2, decision (b), Spencer 2026-11-23): the
+  // overview's FIRST paragraph is public for every lesson, premium included.
+  // Nothing else from the premium body goes public — that is the whole of
+  // this model, so these tests pin both sides of it.
+  describe('lesson excerpts (overview first paragraph, public)', () => {
+    it('derives the first paragraph only, with inline-code markup stripped', () => {
+      expect(deriveLessonExcerpt({ overview: ['Use `int` and `str`.', 'Second paragraph.'] })).toBe(
+        'Use int and str.',
+      );
+      expect(deriveLessonExcerpt({ overview: ['First.', 'Second.'] })).toBe('First.');
+      expect(deriveLessonExcerpt({ overview: ['  First with spaces.  ', 'Second.'] })).toBe(
+        'First with spaces.',
+      );
+    });
+
+    it('returns empty for a missing, empty, or single-blank overview', () => {
+      expect(deriveLessonExcerpt({})).toBe('');
+      expect(deriveLessonExcerpt({ overview: [] })).toBe('');
+      expect(deriveLessonExcerpt({ overview: ['   ', 'Second.'] })).toBe('Second.');
+      expect(deriveLessonExcerpt({ overview: [null, 'Second.'] })).toBe('Second.');
+    });
+
+    it('covers all 222 lessons and matches the full build exactly', () => {
+      const full = buildContentJson();
+      const fresh = buildPublicData();
+      expect(Object.keys(fresh.lessonExcerpts).sort()).toEqual(Object.keys(full.lessons).sort());
+      for (const [id, lesson] of Object.entries(full.lessons)) {
+        expect(fresh.lessonExcerpts[id], `${id}: excerpt`).toBe(deriveLessonExcerpt(lesson));
+        expect(fresh.lessonExcerpts[id].length, `${id}: excerpt non-empty`).toBeGreaterThan(0);
+      }
+      // Measured distribution (2026-11-23): first paragraphs run 25–78
+      // words (mean 44.2, median 43) — real paragraphs, not thin stubs.
+      const words = Object.values(fresh.lessonExcerpts).map((e) => e.split(/\s+/).length);
+      expect(Math.min(...words)).toBeGreaterThanOrEqual(20);
+      expect(words.reduce((s, w) => s + w, 0) / words.length).toBeGreaterThan(35);
+    });
+
+    it('committed public module contains the excerpts and nothing else gated', () => {
+      const source = readFileSync(join(ROOT, 'src', 'data', 'content-public.js'), 'utf8');
+      const full = buildContentJson();
+      // A premium lesson's excerpt IS public now (net-ports, no backticks).
+      expect(lessonExcerpts['net-ports']).toBe(full.lessons['net-ports'].overview[0]);
+      expect(source).toContain(lessonExcerpts['net-ports']);
+      // But the rest of every premium lesson stays gated: the second
+      // overview paragraph and the learn body paragraphs must not appear in
+      // the public module. (Learn HEADINGS are not asserted: short generic
+      // ones like "Functions" legitimately appear in the free lessons'
+      // bodies. Body paragraphs are long prose and distinctive. A paragraph
+      // a free lesson also carries is that free lesson's own text.)
+      const freeParagraphs = new Set(
+        Object.values(buildPublicData().freeLessonContent).flatMap((lesson) => [
+          ...(lesson.overview || []),
+          ...(lesson.learn || []).flatMap((s) => (s.body || []).filter((p) => typeof p === 'string')),
+        ]),
+      );
+      for (const [id, lesson] of Object.entries(full.lessons)) {
+        if (LIB_FREE_LESSONS.includes(id)) continue; // free bodies are public
+        if (lesson.overview[1]) {
+          expect(source, `${id}: overview[1] leaked`).not.toContain(lesson.overview[1]);
+        }
+        for (const part of lesson.learn || []) {
+          for (const p of (part.body || []).filter((x) => typeof x === 'string')) {
+            if (freeParagraphs.has(p)) continue;
+            expect(source, `${id}: learn body leaked`).not.toContain(p);
+          }
+        }
+      }
+      // Bell-LaPadula canary: the gated body never appears in public, while
+      // the cissp-d3 excerpt (which does not mention it) does.
+      expect(source).not.toContain('Bell-LaPadula');
+      expect(source).toContain(lessonExcerpts['cissp-d3']);
+    });
+  });
+
 
   it('public module carries exactly the free tier bodies (57 cards, 5 lessons)', () => {
     const publicCards = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks)).flatMap((d) => d.cards);
@@ -385,9 +462,12 @@ describe('PR 2: premium/free consistency (test area #12)', () => {
     // A single plain word — or a generic short keyword phrase such as
     // "GROUP BY" / "ORDER BY", which legitimately appears in lesson
     // summaries — is not identifying content. Phrases of 20+ chars and
-    // code-like items (punctuation, operators) are identifying and are
-    // still checked; the prompt and explanation tripwires below always run.
-    const isIdentifying = (s) => s.length >= 20 || /[`'"`;:(){}[\]<>\\/=+*@#$%^&|~]/.test(s);
+    // code-like items (punctuation, operators) of 8+ chars are identifying
+    // and are still checked; the prompt and explanation tripwires below
+    // always run. (The 8-char floor matters: the 5-char token "else:" from
+    // a py-files-errors item matches ordinary prose — "everything else:" —
+    // in two lesson excerpts, which is not a leak.)
+    const isIdentifying = (s) => s.length >= 20 || (s.length >= 8 && /[`'"`;:(){}[\]<>\\/=+*@#$%^&|~]/.test(s));
     expect(premiumPuzzles.length).toBeGreaterThan(0);
     for (const p of premiumPuzzles) {
       for (const field of CONTENT_FIELDS) {
@@ -555,6 +635,10 @@ describe('lesson slide decks (carousel)', () => {
       if (LIB_FREE_LESSONS.includes(id)) continue;
       for (const slide of lesson.slides || []) {
         if (freeParagraphs.has(slide.caption)) continue;
+        // The Overview slide's caption IS the lesson excerpt (decision (b),
+        // Spencer 2026-11-23) — public by design since the excerpts landed,
+        // not a leak. Section captions (learn first paragraphs) must stay out.
+        if (slide.title === 'Overview') continue;
         expect(committedText, `${id}: premium slide caption leaked into the public module`).not.toContain(slide.caption);
       }
       // Premium cheat-sheet rows drawn on slides must not leak either: no
