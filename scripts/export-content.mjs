@@ -48,7 +48,7 @@ function main() {
   // eslint-disable-next-line no-console
   console.log(
     `content export: ${c.tracks} tracks, ${c.decks} decks, ${c.cards} cards, ` +
-      `${c.lessonsWithContent}/${c.lessons} lessons with content, ${c.notes} notes, ` +
+      `${c.lessonsWithContent}/${c.lessons} lessons with content, ${c.lessonsWithSlides} with slide decks (${c.slides} slides), ${c.notes} notes, ` +
       `${c.puzzles} puzzles — free tier: ${c.freeDecks} decks (${c.freeCards} cards), ` +
       `${c.freeLessons} lessons`,
   );

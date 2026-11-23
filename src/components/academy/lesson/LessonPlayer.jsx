@@ -6,11 +6,12 @@ import {
   saveLessonProgress, clearLessonProgress,
 } from '@/lib/academy';
 import { getDeck } from '@/data/academy';
-import { getDeckContent, getDeckCards, resolveCards } from '@/lib/content';
+import { getDeckContent, getDeckCards, getLessonContent, resolveCards } from '@/lib/content';
 import { continueLearning, pastLessonCards, PASS_PCT } from '@/lib/progress/engine';
 import { playerHref } from '@/data/catalog';
 import { MISSION_FOR_LESSON } from '@/data/missions';
 import MissionHandoff from './MissionHandoff';
+import LessonSlideCarousel from './LessonSlideCarousel';
 import RichText from '../RichText';
 import { Button, Card, ProgressBar } from '@/components/ui-glass';
 import { ACTION } from '@/lib/design/tokens';
@@ -239,11 +240,35 @@ function Intro({ deck, track, steps, resumeAt, onStart, onRestart }) {
   const puzzles = steps.filter((s) => s.type !== 'choice').length;
   const warmups = steps.filter((s) => s.warmup).length;
   const resuming = resumeAt > 0;
+  // The lesson's slide deck: same entitled fetch LessonView uses, so the
+  // deck renders exactly where the reading body would — free lessons from
+  // the bundle, premium lessons from the API (gated upstream by
+  // AcademyLesson's paywall branch). Absent on failure: no carousel.
+  const [slides, setSlides] = useState(null);
+  useEffect(() => {
+    let live = true;
+    getLessonContent(deck.id)
+      .then(({ content }) => {
+        if (live) setSlides(content?.slides || null);
+      })
+      .catch(() => {
+        if (live) setSlides(null);
+      });
+    return () => {
+      live = false;
+    };
+  }, [deck.id]);
   return (
     <div className="animate-rise">
       <p className="text-small font-semibold text-ink-2">{track.title} · {track.tiers.find((t) => t.id === deck.tierId)?.label || deck.tierId}</p>
       <h1 className="mt-1 text-title text-ink-1">{deck.title}</h1>
       <p className="mt-3 text-lesson text-ink-2">{deck.summary}</p>
+
+      {slides?.length > 0 && (
+        <div className="mt-4">
+          <LessonSlideCarousel slides={slides} />
+        </div>
+      )}
 
       <Card level={2} className="mt-4">
         <ul className="space-y-3 text-body text-ink-1">

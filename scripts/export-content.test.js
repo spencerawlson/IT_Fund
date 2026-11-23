@@ -418,3 +418,114 @@ describe('PR 2: content artifacts are version 2 (test area #17)', () => {
     expect(buildPublicData().version).toBe(2);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Lesson slide decks (carousel, 2026-11-23).
+// Every lesson gets a derived deck: one Overview slide plus one slide per
+// learn section (cap 5). Captions are verbatim lesson text — an overview
+// paragraph or a learn section's first paragraph — never invented copy.
+// Diagrams come from the small SVG kit (templates below); a section whose
+// body carries a LayerStack uses the real stack items as its labels.
+// The deck rides inside the lesson object, so the entitled API serves it
+// with exactly the lesson's own gating, and the public build carries it
+// only for the free lessons. Written BEFORE the implementation and observed
+// failing on pristine code (no `slides` field anywhere).
+// ---------------------------------------------------------------------------
+const SLIDE_TEMPLATES = new Set([
+  'layers',
+  'flow',
+  'comparison',
+  'cycle',
+  'client-server',
+  'topology',
+  'concept',
+]);
+
+describe('lesson slide decks (carousel)', () => {
+  it('every lesson has a derived deck: 1 overview slide + one per learn section (cap 5)', () => {
+    const full = buildContentJson();
+    const ids = Object.keys(full.lessons);
+    expect(ids).toHaveLength(222);
+    for (const [id, lesson] of Object.entries(full.lessons)) {
+      const slides = lesson.slides;
+      expect(Array.isArray(slides), `${id}: slides is an array`).toBe(true);
+      expect(slides.length, `${id}: deck size`).toBe(1 + Math.min(4, (lesson.learn || []).length));
+      expect(slides.length, `${id}: at least 3 slides`).toBeGreaterThanOrEqual(3);
+      expect(slides.length, `${id}: at most 5 slides`).toBeLessThanOrEqual(5);
+      expect(slides[0].title, `${id}: first slide is the Overview`).toBe('Overview');
+    }
+  });
+
+  it('every slide caption is verbatim lesson text; titles are the section headings', () => {
+    const full = buildContentJson();
+    for (const [id, lesson] of Object.entries(full.lessons)) {
+      // Non-vacuous: a lesson with no deck makes every assertion below pass
+      // without checking anything — the deck must exist first.
+      expect(Array.isArray(lesson.slides) && lesson.slides.length, `${id}: deck is non-empty`).toBeGreaterThanOrEqual(3);
+      const paragraphs = [
+        ...(lesson.overview || []),
+        ...(lesson.learn || []).flatMap((s) => (s.body || []).filter((p) => typeof p === 'string')),
+      ];
+      const headings = (lesson.learn || []).map((s) => s.heading);
+      for (const [i, slide] of (lesson.slides || []).entries()) {
+        expect(typeof slide.caption, `${id} slide ${i}: caption`).toBe('string');
+        expect(slide.caption.trim().length, `${id} slide ${i}: caption non-empty`).toBeGreaterThan(0);
+        expect(paragraphs, `${id} slide ${i}: caption is verbatim lesson text`).toContain(slide.caption);
+        if (i === 0) {
+          expect(slide.title, `${id} slide 0: title`).toBe('Overview');
+        } else {
+          expect(headings, `${id} slide ${i}: title is a learn heading`).toContain(slide.title);
+        }
+      }
+    }
+  });
+
+  it('diagram templates come from the known kit set; stack sections use the real stack items', () => {
+    const full = buildContentJson();
+    for (const [id, lesson] of Object.entries(full.lessons)) {
+      for (const [i, slide] of (lesson.slides || []).entries()) {
+        expect(slide.diagram && typeof slide.diagram === 'object', `${id} slide ${i}: diagram`).toBe(true);
+        expect(SLIDE_TEMPLATES.has(slide.diagram.template), `${id} slide ${i}: template ${slide.diagram.template}`).toBe(true);
+        expect(Array.isArray(slide.diagram.labels), `${id} slide ${i}: labels is an array`).toBe(true);
+      }
+      // A learn section whose body carries a LayerStack renders as a layers
+      // diagram labelled with the stack's real item names (lesson text).
+      (lesson.learn || []).slice(0, 4).forEach((section, j) => {
+        const stack = (section.body || []).find((p) => p && typeof p === 'object' && p.stack)?.stack;
+        if (!stack) return;
+        const slide = lesson.slides[j + 1];
+        expect(slide.diagram.template, `${id}: stack section "${section.heading}" uses layers`).toBe('layers');
+        expect(slide.diagram.labels, `${id}: stack labels are the item names`).toEqual(
+          stack.items.map((it) => it.name),
+        );
+      });
+    }
+  });
+
+  it('the public build carries slides only for the 5 free lessons — no premium slide text leaks', () => {
+    const pub = buildPublicData();
+    expect(Object.keys(pub.freeLessonContent).sort()).toEqual([...LIB_FREE_LESSONS].sort());
+    for (const [id, lesson] of Object.entries(pub.freeLessonContent)) {
+      expect(Array.isArray(lesson.slides), `${id}: free lesson has slides`).toBe(true);
+      expect(lesson.slides.length, `${id}: free deck size`).toBeGreaterThanOrEqual(3);
+    }
+    // No premium lesson's slide caption appears anywhere in the public module.
+    // (A caption shared verbatim with a free lesson's body is that free
+    // lesson's own text, not a leak, so those are skipped.)
+    const committedText = readFileSync(join(ROOT, 'src', 'data', 'content-public.js'), 'utf8');
+    const full = buildContentJson();
+    const freeParagraphs = new Set(
+      Object.values(pub.freeLessonContent).flatMap((lesson) => [
+        ...(lesson.overview || []),
+        ...(lesson.learn || []).flatMap((s) => (s.body || []).filter((p) => typeof p === 'string')),
+      ]),
+    );
+    for (const [id, lesson] of Object.entries(full.lessons)) {
+      if (LIB_FREE_LESSONS.includes(id)) continue;
+      for (const slide of lesson.slides || []) {
+        if (freeParagraphs.has(slide.caption)) continue;
+        expect(committedText, `${id}: premium slide caption leaked into the public module`).not.toContain(slide.caption);
+      }
+    }
+  });
+});

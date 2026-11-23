@@ -71,6 +71,22 @@ describe('LessonPlayer', () => {
     expect(LESSON_VIEW_SRC).toContain('to={playerHref(lesson)}');
   });
 
+  it('shows the lesson slide deck on the guided lesson intro, after the summary', () => {
+    // The intro is the guided lesson's only reading surface: the deck comes
+    // from the same entitled getLessonContent fetch LessonView uses (free
+    // from the bundle, premium from the API, gated upstream by
+    // AcademyLesson), and renders between the deck summary and the info
+    // card — never on a fetch failure (no carousel).
+    expect(SRC).toContain('getLessonContent(deck.id)');
+    expect(SRC).toContain('<LessonSlideCarousel slides={slides} />');
+    const summaryAt = SRC.indexOf('{deck.summary}');
+    const carouselAt = SRC.indexOf('<LessonSlideCarousel slides={slides} />');
+    const cardAt = SRC.indexOf('<Card level={2} className="mt-4">', summaryAt);
+    expect(summaryAt).toBeGreaterThan(-1);
+    expect(carouselAt).toBeGreaterThan(summaryAt);
+    expect(cardAt).toBeGreaterThan(carouselAt);
+  });
+
   it('has no Video Explainer placeholder in the player or the lesson page', () => {
     // Scope E: the "Video explainer coming soon" card is gone; Ask Cypher
     // is the interactive assistant. The component was deleted, so neither
