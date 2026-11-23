@@ -50,6 +50,15 @@ describe('Academy home Missions section (audit B-25)', () => {
     expect(html).toContain('80 XP');
   });
 
+  it('keeps the Glasshouse card premise-only: no objective enumeration outside the terminal (terminal-only rule, Spencer 2026-11-13)', () => {
+    const html = renderPage();
+    // Premise only, drawn from the registry brief in src/data/missions.js.
+    expect(html).toContain('Get into the ACME intranet web app and prove how deep it goes.');
+    // The old copy listed the attack chain (recon, auth bypass, SQLi, XSS,
+    // shell) on the public card, before the learner ever reaches a terminal.
+    expect(html).not.toContain('recon, auth bypass, SQL injection, XSS, and seizing the shell');
+  });
+
   it('links into the labs from home without rebuilding the lab list (B-04)', () => {
     const html = renderPage();
     expect(html).toContain('Hands-on labs');
