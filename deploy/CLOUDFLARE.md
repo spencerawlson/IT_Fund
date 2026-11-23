@@ -14,8 +14,10 @@ No secrets in this file. Tokens and passwords live only in
 ```
 Browser
   ├─ https://www.road2cissp.com ──→ Vercel (frontend, www canonical)
-  │     /api/* ──→ Vercel "backend" service (fallback; no OAuth creds —
-  │               the app now calls the API origin directly, see §7)
+  │     /api/* is not served here (edge 404) — the app calls the API
+  │     origin directly, see §7. The Vercel backend service was removed
+  │     2026-11-23: it could never boot (no SESSION_SECRET) and nothing
+  │     ever called it.
   ├─ https://road2cissp.com ──→ 308 redirect to https://www.road2cissp.com/
   └─ https://api.road2cissp.com ──→ Cloudflare Tunnel "itfund-backend"
                                       ──→ Fedora server localhost:8001
@@ -90,9 +92,10 @@ FRONTEND_URL=https://www.road2cissp.com        # post-OAuth landing page
   `VITE_API_BASE_URL=https://api.road2cissp.com/api`
   then **redeploy** — Vite bakes `VITE_*` vars into the bundle at build time.
 - The app calls the API origin directly for auth/session/progress/labs
-  (`credentials: include`, CORS allowed via `APP_ORIGINS`). The
-  `vercel.json` `/api/*` rewrite to the Vercel backend service remains only
-  as a fallback.
+  (`credentials: include`, CORS allowed via `APP_ORIGINS`). There is no
+  backend service on Vercel: `vercel.json` defines only the frontend
+  service (the `backend` service was removed 2026-11-23 — it could never
+  boot without SESSION_SECRET and nothing ever called it).
 
 ## 7. Verification (2026-10-04, all passing)
 
@@ -117,10 +120,10 @@ curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" \
   https://api.road2cissp.com/api/auth/github/login   # 302 ...github.com/login/oauth...
 ```
 
-Note: hitting `/api/auth/<provider>/login` on `www.road2cissp.com`
-(the Vercel rewrite path) returns `404 {"detail":"Unknown or unconfigured
-provider."}` because that backend service has no OAuth credentials.
-That is expected — the app no longer uses that path.
+Note: hitting `/api/*` on `www.road2cissp.com` returns Vercel's edge 404
+page — there is no backend service behind that path anymore (removed
+2026-11-23). That is expected — the app calls `api.road2cissp.com`
+directly and never uses the www `/api` path.
 
 ## 8. Security follow-up (required)
 
@@ -146,4 +149,4 @@ password were pasted into a chat window. Treat both as compromised:
 | CORS errors in the browser | Frontend origin missing from `APP_ORIGINS` | Add it, restart `itfund-backend` |
 | OAuth `redirect_uri_mismatch` | `APP_ORIGIN` doesn't match the provider console | Must be exactly `https://api.road2cissp.com` |
 | Login lands on the API root | `FRONTEND_URL` not set | Set it to `https://www.road2cissp.com`, restart backend |
-| `Unknown or unconfigured provider` on `www.../api/auth/...` | Expected on the Vercel rewrite path (§7) | Use `api.road2cissp.com` — the app already does |
+| `/api/*` on `www.road2cissp.com` returns 404 | Expected — no backend service on Vercel (§7) | Use `api.road2cissp.com` — the app already does |

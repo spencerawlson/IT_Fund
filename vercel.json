@@ -2,13 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/api(/.*)?",
-      "destination": {
-        "type": "service",
-        "service": "backend"
-      }
-    },
-    {
       "source": "/(.*)",
       "destination": {
         "type": "service",
@@ -46,10 +39,6 @@
         { "source": "/missions/:path*", "destination": "/index.html" },
         { "source": "/design", "destination": "/index.html" }
       ]
-    },
-    "backend": {
-      "root": "backend",
-      "entrypoint": "main:app"
     }
   }
 }
