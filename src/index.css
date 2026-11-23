@@ -621,6 +621,20 @@ html[data-theme="dark"] .text-red-800 { color: #FCA5A5; }
 html[data-theme="dark"] .text-emerald-800 { color: #6EE7B7; }
 html[data-theme="dark"] .text-amber-800 { color: #FCD34D; }
 html[data-theme="dark"] .text-violet-900 { color: #DDD6FE; }
+/* Missing until 2026-11-23 (Spencer: "some purple fonts are unreadable on the
+   dark mode"): violet-800 is used in 14 places (lesson slide terms and
+   keyword chips, the admin Reserved badge…) and stayed dark purple on black. */
+html[data-theme="dark"] .text-violet-800 { color: #C4B5FD; }
+html[data-theme="dark"] .text-violet-600 { color: #C4B5FD; }
+html[data-theme="dark"] .text-amber-900 { color: #FDE68A; }
+html[data-theme="dark"] .text-slate-600, html[data-theme="dark"] .text-slate-700 { color: rgb(var(--ink-2-rgb)); }
+/* The lesson slide panel's light violet-to-white wash (LessonSlideCarousel). */
+html[data-theme="dark"] .from-violet-50\/80 {
+  --tw-gradient-from: rgb(167 139 250 / 0.1) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(167 139 250 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+html[data-theme="dark"] .to-white\/40 { --tw-gradient-to: rgb(18 18 18 / 0.4) var(--tw-gradient-to-position); }
 
 /* ---- Link underlines: black decoration is invisible on black. ---- */
 html[data-theme="dark"] .decoration-black\/30, html[data-theme="dark"] .hover\:decoration-black\/30:hover { text-decoration-color: rgb(255 255 255 / 0.4); }

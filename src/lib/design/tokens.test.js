@@ -121,3 +121,32 @@ describe('dark theme (Instagram-style true black)', () => {
     expect(contrast(hexToRgb(DARK_ACTION.actionInk), hexToRgb(DARK_ACTION.action))).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+describe('dark theme: literal accent text never stays dark on black', () => {
+  // Regression (2026-11-23): text-violet-800 was used in 14 places with no
+  // dark rule, so it rendered dark purple on black. Every dark-shade text
+  // utility the app uses (*-600 and darker, from Tailwind's literal palette)
+  // must have a html[data-theme="dark"] remap in index.css.
+  it('every text-<colour>-600/700/800/900 class used in src/ has a dark remap', async () => {
+    const { readdirSync, statSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const root = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+    const files = [];
+    const walk = (dir) => {
+      for (const name of readdirSync(dir)) {
+        const p = join(dir, name);
+        if (statSync(p).isDirectory()) walk(p);
+        else if (/\.(jsx?|tsx?)$/.test(name) && !/\.test\./.test(name)) files.push(p);
+      }
+    };
+    walk(root);
+    const used = new Set();
+    const re = /\btext-(red|rose|amber|yellow|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|orange|lime|slate|gray|zinc|neutral|stone)-(600|700|800|900|950)(?:\/\d+)?(?![\w-])/g;
+    for (const f of files) for (const m of readFileSync(f, 'utf8').matchAll(re)) used.add(m[0]);
+    // In CSS the "/" of an opacity variant is escaped: .text-amber-700\/80
+    const remapped = (cls) => css.includes(`html[data-theme="dark"] .${cls.split('/').join(String.fromCharCode(92) + '/')}`);
+    const missing = [...used].filter((c) => !remapped(c)).sort();
+    expect(used.size).toBeGreaterThan(10);
+    expect(missing, `dark-mode remap missing in src/index.css for: ${missing.join(', ')}`).toEqual([]);
+  });
+});
