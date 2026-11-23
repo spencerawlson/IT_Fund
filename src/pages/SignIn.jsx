@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
+import AppleLogo from '@/components/AppleLogo';
 import { DeleteAccountSection } from '@/components/DeleteAccountSection';
 import Seo from '@/components/Seo';
 import { useAuth } from '@/lib/AuthContext';
@@ -260,11 +261,20 @@ export default function SignIn() {
             <RefreshCw size={15} aria-hidden="true" /> Progress synced
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            {user.providers?.length === 1 && (
-              <Button variant="secondary" icon={LogIn} onClick={() => signInWith(user.providers.includes('google') ? 'github' : 'google')}>
-                Link {user.providers.includes('google') ? 'GitHub' : 'Google'}
-              </Button>
-            )}
+            {/* Link another provider: one button per configured provider the
+                account does not have yet (Apple included, once configured).
+                Linking reuses the verified-email auto-merge, so it lands on
+                this same account, never a second one. */}
+            {['google', 'github', 'apple']
+              .filter((p) => !user.providers?.includes(p) && showProvider(p))
+              .map((p) => {
+                const label = p === 'apple' ? 'Apple' : p === 'google' ? 'Google' : 'GitHub';
+                return (
+                  <Button key={p} variant="secondary" icon={LogIn} onClick={() => signInWith(p)}>
+                    {`Link ${label}`}
+                  </Button>
+                );
+              })}
             <Button variant="ghost" icon={LogOut} onClick={signOut}>Sign out</Button>
           </div>
         </Card>
@@ -304,6 +314,21 @@ export default function SignIn() {
           {showProvider('github') && (
             <Button size="lg" variant="secondary" icon={LogIn} onClick={() => signInWith('github')}>Continue with GitHub</Button>
           )}
+          {showProvider('apple') && (
+            // Sign in with Apple (Guideline 4.8, 2026-11-23): black button with
+            // the Apple logo, per Apple's HIG — white on dark backgrounds, so
+            // the dark theme flips it. Hidden until the server reports Apple
+            // configured (GET /auth/providers), so an unconfigured Apple can
+            // never show a broken button.
+            <Button
+              size="lg"
+              icon={AppleLogo}
+              onClick={() => signInWith('apple')}
+              className="border-black bg-black text-white shadow-none hover:bg-black/85 dark:border-white dark:bg-white dark:text-black dark:hover:bg-white/85"
+            >
+              Sign in with Apple
+            </Button>
+          )}
           {providers && providers.length === 0 && (
             <p className="text-small text-ink-2">Account sign-in is being set up — for now, everything works without an account.</p>
           )}
@@ -324,8 +349,8 @@ export default function SignIn() {
           </p>
           <ul className="mt-3 space-y-2 text-small text-ink-2">
             <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> Your name and avatar from the provider, and your learning progress.</li>
-            <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> No password — sign-in is handled by Google or GitHub.</li>
-            <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> Use both Google and GitHub and we’ll link them to one account.</li>
+            <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> No password — sign-in is handled by Google, GitHub, or Apple.</li>
+            <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> Sign in with more than one provider and we’ll link them to one account.</li>
           </ul>
         </div>
       </Card>

@@ -22,7 +22,7 @@ from db_models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-PROVIDERS = {"google", "github"}
+PROVIDERS = {"google", "github", "apple"}
 APP_ORIGIN = os.environ.get("APP_ORIGIN", "http://localhost:5188")
 # Where the browser should land after OAuth. APP_ORIGIN is the API's own public
 # origin (it builds the provider callback URL, which must match exactly what is
@@ -97,8 +97,10 @@ async def login(provider: str, request: Request, client: str | None = None, code
     return await oauth_mod.client(provider).authorize_redirect(request, redirect_uri)
 
 
-@router.get("/{provider}/callback")
+@router.api_route("/{provider}/callback", methods=["GET", "POST"])
 async def callback(provider: str, request: Request):
+    # POST as well as GET: Apple's authorize response is a form POST
+    # (response_mode=form_post) — the only way the first-auth name arrives.
     if provider not in PROVIDERS:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown provider.")
     challenge = request.session.pop("native_challenge", None)

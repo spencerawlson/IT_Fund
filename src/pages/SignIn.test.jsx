@@ -455,3 +455,119 @@ describe('SignIn lab usage meter (mounted, Phase 0)', () => {
     }
   });
 });
+
+describe('SignIn with Apple (Guideline 4.8, 2026-11-23)', () => {
+  it('shows Sign in with Apple on the sign-in view while providers load', () => {
+    const html = renderSignIn();
+    expect(html).toContain('Sign in with Apple');
+    expect(html).toContain('Continue with Google');
+    expect(html).toContain('Continue with GitHub');
+    expect(html).toContain('Google, GitHub, or Apple');
+  });
+
+  it('offers Link Apple alongside Link GitHub for a Google-only account', () => {
+    const html = renderAccount();
+    expect(html).toContain('Link GitHub');
+    expect(html).toContain('Link Apple');
+    expect(html).not.toContain('Link Google'); // already signed in with Google
+  });
+});
+
+describe('SignIn Apple button gating (mounted, 2026-11-23)', () => {
+  // The full page mounts AuthProvider + ThemeProvider, which touch
+  // document/window/localStorage, so the node test env needs a browser stub.
+  function stubBrowser() {
+    const location = { href: '' };
+    vi.stubGlobal('window', {
+      location,
+      localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      matchMedia: () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }),
+    });
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
+    vi.stubGlobal('document', {
+      title: '',
+      visibilityState: 'visible',
+      documentElement: { getAttribute: () => null, setAttribute: () => {} },
+      // Seo upserts meta tags into <head> on mount.
+      head: { querySelector: () => null, appendChild: () => {} },
+      createElement: () => ({ setAttribute: () => {} }),
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      querySelector: () => null,
+    });
+    return location;
+  }
+
+  function mockAuthFetch(providers) {
+    vi.stubGlobal('fetch', vi.fn(async (url) => {
+      if (String(url).includes('/auth/providers')) {
+        return { ok: true, json: async () => ({ providers }) };
+      }
+      if (String(url).includes('/auth/me')) {
+        return { ok: false, json: async () => ({}) };
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    }));
+  }
+
+  async function renderSignInPage() {
+    let renderer;
+    await TestRenderer.act(async () => {
+      renderer = TestRenderer.create(
+        <ThemeProvider>
+          <AuthProvider initialAuth={ANON_AUTH}>
+            <StaticRouter location="/signin">
+              <SignIn />
+            </StaticRouter>
+          </AuthProvider>
+        </ThemeProvider>,
+      );
+    });
+    // Flush the providers fetch (.then chain) and the state update.
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    return renderer;
+  }
+
+  beforeEach(() => { stubBrowser(); });
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it('shows the Apple button when the server reports Apple configured', async () => {
+    mockAuthFetch(['google', 'github', 'apple']);
+    const renderer = await renderSignInPage();
+    try {
+      expect(textOf(renderer.toJSON())).toContain('Sign in with Apple');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('hides the Apple button when Apple is unconfigured — never a broken button', async () => {
+    mockAuthFetch(['google', 'github']);
+    const renderer = await renderSignInPage();
+    try {
+      const text = textOf(renderer.toJSON());
+      expect(text).toContain('Continue with Google');
+      expect(text).not.toContain('Sign in with Apple');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('clicking the Apple button starts the Apple login', async () => {
+    mockAuthFetch(['google', 'github', 'apple']);
+    const location = globalThis.window.location;
+    const renderer = await renderSignInPage();
+    try {
+      const buttons = renderer.root.findAllByType('button');
+      const apple = buttons.find((b) => textOf(b.children).includes('Sign in with Apple'));
+      expect(apple).toBeTruthy();
+      await click(apple);
+      expect(location.href).toBe('/api/auth/apple/login');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+});

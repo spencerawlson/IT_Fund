@@ -41,7 +41,11 @@ describe('Privacy page (audit F-06)', () => {
   });
 
   it('covers only what the codebase does', () => {
-    expect(html).toContain('Google or GitHub');
+    expect(html).toContain('Google, GitHub, or Apple');
+    // Sign in with Apple (Guideline 4.8, 2026-11-23): the policy names the
+    // Hide My Email relay address and says it is stored as the account email.
+    expect(html).toContain('Hide My Email');
+    expect(html).toContain('private relay address');
     expect(html).toContain('HttpOnly session cookie');
     expect(html).toContain('Stripe Checkout');
     expect(html).toContain('never touch this site');

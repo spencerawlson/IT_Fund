@@ -9,6 +9,7 @@ import os
 
 from authlib.integrations.starlette_client import OAuth
 
+from auth import apple as apple_mod
 from auth.identity import OAuthIdentity
 
 oauth = OAuth()
@@ -36,6 +37,11 @@ def _ensure_registered() -> None:
             client_kwargs={"scope": "read:user user:email"},
         )
         _registered.add("github")
+    # Apple is implemented by hand in auth/apple.py (Authlib cannot build its
+    # ES256 client_secret or accept its form-POST authorize response); it is
+    # "registered" here when its credentials are present and the .p8 parses.
+    if "apple" not in _registered and apple_mod.apple_configured():
+        _registered.add("apple")
 
 
 def provider_configured(provider: str) -> bool:
@@ -45,10 +51,14 @@ def provider_configured(provider: str) -> bool:
 
 def client(provider: str):
     _ensure_registered()
+    if provider == "apple":
+        return apple_mod.AppleClient()
     return getattr(oauth, provider)
 
 
 async def fetch_identity(provider: str, request) -> OAuthIdentity:
+    if provider == "apple":
+        return await apple_mod.fetch_apple_identity(request)
     c = client(provider)
     token = await c.authorize_access_token(request)  # verifies state; exchanges the code
     if provider == "google":
