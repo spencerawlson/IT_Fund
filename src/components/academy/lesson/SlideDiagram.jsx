@@ -1,12 +1,17 @@
-// The visual half of a lesson slide (redesigned 2026-11-23).
+// The visual half of a lesson slide (redesigned 2026-11-23 to Spencer's
+// graphite + orange slide concept; tokens in index.css `.slide-deck`).
 //
 // Every word drawn here is lesson text, chosen by the exporter
-// (scripts/export-content-lib.mjs deriveLessonSlides): the deck's own section
-// headings (roadmap), a section's LayerStack names (layers), the two sides a
-// "X vs Y" heading names (compare), the lesson cheat-sheet rows the section
-// teaches (terms), or the section's own inline code (keywords). A slide with
-// nothing to draw ("text") renders no visual at all — never a placeholder
-// shape that says nothing.
+// (scripts/export-content-lib.mjs deriveLessonSlides) — a template is used
+// only when structured lesson data supports it:
+//   roadmap  -> process flow: the lesson's own sections, in order
+//   layers   -> layered architecture: a section's LayerStack names
+//   compare  -> comparison: the two sides an "X vs Y" heading names
+//   terms    -> term cards: the cheat-sheet rows the section teaches
+//   keywords -> code panel: the section's own inline code terms
+//   text     -> no visual; the carousel gives the caption the stage
+// There is no network-topology template on purpose: no lesson carries
+// structured topology data, and a decorative network would say nothing.
 //
 // Plain HTML (not SVG) so text wraps and stays readable at phone width.
 
@@ -14,23 +19,32 @@ import React from 'react';
 import RichText from '../RichText';
 
 /** Short code-like terms (brackets, operators, dots, underscores) are set in mono. */
-const looksLikeCode = (s) => /[()[\]{}=<>_.\/#$:;"'`*+|&]/.test(String(s)) && String(s).split(/\s+/).length <= 4;
+const looksLikeCode = (s) => /[()[\]{}=<>_./\\#$:;"'`*+|&]/.test(String(s)) && String(s).split(/\s+/).length <= 4;
+const pad2 = (n) => String(n).padStart(2, '0');
 
-function Roadmap({ labels, current }) {
+function Flow({ labels }) {
   if (!labels.length) return null;
   return (
-    <ol className="grid gap-2 sm:grid-cols-2" aria-label="What this lesson covers">
+    <ol
+      aria-label="What this lesson covers, in order"
+      className="grid gap-2 sm:grid-cols-[repeat(var(--n),minmax(0,1fr))] sm:gap-3"
+      style={{ '--n': labels.length }}
+    >
       {labels.map((label, i) => (
         <li
           key={label}
-          className={`flex items-center gap-3 rounded-control border bg-white/80 px-3 py-2.5 ${
-            i + 1 === current ? 'border-action' : 'border-violet-700/15'
-          }`}
+          className="relative flex items-center gap-3 rounded-xl border border-[var(--sd-border)] bg-[var(--sd-panel)] px-4 py-3 sm:min-h-[132px] sm:flex-col sm:items-start sm:justify-between sm:py-4"
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-action-surface text-small font-bold tabular-nums text-action-surface-ink">
-            {i + 1}
-          </span>
-          <span className="text-small font-semibold leading-snug text-ink-1">{label}</span>
+          <span className="font-mono text-small font-bold tabular-nums text-[var(--sd-accent)]">{pad2(i + 1)}</span>
+          <span className="text-small font-semibold leading-snug text-[var(--sd-text)]">{label}</span>
+          {i < labels.length - 1 && (
+            <span
+              aria-hidden="true"
+              className="absolute -right-[11px] top-1/2 z-10 hidden h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--sd-accent-line)] bg-[var(--sd-stage-to)] text-[11px] text-[var(--sd-accent)] sm:flex"
+            >
+              →
+            </span>
+          )}
         </li>
       ))}
     </ol>
@@ -40,14 +54,17 @@ function Roadmap({ labels, current }) {
 function Layers({ labels }) {
   const n = labels.length;
   return (
-    <ol className="space-y-1.5" aria-label="Layers, top to bottom">
+    <ol aria-label="Layers, top to bottom" className="space-y-1.5">
       {labels.map((label, i) => (
         <li
           key={label}
-          className="flex items-center justify-center rounded-control px-3 py-1.5 text-center text-small font-semibold text-action-surface-ink sm:py-2"
-          style={{ backgroundColor: `rgba(196, 181, 253, ${(0.4 + (0.6 * (n - i)) / n).toFixed(2)})` }}
+          className="flex items-center gap-3 rounded-lg border border-[var(--sd-border)] px-3 py-2"
+          style={{ background: `linear-gradient(90deg, rgb(255 139 61 / ${(0.05 + (0.2 * (n - i)) / n).toFixed(2)}), var(--sd-panel))` }}
         >
-          {label}
+          <span className="w-6 shrink-0 text-right font-mono text-caption font-bold tabular-nums text-[var(--sd-accent)]" aria-hidden="true">
+            {n - i}
+          </span>
+          <span className="text-small font-semibold text-[var(--sd-text)]">{label}</span>
         </li>
       ))}
     </ol>
@@ -57,14 +74,21 @@ function Layers({ labels }) {
 function Compare({ labels }) {
   const [a, b] = labels;
   return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2 sm:gap-3">
-      <div className="flex items-center justify-center rounded-control bg-action-surface/70 px-3 py-6 text-center text-body font-bold text-action-surface-ink sm:py-8">
-        {a}
-      </div>
-      <span className="flex items-center text-caption font-bold uppercase tracking-wider text-action">vs</span>
-      <div className="flex items-center justify-center rounded-control border-2 border-action/40 bg-white px-3 py-6 text-center text-body font-bold text-ink-1 sm:py-8">
-        {b}
-      </div>
+    <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2 sm:gap-4">
+      {[a, b].map((side, i) => (
+        <React.Fragment key={side}>
+          {i === 1 && (
+            <span className="flex items-center">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--sd-accent)] text-caption font-bold uppercase text-[var(--sd-accent-ink)]">
+                vs
+              </span>
+            </span>
+          )}
+          <div className="flex min-h-[120px] items-center justify-center rounded-xl border border-[var(--sd-border)] bg-[var(--sd-panel)] px-3 py-6 text-center text-body font-bold text-[var(--sd-text)]">
+            {side}
+          </div>
+        </React.Fragment>
+      ))}
     </div>
   );
 }
@@ -74,13 +98,9 @@ function Terms({ items }) {
   return (
     <dl className={`grid gap-2 sm:gap-3 ${cols}`}>
       {items.map(({ term, def }) => (
-        <div key={term} className="flex flex-col rounded-control border border-violet-700/15 bg-white/85 p-3 shadow-sm">
-          <dt
-            className={`text-small font-bold leading-snug text-violet-800 ${looksLikeCode(term) ? 'font-mono' : ''}`}
-          >
-            {term}
-          </dt>
-          <dd className="mt-1 text-small leading-snug text-ink-2">
+        <div key={term} className="flex flex-col rounded-xl border border-[var(--sd-border)] bg-[var(--sd-panel)] p-4">
+          <dt className={`text-small font-bold leading-snug text-[var(--sd-accent)] ${looksLikeCode(term) ? 'font-mono' : ''}`}>{term}</dt>
+          <dd className="mt-1.5 text-small leading-snug text-[var(--sd-muted)]">
             <RichText text={def} />
           </dd>
         </div>
@@ -89,18 +109,21 @@ function Terms({ items }) {
   );
 }
 
-function Keywords({ labels }) {
+function CodePanel({ labels }) {
   return (
-    <ul className="flex flex-wrap gap-2" aria-label="Key terms in this section">
-      {labels.map((label) => (
-        <li
-          key={label}
-          className="rounded-full border border-violet-700/20 bg-white/85 px-3 py-1.5 font-mono text-small font-semibold text-violet-800"
-        >
-          {label}
-        </li>
-      ))}
-    </ul>
+    <figure className="overflow-hidden rounded-xl border border-[var(--sd-border)] bg-[#0A0F16]">
+      <figcaption className="flex items-center gap-1.5 border-b border-[var(--sd-border)] px-3 py-2 text-caption font-semibold uppercase tracking-wider text-[var(--sd-muted)]">
+        <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--sd-accent)]" />
+        Key syntax in this section
+      </figcaption>
+      <ul className="flex flex-wrap gap-2 p-3" aria-label="Key terms in this section">
+        {labels.map((label) => (
+          <li key={label} className="rounded-md border border-[var(--sd-border)] bg-[var(--sd-panel)] px-2.5 py-1 font-mono text-small text-[var(--sd-text)]">
+            {label}
+          </li>
+        ))}
+      </ul>
+    </figure>
   );
 }
 
@@ -113,12 +136,12 @@ export function hasVisual(diagram) {
   return false;
 }
 
-export default function SlideDiagram({ diagram, current = 0 }) {
+export default function SlideDiagram({ diagram }) {
   if (!hasVisual(diagram)) return null;
   const labels = diagram.labels || [];
   switch (diagram.template) {
     case 'roadmap':
-      return <Roadmap labels={labels} current={current} />;
+      return <Flow labels={labels} />;
     case 'layers':
       return <Layers labels={labels} />;
     case 'compare':
@@ -126,7 +149,7 @@ export default function SlideDiagram({ diagram, current = 0 }) {
     case 'terms':
       return <Terms items={diagram.items} />;
     case 'keywords':
-      return <Keywords labels={labels} />;
+      return <CodePanel labels={labels} />;
     default:
       return null;
   }

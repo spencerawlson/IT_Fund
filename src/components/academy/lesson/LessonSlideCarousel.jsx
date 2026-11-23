@@ -1,22 +1,28 @@
-// Swipeable per-lesson slide carousel (2026-11-23; redesigned the same day).
+// Lesson slide deck (2026-11-23; restyled the same day to Spencer's
+// graphite + orange slide concept, r2c-slide-redesign.html).
 //
-// One shared carousel used everywhere a lesson is read (the academy lesson
-// view and the guided lesson intro). Each slide pairs a visual drawn from the
-// lesson's own text (SlideDiagram: roadmap, layers, comparison, cheat-sheet
-// terms, key code terms) with a caption that IS lesson text — a paragraph from
-// that lesson's body, derived in scripts/export-content-lib.mjs and carried
-// inside the lesson object, so the existing lesson gating applies: premium
-// decks only render where the lesson body itself renders.
+// One shared deck used everywhere a lesson is presented as slides (the
+// academy lesson view's Slides mode and the guided lesson intro). Each slide
+// pairs a visual drawn from the lesson's own text (SlideDiagram) with a
+// caption that IS lesson text — derived in scripts/export-content-lib.mjs and
+// carried inside the lesson object, so the existing lesson gating applies:
+// premium decks only render where the lesson body itself renders. Nothing
+// here is demo copy.
 //
-// Layout: every slide is rendered into the SAME grid cell and only the
-// current one is visible, so the box is always as tall as the tallest slide —
-// the controls never jump while paging. Hidden slides are aria-hidden + inert.
-// Mobile-first: touch swipe (50px threshold), labelled prev/next, a segmented
-// progress bar that doubles as slide buttons, keyboard arrows, no horizontal
-// page scroll, and a short fade that respects prefers-reduced-motion.
+// Layout: a presentation stage plus a lesson outline (beside it on wide
+// screens, below it on phones). Every slide is rendered into the SAME grid
+// cell and only the current one is visible, so the stage is always as tall
+// as the tallest slide — the controls never jump. Hidden slides are
+// aria-hidden + inert. Keyboard arrows, touch swipe (50px), labelled
+// Previous/Next (44px targets), a segmented progress bar, and a short fade
+// that respects prefers-reduced-motion. The colours are scoped to
+// .slide-deck (index.css), the same in light and dark themes.
+//
+// `renderExplain(slide)` is an optional integration point for the Cypher
+// tutor ("Explain this slide"); the deck renders nothing for it by itself.
 
 import React, { useCallback, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Presentation } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import RichText from '../RichText';
 import SlideDiagram, { hasVisual } from './SlideDiagram';
 
@@ -36,29 +42,58 @@ function Slide({ slide, index, count, active }) {
         active ? 'opacity-100' : 'invisible opacity-0'
       }`}
     >
-      <div className="flex items-baseline gap-3">
-        <span className="font-mono text-small font-bold tabular-nums text-action" aria-hidden="true">
-          {pad2(index + 1)}
-        </span>
-        <h3 className="text-heading text-ink-1">{slide.title}</h3>
-      </div>
+      <h3 className="text-[1.5rem] font-bold leading-tight tracking-[-0.02em] text-[var(--sd-text)] sm:text-[2rem]">
+        {slide.title}
+      </h3>
       {visual && (
-        <div className="mt-4">
-          <SlideDiagram diagram={slide.diagram} current={index} />
+        <div className="mt-5">
+          <SlideDiagram diagram={slide.diagram} />
         </div>
       )}
-      <p
-        className={`max-w-reading text-ink-1 ${
-          visual ? 'mt-4 text-body' : 'mt-4 border-l-4 border-action-surface pl-4 text-body sm:text-lg sm:leading-relaxed'
+      <div
+        className={`rounded-r-xl border-l-4 border-[var(--sd-accent)] bg-[var(--sd-panel-2)] px-4 py-3.5 text-[var(--sd-text)] sm:px-5 ${
+          visual ? 'mt-5 text-body leading-relaxed' : 'mt-6 text-body leading-relaxed sm:text-lg'
         }`}
       >
         <RichText text={slide.caption} />
-      </p>
+      </div>
     </div>
   );
 }
 
-export default function LessonSlideCarousel({ slides, id }) {
+function Outline({ slides, index, goTo }) {
+  const pct = ((index + 1) / slides.length) * 100;
+  return (
+    <nav aria-label="Lesson outline">
+      <p className="text-caption font-bold uppercase tracking-[0.14em] text-[var(--sd-muted)]">Lesson outline</p>
+      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--sd-border)]" aria-hidden="true">
+        <div className="h-full rounded-full bg-[var(--sd-accent)] transition-[width] duration-200 motion-reduce:transition-none" style={{ width: `${pct}%` }} />
+      </div>
+      <ol className="mt-3 space-y-1">
+        {slides.map((s, i) => (
+          <li key={`${s.title}-${i}`}>
+            <button
+              type="button"
+              aria-label={`Go to slide ${i + 1}: ${s.title}`}
+              aria-current={i === index ? 'step' : undefined}
+              onClick={() => goTo(i)}
+              className={`flex min-h-11 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left text-small transition-colors ${
+                i === index
+                  ? 'border-[var(--sd-accent-line)] bg-[var(--sd-accent-soft)] font-semibold text-[var(--sd-text)]'
+                  : 'border-transparent text-[var(--sd-muted)] hover:bg-[var(--sd-panel)] hover:text-[var(--sd-text)]'
+              }`}
+            >
+              <span className="font-mono text-caption font-bold tabular-nums text-[var(--sd-accent)]">{pad2(i + 1)}</span>
+              <span className="leading-snug">{s.title}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slides', renderExplain }) {
   const [index, setIndex] = useState(0);
   const touchStartX = useRef(null);
   const count = Array.isArray(slides) ? slides.length : 0;
@@ -69,6 +104,7 @@ export default function LessonSlideCarousel({ slides, id }) {
   if (count === 0) return null;
 
   const onKeyDown = (event) => {
+    if (event.target?.closest?.('input, textarea, select')) return;
     if (event.key === 'ArrowRight') {
       event.preventDefault();
       goTo(index + 1);
@@ -90,7 +126,8 @@ export default function LessonSlideCarousel({ slides, id }) {
   };
 
   const navBtn =
-    'inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border border-violet-700/20 bg-white px-3 text-small font-semibold text-ink-1 transition hover:border-violet-700/40 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white';
+    'inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-4 text-small font-bold transition disabled:cursor-not-allowed disabled:opacity-35';
+  const explain = typeof renderExplain === 'function' ? renderExplain(slides[index]) : null;
 
   return (
     <section
@@ -103,66 +140,63 @@ export default function LessonSlideCarousel({ slides, id }) {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       style={{ touchAction: 'pan-y' }}
-      className="glass-1 scroll-mt-28 overflow-hidden rounded-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+      className="slide-deck scroll-mt-28 overflow-hidden rounded-card p-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#FF8B3D] sm:p-3"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-violet-700/10 px-4 py-3 sm:px-5">
-        <p className="flex items-center gap-2 text-caption font-semibold uppercase tracking-wider text-ink-2">
-          <Presentation size={15} className="text-action" aria-hidden="true" />
-          Slides
-        </p>
-        <p className="text-small tabular-nums text-ink-2" aria-live="polite">
-          Slide {index + 1} of {count}
-        </p>
-      </header>
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
+        <div className="sd-stage flex min-w-0 flex-col rounded-2xl border border-[var(--sd-border)] p-4 shadow-[0_20px_60px_rgb(0_0_0/0.35)] sm:p-7">
+          <header className="flex items-center justify-between gap-3 text-caption">
+            <p className="truncate font-bold uppercase tracking-[0.14em] text-[var(--sd-accent)]">{eyebrow}</p>
+            <p className="shrink-0 font-mono tabular-nums text-[var(--sd-muted)]" aria-live="polite">
+              <span className="sr-only">Slide {index + 1} of {count}</span>
+              <span aria-hidden="true">{pad2(index + 1)} / {pad2(count)}</span>
+            </p>
+          </header>
 
-      <div className="bg-gradient-to-b from-violet-50/80 to-white/40 px-4 py-5 sm:px-6 sm:py-6">
-        <div className="grid">
-          {slides.map((slide, i) => (
-            <Slide key={`${slide.title}-${i}`} slide={slide} index={i} count={count} active={i === index} />
-          ))}
-        </div>
-      </div>
+          <div className="mt-5 grid sm:mt-6">
+            {slides.map((slide, i) => (
+              <Slide key={`${slide.title}-${i}`} slide={slide} index={i} count={count} active={i === index} />
+            ))}
+          </div>
 
-      <footer className="flex items-center gap-3 border-t border-violet-700/10 px-4 py-3 sm:px-5">
-        <button
-          type="button"
-          aria-label="Previous slide"
-          disabled={index === 0}
-          onClick={() => goTo(index - 1)}
-          className={navBtn}
-        >
-          <ChevronLeft size={18} aria-hidden="true" />
-          <span className="hidden sm:inline">Previous</span>
-        </button>
-        <div className="flex flex-1 items-center gap-1.5">
-          {slides.map((s, i) => (
+          <footer className="mt-6 flex items-center gap-3 border-t border-[var(--sd-border)] pt-4 sm:mt-8">
+            <div className="flex flex-1 items-center gap-1.5" aria-hidden="true">
+              {slides.map((s, i) => (
+                <span
+                  key={`${s.title}-${i}`}
+                  className={`block h-1.5 flex-1 rounded-full transition-colors ${
+                    i === index ? 'bg-[var(--sd-accent)]' : i < index ? 'bg-[var(--sd-accent-line)]' : 'bg-[var(--sd-border)]'
+                  }`}
+                />
+              ))}
+            </div>
             <button
-              key={`${s.title}-${i}`}
               type="button"
-              aria-label={`Go to slide ${i + 1}: ${s.title}`}
-              aria-current={i === index}
-              onClick={() => goTo(i)}
-              className="group flex h-11 flex-1 items-center"
+              aria-label="Previous slide"
+              disabled={index === 0}
+              onClick={() => goTo(index - 1)}
+              className={`${navBtn} border-[var(--sd-border)] bg-[var(--sd-panel)] text-[var(--sd-text)] hover:border-[var(--sd-muted)]`}
             >
-              <span
-                className={`block h-1.5 w-full rounded-full transition-colors ${
-                  i === index ? 'bg-action' : i < index ? 'bg-action/40' : 'bg-black/10 group-hover:bg-black/20'
-                }`}
-              />
+              <ChevronLeft size={18} aria-hidden="true" />
+              <span className="hidden sm:inline">Previous</span>
             </button>
-          ))}
+            <button
+              type="button"
+              aria-label="Next slide"
+              disabled={index === count - 1}
+              onClick={() => goTo(index + 1)}
+              className={`${navBtn} border-[var(--sd-accent)] bg-[var(--sd-accent)] text-[var(--sd-accent-ink)] hover:brightness-110`}
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight size={18} aria-hidden="true" />
+            </button>
+          </footer>
         </div>
-        <button
-          type="button"
-          aria-label="Next slide"
-          disabled={index === count - 1}
-          onClick={() => goTo(index + 1)}
-          className={navBtn}
-        >
-          <span className="hidden sm:inline">Next</span>
-          <ChevronRight size={18} aria-hidden="true" />
-        </button>
-      </footer>
+
+        <aside className="flex flex-col gap-3 rounded-2xl border border-[var(--sd-border)] bg-[#121D2C] p-4">
+          <Outline slides={slides} index={index} goTo={goTo} />
+          {explain}
+        </aside>
+      </div>
     </section>
   );
 }

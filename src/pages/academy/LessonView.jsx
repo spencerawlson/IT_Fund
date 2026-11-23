@@ -14,6 +14,7 @@ import { BLUEPRINTS_FOR_LESSON, BLUEPRINT_POSTER } from '@/data/blueprints';
 import LessonBlueprint from '@/components/academy/lesson/LessonBlueprint';
 import LessonSlideCarousel from '@/components/academy/lesson/LessonSlideCarousel';
 import LessonViewSwitch, { useLessonView } from '@/components/academy/lesson/LessonViewSwitch';
+import CypherSlideExplain from '@/components/academy/tutor/CypherSlideExplain';
 import { MISSION_FOR_LESSON } from '@/data/missions';
 import CypherLessonPanel from '@/components/academy/tutor/CypherLessonPanel';
 import { useAcademy } from '@/lib/academy';
@@ -267,7 +268,12 @@ export default function LessonView() {
 
         {showSlides && (
           <div className="space-y-3">
-            <LessonSlideCarousel id="slides" slides={c.slides} />
+            <LessonSlideCarousel
+              id="slides"
+              slides={c.slides}
+              eyebrow={`${course.title} · Module ${module.number}`}
+              renderExplain={(slide) => <CypherSlideExplain slide={slide} lessonTitle={lesson.title} />}
+            />
             <p className="text-small text-ink-2">
               The slides summarise each section.{' '}
               <button
