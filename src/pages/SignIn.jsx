@@ -181,9 +181,11 @@ export function SubscriptionSection() {
               </button>
             </div>
             <p className="mt-2 text-small text-ink-2">
-              {annual.configured
+              {plan === 'annual' && annual.configured
                 ? `About $${annualMonthlyEquivalent} a month — save $${yearlySaving.toFixed(0)} a year vs paying monthly.`
-                : `The ${annual.display}/yr price is being set up — monthly is available now.`}
+                : !annual.configured
+                  ? `The ${annual.display}/yr price is being set up — monthly is available now.`
+                  : null}
             </p>
           </div>
           <div className="mt-4">
