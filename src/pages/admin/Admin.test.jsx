@@ -268,6 +268,26 @@ describe('OverviewView manual enrollments', () => {
     expect(html).toContain('Manual enrollments');
     expect(html).toContain('3');
   });
+
+  it('shows real in-person members and the reserved placeholder seats separately', () => {
+    // Spencer's @road2cissp.local placeholders hold places but are not
+    // members: their own card, never counted as manual enrollments.
+    const html = renderToString(
+      <OverviewView data={{ total_users: 5003, paying_subscribers: 2, subscriptions_by_status: { active: 2 }, mrr: null, ai_calls_30d: 0, ai_cost_30d_usd: 0, manual_grants_active: 5001, manual_members: 1, reserved_seats: 5000 }} />,
+    );
+    expect(html).toContain('Manual enrollments');
+    expect(html).toContain('Reserved seats');
+    expect(html).toContain('5000');
+    expect(html).not.toContain('5001');
+    expect(html).toContain('not members, never revenue');
+  });
+
+  it('shows no reserved-seats card when there are none', () => {
+    const html = renderToString(
+      <OverviewView data={{ total_users: 4, paying_subscribers: 1, subscriptions_by_status: { active: 1 }, mrr: null, ai_calls_30d: 0, ai_cost_30d_usd: 0, manual_grants_active: 1, manual_members: 1, reserved_seats: 0 }} />,
+    );
+    expect(html).not.toContain('Reserved seats');
+  });
 });
 
 describe('ReportView', () => {
