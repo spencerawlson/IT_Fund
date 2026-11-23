@@ -1,5 +1,6 @@
-// The visual half of a lesson slide (redesigned 2026-11-23 to Spencer's
-// graphite + orange slide concept; tokens in index.css `.slide-deck`).
+// The visual half of a lesson slide (redesigned 2026-11-23 after Spencer's
+// slide concept — layout only; colours are the site's own tokens, mapped in
+// index.css `.slide-deck`).
 //
 // Every word drawn here is lesson text, chosen by the exporter
 // (scripts/export-content-lib.mjs deriveLessonSlides) — a template is used
@@ -59,7 +60,7 @@ function Layers({ labels }) {
         <li
           key={label}
           className="flex items-center gap-3 rounded-lg border border-[var(--sd-border)] px-3 py-2"
-          style={{ background: `linear-gradient(90deg, rgb(255 139 61 / ${(0.05 + (0.2 * (n - i)) / n).toFixed(2)}), var(--sd-panel))` }}
+          style={{ background: `linear-gradient(90deg, rgb(var(--action-rgb) / ${(0.08 + (0.22 * (n - i)) / n).toFixed(2)}), var(--sd-panel))` }}
         >
           <span className="w-6 shrink-0 text-right font-mono text-caption font-bold tabular-nums text-[var(--sd-accent)]" aria-hidden="true">
             {n - i}
@@ -79,7 +80,7 @@ function Compare({ labels }) {
         <React.Fragment key={side}>
           {i === 1 && (
             <span className="flex items-center">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--sd-accent)] text-caption font-bold uppercase text-[var(--sd-accent-ink)]">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--sd-cta)] text-caption font-bold uppercase text-[var(--sd-cta-ink)]">
                 vs
               </span>
             </span>
@@ -111,7 +112,7 @@ function Terms({ items }) {
 
 function CodePanel({ labels }) {
   return (
-    <figure className="overflow-hidden rounded-xl border border-[var(--sd-border)] bg-[#0A0F16]">
+    <figure className="overflow-hidden rounded-xl border border-[var(--sd-border)] bg-[var(--sd-panel)]">
       <figcaption className="flex items-center gap-1.5 border-b border-[var(--sd-border)] px-3 py-2 text-caption font-semibold uppercase tracking-wider text-[var(--sd-muted)]">
         <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--sd-accent)]" />
         Key syntax in this section

@@ -648,35 +648,38 @@ html[data-theme="dark"] .hover\:bg-blue-600:hover { background-color: #1D4ED8; }
 html[data-theme="dark"] .hover\:bg-rose-400:hover { background-color: #BE123C; }
 
 /* ---------- Lesson slide deck (2026-11-23 redesign) ----------
-   A presentation stage: graphite with restrained orange accents, after
-   Spencer's slide concept. Like the Solarized terminal it is an intentionally
-   dark surface, the same in light and dark themes, and scoped to
-   .slide-deck so nothing else in the app is recoloured. Contrast (checked in
-   tokens.test.js): text 15.6:1 and muted 7.3:1 on the stage; orange 7.1:1. */
+   Layout after Spencer's slide concept (stage, outline, explanation block);
+   COLOURS ARE THE SITE'S OWN (Spencer: the concept's graphite/orange was a
+   reference only). Every --sd-* value maps onto an existing site variable,
+   so the deck follows light and dark themes exactly like the rest of the app
+   — tokens.test.js checks that no literal colour sneaks in here. */
 .slide-deck {
-  --sd-bg: #0B111A;
-  --sd-stage-from: #182536;
-  --sd-stage-to: #0F1928;
-  --sd-panel: #1D2A3B;
-  --sd-panel-2: #24344A;
-  --sd-border: #344356;
-  --sd-text: #F3F6FB;
-  --sd-muted: #A9B6C6;
-  --sd-accent: #FF8B3D;
-  --sd-accent-ink: #1B120B;
-  --sd-accent-soft: rgb(255 139 61 / 0.14);
-  --sd-accent-line: rgb(255 139 61 / 0.45);
+  --sd-bg: transparent;
+  --sd-stage-from: rgb(var(--action-rgb) / 0.07);
+  --sd-stage-to: var(--surface-2);
+  --sd-panel: var(--surface-3);
+  --sd-panel-2: rgb(var(--action-rgb) / 0.08);
+  --sd-border: rgb(var(--action-rgb) / 0.2);
+  --sd-text: rgb(var(--ink-1-rgb));
+  --sd-muted: rgb(var(--ink-2-rgb));
+  --sd-accent: rgb(var(--action-rgb));
+  --sd-accent-ink: rgb(var(--action-surface-ink-rgb));
+  --sd-accent-soft: rgb(var(--action-rgb) / 0.1);
+  --sd-accent-line: rgb(var(--action-rgb) / 0.4);
+  --sd-cta: rgb(var(--action-surface-rgb));
+  --sd-cta-ink: rgb(var(--action-surface-ink-rgb));
+  --sd-code-bg: rgb(var(--action-rgb) / 0.1);
+  --sd-code-ink: rgb(var(--ink-1-rgb));
+  --sd-danger: rgb(var(--danger-rgb));
   color: var(--sd-text);
   background: var(--sd-bg);
 }
 .slide-deck .sd-stage { background: linear-gradient(145deg, var(--sd-stage-from), var(--sd-stage-to)); }
-/* Inline code in slide captions/terms: deck palette instead of the light
-   lavender chip (which glared on the graphite stage). The html[data-theme]
-   prefix out-ranks the dark theme's .bg-violet-50 remap, so both themes
-   render the same chip. */
+/* Inline code in slide captions/terms: the deck's code chip (site colours,
+   both themes; the html[data-theme] prefix out-ranks the dark remaps). */
 html .slide-deck code,
 html[data-theme] .slide-deck code {
-  background-color: #2C3B50;
-  border-color: #45556A;
-  color: #FFD0AD;
+  background-color: var(--sd-code-bg);
+  border-color: var(--sd-border);
+  color: var(--sd-code-ink);
 }

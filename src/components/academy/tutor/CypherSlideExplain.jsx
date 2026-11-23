@@ -59,7 +59,7 @@ export default function CypherSlideExplain({ slide, lessonTitle }) {
               <TutorText text={text} />
             </div>
           )}
-          {error && <p role="alert" className="text-small text-[#FCA5A5]">{error}</p>}
+          {error && <p role="alert" className="text-small text-[var(--sd-danger)]">{error}</p>}
           {loading ? (
             <button
               type="button"

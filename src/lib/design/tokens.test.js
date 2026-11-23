@@ -150,3 +150,18 @@ describe('dark theme: literal accent text never stays dark on black', () => {
     expect(missing, `dark-mode remap missing in src/index.css for: ${missing.join(', ')}`).toEqual([]);
   });
 });
+
+describe('lesson slide deck uses the site colours only', () => {
+  // Spencer (2026-11-23): the slide concept's graphite/orange was a reference
+  // for layout only — the deck keeps the site's own colours. Every --sd-*
+  // token must map onto an existing site variable; no literal colour.
+  const block = css.match(/\.slide-deck \{([\s\S]*?)\n\}/)?.[1] ?? '';
+  it('every deck token is a site variable, never a literal colour', () => {
+    const tokens = [...block.matchAll(/--sd-[a-z0-9-]+:\s*([^;]+);/g)].map((m) => m[1].trim());
+    expect(tokens.length).toBeGreaterThan(10);
+    for (const value of tokens) {
+      expect(value, value).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+      expect(value === 'transparent' || /var\(--(?!sd-)[a-z0-9-]+\)/.test(value), value).toBe(true);
+    }
+  });
+});

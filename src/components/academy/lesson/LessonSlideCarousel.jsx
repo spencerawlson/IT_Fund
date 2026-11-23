@@ -1,5 +1,6 @@
 // Lesson slide deck (2026-11-23; restyled the same day to Spencer's
-// graphite + orange slide concept, r2c-slide-redesign.html).
+// slide concept, r2c-slide-redesign.html — layout only; the colours stay
+// the site's own violet/ink tokens, as Spencer asked).
 //
 // One shared deck used everywhere a lesson is presented as slides (the
 // academy lesson view's Slides mode and the guided lesson intro). Each slide
@@ -15,8 +16,8 @@
 // as the tallest slide — the controls never jump. Hidden slides are
 // aria-hidden + inert. Keyboard arrows, touch swipe (50px), labelled
 // Previous/Next (44px targets), a segmented progress bar, and a short fade
-// that respects prefers-reduced-motion. The colours are scoped to
-// .slide-deck (index.css), the same in light and dark themes.
+// that respects prefers-reduced-motion. Colours: .slide-deck (index.css)
+// maps onto the site's own tokens, so light and dark themes both apply.
 //
 // `renderExplain(slide)` is an optional integration point for the Cypher
 // tutor ("Explain this slide"); the deck renders nothing for it by itself.
@@ -140,10 +141,10 @@ export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slid
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       style={{ touchAction: 'pan-y' }}
-      className="slide-deck scroll-mt-28 overflow-hidden rounded-card p-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#FF8B3D] sm:p-3"
+      className="slide-deck scroll-mt-28 overflow-hidden rounded-card p-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-action sm:p-3"
     >
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
-        <div className="sd-stage flex min-w-0 flex-col rounded-2xl border border-[var(--sd-border)] p-4 shadow-[0_20px_60px_rgb(0_0_0/0.35)] sm:p-7">
+        <div className="sd-stage flex min-w-0 flex-col rounded-2xl border border-[var(--sd-border)] p-4 shadow-sm sm:p-7">
           <header className="flex items-center justify-between gap-3 text-caption">
             <p className="truncate font-bold uppercase tracking-[0.14em] text-[var(--sd-accent)]">{eyebrow}</p>
             <p className="shrink-0 font-mono tabular-nums text-[var(--sd-muted)]" aria-live="polite">
@@ -184,7 +185,7 @@ export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slid
               aria-label="Next slide"
               disabled={index === count - 1}
               onClick={() => goTo(index + 1)}
-              className={`${navBtn} border-[var(--sd-accent)] bg-[var(--sd-accent)] text-[var(--sd-accent-ink)] hover:brightness-110`}
+              className={`${navBtn} border-transparent bg-[var(--sd-cta)] text-[var(--sd-cta-ink)] hover:brightness-105`}
             >
               <span className="hidden sm:inline">Next</span>
               <ChevronRight size={18} aria-hidden="true" />
@@ -192,7 +193,7 @@ export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slid
           </footer>
         </div>
 
-        <aside className="flex flex-col gap-3 rounded-2xl border border-[var(--sd-border)] bg-[#121D2C] p-4">
+        <aside className="flex flex-col gap-3 rounded-2xl border border-[var(--sd-border)] bg-[var(--sd-panel)] p-4">
           <Outline slides={slides} index={index} goTo={goTo} />
           {explain}
         </aside>
