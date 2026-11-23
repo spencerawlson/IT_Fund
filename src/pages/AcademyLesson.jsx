@@ -6,14 +6,13 @@ import LessonPlayer from '@/components/academy/lesson/LessonPlayer';
 import { getTrack, getDeck } from '@/data/academy';
 import { useSubscription, isDeckFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 export default function AcademyLesson() {
   const { trackId, deckId } = useParams();
   const track = getTrack(trackId);
   const deck = getDeck(deckId);
   const { subscribed, loading: subLoading } = useSubscription();
-  useDocumentTitle(deck ? `Lesson: ${deck.title} · Road to CISSP` : 'Lesson · Road to CISSP');
 
   // Every lesson is open, so a bad URL is the only thing left to handle. The key matters because
   // a "Next lesson" link reuses this route: remount for a fresh session.
@@ -31,7 +30,18 @@ export default function AcademyLesson() {
       <LessonPlayer key={deck.id} track={track} deck={deck} />
     );
 
-  return <div className="min-h-[100dvh] text-ink-1">{body}</div>;
+  // App surface, not a content page: the canonical lesson URL is
+  // /academy/lessons/:id (see LessonView) — keep this player out of the index.
+  return (
+    <div className="min-h-[100dvh] text-ink-1">
+      <Seo
+        robots="noindex"
+        title={deck ? `Lesson: ${deck.title} · Road to CISSP` : 'Lesson · Road to CISSP'}
+        path={`/academy/${trackId}/lesson/${deckId}`}
+      />
+      {body}
+    </div>
+  );
 }
 
 function Message({ title, text, href, link }) {

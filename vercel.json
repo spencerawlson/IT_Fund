@@ -17,11 +17,11 @@
         { "source": "/", "destination": "/index.html" },
         { "source": "/app", "destination": "/index.html" },
         { "source": "/academy", "destination": "/index.html" },
-        { "source": "/academy/:path*", "destination": "/index.html" },
+        { "source": "/academy/:path*", "destination": "/shell.html" },
         { "source": "/signin", "destination": "/index.html" },
         { "source": "/practice", "destination": "/index.html" },
         { "source": "/library", "destination": "/index.html" },
-        { "source": "/module/:path*", "destination": "/index.html" },
+        { "source": "/module/:path*", "destination": "/shell.html" },
         { "source": "/lab", "destination": "/index.html" },
         { "source": "/admin", "destination": "/index.html" },
         { "source": "/tracks", "destination": "/index.html" },
@@ -35,8 +35,8 @@
         { "source": "/contact", "destination": "/index.html" },
         { "source": "/faq", "destination": "/index.html" },
         { "source": "/labs", "destination": "/index.html" },
-        { "source": "/labs/:path*", "destination": "/index.html" },
-        { "source": "/missions/:path*", "destination": "/index.html" },
+        { "source": "/labs/:path*", "destination": "/shell.html" },
+        { "source": "/missions/:path*", "destination": "/shell.html" },
         { "source": "/design", "destination": "/index.html" }
       ]
     }

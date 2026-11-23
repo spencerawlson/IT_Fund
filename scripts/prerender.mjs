@@ -11,6 +11,12 @@
 // The shell's <div id="root"> carries the rendered app; the client bundle
 // takes over from there exactly as it does for the empty shell.
 //
+// It also preserves the pre-prerender shell as dist/shell.html (SEO Phase 1):
+// the dynamic-route rewrites in vercel.json point at the shell, so a
+// non-prerendered route serves an empty shell instead of the prerendered
+// home page. The shell's canonical link is stripped when copied — with no
+// canonical, the served URL is canonical by default.
+//
 // Every sitemap route MUST render a <Seo>: a route without one fails the
 // build loudly instead of shipping the shell's generic title on every page.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -88,6 +94,20 @@ function injectHead(shell, route, seo) {
 async function main() {
   const { render } = await import('../dist-server/entry-server.js');
   const shell = readFileSync(join(DIST, 'index.html'), 'utf8');
+  // SEO Phase 1 (1.2): preserve the untouched vite shell as dist/shell.html
+  // BEFORE the '/' route overwrites dist/index.html with the prerendered
+  // home page. The dynamic-route rewrites in vercel.json point at the shell,
+  // so a non-prerendered route serves an empty shell instead of home HTML.
+  // Strip the shell's canonical link: it points at the home page, and the
+  // shell must not claim any dynamic route is the home page. With no
+  // canonical, the served URL is canonical by default. The shell keeps the
+  // site-default title; per-page titles land client-side via <Seo> (1.3)
+  // until Phase 2 prerenders these routes.
+  const shellNoCanonical = shell.replace(/<link rel="canonical" href="[^"]*" \/>\n?/, '');
+  if (shellNoCanonical === shell) {
+    throw new Error('prerender: shell has no canonical link to strip for shell.html');
+  }
+  writeFileSync(join(DIST, 'shell.html'), shellNoCanonical, 'utf8');
   const routes = sitemapRoutes();
   for (const route of routes) {
     const { html, seo } = await render(route);
