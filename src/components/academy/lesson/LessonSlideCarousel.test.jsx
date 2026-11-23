@@ -151,8 +151,8 @@ describe('LessonSlideCarousel', () => {
     const root = renderCarousel();
     const region = root.root.findByProps({ 'aria-roledescription': 'carousel' });
     expect(region.props['aria-label']).toBe('Lesson slides');
-    // Every slide is in the DOM (one grid cell, so the box never resizes);
-    // only the current one is exposed to assistive tech.
+    // Every slide stays in the DOM; only the current one takes layout space
+    // or is exposed to assistive tech.
     const groups = root.root.findAllByProps({ 'aria-roledescription': 'slide' });
     expect(groups.map((g) => g.props['aria-label'])).toEqual([
       'Slide 1 of 3: Overview', 'Slide 2 of 3: Layers', 'Slide 3 of 3: Compare',
@@ -164,6 +164,39 @@ describe('LessonSlideCarousel', () => {
   });
 });
 
+describe('LessonSlideCarousel — adaptive stage (no empty space under short slides)', () => {
+  const slideNode = (root, i) => root.root.findAllByProps({ 'aria-roledescription': 'slide' })[i];
+
+  it('only the slide on screen takes layout space; the others are display:none', () => {
+    const root = renderCarousel();
+    const groups = root.root.findAllByProps({ 'aria-roledescription': 'slide' });
+    // The active slide is in the flow (and fades in); the rest must not
+    // reserve height, or a short slide shows the tallest slide's empty space.
+    expect(groups[0].props.className).not.toMatch(/\bhidden\b/);
+    expect(groups[0].props.className).toMatch(/\bsd-slide-active\b/);
+    for (const g of groups.slice(1)) {
+      expect(g.props.className).toMatch(/\bhidden\b/);
+      expect(g.props.className).not.toMatch(/\binvisible\b/);
+    }
+    click(root, 'Next slide');
+    const after = root.root.findAllByProps({ 'aria-roledescription': 'slide' });
+    expect(after[0].props.className).toMatch(/\bhidden\b/);
+    expect(after[1].props.className).not.toMatch(/\bhidden\b/);
+    expect(after[1].props.className).toMatch(/\bsd-slide-active\b/);
+  });
+
+  it('the stage and outline columns do not stretch each other', () => {
+    const root = renderCarousel();
+    const region = root.root.findByProps({ 'aria-roledescription': 'carousel' });
+    const grid = region.findAll(
+      (node) => typeof node.props?.className === 'string' && node.props.className.includes('lg:grid-cols-'),
+    );
+    expect(grid).toHaveLength(1);
+    // Top-aligned columns: a tall outline never stretches the stage (and a
+    // tall slide never stretches the outline) — no empty space underneath.
+    expect(grid[0].props.className).toMatch(/\bitems-start\b/);
+  });
+});
 describe('LessonSlideCarousel — slide redesign (outline, templates, Cypher hook)', () => {
   const DECK = [
     { title: 'Overview', caption: 'Roadmap caption.', diagram: { template: 'roadmap', labels: ['Layers', 'Ports'] } },
