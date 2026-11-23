@@ -40,6 +40,13 @@ describe('labsApi', () => {
     expect(JSON.parse(calls[0].opts.body)).toEqual({ command: 'nmap -sV target.lab' });
   });
 
+  it('sends destroy with keepalive so it survives the navigation that unmounts the page', async () => {
+    await labsApi.destroy('sess-1');
+    expect(calls[0].url).toBe('/api/labs/sessions/sess-1');
+    expect(calls[0].opts.method).toBe('DELETE');
+    expect(calls[0].opts.keepalive).toBe(true);
+  });
+
   it('returns null on 204 (delete)', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: true, status: 204, text: async () => '' }));
     expect(await labsApi.destroy('sess-1')).toBeNull();

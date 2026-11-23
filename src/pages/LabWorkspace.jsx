@@ -5,7 +5,7 @@ import { Badge, Button, Card, EmptyState, ProgressBar } from '@/components/ui-gl
 import LabTerminal from '@/components/labs/LabTerminal';
 import { MissionBrief, MissionDossier } from '@/components/labs/Mission';
 import TopologyBuilder from '@/components/labs/TopologyBuilder';
-import { getMission, MISSION_ONLY_LABS } from '@/data/missions';
+import { getMission, hasMission, MISSION_ONLY_LABS } from '@/data/missions';
 import { labsApi } from '@/api/labs';
 import { recordLabCompletion } from '@/lib/labProgress';
 import { recordVerifiedLabCompletion } from '@/lib/academy';
@@ -121,10 +121,27 @@ export default function LabWorkspace() {
   const [activeDevice, setActiveDevice] = useState(null); // which device console is active (multi-device labs)
   // Mission mode: a Hacknet-flavoured CRT skin over the same real terminal (see
   // docs/GAME_LAB_DESIGN.md). Per-viewer preference; storage may be unavailable
-  // (private windows), so every access is guarded.
+  // (private windows), so every access is guarded. Mission-linked labs open in
+  // Mission mode by default (Spencer, 2026-11-23: mission objectives are
+  // terminal-only, so the learner lands where the terminal instruction is,
+  // not on the plain Objectives checklist) — an explicit stored preference
+  // always wins over the default, and the toggle below stays available.
+  const missionDefault = hasMission(labId);
   const [gameMode, setGameMode] = useState(() => {
-    try { return localStorage.getItem('rtc-lab-gamemode') === '1'; } catch { return false; }
+    try {
+      const stored = localStorage.getItem('rtc-lab-gamemode');
+      if (stored === '1') return true;
+      if (stored === '0') return false;
+    } catch { /* fall through to the lab default */ }
+    return missionDefault;
   });
+  // A lab opened after another (same mount, new labId) gets its own default
+  // unless the learner has an explicit preference stored.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('rtc-lab-gamemode') === null) setGameMode(missionDefault);
+    } catch { /* storage unavailable: leave the mode alone */ }
+  }, [labId, missionDefault]);
   const toggleGameMode = useCallback(() => {
     setGameMode((on) => {
       const next = !on;
@@ -175,16 +192,38 @@ export default function LabWorkspace() {
   const sessionRef = useRef(null);
   sessionRef.current = session;
 
-  // Best-effort cleanup ONLY when leaving the page.
-  useEffect(() => {
-    return () => {
-      const s = sessionRef.current;
-      if (s && !destroyed.current) {
-        destroyed.current = true;
-        labsApi.destroy(s.id).catch(() => {});
-      }
-    };
+  // Destroy the server-side session — and finalize its lab-hours row, so the
+  // meter stops accruing the moment the DELETE completes (Spencer, 2026-11-23:
+  // the meter kept climbing after he left Glasshouse because nothing ever
+  // called destroy on exit). Returns true only when the DELETE completed.
+  // `destroyed` is set only on success, so a failed destroy leaves the
+  // unmount backstop armed to try again.
+  const destroySession = useCallback(async () => {
+    const s = sessionRef.current;
+    if (!s || destroyed.current) return destroyed.current;
+    try {
+      await labsApi.destroy(s.id);
+      destroyed.current = true;
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
+
+  // Best-effort cleanup ONLY when leaving the page. The DELETE is sent with
+  // keepalive (see src/api/labs.js), so it survives the navigation that
+  // unmounts us — the plain fetch it replaced was routinely cancelled.
+  useEffect(() => {
+    return () => { destroySession().catch(() => {}); };
+  }, [destroySession]);
+
+  // Leave the lab: end the session server-side BEFORE navigating, so its
+  // lab-hours row finalizes and the meter stops. The unmount cleanup above
+  // is the backstop if the DELETE fails.
+  const exitLab = useCallback(async () => {
+    await destroySession();
+    navigate('/practice');
+  }, [destroySession, navigate]);
 
   const check = useCallback(async () => {
     if (!session) return;
@@ -326,6 +365,10 @@ export default function LabWorkspace() {
     // NB: bare `exit` is a real device command (e.g. Cisco IOS leaves a config mode), so only the
     // explicit `lab exit` returns to the launcher.
     if (c === 'lab' && sub === 'exit') {
+      // End the session server-side first, so the lab-hours row finalizes
+      // and the meter stops accruing; navigate only after the DELETE
+      // completes (the unmount cleanup is the backstop if it fails).
+      await destroySession();
       setTimeout(() => navigate('/labs'), 300);
       return { output: 'Leaving the lab. Back to the lab menu...' };
     }
@@ -350,7 +393,7 @@ export default function LabWorkspace() {
       } catch { return { output: meta }; }
     }
     return labsApi.exec(session.id, raw);
-  }, [session, lab, reset, navigate, attest, isLive]);
+  }, [session, lab, reset, navigate, attest, isLive, destroySession]);
 
   const results = session?.validation_results || [];
   const passedCount = useMemo(() => Object.values(session?.progress || {}).filter(Boolean).length, [session]);
@@ -412,7 +455,7 @@ export default function LabWorkspace() {
           {relatedLessons.length > 0 && (
             <Button size="sm" variant="ghost" to={`/academy/lessons/${relatedLessons[0]}`}>Lesson</Button>
           )}
-          <Button size="sm" variant="secondary" to="/practice">Exit</Button>
+          <Button size="sm" variant="secondary" onClick={exitLab}>Exit</Button>
         </div>
       </header>
 

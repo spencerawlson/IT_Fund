@@ -137,6 +137,17 @@ export const MISSION_ONLY_LABS = {
   'net-acl-001': 'op-broken-shield',
 };
 
+/**
+ * Labs with a hand-written mission — these open in Mission mode by default
+ * (Spencer, 2026-11-23: mission objectives are terminal-only, so the
+ * learner lands where the terminal instruction is, not on the plain
+ * Objectives checklist). Any other lab gets the generated fallback mission
+ * in game mode, but opens in plain mode.
+ */
+export function hasMission(labId) {
+  return Boolean(labId && MISSIONS[labId]);
+}
+
 /** The lab id a mission runs, or undefined — the reverse of MISSION_ONLY_LABS. */
 export function labForMission(missionId) {
   return Object.entries(MISSION_ONLY_LABS).find(([, m]) => m === missionId)?.[0];

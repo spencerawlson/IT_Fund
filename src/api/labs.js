@@ -6,7 +6,7 @@
 const TOKEN_KEY = 'it_fund_access_token';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
-async function labRequest(path, { method = 'GET', body } = {}) {
+async function labRequest(path, { method = 'GET', body, keepalive = false } = {}) {
   const token = (() => {
     try {
       return localStorage.getItem(TOKEN_KEY);
@@ -21,6 +21,9 @@ async function labRequest(path, { method = 'GET', body } = {}) {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     credentials: 'include',
+    // keepalive lets the request survive the navigation that unmounts the
+    // page — destroy is the one call that must not be cancelled by leaving.
+    keepalive,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (res.status === 204) return null;
@@ -43,5 +46,5 @@ export const labsApi = {
   exec: (id, command) => labRequest(`/sessions/${id}/exec`, { method: 'POST', body: { command } }),
   validate: (id) => labRequest(`/sessions/${id}/validate`, { method: 'POST' }),
   reset: (id) => labRequest(`/sessions/${id}/reset`, { method: 'POST' }),
-  destroy: (id) => labRequest(`/sessions/${id}`, { method: 'DELETE' }),
+  destroy: (id) => labRequest(`/sessions/${id}`, { method: 'DELETE', keepalive: true }),
 };
