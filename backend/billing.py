@@ -565,9 +565,21 @@ async def create_checkout(request: Request,
         # object itself, so subscription events are self-describing and do
         # not depend on the customer-ID fallback lookup.
         subscription_data={"metadata": {"user_id": user_id, **attribution_meta}},
+        # Managed Payments is enabled by default on this Stripe account and
+        # requires every product to carry a tax_code; ours don't, so every
+        # Session.create 400s ("Invalid line_items[0]: the product tax code
+        # is missing" — ten 400s in the Stripe Logs, 2026-11-23, both plans).
+        # Disable it for the checkout session: prices stay flat ($29/$250,
+        # no tax handling today). Setting tax codes later is a separate
+        # decision, not part of this fix.
+        managed_payments={"enabled": False},
         # Double-submit safety: same user + plan + price retries the same Session
-        # instead of creating a second one.
-        idempotency_key=f"checkout:{user_id}:{plan}:{price_id}",
+        # instead of creating a second one. v2: the v1 keys cached Stripe's
+        # 400 responses, which idempotency replays for up to 24h (proven: the
+        # 05:14 annual request replayed the original req_7ImuZFRmhWx8m0), so
+        # a fresh key is required for the first post-fix attempt to reach
+        # Stripe at all.
+        idempotency_key=f"checkout:{user_id}:{plan}:{price_id}:v2",
     )
     return {"checkout_url": session.url}
 

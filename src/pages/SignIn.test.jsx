@@ -214,14 +214,42 @@ describe('SignIn billing-period toggle (mounted, 2026-11-23)', () => {
     const location = stubWindow();
     const renderer = await renderSection();
     try {
+      // The savings line is yearly-only (2026-11-23): it must not show on
+      // the monthly default, even with annual configured.
+      expect(textOf(renderer.toJSON())).not.toContain('save $98 a year');
+      expect(textOf(renderer.toJSON())).not.toContain('$20.83');
+      await click(option(renderer, 'annual'));
+      // ...and it appears once annual is selected.
       expect(textOf(renderer.toJSON())).toContain('save $98 a year');
       expect(textOf(renderer.toJSON())).toContain('$20.83');
-      await click(option(renderer, 'annual'));
       expect(textOf(subscribeButton(renderer).children)).toContain('Subscribe — $250/yr');
       await click(subscribeButton(renderer));
       expect(checkoutCalls).toHaveLength(1);
       expect(JSON.parse(checkoutCalls[0].body)).toEqual({ plan: 'annual' });
       expect(location.href).toBe('https://checkout.stripe.test/session');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('the savings line shows only on annual, never on monthly', async () => {
+    // 2026-11-23: the "About $20.83 a month — save $98 a year" line was
+    // gated on annual.configured, so it rendered on Monthly too. It must
+    // appear only when the yearly plan is selected, and disappear again
+    // when the learner switches back to monthly.
+    const checkoutCalls = mockBillingFetch({ annualConfigured: true });
+    stubWindow();
+    const renderer = await renderSection();
+    try {
+      expect(checkoutCalls).toHaveLength(0);
+      expect(textOf(renderer.toJSON())).not.toContain('save $98 a year');
+      expect(textOf(renderer.toJSON())).not.toContain('$20.83');
+      await click(option(renderer, 'annual'));
+      expect(textOf(renderer.toJSON())).toContain('save $98 a year');
+      expect(textOf(renderer.toJSON())).toContain('$20.83');
+      await click(option(renderer, 'monthly'));
+      expect(textOf(renderer.toJSON())).not.toContain('save $98 a year');
+      expect(textOf(renderer.toJSON())).not.toContain('$20.83');
     } finally {
       TestRenderer.act(() => { renderer.unmount(); });
     }

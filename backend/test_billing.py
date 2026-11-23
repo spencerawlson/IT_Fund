@@ -276,6 +276,21 @@ def test_checkout_creates_session_and_customer():
         assert row is not None and row.stripe_customer_id == "cus_test_1"
 
 
+def test_checkout_disables_managed_payments_and_uses_v2_key():
+    # 2026-11-23: Stripe's Managed Payments (default-on for this account)
+    # requires every product to carry a tax_code; ours have none, so
+    # Session.create 400s ("the product tax code is missing" — ten 400s in
+    # the Stripe Logs, both plans). The session must be created with
+    # Managed Payments off. The idempotency key is v2 because Stripe cached
+    # the v1 keys' 400 responses and replays them for up to 24h (proven:
+    # the 05:14 annual request replayed the original req_7ImuZFRmhWx8m0).
+    cookies, uid = _signed_in()
+    r = client.post("/api/billing/checkout", cookies=cookies)
+    assert r.status_code == 200
+    assert _calls["checkout_create"]["managed_payments"] == {"enabled": False}
+    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:monthly:price_fake:v2"
+
+
 def test_checkout_reuses_existing_customer():
     cookies, uid = _signed_in()
     _set_sub(uid, "canceled", customer="cus_existing")
@@ -528,10 +543,11 @@ def test_checkout_409_when_already_subscribed():
 
 def test_checkout_passes_idempotency_key_and_subscription_data():
     # F-07 (idempotency key) + F-11 (user_id on the Subscription object).
+    # Key is v2 since 2026-11-23: the v1 keys cached Stripe's 400s.
     cookies, uid = _signed_in()
     r = client.post("/api/billing/checkout", cookies=cookies)
     assert r.status_code == 200
-    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:monthly:price_fake"
+    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:monthly:price_fake:v2"
     assert _calls["checkout_create"]["subscription_data"] == {
         "metadata": {"user_id": uid, "ventoryn_site_id": "418e926be25e251d95badb9e"}
     }
@@ -1109,7 +1125,7 @@ def test_checkout_annual_uses_annual_price_id(monkeypatch):
     assert r.status_code == 200
     assert r.json()["checkout_url"].startswith("https://checkout.stripe.test/")
     assert _calls["checkout_create"]["line_items"] == [{"price": "price_annual_fake", "quantity": 1}]
-    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:annual:price_annual_fake"
+    assert _calls["checkout_create"]["idempotency_key"] == f"checkout:{uid}:annual:price_annual_fake:v2"
 
 
 def test_checkout_annual_503_without_annual_price_id():
