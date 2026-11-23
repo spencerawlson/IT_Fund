@@ -16,7 +16,7 @@ import db
 from auth import native
 from auth import oauth as oauth_mod
 from auth.deps import bearer_token, require_user_id
-from auth.identity import OAuthIdentity, SeatsFullError, upsert_identity
+from auth.identity import AccountDeletedError, OAuthIdentity, SeatsFullError, upsert_identity
 from auth.sessions import COOKIE_NAME, cookie_kwargs, create_session, delete_session
 from db_models import User
 
@@ -46,10 +46,13 @@ def dev_login():
     top-level GETs cross-site)."""
     if os.environ.get("ALLOW_DEV_LOGIN") != "1":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found.")
-    with db.SessionLocal() as s:
-        user = upsert_identity(s, OAuthIdentity("dev", "owner", "owner@local.dev", True, "Owner"))
-        raw = create_session(s, user.id)
-        s.commit()
+    try:
+        with db.SessionLocal() as s:
+            user = upsert_identity(s, OAuthIdentity("dev", "owner", "owner@local.dev", True, "Owner"))
+            raw = create_session(s, user.id)
+            s.commit()
+    except AccountDeletedError:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="This account was deleted.")
     # Relative redirect on purpose: the browser resolves it against whichever dev origin it used
     # (Vite picks 5173, 5174, 5188...), so this works without matching APP_ORIGIN to the port.
     resp = RedirectResponse("/", status_code=status.HTTP_302_FOUND)
@@ -113,6 +116,10 @@ async def callback(provider: str, request: Request):
                 user = upsert_identity(s, info)
                 code = native.create_code(s, user.id, challenge)
                 s.commit()
+        except AccountDeletedError:
+            # A sign-in already in flight while the account was deleted:
+            # no code, no session — the old account stays deleted.
+            return RedirectResponse(f"{native.NATIVE_REDIRECT}?error=account_deleted", status_code=status.HTTP_302_FOUND)
         except SeatsFullError:
             # Seats full: no new account, no code — the app shows its own seats-full state.
             return RedirectResponse(f"{native.NATIVE_REDIRECT}?error=seats_full", status_code=status.HTTP_302_FOUND)
@@ -122,6 +129,8 @@ async def callback(provider: str, request: Request):
             user = upsert_identity(s, info)
             raw = create_session(s, user.id)
             s.commit()
+    except AccountDeletedError:
+        return RedirectResponse(f"{FRONTEND_URL}/signin?error=account_deleted", status_code=status.HTTP_302_FOUND)
     except SeatsFullError:
         # Seats full: no account was created (the refusal happens before the
         # insert), so send the visitor back to sign-in with the reason.
@@ -145,7 +154,14 @@ def native_exchange(body: NativeExchange):
         if user_id is None:
             s.commit()  # keep the deletion: a code is never redeemable twice
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code.")
-        raw = create_session(s, user_id)
+        try:
+            raw = create_session(s, user_id)
+        except AccountDeletedError:
+            # A code minted before the account was deleted: the code is
+            # consumed (redeem already deleted it) and no session is ever
+            # minted for the deleted account.
+            s.commit()
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="This account was deleted.")
         s.commit()
     return {"token": raw}
 

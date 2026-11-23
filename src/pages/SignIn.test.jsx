@@ -81,6 +81,13 @@ describe('SignIn account page subscription card (2026-11-13)', () => {
     expect(html).not.toContain('See plans');
     expect(html).not.toContain('Pricing');
   });
+
+  it('shows the self-service Delete account section (Guideline 5.1.1(v), 2026-11-23)', () => {
+    const html = renderAccount();
+    expect(html).toContain('Delete account');
+    expect(html).toContain('cancels your Stripe subscription');
+    expect(html).toContain('cannot be undone');
+  });
 });
 
 describe('SignIn account page billing-period toggle (2026-11-23)', () => {

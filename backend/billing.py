@@ -136,6 +136,54 @@ def _require_stripe():
     return stripe
 
 
+def cancel_subscription(stripe, stripe_subscription_id: str) -> None:
+    """Cancel one Stripe subscription.
+
+    Tolerant of a subscription that already ended in Stripe (the user is
+    already not being charged, so that is success for our purposes) — the
+    same tolerance as _revoke_for_refund. Any other Stripe error is a real
+    failure and propagates so the caller can refuse to delete rather than
+    leave the user paying after their account is gone.
+    """
+    try:
+        stripe.Subscription.cancel(stripe_subscription_id)
+    except Exception as exc:  # noqa: BLE001 — Stripe error shape varies by version
+        message = str(exc).lower()
+        if "canceled" in message or "cancelled" in message or "no such subscription" in message:
+            log.info(
+                "subscription %s already ended in Stripe; proceeding",
+                stripe_subscription_id,
+            )
+        else:
+            raise
+
+
+def revoke_subscription(user_id: str) -> None:
+    """Cancel the user's Stripe subscription (if one is still live) and
+    mark the billing row canceled. Called by self-service account deletion.
+
+    A row that is already canceled/trialing-ended/expired is a no-op
+    (nothing to cancel). Cancel in Stripe BEFORE revoking locally, as
+    _revoke_for_refund does: if billing is unconfigured while a live
+    subscription exists, or the cancel itself fails, the 503 from
+    _require_stripe (or the Stripe error) propagates and the delete
+    refuses instead of leaving the user paying after their account is gone.
+    """
+    with db.SessionLocal() as s:
+        row = s.get(Subscription, user_id)
+        if row is None or row.status not in ("active", "past_due", "trialing"):
+            return
+        sub_id = row.stripe_subscription_id
+        if not sub_id:
+            row.status = "canceled"
+            s.commit()
+            return
+        stripe = _require_stripe()
+        cancel_subscription(stripe, sub_id)
+        row.status = "canceled"
+        s.commit()
+
+
 def _owner_emails() -> set[str]:
     """Email addresses that always have full access (the owner's accounts)."""
     raw = os.environ.get("BILLING_OWNER_EMAILS", "")

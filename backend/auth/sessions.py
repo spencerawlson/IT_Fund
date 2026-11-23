@@ -30,6 +30,15 @@ def _aware(dt: datetime) -> datetime:
 
 
 def create_session(db, user_id: str) -> str:
+    # Never mint a session for a deleted account: a sign-in already in
+    # flight while the account was deleted (or a native code minted before
+    # it) must not produce a working session for the old user id. The
+    # caller translates AccountDeletedError into its own response.
+    from auth.identity import AccountDeletedError
+
+    user = db.get(User, user_id)
+    if user is None or user.deleted_at is not None:
+        raise AccountDeletedError("This account was deleted.")
     raw = secrets.token_urlsafe(32)
     db.add(AuthSession(id_hash=_hash(raw), user_id=user_id, expires_at=_now() + timedelta(days=SESSION_DAYS)))
     db.flush()

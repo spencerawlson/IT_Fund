@@ -8,6 +8,7 @@ change. The API must go through this service, never call a provider directly.
 from __future__ import annotations
 
 import asyncio
+import logging
 import secrets
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -18,6 +19,8 @@ from labs.providers.base import CommandResult, LabProvider
 from labs.providers.mock import MockLabProvider
 from labs.registry import get_lab
 from labs import usage as _usage
+
+log = logging.getLogger(__name__)
 
 # Session states (see the brief). A session moves READY -> RUNNING -> COMPLETED, or to EXPIRED /
 # DESTROYED. VALIDATING/FAILED/CREATING/DESTROYING exist for providers that need them later.
@@ -439,6 +442,28 @@ class SessionService:
         # Phase 0 lab-hours: finalize the usage row at termination. A
         # no-op for guests, mock labs, and the showcase lab (no row exists).
         _usage.finalize_session(session_id)
+
+    async def destroy_for_owner(self, user_id: str) -> None:
+        """Destroy every live lab session owned by one user.
+
+        Used by self-service account deletion: nothing keeps running (or
+        accruing lab-hours) after the account is gone. A provider destroy
+        that fails must not block the delete — the session is still removed
+        from the registry and its usage row finalized, and the failure is
+        logged for the operator.
+        """
+        owned = [s for s in list(self._sessions.values()) if s.user_id == user_id]
+        for session in owned:
+            try:
+                await self.destroy(session.id, user_id)
+            except Exception:  # noqa: BLE001 — one stuck container must not block deletion
+                log.exception(
+                    "destroy_for_owner: destroy failed for session %s; removing from registry",
+                    session.id,
+                )
+                self._sessions.pop(session.id, None)
+                self._exec_locks.pop(session.id, None)
+                _usage.finalize_session(session.id)
 
     async def cleanup_expired(self) -> int:
         """Destroy the environments of expired/finished sessions and forget them.
