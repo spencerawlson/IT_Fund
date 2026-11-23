@@ -111,15 +111,33 @@ public class R2CStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
             // Numeric price (in the product's currency) so the web layer
             // can compute the annual savings line from the App Store
             // prices instead of the Stripe ones — the tier amounts can
-            // differ by currency.
-            "price": product.price.doubleValue,
+            // differ by currency. Product.price is a Decimal, which has
+            // no doubleValue — go through NSDecimalNumber.
+            "price": NSDecimalNumber(decimal: product.price).doubleValue,
             "currencyCode": product.priceFormatStyle.currencyCode
         ]
         if let subscription = product.subscription {
-            dict["subscriptionPeriodUnit"] = subscription.subscriptionPeriod.unit.rawValue
+            // Product.SubscriptionPeriod.Unit is a plain enum
+            // (day/week/month/year) with no rawValue — map it to the
+            // strings the web layer expects.
+            dict["subscriptionPeriodUnit"] = subscriptionPeriodUnitString(subscription.subscriptionPeriod.unit)
             dict["subscriptionPeriodValue"] = subscription.subscriptionPeriod.value
         }
         return dict
+    }
+
+    private func subscriptionPeriodUnitString(_ unit: Product.SubscriptionPeriod.Unit) -> String {
+        switch unit {
+        case .day: return "day"
+        case .week: return "week"
+        case .month: return "month"
+        case .year: return "year"
+        @unknown default:
+            // Unreachable for the current catalogue (monthly/yearly
+            // only); a future Apple-added unit must not break the
+            // product fetch.
+            return "month"
+        }
     }
 
     // MARK: - Purchase
