@@ -222,30 +222,34 @@ CLOCK_SKEW_GRACE = timedelta(minutes=5)
 PAST_DUE_GRACE = timedelta(days=7)
 
 
-def _row_is_subscribed(row: Subscription | None) -> bool:
+def _row_is_subscribed(row: Subscription | None, now: datetime | None = None) -> bool:
     """True when a subscriptions row grants access: status active/trialing
     AND the current period has not ended (plus a small clock-skew grace);
     or status past_due AND the 7-day grace from past_due_since has not
     expired. A missing period end (legacy row) falls back to the status
     alone; a past_due row with no past_due_since (legacy row, never synced
     since the anchor shipped) fails closed — the grace cannot be measured.
+    `now` exists so the Apple transaction path (iap.py) can ask the
+    question at the notification's time instead of the wall clock;
+    callers that omit it get the wall clock, as before.
     """
     if row is None:
         return False
+    now = now or datetime.now(timezone.utc)
     if row.status in ACTIVE_STATUSES:
         end = row.current_period_end
         if end is None:
             return True
         if end.tzinfo is None:  # SQLite returns naive datetimes; treat them as UTC
             end = end.replace(tzinfo=timezone.utc)
-        return datetime.now(timezone.utc) < end + CLOCK_SKEW_GRACE
+        return now < end + CLOCK_SKEW_GRACE
     if row.status == "past_due":
         since = row.past_due_since
         if since is None:
             return False
         if since.tzinfo is None:  # SQLite returns naive datetimes; treat them as UTC
             since = since.replace(tzinfo=timezone.utc)
-        return datetime.now(timezone.utc) < since + PAST_DUE_GRACE
+        return now < since + PAST_DUE_GRACE
     return False
 
 
@@ -322,6 +326,11 @@ def _sync_from_subscription(user_id: str, sub, event_created: datetime | None = 
         row.stripe_customer_id = sub["customer"]
         row.stripe_subscription_id = sub["id"]
         row.status = sub["status"]
+        # A Stripe event is the latest writer: the row's provider is Stripe
+        # again (an Apple purchase earlier flips it to "apple"; the Stripe
+        # fields themselves are never cleared, so a later Apple purchase
+        # still sees the real Stripe subscription).
+        row.provider = "stripe"
         # Phase 0 lab-hours: store the period start anchor alongside the
         # end so the meter can compute the current window. A payload with
         # no start (old Stripe API shape) leaves the existing value alone
@@ -638,22 +647,45 @@ def subscription_status(user_id: str = Depends(require_user_id)) -> dict:
     A local DB read only — it must not depend on Stripe being configured
     or reachable."""
     if is_owner(user_id):
-        return {"subscribed": True, "status": "owner", "current_period_end": None}
+        return {"subscribed": True, "status": "owner", "provider": None, "plan": None, "current_period_end": None}
     with db.SessionLocal() as s:
         row = s.get(Subscription, user_id)
     subscribed = _row_is_subscribed(row)
     status = row.status if row else "none"
+    provider = row.provider if row else None
+    plan = _apple_plan(row) if row else None
     if not subscribed and has_active_manual_grant(user_id):
         # Admin-granted access (in-person enrollment): paid access with no
         # Stripe record. The status is "manual" so the paywall and the
-        # admin board never mistake it for a Stripe subscription.
+        # admin board never mistake it for a Stripe subscription — and the
+        # provider is "manual" too, so the UI offers no store to manage in.
         subscribed = True
         status = "manual"
+        provider = "manual"
+        plan = None
     return {
         "subscribed": subscribed,
         "status": status,
+        # Which store sold the subscription — the UI routes "Manage
+        # subscription" to the Stripe portal or to iOS Settings from this.
+        "provider": provider,
+        # The plan ("monthly" | "annual") for Apple rows, from the verified
+        # product ID. Stripe rows do not store a price id, so the plan is
+        # None there — the portal is the same either way.
+        "plan": plan,
         "current_period_end": row.current_period_end.isoformat() if row and row.current_period_end else None,
     }
+
+
+def _apple_plan(row: Subscription) -> str | None:
+    """Plan name for an Apple subscription row, from its verified product
+    ID. Function-level import: iap.py imports enrollment, which imports
+    this module — a top-level import would be circular."""
+    if row.provider != "apple" or not row.apple_product_id:
+        return None
+    from iap import IAP_PRODUCTS
+
+    return IAP_PRODUCTS.get(row.apple_product_id)
 
 
 @router.post("/portal")

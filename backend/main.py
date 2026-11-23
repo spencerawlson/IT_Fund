@@ -328,6 +328,15 @@ app.include_router(account_router)
 app.include_router(account_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
 
+# In-app purchases (Guideline 3.1.1, StoreKit 2 direct). Both prefixes
+# like the other routers, so POST /api/iap/verify and the App Store
+# Server Notifications endpoint /api/iap/notifications work behind the
+# /api rewrite.
+from iap_routes import router as iap_router  # noqa: E402
+
+app.include_router(iap_router)
+app.include_router(iap_router, prefix="/api")
+
 # ---- routes ----
 @app.get("/health")
 def health():

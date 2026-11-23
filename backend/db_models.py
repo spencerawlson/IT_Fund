@@ -128,21 +128,41 @@ class LabCompletion(Base):
 
 
 class Subscription(Base):
-    """One row per user tracking their Stripe subscription state.
+    """One row per user tracking their subscription state, from Stripe or
+    from the App Store — one row, two sources of truth, `provider` says
+    which one last wrote it.
 
-    Written by the Stripe webhook (see billing.py) — never trust client input for
-    subscription status. `status` mirrors Stripe's subscription status
-    ("active", "trialing", "past_due", "canceled", ...). A user counts as
-    subscribed when status is "active" or "trialing" (see billing.is_subscribed),
-    or when status is "past_due" and the 7-day grace from `past_due_since`
-    has not expired.
+    Written by the Stripe webhook (see billing.py) and by the Apple
+    transaction verifier (see iap.py) — never trust client input for
+    subscription status. `status` mirrors the provider's subscription
+    status ("active", "trialing", "past_due", "canceled", "expired", ...).
+    A user counts as subscribed when status is "active" or "trialing"
+    (see billing.is_subscribed), or when status is "past_due" and the
+    7-day grace from `past_due_since` has not expired.
+
+    Apple rows: `stripe_customer_id` is NULL (there is no Stripe customer),
+    `provider` is "apple", and the apple_* columns carry the latest
+    verified transaction. A Stripe row keeps its Stripe fields when an
+    Apple purchase later flips the provider — the Stripe subscription is
+    still real and still needs cancelling at account deletion.
     """
     __tablename__ = "subscriptions"
 
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-    stripe_customer_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(64), unique=True, index=True, nullable=True)
     stripe_subscription_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="incomplete")
+    # Which provider last wrote this row: "stripe" (default, all rows
+    # written before IAP) or "apple". The entitlement check is
+    # provider-agnostic (status + period end); the UI reads this to route
+    # "Manage subscription" to the Stripe portal or to iOS Settings.
+    provider: Mapped[str] = mapped_column(String(16), default="stripe")
+    # Latest verified Apple transaction (NULL for Stripe-only rows).
+    # original_transaction_id is stable across renewals of one subscription
+    # and is how server notifications find the account to update.
+    apple_original_transaction_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    apple_transaction_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    apple_product_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     # Stripe billing-period anchors, in UTC. current_period_end is what the
     # billing sync already stored; current_period_start is the matching
     # start anchor the lab-hours meter needs to compute the current window
@@ -196,6 +216,25 @@ class ProcessedWebhookEvent(Base):
     stripe_subscription_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     event_type: Mapped[str] = mapped_column(String(64))
     event_created: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class ProcessedAppleNotification(Base):
+    """One row per App Store Server Notification UUID actually applied
+    (see iap.py).
+
+    Idempotency: Apple retries notification deliveries, so a redelivered
+    notificationUUID is acknowledged without re-applying. `user_id` is
+    NULL when the notification arrived for an original transaction no
+    account had linked yet (the user bought but never opened the app to
+    sync); the row is still recorded so the retry does not re-apply.
+    """
+    __tablename__ = "processed_apple_notifications"
+
+    notification_uuid: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
+    original_transaction_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    notification_type: Mapped[str] = mapped_column(String(64))
     processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
@@ -411,7 +450,7 @@ class MembershipAllocation(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     kind: Mapped[str] = mapped_column(String(16))  # "paid" | "complimentary"
-    source: Mapped[str] = mapped_column(String(16))  # "stripe" | "manual"
+    source: Mapped[str] = mapped_column(String(16))  # "stripe" | "apple" | "manual"
     status: Mapped[str] = mapped_column(String(16), index=True)  # "reserved" | "active" | "released"
     reserved_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # True when the place was granted past the capacity because access was

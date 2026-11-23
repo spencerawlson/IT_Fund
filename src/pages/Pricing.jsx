@@ -4,6 +4,7 @@ import { BookOpen, FlaskConical, Target, RefreshCw, Check, X, Loader2 } from 'lu
 import { Button, Card } from '@/components/ui-glass';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription, FREE_LABS } from '@/lib/subscription';
+import { useIapProducts, purchaseIap, isIapPlatform, IAP_PRODUCT_IDS } from '@/lib/iap';
 import { labTitle } from '@/data/deckLabs';
 import { getAttributionTag } from '@/lib/attribution';
 import { COUNTS } from '@/data/counts';
@@ -55,7 +56,7 @@ const INTERVAL_SHORT = { month: 'mo', year: 'yr', week: 'wk', day: 'day' };
 
 const INCLUDED = ['All learning tracks, zero to CISSP', `All ${COUNTS.labs} hands-on labs`, 'Security+ & CISSP exam simulators', 'Progress sync across devices', 'New content every month'];
 
-function PlanCard({ label, badge, price, perLine, buttonLabel, disabled, disabledNote, onSubscribe, busy, subscribed }) {
+function PlanCard({ label, badge, price, perLine, buttonLabel, disabled, disabledNote, onSubscribe, busy, busyLabel, subscribed }) {
   return (
     <Card level={2} padding="lg" className="text-center">
       {badge && (
@@ -73,7 +74,7 @@ function PlanCard({ label, badge, price, perLine, buttonLabel, disabled, disable
         ) : (
           <Button size="lg" onClick={onSubscribe} disabled={disabled || busy} className="w-full sm:w-auto">
             {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
-            {busy ? 'Starting checkout…' : buttonLabel}
+            {busy ? (busyLabel || 'Starting checkout…') : buttonLabel}
           </Button>
         )}
         {disabledNote && (
@@ -86,9 +87,25 @@ function PlanCard({ label, badge, price, perLine, buttonLabel, disabled, disable
 
 export default function Pricing() {
   const { isAuthenticated } = useAuth();
-  const { subscribed } = useSubscription();
+  const { subscribed, refresh: refreshSubscription } = useSubscription();
   const [busy, setBusy] = useState(false);
+  const [busyLabel, setBusyLabel] = useState('Starting checkout…');
   const [error, setError] = useState(null);
+  // In-app purchases (Guideline 3.1.1): in the iOS shell the subscription
+  // is sold through the App Store, never through Stripe Checkout — the
+  // Stripe entry points below are gated out whenever this is true. The
+  // App Store is the source of truth for whether the products exist yet:
+  // `available` is false until they are created in App Store Connect,
+  // and the buy buttons hide until then. The website keeps Stripe.
+  const onIap = isIapPlatform();
+  const iap = useIapProducts();
+  const iapProductByPlan = useMemo(() => {
+    const byPlan = {};
+    for (const p of iap.products || []) {
+      if (p.plan) byPlan[p.plan] = p;
+    }
+    return byPlan;
+  }, [iap.products]);
   // Single source of truth: the live Stripe prices, so the page, the structured
   // data, and the actual charge never drift. Falls back if billing is unconfigured.
   const [plans, setPlans] = useState({ monthly: MONTHLY_FALLBACK, annual: ANNUAL_FALLBACK });
@@ -132,6 +149,35 @@ export default function Pricing() {
   const yearlySaving = parseFloat(monthly.amount) * 12 - parseFloat(annual.amount);
   const annualMonthlyEquivalent = (parseFloat(annual.amount) / 12).toFixed(2);
 
+  // In the iOS shell the prices come from the App Store, not Stripe: the
+  // tier amounts can differ by currency, so the displayed price and the
+  // savings line are computed from the App Store products when they are
+  // available. Until they are, the Stripe fallbacks stand in as the
+  // informational price (the buttons stay disabled, so nothing can be
+  // bought at a price the store does not know).
+  const iapMonthly = iapProductByPlan.monthly;
+  const iapAnnual = iapProductByPlan.annual;
+  const displayMonthly = onIap && iapMonthly
+    ? { display: iapMonthly.displayPrice, interval: 'month' }
+    : monthly;
+  const displayAnnual = onIap && iapAnnual
+    ? { display: iapAnnual.displayPrice, interval: 'year' }
+    : annual;
+  const iapYearlySaving = onIap && iapMonthly && iapAnnual
+    ? (iapMonthly.price * 12 - iapAnnual.price)
+    : yearlySaving;
+  const iapAnnualMonthlyEquivalent = onIap && iapAnnual
+    ? (iapAnnual.price / 12).toFixed(2)
+    : annualMonthlyEquivalent;
+  const annualPerLine = onIap && iapAnnual && iapYearlySaving > 0
+    ? `About $${iapAnnualMonthlyEquivalent} a month — save $${iapYearlySaving.toFixed(0)} a year vs paying monthly.`
+    : `About $${annualMonthlyEquivalent} a month — save $${yearlySaving.toFixed(0)} a year vs paying monthly.`;
+  // While the App Store products load, the buttons wait; once loaded with
+  // none, the subscription is not set up in App Store Connect yet.
+  const iapNotReadyNote = onIap && !iap.available && !iap.loading
+    ? 'Subscriptions are being set up in the App Store — check back soon.'
+    : null;
+
   const jsonLd = useMemo(() => ({
     '@context': 'https://schema.org',
     '@graph': [
@@ -167,6 +213,25 @@ export default function Pricing() {
     setBusy(true);
     setError(null);
     try {
+      if (onIap) {
+        // App Store purchase: the StoreKit sheet, then the signed
+        // transaction is verified server-side and the entitlement granted
+        // (see src/lib/iap.js). No Stripe, no WebView checkout.
+        setBusyLabel('Waiting for the App Store…');
+        const result = await purchaseIap(IAP_PRODUCT_IDS[plan === 'annual' ? 'yearly' : 'monthly']);
+        if (result.state === 'cancelled') {
+          setBusy(false);
+          return;
+        }
+        if (result.state === 'pending') {
+          setError('Waiting for approval — the purchase will complete once it is approved (check the App Store).');
+          setBusy(false);
+          return;
+        }
+        await refreshSubscription();
+        setBusy(false);
+        return;
+      }
       const attributionTag = getAttributionTag();
       const res = await fetch(`${API_BASE}/billing/checkout`, {
         method: 'POST',
@@ -221,23 +286,31 @@ export default function Pricing() {
           <div className="grid gap-4 sm:grid-cols-2">
             <PlanCard
               label="Monthly"
-              price={monthly}
+              price={displayMonthly}
               perLine="Billed every month. Cancel anytime."
-              buttonLabel={isAuthenticated ? `Subscribe — ${monthly.display}/${monthlyShort}` : 'Sign in to subscribe'}
+              buttonLabel={onIap
+                ? (isAuthenticated ? `Subscribe with Apple — ${displayMonthly.display}` : 'Sign in to subscribe')
+                : (isAuthenticated ? `Subscribe — ${monthly.display}/${monthlyShort}` : 'Sign in to subscribe')}
+              disabled={onIap && !iap.available}
+              disabledNote={iapNotReadyNote}
               onSubscribe={() => subscribe('monthly')}
               busy={busy}
+              busyLabel={busyLabel}
               subscribed={subscribed}
             />
             <PlanCard
               label="Annual"
               badge="Best value"
-              price={annual}
-              perLine={`About $${annualMonthlyEquivalent} a month — save $${yearlySaving.toFixed(0)} a year vs paying monthly.`}
-              buttonLabel={annual.configured ? (isAuthenticated ? `Subscribe — ${annual.display}/${annualShort}` : 'Sign in to subscribe') : 'Annual billing coming soon'}
-              disabled={!annual.configured}
-              disabledNote={annual.configured ? null : 'The $250/yr price is being set up — monthly is available now.'}
+              price={displayAnnual}
+              perLine={annualPerLine}
+              buttonLabel={onIap
+                ? (isAuthenticated ? `Subscribe with Apple — ${displayAnnual.display}` : 'Sign in to subscribe')
+                : (annual.configured ? (isAuthenticated ? `Subscribe — ${annual.display}/${annualShort}` : 'Sign in to subscribe') : 'Annual billing coming soon')}
+              disabled={onIap ? !iap.available : !annual.configured}
+              disabledNote={onIap ? iapNotReadyNote : (annual.configured ? null : 'The $250/yr price is being set up — monthly is available now.')}
               onSubscribe={() => subscribe('annual')}
               busy={busy}
+              busyLabel={busyLabel}
               subscribed={subscribed}
             />
           </div>
@@ -246,16 +319,31 @@ export default function Pricing() {
               <X size={15} aria-hidden="true" /> {error}
             </p>
           )}
-          <p className="mt-4 text-center text-small text-ink-3">Cancel anytime. Secure checkout by Stripe.</p>
+          <p className="mt-4 text-center text-small text-ink-3">
+            {onIap ? 'Cancel anytime in iOS Settings. Billed through the App Store.' : 'Cancel anytime. Secure checkout by Stripe.'}
+          </p>
           {/* B-29 (audit 2026-11-16): surface the refund + grace terms where the
               buyer decides. Wording is the FAQ/Terms policy, shortened — the
-              FAQ and Terms stay the single source of truth. */}
+              FAQ and Terms stay the single source of truth. In the iOS app
+              refunds go through Apple, not support (see Terms). */}
           <p className="mx-auto mt-3 max-w-xl text-center text-small text-ink-2">
-            <strong className="font-semibold text-ink-1">First subscription? Full refund if you ask within 14 days</strong>
-            {' '}— email{' '}
-            <a href="mailto:support@road2cissp.com" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">support@road2cissp.com</a>.
-            If a payment fails, you keep full access for 7 days while you fix it.{' '}
-            <Link to="/terms" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">Terms</Link>
+            {onIap ? (
+              <>
+                <strong className="font-semibold text-ink-1">Bought in the app? App Store purchases are refunded by Apple</strong>
+                {' '}— request one at{' '}
+                <a href="https://reportaproblem.apple.com" target="_blank" rel="noreferrer" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">reportaproblem.apple.com</a>
+                {' '}(sign in with the Apple ID you subscribed with).{' '}
+                <Link to="/terms" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">Terms</Link>
+              </>
+            ) : (
+              <>
+                <strong className="font-semibold text-ink-1">First subscription? Full refund if you ask within 14 days</strong>
+                {' '}— email{' '}
+                <a href="mailto:support@road2cissp.com" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">support@road2cissp.com</a>.
+                If a payment fails, you keep full access for 7 days while you fix it.{' '}
+                <Link to="/terms" className="underline decoration-black/30 underline-offset-2 hover:text-ink-1">Terms</Link>
+              </>
+            )}
           </p>
 
           {/* Everything included — same access on either plan */}

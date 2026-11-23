@@ -251,7 +251,7 @@ def test_status_works_without_stripe_key():
     os.environ.pop("STRIPE_SECRET_KEY")
     r = client.get("/api/billing/status", cookies=cookies)
     assert r.status_code == 200
-    assert r.json() == {"subscribed": False, "status": "none", "current_period_end": None}
+    assert r.json() == {"subscribed": False, "status": "none", "provider": None, "plan": None, "current_period_end": None}
     _set_sub(uid, "active")
     r = client.get("/api/billing/status", cookies=cookies)
     assert r.status_code == 200
@@ -560,7 +560,7 @@ def test_status_none_when_never_subscribed():
     cookies, _ = _signed_in()
     r = client.get("/api/billing/status", cookies=cookies)
     assert r.status_code == 200
-    assert r.json() == {"subscribed": False, "status": "none", "current_period_end": None}
+    assert r.json() == {"subscribed": False, "status": "none", "provider": None, "plan": None, "current_period_end": None}
 
 
 def test_status_reflects_row():

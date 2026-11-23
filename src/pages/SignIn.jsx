@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } from 'lucide-react';
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
@@ -7,6 +7,7 @@ import { DeleteAccountSection } from '@/components/DeleteAccountSection';
 import Seo from '@/components/Seo';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription, useLabUsage } from '@/lib/subscription';
+import { useIapProducts, purchaseIap, showManageSubscriptions, isIapPlatform, IAP_PRODUCT_IDS } from '@/lib/iap';
 import LabUsageMeter from '@/components/LabUsageMeter';
 import { getAttributionTag } from '@/lib/attribution';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
@@ -23,12 +24,27 @@ const ANNUAL_FALLBACK = { display: '$250', interval: 'year', amount: '250.00', c
 // Exported for tests: the mounted interaction tests render this section
 // directly (the page itself adds AuthProvider/ThemeProvider/router).
 export function SubscriptionSection() {
-  const { subscribed, status, currentPeriodEnd, loading, refresh } = useSubscription();
+  const { subscribed, status, provider, currentPeriodEnd, loading, refresh } = useSubscription();
   // Phase 0 lab-hours meter: renders only when metered (subscribers); a
   // failed fetch shows "Lab usage unavailable" and never blocks the page.
   const { usage: labUsage } = useLabUsage();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
+  // In-app purchases (Guideline 3.1.1): in the iOS shell the subscription
+  // is sold through the App Store, never through Stripe Checkout. The
+  // provider (from /billing/status) decides where "Manage subscription"
+  // goes: Apple subscribers manage in iOS Settings, Stripe subscribers
+  // in the Customer Portal. The website keeps Stripe.
+  const onIap = isIapPlatform();
+  const iap = useIapProducts();
+  const iapProductByPlan = useMemo(() => {
+    const byPlan = {};
+    for (const p of iap.products || []) {
+      if (p.plan) byPlan[p.plan] = p;
+    }
+    return byPlan;
+  }, [iap.products]);
   // Billing period: monthly is the default. Prices come from the live
   // /billing/plans endpoint (same source as /pricing); the fallbacks are
   // the decided prices, so the toggle is never empty while loading.
@@ -72,10 +88,64 @@ export function SubscriptionSection() {
   const yearlySaving = parseFloat(monthly.amount) * 12 - parseFloat(annual.amount);
   const annualMonthlyEquivalent = (parseFloat(annual.amount) / 12).toFixed(2);
 
+  // In the iOS shell the prices come from the App Store, not Stripe (see
+  // Pricing.jsx for the same derivation): the tier amounts can differ by
+  // currency, so the radio labels and the savings line use the App Store
+  // products when they are available.
+  const iapMonthly = iapProductByPlan.monthly;
+  const iapAnnual = iapProductByPlan.annual;
+  const displayMonthly = onIap && iapMonthly
+    ? { display: iapMonthly.displayPrice, interval: 'month' }
+    : monthly;
+  const displayAnnual = onIap && iapAnnual
+    ? { display: iapAnnual.displayPrice, interval: 'year' }
+    : annual;
+  const iapYearlySaving = onIap && iapMonthly && iapAnnual
+    ? (iapMonthly.price * 12 - iapAnnual.price)
+    : yearlySaving;
+  const iapAnnualMonthlyEquivalent = onIap && iapAnnual
+    ? (iapAnnual.price / 12).toFixed(2)
+    : annualMonthlyEquivalent;
+  // The line under the billing-period toggle. On the web it is exactly
+  // the old behaviour: the savings line on annual when configured, the
+  // "being set up" message whenever annual is unconfigured (either plan
+  // selected). On iOS the same shape, from the App Store prices — and
+  // the "being set up" note until the products exist.
+  const periodNote = plan === 'annual'
+    ? (onIap
+      ? (iap.available && iapYearlySaving > 0
+        ? `About $${iapAnnualMonthlyEquivalent} a month — save $${iapYearlySaving.toFixed(0)} a year vs paying monthly.`
+        : !iap.available && !iap.loading
+          ? 'Subscriptions are being set up in the App Store — check back soon.'
+          : null)
+      : (annual.configured
+        ? `About $${annualMonthlyEquivalent} a month — save $${yearlySaving.toFixed(0)} a year vs paying monthly.`
+        : `The ${annual.display}/yr price is being set up — monthly is available now.`))
+    : (onIap
+      ? (!iap.available && !iap.loading
+        ? 'Subscriptions are being set up in the App Store — check back soon.'
+        : null)
+      : (!annual.configured
+        ? `The ${annual.display}/yr price is being set up — monthly is available now.`
+        : null));
+
   const manage = async () => {
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
+      if (provider === 'apple') {
+        // Bought through the App Store: Apple manages it, not Stripe.
+        // In the app the system sheet opens; on the website there is no
+        // sheet, so the user is told where to go (iOS Settings).
+        if (onIap) {
+          await showManageSubscriptions();
+        } else {
+          setNotice('Your subscription was bought through the App Store — manage or cancel it in iOS Settings (your name → Subscriptions).');
+        }
+        setBusy(false);
+        return;
+      }
       const res = await fetch(`${API_BASE}/billing/portal`, { method: 'POST', credentials: 'include' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || 'Could not open the billing portal.');
@@ -86,13 +156,30 @@ export function SubscriptionSection() {
     }
   };
 
-  // Free-tier subscribe: same Stripe checkout the pricing page uses. The
-  // account page is the subscription home for signed-in users, so the
-  // subscribe action lives here instead of a link to /pricing.
+  // Free-tier subscribe: the Stripe checkout the pricing page uses on the
+  // website; in the iOS shell the App Store purchase instead (Guideline
+  // 3.1.1). The account page is the subscription home for signed-in users,
+  // so the subscribe action lives here instead of a link to /pricing.
   const subscribe = async (selectedPlan) => {
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
+      if (onIap) {
+        const result = await purchaseIap(IAP_PRODUCT_IDS[selectedPlan === 'annual' ? 'yearly' : 'monthly']);
+        if (result.state === 'cancelled') {
+          setBusy(false);
+          return;
+        }
+        if (result.state === 'pending') {
+          setNotice('Waiting for approval — the purchase will complete once it is approved (check the App Store).');
+          setBusy(false);
+          return;
+        }
+        await refresh();
+        setBusy(false);
+        return;
+      }
       const attributionTag = getAttributionTag();
       const res = await fetch(`${API_BASE}/billing/checkout`, {
         method: 'POST',
@@ -144,7 +231,14 @@ export function SubscriptionSection() {
             <Button variant="ghost" size="sm" onClick={refresh}>Refresh status</Button>
           </div>
           {error && <p className="mt-3 text-small text-danger">{error}</p>}
-          <p className="mt-3 text-small text-ink-3">Update payment method or cancel anytime from the Stripe portal.</p>
+          {notice && <p className="mt-3 text-small text-ink-2">{notice}</p>}
+          <p className="mt-3 text-small text-ink-3">
+            {provider === 'apple'
+              ? 'Manage or cancel anytime in iOS Settings (your name → Subscriptions).'
+              : provider === 'manual'
+                ? 'Your access was granted by the administrator — there is nothing to manage here.'
+                : 'Update payment method or cancel anytime from the Stripe portal.'}
+          </p>
         </>
       ) : (
         <>
@@ -168,7 +262,7 @@ export function SubscriptionSection() {
                 disabled={busy}
                 className={`rounded-lg px-3 py-1.5 text-caption font-semibold transition ${plan === 'monthly' ? 'bg-white text-ink-1 shadow-sm ring-1 ring-black/10' : 'text-ink-2 hover:text-ink-1'}`}
               >
-                Monthly — {monthly.display}/mo
+                Monthly — {displayMonthly.display}/mo
               </button>
               <button
                 type="button"
@@ -176,27 +270,27 @@ export function SubscriptionSection() {
                 aria-checked={plan === 'annual'}
                 data-plan="annual"
                 onClick={() => setPlan('annual')}
-                disabled={busy || !annual.configured}
+                disabled={busy || (onIap ? !iap.available : !annual.configured)}
                 className={`rounded-lg px-3 py-1.5 text-caption font-semibold transition ${plan === 'annual' ? 'bg-white text-ink-1 shadow-sm ring-1 ring-black/10' : 'text-ink-2 hover:text-ink-1'} disabled:cursor-not-allowed disabled:opacity-50`}
               >
-                Annual — {annual.display}/yr
+                Annual — {displayAnnual.display}/yr
               </button>
             </div>
             <p className="mt-2 text-small text-ink-2">
-              {plan === 'annual' && annual.configured
-                ? `About $${annualMonthlyEquivalent} a month — save $${yearlySaving.toFixed(0)} a year vs paying monthly.`
-                : !annual.configured
-                  ? `The ${annual.display}/yr price is being set up — monthly is available now.`
-                  : null}
+              {periodNote}
             </p>
           </div>
           <div className="mt-4">
-            <Button onClick={() => subscribe(plan)} disabled={busy || (plan === 'annual' && !annual.configured)}>
+            <Button onClick={() => subscribe(plan)} disabled={busy || (plan === 'annual' && (onIap ? !iap.available : !annual.configured)) || (onIap && !iap.available)}>
               {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
-              {busy ? 'Starting checkout…' : `Subscribe — ${plan === 'annual' ? `${annual.display}/yr` : `${monthly.display}/mo`}`}
+              {busy ? (onIap ? 'Waiting for the App Store…' : 'Starting checkout…') : (onIap ? `Subscribe with Apple — ${plan === 'annual' ? `${displayAnnual.display}/yr` : `${displayMonthly.display}/mo`}` : `Subscribe — ${plan === 'annual' ? `${annual.display}/yr` : `${monthly.display}/mo`}`)}
             </Button>
           </div>
           {error && <p className="mt-3 text-small text-danger">{error}</p>}
+          {notice && <p className="mt-3 text-small text-ink-2">{notice}</p>}
+          {onIap && !iap.available && !iap.loading && (
+            <p className="mt-3 text-small text-ink-2">Subscriptions are being set up in the App Store — check back soon.</p>
+          )}
         </>
       )}
     </Card>

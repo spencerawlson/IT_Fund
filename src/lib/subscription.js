@@ -27,7 +27,7 @@ export const ALLOWANCE_SECONDS = 72000;
 export const LAB_USAGE_WARN_15H_SECONDS = 54000;
 export const LAB_USAGE_WARN_18H_SECONDS = 64800;
 
-let cached = null; // { subscribed, status, currentPeriodEnd } | null
+let cached = null; // { subscribed, status, provider, plan, currentPeriodEnd } | null
 let inflight = null;
 
 async function fetchStatus() {
@@ -36,17 +36,24 @@ async function fetchStatus() {
   inflight = (async () => {
     try {
       const res = await fetch(`${API_BASE}/billing/status`, { credentials: 'include' });
-      if (res.status === 503) return { subscribed: false, status: 'billing-unavailable', currentPeriodEnd: null };
-      if (res.status === 401) return { subscribed: false, status: 'anonymous', currentPeriodEnd: null };
-      if (!res.ok) return { subscribed: false, status: 'error', currentPeriodEnd: null };
+      if (res.status === 503) return { subscribed: false, status: 'billing-unavailable', provider: null, plan: null, currentPeriodEnd: null };
+      if (res.status === 401) return { subscribed: false, status: 'anonymous', provider: null, plan: null, currentPeriodEnd: null };
+      if (!res.ok) return { subscribed: false, status: 'error', provider: null, plan: null, currentPeriodEnd: null };
       const data = await res.json();
       return {
         subscribed: !!data.subscribed,
         status: data.status || 'none',
+        // Which store sold the subscription ("stripe" | "apple" | "manual"
+        // | null): the account page routes "Manage subscription" to the
+        // Stripe portal or to iOS Settings from this. plan is "monthly" |
+        // "annual" for Apple rows, null for Stripe rows (the portal is the
+        // same either way).
+        provider: data.provider || null,
+        plan: data.plan || null,
         currentPeriodEnd: data.current_period_end || null,
       };
     } catch {
-      return { subscribed: false, status: 'error', currentPeriodEnd: null };
+      return { subscribed: false, status: 'error', provider: null, plan: null, currentPeriodEnd: null };
     } finally {
       inflight = null;
     }
@@ -72,12 +79,12 @@ export function useSubscription() {
   // content. Signed-in users still start loading:true (status unknown until
   // the fetch resolves).
   const [state, setState] = useState(() => (isAuthenticated
-    ? { subscribed: false, status: 'loading', currentPeriodEnd: null, loading: true }
-    : { subscribed: false, status: 'anonymous', currentPeriodEnd: null, loading: false }));
+    ? { subscribed: false, status: 'loading', provider: null, plan: null, currentPeriodEnd: null, loading: true }
+    : { subscribed: false, status: 'anonymous', provider: null, plan: null, currentPeriodEnd: null, loading: false }));
 
   const refresh = useCallback(async () => {
     clearSubscriptionCache();
-    setState({ subscribed: false, status: 'loading', currentPeriodEnd: null, loading: true });
+    setState({ subscribed: false, status: 'loading', provider: null, plan: null, currentPeriodEnd: null, loading: true });
     const s = await fetchStatus();
     setState({ ...s, loading: false });
   }, []);
@@ -86,7 +93,7 @@ export function useSubscription() {
     let live = true;
     // Anonymous visitors get the free tier without a network call.
     if (!isAuthenticated) {
-      setState({ subscribed: false, status: 'anonymous', currentPeriodEnd: null, loading: false });
+      setState({ subscribed: false, status: 'anonymous', provider: null, plan: null, currentPeriodEnd: null, loading: false });
       return undefined;
     }
     fetchStatus().then((s) => {

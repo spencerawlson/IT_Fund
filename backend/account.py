@@ -23,14 +23,16 @@ inside the app (web or the Capacitor shell). The delete:
    a 401, and the account stays deleted — re-signing in with the same
    provider cannot resurrect it (see the guard in auth/router.py).
 
-Apple subscriptions: the backend has no Apple subscription state yet —
-subscriptions bought through the App Store are managed by Apple, not by
-Stripe, so there is nothing for this endpoint to cancel. The UI directs
-iOS users to cancel in iOS Settings first (Settings > Apple ID >
-Subscriptions) before deleting; the backend accepts the delete either
-way. When the IAP purchase flow lands (separate PR), the backend will
-track Apple subscriptions and this endpoint will refuse while one is
-active until it is canceled.
+Apple subscriptions: an Apple subscription is tracked on the same
+`subscriptions` row (provider="apple", see iap.py). There is no
+server-side way to cancel one — only the user can, in iOS Settings —
+so this endpoint does NOT refuse while one is active: refusing would
+block deletion until the paid period ends, because cancelling in
+Settings leaves the subscription active until expiry. The delete marks
+the row canceled (billing.revoke_subscription, which needs no Stripe
+call when there is no Stripe subscription id) so nothing can resurrect
+it, and the UI tells iOS users to cancel in Settings first so Apple
+does not charge them again after the account is gone.
 """
 from __future__ import annotations
 

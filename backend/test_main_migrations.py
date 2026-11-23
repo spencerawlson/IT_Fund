@@ -74,8 +74,9 @@ def test_pr4_migration_is_chained_from_pr3_head():
     PR 3 head 5e1a7c3d9b20 (the data migration must sit on top of it).
 
     Phase 0 lab-hours extends the chain (a4c251994677, chained from the PR 4
-    head 6e8f065cfbab), and admin MFA (7b3e9d1c4a62) sits on top of that —
-    the linear chain is preserved.
+    head 6e8f065cfbab), admin MFA (7b3e9d1c4a62) sits on top of that, and the
+    Apple IAP migration (d9ec1c32ea1b) sits on top of admin MFA — the linear
+    chain is preserved.
     """
     from alembic.script import ScriptDirectory
 
@@ -86,9 +87,9 @@ def test_pr4_migration_is_chained_from_pr3_head():
     assert len(heads) == 1, f"expected exactly one head, got {heads}"
     head = heads[0]
     assert head != "5e1a7c3d9b20", "no migration exists on top of the PR 3 head"
-    # Admin platform step 2 (admin MFA) sits on top of lab-hours; the chain
-    # below it is unchanged.
-    assert head == "7b3e9d1c4a62", f"expected the admin-MFA migration as head, got {head}"
-    assert directory.get_revision(head).down_revision == "a4c251994677"
+    # Apple IAP sits on top of admin MFA; the chain below it is unchanged.
+    assert head == "d9ec1c32ea1b", f"expected the Apple-IAP migration as head, got {head}"
+    assert directory.get_revision(head).down_revision == "7b3e9d1c4a62"
+    assert directory.get_revision("7b3e9d1c4a62").down_revision == "a4c251994677"
     assert directory.get_revision("a4c251994677").down_revision == "6e8f065cfbab"
     assert directory.get_revision("6e8f065cfbab").down_revision == "5e1a7c3d9b20"

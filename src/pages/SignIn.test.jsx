@@ -19,12 +19,41 @@ const subscriptionMocks = vi.hoisted(() => ({
   subscription: {
     subscribed: false,
     status: 'none',
+    provider: null,
+    plan: null,
     currentPeriodEnd: null,
     loading: false,
     refresh: () => {},
   },
   labUsage: { usage: undefined, loading: true, error: null },
 }));
+
+// The StoreKit plugin is mocked so the iOS purchase/manage paths run
+// against a fake App Store (see src/lib/iap.test.js for the client-level
+// tests). The web tests never call it — the hook's effect returns early
+// off iOS — so this mock cannot change their behaviour.
+const pluginMocks = vi.hoisted(() => {
+  const calls = { purchase: [], finishTransaction: [], showManageSubscriptions: 0 };
+  const plugin = {
+    getProducts: vi.fn(async ({ productIds }) => ({
+      products: [
+        { productId: 'com.road2cissp.app.premium.monthly', displayName: 'Premium Monthly', description: 'Monthly', displayPrice: '$29.00', price: 29, currencyCode: 'USD' },
+        { productId: 'com.road2cissp.app.premium.yearly', displayName: 'Premium Annual', description: 'Annual', displayPrice: '$250.00', price: 250, currencyCode: 'USD' },
+      ].filter((p) => productIds.includes(p.productId)),
+    })),
+    purchase: vi.fn(async ({ productId }) => {
+      calls.purchase.push(productId);
+      return { state: 'purchased', transactionId: 'tx-1', productId, signedTransaction: 'signed-jws' };
+    }),
+    getCurrentEntitlements: vi.fn(async () => ({ transactions: [] })),
+    finishTransaction: vi.fn(async ({ transactionId }) => { calls.finishTransaction.push(transactionId); }),
+    showManageSubscriptions: vi.fn(async () => { calls.showManageSubscriptions += 1; }),
+    addListener: vi.fn(async () => ({ remove: vi.fn() })),
+  };
+  return { plugin, calls };
+});
+
+vi.mock('r2c-storekit', () => ({ default: pluginMocks.plugin }));
 
 vi.mock('@/lib/subscription', async (importOriginal) => {
   // Keep the real constants (ALLOWANCE_SECONDS, warning thresholds) — only
@@ -566,6 +595,200 @@ describe('SignIn Apple button gating (mounted, 2026-11-23)', () => {
       expect(apple).toBeTruthy();
       await click(apple);
       expect(location.href).toBe('/api/auth/apple/login');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+});
+
+// In-app purchases (Guideline 3.1.1, 2026-11-23): in the iOS shell the
+// free-tier Subscribe button buys through the App Store and "Manage
+// subscription" routes per provider — the App Store sheet for Apple
+// subscribers, the Stripe portal for Stripe subscribers. SSR never runs
+// the products effect, so the hook stays in its initial state (products
+// unavailable), which is the "not configured yet" state.
+describe('SignIn subscription card in the iOS shell (IAP, SSR)', () => {
+  const FREE = {
+    subscribed: false,
+    status: 'none',
+    provider: null,
+    plan: null,
+    currentPeriodEnd: null,
+    loading: false,
+    refresh: () => {},
+  };
+  const asIos = () => {
+    globalThis.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'ios' };
+  };
+  const asWeb = () => { delete globalThis.Capacitor; };
+
+  beforeEach(() => {
+    Object.assign(subscriptionMocks.subscription, FREE);
+  });
+  afterEach(() => {
+    Object.assign(subscriptionMocks.subscription, FREE);
+    asWeb();
+    vi.unstubAllGlobals();
+  });
+
+  it('offers the App Store purchase to a free user, disabled until the products exist', () => {
+    asIos();
+    const html = renderAccount();
+    expect(html).toContain('Subscribe with Apple — $29/mo');
+    expect(html).not.toContain('Subscribe — $29/mo');
+  });
+
+  it('tells an Apple subscriber to manage in iOS Settings, never the Stripe portal', () => {
+    asIos();
+    Object.assign(subscriptionMocks.subscription, {
+      subscribed: true,
+      status: 'active',
+      provider: 'apple',
+      plan: 'monthly',
+      currentPeriodEnd: '2026-12-23T00:00:00Z',
+    });
+    const html = renderAccount();
+    expect(html).toContain('Premium active');
+    expect(html).toContain('Manage or cancel anytime in iOS Settings');
+    expect(html).not.toContain('Stripe portal');
+  });
+
+  it('keeps the Stripe portal line for a Stripe subscriber', () => {
+    Object.assign(subscriptionMocks.subscription, {
+      subscribed: true,
+      status: 'active',
+      provider: 'stripe',
+      plan: null,
+      currentPeriodEnd: '2026-12-23T00:00:00Z',
+    });
+    const html = renderAccount();
+    expect(html).toContain('Premium active');
+    expect(html).toContain('Update payment method or cancel anytime from the Stripe portal.');
+    expect(html).not.toContain('iOS Settings');
+  });
+});
+
+// Mounted iOS tests: the products effect runs, so the App Store prices
+// appear and the Subscribe button buys through the mocked plugin.
+describe('SignIn subscription card in the iOS shell (IAP, mounted)', () => {
+  const FREE = {
+    subscribed: false,
+    status: 'none',
+    provider: null,
+    plan: null,
+    currentPeriodEnd: null,
+    loading: false,
+    refresh: () => {},
+  };
+
+  function mockIapFetch() {
+    const verifyCalls = [];
+    vi.stubGlobal('fetch', vi.fn(async (url, options) => {
+      if (String(url).includes('/billing/plans')) {
+        return {
+          ok: true,
+          json: async () => ({
+            monthly: { configured: true, unit_amount: 2900, currency: 'usd', interval: 'month', display: '$29' },
+            annual: { configured: true, unit_amount: 25000, currency: 'usd', interval: 'year', display: '$250' },
+          }),
+        };
+      }
+      if (String(url).includes('/iap/verify')) {
+        verifyCalls.push({ url: String(url), body: options?.body });
+        return { ok: true, json: async () => ({ ok: true, provider: 'apple', plan: 'monthly' }) };
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    }));
+    return verifyCalls;
+  }
+
+  async function renderIosSection() {
+    const renderer = await renderSection();
+    // Flush the products effect (getProducts promise + state update).
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    await TestRenderer.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    return renderer;
+  }
+
+  beforeEach(() => {
+    Object.assign(subscriptionMocks.subscription, FREE);
+    globalThis.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'ios' };
+    pluginMocks.calls.purchase.length = 0;
+    pluginMocks.calls.finishTransaction.length = 0;
+    pluginMocks.calls.showManageSubscriptions = 0;
+  });
+  afterEach(() => {
+    Object.assign(subscriptionMocks.subscription, FREE);
+    delete globalThis.Capacitor;
+    vi.unstubAllGlobals();
+  });
+
+  it('shows the not-set-up note when the App Store returns no products, and the Subscribe button stays disabled', async () => {
+    mockIapFetch();
+    pluginMocks.plugin.getProducts.mockResolvedValueOnce({ products: [] });
+    const renderer = await renderIosSection();
+    try {
+      expect(textOf(renderer.toJSON())).toContain('Subscriptions are being set up in the App Store — check back soon.');
+      expect(subscribeButton(renderer).props.disabled).toBe(true);
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('shows the App Store annual price and the savings line from the App Store prices when annual is selected', async () => {
+    mockIapFetch();
+    const renderer = await renderIosSection();
+    try {
+      await click(option(renderer, 'annual'));
+      // The yearly product maps to plan "annual" (IAP_PLANS) — the
+      // annual App Store price, not the Stripe fallback, drives the
+      // button and the savings line ($29 x 12 - $250 = $98; $250/12).
+      expect(textOf(renderer.toJSON())).toContain('Subscribe with Apple — $250.00/yr');
+      expect(textOf(renderer.toJSON())).toContain('save $98 a year');
+      expect(textOf(renderer.toJSON())).toContain('$20.83');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('shows the App Store prices and buys the monthly product through StoreKit, never Stripe', async () => {
+    const verifyCalls = mockIapFetch();
+    const refresh = vi.fn();
+    subscriptionMocks.subscription.refresh = refresh;
+    const renderer = await renderIosSection();
+    try {
+      // The App Store display price replaces the Stripe fallback.
+      expect(textOf(renderer.toJSON())).toContain('Subscribe with Apple — $29.00/mo');
+      expect(textOf(renderer.toJSON())).not.toContain('Subscriptions are being set up');
+      const button = subscribeButton(renderer);
+      expect(button.props.disabled).toBe(false);
+      await click(button);
+      expect(pluginMocks.calls.purchase).toEqual(['com.road2cissp.app.premium.monthly']);
+      expect(verifyCalls).toHaveLength(1);
+      expect(JSON.parse(verifyCalls[0].body)).toEqual({ signed_transaction: 'signed-jws' });
+      expect(pluginMocks.calls.finishTransaction).toEqual(['tx-1']);
+      expect(refresh).toHaveBeenCalledTimes(1);
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('opens the system manage-subscriptions sheet for an Apple subscriber, never the Stripe portal', async () => {
+    mockIapFetch();
+    Object.assign(subscriptionMocks.subscription, {
+      subscribed: true,
+      status: 'active',
+      provider: 'apple',
+      plan: 'monthly',
+      currentPeriodEnd: '2026-12-23T00:00:00Z',
+    });
+    const renderer = await renderIosSection();
+    try {
+      const buttons = renderer.root.findAllByType('button');
+      const manage = buttons.find((b) => textOf(b.children).includes('Manage subscription'));
+      expect(manage).toBeTruthy();
+      await click(manage);
+      expect(pluginMocks.calls.showManageSubscriptions).toBe(1);
     } finally {
       TestRenderer.act(() => { renderer.unmount(); });
     }
