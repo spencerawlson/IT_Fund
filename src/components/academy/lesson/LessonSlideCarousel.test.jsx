@@ -163,3 +163,82 @@ describe('LessonSlideCarousel', () => {
     expect(after.map((g) => g.props['aria-hidden'])).toEqual([true, undefined, true]);
   });
 });
+
+describe('LessonSlideCarousel — slide redesign (outline, templates, Cypher hook)', () => {
+  const DECK = [
+    { title: 'Overview', caption: 'Roadmap caption.', diagram: { template: 'roadmap', labels: ['Layers', 'Ports'] } },
+    { title: 'Layers', caption: 'Stack caption.', diagram: { template: 'layers', labels: ['Application', 'Transport', 'Network'] } },
+    { title: 'Merge vs rebase', caption: 'Compare caption.', diagram: { template: 'compare', labels: ['Merge', 'rebase'] } },
+    { title: 'Terms', caption: 'Terms caption.', diagram: { template: 'terms', labels: ['TTL'], items: [{ term: 'TTL', def: 'Hops left' }] } },
+    { title: 'Syntax', caption: 'Code caption.', diagram: { template: 'keywords', labels: ['git rebase -i', 'HEAD~3'] } },
+    { title: 'Plain', caption: 'Text-only caption.', diagram: { template: 'text', labels: [] } },
+  ];
+  const slideNode = (root, i) => root.root.findAllByProps({ 'aria-roledescription': 'slide' })[i];
+
+  it('draws each supported template from its own data, and a text-only slide with no visual', () => {
+    const root = renderCarousel(DECK);
+    const all = text(root);
+    for (const s of ['Ports', 'Application', 'Transport', 'Merge', 'rebase', 'Hops left', 'git rebase -i', 'HEAD~3', 'Key syntax in this section']) {
+      expect(all).toContain(s);
+    }
+    expect(slideNode(root, 0).findByProps({ 'aria-label': 'What this lesson covers, in order' })).toBeTruthy();
+    expect(slideNode(root, 1).findByProps({ 'aria-label': 'Layers, top to bottom' })).toBeTruthy();
+    expect(slideNode(root, 3).findAllByType('dl')).toHaveLength(1);
+    expect(slideNode(root, 4).findAllByType('figure')).toHaveLength(1);
+    const plain = slideNode(root, 5);
+    expect(plain.findAllByType('ol')).toHaveLength(0);
+    expect(plain.findAllByType('dl')).toHaveLength(0);
+    expect(plain.findAllByType('figure')).toHaveLength(0);
+  });
+
+  it('the lesson outline lists every slide and jumps to it', () => {
+    const root = renderCarousel(DECK);
+    const steps = root.root.findByProps({ 'aria-label': 'Lesson outline' }).findAllByType('button');
+    expect(steps).toHaveLength(DECK.length);
+    expect(steps[0].props['aria-current']).toBe('step');
+    click(root, 'Go to slide 4: Terms');
+    expect(text(root)).toContain('Slide 4 of 6');
+    const after = root.root.findByProps({ 'aria-label': 'Lesson outline' }).findAllByType('button');
+    expect(after.map((b) => b.props['aria-current'])).toEqual([undefined, undefined, undefined, 'step', undefined, undefined]);
+  });
+
+  it('shows the eyebrow and the 01 / 06 counter', () => {
+    let root;
+    act(() => { root = TestRenderer.create(<LessonSlideCarousel slides={DECK} eyebrow="Networking · Module 2" />); });
+    expect(text(root)).toContain('Networking · Module 2');
+    expect(text(root)).toContain('01');
+    expect(text(root)).toContain('06');
+  });
+
+  it('renders the Cypher integration point for the slide on screen, and nothing when not provided', () => {
+    const seen = [];
+    let root;
+    act(() => {
+      root = TestRenderer.create(
+        <LessonSlideCarousel slides={DECK} renderExplain={(slide) => { seen.push(slide.title); return <span>{`explain:${slide.title}`}</span>; }} />,
+      );
+    });
+    expect(text(root)).toContain('explain:Overview');
+    click(root, 'Next slide');
+    expect(seen.at(-1)).toBe('Layers');
+    expect(text(root)).toContain('explain:Layers');
+    expect(text(renderCarousel(DECK))).not.toContain('explain:');
+  });
+
+  it('arrow keys typed inside a form field do not change the slide', () => {
+    const root = renderCarousel(DECK);
+    act(() => {
+      root.root.findByProps({ 'aria-roledescription': 'carousel' }).props.onKeyDown({
+        key: 'ArrowRight', preventDefault: () => {}, target: { closest: () => ({}) },
+      });
+    });
+    expect(text(root)).toContain('Slide 1 of 6');
+  });
+
+  it('keeps 44px touch targets on every control', () => {
+    const root = renderCarousel(DECK);
+    for (const b of root.root.findAllByType('button')) {
+      expect(b.props.className, b.props['aria-label']).toMatch(/min-h-11/);
+    }
+  });
+});

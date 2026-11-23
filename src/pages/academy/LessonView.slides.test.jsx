@@ -69,6 +69,8 @@ vi.mock('@/lib/content', () => ({
 }));
 vi.mock('@/hooks/useDocumentTitle', () => ({ default: () => {} }));
 vi.mock('@/components/academy/tutor/CypherLessonPanel', () => ({ default: () => null }));
+// The deck's Cypher integration point: a marker proves it is wired to the slide on screen.
+vi.mock('@/components/academy/tutor/CypherSlideExplain', () => ({ default: ({ slide }) => `explain:${slide.title}` }));
 
 async function flush(times = 5) {
   for (let i = 0; i < times; i++) {
@@ -130,6 +132,7 @@ describe('LessonView slide carousel', () => {
     expect(out).toContain('The OSI model has seven layers.');
     expect(out).not.toContain('OSI overview.'); // the reading text is not shown twice
     expect(out).toContain('Read the full lesson');
+    expect(out).toContain('explain:Overview'); // Cypher integration point, for the current slide
     chooseView(root, 'Read');
     out = JSON.stringify(root.toJSON());
     expect(out).toContain('OSI overview.');
