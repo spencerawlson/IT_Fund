@@ -51,6 +51,14 @@ DEFAULT_RESERVATION_MINUTES = 60
 #: Bounds an admin may set the capacities to (validated in update_settings).
 MAX_CAPACITY = 1_000_000
 
+#: Placeholder accounts Spencer created to hold places for in-person sales
+#: (the admin board's "Reserved" badge, src/pages/admin/Admin.jsx). Their
+#: places are taken, but they are not members: their allocation source is
+#: "placeholder", so they never count as paying members or revenue. Editing
+#: one to a real name and email turns it into a paid manual member.
+RESERVED_EMAIL_SUFFIX = "@road2cissp.local"
+PLACEHOLDER = "placeholder"
+
 PAID = "paid"
 COMPLIMENTARY = "complimentary"
 KINDS = (PAID, COMPLIMENTARY)
@@ -265,8 +273,14 @@ def _entitlement(s, user_id: str) -> tuple[str, str] | None:
         return (PAID, "stripe")
     grant = s.get(ManualGrant, user_id)
     if grant is not None and grant.revoked_at is None:
+        if is_placeholder_email(user.email):
+            return (PAID, PLACEHOLDER)
         return (PAID, "manual")
     return None
+
+
+def is_placeholder_email(email: str | None) -> bool:
+    return bool(email) and email.strip().lower().endswith(RESERVED_EMAIL_SUFFIX)
 
 
 def sync_user(user_id: str, force: bool = True) -> str:
@@ -363,6 +377,10 @@ def summary() -> dict:
             MembershipAllocation.kind == PAID, MembershipAllocation.status == "active",
             MembershipAllocation.source == "manual",
         )
+        paid_placeholder = count(
+            MembershipAllocation.kind == PAID, MembershipAllocation.status == "active",
+            MembershipAllocation.source == PLACEHOLDER,
+        )
         paid_reserved = count(
             MembershipAllocation.kind == PAID, MembershipAllocation.status == "reserved",
             MembershipAllocation.reserved_until > now,
@@ -378,6 +396,10 @@ def summary() -> dict:
             "paid_active": paid_active,
             "paid_online": paid_online,
             "paid_manual": paid_manual,
+            # Places held by Spencer's placeholder accounts: taken, not members.
+            "paid_placeholder": paid_placeholder,
+            # Real paying members holding a place (online + in person).
+            "paid_members": paid_online + paid_manual,
             "paid_reserved": paid_reserved,
             "over_capacity": over,
             "comp_capacity": settings.comp_capacity,

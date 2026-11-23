@@ -415,3 +415,54 @@ def test_simultaneous_checkouts_never_oversell_on_postgres():
     finally:
         db.Base.metadata.drop_all(db.engine)
         db.configure("sqlite+pysqlite:///:memory:")
+
+
+# ---------- Spencer's reserved placeholder seats ----------
+
+def _placeholder(uid, n):
+    with db.SessionLocal() as s:
+        s.add(User(id=uid, display_name=f"Seat {n}", email=f"{n}@road2cissp.local"))
+        s.add(ManualGrant(user_id=uid, note="reserved"))
+        s.commit()
+
+
+def test_placeholder_seats_hold_places_but_are_not_members():
+    _placeholder("p1", 1)
+    _placeholder("p2", 2)
+    _user("real")
+    _sync("real")
+    enrollment.reconcile()
+    summary = enrollment.summary()
+    assert summary["paid_occupied"] == 3 and summary["paid_available"] == 9997
+    assert summary["paid_placeholder"] == 2 and summary["paid_manual"] == 0
+    assert summary["paid_members"] == 1
+    assert enrollment.public_availability()["taken"] == 3  # the places really are held
+
+
+def test_places_taken_before_the_label_existed_are_relabelled_by_reconcile():
+    _placeholder("p1", 1)
+    enrollment.activate("p1", enrollment.PAID, "manual")  # how step 1 recorded them
+    enrollment.reconcile()
+    assert _open("p1").source == "placeholder"
+    assert len(_rows("p1")) == 1  # relabelled in place: no second place taken
+
+
+def test_editing_a_placeholder_into_a_real_person_makes_a_paid_member():
+    _placeholder("p1", 1)
+    enrollment.reconcile()
+    _login()
+    r = client.patch("/api/admin/accounts/p1", json={"display_name": "Marie Dupont", "email": "marie@example.com"})
+    assert r.status_code == 200
+    alloc = _open("p1")
+    assert alloc.source == "manual" and len(_rows("p1")) == 1
+    assert enrollment.summary()["paid_members"] == 1
+
+
+def test_admin_overview_separates_reserved_seats_from_manual_enrollments():
+    _placeholder("p1", 1)
+    _placeholder("p2", 2)
+    _login()
+    client.post("/api/admin/accounts", json={"display_name": "Walk In", "email": "walkin@example.com"})
+    data = client.get("/api/admin/overview").json()
+    assert data["manual_grants_active"] == 3
+    assert data["reserved_seats"] == 2 and data["manual_members"] == 1
