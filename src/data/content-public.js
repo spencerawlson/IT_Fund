@@ -30847,13 +30847,8 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Every network conversation, from loading a web page to a switch forwarding a frame, can be described in layers. Models give you a shared vocabulary (\"that is a Layer 2 problem\") and a systematic way to troubleshoot from the cable up.",
         "diagram": {
-          "template": "roadmap",
-          "labels": [
-            "The seven OSI layers",
-            "PDUs and encapsulation",
-            "The TCP/IP model",
-            "Common mistakes: mixing up the models"
-          ]
+          "template": "text",
+          "labels": []
         }
       },
       {
@@ -31035,13 +31030,8 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Every security decision, from buying a firewall to writing a password policy, traces back to a handful of core ideas. Learn them precisely and the rest of Security+ becomes a matter of applying them.",
         "diagram": {
-          "template": "roadmap",
-          "labels": [
-            "CIA, non-repudiation and AAA",
-            "Control categories and types",
-            "Zero trust",
-            "Gap analysis, deception and change management"
-          ]
+          "template": "text",
+          "labels": []
         }
       },
       {
@@ -31228,13 +31218,8 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Python is the glue language of IT and security work: short scripts rename a thousand files, parse a firewall log, or call a cloud API. Everything starts with values, the variables that name them, and the operators that combine them.",
         "diagram": {
-          "template": "roadmap",
-          "labels": [
-            "Values, types and variables",
-            "Operators you will use constantly",
-            "Converting types and reading input",
-            "Strings: indexing, immutability and f-strings"
-          ]
+          "template": "text",
+          "labels": []
         }
       },
       {
@@ -31408,12 +31393,8 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "The command line is the native interface of every Linux server, container, and cloud VM you will ever touch. Graphical tools come and go; the shell is always there, scriptable and identical everywhere. This lesson builds the muscle memory: knowing where you are, moving around, creating and destroying files, finding things, and getting help.",
         "diagram": {
-          "template": "roadmap",
-          "labels": [
-            "Where you are and what is around you",
-            "Creating, moving, and destroying",
-            "Finding files and getting help"
-          ]
+          "template": "text",
+          "labels": []
         }
       },
       {
@@ -31670,13 +31651,8 @@ export const freeLessonContent = {
         "title": "Overview",
         "caption": "Cloud computing changed how organisations buy and run IT: capacity on demand, paid for as it is used, managed through APIs. It also changed who is responsible for what, and misunderstanding that split is behind many cloud breaches.",
         "diagram": {
-          "template": "roadmap",
-          "labels": [
-            "What makes something \"cloud\"",
-            "Service and deployment models",
-            "Shared responsibility",
-            "Where cloud runs"
-          ]
+          "template": "text",
+          "labels": []
         }
       },
       {

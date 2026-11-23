@@ -499,9 +499,11 @@ describe('lesson slide decks (carousel)', () => {
     let terms = 0;
     for (const [id, lesson] of Object.entries(full.lessons)) {
       const [overview, ...rest] = lesson.slides;
-      // The Overview is a roadmap of the deck's own section slides, in order.
-      expect(overview.diagram.template, `${id}: overview template`).toBe('roadmap');
-      expect(overview.diagram.labels, `${id}: roadmap = the deck's headings`).toEqual(rest.map((s) => s.title));
+      // The Overview slide carries no outline: the lesson outline lives only
+      // in the deck's outline panel, never inside a slide card.
+      expect(overview.diagram.template, `${id}: overview has no diagram`).toBe('text');
+      expect(overview.diagram.labels, `${id}: overview carries no outline labels`).toEqual([]);
+      expect(overview.caption, `${id}: overview keeps its caption`).toBe((lesson.overview || [])[0]);
       const rows = new Set((lesson.cheatSheet || []).map(([t, d]) => JSON.stringify([t, d])));
       const usedRows = new Set();
       for (const slide of rest) {

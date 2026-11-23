@@ -80,6 +80,19 @@ describe('LessonSlideCarousel', () => {
     expect(text(root)).toContain('Only words here.');
   });
 
+  it('an Overview slide with no diagram renders no outline list inside the slide', () => {
+    const root = renderCarousel([
+      { title: 'Overview', caption: 'Only words here.', diagram: { template: 'text', labels: [] } },
+      { title: 'Layers', caption: 'Each layer adds its own header.', diagram: { template: 'layers', labels: ['Physical', 'Network'] } },
+    ]);
+    const slide = root.root.findAllByProps({ 'aria-roledescription': 'slide' })[0];
+    expect(slide.findAll((n) => n.props?.['aria-label'] === 'What this lesson covers, in order')).toHaveLength(0);
+    expect(slide.findAllByType('ol')).toHaveLength(0);
+    // The outline panel still lists every slide — it lives outside the card.
+    expect(root.root.findByProps({ 'aria-label': 'Lesson outline' }).findAllByType('button')).toHaveLength(2);
+    expect(text(root)).toContain('Only words here.');
+  });
+
   it('renders the first slide: title, caption, diagram, and a slide counter', () => {
     const root = renderCarousel();
     const out = text(root);
