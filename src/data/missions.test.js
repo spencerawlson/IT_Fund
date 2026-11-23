@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MISSIONS, MISSION_FOR_LESSON, MISSION_ONLY_LABS, labForMission, getMission, beatFor, splitBriefing, closingTurns } from './missions';
+import { MISSIONS, MISSION_FOR_LESSON, MISSION_ONLY_LABS, labForMission, getMission, hasMission, beatFor, splitBriefing, closingTurns } from './missions';
 
 const BROKEN_SHIELD_OBJECTIVES = [
   'topology',
@@ -66,6 +66,19 @@ describe('missions', () => {
 
   it('maps the net-troubleshoot lesson to op-packet-flood', () => {
     expect(MISSION_FOR_LESSON['net-troubleshoot']).toBe('op-packet-flood');
+  });
+
+  it('hasMission is true only for the three hand-written mission labs (Spencer, 2026-11-23)', () => {
+    // Mission labs open in Mission mode by default; every other lab opens
+    // in plain mode. getMission falls back to a generated mission for any
+    // lab, so the default must key off the explicit registry, not getMission.
+    expect(hasMission('sec-pentest-web-001')).toBe(true);
+    expect(hasMission('net-acl-001')).toBe(true);
+    expect(hasMission('tools-wireshark-001')).toBe(true);
+    expect(hasMission('py-basics-001')).toBe(false);
+    expect(hasMission('net-vlan-001')).toBe(false);
+    expect(hasMission(undefined)).toBe(false);
+    expect(hasMission('')).toBe(false);
   });
 
   it('keeps the existing Glasshouse mission intact', () => {
