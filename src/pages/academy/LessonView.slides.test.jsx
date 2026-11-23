@@ -101,22 +101,45 @@ describe('LessonView slide carousel', () => {
     mockSubscription.loading = false;
   });
 
-  it('shows the deck on a free lesson, between the Overview and the Learn section', async () => {
+  // The switch's radios, in order: Read, Slides.
+  function chooseView(root, label) {
+    const radios = root.root.findAll((n) => n.props?.role === 'radio' && n.type === 'button');
+    const radio = radios[{ Read: 0, Slides: 1 }[label]];
+    act(() => { radio.props.onClick(); });
+  }
+
+  it('opens on Read: the full text, a Read/Slides switch, and no stacked deck', async () => {
     mockSubscription.subscribed = false; // free lesson: no subscription needed
     const root = await renderLesson('net-osi');
     const out = JSON.stringify(root.toJSON());
-    expect(out).toContain('Slide 1 of 2');
-    expect(out).toContain('The OSI model has seven layers.');
-    // Order: Overview paragraph, then the slide caption, then the Learn heading.
-    expect(out.indexOf('OSI overview.')).toBeLessThan(out.indexOf('The OSI model has seven layers.'));
-    // (The deck's Overview roadmap names the section headings too, so the
-    // Learn heading is the LAST "Layers" on the page.)
-    expect(out.indexOf('The OSI model has seven layers.')).toBeLessThan(out.lastIndexOf('Layers'));
+    expect(out).toContain('How do you want to learn this?');
+    expect(out).toContain('OSI overview.');
+    expect(out).toContain('Each layer adds its own header.');
+    // One view at a time: the deck is not shown under the text.
+    expect(out).not.toContain('Slide 1 of 2');
+    const radios = root.root.findAll((n) => n.props?.role === 'radio' && n.type === 'button');
+    expect(radios.map((r) => r.props['aria-checked'])).toEqual([true, false]);
   });
 
-  it('shows the deck on a premium lesson for a subscriber', async () => {
+  it('Slides swaps the text for the deck on a free lesson, and Read swaps back', async () => {
+    mockSubscription.subscribed = false;
+    const root = await renderLesson('net-osi');
+    chooseView(root, 'Slides');
+    let out = JSON.stringify(root.toJSON());
+    expect(out).toContain('Slide 1 of 2');
+    expect(out).toContain('The OSI model has seven layers.');
+    expect(out).not.toContain('OSI overview.'); // the reading text is not shown twice
+    expect(out).toContain('Read the full lesson');
+    chooseView(root, 'Read');
+    out = JSON.stringify(root.toJSON());
+    expect(out).toContain('OSI overview.');
+    expect(out).not.toContain('Slide 1 of 2');
+  });
+
+  it('shows the deck on a premium lesson for a subscriber who picks Slides', async () => {
     mockSubscription.subscribed = true;
     const root = await renderLesson('net-ports');
+    chooseView(root, 'Slides');
     const out = JSON.stringify(root.toJSON());
     expect(out).toContain('Slide 1 of 2');
     expect(out).toContain('Ports identify services.');
