@@ -33,6 +33,11 @@ function samplePath(route) {
 const frontendRewrites = vercel.services?.frontend?.rewrites || [];
 const rewriteRes = frontendRewrites.map((r) => sourceToRegExp(r.source));
 
+// SEO Phase 1 (1.2): dynamic routes serve the generic shell, not the home
+// page — their rewrites point at /shell.html; every other rewrite still
+// points at /index.html.
+const DYNAMIC_SHELL_SOURCES = ['/academy/:path*', '/module/:path*', '/labs/:path*', '/missions/:path*'];
+
 function isCovered(path) {
   return rewriteRes.some((re) => re.test(samplePath(path)));
 }
@@ -43,7 +48,9 @@ describe('vercel frontend rewrites cover every client route (R-05)', () => {
       expect(r.source).not.toBe('/(.*)');
       expect(r.source).not.toBe('/*');
       expect(r.source).not.toBe('/(.*)?');
-      expect(r.destination).toBe('/index.html');
+      expect(r.destination).toBe(
+        DYNAMIC_SHELL_SOURCES.includes(r.source) ? '/shell.html' : '/index.html',
+      );
     }
   });
 

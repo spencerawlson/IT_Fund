@@ -18,7 +18,7 @@ import { getDeckCards, resolveCards } from '@/lib/content';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
 import { getModule } from '@/data/catalog';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const LEARN_BATCH = 15;
 const QUIZ_LENGTH = 10;
@@ -135,7 +135,14 @@ export default function AcademyPlay({ kind }) {
   const meta = { track: track?.title, topic: deck?.title || (tier ? `${tier.label} boss` : 'Daily review') };
   const title =
     kind === 'review' ? (session?.extra ? 'Extra practice: earlier lessons' : 'Review: earlier lessons') : kind === 'boss' ? `${track?.title}: ${tier?.label} assessment` : deck?.title;
-  useDocumentTitle(title ? `${title} · Road to CISSP` : 'Practice · Road to CISSP');
+  // App surface, not a content page — keep it out of the index (meta noindex,
+  // not a robots.txt disallow, so the URL can still be crawled and the
+  // directive seen). Path is built from the route params.
+  const playPath = kind === 'review'
+    ? '/academy/review'
+    : kind === 'boss'
+      ? `/academy/${trackId}/boss/${tierId}`
+      : `/academy/${trackId}/deck/${deckId}`;
 
   let body;
   if ((kind !== 'review' && !track) || (kind === 'deck' && !deck) || (kind === 'boss' && !tier)) {
@@ -197,6 +204,11 @@ export default function AcademyPlay({ kind }) {
 
   return (
     <main className="min-h-screen text-ink-1">
+      <Seo
+        robots="noindex"
+        title={title ? `${title} · Road to CISSP` : 'Practice · Road to CISSP'}
+        path={playPath}
+      />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8 sm:py-10">
         <Button to={backTo} variant="ghost" size="sm" icon={ArrowLeft} className="-ml-3 mb-6">
           {track ? track.title : 'Home'}

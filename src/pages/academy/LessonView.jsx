@@ -21,7 +21,7 @@ import UpgradePrompt from '@/components/UpgradePrompt';
 import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
 import CypherNote from '@/components/academy/lesson/CypherNote';
 import { getLessonContent, getDeckContent, lessonTextFromContent } from '@/lib/content';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 const SAMPLE_QUESTIONS = 4;
 
@@ -69,7 +69,6 @@ export default function LessonView() {
   const { subscribed, loading: subLoading } = useSubscription();
   const lesson = getLesson(lessonId);
   const course = lesson && getCourse(lesson.courseSlug);
-  useDocumentTitle(lesson ? `${lesson.title} · Road to CISSP` : 'Lesson · Road to CISSP');
 
   // Reading body + cypher note + deck puzzles. Free lessons are bundled;
   // premium lessons come from the entitled content API. The paywall gate
@@ -96,6 +95,14 @@ export default function LessonView() {
   if (!lesson) {
     return (
       <PageContainer>
+        {/* Unknown lesson ids serve HTTP 200 from the SPA shell (soft 404),
+            so this state must at least tell crawlers not to index it. */}
+        <Seo
+          title="Lesson not found · Road to CISSP"
+          description="This lesson does not exist on Road to CISSP. Browse all courses to find the lesson you were looking for."
+          path={`/academy/lessons/${lessonId}`}
+          robots="noindex"
+        />
         <EmptyState icon={SearchX} title="Lesson not found" text="It may have moved. Your progress is safe." to="/academy/courses" action="Browse courses" />
       </PageContainer>
     );
@@ -104,6 +111,14 @@ export default function LessonView() {
   if (!subLoading && !subscribed && !isLessonFree(lessonId)) {
     return (
       <PageContainer>
+        {/* Paywall branch: same tags as the main render (canonical lesson URL,
+            real title/summary). Premium lessons are NOT noindexed here — that
+            would pre-empt the pending Phase 2 lesson decision (audit §2.3). */}
+        <Seo
+          title={`${lesson.title} · Road to CISSP`}
+          description={lesson.summary}
+          path={lessonHref(lesson)}
+        />
         <PageHeader breadcrumbs={[{ label: 'Home', to: '/' }]} title={lesson.title} />
         <UpgradePrompt what={`The “${lesson.title}” lesson`} />
       </PageContainer>
@@ -146,6 +161,11 @@ export default function LessonView() {
   if (!content) {
     return (
       <PageContainer>
+        <Seo
+          title={`${lesson.title} · Road to CISSP`}
+          description={lesson.summary}
+          path={lessonHref(lesson)}
+        />
         <PageHeader breadcrumbs={crumbs} eyebrow={`${course.title} · Module ${module.number}: ${module.title}`} title={title} />
         {loadFailed ? (
           <div className="flex flex-col items-center py-16 text-center">
@@ -178,6 +198,11 @@ export default function LessonView() {
 
   return (
     <PageContainer>
+      <Seo
+        title={`${lesson.title} · Road to CISSP`}
+        description={lesson.summary}
+        path={lessonHref(lesson)}
+      />
       <PageHeader breadcrumbs={crumbs} eyebrow={`${course.title} · Module ${module.number}: ${module.title}`} title={title} />
       <div className="-mt-4 mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-2">
         <StatusBadge status={status} />

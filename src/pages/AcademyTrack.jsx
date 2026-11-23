@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { COURSES, courseHref } from '@/data/catalog';
-import useDocumentTitle from '@/hooks/useDocumentTitle';
+import Seo from '@/components/Seo';
 
 /**
  * Old per-track map (/academy/:trackId). Every track is wrapped by exactly one course, and the
@@ -9,8 +9,27 @@ import useDocumentTitle from '@/hooks/useDocumentTitle';
  * forwards there instead of keeping a second, differently styled view of the same content.
  */
 export default function AcademyTrack() {
-  useDocumentTitle('Track · Road to CISSP');
   const { trackId } = useParams();
   const course = COURSES.find((c) => c.trackId === trackId);
-  return <Navigate to={course ? courseHref(course) : '/academy/courses'} replace />;
+  // Redirect stub: the <Seo> canonical points at the course page (the
+  // consolidation target); an unknown track is noindexed instead.
+  return (
+    <>
+      {course ? (
+        <Seo
+          title={`${course.title} · Road to CISSP`}
+          description={course.description}
+          path={courseHref(course)}
+        />
+      ) : (
+        <Seo
+          robots="noindex"
+          title="Track not found · Road to CISSP"
+          description="This track does not exist on Road to CISSP."
+          path={`/academy/${trackId}`}
+        />
+      )}
+      <Navigate to={course ? courseHref(course) : '/academy/courses'} replace />
+    </>
+  );
 }
