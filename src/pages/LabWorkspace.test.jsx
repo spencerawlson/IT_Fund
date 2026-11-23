@@ -108,4 +108,28 @@ describe('LabWorkspace', () => {
     expect(SRC).toContain('MISSION_ONLY_LABS[labId]');
     expect(SRC).toContain('navigate(`/missions/${missionId}`, { replace: true })');
   });
+
+  it('shows the Phase 0 lab-hours meter under the session header (compact, metered-only)', () => {
+    // The meter lives between the sticky session header and the workspace
+    // grid, so a learner mid-lab sees the clock without scrolling. The
+    // component itself renders nothing when unmetered or still loading,
+    // and a muted "unavailable" line when its fetch failed — the page
+    // never blocks on it.
+    expect(SRC).toContain("import LabUsageMeter from '@/components/LabUsageMeter'");
+    expect(SRC).toContain("const { usage: labUsage } = useLabUsage();");
+    expect(SRC).toContain('<LabUsageMeter usage={labUsage} compact />');
+    const headerClose = SRC.indexOf('</header>');
+    const meter = SRC.indexOf('<LabUsageMeter usage={labUsage} compact />');
+    const main = SRC.indexOf('<main className="mx-auto grid');
+    expect(headerClose).toBeGreaterThan(-1);
+    expect(meter).toBeGreaterThan(headerClose);
+    expect(main).toBeGreaterThan(meter);
+  });
+
+  it('lab XP stays gated on server-verified completion — the meter never touches it', () => {
+    // Billing must never touch XP (design §Lab XP): only a server-verified
+    // completion earns XP; attested-only completions earn nothing.
+    expect(SRC).toContain('recordVerifiedLabCompletion(session.lab_id, LESSONS_FOR_LAB[session.lab_id] || [])');
+    expect(SRC).toContain('if (!session.attested) {');
+  });
 });

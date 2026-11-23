@@ -4,7 +4,8 @@ import { LogIn, LogOut, ShieldCheck, Check, RefreshCw, CreditCard, Loader2 } fro
 import { Button, Card, IconTile, PageContainer, PageHeader } from '@/components/ui-glass';
 import Seo from '@/components/Seo';
 import { useAuth } from '@/lib/AuthContext';
-import { useSubscription } from '@/lib/subscription';
+import { useSubscription, useLabUsage } from '@/lib/subscription';
+import LabUsageMeter from '@/components/LabUsageMeter';
 import { getAttributionTag } from '@/lib/attribution';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 
@@ -21,6 +22,9 @@ const ANNUAL_FALLBACK = { display: '$250', interval: 'year', amount: '250.00', c
 // directly (the page itself adds AuthProvider/ThemeProvider/router).
 export function SubscriptionSection() {
   const { subscribed, status, currentPeriodEnd, loading, refresh } = useSubscription();
+  // Phase 0 lab-hours meter: renders only when metered (subscribers); a
+  // failed fetch shows "Lab usage unavailable" and never blocks the page.
+  const { usage: labUsage } = useLabUsage();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   // Billing period: monthly is the default. Prices come from the live
@@ -127,6 +131,9 @@ export function SubscriptionSection() {
             <span className="font-semibold text-success">Premium active</span>
             {renewal && <span className="text-ink-2"> — renews {renewal}</span>}
           </p>
+          <div className="mt-3">
+            <LabUsageMeter usage={labUsage} />
+          </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <Button variant="secondary" onClick={manage} disabled={busy}>
               {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}

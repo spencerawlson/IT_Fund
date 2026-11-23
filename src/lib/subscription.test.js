@@ -6,6 +6,8 @@ import {
   FREE_LESSON_IDS, FREE_DECKS, FREE_LABS,
   isLessonFree, isDeckFree, isLabFree,
   clearSubscriptionCache, fetchStatus,
+  ALLOWANCE_SECONDS, LAB_USAGE_WARN_15H_SECONDS, LAB_USAGE_WARN_18H_SECONDS,
+  UNMETERED_USAGE, clearLabUsageCache, fetchLabUsage,
 } from './subscription.js';
 import { allDecks } from '../data/academy/index.js';
 
@@ -123,5 +125,104 @@ describe('useSubscription hook', () => {
 
   it('is exported and the cache can be cleared without throwing', () => {
     expect(() => clearSubscriptionCache()).not.toThrow();
+  });
+});
+
+describe('fetchLabUsage fails closed (Phase 0 meter)', () => {
+  beforeEach(() => {
+    clearLabUsageCache();
+    vi.unstubAllGlobals();
+  });
+
+  const usageResponse = (overrides = {}) => ({
+    status: 200,
+    ok: true,
+    json: async () => ({
+      metered: true,
+      used_seconds: 26400,
+      allowance_seconds: 72000,
+      overage_seconds: 0,
+      live_seconds: 3600,
+      resets_at: '2026-04-17T00:00:00Z',
+      ...overrides,
+    }),
+  });
+
+  it('maps a 200 metered response to camelCase usage', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(usageResponse()));
+    const u = await fetchLabUsage();
+    expect(u).toEqual({
+      metered: true,
+      usedSeconds: 26400,
+      allowanceSeconds: 72000,
+      overageSeconds: 0,
+      liveSeconds: 3600,
+      resetsAt: '2026-04-17T00:00:00Z',
+    });
+  });
+
+  it('maps metered:false (free tier / guest) through, with no usage', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(usageResponse({ metered: false, used_seconds: 0, live_seconds: 0, resets_at: null })));
+    const u = await fetchLabUsage();
+    expect(u.metered).toBe(false);
+    expect(u.usedSeconds).toBe(0);
+    expect(u.resetsAt).toBeNull();
+  });
+
+  it('maps a 401 to null (fail-closed, never a meter)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 401 }));
+    expect(await fetchLabUsage()).toBeNull();
+  });
+
+  it('maps a 503 to null (fail-closed)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 503 }));
+    expect(await fetchLabUsage()).toBeNull();
+  });
+
+  it('maps any other non-OK status to null', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 500, ok: false }));
+    expect(await fetchLabUsage()).toBeNull();
+  });
+
+  it('maps a network throw to null', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network')));
+    expect(await fetchLabUsage()).toBeNull();
+  });
+
+  it('maps a malformed body to null', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 200, ok: true, json: async () => null }));
+    expect(await fetchLabUsage()).toBeNull();
+    clearLabUsageCache();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 200, ok: true, json: async () => { throw new Error('bad json'); } }));
+    expect(await fetchLabUsage()).toBeNull();
+  });
+
+  it('caches the result for the session: one fetch for two calls', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(usageResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const first = await fetchLabUsage();
+    const second = await fetchLabUsage();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(second).toBe(first);
+  });
+
+  it('clearLabUsageCache lets the next call fetch again', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(usageResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    await fetchLabUsage();
+    clearLabUsageCache();
+    await fetchLabUsage();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('the allowance and warning constants are 20h / 15h / 18h', () => {
+    expect(ALLOWANCE_SECONDS).toBe(72000);
+    expect(LAB_USAGE_WARN_15H_SECONDS).toBe(54000);
+    expect(LAB_USAGE_WARN_18H_SECONDS).toBe(64800);
+  });
+
+  it('UNMETERED_USAGE is the no-allowance object (free tier / guest)', () => {
+    expect(UNMETERED_USAGE.metered).toBe(false);
+    expect(UNMETERED_USAGE.allowanceSeconds).toBe(ALLOWANCE_SECONDS);
   });
 });

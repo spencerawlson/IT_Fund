@@ -13,15 +13,29 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 // subscribe action is a Stripe checkout started from this page, not a link
 // to /pricing. The real hook fetches /api/billing/status in an effect (never
 // runs under SSR), so it is mocked to the resolved free state.
-vi.mock('@/lib/subscription', () => ({
-  useSubscription: () => ({
+// Both hooks read hoisted mutable state so the mounted meter tests can
+// flip the subscription / lab-usage state per test.
+const subscriptionMocks = vi.hoisted(() => ({
+  subscription: {
     subscribed: false,
     status: 'none',
     currentPeriodEnd: null,
     loading: false,
     refresh: () => {},
-  }),
+  },
+  labUsage: { usage: undefined, loading: true, error: null },
 }));
+
+vi.mock('@/lib/subscription', async (importOriginal) => {
+  // Keep the real constants (ALLOWANCE_SECONDS, warning thresholds) — only
+  // the two hooks are mocked, so LabUsageMeter's threshold math stays real.
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    useSubscription: () => subscriptionMocks.subscription,
+    useLabUsage: () => subscriptionMocks.labUsage,
+  };
+});
 
 import SignIn, { SubscriptionSection } from './SignIn';
 
@@ -268,6 +282,139 @@ describe('SignIn billing-period toggle (mounted, 2026-11-23)', () => {
       await click(subscribeButton(renderer));
       expect(checkoutCalls).toHaveLength(1);
       expect(JSON.parse(checkoutCalls[0].body)).toEqual({ plan: 'monthly', attribution_tag: 'vtn_test123' });
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+});
+
+// Phase 0 lab-hours meter on the account page (mounted, 2026-11-23): the
+// meter lives in the SUBSCRIBED branch, under the renewal line. useLabUsage
+// is mocked through the hoisted state at the top of this file (no
+// /labs/usage fetch runs); the plans fetch is stubbed like the toggle tests.
+describe('SignIn lab usage meter (mounted, Phase 0)', () => {
+  const SUBSCRIBED = {
+    subscribed: true,
+    status: 'active',
+    currentPeriodEnd: '2026-12-11T00:00:00Z',
+    loading: false,
+    refresh: () => {},
+  };
+  const FREE = {
+    subscribed: false,
+    status: 'none',
+    currentPeriodEnd: null,
+    loading: false,
+    refresh: () => {},
+  };
+  const meteredUsage = (overrides = {}) => ({
+    metered: true,
+    usedSeconds: 26400, // 7h 20m
+    allowanceSeconds: 72000,
+    overageSeconds: 0,
+    liveSeconds: 0,
+    resetsAt: '2026-04-17T12:00:00',
+    ...overrides,
+  });
+
+  beforeEach(() => {
+    subscriptionMocks.subscription = { ...SUBSCRIBED };
+    subscriptionMocks.labUsage = { usage: undefined, loading: true, error: null };
+  });
+  afterEach(() => {
+    subscriptionMocks.subscription = { ...FREE };
+    subscriptionMocks.labUsage = { usage: undefined, loading: true, error: null };
+    vi.unstubAllGlobals();
+  });
+
+  it('renders the meter under the renewal line for a subscribed user', async () => {
+    subscriptionMocks.labUsage = { usage: meteredUsage(), loading: false, error: null };
+    mockBillingFetch({ annualConfigured: true });
+    stubWindow();
+    const renderer = await renderSection();
+    try {
+      const text = textOf(renderer.toJSON());
+      expect(text).toContain('Premium active');
+      expect(text).toContain('renews December 11, 2026');
+      expect(text).toContain('7h 20m');
+      expect(text).toContain('of 20h included');
+      expect(text).toContain('resets Apr 17');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('fails closed when the usage fetch errors: "Lab usage unavailable", page intact', async () => {
+    subscriptionMocks.labUsage = { usage: null, loading: false, error: 'unavailable' };
+    mockBillingFetch({ annualConfigured: true });
+    stubWindow();
+    const renderer = await renderSection();
+    try {
+      const text = textOf(renderer.toJSON());
+      expect(text).toContain('Premium active');
+      expect(text).toContain('Lab usage unavailable');
+      expect(text).not.toContain('of 20h included');
+      expect(text).toContain('Manage subscription');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('mounts cleanly while the meter is still loading (no crash, no meter yet)', async () => {
+    // ship_verification: the section moved to async meter data, so a mount
+    // with the usage still null/loading must not throw — the guard in
+    // LabUsageMeter (usage === undefined renders nothing) is what this
+    // test pins. Disable that guard and this test fails with the same
+    // TypeError a subscriber would see.
+    subscriptionMocks.labUsage = { usage: undefined, loading: true, error: null };
+    mockBillingFetch({ annualConfigured: true });
+    stubWindow();
+    const renderer = await renderSection();
+    try {
+      const text = textOf(renderer.toJSON());
+      expect(text).toContain('Premium active');
+      expect(text).not.toContain('Lab usage unavailable');
+      expect(text).not.toContain('of 20h included');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('shows no meter for a free-tier user (metered:false)', async () => {
+    subscriptionMocks.subscription = { ...FREE };
+    subscriptionMocks.labUsage = {
+      usage: { metered: false, usedSeconds: 0, allowanceSeconds: 72000, overageSeconds: 0, liveSeconds: 0, resetsAt: null },
+      loading: false,
+      error: null,
+    };
+    mockBillingFetch({ annualConfigured: true });
+    stubWindow();
+    const renderer = await renderSection();
+    try {
+      const text = textOf(renderer.toJSON());
+      expect(text).toContain('free tier');
+      expect(text).not.toContain('of 20h included');
+      expect(text).not.toContain('Lab usage unavailable');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('shows the over-age preview line past 20h, with no money language', async () => {
+    subscriptionMocks.labUsage = {
+      usage: meteredUsage({ usedSeconds: 75600, overageSeconds: 3600 }),
+      loading: false,
+      error: null,
+    };
+    mockBillingFetch({ annualConfigured: true });
+    stubWindow();
+    const renderer = await renderSection();
+    try {
+      const text = textOf(renderer.toJSON());
+      expect(text).toContain('1h 00m over your included 20h');
+      expect(text).toContain("overage billing isn't live yet");
+      expect(text).not.toContain('$');
+      expect(text).not.toContain('invoice');
     } finally {
       TestRenderer.act(() => { renderer.unmount(); });
     }

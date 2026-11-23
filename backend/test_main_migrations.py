@@ -71,7 +71,12 @@ def test_run_migrations_skips_lock_off_postgres(tmp_path, monkeypatch):
 
 def test_pr4_migration_is_chained_from_pr3_head():
     """PR 4: exactly one head, a NEW revision chained directly from the
-    PR 3 head 5e1a7c3d9b20 (the data migration must sit on top of it)."""
+    PR 3 head 5e1a7c3d9b20 (the data migration must sit on top of it).
+
+    Phase 0 lab-hours extends the chain: the head is now the lab-hours
+    migration a4c251994677, chained from the PR 4 head 6e8f065cfbab, which
+    still chains from the PR 3 head — the linear chain is preserved.
+    """
     from alembic.script import ScriptDirectory
 
     directory = ScriptDirectory.from_config(
@@ -81,4 +86,6 @@ def test_pr4_migration_is_chained_from_pr3_head():
     assert len(heads) == 1, f"expected exactly one head, got {heads}"
     head = heads[0]
     assert head != "5e1a7c3d9b20", "no migration exists on top of the PR 3 head"
-    assert directory.get_revision(head).down_revision == "5e1a7c3d9b20"
+    assert head == "a4c251994677", f"expected the lab-hours migration as head, got {head}"
+    assert directory.get_revision(head).down_revision == "6e8f065cfbab"
+    assert directory.get_revision("6e8f065cfbab").down_revision == "5e1a7c3d9b20"

@@ -4,6 +4,8 @@ import { FlaskConical } from 'lucide-react';
 import { Button } from '@/components/ui-glass';
 import LabTerminal from '@/components/labs/LabTerminal';
 import { useLabConsole } from '@/components/labs/useLabConsole';
+import LabUsageMeter from '@/components/LabUsageMeter';
+import { useLabUsage } from '@/lib/subscription';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
 import Seo from '@/components/Seo';
 
@@ -19,6 +21,9 @@ export default function LabLauncher() {
   const [params] = useSearchParams();
   const startHint = params.get('start');
   const { banner, runner, readyKey } = useLabConsole({ startHint });
+  // Phase 0 lab-hours meter: renders only when metered (subscribers); a
+  // failed fetch shows "Lab usage unavailable" and never blocks the page.
+  const { usage: labUsage } = useLabUsage();
 
   return (
     <div className="min-h-[100dvh] bg-white text-ink-1">
@@ -40,6 +45,9 @@ export default function LabLauncher() {
             (and search) the same heading and description. */}
         <h1 className="sr-only">Interactive labs — hands-on terminals for networking, security, Linux, Python and cloud</h1>
         <p className="sr-only">Hands-on labs in real terminals: networking, Linux, Python, and cloud. Type labs to browse the tracks and lab start &lt;#&gt; to begin.</p>
+        <div className="mb-3">
+          <LabUsageMeter usage={labUsage} compact />
+        </div>
         <div className="glass-2 rounded-card p-2 shadow-xl sm:p-3">
           <LabTerminal
             key={readyKey}

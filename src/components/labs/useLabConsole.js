@@ -110,6 +110,33 @@ export function buildSearchResults(labs, term) {
   );
 }
 
+/**
+ * Detail text for one lab (`lab info`): title, difficulty, the free-tier
+ * marker, and the Phase 0 lab-hours note — Docker labs burn the 20 included
+ * lab-hours, mock labs never do. The free labs (incl. the showcase Docker
+ * lab py-basics-001, which stays free and unmetered by design) keep only
+ * the "Free — no plan needed." line — they never count toward usage.
+ */
+export function buildLabInfo(l) {
+  if (!l) return "No such lab. Type 'labs' to browse tracks.";
+  const usageLine = isLabFree(l.id)
+    ? null
+    : l.environment?.live
+      ? 'Counts toward your 20 included Docker lab-hours.'
+      : "Free — doesn't use your Docker hours.";
+  return [
+    l.title,
+    '-'.repeat(l.title.length),
+    `Difficulty: ${l.difficulty}   ·   ~${l.estimated_minutes} min   ·   ${l.objectives.length} objectives`,
+    ...(isLabFree(l.id) ? ['Free — no plan needed.'] : []),
+    ...(usageLine ? [usageLine] : []),
+    '',
+    l.description,
+    '',
+    `To begin, type:  lab start ${l.slug}`,
+  ].join('\n');
+}
+
 export function useLabConsole({ startHint = null } = {}) {
   const navigate = useNavigate();
   const [labs, setLabs] = useState(null);
@@ -176,21 +203,7 @@ export function useLabConsole({ startHint = null } = {}) {
     return { output: lines.join('\n'), clear: true };
   };
 
-  const infoText = (l) => {
-    if (!l) return { output: "No such lab. Type 'labs' to browse tracks." };
-    return {
-      output: [
-        l.title,
-        '-'.repeat(l.title.length),
-        `Difficulty: ${l.difficulty}   ·   ~${l.estimated_minutes} min   ·   ${l.objectives.length} objectives`,
-        ...(isLabFree(l.id) ? ['Free — no plan needed.'] : []),
-        '',
-        l.description,
-        '',
-        `To begin, type:  lab start ${l.slug}`,
-      ].join('\n'),
-    };
-  };
+  const infoText = (l) => ({ output: buildLabInfo(l) });
 
   const helpText = (topic) => {
     const t = (topic || '').toLowerCase().replace('lab', '').trim();

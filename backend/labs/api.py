@@ -27,6 +27,7 @@ import db
 from auth.deps import require_user_id, resolve_user_id, resolve_visitor_id
 from billing import is_subscribed
 from db_models import LabCompletion
+from labs import usage as lab_usage
 from labs.registry import get_lab, list_labs
 from labs.sessions import LabError, service
 from labs.shells import meta as shell_meta
@@ -166,6 +167,29 @@ def _record_completion(user_id: str | None, sess: dict[str, Any]) -> None:
         log.exception("failed to record lab completion")
 
 
+@router.get("/usage")
+def get_lab_usage(user_id: str = Depends(require_user_id)) -> dict[str, Any]:
+    """Phase 0 lab-hours meter (shadow mode: hours used, never money owed).
+
+    Signed-in only. Free-tier users get metered False. The summary is
+    computed from the durable ledger plus live time accrued by open
+    sessions; a DB failure must never block the page, so errors fail
+    closed to an unmetered response.
+    """
+    try:
+        return lab_usage.usage_summary(user_id)
+    except Exception:  # noqa: BLE001 — the meter must never take the page down
+        log.exception("lab usage summary failed for user %s", user_id)
+        return {
+            "metered": False,
+            "used_seconds": 0,
+            "allowance_seconds": lab_usage.ALLOWANCE_SECONDS,
+            "overage_seconds": 0,
+            "live_seconds": 0,
+            "resets_at": None,
+        }
+
+
 @router.get("/history")
 def lab_history(user_id: str = Depends(require_user_id)) -> dict[str, Any]:
     """The signed-in learner's lab completions, newest first. The progress page
@@ -208,7 +232,29 @@ async def start_lab(lab_id: str, owner_id: str = Depends(resolve_visitor_id)) ->
         session = await service.start(lab_id, owner_id)
     except LabError as err:
         raise _http(err)
-    return session.public_dict()
+    # Phase 0 lab-hours: write the ledger row at start (a no-op for guests,
+    # mock labs, and the showcase lab) and return the meter summary so the
+    # workspace can warn at 15h/18h/20h. A ledger failure must never fail
+    # the start — the lab already worked.
+    try:
+        lab = get_lab(lab_id)
+        if session.started_at is not None and lab is not None:
+            lab_usage.record_start(
+                owner_id,
+                session.id,
+                lab_id,
+                lab.environment.provider,
+                session.started_at,
+                session.expires_at,
+            )
+    except Exception:  # noqa: BLE001 — metering is best-effort; the lab already worked
+        log.exception("lab usage record failed for session %s", session.id)
+    response = session.public_dict()
+    try:
+        response["usage"] = lab_usage.usage_summary(owner_id)
+    except Exception:  # noqa: BLE001 — same best-effort rule as the ledger write
+        log.exception("lab usage summary failed for user %s", owner_id)
+    return response
 
 
 @router.get("/sessions/{session_id}")
