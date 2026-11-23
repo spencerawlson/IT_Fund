@@ -67,3 +67,18 @@ def test_run_migrations_skips_lock_off_postgres(tmp_path, monkeypatch):
         main._run_migrations()
     mock_create.assert_not_called()
     assert _alembic_version(url) == HEAD
+
+
+def test_pr4_migration_is_chained_from_pr3_head():
+    """PR 4: exactly one head, a NEW revision chained directly from the
+    PR 3 head 5e1a7c3d9b20 (the data migration must sit on top of it)."""
+    from alembic.script import ScriptDirectory
+
+    directory = ScriptDirectory.from_config(
+        Config(str(Path(__file__).resolve().parent / "alembic.ini"))
+    )
+    heads = directory.get_heads()
+    assert len(heads) == 1, f"expected exactly one head, got {heads}"
+    head = heads[0]
+    assert head != "5e1a7c3d9b20", "no migration exists on top of the PR 3 head"
+    assert directory.get_revision(head).down_revision == "5e1a7c3d9b20"
