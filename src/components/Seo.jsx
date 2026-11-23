@@ -35,6 +35,20 @@ export const breadcrumbLd = (items) => ({
 // noindex page (e.g. a 404) never leaves "noindex" behind in <head>.
 export const DEFAULT_ROBOTS = 'index, follow, max-image-preview:large';
 
+/**
+ * Truncate a meta description to ~160 chars at a word boundary, with an
+ * ellipsis when cut. Short text passes through untouched; a single word
+ * longer than the limit is hard-cut (never happens with real paragraphs).
+ * The result is at most maxLength + 1 chars (the ellipsis).
+ */
+export function truncateDescription(text, maxLength = 160) {
+  const clean = String(text || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLength) return clean;
+  const cut = clean.slice(0, maxLength);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
 function upsertMeta(attr, key, content) {
   if (!content) return;
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);

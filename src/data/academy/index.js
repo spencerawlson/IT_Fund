@@ -10,15 +10,19 @@
 // authoring sources. Importing a track file directly would bundle every
 // premium answer for anonymous visitors (audit P0-1).
 //
-// Structure-only consumers (counts, titles, tags, resources) use this module
-// as before: tracks, allDecks, allCards, getTrack, getDeck, decksForDomain,
-// trackResources. Anything that shows a question or an answer must resolve
-// the cards first.
-import { tracks } from '../content-public';
+// `lessonExcerpts` is the one exception, by Spencer's explicit decision (b),
+// 2026-11-23: the overview's FIRST paragraph of every lesson, premium
+// included, is public (paywall pages render it, the sitemap lists it). No
+// other premium text is in this bundle — no second paragraph, no learn
+// section, no card or puzzle body.
+import { tracks, lessonExcerpts } from '../content-public';
 
 export { TIERS, CISSP_DOMAINS, SECURITY_PLUS_DOMAINS, SAA_DOMAINS, CYSA_DOMAINS, AWS_SECURITY_DOMAINS, ROADMAP, RESOURCES, EXAM_OUTLINES } from './meta';
 
-export { tracks };
+export { tracks, lessonExcerpts };
+
+/** A lesson's public excerpt (overview first paragraph), or '' if none. */
+export const getLessonExcerpt = (id) => lessonExcerpts[id] || '';
 
 export const allDecks = tracks.flatMap((t) => t.tiers.flatMap((tier) => tier.decks));
 export const allCards = allDecks.flatMap((d) => d.cards);

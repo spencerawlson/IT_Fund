@@ -1,13 +1,14 @@
-// SEO Phase 2 (2.2): the generated sitemap lists exactly what is
-// prerendered — 19 static + 21 courses + 63 modules + 13 paths + the 5 free
-// lessons — and nothing that isn't (no premium lessons, no track redirects,
-// no player routes).
+// SEO Phase 2 (2.2) + lesson excerpts (decision (b)): the generated sitemap
+// lists exactly what is prerendered — 19 static + 21 courses + 63 modules +
+// 13 paths + all 222 lessons (free and premium — every lesson now has a
+// public excerpt, so every lesson page is a real article) — and nothing that
+// isn't (no track redirects, no player routes).
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { collectSitemapUrls } from './generate-sitemap.mjs';
-import { freeLessonContent } from '../src/data/content-public.js';
+import { lessonExcerpts } from '../src/data/content-public.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://www.road2cissp.com';
@@ -22,18 +23,18 @@ describe('generate-sitemap (SEO Phase 2)', () => {
   const urls = collectSitemapUrls();
   const locs = urls.map((u) => u.loc);
 
-  it('lists 121 URLs: 19 static + 21 courses + 63 modules + 13 paths + 5 free lessons', () => {
-    expect(urls).toHaveLength(121);
+  it('lists 338 URLs: 19 static + 21 courses + 63 modules + 13 paths + 222 lessons', () => {
+    expect(urls).toHaveLength(338);
     expect(locs.filter((l) => !isDynamic(l))).toHaveLength(19);
     expect(locs.filter(isCourse)).toHaveLength(21);
     expect(locs.filter(isModule)).toHaveLength(63);
     expect(locs.filter(isPath)).toHaveLength(13);
-    expect(locs.filter(isLesson)).toHaveLength(5);
+    expect(locs.filter(isLesson)).toHaveLength(222);
   });
 
-  it('lists exactly the free lessons — no premium lesson URL', () => {
+  it('lists all 222 lessons — one per public excerpt, free and premium', () => {
     const lessonIds = locs.filter(isLesson).map((l) => l.split('/').pop()).sort();
-    expect(lessonIds).toEqual(Object.keys(freeLessonContent).sort());
+    expect(lessonIds).toEqual(Object.keys(lessonExcerpts).sort());
   });
 
   it('lists no track URLs (they redirect to the course page) and no player routes', () => {

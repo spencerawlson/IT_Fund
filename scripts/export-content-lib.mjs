@@ -257,6 +257,24 @@ function compareSides(heading) {
 
 const slideCache = new Map();
 
+/**
+ * Public lesson excerpt (SEO Phase 2, decision (b) — Spencer 2026-11-23):
+ * the overview's FIRST paragraph, and only that paragraph. The overview is
+ * a list of paragraph strings, so "first paragraph" is the first non-blank
+ * string item; inline-code backticks are stripped (the only markup present
+ * in first paragraphs — 11 of 222 carry backticks, no bold/link markup).
+ * Measured 2026-11-23: 222/222 lessons have one, 25–78 words (mean 44.2,
+ * median 43, chars 164–495), none empty, none single-paragraph. Returns ''
+ * when there is no usable first paragraph — never invented copy, never a
+ * later paragraph. The second paragraph and everything after it stay gated.
+ */
+export function deriveLessonExcerpt(lesson) {
+  if (!lesson || typeof lesson !== 'object') return '';
+  const first = (lesson.overview || []).find((p) => typeof p === 'string' && p.trim());
+  if (!first) return '';
+  return first.replace(/`/g, '').replace(/\s+/g, ' ').trim();
+}
+
 export function deriveLessonSlides(lessonId, lesson) {
   if (slideCache.has(lessonId)) return slideCache.get(lessonId);
   const slides = [];
@@ -326,7 +344,10 @@ export function buildContentJson() {
  * legacyId), puzzles become stubs ({id, legacyId, deckId}) — exactly those
  * keys, no restricted fields. Free decks keep their full cards and puzzles.
  * Free lessons keep their full reading bodies; premium lessons are absent
- * entirely.
+ * entirely — EXCEPT their public excerpt (lessonExcerpts, one per lesson:
+ * the overview's first paragraph only, decision (b) — Spencer 2026-11-23).
+ * No other premium text enters this file: no second paragraph, no learn
+ * section, no card/puzzle body, no slide caption beyond the free tier.
  */
 export function buildPublicData() {
   const publicTracks = tracks.map((track) => ({
@@ -362,11 +383,15 @@ export function buildPublicData() {
   const freeCypherNotes = Object.fromEntries(
     FREE_LESSON_IDS.filter((id) => CYPHER_NOTES[id]).map((id) => [id, CYPHER_NOTES[id]]),
   );
+  const lessonExcerpts = Object.fromEntries(
+    Object.entries(LESSON_CONTENT).map(([id, lesson]) => [id, deriveLessonExcerpt(lesson)]),
+  );
   return {
     version: 2,
     tracks: publicTracks,
     freeLessonContent: freeLessons,
     freeCipherNotes: freeCypherNotes,
+    lessonExcerpts,
   };
 }
 

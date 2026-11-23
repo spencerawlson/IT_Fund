@@ -11,20 +11,13 @@
 //   21 course pages  — /academy/courses/<slug>
 //   63 module pages  — /academy/courses/<slug>/<beginner|intermediate|advanced>
 //   13 path pages    — /academy/paths/<slug>
-//    5 free lessons  — /academy/lessons/<id> (the free tier; their bodies are
-//      public, so the prerendered pages are real articles)
+//  222 lesson pages  — /academy/lessons/<id> (every lesson has a public
+//      excerpt now — the overview's first paragraph, decision (b) — so
+//      every lesson page prerenders as a real article, free and premium)
 //   ───────────────
-//  121 URLs total.
+//  343 URLs total.
 //
 // Deliberately NOT included:
-//   - The other 217 lessons. A lesson page is only listed once it has a real
-//     public excerpt to index. The already-public data for a premium lesson
-//     is a ~9-word summary plus a stats line and ~2 resource links — about
-//     25–40 words of unique content, which is exactly the thin-page shape
-//     Google declines to index (audit F4). Until a teaser model exists (a new
-//     teaser field Spencer writes, or a decision to publish the overview's
-//     first paragraph), premium lesson URLs stay out and keep serving the
-//     shell. When a teaser lands, include lessons whose excerpt exists.
 //   - Track URLs (/academy/:trackId). AcademyTrack redirects to the course
 //     page; redirect URLs do not belong in a sitemap.
 //   - Player routes (/academy/:trackId/lesson/:deckId, boss, flashcard).
@@ -46,7 +39,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { COURSE_META } from '../src/data/catalog/courses.js';
 import { PATHS } from '../src/data/catalog/paths.js';
-import { tracks, freeLessonContent } from '../src/data/content-public.js';
+import { tracks, lessonExcerpts } from '../src/data/content-public.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://www.road2cissp.com';
@@ -91,8 +84,10 @@ function contentDate() {
 /**
  * The full sitemap URL list, in the order it is written. Pure function of
  * the catalogue + the current static entries, so tests can assert the counts
- * (21 courses, 63 modules, 13 paths, 5 free lessons of 222) without touching
- * the file.
+ * (21 courses, 63 modules, 13 paths, 222 lessons) without touching the file.
+ * A lesson is listed when it has a public excerpt — every lesson does now
+ * (decision (b)); a lesson without one would stay out rather than ship a
+ * thin page.
  */
 export function collectSitemapUrls() {
   const dynamicLastmod = contentDate();
@@ -112,7 +107,8 @@ export function collectSitemapUrls() {
     urls.push({ loc: `${SITE}/academy/paths/${path.slug}`, lastmod: dynamicLastmod, changefreq: 'monthly', priority: '0.8' });
   }
 
-  for (const lessonId of Object.keys(freeLessonContent)) {
+  for (const lessonId of Object.keys(lessonExcerpts)) {
+    if (!lessonExcerpts[lessonId]) continue; // no excerpt, no listing (thin page)
     urls.push({ loc: `${SITE}/academy/lessons/${lessonId}`, lastmod: dynamicLastmod, changefreq: 'monthly', priority: '0.7' });
   }
 
@@ -144,7 +140,7 @@ function main() {
   };
   // eslint-disable-next-line no-console
   console.log(
-    `sitemap: ${urls.length} URLs (${counts.static} static, ${counts.courses} courses, ${counts.modules} modules, ${counts.paths} paths, ${counts.lessons} free lessons)`,
+    `sitemap: ${urls.length} URLs (${counts.static} static, ${counts.courses} courses, ${counts.modules} modules, ${counts.paths} paths, ${counts.lessons} lessons)`,
   );
 }
 

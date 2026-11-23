@@ -23,8 +23,9 @@ import { useSubscription, isLessonFree, isLabFree } from '@/lib/subscription';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
 import CypherNote from '@/components/academy/lesson/CypherNote';
+import { getLessonExcerpt } from '@/data/academy';
 import { getLessonContent, getDeckContent, getFreeLessonContentSync, lessonTextFromContent } from '@/lib/content';
-import Seo, { breadcrumbLd } from '@/components/Seo';
+import Seo, { breadcrumbLd, truncateDescription } from '@/components/Seo';
 
 const SAMPLE_QUESTIONS = 4;
 
@@ -135,22 +136,54 @@ export default function LessonView() {
     '@graph': [breadcrumbLd(crumbs.map((c) => ({ name: c.label, ...(c.to ? { path: c.to } : {}) })))],
   };
 
+  // Prev/next are pure catalogue data, so they are computed here and the
+  // paywall branch below can link onward too; the main render reuses them.
+  const i = module.lessons.findIndex((l) => l.id === lesson.id);
+  const prev = module.lessons[i - 1];
+  const next = module.lessons[i + 1];
+
   if (!subLoading && !subscribed && !isLessonFree(lessonId)) {
+    // Public excerpt (decision (b), Spencer 2026-11-23): the overview's
+    // first paragraph is public for every lesson, so the paywall is a real
+    // article lead — title, summary, excerpt, stats, links — not a bare
+    // gate. The excerpt is the first <p> (the direct-answer paragraph the
+    // prerender gate measures) and the meta description, truncated to
+    // ~160 chars. Nothing else gated renders here: no second paragraph,
+    // no learn section, no cards.
+    const excerpt = getLessonExcerpt(lessonId);
+    const puzzles = lesson.deck.puzzles.length;
     return (
       <PageContainer>
-        {/* Paywall branch: same tags as the main render (canonical lesson URL,
-            real title/summary, breadcrumb JSON-LD). Premium lessons are NOT
-            noindexed here — that would pre-empt the pending Phase 2 lesson
-            decision (audit §2.3): until a public excerpt model exists they
-            stay out of the sitemap and keep serving the shell. */}
         <Seo
-          title={`${lesson.title} · Road to CISSP`}
-          description={lesson.summary}
+          title={`${lesson.title} · ${course.title} · Road to CISSP`}
+          description={truncateDescription(excerpt || lesson.summary)}
           path={lessonHref(lesson)}
           jsonLd={breadcrumbJsonLd}
         />
-        <PageHeader breadcrumbs={crumbs} title={lesson.title} />
+        <PageHeader breadcrumbs={crumbs} eyebrow={lesson.summary} title={lesson.title} description={excerpt} />
+        <div className="-mt-4 mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-2">
+          <span>{lesson.minutes} min</span>
+          <span>{lesson.deck.cards.length} questions{puzzles ? ` · ${puzzles} hands-on ${puzzles === 1 ? 'puzzle' : 'puzzles'}` : ''}</span>
+        </div>
+        {lesson.resources.length > 0 && (
+          <section id="resources" aria-labelledby="resources-title" className="mt-10 scroll-mt-28">
+            <h2 id="resources-title" className="text-heading text-ink-1">Resources</h2>
+            <Card level={2} padding="sm" className="mt-4">
+              <ul className="divide-y divide-black/[0.06]">
+                {lesson.resources.map((r) => (
+                  <li key={r.id}><ListLink href={r.url} title={r.title} /></li>
+                ))}
+              </ul>
+            </Card>
+          </section>
+        )}
         <UpgradePrompt what={`The “${lesson.title}” lesson`} />
+        <nav aria-label="Lesson navigation" className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-6">
+          {prev ? (
+            <Button to={lessonHref(prev)} variant="ghost" icon={ArrowLeft}>Lesson {prev.number}</Button>
+          ) : <span />}
+          {next && <Button to={lessonHref(next)} variant="ghost" iconAfter={ArrowRight}>Lesson {next.number}</Button>}
+        </nav>
       </PageContainer>
     );
   }
@@ -166,9 +199,6 @@ export default function LessonView() {
   const c = content?.content || {};
   const resume = state.resume?.deckId === lesson.id ? state.resume : null;
   const best = state.lessons?.[lesson.id]?.best;
-  const i = module.lessons.findIndex((l) => l.id === lesson.id);
-  const prev = module.lessons[i - 1];
-  const next = module.lessons[i + 1];
   // Recommended background. Nothing blocks the lesson, so this is a short note at the top: the
   // lesson before it, and the module it assumes. Two items at most, and none once it is passed.
   const prereq = lessonPrerequisites(state, lesson);
@@ -183,7 +213,7 @@ export default function LessonView() {
     return (
       <PageContainer>
         <Seo
-          title={`${lesson.title} · Road to CISSP`}
+          title={`${lesson.title} · ${course.title} · Road to CISSP`}
           description={lesson.summary}
           path={lessonHref(lesson)}
         />
@@ -227,7 +257,7 @@ export default function LessonView() {
   return (
     <PageContainer>
       <Seo
-        title={`${lesson.title} · Road to CISSP`}
+        title={`${lesson.title} · ${course.title} · Road to CISSP`}
         description={lesson.summary}
         path={lessonHref(lesson)}
         jsonLd={breadcrumbJsonLd}
