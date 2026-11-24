@@ -89,6 +89,7 @@ describe('Terms page (audit F-06)', () => {
     expect(html).toContain('not a prediction');
     expect(html).toContain('700/1000 scaled score');
     expect(html).toContain('not affiliated with, endorsed by, or sponsored by ISC2 or CompTIA');
+    expect(html).toContain('CISSP is a registered certification mark of ISC2, Inc.');
   });
 
   it('publishes the real support address (refund requests) and no other address', () => {

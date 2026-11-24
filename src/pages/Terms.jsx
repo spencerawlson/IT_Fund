@@ -98,7 +98,7 @@ export default function Terms() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">Not affiliated with the cert vendors</h2>
           <p className="mt-2 text-body text-ink-2">
-            Road to CISSP is not affiliated with, endorsed by, or sponsored by ISC2 or CompTIA. ISC2, CISSP, CompTIA, and Security+ are trademarks of their respective owners. Our courses prepare you for their exams; they do not speak for them.
+            Road to CISSP is not affiliated with, endorsed by, or sponsored by ISC2 or CompTIA. CISSP is a registered certification mark of ISC2, Inc. ISC2, CISSP, CompTIA, and Security+ are trademarks of their respective owners. Our courses prepare you for their exams; they do not speak for them.
           </p>
         </section>
 
