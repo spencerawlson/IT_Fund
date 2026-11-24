@@ -35,7 +35,7 @@ import audit
 import db
 import enrollment
 from auth.deps import resolve_user_id
-from db_models import AdminMfa, AiTutorCall, AuthSession, LabCompletion, ManualGrant, Progress, Subscription, User
+from db_models import AdminMfa, AiTutorCall, AuthSession, LabCompletion, ManualGrant, Progress, Review, Subscription, User
 
 log = logging.getLogger("admin")
 
@@ -857,6 +857,81 @@ def admin_revoke_access(user_id: str, request: Request, body: dict | None = None
     audit.record("grant.revoke", target_user_id=user_id, request=request)
     log.info("admin revoked manual access for %s", user_id)
     return result
+
+
+# ---------- reviews moderation ----------
+
+
+def _review_item(r: Review, name: str, email: str | None) -> dict:
+    """One review row for the board. The author's name/email are shown to
+    the admin only so a bad-faith review can be traced — they never appear
+    on the public page (see public.py)."""
+    return {
+        "id": r.id,
+        "user_id": r.user_id,
+        "display_name": name,
+        "email": email,
+        "rating": r.rating,
+        "body": r.body,
+        "review_display_name": r.display_name,
+        "approved": r.approved,
+        "created_at": _iso(r.created_at),
+    }
+
+
+@router.get("/reviews", dependencies=[Depends(require_admin)])
+def admin_reviews() -> dict:
+    """All reviews, pending first, then newest. Unapproved reviews are the
+    moderation queue; approved ones are already live on /reviews."""
+    with db.SessionLocal() as s:
+        rows = (
+            s.query(Review)
+            .order_by(Review.approved.asc(), Review.created_at.desc())
+            .all()
+        )
+        names = {
+            u.id: (u.display_name or "", u.email)
+            for u in s.query(User).filter(User.id.in_([r.user_id for r in rows])).all()
+        } if rows else {}
+    return {
+        "reviews": [
+            _review_item(r, *names.get(r.user_id, ("", None))) for r in rows
+        ]
+    }
+
+
+@router.post("/reviews/{review_id}/approve", dependencies=[Depends(require_admin)])
+def admin_approve_review(review_id: str, request: Request) -> dict:
+    """Approve a review: it goes live on the public page. Audited."""
+    with db.SessionLocal() as s:
+        review = s.get(Review, review_id)
+        if review is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found.")
+        review.approved = True
+        s.commit()
+        user_id = review.user_id
+    audit.record("review.approve", target_user_id=user_id,
+                 details={"review_id": review_id}, request=request)
+    log.info("admin approved review %s", review_id)
+    return {"ok": True, "id": review_id, "approved": True}
+
+
+@router.post("/reviews/{review_id}/reject", dependencies=[Depends(require_admin)])
+def admin_reject_review(review_id: str, request: Request) -> dict:
+    """Reject a review: the row is DELETED (decided: no rejected-review
+    graveyard — a rejected review is gone, and the author may submit again).
+    Audited."""
+    with db.SessionLocal() as s:
+        review = s.get(Review, review_id)
+        if review is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found.")
+        user_id = review.user_id
+        s.delete(review)
+        s.commit()
+    audit.record("review.reject", target_user_id=user_id,
+                 details={"review_id": review_id}, request=request)
+    log.info("admin rejected (deleted) review %s", review_id)
+    return {"ok": True, "id": review_id, "deleted": True}
 
 
 # ---------- enrollment capacity ----------

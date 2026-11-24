@@ -9,7 +9,7 @@ from __future__ import annotations
 import secrets
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, JSON, String, UniqueConstraint, text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Base
@@ -496,3 +496,24 @@ class AdminMfa(Base):
     enabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_step: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class Review(Base):
+    """One learner review of Road to CISSP. One row per user (see
+    backend/reviews.py): a re-submission updates the row in place and sends
+    it back to moderation. Nothing is shown publicly until an admin approves
+    it (see backend/public.py). No sensitive data is collected: rating, free
+    text, and an optional display name only.
+    """
+    __tablename__ = "reviews"
+    __table_args__ = (
+        Index("ix_reviews_approved_created_at", "approved", "created_at"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    rating: Mapped[int] = mapped_column(Integer)
+    body: Mapped[str] = mapped_column(Text)
+    display_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    approved: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)

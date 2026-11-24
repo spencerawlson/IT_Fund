@@ -35,6 +35,7 @@
         { "source": "/contact", "destination": "/index.html" },
         { "source": "/faq", "destination": "/index.html" },
         { "source": "/guides/:path*", "destination": "/index.html" },
+        { "source": "/reviews", "destination": "/index.html" },
         { "source": "/labs", "destination": "/index.html" },
         { "source": "/labs/:path*", "destination": "/shell.html" },
         { "source": "/missions/:path*", "destination": "/shell.html" },

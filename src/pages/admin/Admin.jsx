@@ -99,6 +99,50 @@ export function OverviewView({ data }) {
   );
 }
 
+export function ReviewsView({ data, onApprove, onReject, busyId }) {
+  if (!data) return <p className="text-body text-ink-2">Loading…</p>;
+  const reviews = data.reviews || [];
+  if (reviews.length === 0) {
+    return <p className="text-body text-ink-2">No reviews yet. New submissions wait here for moderation before they appear on the public page.</p>;
+  }
+  return (
+    <div className="space-y-3">
+      {reviews.map((r) => (
+        <Card key={r.id} level={1} padding="sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-body font-semibold text-ink-1">
+                {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                <span className="ml-2 text-small font-normal text-ink-2">
+                  {r.approved ? 'Approved' : 'Pending'} · {fmtDate(r.created_at)}
+                </span>
+              </p>
+              <p className="mt-2 text-body text-ink-1">{r.body}</p>
+              <p className="mt-2 text-small text-ink-2">
+                {r.review_display_name ? `Signed “${r.review_display_name}”` : 'No display name given'}
+                {` · ${r.display_name || ''}${r.email ? ` (${r.email})` : ''}`}
+              </p>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              {!r.approved && (
+                <Button variant="primary" size="sm" disabled={busyId === r.id} onClick={() => onApprove(r.id)}>
+                  Approve
+                </Button>
+              )}
+              <Button variant="secondary" size="sm" disabled={busyId === r.id} onClick={() => onReject(r.id)}>
+                Reject
+              </Button>
+            </div>
+          </div>
+        </Card>
+      ))}
+      <p className="text-small text-ink-2">
+        Approve publishes the review on /reviews. Reject deletes it — the author may submit again.
+      </p>
+    </div>
+  );
+}
+
 export function EditAccountForm({ account, onSubmit, onCancel, busy, error }) {
   const [displayName, setDisplayName] = useState(account.display_name || '');
   const [email, setEmail] = useState(account.email || '');
@@ -683,6 +727,7 @@ const TABS = [
   { id: 'accounts', label: 'Accounts' },
   { id: 'subscriptions', label: 'Subscriptions' },
   { id: 'ai', label: 'AI costs' },
+  { id: 'reviews', label: 'Reviews' },
   { id: 'report', label: 'Report' },
 ];
 
@@ -696,6 +741,7 @@ export default function Admin() {
   const [accountsPage, setAccountsPage] = useState(1);
   const [subscriptions, setSubscriptions] = useState(null);
   const [aiCalls, setAiCalls] = useState(null);
+  const [reviews, setReviews] = useState(null);
   const [report, setReport] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [addError, setAddError] = useState('');
@@ -724,6 +770,7 @@ export default function Admin() {
         if (which === 'accounts') setAccounts(await adminApi.accounts({ q: accountsQ, page: accountsPage }));
         if (which === 'subscriptions') setSubscriptions(await adminApi.subscriptions());
         if (which === 'ai') setAiCalls(await adminApi.aiCalls({ days: 30 }));
+        if (which === 'reviews') setReviews(await adminApi.reviews());
         if (which === 'report') setReport(await adminApi.report({ days: 30 }));
       } catch {
         setLoadError('Could not load admin data. The backend may be unreachable.');
@@ -748,6 +795,7 @@ export default function Admin() {
     setAccounts(null);
     setSubscriptions(null);
     setAiCalls(null);
+    setReviews(null);
     setReport(null);
   };
 
@@ -818,6 +866,30 @@ export default function Admin() {
       await adminApi.deleteAccount(userId);
       load('accounts');
       load('overview');
+    } finally {
+      setRowBusy(null);
+    }
+  };
+
+  const handleApproveReview = async (reviewId) => {
+    setRowBusy(reviewId);
+    try {
+      await adminApi.approveReview(reviewId);
+      load('reviews');
+    } catch {
+      setLoadError('Could not approve the review. Try again.');
+    } finally {
+      setRowBusy(null);
+    }
+  };
+
+  const handleRejectReview = async (reviewId) => {
+    setRowBusy(reviewId);
+    try {
+      await adminApi.rejectReview(reviewId);
+      load('reviews');
+    } catch {
+      setLoadError('Could not reject the review. Try again.');
     } finally {
       setRowBusy(null);
     }
@@ -922,6 +994,9 @@ export default function Admin() {
         )}
         {tab === 'subscriptions' && <SubscriptionsView data={subscriptions} />}
         {tab === 'ai' && <AiCallsView data={aiCalls} />}
+        {tab === 'reviews' && (
+          <ReviewsView data={reviews} onApprove={handleApproveReview} onReject={handleRejectReview} busyId={rowBusy} />
+        )}
         {tab === 'report' && <ReportView data={report} onDownloadCsv={handleDownloadCsv} />}
       </div>
     </Shell>

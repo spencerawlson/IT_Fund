@@ -54,6 +54,14 @@ export const adminApi = {
   subscriptions: () => req('/admin/subscriptions'),
   aiCalls: ({ days = 30, page = 1, pageSize = 25 } = {}) =>
     req(`/admin/ai-calls?days=${days}&page=${page}&page_size=${pageSize}`),
+  // Learner-review moderation (REVIEWS v1). GET is safe (no CSRF needed);
+  // approve/reject are state-changing, so they ride the same X-CSRF-Token
+  // as every other admin mutation in this client.
+  reviews: () => req('/admin/reviews'),
+  approveReview: (reviewId) =>
+    req(`/admin/reviews/${encodeURIComponent(reviewId)}/approve`, { method: 'POST', body: JSON.stringify({}) }),
+  rejectReview: (reviewId) =>
+    req(`/admin/reviews/${encodeURIComponent(reviewId)}/reject`, { method: 'POST', body: JSON.stringify({}) }),
   addAccount: ({ display_name, email, note }) =>
     req('/admin/accounts', { method: 'POST', body: JSON.stringify({ display_name, email, note: note || '' }) }),
   grantAccess: (userId, note) =>
