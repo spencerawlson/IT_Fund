@@ -53,7 +53,7 @@ export default function Privacy() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">Payments</h2>
           <p className="mt-2 text-body text-ink-2">
-            Subscriptions are $29 USD per month or $250 USD per year and are paid through Stripe Checkout. Your card details go to Stripe, not to us — they never touch this site. We store only your subscription status and the end of your current billing period, so we know whether your access is active.
+            Subscriptions are $29 USD per month or $250 USD per year and are paid through Stripe Checkout on the website, or through the App Store when you subscribe in the iOS app. Your card details go to Stripe, not to us — they never touch this site. We store only your subscription status and the end of your current billing period, so we know whether your access is active. Purchases made through the App Store are refunded by Apple, not by us — request a refund in the App Store.
           </p>
         </section>
 

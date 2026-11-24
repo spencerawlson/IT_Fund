@@ -33,7 +33,7 @@ vi.mock('r2c-storekit', () => ({ default: pluginMocks.plugin }));
 
 import {
   IAP_PRODUCT_IDS, IAP_PLANS, isIapPlatform, createIapClient, purchaseIap,
-  showManageSubscriptions, initIap, __resetIapInitForTests,
+  restoreIap, showManageSubscriptions, initIap, __resetIapInitForTests,
 } from './iap.js';
 
 const MONTHLY_ID = 'com.road2cissp.app.premium.monthly';
@@ -261,6 +261,25 @@ describe('showManageSubscriptions', () => {
   it('opens the system manage-subscriptions sheet', async () => {
     await showManageSubscriptions();
     expect(pluginMocks.calls.showManageSubscriptions).toBe(1);
+  });
+});
+
+describe('restoreIap (module-level helper)', () => {
+  beforeEach(asIos);
+
+  it('restores the current entitlements through the default client', async () => {
+    stubFetch();
+    pluginMocks.plugin.getCurrentEntitlements.mockResolvedValueOnce({
+      transactions: [{ transactionId: 'tx-1', signedTransaction: 'signed-jws' }],
+    });
+    const result = await restoreIap();
+    expect(result).toEqual([{ ok: true, provider: 'apple', plan: 'monthly' }]);
+    expect(pluginMocks.calls.finishTransaction).toEqual(['tx-1']);
+  });
+
+  it('returns an empty list when there is nothing to restore', async () => {
+    stubFetch();
+    expect(await restoreIap()).toEqual([]);
   });
 });
 

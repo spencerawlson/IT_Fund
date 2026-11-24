@@ -9,10 +9,13 @@ import { deleteOwnAccount } from '@/api/account';
 // second click. The account page passes onDeleted (sign out + go home);
 // without it, the fallback is a plain navigation home.
 //
-// Apple subscriptions: the backend has no Apple subscription state yet —
-// a subscription bought through the App Store is managed by Apple, not by
-// Stripe, so deleting the account here cannot cancel it. The confirm step
-// says so plainly and tells the user to cancel in iOS Settings first.
+// Apple subscriptions: the backend tracks an App Store subscription on
+// the same subscriptions row (provider="apple", backend/account.py) and
+// marks it canceled when the account is deleted — but deleting here
+// cannot cancel the subscription itself, because only the user can do
+// that, in iOS Settings. The confirm step says so plainly and tells the
+// user to cancel in Settings first, so Apple does not charge them again
+// after the account is gone.
 export function DeleteAccountSection({ onDeleted } = {}) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);

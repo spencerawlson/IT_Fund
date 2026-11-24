@@ -255,6 +255,15 @@ export async function showManageSubscriptions(client = null) {
   return iap.showManageSubscriptions();
 }
 
+/** Restore purchases through the App Store (iOS only): verify every
+    current entitlement with the backend and return the statuses granted
+    (empty when there is nothing to restore). The account page's visible
+    "Restore purchases" button calls this (Guideline 3.1.1). */
+export async function restoreIap(client = null) {
+  const iap = client || getDefaultClient();
+  return iap.restore();
+}
+
 let initialized = false;
 
 /** Start the IAP background wiring once (called from main.jsx): the
