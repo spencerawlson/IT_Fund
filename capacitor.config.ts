@@ -23,8 +23,14 @@ const config: CapacitorConfig = {
     cleartext: false,
   },
   ios: {
-    // Prefer the WKWebView content inset behavior the SPA layout expects.
-    contentInset: 'automatic',
+    // 'never': the SPA already clears the status bar itself in CSS
+    // (body padding-top = env(safe-area-inset-top), capped at 60px).
+    // 'automatic' made UIKit add the same ~59px as a scroll-view content
+    // inset on top, double-counting the safe area — the header sat ~130px
+    // down in the native app (59 native + 59 CSS + 12 header padding)
+    // while the website, which has no scroll-view inset, was fine.
+    // Capacitor's own default is 'never'.
+    contentInset: 'never',
   },
   android: {
     // Match the app's white light theme so the WebView never flashes dark.
