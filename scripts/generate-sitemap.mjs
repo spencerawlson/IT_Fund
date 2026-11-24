@@ -4,7 +4,7 @@
 // script derives every URL from the data that also drives the site, so the
 // sitemap can never drift from what is actually prerendered:
 //
-//   19 static routes — carried over from the current sitemap.xml with their
+//   23 static routes — carried over from the current sitemap.xml with their
 //      existing lastmod/changefreq/priority (their content dates are not
 //      tracked anywhere else; if a static page's content changes, update its
 //      lastmod here by hand in the same commit).
@@ -15,7 +15,7 @@
 //      excerpt now — the overview's first paragraph, decision (b) — so
 //      every lesson page prerenders as a real article, free and premium)
 //   ───────────────
-//  343 URLs total.
+//  342 URLs total.
 //
 // Deliberately NOT included:
 //   - Track URLs (/academy/:trackId). AcademyTrack redirects to the course
