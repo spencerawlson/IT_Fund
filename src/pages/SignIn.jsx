@@ -7,7 +7,7 @@ import { DeleteAccountSection } from '@/components/DeleteAccountSection';
 import Seo from '@/components/Seo';
 import { useAuth } from '@/lib/AuthContext';
 import { useSubscription, useLabUsage } from '@/lib/subscription';
-import { useIapProducts, purchaseIap, showManageSubscriptions, isIapPlatform, IAP_PRODUCT_IDS } from '@/lib/iap';
+import { useIapProducts, purchaseIap, restoreIap, showManageSubscriptions, isIapPlatform, IAP_PRODUCT_IDS } from '@/lib/iap';
 import LabUsageMeter from '@/components/LabUsageMeter';
 import { getAttributionTag } from '@/lib/attribution';
 import useDocumentTitle from '@/hooks/useDocumentTitle';
@@ -156,6 +156,27 @@ export function SubscriptionSection() {
     }
   };
 
+  // Restore purchases (Guideline 3.1.1): the App Store re-delivers the
+  // current entitlements, the backend verifies them, and the subscription
+  // status refreshes. Visible only in the iOS shell — on the web there
+  // is no App Store purchase to restore.
+  const restore = async () => {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const statuses = await restoreIap();
+      await refresh();
+      setNotice(statuses && statuses.length > 0
+        ? 'Purchases restored — your subscription is active.'
+        : 'No purchases to restore on this Apple ID.');
+    } catch (e) {
+      setError(e.message || 'Could not restore purchases. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   // Free-tier subscribe: the Stripe checkout the pricing page uses on the
   // website; in the iOS shell the App Store purchase instead (Guideline
   // 3.1.1). The account page is the subscription home for signed-in users,
@@ -228,6 +249,12 @@ export function SubscriptionSection() {
               {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
               Manage subscription
             </Button>
+            {onIap && (
+              <Button variant="secondary" onClick={restore} disabled={busy}>
+                {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+                Restore purchases
+              </Button>
+            )}
             <Button variant="ghost" size="sm" onClick={refresh}>Refresh status</Button>
           </div>
           {error && <p className="mt-3 text-small text-danger">{error}</p>}
@@ -286,6 +313,14 @@ export function SubscriptionSection() {
               {busy ? (onIap ? 'Waiting for the App Store…' : 'Starting checkout…') : (onIap ? `Subscribe with Apple — ${plan === 'annual' ? `${displayAnnual.display}/yr` : `${displayMonthly.display}/mo`}` : `Subscribe — ${plan === 'annual' ? `${annual.display}/yr` : `${monthly.display}/mo`}`)}
             </Button>
           </div>
+          {onIap && (
+            <div className="mt-3">
+              <Button variant="secondary" onClick={restore} disabled={busy}>
+                {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+                Restore purchases
+              </Button>
+            </div>
+          )}
           {error && <p className="mt-3 text-small text-danger">{error}</p>}
           {notice && <p className="mt-3 text-small text-ink-2">{notice}</p>}
           {onIap && !iap.available && !iap.loading && (

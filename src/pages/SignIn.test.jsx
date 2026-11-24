@@ -653,6 +653,25 @@ describe('SignIn subscription card in the iOS shell (IAP, SSR)', () => {
     expect(html).not.toContain('Stripe portal');
   });
 
+  it('shows a Restore purchases button to a subscriber in the iOS shell, and never on the web', () => {
+    asIos();
+    Object.assign(subscriptionMocks.subscription, {
+      subscribed: true,
+      status: 'active',
+      provider: 'apple',
+      plan: 'monthly',
+      currentPeriodEnd: '2026-12-23T00:00:00Z',
+    });
+    expect(renderAccount()).toContain('Restore purchases');
+    asWeb();
+    expect(renderAccount()).not.toContain('Restore purchases');
+  });
+
+  it('shows a Restore purchases button to a free user in the iOS shell', () => {
+    asIos();
+    expect(renderAccount()).toContain('Restore purchases');
+  });
+
   it('keeps the Stripe portal line for a Stripe subscriber', () => {
     Object.assign(subscriptionMocks.subscription, {
       subscribed: true,
@@ -789,6 +808,60 @@ describe('SignIn subscription card in the iOS shell (IAP, mounted)', () => {
       expect(manage).toBeTruthy();
       await click(manage);
       expect(pluginMocks.calls.showManageSubscriptions).toBe(1);
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('restores purchases for an Apple subscriber and reports when there is nothing to restore', async () => {
+    mockIapFetch();
+    const refresh = vi.fn();
+    subscriptionMocks.subscription.refresh = refresh;
+    Object.assign(subscriptionMocks.subscription, {
+      subscribed: true,
+      status: 'active',
+      provider: 'apple',
+      plan: 'monthly',
+      currentPeriodEnd: '2026-12-23T00:00:00Z',
+    });
+    const renderer = await renderIosSection();
+    try {
+      const buttons = renderer.root.findAllByType('button');
+      const restore = buttons.find((b) => textOf(b.children).includes('Restore purchases'));
+      expect(restore).toBeTruthy();
+      await click(restore);
+      expect(refresh).toHaveBeenCalledTimes(1);
+      expect(textOf(renderer.toJSON())).toContain('No purchases to restore on this Apple ID.');
+    } finally {
+      TestRenderer.act(() => { renderer.unmount(); });
+    }
+  });
+
+  it('restores a current entitlement and reports the subscription active', async () => {
+    const verifyCalls = mockIapFetch();
+    const refresh = vi.fn();
+    subscriptionMocks.subscription.refresh = refresh;
+    Object.assign(subscriptionMocks.subscription, {
+      subscribed: true,
+      status: 'active',
+      provider: 'apple',
+      plan: 'monthly',
+      currentPeriodEnd: '2026-12-23T00:00:00Z',
+    });
+    pluginMocks.plugin.getCurrentEntitlements.mockResolvedValueOnce({
+      transactions: [{ transactionId: 'tx-1', signedTransaction: 'signed-jws' }],
+    });
+    const renderer = await renderIosSection();
+    try {
+      const buttons = renderer.root.findAllByType('button');
+      const restore = buttons.find((b) => textOf(b.children).includes('Restore purchases'));
+      expect(restore).toBeTruthy();
+      await click(restore);
+      expect(verifyCalls).toHaveLength(1);
+      expect(JSON.parse(verifyCalls[0].body)).toEqual({ signed_transaction: 'signed-jws' });
+      expect(pluginMocks.calls.finishTransaction).toEqual(['tx-1']);
+      expect(refresh).toHaveBeenCalledTimes(1);
+      expect(textOf(renderer.toJSON())).toContain('Purchases restored — your subscription is active.');
     } finally {
       TestRenderer.act(() => { renderer.unmount(); });
     }
