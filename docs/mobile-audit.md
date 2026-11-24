@@ -188,3 +188,26 @@ LessonPlayer's fixed ActionBar (main already has `pb-72` clearance).
   main has `pb-72` clearance for the fixed action bar.
 - `index.html` viewport meta correct; no `100vw`/`w-screen` anywhere;
   no global fixed-width or overflow rules in `index.css`.
+
+## Addendum — 2026-11-24: lab workspace sticky header overflow
+
+Reported by Spencer on his iPhone (native app): the interactive labs page
+was wider than the phone screen (sideways scroll). Root cause was the
+sticky header row in `src/pages/LabWorkspace.jsx` — a non-wrapping flex
+row (icon + truncating title + session timer + Reset + Lesson + Exit).
+Measured in headless Chromium against a mock labs API with the real
+`net-vlan-001` definition: the row needs ~371px with a live "MM:SS"
+timer and ~381px once the session expires (the "expired" label is wider
+than any countdown), so at 320–375px viewports the row pushed
+`documentElement.scrollWidth` past the viewport (372px at a 320px
+viewport, 381px at 375px with an expired session) and the whole page
+scrolled sideways. The terminal, objectives, and mission panels were
+already contained; only the header overflowed. Fix: `flex-wrap` on the
+header row plus `gap-2 sm:gap-3` (same pattern the mission terminal
+header in `src/pages/MissionWorkspace.jsx` already used). Verified after
+the fix: `/labs/net-vlan-001` measures `scrollWidth == viewport` at 320,
+360, 375, and 390px with both a live and an expired timer, and the full
+13-page audit list is clean at 320 and 390px. Regression guard:
+`src/mobile-responsiveness.test.jsx` ("lab workspace sticky header wraps
+on narrow phones"). Not re-verified on a real iPhone here — confirm on
+the next TestFlight build.
