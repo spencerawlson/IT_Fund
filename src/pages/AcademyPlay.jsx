@@ -14,6 +14,7 @@ import {
 } from '@/lib/academy';
 import { isTierComplete, pastLessonCards, reviewQueue, assessmentReviewCards } from '@/lib/progress/engine';
 import { useSubscription, isDeckFree, isLabFree } from '@/lib/subscription';
+import { useOptionalAuth } from '@/lib/AuthContext';
 import { getDeckCards, resolveCards } from '@/lib/content';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { FreeLabBadge } from '@/components/labs/FreeLabBadge';
@@ -234,6 +235,30 @@ function Results({ result, kind, mode, onRestart, backTo, meta, deck, track }) {
   const isBoss = kind === 'boss';
   const failed = isBoss && !result.passed;
   const labs = kind === 'deck' && deck ? getLabsForDeck(deck.id, track?.id) : [];
+  // One-time review prompt, decks only (never boss, never review): shown
+  // once, to signed-in learners only, and never again after "Not now" or a
+  // submission (localStorage flags; the Reviews page sets the submitted flag
+  // on a successful submit).
+  const auth = useOptionalAuth();
+  const [promptDismissed, setPromptDismissed] = useState(() => {
+    try {
+      return (
+        localStorage.getItem('r2c-review-prompt-dismissed') === '1' ||
+        localStorage.getItem('r2c-review-submitted') === '1'
+      );
+    } catch {
+      return false;
+    }
+  });
+  const showReviewPrompt = kind === 'deck' && auth?.isAuthenticated && !promptDismissed;
+  const dismissReviewPrompt = () => {
+    try {
+      localStorage.setItem('r2c-review-prompt-dismissed', '1');
+    } catch {
+      // Best-effort: the prompt may reappear next session, never blocks play.
+    }
+    setPromptDismissed(true);
+  };
   const headline = isBoss
     ? result.passed
       ? 'Assessment passed'
@@ -269,6 +294,16 @@ function Results({ result, kind, mode, onRestart, backTo, meta, deck, track }) {
         <Button variant="secondary" icon={RotateCcw} onClick={onRestart}>{failed ? 'Try again' : 'Go again'}</Button>
         <Button to={backTo} iconAfter={ArrowRight}>Continue</Button>
       </div>
+      {showReviewPrompt && (
+        <div className="mt-6 rounded-control border border-black/10 bg-white px-4 py-4 text-center">
+          <p className="text-body font-semibold text-ink-1">Enjoying the decks? Leave a review</p>
+          <p className="mt-1 text-small text-ink-2">A sentence or two helps other learners find their way in.</p>
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            <Button variant="primary" size="sm" to="/reviews">Leave a review</Button>
+            <Button variant="secondary" size="sm" onClick={dismissReviewPrompt}>Not now</Button>
+          </div>
+        </div>
+      )}
       {labs.length > 0 && (
         <div className="mt-8 border-t border-black/10 pt-6 text-left">
           <p className="flex items-center gap-2 text-small font-semibold text-ink-1">

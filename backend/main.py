@@ -322,6 +322,14 @@ from public import router as public_router  # noqa: E402
 app.include_router(public_router)
 app.include_router(public_router, prefix="/api")
 
+# Learner reviews (submission only — the public listing is in public.py and
+# moderation in admin.py). Both prefixes like the other routers, so
+# /api/reviews works behind the /api rewrite.
+from reviews import router as reviews_router  # noqa: E402
+
+app.include_router(reviews_router)
+app.include_router(reviews_router, prefix="/api")
+
 # Character voices (Cyber Missions Phase 2 — Cypher first) and Cypher
 # analytics. Both prefixes like the other routers, so /api/voice/* and
 # /api/analytics/* work behind the /api rewrite.

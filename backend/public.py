@@ -12,7 +12,7 @@ from fastapi import APIRouter
 from sqlalchemy import func
 
 import db
-from db_models import User
+from db_models import Review, User
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +36,33 @@ def public_seats() -> dict:
         # the cap check in auth.identity (same filter there).
         total = s.query(func.count()).select_from(User).filter(User.deleted_at.is_(None)).scalar() or 0
     return {"total_accounts": total, "cap": SEAT_CAP}
+
+
+@router.get("/public/reviews")
+def public_reviews() -> dict:
+    """Approved learner reviews only, newest first, capped at 50. Public: no
+    auth of any kind. Unapproved reviews never appear here, and no user id
+    or email ever leaves — only the rating, text, display name (or
+    "Anonymous learner" when blank), and date."""
+    with db.SessionLocal() as s:
+        rows = (
+            s.query(Review)
+            .filter(Review.approved.is_(True))
+            .order_by(Review.created_at.desc())
+            .limit(50)
+            .all()
+        )
+    return {
+        "reviews": [
+            {
+                "rating": r.rating,
+                "body": r.body,
+                "display_name": (r.display_name or "").strip() or "Anonymous learner",
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            }
+            for r in rows
+        ]
+    }
 
 
 @router.get("/public/enrollment")

@@ -67,6 +67,7 @@ const BestSelfPacedCissp = React.lazy(() => import('./pages/guides/BestSelfPaced
 const HandsOnLabsCissp = React.lazy(() => import('./pages/guides/HandsOnLabsCissp'));
 const HowToChooseCissp = React.lazy(() => import('./pages/guides/HowToChooseCissp'));
 const HowLongCisspTakes = React.lazy(() => import('./pages/guides/HowLongCisspTakes'));
+const Reviews = React.lazy(() => import('./pages/Reviews'));
 
 // Dev-only design system preview; not bundled into production builds.
 const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
@@ -150,6 +151,7 @@ const AuthenticatedApp = () => {
       <Route path="/guides/hands-on-labs-cissp" element={<HandsOnLabsCissp />} />
       <Route path="/guides/how-to-choose-cissp-course" element={<HowToChooseCissp />} />
       <Route path="/guides/how-long-does-cissp-take" element={<HowLongCisspTakes />} />
+      <Route path="/reviews" element={<Reviews />} />
 
       {/* Catch-all (R-05): every path no route above matches renders the 404
           page. It lives here, outside the app shell, so an unknown public
