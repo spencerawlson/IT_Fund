@@ -83,11 +83,23 @@ if (
 ):
     raise RuntimeError("ALLOW_DEV_LOGIN=1 is refused when APP_ENV=production.")
 
+# The OAuth state cookie must survive Apple's authorize response, which is a
+# cross-site form POST (response_mode=form_post). A SameSite=Lax cookie is
+# withheld on that POST, so the callback arrived with an empty session and
+# the state check failed ("Sign-in didn't complete") — while Google/GitHub,
+# which redirect back with a GET, worked. SameSite=None keeps the cookie on
+# the POST; it requires Secure, so it is only used when the cookie is Secure
+# (production). Local http dev keeps Lax: browsers reject SameSite=None
+# without Secure, and dev cannot complete a real Apple round-trip anyway.
+# The cookie holds OAuth transient state only (Authlib state/nonce,
+# apple_state, post_login_next, native_challenge) — never authentication;
+# the real session is the separate DB-backed rtc_session cookie.
+_session_secure = os.environ.get("COOKIE_INSECURE") != "1"
 app.add_middleware(
     SessionMiddleware,
     secret_key=_session_secret,
-    same_site="lax",
-    https_only=os.environ.get("COOKIE_INSECURE") != "1",
+    same_site="none" if _session_secure else "lax",
+    https_only=_session_secure,
 )
 
 # Create database tables on startup (idempotent). In production the schema is owned by
