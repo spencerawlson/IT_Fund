@@ -1,5 +1,6 @@
 """App-level smoke tests. The old demo auth (plaintext in-memory users/tokens) was removed;
 these tests pin that it stays gone and that the health endpoints answer."""
+import json
 import os
 import subprocess
 import sys
@@ -82,6 +83,59 @@ def test_production_boots_with_secret_set():
     p = _boot(SESSION_SECRET="test-secret-x", APP_ENV="production")
     assert p.returncode == 0, p.stderr
     assert "booted" in p.stdout
+
+
+# ---- session cookie SameSite (Sign in with Apple needs None when Secure) ----
+
+def _session_cookie_attrs(**overrides):
+    """Boot main in a fresh interpreter and report the SessionMiddleware cookie attrs.
+
+    Same _boot pattern, but the child prints the middleware kwargs as JSON
+    instead of just 'booted'.
+    """
+    env = {k: v for k, v in os.environ.items() if k not in _BOOT_ENV_KEYS}
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    env["PYTHONPATH"] = str(backend_dir)
+    env.update(overrides)
+    code = (
+        "import json, main; "
+        "mw = [m for m in main.app.user_middleware if m.cls.__name__ == 'SessionMiddleware']; "
+        "print(json.dumps({'same_site': mw[0].kwargs['same_site'], "
+        "'https_only': mw[0].kwargs['https_only']}))"
+    )
+    with tempfile.TemporaryDirectory() as td:
+        return subprocess.run(
+            [sys.executable, "-c", code],
+            cwd=td,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+
+
+def _attrs_from_boot(p):
+    assert p.returncode == 0, p.stderr
+    line = [ln for ln in p.stdout.splitlines() if ln.strip()][-1]
+    return json.loads(line)
+
+
+def test_session_cookie_samesite_none_when_secure():
+    # Apple's authorize response is a cross-site form POST: a Lax session
+    # cookie is withheld on it, so the callback loses the OAuth state and
+    # Sign in with Apple fails. Production (Secure cookie) must be None.
+    assert _attrs_from_boot(_session_cookie_attrs(SESSION_SECRET="test-secret-x")) == {
+        "same_site": "none",
+        "https_only": True,
+    }
+
+
+def test_session_cookie_samesite_lax_without_secure():
+    # SameSite=None without Secure is rejected by browsers, so local http
+    # dev (COOKIE_INSECURE=1) keeps Lax — no regression there.
+    assert _attrs_from_boot(
+        _session_cookie_attrs(SESSION_SECRET="test-secret-x", COOKIE_INSECURE="1")
+    ) == {"same_site": "lax", "https_only": False}
 
 
 def test_health_returns_ok():
