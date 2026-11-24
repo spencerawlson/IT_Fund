@@ -21,6 +21,17 @@ describe('mobile responsiveness guards', () => {
     expect(s).toContain('hidden text-caption sm:inline');
   });
 
+  it('lab workspace sticky header wraps on narrow phones (2026-11-24)', () => {
+    const s = src('src/pages/LabWorkspace.jsx');
+    // The sticky header row (icon + truncating title + timer + Reset +
+    // Lesson + Exit) needs ~380px in one line — worst case is the
+    // "expired" timer text, wider than any "MM:SS" countdown — so on a
+    // 320–375px phone the non-wrapping row pushed the whole page wider
+    // than the viewport (sideways scroll). The row must wrap; the
+    // terminal-card header in the same file already did.
+    expect(s).toContain('mx-auto flex max-w-6xl flex-wrap items-center gap-2 rounded-card px-3 py-2 sm:gap-3 sm:px-4');
+  });
+
   it('flow-diagram rail uses small circles on phones, large from sm up', () => {
     const s = src('src/components/lab/FlowDiagram.jsx');
     expect(s).toContain('h-11 w-11');
