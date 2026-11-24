@@ -9,6 +9,7 @@ import SeatsPill from '@/components/SeatsPill';
 import LandingBackground from '@/components/landing/LandingBackground';
 import { fetchSeats } from '@/api/seats';
 import { openConsentSettings } from '@/lib/consent';
+import { isNative } from '@/lib/native';
 import { COUNTS } from '@/data/counts';
 
 // Public front door: what Road to CISSP is, and a path to sign up / sign in.
@@ -277,7 +278,7 @@ export default function Landing() {
             <Link to="/pricing" className="hover:text-ink-1">Pricing</Link>
             <Link to="/privacy" className="hover:text-ink-1">Privacy</Link>
             <Link to="/terms" className="hover:text-ink-1">Terms</Link>
-            <button type="button" onClick={openConsentSettings} className="hover:text-ink-1">Cookie settings</button>
+            {!isNative() && (<button type="button" onClick={openConsentSettings} className="hover:text-ink-1">Cookie settings</button>)}
             <Link to="/contact" className="hover:text-ink-1">Contact</Link>
             <Link to="/signin" className="hover:text-ink-1">Sign in</Link>
           </div>

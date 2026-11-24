@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui-glass';
 import Seo from '@/components/Seo';
 import { openConsentSettings } from '@/lib/consent';
+import { isNative } from '@/lib/native';
 import ThemeToggle from '@/components/ThemeToggle';
 
 // Privacy policy, drawn only from what the codebase does. No invented
@@ -59,11 +60,15 @@ export default function Privacy() {
         <section className="mt-10">
           <h2 className="text-heading font-semibold text-ink-1">Analytics</h2>
           <p className="mt-2 text-body text-ink-2">
-            We measure visits with Plausible Analytics and Ventoryn Analytics, privacy-friendly tools that do not use cookies and do not track you across sites. Neither loads until you accept analytics in the cookie banner — decline, and we measure nothing. You can change your choice at any time with the{' '}
-            <button type="button" onClick={openConsentSettings} className="font-semibold text-ink-1 underline">
-              Cookie settings
-            </button>{' '}
-            link in the footer. We do not run advertising trackers on this site.
+            We measure visits with Plausible Analytics and Ventoryn Analytics, privacy-friendly tools that do not use cookies and do not track you across sites. {isNative() ? (
+              <>In the app, neither loads at all — there is no cookie banner and we measure nothing.</>
+            ) : (
+              <>Neither loads until you accept analytics in the cookie banner — decline, and we measure nothing. You can change your choice at any time with the{' '}
+              <button type="button" onClick={openConsentSettings} className="font-semibold text-ink-1 underline">
+                Cookie settings
+              </button>{' '}
+              link in the footer.</>
+            )} We do not run advertising trackers.
           </p>
         </section>
 
