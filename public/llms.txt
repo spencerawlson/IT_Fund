@@ -1,12 +1,16 @@
 # Road to CISSP
 
-> Learn IT by doing it — networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP. 3,000+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free; Pro is $29/month.
+> Learn IT by doing it — networking, security, Python, cloud, and cybersecurity training from IT foundations to the CISSP. 3,000+ objective-mapped flashcards, hands-on labs in real terminals, an AI tutor, and timed exam simulators. Start free; Pro is $29/month or $250/year.
 
 ## Key pages
 
 - [Home](https://www.road2cissp.com/): What Road to CISSP is, the certification road, and how it works.
 - [Pricing](https://www.road2cissp.com/pricing): One plan — Pro at $29/month unlocks every track, 61 hands-on labs, and Security+ & CISSP exam simulators. Free tier with no account needed.
 - [FAQ](https://www.road2cissp.com/faq): Every question about Road to CISSP in one place — getting started, pricing, courses, labs, and practice exams.
+- [Best self-paced CISSP courses](https://www.road2cissp.com/guides/best-self-paced-cissp-courses): An honest comparison of the main self-paced CISSP courses — Road to CISSP, Udemy, Cybrary, Infosec Institute, Destination Certification, and InfosecTrain — on price, format, and hands-on labs.
+- [Do hands-on labs help with CISSP preparation?](https://www.road2cissp.com/guides/hands-on-labs-cissp): What labs add that video alone cannot, and what Road to CISSP's 61 hands-on labs actually involve.
+- [How to choose a CISSP online course](https://www.road2cissp.com/guides/how-to-choose-cissp-course): A decision guide — self-paced vs bootcamp, labs vs video-only, price, free trials, and how to know you're ready.
+- [How long does CISSP preparation take?](https://www.road2cissp.com/guides/how-long-does-cissp-take): A realistic study plan while working full time, built on 222 lessons, 61 labs, and timed exam simulators.
 - [CISSP roadmap](https://www.road2cissp.com/academy/roadmap): Seven steps that follow the path most successful candidates take, from IT foundations to the CISSP.
 - [Career paths](https://www.road2cissp.com/academy/paths): Role-based routes — each path chains the right courses, labs, and drills into one plan.
 - [Courses](https://www.road2cissp.com/academy/courses): Every course is a sequence of modules, and each module a sequence of lessons. Every course is open at every level.
@@ -26,4 +30,4 @@
 
 - The site is a single-page app; every page above is also served as static prerendered HTML.
 - The full sitemap is at https://www.road2cissp.com/sitemap.xml.
-- The free tier is real — start without an account or a credit card. Pro ($29/month) unlocks every track, 61 hands-on labs, and the exam simulators.
+- The free tier is real — start without an account or a credit card. Pro ($29/month or $250/year) unlocks every track, 61 hands-on labs, and the exam simulators.

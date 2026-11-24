@@ -62,6 +62,11 @@ const MissionBriefing = React.lazy(() => import('./pages/MissionBriefing'));
 const MissionWorkspace = React.lazy(() => import('./pages/MissionWorkspace'));
 const LabLauncher = React.lazy(() => import('./pages/LabLauncher'));
 const LabProgress = React.lazy(() => import('./pages/LabProgress'));
+// Guides (AI-visibility fix, Nov 2026): public, prerendered, in the sitemap.
+const BestSelfPacedCissp = React.lazy(() => import('./pages/guides/BestSelfPacedCissp'));
+const HandsOnLabsCissp = React.lazy(() => import('./pages/guides/HandsOnLabsCissp'));
+const HowToChooseCissp = React.lazy(() => import('./pages/guides/HowToChooseCissp'));
+const HowLongCisspTakes = React.lazy(() => import('./pages/guides/HowLongCisspTakes'));
 
 // Dev-only design system preview; not bundled into production builds.
 const DesignSystem = import.meta.env.DEV ? React.lazy(() => import('./pages/DesignSystem')) : null;
@@ -141,6 +146,10 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/faq" element={<Faq />} />
+      <Route path="/guides/best-self-paced-cissp-courses" element={<BestSelfPacedCissp />} />
+      <Route path="/guides/hands-on-labs-cissp" element={<HandsOnLabsCissp />} />
+      <Route path="/guides/how-to-choose-cissp-course" element={<HowToChooseCissp />} />
+      <Route path="/guides/how-long-does-cissp-take" element={<HowLongCisspTakes />} />
 
       {/* Catch-all (R-05): every path no route above matches renders the 404
           page. It lives here, outside the app shell, so an unknown public

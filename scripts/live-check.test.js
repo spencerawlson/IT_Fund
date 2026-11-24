@@ -22,7 +22,7 @@ describe('live-check dynamic coverage (SEO Phase 2 + excerpts)', () => {
     expect(DYNAMIC_SHELL_ROUTES).toEqual([]);
   });
 
-  it('covers 338 sitemap routes', () => {
-    expect(routes).toHaveLength(338);
+  it('covers 342 sitemap routes', () => {
+    expect(routes).toHaveLength(342);
   });
 });

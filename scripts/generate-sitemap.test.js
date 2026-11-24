@@ -1,5 +1,6 @@
-// SEO Phase 2 (2.2) + lesson excerpts (decision (b)): the generated sitemap
-// lists exactly what is prerendered — 19 static + 21 courses + 63 modules +
+// SEO Phase 2 (2.2) + lesson excerpts (decision (b)) + guides
+// (AI-visibility fix, Nov 2026): the generated sitemap
+// lists exactly what is prerendered — 23 static + 21 courses + 63 modules +
 // 13 paths + all 222 lessons (free and premium — every lesson now has a
 // public excerpt, so every lesson page is a real article) — and nothing that
 // isn't (no track redirects, no player routes).
@@ -23,9 +24,9 @@ describe('generate-sitemap (SEO Phase 2)', () => {
   const urls = collectSitemapUrls();
   const locs = urls.map((u) => u.loc);
 
-  it('lists 338 URLs: 19 static + 21 courses + 63 modules + 13 paths + 222 lessons', () => {
-    expect(urls).toHaveLength(338);
-    expect(locs.filter((l) => !isDynamic(l))).toHaveLength(19);
+  it('lists 342 URLs: 23 static + 21 courses + 63 modules + 13 paths + 222 lessons', () => {
+    expect(urls).toHaveLength(342);
+    expect(locs.filter((l) => !isDynamic(l))).toHaveLength(23);
     expect(locs.filter(isCourse)).toHaveLength(21);
     expect(locs.filter(isModule)).toHaveLength(63);
     expect(locs.filter(isPath)).toHaveLength(13);
