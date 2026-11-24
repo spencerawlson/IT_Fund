@@ -11,6 +11,7 @@ import ScrollToTop from './components/ScrollToTop';
 import CookieConsent from '@/components/CookieConsent';
 import { loadAnalytics } from '@/lib/analytics';
 import { readConsent } from '@/lib/consent';
+import { isNative } from '@/lib/native';
 import GlobalTutorChat from '@/components/academy/tutor/GlobalTutorChat';
 import { CelebrationHost } from '@/components/Celebration';
 import AcronymTooltips from '@/components/AcronymTooltips';
@@ -177,8 +178,10 @@ function App({ RouterComponent = Router, routerProps = {}, initialAuth }) {
   // Consent-gated analytics (R-04): a returning visitor who already
   // accepted gets the tags on load; a first visit waits for the banner.
   // No-op during the SSR prerender (no document / no stored choice there).
+  // Never in the native app: it does not track, and the cookie prompt
+  // Apple flags under Guideline 5.1.2(i) never appears there.
   useEffect(() => {
-    if (readConsent() === 'accepted') loadAnalytics();
+    if (!isNative() && readConsent() === 'accepted') loadAnalytics();
   }, []);
 
   return (

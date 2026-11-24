@@ -7,6 +7,7 @@ import {
   writeConsent,
 } from '@/lib/consent';
 import { loadAnalytics } from '@/lib/analytics';
+import { isNative } from '@/lib/native';
 
 // Cookie consent banner + preference control (R-04), modelled on Farelune's
 // consent-gated pattern: no non-essential tracker loads before the visitor
@@ -21,6 +22,13 @@ import { loadAnalytics } from '@/lib/analytics';
 // The stored choice is read in an effect after mount; a returning visitor
 // who already chose sees the banner hide then. Accepting loads the
 // analytics tags (Plausible + Ventoryn, both cookieless) via loadAnalytics.
+//
+// Native apps (Capacitor): the banner never renders and analytics never
+// load. The app does not track — no tracking cookies, no cross-site
+// tracking — and Apple rejects apps that show a cookie prompt without
+// App Tracking Transparency (Guideline 5.1.2(i); Kay Ayiti v1.0 was
+// rejected Nov 23, 2026 for exactly that prompt). The consent gate is a
+// website concern; in-app there is nothing to consent to.
 export default function CookieConsent() {
   const [consent, setConsent] = useState(null);
   const [reopened, setReopened] = useState(false);
@@ -28,6 +36,8 @@ export default function CookieConsent() {
   const [analyticsOn, setAnalyticsOn] = useState(true);
 
   useEffect(() => {
+    // Native app: no banner, no analytics — see the header comment.
+    if (isNative()) return;
     const stored = readConsent();
     setConsent(stored);
     setAnalyticsOn(stored !== 'declined');
@@ -47,7 +57,7 @@ export default function CookieConsent() {
     };
   }, []);
 
-  if (consent !== null && !reopened) return null;
+  if (isNative() || (consent !== null && !reopened)) return null;
 
   function choose(accepted) {
     writeConsent(accepted);

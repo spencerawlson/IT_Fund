@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import CookieConsent from './CookieConsent';
 
@@ -31,5 +31,25 @@ describe('CookieConsent banner (R-04)', () => {
     expect(html).not.toContain('plausible.io');
     expect(html).not.toContain('ventoryn.app/v.js');
     expect(html).not.toContain('<script');
+  });
+});
+
+describe('CookieConsent banner in the native app', () => {
+  beforeEach(() => {
+    // The banner must never appear in the Capacitor app: Apple rejects
+    // apps that show a cookie prompt without App Tracking Transparency
+    // (Guideline 5.1.2(i); Kay Ayiti v1.0, Nov 23, 2026).
+    globalThis.Capacitor = { isNativePlatform: () => true };
+  });
+
+  afterEach(() => {
+    delete globalThis.Capacitor;
+  });
+
+  it('renders nothing when running natively', () => {
+    const html = renderBanner();
+    expect(html).not.toContain('data-cookie-consent="banner"');
+    expect(html).not.toContain('Cookies &amp; analytics');
+    expect(html).not.toContain('Accept analytics');
   });
 });
