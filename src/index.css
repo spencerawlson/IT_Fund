@@ -343,13 +343,19 @@
 }
 
 /* Native shells draw under the status bar (viewport-fit=cover). Keep the page below it, and paint a
-   strip behind the status bar so content scrolling up never shows through the clock. 0 in browsers. */
-body { padding-top: env(safe-area-inset-top, 0px); }
+   strip behind the status bar so content scrolling up never shows through the clock. 0 in browsers.
+   The inset is capped at 60px: a real status bar is at most 59px (Dynamic Island), but in-app
+   browsers report a larger inset that also covers their own top toolbar (~120px total) — and that
+   toolbar auto-hides on scroll while the inset stays, leaving ~120px of dead black above the
+   header (seen on the Courses page, 2026-11-23). The cap keeps the status-bar clearance
+   everywhere and drops only the browser-chrome excess. All three uses (body padding, the strip,
+   .top-safe) must stay in sync or the sticky header jumps while scrolling. */
+body { padding-top: min(env(safe-area-inset-top, 0px), 60px); }
 body::before {
   content: '';
   position: fixed;
   inset: 0 0 auto 0;
-  height: env(safe-area-inset-top, 0px);
+  height: min(env(safe-area-inset-top, 0px), 60px);
   background: var(--bg-base);
   z-index: 50;
 }
@@ -357,7 +363,7 @@ body::before {
 @layer utilities {
   .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
   /* Sticky headers stick just below the status bar instead of under it. */
-  .top-safe { top: env(safe-area-inset-top, 0px); }
+  .top-safe { top: min(env(safe-area-inset-top, 0px), 60px); }
   .animate-pop { animation: pop 0.25s ease-out; }
   .animate-shake { animation: shake 0.3s ease; }
   .animate-rise { animation: rise 0.28s ease-out; }
