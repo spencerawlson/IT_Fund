@@ -75,8 +75,14 @@ def test_pr4_migration_is_chained_from_pr3_head():
 
     Phase 0 lab-hours extends the chain (a4c251994677, chained from the PR 4
     head 6e8f065cfbab), admin MFA (7b3e9d1c4a62) sits on top of that, and the
-    Apple IAP migration (d9ec1c32ea1b) sits on top of admin MFA — the linear
-    chain is preserved.
+    Apple IAP migration (d9ec1c32ea1b) sits on top of admin MFA.
+
+    PR #201's reviews migration (6d7d1e532c16) branched off f7a3c9d21e84
+    instead of the then-head d9ec1c32ea1b, forking the chain into two heads.
+    PR #202 resolved that the append-only way with the merge migration
+    40c372bf6ca2 (no schema change), whose parents are the reviews branch
+    and Apple IAP — so the head is now the merge, and both parent chains
+    are pinned below.
     """
     from alembic.script import ScriptDirectory
 
@@ -87,9 +93,17 @@ def test_pr4_migration_is_chained_from_pr3_head():
     assert len(heads) == 1, f"expected exactly one head, got {heads}"
     head = heads[0]
     assert head != "5e1a7c3d9b20", "no migration exists on top of the PR 3 head"
-    # Apple IAP sits on top of admin MFA; the chain below it is unchanged.
-    assert head == "d9ec1c32ea1b", f"expected the Apple-IAP migration as head, got {head}"
-    assert directory.get_revision(head).down_revision == "7b3e9d1c4a62"
+    # Merge migration sits on top of both branches; the chain below each
+    # parent is unchanged.
+    assert head == "40c372bf6ca2", f"expected the merge migration as head, got {head}"
+    assert set(directory.get_revision(head).down_revision) == {
+        "6d7d1e532c16",
+        "d9ec1c32ea1b",
+    }
+    # Apple IAP branch: Apple IAP on top of admin MFA, chain below unchanged.
+    assert directory.get_revision("d9ec1c32ea1b").down_revision == "7b3e9d1c4a62"
     assert directory.get_revision("7b3e9d1c4a62").down_revision == "a4c251994677"
     assert directory.get_revision("a4c251994677").down_revision == "6e8f065cfbab"
     assert directory.get_revision("6e8f065cfbab").down_revision == "5e1a7c3d9b20"
+    # Reviews branch: reviews chains back to f7a3c9d21e84.
+    assert directory.get_revision("6d7d1e532c16").down_revision == "f7a3c9d21e84"
