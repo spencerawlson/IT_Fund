@@ -28,7 +28,7 @@ export function slideExplainRequest(slide, lessonTitle) {
   };
 }
 
-export default function CypherSlideExplain({ slide, lessonTitle }) {
+export default function CypherSlideExplain({ slide, lessonTitle, standalone = false }) {
   const enabled = useTutorEnabled();
   const auth = useOptionalAuth();
   const signedOut = Boolean(auth && auth.authChecked && !auth.isAuthenticated);
@@ -38,8 +38,8 @@ export default function CypherSlideExplain({ slide, lessonTitle }) {
   useEffect(() => { reset(); }, [slide?.title, reset]);
 
   if (!enabled || !slide) return null;
-  return (
-    <div className="space-y-2.5 border-t border-[var(--sd-border)] pt-3">
+  const body = (
+    <>
       <p className="flex items-center gap-2 text-small font-bold text-[var(--sd-accent)]">
         <Sparkles size={15} aria-hidden="true" />
         Cypher AI Tutor
@@ -80,6 +80,21 @@ export default function CypherSlideExplain({ slide, lessonTitle }) {
           )}
         </>
       )}
+    </>
+  );
+  // Standalone (outline-first Slides mode): its own card under the slide
+  // card — no divider at the top, nothing above it to divide from. Inline
+  // (default): a divided section under the outline inside the same panel.
+  if (standalone) {
+    return (
+      <div className="rounded-2xl border border-[var(--sd-border)] bg-[var(--sd-panel)] p-4">
+        <div className="space-y-2.5">{body}</div>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-2.5 border-t border-[var(--sd-border)] pt-3">
+      {body}
     </div>
   );
 }

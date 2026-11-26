@@ -67,4 +67,34 @@ describe('CypherSlideExplain — the slide deck integration point for the real t
     expect(out(root)).toContain('to ask Cypher to explain this slide');
     expect(root.root.findAll((n) => n.type === 'button')).toHaveLength(0);
   });
+
+  it('standalone renders its own card under the slide, with no divider at the top', () => {
+    let root;
+    act(() => {
+      root = TestRenderer.create(
+        <MemoryRouter>
+          <CypherSlideExplain slide={SLIDE} lessonTitle="CISSP Domain 5" standalone />
+        </MemoryRouter>,
+      );
+    });
+    expect(out(root)).toContain('Explain this slide');
+    const cards = root.root.findAll(
+      (n) => typeof n.props?.className === 'string' && n.props.className.includes('rounded-2xl'),
+    );
+    expect(cards).toHaveLength(1);
+    expect(out(root)).not.toContain('border-t');
+  });
+
+  it('standalone still renders nothing when the tutor is switched off', () => {
+    state.enabled = false;
+    let root;
+    act(() => {
+      root = TestRenderer.create(
+        <MemoryRouter>
+          <CypherSlideExplain slide={SLIDE} lessonTitle="CISSP Domain 5" standalone />
+        </MemoryRouter>,
+      );
+    });
+    expect(root.toJSON()).toBeNull();
+  });
 });

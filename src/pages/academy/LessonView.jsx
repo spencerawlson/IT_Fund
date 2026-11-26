@@ -316,11 +316,14 @@ export default function LessonView() {
 
         {showSlides && (
           <div className="space-y-3">
+            {/* Outline before the slide (Spencer, 2026-11-26): the lesson
+                outline renders above the slide content in Slides mode. */}
             <LessonSlideCarousel
               id="slides"
+              outlineFirst
               slides={c.slides}
               eyebrow={`${course.title} · Module ${module.number}`}
-              renderExplain={(slide) => <CypherSlideExplain slide={slide} lessonTitle={lesson.title} />}
+              renderExplain={(slide, opts) => <CypherSlideExplain slide={slide} lessonTitle={lesson.title} standalone={opts?.standalone} />}
             />
             <p className="text-small text-ink-2">
               The slides summarise each section.{' '}
