@@ -288,3 +288,66 @@ describe('LessonSlideCarousel — slide redesign (outline, templates, Cypher hoo
     }
   });
 });
+
+describe('LessonSlideCarousel — outlineFirst (Slides mode)', () => {
+  it('outlineFirst renders the lesson outline before the slide content', () => {
+    let root;
+    act(() => { root = TestRenderer.create(<LessonSlideCarousel slides={SLIDES} outlineFirst />); });
+    const out = text(root);
+    // The outline nav (unique text) precedes the stage's slide counter.
+    expect(out.indexOf('Lesson outline')).toBeGreaterThan(-1);
+    expect(out.indexOf('Lesson outline')).toBeLessThan(out.indexOf('Slide 1 of 3'));
+    // Wide screens: the outline stays the narrow 17rem column, on the left.
+    const region = root.root.findByProps({ 'aria-roledescription': 'carousel' });
+    const grid = region.findAll(
+      (node) => typeof node.props?.className === 'string' && node.props.className.includes('lg:grid-cols-'),
+    );
+    expect(grid).toHaveLength(1);
+    expect(grid[0].props.className).toContain('lg:grid-cols-[17rem_minmax(0,1fr)]');
+  });
+
+  it('by default the stage still renders before the outline', () => {
+    const root = renderCarousel();
+    const out = text(root);
+    expect(out.indexOf('Slide 1 of 3')).toBeLessThan(out.indexOf('Lesson outline'));
+    const region = root.root.findByProps({ 'aria-roledescription': 'carousel' });
+    const grid = region.findAll(
+      (node) => typeof node.props?.className === 'string' && node.props.className.includes('lg:grid-cols-'),
+    );
+    expect(grid).toHaveLength(1);
+    expect(grid[0].props.className).toContain('lg:grid-cols-[minmax(0,1fr)_17rem]');
+  });
+
+  it('outlineFirst keeps outline jump-to-slide and the current-slide highlight', () => {
+    let root;
+    act(() => { root = TestRenderer.create(<LessonSlideCarousel slides={SLIDES} outlineFirst />); });
+    click(root, 'Go to slide 3: Compare');
+    expect(text(root)).toContain('Slide 3 of 3');
+    const steps = root.root.findByProps({ 'aria-label': 'Lesson outline' }).findAllByType('button');
+    expect(steps.map((b) => b.props['aria-current'])).toEqual([undefined, undefined, 'step']);
+  });
+
+  it('outlineFirst puts the explain block after the slide card, not with the outline', () => {
+    let root;
+    act(() => {
+      root = TestRenderer.create(
+        <LessonSlideCarousel slides={SLIDES} outlineFirst renderExplain={(slide) => <span>{`explain:${slide.title}`}</span>} />,
+      );
+    });
+    const out = text(root);
+    expect(out.indexOf('Lesson outline')).toBeLessThan(out.indexOf('Slide 1 of 3'));
+    expect(out.indexOf('Slide 1 of 3')).toBeLessThan(out.indexOf('explain:Overview'));
+  });
+
+  it('by default the explain block stays divided under the outline in the same panel', () => {
+    let root;
+    act(() => {
+      root = TestRenderer.create(
+        <LessonSlideCarousel slides={SLIDES} renderExplain={(slide) => <span>{`explain:${slide.title}`}</span>} />,
+      );
+    });
+    const out = text(root);
+    expect(out.indexOf('Slide 1 of 3')).toBeLessThan(out.indexOf('Lesson outline'));
+    expect(out.indexOf('Lesson outline')).toBeLessThan(out.indexOf('explain:Overview'));
+  });
+});

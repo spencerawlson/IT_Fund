@@ -10,20 +10,30 @@
 // premium decks only render where the lesson body itself renders. Nothing
 // here is demo copy.
 //
-// Layout: a presentation stage plus a lesson outline (beside it on wide
-// screens, below it on phones). The stage is ADAPTIVE: only the slide on
-// screen is in the layout flow (the rest are display:none), so the stage
-// fits the current slide instead of the tallest slide in the deck — a short
-// slide no longer shows the tallest slide's empty space underneath. The
-// outline column is top-aligned for the same reason. The slide on screen
-// fades in (300ms, disabled under prefers-reduced-motion). Hidden slides
-// stay in the DOM, aria-hidden + inert. Keyboard arrows, touch swipe (50px), labelled
+// Layout: a presentation stage plus a lesson outline. By default the stage
+// comes first (outline beside it on wide screens, below it on phones), with
+// the Cypher "Explain this slide" block divided off under the outline in the
+// same panel. `outlineFirst` flips that order — the outline renders first
+// (left on wide screens, above the stage on phones), the slide card sits
+// directly under it, and the Explain card follows the slide as its own
+// panel — used by the lesson view's Slides mode (Spencer, 2026-11-26: the
+// outline belongs before the lesson, the slide under it, the tutor after
+// the slide). The stage is ADAPTIVE: only the slide on screen is in the
+// layout flow (the rest are display:none), so the stage fits the current
+// slide instead of the tallest slide in the deck — a short slide no longer
+// shows the tallest slide's empty space underneath. The outline column is
+// top-aligned for the same reason. The slide on screen fades in (300ms,
+// disabled under prefers-reduced-motion). Hidden slides stay in the DOM,
+// aria-hidden + inert. Keyboard arrows, touch swipe (50px), labelled
 // Previous/Next (44px targets), a segmented progress bar, and a short fade
 // that respects prefers-reduced-motion. Colours: .slide-deck (index.css)
 // maps onto the site's own tokens, so light and dark themes both apply.
 //
-// `renderExplain(slide)` is an optional integration point for the Cypher
-// tutor ("Explain this slide"); the deck renders nothing for it by itself.
+// `renderExplain(slide, { standalone })` is an optional integration point
+// for the Cypher tutor ("Explain this slide"); the deck renders nothing for
+// it by itself. `standalone` is true when the explain block renders as its
+// own card under the slide (outline-first mode) instead of a divided
+// section under the outline in the same panel.
 
 import React, { useCallback, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -95,7 +105,7 @@ function Outline({ slides, index, goTo }) {
   );
 }
 
-export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slides', renderExplain }) {
+export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slides', renderExplain, outlineFirst = false }) {
   const [index, setIndex] = useState(0);
   const touchStartX = useRef(null);
   const count = Array.isArray(slides) ? slides.length : 0;
@@ -129,7 +139,78 @@ export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slid
 
   const navBtn =
     'inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-4 text-small font-bold transition disabled:cursor-not-allowed disabled:opacity-35';
-  const explain = typeof renderExplain === 'function' ? renderExplain(slides[index]) : null;
+  const explain = typeof renderExplain === 'function' ? renderExplain(slides[index], { standalone: outlineFirst }) : null;
+
+  // The two columns, in DOM order. `outlineFirst` (Slides mode) puts the
+  // outline before the stage — first in the DOM, first visually, first in
+  // tab order — on every viewport, with the Explain card directly under the
+  // slide in the same column; the guided intro keeps the default
+  // stage-first order (outline + explain together in the second column).
+  // On wide screens the outline stays the narrow 17rem column, so only its
+  // side changes, never its size.
+  const stage = (
+    <div key="stage" className="sd-stage flex min-w-0 flex-col rounded-2xl border border-[var(--sd-border)] p-4 shadow-sm sm:p-7">
+      <header className="flex items-center justify-between gap-3 text-caption">
+        <p className="truncate font-bold uppercase tracking-[0.14em] text-[var(--sd-accent)]">{eyebrow}</p>
+        <p className="shrink-0 font-mono tabular-nums text-[var(--sd-muted)]" aria-live="polite">
+          <span className="sr-only">Slide {index + 1} of {count}</span>
+          <span aria-hidden="true">{pad2(index + 1)} / {pad2(count)}</span>
+        </p>
+      </header>
+
+      <div className="mt-5 grid sm:mt-6">
+        {slides.map((slide, i) => (
+          <Slide key={`${slide.title}-${i}`} slide={slide} index={i} count={count} active={i === index} />
+        ))}
+      </div>
+
+      <footer className="mt-6 flex items-center gap-3 border-t border-[var(--sd-border)] pt-4 sm:mt-8">
+        <div className="flex flex-1 items-center gap-1.5" aria-hidden="true">
+          {slides.map((s, i) => (
+            <span
+              key={`${s.title}-${i}`}
+              className={`block h-1.5 flex-1 rounded-full transition-colors ${
+                i === index ? 'bg-[var(--sd-accent)]' : i < index ? 'bg-[var(--sd-accent-line)]' : 'bg-[var(--sd-border)]'
+              }`}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          aria-label="Previous slide"
+          disabled={index === 0}
+          onClick={() => goTo(index - 1)}
+          className={`${navBtn} border-[var(--sd-border)] bg-[var(--sd-panel)] text-[var(--sd-text)] hover:border-[var(--sd-muted)]`}
+        >
+          <ChevronLeft size={18} aria-hidden="true" />
+          <span className="hidden sm:inline">Previous</span>
+        </button>
+        <button
+          type="button"
+          aria-label="Next slide"
+          disabled={index === count - 1}
+          onClick={() => goTo(index + 1)}
+          className={`${navBtn} border-transparent bg-[var(--sd-cta)] text-[var(--sd-cta-ink)] hover:brightness-105`}
+        >
+          <span className="hidden sm:inline">Next</span>
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+      </footer>
+    </div>
+  );
+  const outlinePanel = (
+    <aside key="outline" className="flex flex-col gap-3 rounded-2xl border border-[var(--sd-border)] bg-[var(--sd-panel)] p-4">
+      <Outline slides={slides} index={index} goTo={goTo} />
+      {!outlineFirst && explain}
+    </aside>
+  );
+  // Outline-first (Slides mode): outline panel, then the slide card with
+  // the Explain card directly under it — the tutor follows the slide it
+  // explains, in the same column. Default: stage first, outline panel
+  // (outline + explain) second, as before.
+  const columns = outlineFirst
+    ? [outlinePanel, <div key="main" className="flex min-w-0 flex-col gap-3">{stage}{explain}</div>]
+    : [stage, outlinePanel];
 
   return (
     <section
@@ -144,60 +225,8 @@ export default function LessonSlideCarousel({ slides, id, eyebrow = 'Lesson slid
       style={{ touchAction: 'pan-y' }}
       className="slide-deck scroll-mt-28 overflow-hidden rounded-card p-2 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-action sm:p-3"
     >
-      <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
-        <div className="sd-stage flex min-w-0 flex-col rounded-2xl border border-[var(--sd-border)] p-4 shadow-sm sm:p-7">
-          <header className="flex items-center justify-between gap-3 text-caption">
-            <p className="truncate font-bold uppercase tracking-[0.14em] text-[var(--sd-accent)]">{eyebrow}</p>
-            <p className="shrink-0 font-mono tabular-nums text-[var(--sd-muted)]" aria-live="polite">
-              <span className="sr-only">Slide {index + 1} of {count}</span>
-              <span aria-hidden="true">{pad2(index + 1)} / {pad2(count)}</span>
-            </p>
-          </header>
-
-          <div className="mt-5 grid sm:mt-6">
-            {slides.map((slide, i) => (
-              <Slide key={`${slide.title}-${i}`} slide={slide} index={i} count={count} active={i === index} />
-            ))}
-          </div>
-
-          <footer className="mt-6 flex items-center gap-3 border-t border-[var(--sd-border)] pt-4 sm:mt-8">
-            <div className="flex flex-1 items-center gap-1.5" aria-hidden="true">
-              {slides.map((s, i) => (
-                <span
-                  key={`${s.title}-${i}`}
-                  className={`block h-1.5 flex-1 rounded-full transition-colors ${
-                    i === index ? 'bg-[var(--sd-accent)]' : i < index ? 'bg-[var(--sd-accent-line)]' : 'bg-[var(--sd-border)]'
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              aria-label="Previous slide"
-              disabled={index === 0}
-              onClick={() => goTo(index - 1)}
-              className={`${navBtn} border-[var(--sd-border)] bg-[var(--sd-panel)] text-[var(--sd-text)] hover:border-[var(--sd-muted)]`}
-            >
-              <ChevronLeft size={18} aria-hidden="true" />
-              <span className="hidden sm:inline">Previous</span>
-            </button>
-            <button
-              type="button"
-              aria-label="Next slide"
-              disabled={index === count - 1}
-              onClick={() => goTo(index + 1)}
-              className={`${navBtn} border-transparent bg-[var(--sd-cta)] text-[var(--sd-cta-ink)] hover:brightness-105`}
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight size={18} aria-hidden="true" />
-            </button>
-          </footer>
-        </div>
-
-        <aside className="flex flex-col gap-3 rounded-2xl border border-[var(--sd-border)] bg-[var(--sd-panel)] p-4">
-          <Outline slides={slides} index={index} goTo={goTo} />
-          {explain}
-        </aside>
+      <div className={`grid items-start gap-3 ${outlineFirst ? 'lg:grid-cols-[17rem_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)_17rem]'}`}>
+        {columns}
       </div>
     </section>
   );
